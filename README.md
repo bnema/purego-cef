@@ -2,8 +2,7 @@
 
 CEF (Chromium Embedded Framework) bindings for Go — no CGo, pure `purego`.
 
-> Replaces `puregotk-webkit` as the webview backend for [`dumber`](https://github.com/bnema/dumber),
-> embedding a Chromium-based webview into a GTK4 window via OSR (offscreen rendering).
+> Provides a Chromium-based webview (CEF OSR) embedded in a GTK4 window via purego — no CGo.
 
 ## Status
 
@@ -36,8 +35,7 @@ purego-cef/
 
 - [`bnema/purego`](https://github.com/bnema/purego) — unified purego fork (base runtime)
 - [`bnema/puregotk`](https://github.com/bnema/puregotk) — GTK4 bindings
-- [`bnema/puregotk-webkit`](https://github.com/bnema/puregotk-webkit) — WebKitGTK6 bindings (being replaced)
-- [`bnema/dumber`](https://github.com/bnema/dumber) — the app
+- [`bnema/dumber`](https://github.com/bnema/dumber) — the app using purego-cef as its webview backend
 
 ## License
 
