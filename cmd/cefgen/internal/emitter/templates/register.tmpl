@@ -1,0 +1,7 @@
+{{define "register.tmpl"}}
+func Register(handle uintptr) {
+{{- range .Functions}}
+	purego.RegisterLibFunc(&{{.GoName}}, handle, "{{.CName}}")
+{{- end}}
+}
+{{end}}

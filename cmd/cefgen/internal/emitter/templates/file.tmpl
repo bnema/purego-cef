@@ -1,0 +1,22 @@
+{{define "file.tmpl"}}
+package capi
+
+import (
+	"structs"
+	"unsafe"
+
+	"github.com/ebitengine/purego"
+)
+
+{{range .Enums}}
+type {{.GoName}} int32
+{{end}}
+
+{{range .Structs}}{{template "struct.tmpl" .}}{{end}}
+
+{{range .Functions}}
+var {{.GoName}} func({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.GoName}} {{$p.GoType}}{{end}}) {{.ReturnGoType}}
+{{end}}
+
+{{template "register.tmpl" .}}
+{{end}}
