@@ -9,7 +9,7 @@ import (
 
 type CEFRenderHandlerT struct {
 	_                            structs.HostLayout
-	Base                         uintptr
+	Base                         CEFBaseRefCountedT
 	GetAccessibilityHandler      uintptr
 	GetRootScreenRect            uintptr
 	GetViewRect                  uintptr

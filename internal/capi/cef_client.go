@@ -9,7 +9,7 @@ import (
 
 type CEFClientT struct {
 	_                        structs.HostLayout
-	Base                     uintptr
+	Base                     CEFBaseRefCountedT
 	GetAudioHandler          uintptr
 	GetCommandHandler        uintptr
 	GetContextMenuHandler    uintptr

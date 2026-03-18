@@ -9,7 +9,7 @@ import (
 
 type CEFBrowserT struct {
 	_                    structs.HostLayout
-	Base                 uintptr
+	Base                 CEFBaseRefCountedT
 	IsValid              uintptr
 	GetHost              uintptr
 	CanGoBack            uintptr
@@ -182,7 +182,7 @@ func (v *CEFBrowserT) CallGetFrameNames(args ...uintptr) uintptr {
 
 type CEFRunFileDialogCallbackT struct {
 	_                     structs.HostLayout
-	Base                  uintptr
+	Base                  CEFBaseRefCountedT
 	OnFileDialogDismissed uintptr
 }
 
@@ -197,7 +197,7 @@ func (v *CEFRunFileDialogCallbackT) CallOnFileDialogDismissed(args ...uintptr) u
 
 type CEFNavigationEntryVisitorT struct {
 	_     structs.HostLayout
-	Base  uintptr
+	Base  CEFBaseRefCountedT
 	Visit uintptr
 }
 
@@ -210,7 +210,7 @@ func (v *CEFNavigationEntryVisitorT) CallVisit(args ...uintptr) uintptr {
 
 type CEFPdfPrintCallbackT struct {
 	_                  structs.HostLayout
-	Base               uintptr
+	Base               CEFBaseRefCountedT
 	OnPdfPrintFinished uintptr
 }
 
@@ -223,7 +223,7 @@ func (v *CEFPdfPrintCallbackT) CallOnPdfPrintFinished(args ...uintptr) uintptr {
 
 type CEFDownloadImageCallbackT struct {
 	_                       structs.HostLayout
-	Base                    uintptr
+	Base                    CEFBaseRefCountedT
 	OnDownloadImageFinished uintptr
 }
 
@@ -238,7 +238,7 @@ func (v *CEFDownloadImageCallbackT) CallOnDownloadImageFinished(args ...uintptr)
 
 type CEFBrowserHostT struct {
 	_                           structs.HostLayout
-	Base                        uintptr
+	Base                        CEFBaseRefCountedT
 	GetBrowser                  uintptr
 	CloseBrowser                uintptr
 	TryCloseBrowser             uintptr

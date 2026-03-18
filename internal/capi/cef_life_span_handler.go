@@ -9,7 +9,7 @@ import (
 
 type CEFLifeSpanHandlerT struct {
 	_                     structs.HostLayout
-	Base                  uintptr
+	Base                  CEFBaseRefCountedT
 	OnBeforePopup         uintptr
 	OnBeforePopupAborted  uintptr
 	OnBeforeDevToolsPopup uintptr

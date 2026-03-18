@@ -331,9 +331,10 @@ func mapType(ctype string) string {
 		return "uintptr"
 	}
 
-	// Other cef_*_t types (non-pointer, likely enums or structs) -> uintptr
-	if strings.HasPrefix(ctype, "cef_") {
-		return "uintptr"
+	// Non-pointer cef_*_t types: use the Go struct/type name so embedded
+	// structs expand to their full layout (critical for cef_base_ref_counted_t).
+	if strings.HasPrefix(ctype, "cef_") && strings.HasSuffix(ctype, "_t") {
+		return goName(ctype)
 	}
 
 	// Unknown non-pointer

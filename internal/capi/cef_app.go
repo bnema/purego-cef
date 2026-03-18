@@ -9,7 +9,7 @@ import (
 
 type CEFAppT struct {
 	_                             structs.HostLayout
-	Base                          uintptr
+	Base                          CEFBaseRefCountedT
 	OnBeforeCommandLineProcessing uintptr
 	OnRegisterCustomSchemes       uintptr
 	GetResourceBundleHandler      uintptr
