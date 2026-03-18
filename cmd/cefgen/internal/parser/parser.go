@@ -15,7 +15,7 @@ var (
 	structRE   = regexp.MustCompile(`(?s)typedef struct (_cef_[a-z0-9_]+_t)\s*\{(.*?)\}\s*(cef_[a-z0-9_]+_t);`)
 	funcRE     = regexp.MustCompile(`CEF_EXPORT\s+(.+?)\s+(cef_[a-z0-9_]+)\((.*?)\);`)
 	enumRE     = regexp.MustCompile(`(?s)typedef enum\s*\{(.*?)\}\s*(cef_[a-z0-9_]+_t);`)
-	callbackRE = regexp.MustCompile(`(.+?)\(CEF_CALLBACK\*\s*([a-z0-9_]+)\)\((.*?)\)`)
+	callbackRE = regexp.MustCompile(`(.+?)\(\s*CEF_CALLBACK\*\s*([a-z0-9_]+)\)\((.*?)\)`)
 )
 
 // ParseFile reads a CEF capi header file and returns a parsed Header.

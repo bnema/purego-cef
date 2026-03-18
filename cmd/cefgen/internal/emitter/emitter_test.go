@@ -10,6 +10,7 @@ import (
 
 func TestEmitStructIncludesHostLayout(t *testing.T) {
 	header := &model.Header{
+		RegisterName: "RegisterClient",
 		Structs: []model.Struct{{
 			CName:  "cef_client_t",
 			GoName: "CEFClientT",
@@ -26,7 +27,7 @@ func TestEmitStructIncludesHostLayout(t *testing.T) {
 }
 
 func TestEmitRegisterFunction(t *testing.T) {
-	header := &model.Header{Functions: []model.Function{{CName: "cef_initialize", GoName: "CEFInitialize"}}}
+	header := &model.Header{RegisterName: "RegisterApp", Functions: []model.Function{{CName: "cef_initialize", GoName: "CEFInitialize"}}}
 	code, err := Emit(header)
 	if err != nil {
 		t.Fatal(err)
@@ -48,6 +49,7 @@ CEF_EXPORT int cef_execute_process(const cef_main_args_t* args, cef_app_t* appli
 	if err != nil {
 		t.Fatal(err)
 	}
+	header.RegisterName = "RegisterTest"
 	code, err := Emit(header)
 	if err != nil {
 		t.Fatal(err)

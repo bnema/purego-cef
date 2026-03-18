@@ -61,12 +61,13 @@ type EnumValue struct {
 }
 
 type Header struct {
-	Path      string
-	Package   string
-	Structs   []Struct
-	Functions []Function
-	Enums     []Enum
-	Typedefs  []Typedef
+	Path         string
+	Package      string
+	RegisterName string // e.g. "RegisterApp" for cef_app_capi.h
+	Structs      []Struct
+	Functions    []Function
+	Enums        []Enum
+	Typedefs     []Typedef
 }
 
 type Typedef struct {

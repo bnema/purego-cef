@@ -52,6 +52,7 @@ func run(cfg config) error {
 		if err != nil {
 			return err
 		}
+		header.RegisterName = registerName(filepath.Base(rel))
 		code, err := emitter.Emit(header)
 		if err != nil {
 			return err
@@ -62,4 +63,24 @@ func run(cfg config) error {
 		}
 	}
 	return nil
+}
+
+// registerName derives a unique Go register function name from a capi header
+// filename, e.g. "cef_app_capi.h" -> "RegisterApp".
+func registerName(base string) string {
+	// Strip _capi.h suffix
+	name := strings.TrimSuffix(base, "_capi.h")
+	// Strip cef_ prefix
+	name = strings.TrimPrefix(name, "cef_")
+	// Title-case each word
+	parts := strings.Split(name, "_")
+	var sb strings.Builder
+	sb.WriteString("Register")
+	for _, p := range parts {
+		if p == "" {
+			continue
+		}
+		sb.WriteString(strings.ToUpper(p[:1]) + p[1:])
+	}
+	return sb.String()
 }
