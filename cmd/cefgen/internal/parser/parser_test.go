@@ -166,17 +166,32 @@ func TestParseRealHeaders(t *testing.T) {
 	if cefDir == "" {
 		t.Skip("CEF_DIR not set")
 	}
-	headersDir := filepath.Join(cefDir, "include", "capi")
-	for _, name := range []string{
-		"cef_base_capi.h",
-		"cef_app_capi.h",
-		"cef_client_capi.h",
-		"cef_render_handler_capi.h",
-		"cef_life_span_handler_capi.h",
-		"cef_browser_capi.h",
-	} {
-		if _, err := ParseFile(filepath.Join(headersDir, name)); err != nil {
-			t.Fatalf("%s: %v", name, err)
+
+	patterns := []string{
+		filepath.Join(cefDir, "include", "internal", "cef_types*.h"),
+		filepath.Join(cefDir, "include", "capi", "*_capi.h"),
+		filepath.Join(cefDir, "include", "capi", "views", "*_capi.h"),
+		filepath.Join(cefDir, "include", "capi", "test", "*_capi.h"),
+	}
+
+	var count int
+	for _, pattern := range patterns {
+		matches, err := filepath.Glob(pattern)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, path := range matches {
+			if strings.HasSuffix(path, "_wrappers.h") {
+				continue
+			}
+			t.Run(filepath.Base(path), func(t *testing.T) {
+				_, err := ParseFile(path)
+				if err != nil {
+					t.Fatal(err)
+				}
+			})
+			count++
 		}
 	}
+	t.Logf("parsed %d headers successfully", count)
 }
