@@ -75,6 +75,9 @@ type CEFTranslatorTestT struct {
 func (v *CEFTranslatorTestT) OverrideGetVoid(fn uintptr) { v.GetVoid = fn }
 
 func (v *CEFTranslatorTestT) CallGetVoid(args ...uintptr) uintptr {
+	if v.GetVoid == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetVoid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -82,6 +85,9 @@ func (v *CEFTranslatorTestT) CallGetVoid(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetBool(fn uintptr) { v.GetBool = fn }
 
 func (v *CEFTranslatorTestT) CallGetBool(args ...uintptr) uintptr {
+	if v.GetBool == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetBool, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -89,6 +95,9 @@ func (v *CEFTranslatorTestT) CallGetBool(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetInt(fn uintptr) { v.GetInt = fn }
 
 func (v *CEFTranslatorTestT) CallGetInt(args ...uintptr) uintptr {
+	if v.GetInt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetInt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -96,6 +105,9 @@ func (v *CEFTranslatorTestT) CallGetInt(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetDouble(fn uintptr) { v.GetDouble = fn }
 
 func (v *CEFTranslatorTestT) CallGetDouble(args ...uintptr) uintptr {
+	if v.GetDouble == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetDouble, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -103,6 +115,9 @@ func (v *CEFTranslatorTestT) CallGetDouble(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetLong(fn uintptr) { v.GetLong = fn }
 
 func (v *CEFTranslatorTestT) CallGetLong(args ...uintptr) uintptr {
+	if v.GetLong == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLong, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -110,6 +125,9 @@ func (v *CEFTranslatorTestT) CallGetLong(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetSizet(fn uintptr) { v.GetSizet = fn }
 
 func (v *CEFTranslatorTestT) CallGetSizet(args ...uintptr) uintptr {
+	if v.GetSizet == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSizet, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -117,6 +135,9 @@ func (v *CEFTranslatorTestT) CallGetSizet(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetVoid(fn uintptr) { v.SetVoid = fn }
 
 func (v *CEFTranslatorTestT) CallSetVoid(args ...uintptr) uintptr {
+	if v.SetVoid == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetVoid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -124,6 +145,9 @@ func (v *CEFTranslatorTestT) CallSetVoid(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetBool(fn uintptr) { v.SetBool = fn }
 
 func (v *CEFTranslatorTestT) CallSetBool(args ...uintptr) uintptr {
+	if v.SetBool == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetBool, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -131,6 +155,9 @@ func (v *CEFTranslatorTestT) CallSetBool(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetInt(fn uintptr) { v.SetInt = fn }
 
 func (v *CEFTranslatorTestT) CallSetInt(args ...uintptr) uintptr {
+	if v.SetInt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetInt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -138,6 +165,9 @@ func (v *CEFTranslatorTestT) CallSetInt(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetDouble(fn uintptr) { v.SetDouble = fn }
 
 func (v *CEFTranslatorTestT) CallSetDouble(args ...uintptr) uintptr {
+	if v.SetDouble == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetDouble, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -145,6 +175,9 @@ func (v *CEFTranslatorTestT) CallSetDouble(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetLong(fn uintptr) { v.SetLong = fn }
 
 func (v *CEFTranslatorTestT) CallSetLong(args ...uintptr) uintptr {
+	if v.SetLong == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetLong, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -152,6 +185,9 @@ func (v *CEFTranslatorTestT) CallSetLong(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetSizet(fn uintptr) { v.SetSizet = fn }
 
 func (v *CEFTranslatorTestT) CallSetSizet(args ...uintptr) uintptr {
+	if v.SetSizet == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetSizet, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -159,6 +195,9 @@ func (v *CEFTranslatorTestT) CallSetSizet(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetIntList(fn uintptr) { v.SetIntList = fn }
 
 func (v *CEFTranslatorTestT) CallSetIntList(args ...uintptr) uintptr {
+	if v.SetIntList == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetIntList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -166,6 +205,9 @@ func (v *CEFTranslatorTestT) CallSetIntList(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetIntListByRef(fn uintptr) { v.GetIntListByRef = fn }
 
 func (v *CEFTranslatorTestT) CallGetIntListByRef(args ...uintptr) uintptr {
+	if v.GetIntListByRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetIntListByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -173,6 +215,9 @@ func (v *CEFTranslatorTestT) CallGetIntListByRef(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetIntListSize(fn uintptr) { v.GetIntListSize = fn }
 
 func (v *CEFTranslatorTestT) CallGetIntListSize(args ...uintptr) uintptr {
+	if v.GetIntListSize == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetIntListSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -180,6 +225,9 @@ func (v *CEFTranslatorTestT) CallGetIntListSize(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetString(fn uintptr) { v.GetString = fn }
 
 func (v *CEFTranslatorTestT) CallGetString(args ...uintptr) uintptr {
+	if v.GetString == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -187,6 +235,9 @@ func (v *CEFTranslatorTestT) CallGetString(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetString(fn uintptr) { v.SetString = fn }
 
 func (v *CEFTranslatorTestT) CallSetString(args ...uintptr) uintptr {
+	if v.SetString == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -194,6 +245,9 @@ func (v *CEFTranslatorTestT) CallSetString(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetStringByRef(fn uintptr) { v.GetStringByRef = fn }
 
 func (v *CEFTranslatorTestT) CallGetStringByRef(args ...uintptr) uintptr {
+	if v.GetStringByRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetStringByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -201,6 +255,9 @@ func (v *CEFTranslatorTestT) CallGetStringByRef(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetStringList(fn uintptr) { v.SetStringList = fn }
 
 func (v *CEFTranslatorTestT) CallSetStringList(args ...uintptr) uintptr {
+	if v.SetStringList == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetStringList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -208,6 +265,9 @@ func (v *CEFTranslatorTestT) CallSetStringList(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetStringListByRef(fn uintptr) { v.GetStringListByRef = fn }
 
 func (v *CEFTranslatorTestT) CallGetStringListByRef(args ...uintptr) uintptr {
+	if v.GetStringListByRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetStringListByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -215,6 +275,9 @@ func (v *CEFTranslatorTestT) CallGetStringListByRef(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetStringMap(fn uintptr) { v.SetStringMap = fn }
 
 func (v *CEFTranslatorTestT) CallSetStringMap(args ...uintptr) uintptr {
+	if v.SetStringMap == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetStringMap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -222,6 +285,9 @@ func (v *CEFTranslatorTestT) CallSetStringMap(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetStringMapByRef(fn uintptr) { v.GetStringMapByRef = fn }
 
 func (v *CEFTranslatorTestT) CallGetStringMapByRef(args ...uintptr) uintptr {
+	if v.GetStringMapByRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetStringMapByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -229,6 +295,9 @@ func (v *CEFTranslatorTestT) CallGetStringMapByRef(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetStringMultimap(fn uintptr) { v.SetStringMultimap = fn }
 
 func (v *CEFTranslatorTestT) CallSetStringMultimap(args ...uintptr) uintptr {
+	if v.SetStringMultimap == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetStringMultimap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -238,6 +307,9 @@ func (v *CEFTranslatorTestT) OverrideGetStringMultimapByRef(fn uintptr) {
 }
 
 func (v *CEFTranslatorTestT) CallGetStringMultimapByRef(args ...uintptr) uintptr {
+	if v.GetStringMultimapByRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetStringMultimapByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -245,6 +317,9 @@ func (v *CEFTranslatorTestT) CallGetStringMultimapByRef(args ...uintptr) uintptr
 func (v *CEFTranslatorTestT) OverrideGetPoint(fn uintptr) { v.GetPoint = fn }
 
 func (v *CEFTranslatorTestT) CallGetPoint(args ...uintptr) uintptr {
+	if v.GetPoint == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPoint, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -252,6 +327,9 @@ func (v *CEFTranslatorTestT) CallGetPoint(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetPoint(fn uintptr) { v.SetPoint = fn }
 
 func (v *CEFTranslatorTestT) CallSetPoint(args ...uintptr) uintptr {
+	if v.SetPoint == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetPoint, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -259,6 +337,9 @@ func (v *CEFTranslatorTestT) CallSetPoint(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetPointByRef(fn uintptr) { v.GetPointByRef = fn }
 
 func (v *CEFTranslatorTestT) CallGetPointByRef(args ...uintptr) uintptr {
+	if v.GetPointByRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPointByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -266,6 +347,9 @@ func (v *CEFTranslatorTestT) CallGetPointByRef(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetPointList(fn uintptr) { v.SetPointList = fn }
 
 func (v *CEFTranslatorTestT) CallSetPointList(args ...uintptr) uintptr {
+	if v.SetPointList == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetPointList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -273,6 +357,9 @@ func (v *CEFTranslatorTestT) CallSetPointList(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetPointListByRef(fn uintptr) { v.GetPointListByRef = fn }
 
 func (v *CEFTranslatorTestT) CallGetPointListByRef(args ...uintptr) uintptr {
+	if v.GetPointListByRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPointListByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -280,6 +367,9 @@ func (v *CEFTranslatorTestT) CallGetPointListByRef(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetPointListSize(fn uintptr) { v.GetPointListSize = fn }
 
 func (v *CEFTranslatorTestT) CallGetPointListSize(args ...uintptr) uintptr {
+	if v.GetPointListSize == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPointListSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -287,6 +377,9 @@ func (v *CEFTranslatorTestT) CallGetPointListSize(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideGetRefPtrLibrary(fn uintptr) { v.GetRefPtrLibrary = fn }
 
 func (v *CEFTranslatorTestT) CallGetRefPtrLibrary(args ...uintptr) uintptr {
+	if v.GetRefPtrLibrary == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetRefPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -294,6 +387,9 @@ func (v *CEFTranslatorTestT) CallGetRefPtrLibrary(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetRefPtrLibrary(fn uintptr) { v.SetRefPtrLibrary = fn }
 
 func (v *CEFTranslatorTestT) CallSetRefPtrLibrary(args ...uintptr) uintptr {
+	if v.SetRefPtrLibrary == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRefPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -303,6 +399,9 @@ func (v *CEFTranslatorTestT) OverrideSetRefPtrLibraryAndReturn(fn uintptr) {
 }
 
 func (v *CEFTranslatorTestT) CallSetRefPtrLibraryAndReturn(args ...uintptr) uintptr {
+	if v.SetRefPtrLibraryAndReturn == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRefPtrLibraryAndReturn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -310,6 +409,9 @@ func (v *CEFTranslatorTestT) CallSetRefPtrLibraryAndReturn(args ...uintptr) uint
 func (v *CEFTranslatorTestT) OverrideSetChildRefPtrLibrary(fn uintptr) { v.SetChildRefPtrLibrary = fn }
 
 func (v *CEFTranslatorTestT) CallSetChildRefPtrLibrary(args ...uintptr) uintptr {
+	if v.SetChildRefPtrLibrary == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildRefPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -319,6 +421,9 @@ func (v *CEFTranslatorTestT) OverrideSetChildRefPtrLibraryAndReturnParent(fn uin
 }
 
 func (v *CEFTranslatorTestT) CallSetChildRefPtrLibraryAndReturnParent(args ...uintptr) uintptr {
+	if v.SetChildRefPtrLibraryAndReturnParent == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildRefPtrLibraryAndReturnParent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -326,6 +431,9 @@ func (v *CEFTranslatorTestT) CallSetChildRefPtrLibraryAndReturnParent(args ...ui
 func (v *CEFTranslatorTestT) OverrideSetRefPtrLibraryList(fn uintptr) { v.SetRefPtrLibraryList = fn }
 
 func (v *CEFTranslatorTestT) CallSetRefPtrLibraryList(args ...uintptr) uintptr {
+	if v.SetRefPtrLibraryList == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRefPtrLibraryList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -335,6 +443,9 @@ func (v *CEFTranslatorTestT) OverrideGetRefPtrLibraryListByRef(fn uintptr) {
 }
 
 func (v *CEFTranslatorTestT) CallGetRefPtrLibraryListByRef(args ...uintptr) uintptr {
+	if v.GetRefPtrLibraryListByRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetRefPtrLibraryListByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -344,6 +455,9 @@ func (v *CEFTranslatorTestT) OverrideGetRefPtrLibraryListSize(fn uintptr) {
 }
 
 func (v *CEFTranslatorTestT) CallGetRefPtrLibraryListSize(args ...uintptr) uintptr {
+	if v.GetRefPtrLibraryListSize == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetRefPtrLibraryListSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -351,6 +465,9 @@ func (v *CEFTranslatorTestT) CallGetRefPtrLibraryListSize(args ...uintptr) uintp
 func (v *CEFTranslatorTestT) OverrideSetRefPtrClient(fn uintptr) { v.SetRefPtrClient = fn }
 
 func (v *CEFTranslatorTestT) CallSetRefPtrClient(args ...uintptr) uintptr {
+	if v.SetRefPtrClient == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRefPtrClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -360,6 +477,9 @@ func (v *CEFTranslatorTestT) OverrideSetRefPtrClientAndReturn(fn uintptr) {
 }
 
 func (v *CEFTranslatorTestT) CallSetRefPtrClientAndReturn(args ...uintptr) uintptr {
+	if v.SetRefPtrClientAndReturn == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRefPtrClientAndReturn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -367,6 +487,9 @@ func (v *CEFTranslatorTestT) CallSetRefPtrClientAndReturn(args ...uintptr) uintp
 func (v *CEFTranslatorTestT) OverrideSetChildRefPtrClient(fn uintptr) { v.SetChildRefPtrClient = fn }
 
 func (v *CEFTranslatorTestT) CallSetChildRefPtrClient(args ...uintptr) uintptr {
+	if v.SetChildRefPtrClient == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildRefPtrClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -376,6 +499,9 @@ func (v *CEFTranslatorTestT) OverrideSetChildRefPtrClientAndReturnParent(fn uint
 }
 
 func (v *CEFTranslatorTestT) CallSetChildRefPtrClientAndReturnParent(args ...uintptr) uintptr {
+	if v.SetChildRefPtrClientAndReturnParent == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildRefPtrClientAndReturnParent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -383,6 +509,9 @@ func (v *CEFTranslatorTestT) CallSetChildRefPtrClientAndReturnParent(args ...uin
 func (v *CEFTranslatorTestT) OverrideSetRefPtrClientList(fn uintptr) { v.SetRefPtrClientList = fn }
 
 func (v *CEFTranslatorTestT) CallSetRefPtrClientList(args ...uintptr) uintptr {
+	if v.SetRefPtrClientList == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRefPtrClientList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -392,6 +521,9 @@ func (v *CEFTranslatorTestT) OverrideGetRefPtrClientListByRef(fn uintptr) {
 }
 
 func (v *CEFTranslatorTestT) CallGetRefPtrClientListByRef(args ...uintptr) uintptr {
+	if v.GetRefPtrClientListByRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetRefPtrClientListByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -401,6 +533,9 @@ func (v *CEFTranslatorTestT) OverrideGetRefPtrClientListSize(fn uintptr) {
 }
 
 func (v *CEFTranslatorTestT) CallGetRefPtrClientListSize(args ...uintptr) uintptr {
+	if v.GetRefPtrClientListSize == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetRefPtrClientListSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -408,6 +543,9 @@ func (v *CEFTranslatorTestT) CallGetRefPtrClientListSize(args ...uintptr) uintpt
 func (v *CEFTranslatorTestT) OverrideGetOwnPtrLibrary(fn uintptr) { v.GetOwnPtrLibrary = fn }
 
 func (v *CEFTranslatorTestT) CallGetOwnPtrLibrary(args ...uintptr) uintptr {
+	if v.GetOwnPtrLibrary == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOwnPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -415,6 +553,9 @@ func (v *CEFTranslatorTestT) CallGetOwnPtrLibrary(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetOwnPtrLibrary(fn uintptr) { v.SetOwnPtrLibrary = fn }
 
 func (v *CEFTranslatorTestT) CallSetOwnPtrLibrary(args ...uintptr) uintptr {
+	if v.SetOwnPtrLibrary == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetOwnPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -424,6 +565,9 @@ func (v *CEFTranslatorTestT) OverrideSetOwnPtrLibraryAndReturn(fn uintptr) {
 }
 
 func (v *CEFTranslatorTestT) CallSetOwnPtrLibraryAndReturn(args ...uintptr) uintptr {
+	if v.SetOwnPtrLibraryAndReturn == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetOwnPtrLibraryAndReturn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -431,6 +575,9 @@ func (v *CEFTranslatorTestT) CallSetOwnPtrLibraryAndReturn(args ...uintptr) uint
 func (v *CEFTranslatorTestT) OverrideSetChildOwnPtrLibrary(fn uintptr) { v.SetChildOwnPtrLibrary = fn }
 
 func (v *CEFTranslatorTestT) CallSetChildOwnPtrLibrary(args ...uintptr) uintptr {
+	if v.SetChildOwnPtrLibrary == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildOwnPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -440,6 +587,9 @@ func (v *CEFTranslatorTestT) OverrideSetChildOwnPtrLibraryAndReturnParent(fn uin
 }
 
 func (v *CEFTranslatorTestT) CallSetChildOwnPtrLibraryAndReturnParent(args ...uintptr) uintptr {
+	if v.SetChildOwnPtrLibraryAndReturnParent == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildOwnPtrLibraryAndReturnParent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -447,6 +597,9 @@ func (v *CEFTranslatorTestT) CallSetChildOwnPtrLibraryAndReturnParent(args ...ui
 func (v *CEFTranslatorTestT) OverrideSetOwnPtrClient(fn uintptr) { v.SetOwnPtrClient = fn }
 
 func (v *CEFTranslatorTestT) CallSetOwnPtrClient(args ...uintptr) uintptr {
+	if v.SetOwnPtrClient == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetOwnPtrClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -456,6 +609,9 @@ func (v *CEFTranslatorTestT) OverrideSetOwnPtrClientAndReturn(fn uintptr) {
 }
 
 func (v *CEFTranslatorTestT) CallSetOwnPtrClientAndReturn(args ...uintptr) uintptr {
+	if v.SetOwnPtrClientAndReturn == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetOwnPtrClientAndReturn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -463,6 +619,9 @@ func (v *CEFTranslatorTestT) CallSetOwnPtrClientAndReturn(args ...uintptr) uintp
 func (v *CEFTranslatorTestT) OverrideSetChildOwnPtrClient(fn uintptr) { v.SetChildOwnPtrClient = fn }
 
 func (v *CEFTranslatorTestT) CallSetChildOwnPtrClient(args ...uintptr) uintptr {
+	if v.SetChildOwnPtrClient == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildOwnPtrClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -472,6 +631,9 @@ func (v *CEFTranslatorTestT) OverrideSetChildOwnPtrClientAndReturnParent(fn uint
 }
 
 func (v *CEFTranslatorTestT) CallSetChildOwnPtrClientAndReturnParent(args ...uintptr) uintptr {
+	if v.SetChildOwnPtrClientAndReturnParent == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildOwnPtrClientAndReturnParent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -479,6 +641,9 @@ func (v *CEFTranslatorTestT) CallSetChildOwnPtrClientAndReturnParent(args ...uin
 func (v *CEFTranslatorTestT) OverrideSetRawPtrLibrary(fn uintptr) { v.SetRawPtrLibrary = fn }
 
 func (v *CEFTranslatorTestT) CallSetRawPtrLibrary(args ...uintptr) uintptr {
+	if v.SetRawPtrLibrary == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRawPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -486,6 +651,9 @@ func (v *CEFTranslatorTestT) CallSetRawPtrLibrary(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetChildRawPtrLibrary(fn uintptr) { v.SetChildRawPtrLibrary = fn }
 
 func (v *CEFTranslatorTestT) CallSetChildRawPtrLibrary(args ...uintptr) uintptr {
+	if v.SetChildRawPtrLibrary == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildRawPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -493,6 +661,9 @@ func (v *CEFTranslatorTestT) CallSetChildRawPtrLibrary(args ...uintptr) uintptr 
 func (v *CEFTranslatorTestT) OverrideSetRawPtrLibraryList(fn uintptr) { v.SetRawPtrLibraryList = fn }
 
 func (v *CEFTranslatorTestT) CallSetRawPtrLibraryList(args ...uintptr) uintptr {
+	if v.SetRawPtrLibraryList == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRawPtrLibraryList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -500,6 +671,9 @@ func (v *CEFTranslatorTestT) CallSetRawPtrLibraryList(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetRawPtrClient(fn uintptr) { v.SetRawPtrClient = fn }
 
 func (v *CEFTranslatorTestT) CallSetRawPtrClient(args ...uintptr) uintptr {
+	if v.SetRawPtrClient == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRawPtrClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -507,6 +681,9 @@ func (v *CEFTranslatorTestT) CallSetRawPtrClient(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetChildRawPtrClient(fn uintptr) { v.SetChildRawPtrClient = fn }
 
 func (v *CEFTranslatorTestT) CallSetChildRawPtrClient(args ...uintptr) uintptr {
+	if v.SetChildRawPtrClient == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChildRawPtrClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -514,6 +691,9 @@ func (v *CEFTranslatorTestT) CallSetChildRawPtrClient(args ...uintptr) uintptr {
 func (v *CEFTranslatorTestT) OverrideSetRawPtrClientList(fn uintptr) { v.SetRawPtrClientList = fn }
 
 func (v *CEFTranslatorTestT) CallSetRawPtrClientList(args ...uintptr) uintptr {
+	if v.SetRawPtrClientList == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetRawPtrClientList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -528,6 +708,9 @@ type CEFTranslatorTestRefPtrLibraryT struct {
 func (v *CEFTranslatorTestRefPtrLibraryT) OverrideGetValue(fn uintptr) { v.GetValue = fn }
 
 func (v *CEFTranslatorTestRefPtrLibraryT) CallGetValue(args ...uintptr) uintptr {
+	if v.GetValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -535,6 +718,9 @@ func (v *CEFTranslatorTestRefPtrLibraryT) CallGetValue(args ...uintptr) uintptr 
 func (v *CEFTranslatorTestRefPtrLibraryT) OverrideSetValue(fn uintptr) { v.SetValue = fn }
 
 func (v *CEFTranslatorTestRefPtrLibraryT) CallSetValue(args ...uintptr) uintptr {
+	if v.SetValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -551,6 +737,9 @@ func (v *CEFTranslatorTestRefPtrLibraryChildT) OverrideGetOtherValue(fn uintptr)
 }
 
 func (v *CEFTranslatorTestRefPtrLibraryChildT) CallGetOtherValue(args ...uintptr) uintptr {
+	if v.GetOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -560,6 +749,9 @@ func (v *CEFTranslatorTestRefPtrLibraryChildT) OverrideSetOtherValue(fn uintptr)
 }
 
 func (v *CEFTranslatorTestRefPtrLibraryChildT) CallSetOtherValue(args ...uintptr) uintptr {
+	if v.SetOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -576,6 +768,9 @@ func (v *CEFTranslatorTestRefPtrLibraryChildChildT) OverrideGetOtherOtherValue(f
 }
 
 func (v *CEFTranslatorTestRefPtrLibraryChildChildT) CallGetOtherOtherValue(args ...uintptr) uintptr {
+	if v.GetOtherOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOtherOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -585,6 +780,9 @@ func (v *CEFTranslatorTestRefPtrLibraryChildChildT) OverrideSetOtherOtherValue(f
 }
 
 func (v *CEFTranslatorTestRefPtrLibraryChildChildT) CallSetOtherOtherValue(args ...uintptr) uintptr {
+	if v.SetOtherOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetOtherOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -598,6 +796,9 @@ type CEFTranslatorTestRefPtrClientT struct {
 func (v *CEFTranslatorTestRefPtrClientT) OverrideGetValue(fn uintptr) { v.GetValue = fn }
 
 func (v *CEFTranslatorTestRefPtrClientT) CallGetValue(args ...uintptr) uintptr {
+	if v.GetValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -611,6 +812,9 @@ type CEFTranslatorTestRefPtrClientChildT struct {
 func (v *CEFTranslatorTestRefPtrClientChildT) OverrideGetOtherValue(fn uintptr) { v.GetOtherValue = fn }
 
 func (v *CEFTranslatorTestRefPtrClientChildT) CallGetOtherValue(args ...uintptr) uintptr {
+	if v.GetOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -625,6 +829,9 @@ type CEFTranslatorTestScopedLibraryT struct {
 func (v *CEFTranslatorTestScopedLibraryT) OverrideGetValue(fn uintptr) { v.GetValue = fn }
 
 func (v *CEFTranslatorTestScopedLibraryT) CallGetValue(args ...uintptr) uintptr {
+	if v.GetValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -632,6 +839,9 @@ func (v *CEFTranslatorTestScopedLibraryT) CallGetValue(args ...uintptr) uintptr 
 func (v *CEFTranslatorTestScopedLibraryT) OverrideSetValue(fn uintptr) { v.SetValue = fn }
 
 func (v *CEFTranslatorTestScopedLibraryT) CallSetValue(args ...uintptr) uintptr {
+	if v.SetValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -648,6 +858,9 @@ func (v *CEFTranslatorTestScopedLibraryChildT) OverrideGetOtherValue(fn uintptr)
 }
 
 func (v *CEFTranslatorTestScopedLibraryChildT) CallGetOtherValue(args ...uintptr) uintptr {
+	if v.GetOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -657,6 +870,9 @@ func (v *CEFTranslatorTestScopedLibraryChildT) OverrideSetOtherValue(fn uintptr)
 }
 
 func (v *CEFTranslatorTestScopedLibraryChildT) CallSetOtherValue(args ...uintptr) uintptr {
+	if v.SetOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -673,6 +889,9 @@ func (v *CEFTranslatorTestScopedLibraryChildChildT) OverrideGetOtherOtherValue(f
 }
 
 func (v *CEFTranslatorTestScopedLibraryChildChildT) CallGetOtherOtherValue(args ...uintptr) uintptr {
+	if v.GetOtherOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOtherOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -682,6 +901,9 @@ func (v *CEFTranslatorTestScopedLibraryChildChildT) OverrideSetOtherOtherValue(f
 }
 
 func (v *CEFTranslatorTestScopedLibraryChildChildT) CallSetOtherOtherValue(args ...uintptr) uintptr {
+	if v.SetOtherOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetOtherOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -695,6 +917,9 @@ type CEFTranslatorTestScopedClientT struct {
 func (v *CEFTranslatorTestScopedClientT) OverrideGetValue(fn uintptr) { v.GetValue = fn }
 
 func (v *CEFTranslatorTestScopedClientT) CallGetValue(args ...uintptr) uintptr {
+	if v.GetValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -708,6 +933,9 @@ type CEFTranslatorTestScopedClientChildT struct {
 func (v *CEFTranslatorTestScopedClientChildT) OverrideGetOtherValue(fn uintptr) { v.GetOtherValue = fn }
 
 func (v *CEFTranslatorTestScopedClientChildT) CallGetOtherValue(args ...uintptr) uintptr {
+	if v.GetOtherValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

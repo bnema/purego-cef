@@ -37,6 +37,9 @@ type CEFRequestT struct {
 func (v *CEFRequestT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
 func (v *CEFRequestT) CallIsReadOnly(args ...uintptr) uintptr {
+	if v.IsReadOnly == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -44,6 +47,9 @@ func (v *CEFRequestT) CallIsReadOnly(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetURL(fn uintptr) { v.GetURL = fn }
 
 func (v *CEFRequestT) CallGetURL(args ...uintptr) uintptr {
+	if v.GetURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -51,6 +57,9 @@ func (v *CEFRequestT) CallGetURL(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideSetURL(fn uintptr) { v.SetURL = fn }
 
 func (v *CEFRequestT) CallSetURL(args ...uintptr) uintptr {
+	if v.SetURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -58,6 +67,9 @@ func (v *CEFRequestT) CallSetURL(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetMethod(fn uintptr) { v.GetMethod = fn }
 
 func (v *CEFRequestT) CallGetMethod(args ...uintptr) uintptr {
+	if v.GetMethod == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetMethod, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -65,6 +77,9 @@ func (v *CEFRequestT) CallGetMethod(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideSetMethod(fn uintptr) { v.SetMethod = fn }
 
 func (v *CEFRequestT) CallSetMethod(args ...uintptr) uintptr {
+	if v.SetMethod == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetMethod, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -72,6 +87,9 @@ func (v *CEFRequestT) CallSetMethod(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideSetReferrer(fn uintptr) { v.SetReferrer = fn }
 
 func (v *CEFRequestT) CallSetReferrer(args ...uintptr) uintptr {
+	if v.SetReferrer == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetReferrer, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -79,6 +97,9 @@ func (v *CEFRequestT) CallSetReferrer(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetReferrerURL(fn uintptr) { v.GetReferrerURL = fn }
 
 func (v *CEFRequestT) CallGetReferrerURL(args ...uintptr) uintptr {
+	if v.GetReferrerURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetReferrerURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -86,6 +107,9 @@ func (v *CEFRequestT) CallGetReferrerURL(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetReferrerPolicy(fn uintptr) { v.GetReferrerPolicy = fn }
 
 func (v *CEFRequestT) CallGetReferrerPolicy(args ...uintptr) uintptr {
+	if v.GetReferrerPolicy == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetReferrerPolicy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -93,6 +117,9 @@ func (v *CEFRequestT) CallGetReferrerPolicy(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetPostData(fn uintptr) { v.GetPostData = fn }
 
 func (v *CEFRequestT) CallGetPostData(args ...uintptr) uintptr {
+	if v.GetPostData == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPostData, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -100,6 +127,9 @@ func (v *CEFRequestT) CallGetPostData(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideSetPostData(fn uintptr) { v.SetPostData = fn }
 
 func (v *CEFRequestT) CallSetPostData(args ...uintptr) uintptr {
+	if v.SetPostData == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetPostData, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -107,6 +137,9 @@ func (v *CEFRequestT) CallSetPostData(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetHeaderMap(fn uintptr) { v.GetHeaderMap = fn }
 
 func (v *CEFRequestT) CallGetHeaderMap(args ...uintptr) uintptr {
+	if v.GetHeaderMap == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetHeaderMap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -114,6 +147,9 @@ func (v *CEFRequestT) CallGetHeaderMap(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideSetHeaderMap(fn uintptr) { v.SetHeaderMap = fn }
 
 func (v *CEFRequestT) CallSetHeaderMap(args ...uintptr) uintptr {
+	if v.SetHeaderMap == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetHeaderMap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -121,6 +157,9 @@ func (v *CEFRequestT) CallSetHeaderMap(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetHeaderByName(fn uintptr) { v.GetHeaderByName = fn }
 
 func (v *CEFRequestT) CallGetHeaderByName(args ...uintptr) uintptr {
+	if v.GetHeaderByName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetHeaderByName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -128,6 +167,9 @@ func (v *CEFRequestT) CallGetHeaderByName(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideSetHeaderByName(fn uintptr) { v.SetHeaderByName = fn }
 
 func (v *CEFRequestT) CallSetHeaderByName(args ...uintptr) uintptr {
+	if v.SetHeaderByName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetHeaderByName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -135,6 +177,9 @@ func (v *CEFRequestT) CallSetHeaderByName(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideSet(fn uintptr) { v.Set = fn }
 
 func (v *CEFRequestT) CallSet(args ...uintptr) uintptr {
+	if v.Set == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Set, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -142,6 +187,9 @@ func (v *CEFRequestT) CallSet(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetFlags(fn uintptr) { v.GetFlags = fn }
 
 func (v *CEFRequestT) CallGetFlags(args ...uintptr) uintptr {
+	if v.GetFlags == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFlags, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -149,6 +197,9 @@ func (v *CEFRequestT) CallGetFlags(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideSetFlags(fn uintptr) { v.SetFlags = fn }
 
 func (v *CEFRequestT) CallSetFlags(args ...uintptr) uintptr {
+	if v.SetFlags == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetFlags, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -156,6 +207,9 @@ func (v *CEFRequestT) CallSetFlags(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetFirstPartyForCookies(fn uintptr) { v.GetFirstPartyForCookies = fn }
 
 func (v *CEFRequestT) CallGetFirstPartyForCookies(args ...uintptr) uintptr {
+	if v.GetFirstPartyForCookies == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFirstPartyForCookies, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -163,6 +217,9 @@ func (v *CEFRequestT) CallGetFirstPartyForCookies(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideSetFirstPartyForCookies(fn uintptr) { v.SetFirstPartyForCookies = fn }
 
 func (v *CEFRequestT) CallSetFirstPartyForCookies(args ...uintptr) uintptr {
+	if v.SetFirstPartyForCookies == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetFirstPartyForCookies, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -170,6 +227,9 @@ func (v *CEFRequestT) CallSetFirstPartyForCookies(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetResourceType(fn uintptr) { v.GetResourceType = fn }
 
 func (v *CEFRequestT) CallGetResourceType(args ...uintptr) uintptr {
+	if v.GetResourceType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetResourceType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -177,6 +237,9 @@ func (v *CEFRequestT) CallGetResourceType(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetTransitionType(fn uintptr) { v.GetTransitionType = fn }
 
 func (v *CEFRequestT) CallGetTransitionType(args ...uintptr) uintptr {
+	if v.GetTransitionType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetTransitionType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -184,6 +247,9 @@ func (v *CEFRequestT) CallGetTransitionType(args ...uintptr) uintptr {
 func (v *CEFRequestT) OverrideGetIdentifier(fn uintptr) { v.GetIdentifier = fn }
 
 func (v *CEFRequestT) CallGetIdentifier(args ...uintptr) uintptr {
+	if v.GetIdentifier == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetIdentifier, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -203,6 +269,9 @@ type CEFPostDataT struct {
 func (v *CEFPostDataT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
 func (v *CEFPostDataT) CallIsReadOnly(args ...uintptr) uintptr {
+	if v.IsReadOnly == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -210,6 +279,9 @@ func (v *CEFPostDataT) CallIsReadOnly(args ...uintptr) uintptr {
 func (v *CEFPostDataT) OverrideHasExcludedElements(fn uintptr) { v.HasExcludedElements = fn }
 
 func (v *CEFPostDataT) CallHasExcludedElements(args ...uintptr) uintptr {
+	if v.HasExcludedElements == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasExcludedElements, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -217,6 +289,9 @@ func (v *CEFPostDataT) CallHasExcludedElements(args ...uintptr) uintptr {
 func (v *CEFPostDataT) OverrideGetElementCount(fn uintptr) { v.GetElementCount = fn }
 
 func (v *CEFPostDataT) CallGetElementCount(args ...uintptr) uintptr {
+	if v.GetElementCount == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetElementCount, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -224,6 +299,9 @@ func (v *CEFPostDataT) CallGetElementCount(args ...uintptr) uintptr {
 func (v *CEFPostDataT) OverrideGetElements(fn uintptr) { v.GetElements = fn }
 
 func (v *CEFPostDataT) CallGetElements(args ...uintptr) uintptr {
+	if v.GetElements == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetElements, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -231,6 +309,9 @@ func (v *CEFPostDataT) CallGetElements(args ...uintptr) uintptr {
 func (v *CEFPostDataT) OverrideRemoveElement(fn uintptr) { v.RemoveElement = fn }
 
 func (v *CEFPostDataT) CallRemoveElement(args ...uintptr) uintptr {
+	if v.RemoveElement == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.RemoveElement, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -238,6 +319,9 @@ func (v *CEFPostDataT) CallRemoveElement(args ...uintptr) uintptr {
 func (v *CEFPostDataT) OverrideAddElement(fn uintptr) { v.AddElement = fn }
 
 func (v *CEFPostDataT) CallAddElement(args ...uintptr) uintptr {
+	if v.AddElement == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AddElement, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -245,6 +329,9 @@ func (v *CEFPostDataT) CallAddElement(args ...uintptr) uintptr {
 func (v *CEFPostDataT) OverrideRemoveElements(fn uintptr) { v.RemoveElements = fn }
 
 func (v *CEFPostDataT) CallRemoveElements(args ...uintptr) uintptr {
+	if v.RemoveElements == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.RemoveElements, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -265,6 +352,9 @@ type CEFPostDataElementT struct {
 func (v *CEFPostDataElementT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
 func (v *CEFPostDataElementT) CallIsReadOnly(args ...uintptr) uintptr {
+	if v.IsReadOnly == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -272,6 +362,9 @@ func (v *CEFPostDataElementT) CallIsReadOnly(args ...uintptr) uintptr {
 func (v *CEFPostDataElementT) OverrideSetToEmpty(fn uintptr) { v.SetToEmpty = fn }
 
 func (v *CEFPostDataElementT) CallSetToEmpty(args ...uintptr) uintptr {
+	if v.SetToEmpty == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetToEmpty, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -279,6 +372,9 @@ func (v *CEFPostDataElementT) CallSetToEmpty(args ...uintptr) uintptr {
 func (v *CEFPostDataElementT) OverrideSetToFile(fn uintptr) { v.SetToFile = fn }
 
 func (v *CEFPostDataElementT) CallSetToFile(args ...uintptr) uintptr {
+	if v.SetToFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetToFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -286,6 +382,9 @@ func (v *CEFPostDataElementT) CallSetToFile(args ...uintptr) uintptr {
 func (v *CEFPostDataElementT) OverrideSetToBytes(fn uintptr) { v.SetToBytes = fn }
 
 func (v *CEFPostDataElementT) CallSetToBytes(args ...uintptr) uintptr {
+	if v.SetToBytes == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetToBytes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -293,6 +392,9 @@ func (v *CEFPostDataElementT) CallSetToBytes(args ...uintptr) uintptr {
 func (v *CEFPostDataElementT) OverrideGetType(fn uintptr) { v.GetType = fn }
 
 func (v *CEFPostDataElementT) CallGetType(args ...uintptr) uintptr {
+	if v.GetType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -300,6 +402,9 @@ func (v *CEFPostDataElementT) CallGetType(args ...uintptr) uintptr {
 func (v *CEFPostDataElementT) OverrideGetFile(fn uintptr) { v.GetFile = fn }
 
 func (v *CEFPostDataElementT) CallGetFile(args ...uintptr) uintptr {
+	if v.GetFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -307,6 +412,9 @@ func (v *CEFPostDataElementT) CallGetFile(args ...uintptr) uintptr {
 func (v *CEFPostDataElementT) OverrideGetBytesCount(fn uintptr) { v.GetBytesCount = fn }
 
 func (v *CEFPostDataElementT) CallGetBytesCount(args ...uintptr) uintptr {
+	if v.GetBytesCount == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetBytesCount, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -314,6 +422,9 @@ func (v *CEFPostDataElementT) CallGetBytesCount(args ...uintptr) uintptr {
 func (v *CEFPostDataElementT) OverrideGetBytes(fn uintptr) { v.GetBytes = fn }
 
 func (v *CEFPostDataElementT) CallGetBytes(args ...uintptr) uintptr {
+	if v.GetBytes == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetBytes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

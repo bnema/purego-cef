@@ -19,6 +19,9 @@ type CEFBrowserViewT struct {
 func (v *CEFBrowserViewT) OverrideGetBrowser(fn uintptr) { v.GetBrowser = fn }
 
 func (v *CEFBrowserViewT) CallGetBrowser(args ...uintptr) uintptr {
+	if v.GetBrowser == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetBrowser, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -26,6 +29,9 @@ func (v *CEFBrowserViewT) CallGetBrowser(args ...uintptr) uintptr {
 func (v *CEFBrowserViewT) OverrideGetChromeToolbar(fn uintptr) { v.GetChromeToolbar = fn }
 
 func (v *CEFBrowserViewT) CallGetChromeToolbar(args ...uintptr) uintptr {
+	if v.GetChromeToolbar == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetChromeToolbar, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -33,6 +39,9 @@ func (v *CEFBrowserViewT) CallGetChromeToolbar(args ...uintptr) uintptr {
 func (v *CEFBrowserViewT) OverrideSetPreferAccelerators(fn uintptr) { v.SetPreferAccelerators = fn }
 
 func (v *CEFBrowserViewT) CallSetPreferAccelerators(args ...uintptr) uintptr {
+	if v.SetPreferAccelerators == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetPreferAccelerators, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -40,6 +49,9 @@ func (v *CEFBrowserViewT) CallSetPreferAccelerators(args ...uintptr) uintptr {
 func (v *CEFBrowserViewT) OverrideGetRuntimeStyle(fn uintptr) { v.GetRuntimeStyle = fn }
 
 func (v *CEFBrowserViewT) CallGetRuntimeStyle(args ...uintptr) uintptr {
+	if v.GetRuntimeStyle == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetRuntimeStyle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

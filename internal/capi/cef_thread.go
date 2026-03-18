@@ -19,6 +19,9 @@ type CEFThreadT struct {
 func (v *CEFThreadT) OverrideGetTaskRunner(fn uintptr) { v.GetTaskRunner = fn }
 
 func (v *CEFThreadT) CallGetTaskRunner(args ...uintptr) uintptr {
+	if v.GetTaskRunner == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetTaskRunner, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -26,6 +29,9 @@ func (v *CEFThreadT) CallGetTaskRunner(args ...uintptr) uintptr {
 func (v *CEFThreadT) OverrideGetPlatformThreadID(fn uintptr) { v.GetPlatformThreadID = fn }
 
 func (v *CEFThreadT) CallGetPlatformThreadID(args ...uintptr) uintptr {
+	if v.GetPlatformThreadID == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPlatformThreadID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -33,6 +39,9 @@ func (v *CEFThreadT) CallGetPlatformThreadID(args ...uintptr) uintptr {
 func (v *CEFThreadT) OverrideStop(fn uintptr) { v.Stop = fn }
 
 func (v *CEFThreadT) CallStop(args ...uintptr) uintptr {
+	if v.Stop == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Stop, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -40,6 +49,9 @@ func (v *CEFThreadT) CallStop(args ...uintptr) uintptr {
 func (v *CEFThreadT) OverrideIsRunning(fn uintptr) { v.IsRunning = fn }
 
 func (v *CEFThreadT) CallIsRunning(args ...uintptr) uintptr {
+	if v.IsRunning == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsRunning, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

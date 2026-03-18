@@ -42,6 +42,9 @@ type CEFDragDataT struct {
 func (v *CEFDragDataT) OverrideClone(fn uintptr) { v.Clone = fn }
 
 func (v *CEFDragDataT) CallClone(args ...uintptr) uintptr {
+	if v.Clone == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Clone, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -49,6 +52,9 @@ func (v *CEFDragDataT) CallClone(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
 func (v *CEFDragDataT) CallIsReadOnly(args ...uintptr) uintptr {
+	if v.IsReadOnly == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -56,6 +62,9 @@ func (v *CEFDragDataT) CallIsReadOnly(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideIsLink(fn uintptr) { v.IsLink = fn }
 
 func (v *CEFDragDataT) CallIsLink(args ...uintptr) uintptr {
+	if v.IsLink == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsLink, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -63,6 +72,9 @@ func (v *CEFDragDataT) CallIsLink(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideIsFragment(fn uintptr) { v.IsFragment = fn }
 
 func (v *CEFDragDataT) CallIsFragment(args ...uintptr) uintptr {
+	if v.IsFragment == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsFragment, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -70,6 +82,9 @@ func (v *CEFDragDataT) CallIsFragment(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideIsFile(fn uintptr) { v.IsFile = fn }
 
 func (v *CEFDragDataT) CallIsFile(args ...uintptr) uintptr {
+	if v.IsFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -77,6 +92,9 @@ func (v *CEFDragDataT) CallIsFile(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetLinkURL(fn uintptr) { v.GetLinkURL = fn }
 
 func (v *CEFDragDataT) CallGetLinkURL(args ...uintptr) uintptr {
+	if v.GetLinkURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLinkURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -84,6 +102,9 @@ func (v *CEFDragDataT) CallGetLinkURL(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetLinkTitle(fn uintptr) { v.GetLinkTitle = fn }
 
 func (v *CEFDragDataT) CallGetLinkTitle(args ...uintptr) uintptr {
+	if v.GetLinkTitle == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLinkTitle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -91,6 +112,9 @@ func (v *CEFDragDataT) CallGetLinkTitle(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetLinkMetadata(fn uintptr) { v.GetLinkMetadata = fn }
 
 func (v *CEFDragDataT) CallGetLinkMetadata(args ...uintptr) uintptr {
+	if v.GetLinkMetadata == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLinkMetadata, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -98,6 +122,9 @@ func (v *CEFDragDataT) CallGetLinkMetadata(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetFragmentText(fn uintptr) { v.GetFragmentText = fn }
 
 func (v *CEFDragDataT) CallGetFragmentText(args ...uintptr) uintptr {
+	if v.GetFragmentText == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFragmentText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -105,6 +132,9 @@ func (v *CEFDragDataT) CallGetFragmentText(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetFragmentHtml(fn uintptr) { v.GetFragmentHtml = fn }
 
 func (v *CEFDragDataT) CallGetFragmentHtml(args ...uintptr) uintptr {
+	if v.GetFragmentHtml == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFragmentHtml, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -112,6 +142,9 @@ func (v *CEFDragDataT) CallGetFragmentHtml(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetFragmentBaseURL(fn uintptr) { v.GetFragmentBaseURL = fn }
 
 func (v *CEFDragDataT) CallGetFragmentBaseURL(args ...uintptr) uintptr {
+	if v.GetFragmentBaseURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFragmentBaseURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -119,6 +152,9 @@ func (v *CEFDragDataT) CallGetFragmentBaseURL(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetFileName(fn uintptr) { v.GetFileName = fn }
 
 func (v *CEFDragDataT) CallGetFileName(args ...uintptr) uintptr {
+	if v.GetFileName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFileName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -126,6 +162,9 @@ func (v *CEFDragDataT) CallGetFileName(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetFileContents(fn uintptr) { v.GetFileContents = fn }
 
 func (v *CEFDragDataT) CallGetFileContents(args ...uintptr) uintptr {
+	if v.GetFileContents == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFileContents, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -133,6 +172,9 @@ func (v *CEFDragDataT) CallGetFileContents(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetFileNames(fn uintptr) { v.GetFileNames = fn }
 
 func (v *CEFDragDataT) CallGetFileNames(args ...uintptr) uintptr {
+	if v.GetFileNames == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFileNames, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -140,6 +182,9 @@ func (v *CEFDragDataT) CallGetFileNames(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetFilePaths(fn uintptr) { v.GetFilePaths = fn }
 
 func (v *CEFDragDataT) CallGetFilePaths(args ...uintptr) uintptr {
+	if v.GetFilePaths == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFilePaths, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -147,6 +192,9 @@ func (v *CEFDragDataT) CallGetFilePaths(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideSetLinkURL(fn uintptr) { v.SetLinkURL = fn }
 
 func (v *CEFDragDataT) CallSetLinkURL(args ...uintptr) uintptr {
+	if v.SetLinkURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetLinkURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -154,6 +202,9 @@ func (v *CEFDragDataT) CallSetLinkURL(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideSetLinkTitle(fn uintptr) { v.SetLinkTitle = fn }
 
 func (v *CEFDragDataT) CallSetLinkTitle(args ...uintptr) uintptr {
+	if v.SetLinkTitle == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetLinkTitle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -161,6 +212,9 @@ func (v *CEFDragDataT) CallSetLinkTitle(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideSetLinkMetadata(fn uintptr) { v.SetLinkMetadata = fn }
 
 func (v *CEFDragDataT) CallSetLinkMetadata(args ...uintptr) uintptr {
+	if v.SetLinkMetadata == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetLinkMetadata, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -168,6 +222,9 @@ func (v *CEFDragDataT) CallSetLinkMetadata(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideSetFragmentText(fn uintptr) { v.SetFragmentText = fn }
 
 func (v *CEFDragDataT) CallSetFragmentText(args ...uintptr) uintptr {
+	if v.SetFragmentText == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetFragmentText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -175,6 +232,9 @@ func (v *CEFDragDataT) CallSetFragmentText(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideSetFragmentHtml(fn uintptr) { v.SetFragmentHtml = fn }
 
 func (v *CEFDragDataT) CallSetFragmentHtml(args ...uintptr) uintptr {
+	if v.SetFragmentHtml == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetFragmentHtml, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -182,6 +242,9 @@ func (v *CEFDragDataT) CallSetFragmentHtml(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideSetFragmentBaseURL(fn uintptr) { v.SetFragmentBaseURL = fn }
 
 func (v *CEFDragDataT) CallSetFragmentBaseURL(args ...uintptr) uintptr {
+	if v.SetFragmentBaseURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetFragmentBaseURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -189,6 +252,9 @@ func (v *CEFDragDataT) CallSetFragmentBaseURL(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideResetFileContents(fn uintptr) { v.ResetFileContents = fn }
 
 func (v *CEFDragDataT) CallResetFileContents(args ...uintptr) uintptr {
+	if v.ResetFileContents == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.ResetFileContents, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -196,6 +262,9 @@ func (v *CEFDragDataT) CallResetFileContents(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideAddFile(fn uintptr) { v.AddFile = fn }
 
 func (v *CEFDragDataT) CallAddFile(args ...uintptr) uintptr {
+	if v.AddFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AddFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -203,6 +272,9 @@ func (v *CEFDragDataT) CallAddFile(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideClearFilenames(fn uintptr) { v.ClearFilenames = fn }
 
 func (v *CEFDragDataT) CallClearFilenames(args ...uintptr) uintptr {
+	if v.ClearFilenames == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.ClearFilenames, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -210,6 +282,9 @@ func (v *CEFDragDataT) CallClearFilenames(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetImage(fn uintptr) { v.GetImage = fn }
 
 func (v *CEFDragDataT) CallGetImage(args ...uintptr) uintptr {
+	if v.GetImage == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetImage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -217,6 +292,9 @@ func (v *CEFDragDataT) CallGetImage(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideGetImageHotspot(fn uintptr) { v.GetImageHotspot = fn }
 
 func (v *CEFDragDataT) CallGetImageHotspot(args ...uintptr) uintptr {
+	if v.GetImageHotspot == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetImageHotspot, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -224,6 +302,9 @@ func (v *CEFDragDataT) CallGetImageHotspot(args ...uintptr) uintptr {
 func (v *CEFDragDataT) OverrideHasImage(fn uintptr) { v.HasImage = fn }
 
 func (v *CEFDragDataT) CallHasImage(args ...uintptr) uintptr {
+	if v.HasImage == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasImage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

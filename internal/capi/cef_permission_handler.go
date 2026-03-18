@@ -17,6 +17,9 @@ type CEFMediaAccessCallbackT struct {
 func (v *CEFMediaAccessCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
 func (v *CEFMediaAccessCallbackT) CallCont(args ...uintptr) uintptr {
+	if v.Cont == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -24,6 +27,9 @@ func (v *CEFMediaAccessCallbackT) CallCont(args ...uintptr) uintptr {
 func (v *CEFMediaAccessCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
 func (v *CEFMediaAccessCallbackT) CallCancel(args ...uintptr) uintptr {
+	if v.Cancel == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -37,6 +43,9 @@ type CEFPermissionPromptCallbackT struct {
 func (v *CEFPermissionPromptCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
 func (v *CEFPermissionPromptCallbackT) CallCont(args ...uintptr) uintptr {
+	if v.Cont == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -54,6 +63,9 @@ func (v *CEFPermissionHandlerT) OverrideOnRequestMediaAccessPermission(fn uintpt
 }
 
 func (v *CEFPermissionHandlerT) CallOnRequestMediaAccessPermission(args ...uintptr) uintptr {
+	if v.OnRequestMediaAccessPermission == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnRequestMediaAccessPermission, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -63,6 +75,9 @@ func (v *CEFPermissionHandlerT) OverrideOnShowPermissionPrompt(fn uintptr) {
 }
 
 func (v *CEFPermissionHandlerT) CallOnShowPermissionPrompt(args ...uintptr) uintptr {
+	if v.OnShowPermissionPrompt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnShowPermissionPrompt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -72,9 +87,11 @@ func (v *CEFPermissionHandlerT) OverrideOnDismissPermissionPrompt(fn uintptr) {
 }
 
 func (v *CEFPermissionHandlerT) CallOnDismissPermissionPrompt(args ...uintptr) uintptr {
+	if v.OnDismissPermissionPrompt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnDismissPermissionPrompt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterPermissionHandler(handle uintptr) {
-}
+func RegisterPermissionHandler(_ uintptr) {}

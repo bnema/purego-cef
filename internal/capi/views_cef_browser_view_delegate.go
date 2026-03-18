@@ -25,6 +25,9 @@ type CEFBrowserViewDelegateT struct {
 func (v *CEFBrowserViewDelegateT) OverrideOnBrowserCreated(fn uintptr) { v.OnBrowserCreated = fn }
 
 func (v *CEFBrowserViewDelegateT) CallOnBrowserCreated(args ...uintptr) uintptr {
+	if v.OnBrowserCreated == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBrowserCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -32,6 +35,9 @@ func (v *CEFBrowserViewDelegateT) CallOnBrowserCreated(args ...uintptr) uintptr 
 func (v *CEFBrowserViewDelegateT) OverrideOnBrowserDestroyed(fn uintptr) { v.OnBrowserDestroyed = fn }
 
 func (v *CEFBrowserViewDelegateT) CallOnBrowserDestroyed(args ...uintptr) uintptr {
+	if v.OnBrowserDestroyed == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBrowserDestroyed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -41,6 +47,9 @@ func (v *CEFBrowserViewDelegateT) OverrideGetDelegateForPopupBrowserView(fn uint
 }
 
 func (v *CEFBrowserViewDelegateT) CallGetDelegateForPopupBrowserView(args ...uintptr) uintptr {
+	if v.GetDelegateForPopupBrowserView == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetDelegateForPopupBrowserView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -50,6 +59,9 @@ func (v *CEFBrowserViewDelegateT) OverrideOnPopupBrowserViewCreated(fn uintptr) 
 }
 
 func (v *CEFBrowserViewDelegateT) CallOnPopupBrowserViewCreated(args ...uintptr) uintptr {
+	if v.OnPopupBrowserViewCreated == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnPopupBrowserViewCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -59,6 +71,9 @@ func (v *CEFBrowserViewDelegateT) OverrideGetChromeToolbarType(fn uintptr) {
 }
 
 func (v *CEFBrowserViewDelegateT) CallGetChromeToolbarType(args ...uintptr) uintptr {
+	if v.GetChromeToolbarType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetChromeToolbarType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -68,6 +83,9 @@ func (v *CEFBrowserViewDelegateT) OverrideUseFramelessWindowForPictureInPicture(
 }
 
 func (v *CEFBrowserViewDelegateT) CallUseFramelessWindowForPictureInPicture(args ...uintptr) uintptr {
+	if v.UseFramelessWindowForPictureInPicture == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.UseFramelessWindowForPictureInPicture, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -75,6 +93,9 @@ func (v *CEFBrowserViewDelegateT) CallUseFramelessWindowForPictureInPicture(args
 func (v *CEFBrowserViewDelegateT) OverrideOnGestureCommand(fn uintptr) { v.OnGestureCommand = fn }
 
 func (v *CEFBrowserViewDelegateT) CallOnGestureCommand(args ...uintptr) uintptr {
+	if v.OnGestureCommand == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnGestureCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -84,6 +105,9 @@ func (v *CEFBrowserViewDelegateT) OverrideGetBrowserRuntimeStyle(fn uintptr) {
 }
 
 func (v *CEFBrowserViewDelegateT) CallGetBrowserRuntimeStyle(args ...uintptr) uintptr {
+	if v.GetBrowserRuntimeStyle == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetBrowserRuntimeStyle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -93,6 +117,9 @@ func (v *CEFBrowserViewDelegateT) OverrideAllowMoveForPictureInPicture(fn uintpt
 }
 
 func (v *CEFBrowserViewDelegateT) CallAllowMoveForPictureInPicture(args ...uintptr) uintptr {
+	if v.AllowMoveForPictureInPicture == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AllowMoveForPictureInPicture, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -102,9 +129,11 @@ func (v *CEFBrowserViewDelegateT) OverrideAllowPictureInPictureWithoutUserActiva
 }
 
 func (v *CEFBrowserViewDelegateT) CallAllowPictureInPictureWithoutUserActivation(args ...uintptr) uintptr {
+	if v.AllowPictureInPictureWithoutUserActivation == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AllowPictureInPictureWithoutUserActivation, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterBrowserViewDelegate(handle uintptr) {
-}
+func RegisterBrowserViewDelegate(_ uintptr) {}

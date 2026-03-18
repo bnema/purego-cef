@@ -26,6 +26,9 @@ func (v *CEFRenderProcessHandlerT) OverrideOnWebKitInitialized(fn uintptr) {
 }
 
 func (v *CEFRenderProcessHandlerT) CallOnWebKitInitialized(args ...uintptr) uintptr {
+	if v.OnWebKitInitialized == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnWebKitInitialized, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -33,6 +36,9 @@ func (v *CEFRenderProcessHandlerT) CallOnWebKitInitialized(args ...uintptr) uint
 func (v *CEFRenderProcessHandlerT) OverrideOnBrowserCreated(fn uintptr) { v.OnBrowserCreated = fn }
 
 func (v *CEFRenderProcessHandlerT) CallOnBrowserCreated(args ...uintptr) uintptr {
+	if v.OnBrowserCreated == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBrowserCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -40,6 +46,9 @@ func (v *CEFRenderProcessHandlerT) CallOnBrowserCreated(args ...uintptr) uintptr
 func (v *CEFRenderProcessHandlerT) OverrideOnBrowserDestroyed(fn uintptr) { v.OnBrowserDestroyed = fn }
 
 func (v *CEFRenderProcessHandlerT) CallOnBrowserDestroyed(args ...uintptr) uintptr {
+	if v.OnBrowserDestroyed == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBrowserDestroyed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -47,6 +56,9 @@ func (v *CEFRenderProcessHandlerT) CallOnBrowserDestroyed(args ...uintptr) uintp
 func (v *CEFRenderProcessHandlerT) OverrideGetLoadHandler(fn uintptr) { v.GetLoadHandler = fn }
 
 func (v *CEFRenderProcessHandlerT) CallGetLoadHandler(args ...uintptr) uintptr {
+	if v.GetLoadHandler == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLoadHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -54,6 +66,9 @@ func (v *CEFRenderProcessHandlerT) CallGetLoadHandler(args ...uintptr) uintptr {
 func (v *CEFRenderProcessHandlerT) OverrideOnContextCreated(fn uintptr) { v.OnContextCreated = fn }
 
 func (v *CEFRenderProcessHandlerT) CallOnContextCreated(args ...uintptr) uintptr {
+	if v.OnContextCreated == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnContextCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -61,6 +76,9 @@ func (v *CEFRenderProcessHandlerT) CallOnContextCreated(args ...uintptr) uintptr
 func (v *CEFRenderProcessHandlerT) OverrideOnContextReleased(fn uintptr) { v.OnContextReleased = fn }
 
 func (v *CEFRenderProcessHandlerT) CallOnContextReleased(args ...uintptr) uintptr {
+	if v.OnContextReleased == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnContextReleased, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -70,6 +88,9 @@ func (v *CEFRenderProcessHandlerT) OverrideOnUncaughtException(fn uintptr) {
 }
 
 func (v *CEFRenderProcessHandlerT) CallOnUncaughtException(args ...uintptr) uintptr {
+	if v.OnUncaughtException == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnUncaughtException, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -79,6 +100,9 @@ func (v *CEFRenderProcessHandlerT) OverrideOnFocusedNodeChanged(fn uintptr) {
 }
 
 func (v *CEFRenderProcessHandlerT) CallOnFocusedNodeChanged(args ...uintptr) uintptr {
+	if v.OnFocusedNodeChanged == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnFocusedNodeChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -88,9 +112,11 @@ func (v *CEFRenderProcessHandlerT) OverrideOnProcessMessageReceived(fn uintptr) 
 }
 
 func (v *CEFRenderProcessHandlerT) CallOnProcessMessageReceived(args ...uintptr) uintptr {
+	if v.OnProcessMessageReceived == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnProcessMessageReceived, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterRenderProcessHandler(handle uintptr) {
-}
+func RegisterRenderProcessHandler(_ uintptr) {}

@@ -22,6 +22,9 @@ type CEFMenuModelDelegateT struct {
 func (v *CEFMenuModelDelegateT) OverrideExecuteCommand(fn uintptr) { v.ExecuteCommand = fn }
 
 func (v *CEFMenuModelDelegateT) CallExecuteCommand(args ...uintptr) uintptr {
+	if v.ExecuteCommand == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.ExecuteCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -29,6 +32,9 @@ func (v *CEFMenuModelDelegateT) CallExecuteCommand(args ...uintptr) uintptr {
 func (v *CEFMenuModelDelegateT) OverrideMouseOutsideMenu(fn uintptr) { v.MouseOutsideMenu = fn }
 
 func (v *CEFMenuModelDelegateT) CallMouseOutsideMenu(args ...uintptr) uintptr {
+	if v.MouseOutsideMenu == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MouseOutsideMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -36,6 +42,9 @@ func (v *CEFMenuModelDelegateT) CallMouseOutsideMenu(args ...uintptr) uintptr {
 func (v *CEFMenuModelDelegateT) OverrideUnhandledOpenSubmenu(fn uintptr) { v.UnhandledOpenSubmenu = fn }
 
 func (v *CEFMenuModelDelegateT) CallUnhandledOpenSubmenu(args ...uintptr) uintptr {
+	if v.UnhandledOpenSubmenu == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.UnhandledOpenSubmenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -45,6 +54,9 @@ func (v *CEFMenuModelDelegateT) OverrideUnhandledCloseSubmenu(fn uintptr) {
 }
 
 func (v *CEFMenuModelDelegateT) CallUnhandledCloseSubmenu(args ...uintptr) uintptr {
+	if v.UnhandledCloseSubmenu == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.UnhandledCloseSubmenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -52,6 +64,9 @@ func (v *CEFMenuModelDelegateT) CallUnhandledCloseSubmenu(args ...uintptr) uintp
 func (v *CEFMenuModelDelegateT) OverrideMenuWillShow(fn uintptr) { v.MenuWillShow = fn }
 
 func (v *CEFMenuModelDelegateT) CallMenuWillShow(args ...uintptr) uintptr {
+	if v.MenuWillShow == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MenuWillShow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -59,6 +74,9 @@ func (v *CEFMenuModelDelegateT) CallMenuWillShow(args ...uintptr) uintptr {
 func (v *CEFMenuModelDelegateT) OverrideMenuClosed(fn uintptr) { v.MenuClosed = fn }
 
 func (v *CEFMenuModelDelegateT) CallMenuClosed(args ...uintptr) uintptr {
+	if v.MenuClosed == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MenuClosed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -66,9 +84,11 @@ func (v *CEFMenuModelDelegateT) CallMenuClosed(args ...uintptr) uintptr {
 func (v *CEFMenuModelDelegateT) OverrideFormatLabel(fn uintptr) { v.FormatLabel = fn }
 
 func (v *CEFMenuModelDelegateT) CallFormatLabel(args ...uintptr) uintptr {
+	if v.FormatLabel == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.FormatLabel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterMenuModelDelegate(handle uintptr) {
-}
+func RegisterMenuModelDelegate(_ uintptr) {}

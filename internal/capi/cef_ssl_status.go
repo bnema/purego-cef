@@ -20,6 +20,9 @@ type CEFSslstatusT struct {
 func (v *CEFSslstatusT) OverrideIsSecureConnection(fn uintptr) { v.IsSecureConnection = fn }
 
 func (v *CEFSslstatusT) CallIsSecureConnection(args ...uintptr) uintptr {
+	if v.IsSecureConnection == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsSecureConnection, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -27,6 +30,9 @@ func (v *CEFSslstatusT) CallIsSecureConnection(args ...uintptr) uintptr {
 func (v *CEFSslstatusT) OverrideGetCertStatus(fn uintptr) { v.GetCertStatus = fn }
 
 func (v *CEFSslstatusT) CallGetCertStatus(args ...uintptr) uintptr {
+	if v.GetCertStatus == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetCertStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -34,6 +40,9 @@ func (v *CEFSslstatusT) CallGetCertStatus(args ...uintptr) uintptr {
 func (v *CEFSslstatusT) OverrideGetSslversion(fn uintptr) { v.GetSslversion = fn }
 
 func (v *CEFSslstatusT) CallGetSslversion(args ...uintptr) uintptr {
+	if v.GetSslversion == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSslversion, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -41,6 +50,9 @@ func (v *CEFSslstatusT) CallGetSslversion(args ...uintptr) uintptr {
 func (v *CEFSslstatusT) OverrideGetContentStatus(fn uintptr) { v.GetContentStatus = fn }
 
 func (v *CEFSslstatusT) CallGetContentStatus(args ...uintptr) uintptr {
+	if v.GetContentStatus == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetContentStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -48,9 +60,11 @@ func (v *CEFSslstatusT) CallGetContentStatus(args ...uintptr) uintptr {
 func (v *CEFSslstatusT) OverrideGetX509Certificate(fn uintptr) { v.GetX509Certificate = fn }
 
 func (v *CEFSslstatusT) CallGetX509Certificate(args ...uintptr) uintptr {
+	if v.GetX509Certificate == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetX509Certificate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterSslStatus(handle uintptr) {
-}
+func RegisterSslStatus(_ uintptr) {}

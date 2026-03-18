@@ -17,6 +17,9 @@ type CEFResponseFilterT struct {
 func (v *CEFResponseFilterT) OverrideInitFilter(fn uintptr) { v.InitFilter = fn }
 
 func (v *CEFResponseFilterT) CallInitFilter(args ...uintptr) uintptr {
+	if v.InitFilter == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.InitFilter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -24,9 +27,11 @@ func (v *CEFResponseFilterT) CallInitFilter(args ...uintptr) uintptr {
 func (v *CEFResponseFilterT) OverrideFilter(fn uintptr) { v.Filter = fn }
 
 func (v *CEFResponseFilterT) CallFilter(args ...uintptr) uintptr {
+	if v.Filter == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Filter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterResponseFilter(handle uintptr) {
-}
+func RegisterResponseFilter(_ uintptr) {}

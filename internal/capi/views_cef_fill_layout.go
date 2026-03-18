@@ -9,5 +9,4 @@ type CEFFillLayoutT struct {
 	Base CEFLayoutT
 }
 
-func RegisterFillLayout(handle uintptr) {
-}
+func RegisterFillLayout(_ uintptr) {}

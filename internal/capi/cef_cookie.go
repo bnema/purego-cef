@@ -20,6 +20,9 @@ type CEFCookieManagerT struct {
 func (v *CEFCookieManagerT) OverrideVisitAllCookies(fn uintptr) { v.VisitAllCookies = fn }
 
 func (v *CEFCookieManagerT) CallVisitAllCookies(args ...uintptr) uintptr {
+	if v.VisitAllCookies == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.VisitAllCookies, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -27,6 +30,9 @@ func (v *CEFCookieManagerT) CallVisitAllCookies(args ...uintptr) uintptr {
 func (v *CEFCookieManagerT) OverrideVisitURLCookies(fn uintptr) { v.VisitURLCookies = fn }
 
 func (v *CEFCookieManagerT) CallVisitURLCookies(args ...uintptr) uintptr {
+	if v.VisitURLCookies == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.VisitURLCookies, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -34,6 +40,9 @@ func (v *CEFCookieManagerT) CallVisitURLCookies(args ...uintptr) uintptr {
 func (v *CEFCookieManagerT) OverrideSetCookie(fn uintptr) { v.SetCookie = fn }
 
 func (v *CEFCookieManagerT) CallSetCookie(args ...uintptr) uintptr {
+	if v.SetCookie == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetCookie, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -41,6 +50,9 @@ func (v *CEFCookieManagerT) CallSetCookie(args ...uintptr) uintptr {
 func (v *CEFCookieManagerT) OverrideDeleteCookies(fn uintptr) { v.DeleteCookies = fn }
 
 func (v *CEFCookieManagerT) CallDeleteCookies(args ...uintptr) uintptr {
+	if v.DeleteCookies == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.DeleteCookies, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -48,6 +60,9 @@ func (v *CEFCookieManagerT) CallDeleteCookies(args ...uintptr) uintptr {
 func (v *CEFCookieManagerT) OverrideFlushStore(fn uintptr) { v.FlushStore = fn }
 
 func (v *CEFCookieManagerT) CallFlushStore(args ...uintptr) uintptr {
+	if v.FlushStore == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.FlushStore, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -61,6 +76,9 @@ type CEFCookieVisitorT struct {
 func (v *CEFCookieVisitorT) OverrideVisit(fn uintptr) { v.Visit = fn }
 
 func (v *CEFCookieVisitorT) CallVisit(args ...uintptr) uintptr {
+	if v.Visit == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Visit, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -74,6 +92,9 @@ type CEFSetCookieCallbackT struct {
 func (v *CEFSetCookieCallbackT) OverrideOnComplete(fn uintptr) { v.OnComplete = fn }
 
 func (v *CEFSetCookieCallbackT) CallOnComplete(args ...uintptr) uintptr {
+	if v.OnComplete == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnComplete, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -87,6 +108,9 @@ type CEFDeleteCookiesCallbackT struct {
 func (v *CEFDeleteCookiesCallbackT) OverrideOnComplete(fn uintptr) { v.OnComplete = fn }
 
 func (v *CEFDeleteCookiesCallbackT) CallOnComplete(args ...uintptr) uintptr {
+	if v.OnComplete == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnComplete, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

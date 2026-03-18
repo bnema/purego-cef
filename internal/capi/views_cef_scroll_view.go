@@ -22,6 +22,9 @@ type CEFScrollViewT struct {
 func (v *CEFScrollViewT) OverrideSetContentView(fn uintptr) { v.SetContentView = fn }
 
 func (v *CEFScrollViewT) CallSetContentView(args ...uintptr) uintptr {
+	if v.SetContentView == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetContentView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -29,6 +32,9 @@ func (v *CEFScrollViewT) CallSetContentView(args ...uintptr) uintptr {
 func (v *CEFScrollViewT) OverrideGetContentView(fn uintptr) { v.GetContentView = fn }
 
 func (v *CEFScrollViewT) CallGetContentView(args ...uintptr) uintptr {
+	if v.GetContentView == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetContentView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -36,6 +42,9 @@ func (v *CEFScrollViewT) CallGetContentView(args ...uintptr) uintptr {
 func (v *CEFScrollViewT) OverrideGetVisibleContentRect(fn uintptr) { v.GetVisibleContentRect = fn }
 
 func (v *CEFScrollViewT) CallGetVisibleContentRect(args ...uintptr) uintptr {
+	if v.GetVisibleContentRect == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetVisibleContentRect, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -43,6 +52,9 @@ func (v *CEFScrollViewT) CallGetVisibleContentRect(args ...uintptr) uintptr {
 func (v *CEFScrollViewT) OverrideHasHorizontalScrollbar(fn uintptr) { v.HasHorizontalScrollbar = fn }
 
 func (v *CEFScrollViewT) CallHasHorizontalScrollbar(args ...uintptr) uintptr {
+	if v.HasHorizontalScrollbar == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasHorizontalScrollbar, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -52,6 +64,9 @@ func (v *CEFScrollViewT) OverrideGetHorizontalScrollbarHeight(fn uintptr) {
 }
 
 func (v *CEFScrollViewT) CallGetHorizontalScrollbarHeight(args ...uintptr) uintptr {
+	if v.GetHorizontalScrollbarHeight == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetHorizontalScrollbarHeight, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -59,6 +74,9 @@ func (v *CEFScrollViewT) CallGetHorizontalScrollbarHeight(args ...uintptr) uintp
 func (v *CEFScrollViewT) OverrideHasVerticalScrollbar(fn uintptr) { v.HasVerticalScrollbar = fn }
 
 func (v *CEFScrollViewT) CallHasVerticalScrollbar(args ...uintptr) uintptr {
+	if v.HasVerticalScrollbar == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasVerticalScrollbar, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -68,6 +86,9 @@ func (v *CEFScrollViewT) OverrideGetVerticalScrollbarWidth(fn uintptr) {
 }
 
 func (v *CEFScrollViewT) CallGetVerticalScrollbarWidth(args ...uintptr) uintptr {
+	if v.GetVerticalScrollbarWidth == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetVerticalScrollbarWidth, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

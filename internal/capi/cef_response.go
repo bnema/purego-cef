@@ -32,6 +32,9 @@ type CEFResponseT struct {
 func (v *CEFResponseT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
 func (v *CEFResponseT) CallIsReadOnly(args ...uintptr) uintptr {
+	if v.IsReadOnly == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -39,6 +42,9 @@ func (v *CEFResponseT) CallIsReadOnly(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideGetError(fn uintptr) { v.GetError = fn }
 
 func (v *CEFResponseT) CallGetError(args ...uintptr) uintptr {
+	if v.GetError == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -46,6 +52,9 @@ func (v *CEFResponseT) CallGetError(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideSetError(fn uintptr) { v.SetError = fn }
 
 func (v *CEFResponseT) CallSetError(args ...uintptr) uintptr {
+	if v.SetError == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -53,6 +62,9 @@ func (v *CEFResponseT) CallSetError(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideGetStatus(fn uintptr) { v.GetStatus = fn }
 
 func (v *CEFResponseT) CallGetStatus(args ...uintptr) uintptr {
+	if v.GetStatus == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -60,6 +72,9 @@ func (v *CEFResponseT) CallGetStatus(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideSetStatus(fn uintptr) { v.SetStatus = fn }
 
 func (v *CEFResponseT) CallSetStatus(args ...uintptr) uintptr {
+	if v.SetStatus == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -67,6 +82,9 @@ func (v *CEFResponseT) CallSetStatus(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideGetStatusText(fn uintptr) { v.GetStatusText = fn }
 
 func (v *CEFResponseT) CallGetStatusText(args ...uintptr) uintptr {
+	if v.GetStatusText == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetStatusText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -74,6 +92,9 @@ func (v *CEFResponseT) CallGetStatusText(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideSetStatusText(fn uintptr) { v.SetStatusText = fn }
 
 func (v *CEFResponseT) CallSetStatusText(args ...uintptr) uintptr {
+	if v.SetStatusText == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetStatusText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -81,6 +102,9 @@ func (v *CEFResponseT) CallSetStatusText(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideGetMimeType(fn uintptr) { v.GetMimeType = fn }
 
 func (v *CEFResponseT) CallGetMimeType(args ...uintptr) uintptr {
+	if v.GetMimeType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetMimeType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -88,6 +112,9 @@ func (v *CEFResponseT) CallGetMimeType(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideSetMimeType(fn uintptr) { v.SetMimeType = fn }
 
 func (v *CEFResponseT) CallSetMimeType(args ...uintptr) uintptr {
+	if v.SetMimeType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetMimeType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -95,6 +122,9 @@ func (v *CEFResponseT) CallSetMimeType(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideGetCharset(fn uintptr) { v.GetCharset = fn }
 
 func (v *CEFResponseT) CallGetCharset(args ...uintptr) uintptr {
+	if v.GetCharset == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetCharset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -102,6 +132,9 @@ func (v *CEFResponseT) CallGetCharset(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideSetCharset(fn uintptr) { v.SetCharset = fn }
 
 func (v *CEFResponseT) CallSetCharset(args ...uintptr) uintptr {
+	if v.SetCharset == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetCharset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -109,6 +142,9 @@ func (v *CEFResponseT) CallSetCharset(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideGetHeaderByName(fn uintptr) { v.GetHeaderByName = fn }
 
 func (v *CEFResponseT) CallGetHeaderByName(args ...uintptr) uintptr {
+	if v.GetHeaderByName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetHeaderByName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -116,6 +152,9 @@ func (v *CEFResponseT) CallGetHeaderByName(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideSetHeaderByName(fn uintptr) { v.SetHeaderByName = fn }
 
 func (v *CEFResponseT) CallSetHeaderByName(args ...uintptr) uintptr {
+	if v.SetHeaderByName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetHeaderByName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -123,6 +162,9 @@ func (v *CEFResponseT) CallSetHeaderByName(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideGetHeaderMap(fn uintptr) { v.GetHeaderMap = fn }
 
 func (v *CEFResponseT) CallGetHeaderMap(args ...uintptr) uintptr {
+	if v.GetHeaderMap == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetHeaderMap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -130,6 +172,9 @@ func (v *CEFResponseT) CallGetHeaderMap(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideSetHeaderMap(fn uintptr) { v.SetHeaderMap = fn }
 
 func (v *CEFResponseT) CallSetHeaderMap(args ...uintptr) uintptr {
+	if v.SetHeaderMap == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetHeaderMap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -137,6 +182,9 @@ func (v *CEFResponseT) CallSetHeaderMap(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideGetURL(fn uintptr) { v.GetURL = fn }
 
 func (v *CEFResponseT) CallGetURL(args ...uintptr) uintptr {
+	if v.GetURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -144,6 +192,9 @@ func (v *CEFResponseT) CallGetURL(args ...uintptr) uintptr {
 func (v *CEFResponseT) OverrideSetURL(fn uintptr) { v.SetURL = fn }
 
 func (v *CEFResponseT) CallSetURL(args ...uintptr) uintptr {
+	if v.SetURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

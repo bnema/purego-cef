@@ -17,6 +17,9 @@ type CEFUnresponsiveProcessCallbackT struct {
 func (v *CEFUnresponsiveProcessCallbackT) OverrideWait(fn uintptr) { v.Wait = fn }
 
 func (v *CEFUnresponsiveProcessCallbackT) CallWait(args ...uintptr) uintptr {
+	if v.Wait == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Wait, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -24,9 +27,11 @@ func (v *CEFUnresponsiveProcessCallbackT) CallWait(args ...uintptr) uintptr {
 func (v *CEFUnresponsiveProcessCallbackT) OverrideTerminate(fn uintptr) { v.Terminate = fn }
 
 func (v *CEFUnresponsiveProcessCallbackT) CallTerminate(args ...uintptr) uintptr {
+	if v.Terminate == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Terminate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterUnresponsiveProcessCallback(handle uintptr) {
-}
+func RegisterUnresponsiveProcessCallback(_ uintptr) {}

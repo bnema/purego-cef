@@ -34,6 +34,9 @@ func (v *CEFRenderHandlerT) OverrideGetAccessibilityHandler(fn uintptr) {
 }
 
 func (v *CEFRenderHandlerT) CallGetAccessibilityHandler(args ...uintptr) uintptr {
+	if v.GetAccessibilityHandler == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAccessibilityHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -41,6 +44,9 @@ func (v *CEFRenderHandlerT) CallGetAccessibilityHandler(args ...uintptr) uintptr
 func (v *CEFRenderHandlerT) OverrideGetRootScreenRect(fn uintptr) { v.GetRootScreenRect = fn }
 
 func (v *CEFRenderHandlerT) CallGetRootScreenRect(args ...uintptr) uintptr {
+	if v.GetRootScreenRect == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetRootScreenRect, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -48,6 +54,9 @@ func (v *CEFRenderHandlerT) CallGetRootScreenRect(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideGetViewRect(fn uintptr) { v.GetViewRect = fn }
 
 func (v *CEFRenderHandlerT) CallGetViewRect(args ...uintptr) uintptr {
+	if v.GetViewRect == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetViewRect, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -55,6 +64,9 @@ func (v *CEFRenderHandlerT) CallGetViewRect(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideGetScreenPoint(fn uintptr) { v.GetScreenPoint = fn }
 
 func (v *CEFRenderHandlerT) CallGetScreenPoint(args ...uintptr) uintptr {
+	if v.GetScreenPoint == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetScreenPoint, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -62,6 +74,9 @@ func (v *CEFRenderHandlerT) CallGetScreenPoint(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideGetScreenInfo(fn uintptr) { v.GetScreenInfo = fn }
 
 func (v *CEFRenderHandlerT) CallGetScreenInfo(args ...uintptr) uintptr {
+	if v.GetScreenInfo == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetScreenInfo, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -69,6 +84,9 @@ func (v *CEFRenderHandlerT) CallGetScreenInfo(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideOnPopupShow(fn uintptr) { v.OnPopupShow = fn }
 
 func (v *CEFRenderHandlerT) CallOnPopupShow(args ...uintptr) uintptr {
+	if v.OnPopupShow == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnPopupShow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -76,6 +94,9 @@ func (v *CEFRenderHandlerT) CallOnPopupShow(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideOnPopupSize(fn uintptr) { v.OnPopupSize = fn }
 
 func (v *CEFRenderHandlerT) CallOnPopupSize(args ...uintptr) uintptr {
+	if v.OnPopupSize == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnPopupSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -83,6 +104,9 @@ func (v *CEFRenderHandlerT) CallOnPopupSize(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideOnPaint(fn uintptr) { v.OnPaint = fn }
 
 func (v *CEFRenderHandlerT) CallOnPaint(args ...uintptr) uintptr {
+	if v.OnPaint == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnPaint, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -90,6 +114,9 @@ func (v *CEFRenderHandlerT) CallOnPaint(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideOnAcceleratedPaint(fn uintptr) { v.OnAcceleratedPaint = fn }
 
 func (v *CEFRenderHandlerT) CallOnAcceleratedPaint(args ...uintptr) uintptr {
+	if v.OnAcceleratedPaint == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnAcceleratedPaint, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -97,6 +124,9 @@ func (v *CEFRenderHandlerT) CallOnAcceleratedPaint(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideGetTouchHandleSize(fn uintptr) { v.GetTouchHandleSize = fn }
 
 func (v *CEFRenderHandlerT) CallGetTouchHandleSize(args ...uintptr) uintptr {
+	if v.GetTouchHandleSize == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetTouchHandleSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -106,6 +136,9 @@ func (v *CEFRenderHandlerT) OverrideOnTouchHandleStateChanged(fn uintptr) {
 }
 
 func (v *CEFRenderHandlerT) CallOnTouchHandleStateChanged(args ...uintptr) uintptr {
+	if v.OnTouchHandleStateChanged == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnTouchHandleStateChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -113,6 +146,9 @@ func (v *CEFRenderHandlerT) CallOnTouchHandleStateChanged(args ...uintptr) uintp
 func (v *CEFRenderHandlerT) OverrideStartDragging(fn uintptr) { v.StartDragging = fn }
 
 func (v *CEFRenderHandlerT) CallStartDragging(args ...uintptr) uintptr {
+	if v.StartDragging == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.StartDragging, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -120,6 +156,9 @@ func (v *CEFRenderHandlerT) CallStartDragging(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideUpdateDragCursor(fn uintptr) { v.UpdateDragCursor = fn }
 
 func (v *CEFRenderHandlerT) CallUpdateDragCursor(args ...uintptr) uintptr {
+	if v.UpdateDragCursor == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.UpdateDragCursor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -127,6 +166,9 @@ func (v *CEFRenderHandlerT) CallUpdateDragCursor(args ...uintptr) uintptr {
 func (v *CEFRenderHandlerT) OverrideOnScrollOffsetChanged(fn uintptr) { v.OnScrollOffsetChanged = fn }
 
 func (v *CEFRenderHandlerT) CallOnScrollOffsetChanged(args ...uintptr) uintptr {
+	if v.OnScrollOffsetChanged == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnScrollOffsetChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -136,6 +178,9 @@ func (v *CEFRenderHandlerT) OverrideOnImeCompositionRangeChanged(fn uintptr) {
 }
 
 func (v *CEFRenderHandlerT) CallOnImeCompositionRangeChanged(args ...uintptr) uintptr {
+	if v.OnImeCompositionRangeChanged == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnImeCompositionRangeChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -143,6 +188,9 @@ func (v *CEFRenderHandlerT) CallOnImeCompositionRangeChanged(args ...uintptr) ui
 func (v *CEFRenderHandlerT) OverrideOnTextSelectionChanged(fn uintptr) { v.OnTextSelectionChanged = fn }
 
 func (v *CEFRenderHandlerT) CallOnTextSelectionChanged(args ...uintptr) uintptr {
+	if v.OnTextSelectionChanged == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnTextSelectionChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -152,9 +200,11 @@ func (v *CEFRenderHandlerT) OverrideOnVirtualKeyboardRequested(fn uintptr) {
 }
 
 func (v *CEFRenderHandlerT) CallOnVirtualKeyboardRequested(args ...uintptr) uintptr {
+	if v.OnVirtualKeyboardRequested == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnVirtualKeyboardRequested, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterRenderHandler(handle uintptr) {
-}
+func RegisterRenderHandler(_ uintptr) {}

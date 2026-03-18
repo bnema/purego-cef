@@ -21,9 +21,11 @@ type CEFMenuButtonDelegateT struct {
 func (v *CEFMenuButtonDelegateT) OverrideOnMenuButtonPressed(fn uintptr) { v.OnMenuButtonPressed = fn }
 
 func (v *CEFMenuButtonDelegateT) CallOnMenuButtonPressed(args ...uintptr) uintptr {
+	if v.OnMenuButtonPressed == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnMenuButtonPressed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterMenuButtonDelegate(handle uintptr) {
-}
+func RegisterMenuButtonDelegate(_ uintptr) {}

@@ -35,6 +35,9 @@ type CEFDownloadItemT struct {
 func (v *CEFDownloadItemT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
 func (v *CEFDownloadItemT) CallIsValid(args ...uintptr) uintptr {
+	if v.IsValid == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -42,6 +45,9 @@ func (v *CEFDownloadItemT) CallIsValid(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideIsInProgress(fn uintptr) { v.IsInProgress = fn }
 
 func (v *CEFDownloadItemT) CallIsInProgress(args ...uintptr) uintptr {
+	if v.IsInProgress == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsInProgress, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -49,6 +55,9 @@ func (v *CEFDownloadItemT) CallIsInProgress(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideIsComplete(fn uintptr) { v.IsComplete = fn }
 
 func (v *CEFDownloadItemT) CallIsComplete(args ...uintptr) uintptr {
+	if v.IsComplete == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsComplete, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -56,6 +65,9 @@ func (v *CEFDownloadItemT) CallIsComplete(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideIsCanceled(fn uintptr) { v.IsCanceled = fn }
 
 func (v *CEFDownloadItemT) CallIsCanceled(args ...uintptr) uintptr {
+	if v.IsCanceled == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsCanceled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -63,6 +75,9 @@ func (v *CEFDownloadItemT) CallIsCanceled(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideIsInterrupted(fn uintptr) { v.IsInterrupted = fn }
 
 func (v *CEFDownloadItemT) CallIsInterrupted(args ...uintptr) uintptr {
+	if v.IsInterrupted == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsInterrupted, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -70,6 +85,9 @@ func (v *CEFDownloadItemT) CallIsInterrupted(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetInterruptReason(fn uintptr) { v.GetInterruptReason = fn }
 
 func (v *CEFDownloadItemT) CallGetInterruptReason(args ...uintptr) uintptr {
+	if v.GetInterruptReason == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetInterruptReason, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -77,6 +95,9 @@ func (v *CEFDownloadItemT) CallGetInterruptReason(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetCurrentSpeed(fn uintptr) { v.GetCurrentSpeed = fn }
 
 func (v *CEFDownloadItemT) CallGetCurrentSpeed(args ...uintptr) uintptr {
+	if v.GetCurrentSpeed == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetCurrentSpeed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -84,6 +105,9 @@ func (v *CEFDownloadItemT) CallGetCurrentSpeed(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetPercentComplete(fn uintptr) { v.GetPercentComplete = fn }
 
 func (v *CEFDownloadItemT) CallGetPercentComplete(args ...uintptr) uintptr {
+	if v.GetPercentComplete == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPercentComplete, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -91,6 +115,9 @@ func (v *CEFDownloadItemT) CallGetPercentComplete(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetTotalBytes(fn uintptr) { v.GetTotalBytes = fn }
 
 func (v *CEFDownloadItemT) CallGetTotalBytes(args ...uintptr) uintptr {
+	if v.GetTotalBytes == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetTotalBytes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -98,6 +125,9 @@ func (v *CEFDownloadItemT) CallGetTotalBytes(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetReceivedBytes(fn uintptr) { v.GetReceivedBytes = fn }
 
 func (v *CEFDownloadItemT) CallGetReceivedBytes(args ...uintptr) uintptr {
+	if v.GetReceivedBytes == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetReceivedBytes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -105,6 +135,9 @@ func (v *CEFDownloadItemT) CallGetReceivedBytes(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetStartTime(fn uintptr) { v.GetStartTime = fn }
 
 func (v *CEFDownloadItemT) CallGetStartTime(args ...uintptr) uintptr {
+	if v.GetStartTime == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetStartTime, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -112,6 +145,9 @@ func (v *CEFDownloadItemT) CallGetStartTime(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetEndTime(fn uintptr) { v.GetEndTime = fn }
 
 func (v *CEFDownloadItemT) CallGetEndTime(args ...uintptr) uintptr {
+	if v.GetEndTime == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetEndTime, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -119,6 +155,9 @@ func (v *CEFDownloadItemT) CallGetEndTime(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetFullPath(fn uintptr) { v.GetFullPath = fn }
 
 func (v *CEFDownloadItemT) CallGetFullPath(args ...uintptr) uintptr {
+	if v.GetFullPath == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFullPath, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -126,6 +165,9 @@ func (v *CEFDownloadItemT) CallGetFullPath(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetID(fn uintptr) { v.GetID = fn }
 
 func (v *CEFDownloadItemT) CallGetID(args ...uintptr) uintptr {
+	if v.GetID == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -133,6 +175,9 @@ func (v *CEFDownloadItemT) CallGetID(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetURL(fn uintptr) { v.GetURL = fn }
 
 func (v *CEFDownloadItemT) CallGetURL(args ...uintptr) uintptr {
+	if v.GetURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -140,6 +185,9 @@ func (v *CEFDownloadItemT) CallGetURL(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetOriginalURL(fn uintptr) { v.GetOriginalURL = fn }
 
 func (v *CEFDownloadItemT) CallGetOriginalURL(args ...uintptr) uintptr {
+	if v.GetOriginalURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOriginalURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -147,6 +195,9 @@ func (v *CEFDownloadItemT) CallGetOriginalURL(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetSuggestedFileName(fn uintptr) { v.GetSuggestedFileName = fn }
 
 func (v *CEFDownloadItemT) CallGetSuggestedFileName(args ...uintptr) uintptr {
+	if v.GetSuggestedFileName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSuggestedFileName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -154,6 +205,9 @@ func (v *CEFDownloadItemT) CallGetSuggestedFileName(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetContentDisposition(fn uintptr) { v.GetContentDisposition = fn }
 
 func (v *CEFDownloadItemT) CallGetContentDisposition(args ...uintptr) uintptr {
+	if v.GetContentDisposition == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetContentDisposition, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -161,6 +215,9 @@ func (v *CEFDownloadItemT) CallGetContentDisposition(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideGetMimeType(fn uintptr) { v.GetMimeType = fn }
 
 func (v *CEFDownloadItemT) CallGetMimeType(args ...uintptr) uintptr {
+	if v.GetMimeType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetMimeType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -168,9 +225,11 @@ func (v *CEFDownloadItemT) CallGetMimeType(args ...uintptr) uintptr {
 func (v *CEFDownloadItemT) OverrideIsPaused(fn uintptr) { v.IsPaused = fn }
 
 func (v *CEFDownloadItemT) CallIsPaused(args ...uintptr) uintptr {
+	if v.IsPaused == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsPaused, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterDownloadItem(handle uintptr) {
-}
+func RegisterDownloadItem(_ uintptr) {}

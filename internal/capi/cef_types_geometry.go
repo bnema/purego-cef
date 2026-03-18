@@ -32,5 +32,4 @@ type CEFInsetsT struct {
 	Right  int32
 }
 
-func RegisterTypesGeometry(handle uintptr) {
-}
+func RegisterTypesGeometry(_ uintptr) {}

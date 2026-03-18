@@ -21,6 +21,9 @@ type CEFProcessMessageT struct {
 func (v *CEFProcessMessageT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
 func (v *CEFProcessMessageT) CallIsValid(args ...uintptr) uintptr {
+	if v.IsValid == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -28,6 +31,9 @@ func (v *CEFProcessMessageT) CallIsValid(args ...uintptr) uintptr {
 func (v *CEFProcessMessageT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
 func (v *CEFProcessMessageT) CallIsReadOnly(args ...uintptr) uintptr {
+	if v.IsReadOnly == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -35,6 +41,9 @@ func (v *CEFProcessMessageT) CallIsReadOnly(args ...uintptr) uintptr {
 func (v *CEFProcessMessageT) OverrideCopy(fn uintptr) { v.Copy = fn }
 
 func (v *CEFProcessMessageT) CallCopy(args ...uintptr) uintptr {
+	if v.Copy == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Copy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -42,6 +51,9 @@ func (v *CEFProcessMessageT) CallCopy(args ...uintptr) uintptr {
 func (v *CEFProcessMessageT) OverrideGetName(fn uintptr) { v.GetName = fn }
 
 func (v *CEFProcessMessageT) CallGetName(args ...uintptr) uintptr {
+	if v.GetName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -49,6 +61,9 @@ func (v *CEFProcessMessageT) CallGetName(args ...uintptr) uintptr {
 func (v *CEFProcessMessageT) OverrideGetArgumentList(fn uintptr) { v.GetArgumentList = fn }
 
 func (v *CEFProcessMessageT) CallGetArgumentList(args ...uintptr) uintptr {
+	if v.GetArgumentList == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetArgumentList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -56,6 +71,9 @@ func (v *CEFProcessMessageT) CallGetArgumentList(args ...uintptr) uintptr {
 func (v *CEFProcessMessageT) OverrideGetSharedMemoryRegion(fn uintptr) { v.GetSharedMemoryRegion = fn }
 
 func (v *CEFProcessMessageT) CallGetSharedMemoryRegion(args ...uintptr) uintptr {
+	if v.GetSharedMemoryRegion == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSharedMemoryRegion, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

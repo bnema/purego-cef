@@ -17,6 +17,9 @@ type CEFButtonDelegateT struct {
 func (v *CEFButtonDelegateT) OverrideOnButtonPressed(fn uintptr) { v.OnButtonPressed = fn }
 
 func (v *CEFButtonDelegateT) CallOnButtonPressed(args ...uintptr) uintptr {
+	if v.OnButtonPressed == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnButtonPressed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -24,9 +27,11 @@ func (v *CEFButtonDelegateT) CallOnButtonPressed(args ...uintptr) uintptr {
 func (v *CEFButtonDelegateT) OverrideOnButtonStateChanged(fn uintptr) { v.OnButtonStateChanged = fn }
 
 func (v *CEFButtonDelegateT) CallOnButtonStateChanged(args ...uintptr) uintptr {
+	if v.OnButtonStateChanged == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnButtonStateChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterButtonDelegate(handle uintptr) {
-}
+func RegisterButtonDelegate(_ uintptr) {}

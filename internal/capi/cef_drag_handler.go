@@ -17,6 +17,9 @@ type CEFDragHandlerT struct {
 func (v *CEFDragHandlerT) OverrideOnDragEnter(fn uintptr) { v.OnDragEnter = fn }
 
 func (v *CEFDragHandlerT) CallOnDragEnter(args ...uintptr) uintptr {
+	if v.OnDragEnter == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnDragEnter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -26,9 +29,11 @@ func (v *CEFDragHandlerT) OverrideOnDraggableRegionsChanged(fn uintptr) {
 }
 
 func (v *CEFDragHandlerT) CallOnDraggableRegionsChanged(args ...uintptr) uintptr {
+	if v.OnDraggableRegionsChanged == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnDraggableRegionsChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterDragHandler(handle uintptr) {
-}
+func RegisterDragHandler(_ uintptr) {}

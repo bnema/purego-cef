@@ -71,6 +71,9 @@ type CEFMenuModelT struct {
 func (v *CEFMenuModelT) OverrideIsSubMenu(fn uintptr) { v.IsSubMenu = fn }
 
 func (v *CEFMenuModelT) CallIsSubMenu(args ...uintptr) uintptr {
+	if v.IsSubMenu == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsSubMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -78,6 +81,9 @@ func (v *CEFMenuModelT) CallIsSubMenu(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideClear(fn uintptr) { v.Clear = fn }
 
 func (v *CEFMenuModelT) CallClear(args ...uintptr) uintptr {
+	if v.Clear == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Clear, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -85,6 +91,9 @@ func (v *CEFMenuModelT) CallClear(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetCount(fn uintptr) { v.GetCount = fn }
 
 func (v *CEFMenuModelT) CallGetCount(args ...uintptr) uintptr {
+	if v.GetCount == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetCount, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -92,6 +101,9 @@ func (v *CEFMenuModelT) CallGetCount(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideAddSeparator(fn uintptr) { v.AddSeparator = fn }
 
 func (v *CEFMenuModelT) CallAddSeparator(args ...uintptr) uintptr {
+	if v.AddSeparator == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AddSeparator, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -99,6 +111,9 @@ func (v *CEFMenuModelT) CallAddSeparator(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideAddItem(fn uintptr) { v.AddItem = fn }
 
 func (v *CEFMenuModelT) CallAddItem(args ...uintptr) uintptr {
+	if v.AddItem == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AddItem, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -106,6 +121,9 @@ func (v *CEFMenuModelT) CallAddItem(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideAddCheckItem(fn uintptr) { v.AddCheckItem = fn }
 
 func (v *CEFMenuModelT) CallAddCheckItem(args ...uintptr) uintptr {
+	if v.AddCheckItem == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AddCheckItem, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -113,6 +131,9 @@ func (v *CEFMenuModelT) CallAddCheckItem(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideAddRadioItem(fn uintptr) { v.AddRadioItem = fn }
 
 func (v *CEFMenuModelT) CallAddRadioItem(args ...uintptr) uintptr {
+	if v.AddRadioItem == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AddRadioItem, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -120,6 +141,9 @@ func (v *CEFMenuModelT) CallAddRadioItem(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideAddSubMenu(fn uintptr) { v.AddSubMenu = fn }
 
 func (v *CEFMenuModelT) CallAddSubMenu(args ...uintptr) uintptr {
+	if v.AddSubMenu == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AddSubMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -127,6 +151,9 @@ func (v *CEFMenuModelT) CallAddSubMenu(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideInsertSeparatorAt(fn uintptr) { v.InsertSeparatorAt = fn }
 
 func (v *CEFMenuModelT) CallInsertSeparatorAt(args ...uintptr) uintptr {
+	if v.InsertSeparatorAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.InsertSeparatorAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -134,6 +161,9 @@ func (v *CEFMenuModelT) CallInsertSeparatorAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideInsertItemAt(fn uintptr) { v.InsertItemAt = fn }
 
 func (v *CEFMenuModelT) CallInsertItemAt(args ...uintptr) uintptr {
+	if v.InsertItemAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.InsertItemAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -141,6 +171,9 @@ func (v *CEFMenuModelT) CallInsertItemAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideInsertCheckItemAt(fn uintptr) { v.InsertCheckItemAt = fn }
 
 func (v *CEFMenuModelT) CallInsertCheckItemAt(args ...uintptr) uintptr {
+	if v.InsertCheckItemAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.InsertCheckItemAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -148,6 +181,9 @@ func (v *CEFMenuModelT) CallInsertCheckItemAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideInsertRadioItemAt(fn uintptr) { v.InsertRadioItemAt = fn }
 
 func (v *CEFMenuModelT) CallInsertRadioItemAt(args ...uintptr) uintptr {
+	if v.InsertRadioItemAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.InsertRadioItemAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -155,6 +191,9 @@ func (v *CEFMenuModelT) CallInsertRadioItemAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideInsertSubMenuAt(fn uintptr) { v.InsertSubMenuAt = fn }
 
 func (v *CEFMenuModelT) CallInsertSubMenuAt(args ...uintptr) uintptr {
+	if v.InsertSubMenuAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.InsertSubMenuAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -162,6 +201,9 @@ func (v *CEFMenuModelT) CallInsertSubMenuAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideRemove(fn uintptr) { v.Remove = fn }
 
 func (v *CEFMenuModelT) CallRemove(args ...uintptr) uintptr {
+	if v.Remove == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Remove, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -169,6 +211,9 @@ func (v *CEFMenuModelT) CallRemove(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideRemoveAt(fn uintptr) { v.RemoveAt = fn }
 
 func (v *CEFMenuModelT) CallRemoveAt(args ...uintptr) uintptr {
+	if v.RemoveAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.RemoveAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -176,6 +221,9 @@ func (v *CEFMenuModelT) CallRemoveAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetIndexOf(fn uintptr) { v.GetIndexOf = fn }
 
 func (v *CEFMenuModelT) CallGetIndexOf(args ...uintptr) uintptr {
+	if v.GetIndexOf == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetIndexOf, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -183,6 +231,9 @@ func (v *CEFMenuModelT) CallGetIndexOf(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetCommandIDAt(fn uintptr) { v.GetCommandIDAt = fn }
 
 func (v *CEFMenuModelT) CallGetCommandIDAt(args ...uintptr) uintptr {
+	if v.GetCommandIDAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetCommandIDAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -190,6 +241,9 @@ func (v *CEFMenuModelT) CallGetCommandIDAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetCommandIDAt(fn uintptr) { v.SetCommandIDAt = fn }
 
 func (v *CEFMenuModelT) CallSetCommandIDAt(args ...uintptr) uintptr {
+	if v.SetCommandIDAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetCommandIDAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -197,6 +251,9 @@ func (v *CEFMenuModelT) CallSetCommandIDAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetLabel(fn uintptr) { v.GetLabel = fn }
 
 func (v *CEFMenuModelT) CallGetLabel(args ...uintptr) uintptr {
+	if v.GetLabel == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLabel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -204,6 +261,9 @@ func (v *CEFMenuModelT) CallGetLabel(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetLabelAt(fn uintptr) { v.GetLabelAt = fn }
 
 func (v *CEFMenuModelT) CallGetLabelAt(args ...uintptr) uintptr {
+	if v.GetLabelAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLabelAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -211,6 +271,9 @@ func (v *CEFMenuModelT) CallGetLabelAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetLabel(fn uintptr) { v.SetLabel = fn }
 
 func (v *CEFMenuModelT) CallSetLabel(args ...uintptr) uintptr {
+	if v.SetLabel == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetLabel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -218,6 +281,9 @@ func (v *CEFMenuModelT) CallSetLabel(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetLabelAt(fn uintptr) { v.SetLabelAt = fn }
 
 func (v *CEFMenuModelT) CallSetLabelAt(args ...uintptr) uintptr {
+	if v.SetLabelAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetLabelAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -225,6 +291,9 @@ func (v *CEFMenuModelT) CallSetLabelAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetType(fn uintptr) { v.GetType = fn }
 
 func (v *CEFMenuModelT) CallGetType(args ...uintptr) uintptr {
+	if v.GetType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -232,6 +301,9 @@ func (v *CEFMenuModelT) CallGetType(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetTypeAt(fn uintptr) { v.GetTypeAt = fn }
 
 func (v *CEFMenuModelT) CallGetTypeAt(args ...uintptr) uintptr {
+	if v.GetTypeAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetTypeAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -239,6 +311,9 @@ func (v *CEFMenuModelT) CallGetTypeAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetGroupID(fn uintptr) { v.GetGroupID = fn }
 
 func (v *CEFMenuModelT) CallGetGroupID(args ...uintptr) uintptr {
+	if v.GetGroupID == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetGroupID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -246,6 +321,9 @@ func (v *CEFMenuModelT) CallGetGroupID(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetGroupIDAt(fn uintptr) { v.GetGroupIDAt = fn }
 
 func (v *CEFMenuModelT) CallGetGroupIDAt(args ...uintptr) uintptr {
+	if v.GetGroupIDAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetGroupIDAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -253,6 +331,9 @@ func (v *CEFMenuModelT) CallGetGroupIDAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetGroupID(fn uintptr) { v.SetGroupID = fn }
 
 func (v *CEFMenuModelT) CallSetGroupID(args ...uintptr) uintptr {
+	if v.SetGroupID == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetGroupID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -260,6 +341,9 @@ func (v *CEFMenuModelT) CallSetGroupID(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetGroupIDAt(fn uintptr) { v.SetGroupIDAt = fn }
 
 func (v *CEFMenuModelT) CallSetGroupIDAt(args ...uintptr) uintptr {
+	if v.SetGroupIDAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetGroupIDAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -267,6 +351,9 @@ func (v *CEFMenuModelT) CallSetGroupIDAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetSubMenu(fn uintptr) { v.GetSubMenu = fn }
 
 func (v *CEFMenuModelT) CallGetSubMenu(args ...uintptr) uintptr {
+	if v.GetSubMenu == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSubMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -274,6 +361,9 @@ func (v *CEFMenuModelT) CallGetSubMenu(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetSubMenuAt(fn uintptr) { v.GetSubMenuAt = fn }
 
 func (v *CEFMenuModelT) CallGetSubMenuAt(args ...uintptr) uintptr {
+	if v.GetSubMenuAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSubMenuAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -281,6 +371,9 @@ func (v *CEFMenuModelT) CallGetSubMenuAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideIsVisible(fn uintptr) { v.IsVisible = fn }
 
 func (v *CEFMenuModelT) CallIsVisible(args ...uintptr) uintptr {
+	if v.IsVisible == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsVisible, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -288,6 +381,9 @@ func (v *CEFMenuModelT) CallIsVisible(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideIsVisibleAt(fn uintptr) { v.IsVisibleAt = fn }
 
 func (v *CEFMenuModelT) CallIsVisibleAt(args ...uintptr) uintptr {
+	if v.IsVisibleAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsVisibleAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -295,6 +391,9 @@ func (v *CEFMenuModelT) CallIsVisibleAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetVisible(fn uintptr) { v.SetVisible = fn }
 
 func (v *CEFMenuModelT) CallSetVisible(args ...uintptr) uintptr {
+	if v.SetVisible == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetVisible, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -302,6 +401,9 @@ func (v *CEFMenuModelT) CallSetVisible(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetVisibleAt(fn uintptr) { v.SetVisibleAt = fn }
 
 func (v *CEFMenuModelT) CallSetVisibleAt(args ...uintptr) uintptr {
+	if v.SetVisibleAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetVisibleAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -309,6 +411,9 @@ func (v *CEFMenuModelT) CallSetVisibleAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideIsEnabled(fn uintptr) { v.IsEnabled = fn }
 
 func (v *CEFMenuModelT) CallIsEnabled(args ...uintptr) uintptr {
+	if v.IsEnabled == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsEnabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -316,6 +421,9 @@ func (v *CEFMenuModelT) CallIsEnabled(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideIsEnabledAt(fn uintptr) { v.IsEnabledAt = fn }
 
 func (v *CEFMenuModelT) CallIsEnabledAt(args ...uintptr) uintptr {
+	if v.IsEnabledAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsEnabledAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -323,6 +431,9 @@ func (v *CEFMenuModelT) CallIsEnabledAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetEnabled(fn uintptr) { v.SetEnabled = fn }
 
 func (v *CEFMenuModelT) CallSetEnabled(args ...uintptr) uintptr {
+	if v.SetEnabled == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetEnabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -330,6 +441,9 @@ func (v *CEFMenuModelT) CallSetEnabled(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetEnabledAt(fn uintptr) { v.SetEnabledAt = fn }
 
 func (v *CEFMenuModelT) CallSetEnabledAt(args ...uintptr) uintptr {
+	if v.SetEnabledAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetEnabledAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -337,6 +451,9 @@ func (v *CEFMenuModelT) CallSetEnabledAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideIsChecked(fn uintptr) { v.IsChecked = fn }
 
 func (v *CEFMenuModelT) CallIsChecked(args ...uintptr) uintptr {
+	if v.IsChecked == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsChecked, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -344,6 +461,9 @@ func (v *CEFMenuModelT) CallIsChecked(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideIsCheckedAt(fn uintptr) { v.IsCheckedAt = fn }
 
 func (v *CEFMenuModelT) CallIsCheckedAt(args ...uintptr) uintptr {
+	if v.IsCheckedAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsCheckedAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -351,6 +471,9 @@ func (v *CEFMenuModelT) CallIsCheckedAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetChecked(fn uintptr) { v.SetChecked = fn }
 
 func (v *CEFMenuModelT) CallSetChecked(args ...uintptr) uintptr {
+	if v.SetChecked == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetChecked, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -358,6 +481,9 @@ func (v *CEFMenuModelT) CallSetChecked(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetCheckedAt(fn uintptr) { v.SetCheckedAt = fn }
 
 func (v *CEFMenuModelT) CallSetCheckedAt(args ...uintptr) uintptr {
+	if v.SetCheckedAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetCheckedAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -365,6 +491,9 @@ func (v *CEFMenuModelT) CallSetCheckedAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideHasAccelerator(fn uintptr) { v.HasAccelerator = fn }
 
 func (v *CEFMenuModelT) CallHasAccelerator(args ...uintptr) uintptr {
+	if v.HasAccelerator == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasAccelerator, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -372,6 +501,9 @@ func (v *CEFMenuModelT) CallHasAccelerator(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideHasAcceleratorAt(fn uintptr) { v.HasAcceleratorAt = fn }
 
 func (v *CEFMenuModelT) CallHasAcceleratorAt(args ...uintptr) uintptr {
+	if v.HasAcceleratorAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasAcceleratorAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -379,6 +511,9 @@ func (v *CEFMenuModelT) CallHasAcceleratorAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetAccelerator(fn uintptr) { v.SetAccelerator = fn }
 
 func (v *CEFMenuModelT) CallSetAccelerator(args ...uintptr) uintptr {
+	if v.SetAccelerator == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetAccelerator, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -386,6 +521,9 @@ func (v *CEFMenuModelT) CallSetAccelerator(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetAcceleratorAt(fn uintptr) { v.SetAcceleratorAt = fn }
 
 func (v *CEFMenuModelT) CallSetAcceleratorAt(args ...uintptr) uintptr {
+	if v.SetAcceleratorAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetAcceleratorAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -393,6 +531,9 @@ func (v *CEFMenuModelT) CallSetAcceleratorAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideRemoveAccelerator(fn uintptr) { v.RemoveAccelerator = fn }
 
 func (v *CEFMenuModelT) CallRemoveAccelerator(args ...uintptr) uintptr {
+	if v.RemoveAccelerator == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.RemoveAccelerator, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -400,6 +541,9 @@ func (v *CEFMenuModelT) CallRemoveAccelerator(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideRemoveAcceleratorAt(fn uintptr) { v.RemoveAcceleratorAt = fn }
 
 func (v *CEFMenuModelT) CallRemoveAcceleratorAt(args ...uintptr) uintptr {
+	if v.RemoveAcceleratorAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.RemoveAcceleratorAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -407,6 +551,9 @@ func (v *CEFMenuModelT) CallRemoveAcceleratorAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetAccelerator(fn uintptr) { v.GetAccelerator = fn }
 
 func (v *CEFMenuModelT) CallGetAccelerator(args ...uintptr) uintptr {
+	if v.GetAccelerator == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAccelerator, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -414,6 +561,9 @@ func (v *CEFMenuModelT) CallGetAccelerator(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetAcceleratorAt(fn uintptr) { v.GetAcceleratorAt = fn }
 
 func (v *CEFMenuModelT) CallGetAcceleratorAt(args ...uintptr) uintptr {
+	if v.GetAcceleratorAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAcceleratorAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -421,6 +571,9 @@ func (v *CEFMenuModelT) CallGetAcceleratorAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetColor(fn uintptr) { v.SetColor = fn }
 
 func (v *CEFMenuModelT) CallSetColor(args ...uintptr) uintptr {
+	if v.SetColor == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetColor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -428,6 +581,9 @@ func (v *CEFMenuModelT) CallSetColor(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetColorAt(fn uintptr) { v.SetColorAt = fn }
 
 func (v *CEFMenuModelT) CallSetColorAt(args ...uintptr) uintptr {
+	if v.SetColorAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetColorAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -435,6 +591,9 @@ func (v *CEFMenuModelT) CallSetColorAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetColor(fn uintptr) { v.GetColor = fn }
 
 func (v *CEFMenuModelT) CallGetColor(args ...uintptr) uintptr {
+	if v.GetColor == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetColor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -442,6 +601,9 @@ func (v *CEFMenuModelT) CallGetColor(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideGetColorAt(fn uintptr) { v.GetColorAt = fn }
 
 func (v *CEFMenuModelT) CallGetColorAt(args ...uintptr) uintptr {
+	if v.GetColorAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetColorAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -449,6 +611,9 @@ func (v *CEFMenuModelT) CallGetColorAt(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetFontList(fn uintptr) { v.SetFontList = fn }
 
 func (v *CEFMenuModelT) CallSetFontList(args ...uintptr) uintptr {
+	if v.SetFontList == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetFontList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -456,6 +621,9 @@ func (v *CEFMenuModelT) CallSetFontList(args ...uintptr) uintptr {
 func (v *CEFMenuModelT) OverrideSetFontListAt(fn uintptr) { v.SetFontListAt = fn }
 
 func (v *CEFMenuModelT) CallSetFontListAt(args ...uintptr) uintptr {
+	if v.SetFontListAt == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetFontListAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

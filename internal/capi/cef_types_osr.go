@@ -21,5 +21,4 @@ type CEFAcceleratedPaintInfoCommonT struct {
 	HasCaptureCounter    uint8
 }
 
-func RegisterTypesOsr(handle uintptr) {
-}
+func RegisterTypesOsr(_ uintptr) {}

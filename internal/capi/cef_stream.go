@@ -20,6 +20,9 @@ type CEFReadHandlerT struct {
 func (v *CEFReadHandlerT) OverrideRead(fn uintptr) { v.Read = fn }
 
 func (v *CEFReadHandlerT) CallRead(args ...uintptr) uintptr {
+	if v.Read == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Read, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -27,6 +30,9 @@ func (v *CEFReadHandlerT) CallRead(args ...uintptr) uintptr {
 func (v *CEFReadHandlerT) OverrideSeek(fn uintptr) { v.Seek = fn }
 
 func (v *CEFReadHandlerT) CallSeek(args ...uintptr) uintptr {
+	if v.Seek == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Seek, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -34,6 +40,9 @@ func (v *CEFReadHandlerT) CallSeek(args ...uintptr) uintptr {
 func (v *CEFReadHandlerT) OverrideTell(fn uintptr) { v.Tell = fn }
 
 func (v *CEFReadHandlerT) CallTell(args ...uintptr) uintptr {
+	if v.Tell == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Tell, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -41,6 +50,9 @@ func (v *CEFReadHandlerT) CallTell(args ...uintptr) uintptr {
 func (v *CEFReadHandlerT) OverrideEof(fn uintptr) { v.Eof = fn }
 
 func (v *CEFReadHandlerT) CallEof(args ...uintptr) uintptr {
+	if v.Eof == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Eof, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -48,6 +60,9 @@ func (v *CEFReadHandlerT) CallEof(args ...uintptr) uintptr {
 func (v *CEFReadHandlerT) OverrideMayBlock(fn uintptr) { v.MayBlock = fn }
 
 func (v *CEFReadHandlerT) CallMayBlock(args ...uintptr) uintptr {
+	if v.MayBlock == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MayBlock, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -65,6 +80,9 @@ type CEFStreamReaderT struct {
 func (v *CEFStreamReaderT) OverrideRead(fn uintptr) { v.Read = fn }
 
 func (v *CEFStreamReaderT) CallRead(args ...uintptr) uintptr {
+	if v.Read == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Read, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -72,6 +90,9 @@ func (v *CEFStreamReaderT) CallRead(args ...uintptr) uintptr {
 func (v *CEFStreamReaderT) OverrideSeek(fn uintptr) { v.Seek = fn }
 
 func (v *CEFStreamReaderT) CallSeek(args ...uintptr) uintptr {
+	if v.Seek == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Seek, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -79,6 +100,9 @@ func (v *CEFStreamReaderT) CallSeek(args ...uintptr) uintptr {
 func (v *CEFStreamReaderT) OverrideTell(fn uintptr) { v.Tell = fn }
 
 func (v *CEFStreamReaderT) CallTell(args ...uintptr) uintptr {
+	if v.Tell == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Tell, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -86,6 +110,9 @@ func (v *CEFStreamReaderT) CallTell(args ...uintptr) uintptr {
 func (v *CEFStreamReaderT) OverrideEof(fn uintptr) { v.Eof = fn }
 
 func (v *CEFStreamReaderT) CallEof(args ...uintptr) uintptr {
+	if v.Eof == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Eof, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -93,6 +120,9 @@ func (v *CEFStreamReaderT) CallEof(args ...uintptr) uintptr {
 func (v *CEFStreamReaderT) OverrideMayBlock(fn uintptr) { v.MayBlock = fn }
 
 func (v *CEFStreamReaderT) CallMayBlock(args ...uintptr) uintptr {
+	if v.MayBlock == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MayBlock, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -110,6 +140,9 @@ type CEFWriteHandlerT struct {
 func (v *CEFWriteHandlerT) OverrideWrite(fn uintptr) { v.Write = fn }
 
 func (v *CEFWriteHandlerT) CallWrite(args ...uintptr) uintptr {
+	if v.Write == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Write, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -117,6 +150,9 @@ func (v *CEFWriteHandlerT) CallWrite(args ...uintptr) uintptr {
 func (v *CEFWriteHandlerT) OverrideSeek(fn uintptr) { v.Seek = fn }
 
 func (v *CEFWriteHandlerT) CallSeek(args ...uintptr) uintptr {
+	if v.Seek == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Seek, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -124,6 +160,9 @@ func (v *CEFWriteHandlerT) CallSeek(args ...uintptr) uintptr {
 func (v *CEFWriteHandlerT) OverrideTell(fn uintptr) { v.Tell = fn }
 
 func (v *CEFWriteHandlerT) CallTell(args ...uintptr) uintptr {
+	if v.Tell == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Tell, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -131,6 +170,9 @@ func (v *CEFWriteHandlerT) CallTell(args ...uintptr) uintptr {
 func (v *CEFWriteHandlerT) OverrideFlush(fn uintptr) { v.Flush = fn }
 
 func (v *CEFWriteHandlerT) CallFlush(args ...uintptr) uintptr {
+	if v.Flush == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Flush, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -138,6 +180,9 @@ func (v *CEFWriteHandlerT) CallFlush(args ...uintptr) uintptr {
 func (v *CEFWriteHandlerT) OverrideMayBlock(fn uintptr) { v.MayBlock = fn }
 
 func (v *CEFWriteHandlerT) CallMayBlock(args ...uintptr) uintptr {
+	if v.MayBlock == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MayBlock, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -155,6 +200,9 @@ type CEFStreamWriterT struct {
 func (v *CEFStreamWriterT) OverrideWrite(fn uintptr) { v.Write = fn }
 
 func (v *CEFStreamWriterT) CallWrite(args ...uintptr) uintptr {
+	if v.Write == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Write, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -162,6 +210,9 @@ func (v *CEFStreamWriterT) CallWrite(args ...uintptr) uintptr {
 func (v *CEFStreamWriterT) OverrideSeek(fn uintptr) { v.Seek = fn }
 
 func (v *CEFStreamWriterT) CallSeek(args ...uintptr) uintptr {
+	if v.Seek == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Seek, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -169,6 +220,9 @@ func (v *CEFStreamWriterT) CallSeek(args ...uintptr) uintptr {
 func (v *CEFStreamWriterT) OverrideTell(fn uintptr) { v.Tell = fn }
 
 func (v *CEFStreamWriterT) CallTell(args ...uintptr) uintptr {
+	if v.Tell == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Tell, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -176,6 +230,9 @@ func (v *CEFStreamWriterT) CallTell(args ...uintptr) uintptr {
 func (v *CEFStreamWriterT) OverrideFlush(fn uintptr) { v.Flush = fn }
 
 func (v *CEFStreamWriterT) CallFlush(args ...uintptr) uintptr {
+	if v.Flush == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Flush, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -183,6 +240,9 @@ func (v *CEFStreamWriterT) CallFlush(args ...uintptr) uintptr {
 func (v *CEFStreamWriterT) OverrideMayBlock(fn uintptr) { v.MayBlock = fn }
 
 func (v *CEFStreamWriterT) CallMayBlock(args ...uintptr) uintptr {
+	if v.MayBlock == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MayBlock, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

@@ -25,6 +25,9 @@ type CEFNavigationEntryT struct {
 func (v *CEFNavigationEntryT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
 func (v *CEFNavigationEntryT) CallIsValid(args ...uintptr) uintptr {
+	if v.IsValid == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -32,6 +35,9 @@ func (v *CEFNavigationEntryT) CallIsValid(args ...uintptr) uintptr {
 func (v *CEFNavigationEntryT) OverrideGetURL(fn uintptr) { v.GetURL = fn }
 
 func (v *CEFNavigationEntryT) CallGetURL(args ...uintptr) uintptr {
+	if v.GetURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -39,6 +45,9 @@ func (v *CEFNavigationEntryT) CallGetURL(args ...uintptr) uintptr {
 func (v *CEFNavigationEntryT) OverrideGetDisplayURL(fn uintptr) { v.GetDisplayURL = fn }
 
 func (v *CEFNavigationEntryT) CallGetDisplayURL(args ...uintptr) uintptr {
+	if v.GetDisplayURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetDisplayURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -46,6 +55,9 @@ func (v *CEFNavigationEntryT) CallGetDisplayURL(args ...uintptr) uintptr {
 func (v *CEFNavigationEntryT) OverrideGetOriginalURL(fn uintptr) { v.GetOriginalURL = fn }
 
 func (v *CEFNavigationEntryT) CallGetOriginalURL(args ...uintptr) uintptr {
+	if v.GetOriginalURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOriginalURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -53,6 +65,9 @@ func (v *CEFNavigationEntryT) CallGetOriginalURL(args ...uintptr) uintptr {
 func (v *CEFNavigationEntryT) OverrideGetTitle(fn uintptr) { v.GetTitle = fn }
 
 func (v *CEFNavigationEntryT) CallGetTitle(args ...uintptr) uintptr {
+	if v.GetTitle == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetTitle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -60,6 +75,9 @@ func (v *CEFNavigationEntryT) CallGetTitle(args ...uintptr) uintptr {
 func (v *CEFNavigationEntryT) OverrideGetTransitionType(fn uintptr) { v.GetTransitionType = fn }
 
 func (v *CEFNavigationEntryT) CallGetTransitionType(args ...uintptr) uintptr {
+	if v.GetTransitionType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetTransitionType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -67,6 +85,9 @@ func (v *CEFNavigationEntryT) CallGetTransitionType(args ...uintptr) uintptr {
 func (v *CEFNavigationEntryT) OverrideHasPostData(fn uintptr) { v.HasPostData = fn }
 
 func (v *CEFNavigationEntryT) CallHasPostData(args ...uintptr) uintptr {
+	if v.HasPostData == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasPostData, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -74,6 +95,9 @@ func (v *CEFNavigationEntryT) CallHasPostData(args ...uintptr) uintptr {
 func (v *CEFNavigationEntryT) OverrideGetCompletionTime(fn uintptr) { v.GetCompletionTime = fn }
 
 func (v *CEFNavigationEntryT) CallGetCompletionTime(args ...uintptr) uintptr {
+	if v.GetCompletionTime == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetCompletionTime, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -81,6 +105,9 @@ func (v *CEFNavigationEntryT) CallGetCompletionTime(args ...uintptr) uintptr {
 func (v *CEFNavigationEntryT) OverrideGetHttpStatusCode(fn uintptr) { v.GetHttpStatusCode = fn }
 
 func (v *CEFNavigationEntryT) CallGetHttpStatusCode(args ...uintptr) uintptr {
+	if v.GetHttpStatusCode == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetHttpStatusCode, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -88,9 +115,11 @@ func (v *CEFNavigationEntryT) CallGetHttpStatusCode(args ...uintptr) uintptr {
 func (v *CEFNavigationEntryT) OverrideGetSslstatus(fn uintptr) { v.GetSslstatus = fn }
 
 func (v *CEFNavigationEntryT) CallGetSslstatus(args ...uintptr) uintptr {
+	if v.GetSslstatus == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSslstatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterNavigationEntry(handle uintptr) {
-}
+func RegisterNavigationEntry(_ uintptr) {}

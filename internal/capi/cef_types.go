@@ -477,5 +477,4 @@ type CEFTaskInfoT struct {
 	IsGpuMemoryInflated int32
 }
 
-func RegisterTypes(handle uintptr) {
-}
+func RegisterTypes(_ uintptr) {}

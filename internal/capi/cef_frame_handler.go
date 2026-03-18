@@ -20,6 +20,9 @@ type CEFFrameHandlerT struct {
 func (v *CEFFrameHandlerT) OverrideOnFrameCreated(fn uintptr) { v.OnFrameCreated = fn }
 
 func (v *CEFFrameHandlerT) CallOnFrameCreated(args ...uintptr) uintptr {
+	if v.OnFrameCreated == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnFrameCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -27,6 +30,9 @@ func (v *CEFFrameHandlerT) CallOnFrameCreated(args ...uintptr) uintptr {
 func (v *CEFFrameHandlerT) OverrideOnFrameDestroyed(fn uintptr) { v.OnFrameDestroyed = fn }
 
 func (v *CEFFrameHandlerT) CallOnFrameDestroyed(args ...uintptr) uintptr {
+	if v.OnFrameDestroyed == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnFrameDestroyed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -34,6 +40,9 @@ func (v *CEFFrameHandlerT) CallOnFrameDestroyed(args ...uintptr) uintptr {
 func (v *CEFFrameHandlerT) OverrideOnFrameAttached(fn uintptr) { v.OnFrameAttached = fn }
 
 func (v *CEFFrameHandlerT) CallOnFrameAttached(args ...uintptr) uintptr {
+	if v.OnFrameAttached == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnFrameAttached, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -41,6 +50,9 @@ func (v *CEFFrameHandlerT) CallOnFrameAttached(args ...uintptr) uintptr {
 func (v *CEFFrameHandlerT) OverrideOnFrameDetached(fn uintptr) { v.OnFrameDetached = fn }
 
 func (v *CEFFrameHandlerT) CallOnFrameDetached(args ...uintptr) uintptr {
+	if v.OnFrameDetached == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnFrameDetached, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -48,9 +60,11 @@ func (v *CEFFrameHandlerT) CallOnFrameDetached(args ...uintptr) uintptr {
 func (v *CEFFrameHandlerT) OverrideOnMainFrameChanged(fn uintptr) { v.OnMainFrameChanged = fn }
 
 func (v *CEFFrameHandlerT) CallOnMainFrameChanged(args ...uintptr) uintptr {
+	if v.OnMainFrameChanged == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnMainFrameChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterFrameHandler(handle uintptr) {
-}
+func RegisterFrameHandler(_ uintptr) {}

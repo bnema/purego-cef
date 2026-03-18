@@ -18,6 +18,9 @@ type CEFFocusHandlerT struct {
 func (v *CEFFocusHandlerT) OverrideOnTakeFocus(fn uintptr) { v.OnTakeFocus = fn }
 
 func (v *CEFFocusHandlerT) CallOnTakeFocus(args ...uintptr) uintptr {
+	if v.OnTakeFocus == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnTakeFocus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -25,6 +28,9 @@ func (v *CEFFocusHandlerT) CallOnTakeFocus(args ...uintptr) uintptr {
 func (v *CEFFocusHandlerT) OverrideOnSetFocus(fn uintptr) { v.OnSetFocus = fn }
 
 func (v *CEFFocusHandlerT) CallOnSetFocus(args ...uintptr) uintptr {
+	if v.OnSetFocus == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnSetFocus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -32,9 +38,11 @@ func (v *CEFFocusHandlerT) CallOnSetFocus(args ...uintptr) uintptr {
 func (v *CEFFocusHandlerT) OverrideOnGotFocus(fn uintptr) { v.OnGotFocus = fn }
 
 func (v *CEFFocusHandlerT) CallOnGotFocus(args ...uintptr) uintptr {
+	if v.OnGotFocus == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnGotFocus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterFocusHandler(handle uintptr) {
-}
+func RegisterFocusHandler(_ uintptr) {}

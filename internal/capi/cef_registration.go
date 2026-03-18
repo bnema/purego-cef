@@ -9,5 +9,4 @@ type CEFRegistrationT struct {
 	Base CEFBaseRefCountedT
 }
 
-func RegisterRegistration(handle uintptr) {
-}
+func RegisterRegistration(_ uintptr) {}

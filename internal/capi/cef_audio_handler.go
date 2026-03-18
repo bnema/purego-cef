@@ -20,6 +20,9 @@ type CEFAudioHandlerT struct {
 func (v *CEFAudioHandlerT) OverrideGetAudioParameters(fn uintptr) { v.GetAudioParameters = fn }
 
 func (v *CEFAudioHandlerT) CallGetAudioParameters(args ...uintptr) uintptr {
+	if v.GetAudioParameters == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAudioParameters, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -27,6 +30,9 @@ func (v *CEFAudioHandlerT) CallGetAudioParameters(args ...uintptr) uintptr {
 func (v *CEFAudioHandlerT) OverrideOnAudioStreamStarted(fn uintptr) { v.OnAudioStreamStarted = fn }
 
 func (v *CEFAudioHandlerT) CallOnAudioStreamStarted(args ...uintptr) uintptr {
+	if v.OnAudioStreamStarted == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnAudioStreamStarted, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -34,6 +40,9 @@ func (v *CEFAudioHandlerT) CallOnAudioStreamStarted(args ...uintptr) uintptr {
 func (v *CEFAudioHandlerT) OverrideOnAudioStreamPacket(fn uintptr) { v.OnAudioStreamPacket = fn }
 
 func (v *CEFAudioHandlerT) CallOnAudioStreamPacket(args ...uintptr) uintptr {
+	if v.OnAudioStreamPacket == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnAudioStreamPacket, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -41,6 +50,9 @@ func (v *CEFAudioHandlerT) CallOnAudioStreamPacket(args ...uintptr) uintptr {
 func (v *CEFAudioHandlerT) OverrideOnAudioStreamStopped(fn uintptr) { v.OnAudioStreamStopped = fn }
 
 func (v *CEFAudioHandlerT) CallOnAudioStreamStopped(args ...uintptr) uintptr {
+	if v.OnAudioStreamStopped == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnAudioStreamStopped, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -48,9 +60,11 @@ func (v *CEFAudioHandlerT) CallOnAudioStreamStopped(args ...uintptr) uintptr {
 func (v *CEFAudioHandlerT) OverrideOnAudioStreamError(fn uintptr) { v.OnAudioStreamError = fn }
 
 func (v *CEFAudioHandlerT) CallOnAudioStreamError(args ...uintptr) uintptr {
+	if v.OnAudioStreamError == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnAudioStreamError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterAudioHandler(handle uintptr) {
-}
+func RegisterAudioHandler(_ uintptr) {}

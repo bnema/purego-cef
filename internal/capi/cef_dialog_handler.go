@@ -17,6 +17,9 @@ type CEFFileDialogCallbackT struct {
 func (v *CEFFileDialogCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
 func (v *CEFFileDialogCallbackT) CallCont(args ...uintptr) uintptr {
+	if v.Cont == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -24,6 +27,9 @@ func (v *CEFFileDialogCallbackT) CallCont(args ...uintptr) uintptr {
 func (v *CEFFileDialogCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
 func (v *CEFFileDialogCallbackT) CallCancel(args ...uintptr) uintptr {
+	if v.Cancel == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -37,9 +43,11 @@ type CEFDialogHandlerT struct {
 func (v *CEFDialogHandlerT) OverrideOnFileDialog(fn uintptr) { v.OnFileDialog = fn }
 
 func (v *CEFDialogHandlerT) CallOnFileDialog(args ...uintptr) uintptr {
+	if v.OnFileDialog == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnFileDialog, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterDialogHandler(handle uintptr) {
-}
+func RegisterDialogHandler(_ uintptr) {}

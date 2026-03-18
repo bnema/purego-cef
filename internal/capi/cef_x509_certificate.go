@@ -22,6 +22,9 @@ type CEFX509CertPrincipalT struct {
 func (v *CEFX509CertPrincipalT) OverrideGetDisplayName(fn uintptr) { v.GetDisplayName = fn }
 
 func (v *CEFX509CertPrincipalT) CallGetDisplayName(args ...uintptr) uintptr {
+	if v.GetDisplayName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetDisplayName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -29,6 +32,9 @@ func (v *CEFX509CertPrincipalT) CallGetDisplayName(args ...uintptr) uintptr {
 func (v *CEFX509CertPrincipalT) OverrideGetCommonName(fn uintptr) { v.GetCommonName = fn }
 
 func (v *CEFX509CertPrincipalT) CallGetCommonName(args ...uintptr) uintptr {
+	if v.GetCommonName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetCommonName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -36,6 +42,9 @@ func (v *CEFX509CertPrincipalT) CallGetCommonName(args ...uintptr) uintptr {
 func (v *CEFX509CertPrincipalT) OverrideGetLocalityName(fn uintptr) { v.GetLocalityName = fn }
 
 func (v *CEFX509CertPrincipalT) CallGetLocalityName(args ...uintptr) uintptr {
+	if v.GetLocalityName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLocalityName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -45,6 +54,9 @@ func (v *CEFX509CertPrincipalT) OverrideGetStateOrProvinceName(fn uintptr) {
 }
 
 func (v *CEFX509CertPrincipalT) CallGetStateOrProvinceName(args ...uintptr) uintptr {
+	if v.GetStateOrProvinceName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetStateOrProvinceName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -52,6 +64,9 @@ func (v *CEFX509CertPrincipalT) CallGetStateOrProvinceName(args ...uintptr) uint
 func (v *CEFX509CertPrincipalT) OverrideGetCountryName(fn uintptr) { v.GetCountryName = fn }
 
 func (v *CEFX509CertPrincipalT) CallGetCountryName(args ...uintptr) uintptr {
+	if v.GetCountryName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetCountryName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -59,6 +74,9 @@ func (v *CEFX509CertPrincipalT) CallGetCountryName(args ...uintptr) uintptr {
 func (v *CEFX509CertPrincipalT) OverrideGetOrganizationNames(fn uintptr) { v.GetOrganizationNames = fn }
 
 func (v *CEFX509CertPrincipalT) CallGetOrganizationNames(args ...uintptr) uintptr {
+	if v.GetOrganizationNames == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOrganizationNames, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -68,6 +86,9 @@ func (v *CEFX509CertPrincipalT) OverrideGetOrganizationUnitNames(fn uintptr) {
 }
 
 func (v *CEFX509CertPrincipalT) CallGetOrganizationUnitNames(args ...uintptr) uintptr {
+	if v.GetOrganizationUnitNames == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOrganizationUnitNames, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -90,6 +111,9 @@ type CEFX509CertificateT struct {
 func (v *CEFX509CertificateT) OverrideGetSubject(fn uintptr) { v.GetSubject = fn }
 
 func (v *CEFX509CertificateT) CallGetSubject(args ...uintptr) uintptr {
+	if v.GetSubject == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSubject, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -97,6 +121,9 @@ func (v *CEFX509CertificateT) CallGetSubject(args ...uintptr) uintptr {
 func (v *CEFX509CertificateT) OverrideGetIssuer(fn uintptr) { v.GetIssuer = fn }
 
 func (v *CEFX509CertificateT) CallGetIssuer(args ...uintptr) uintptr {
+	if v.GetIssuer == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetIssuer, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -104,6 +131,9 @@ func (v *CEFX509CertificateT) CallGetIssuer(args ...uintptr) uintptr {
 func (v *CEFX509CertificateT) OverrideGetSerialNumber(fn uintptr) { v.GetSerialNumber = fn }
 
 func (v *CEFX509CertificateT) CallGetSerialNumber(args ...uintptr) uintptr {
+	if v.GetSerialNumber == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSerialNumber, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -111,6 +141,9 @@ func (v *CEFX509CertificateT) CallGetSerialNumber(args ...uintptr) uintptr {
 func (v *CEFX509CertificateT) OverrideGetValidStart(fn uintptr) { v.GetValidStart = fn }
 
 func (v *CEFX509CertificateT) CallGetValidStart(args ...uintptr) uintptr {
+	if v.GetValidStart == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetValidStart, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -118,6 +151,9 @@ func (v *CEFX509CertificateT) CallGetValidStart(args ...uintptr) uintptr {
 func (v *CEFX509CertificateT) OverrideGetValidExpiry(fn uintptr) { v.GetValidExpiry = fn }
 
 func (v *CEFX509CertificateT) CallGetValidExpiry(args ...uintptr) uintptr {
+	if v.GetValidExpiry == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetValidExpiry, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -125,6 +161,9 @@ func (v *CEFX509CertificateT) CallGetValidExpiry(args ...uintptr) uintptr {
 func (v *CEFX509CertificateT) OverrideGetDerencoded(fn uintptr) { v.GetDerencoded = fn }
 
 func (v *CEFX509CertificateT) CallGetDerencoded(args ...uintptr) uintptr {
+	if v.GetDerencoded == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetDerencoded, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -132,6 +171,9 @@ func (v *CEFX509CertificateT) CallGetDerencoded(args ...uintptr) uintptr {
 func (v *CEFX509CertificateT) OverrideGetPemencoded(fn uintptr) { v.GetPemencoded = fn }
 
 func (v *CEFX509CertificateT) CallGetPemencoded(args ...uintptr) uintptr {
+	if v.GetPemencoded == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPemencoded, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -139,6 +181,9 @@ func (v *CEFX509CertificateT) CallGetPemencoded(args ...uintptr) uintptr {
 func (v *CEFX509CertificateT) OverrideGetIssuerChainSize(fn uintptr) { v.GetIssuerChainSize = fn }
 
 func (v *CEFX509CertificateT) CallGetIssuerChainSize(args ...uintptr) uintptr {
+	if v.GetIssuerChainSize == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetIssuerChainSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -148,6 +193,9 @@ func (v *CEFX509CertificateT) OverrideGetDerencodedIssuerChain(fn uintptr) {
 }
 
 func (v *CEFX509CertificateT) CallGetDerencodedIssuerChain(args ...uintptr) uintptr {
+	if v.GetDerencodedIssuerChain == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetDerencodedIssuerChain, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -157,9 +205,11 @@ func (v *CEFX509CertificateT) OverrideGetPemencodedIssuerChain(fn uintptr) {
 }
 
 func (v *CEFX509CertificateT) CallGetPemencodedIssuerChain(args ...uintptr) uintptr {
+	if v.GetPemencodedIssuerChain == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPemencodedIssuerChain, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterX509Certificate(handle uintptr) {
-}
+func RegisterX509Certificate(_ uintptr) {}

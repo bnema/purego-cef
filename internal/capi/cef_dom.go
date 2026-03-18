@@ -16,6 +16,9 @@ type CEFDomvisitorT struct {
 func (v *CEFDomvisitorT) OverrideVisit(fn uintptr) { v.Visit = fn }
 
 func (v *CEFDomvisitorT) CallVisit(args ...uintptr) uintptr {
+	if v.Visit == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Visit, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -42,6 +45,9 @@ type CEFDomdocumentT struct {
 func (v *CEFDomdocumentT) OverrideGetType(fn uintptr) { v.GetType = fn }
 
 func (v *CEFDomdocumentT) CallGetType(args ...uintptr) uintptr {
+	if v.GetType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -49,6 +55,9 @@ func (v *CEFDomdocumentT) CallGetType(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetDocument(fn uintptr) { v.GetDocument = fn }
 
 func (v *CEFDomdocumentT) CallGetDocument(args ...uintptr) uintptr {
+	if v.GetDocument == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetDocument, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -56,6 +65,9 @@ func (v *CEFDomdocumentT) CallGetDocument(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetBody(fn uintptr) { v.GetBody = fn }
 
 func (v *CEFDomdocumentT) CallGetBody(args ...uintptr) uintptr {
+	if v.GetBody == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetBody, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -63,6 +75,9 @@ func (v *CEFDomdocumentT) CallGetBody(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetHead(fn uintptr) { v.GetHead = fn }
 
 func (v *CEFDomdocumentT) CallGetHead(args ...uintptr) uintptr {
+	if v.GetHead == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetHead, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -70,6 +85,9 @@ func (v *CEFDomdocumentT) CallGetHead(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetTitle(fn uintptr) { v.GetTitle = fn }
 
 func (v *CEFDomdocumentT) CallGetTitle(args ...uintptr) uintptr {
+	if v.GetTitle == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetTitle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -77,6 +95,9 @@ func (v *CEFDomdocumentT) CallGetTitle(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetElementByID(fn uintptr) { v.GetElementByID = fn }
 
 func (v *CEFDomdocumentT) CallGetElementByID(args ...uintptr) uintptr {
+	if v.GetElementByID == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetElementByID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -84,6 +105,9 @@ func (v *CEFDomdocumentT) CallGetElementByID(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetFocusedNode(fn uintptr) { v.GetFocusedNode = fn }
 
 func (v *CEFDomdocumentT) CallGetFocusedNode(args ...uintptr) uintptr {
+	if v.GetFocusedNode == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFocusedNode, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -91,6 +115,9 @@ func (v *CEFDomdocumentT) CallGetFocusedNode(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideHasSelection(fn uintptr) { v.HasSelection = fn }
 
 func (v *CEFDomdocumentT) CallHasSelection(args ...uintptr) uintptr {
+	if v.HasSelection == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasSelection, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -98,6 +125,9 @@ func (v *CEFDomdocumentT) CallHasSelection(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetSelectionStartOffset(fn uintptr) { v.GetSelectionStartOffset = fn }
 
 func (v *CEFDomdocumentT) CallGetSelectionStartOffset(args ...uintptr) uintptr {
+	if v.GetSelectionStartOffset == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSelectionStartOffset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -105,6 +135,9 @@ func (v *CEFDomdocumentT) CallGetSelectionStartOffset(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetSelectionEndOffset(fn uintptr) { v.GetSelectionEndOffset = fn }
 
 func (v *CEFDomdocumentT) CallGetSelectionEndOffset(args ...uintptr) uintptr {
+	if v.GetSelectionEndOffset == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSelectionEndOffset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -112,6 +145,9 @@ func (v *CEFDomdocumentT) CallGetSelectionEndOffset(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetSelectionAsMarkup(fn uintptr) { v.GetSelectionAsMarkup = fn }
 
 func (v *CEFDomdocumentT) CallGetSelectionAsMarkup(args ...uintptr) uintptr {
+	if v.GetSelectionAsMarkup == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSelectionAsMarkup, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -119,6 +155,9 @@ func (v *CEFDomdocumentT) CallGetSelectionAsMarkup(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetSelectionAsText(fn uintptr) { v.GetSelectionAsText = fn }
 
 func (v *CEFDomdocumentT) CallGetSelectionAsText(args ...uintptr) uintptr {
+	if v.GetSelectionAsText == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetSelectionAsText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -126,6 +165,9 @@ func (v *CEFDomdocumentT) CallGetSelectionAsText(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetBaseURL(fn uintptr) { v.GetBaseURL = fn }
 
 func (v *CEFDomdocumentT) CallGetBaseURL(args ...uintptr) uintptr {
+	if v.GetBaseURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetBaseURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -133,6 +175,9 @@ func (v *CEFDomdocumentT) CallGetBaseURL(args ...uintptr) uintptr {
 func (v *CEFDomdocumentT) OverrideGetCompleteURL(fn uintptr) { v.GetCompleteURL = fn }
 
 func (v *CEFDomdocumentT) CallGetCompleteURL(args ...uintptr) uintptr {
+	if v.GetCompleteURL == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetCompleteURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -171,6 +216,9 @@ type CEFDomnodeT struct {
 func (v *CEFDomnodeT) OverrideGetType(fn uintptr) { v.GetType = fn }
 
 func (v *CEFDomnodeT) CallGetType(args ...uintptr) uintptr {
+	if v.GetType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -178,6 +226,9 @@ func (v *CEFDomnodeT) CallGetType(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideIsText(fn uintptr) { v.IsText = fn }
 
 func (v *CEFDomnodeT) CallIsText(args ...uintptr) uintptr {
+	if v.IsText == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -185,6 +236,9 @@ func (v *CEFDomnodeT) CallIsText(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideIsElement(fn uintptr) { v.IsElement = fn }
 
 func (v *CEFDomnodeT) CallIsElement(args ...uintptr) uintptr {
+	if v.IsElement == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsElement, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -192,6 +246,9 @@ func (v *CEFDomnodeT) CallIsElement(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideIsEditable(fn uintptr) { v.IsEditable = fn }
 
 func (v *CEFDomnodeT) CallIsEditable(args ...uintptr) uintptr {
+	if v.IsEditable == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsEditable, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -199,6 +256,9 @@ func (v *CEFDomnodeT) CallIsEditable(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideIsFormControlElement(fn uintptr) { v.IsFormControlElement = fn }
 
 func (v *CEFDomnodeT) CallIsFormControlElement(args ...uintptr) uintptr {
+	if v.IsFormControlElement == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsFormControlElement, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -206,6 +266,9 @@ func (v *CEFDomnodeT) CallIsFormControlElement(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetFormControlElementType(fn uintptr) { v.GetFormControlElementType = fn }
 
 func (v *CEFDomnodeT) CallGetFormControlElementType(args ...uintptr) uintptr {
+	if v.GetFormControlElementType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFormControlElementType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -213,6 +276,9 @@ func (v *CEFDomnodeT) CallGetFormControlElementType(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
 func (v *CEFDomnodeT) CallIsSame(args ...uintptr) uintptr {
+	if v.IsSame == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -220,6 +286,9 @@ func (v *CEFDomnodeT) CallIsSame(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetName(fn uintptr) { v.GetName = fn }
 
 func (v *CEFDomnodeT) CallGetName(args ...uintptr) uintptr {
+	if v.GetName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -227,6 +296,9 @@ func (v *CEFDomnodeT) CallGetName(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetValue(fn uintptr) { v.GetValue = fn }
 
 func (v *CEFDomnodeT) CallGetValue(args ...uintptr) uintptr {
+	if v.GetValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -234,6 +306,9 @@ func (v *CEFDomnodeT) CallGetValue(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideSetValue(fn uintptr) { v.SetValue = fn }
 
 func (v *CEFDomnodeT) CallSetValue(args ...uintptr) uintptr {
+	if v.SetValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -241,6 +316,9 @@ func (v *CEFDomnodeT) CallSetValue(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetAsMarkup(fn uintptr) { v.GetAsMarkup = fn }
 
 func (v *CEFDomnodeT) CallGetAsMarkup(args ...uintptr) uintptr {
+	if v.GetAsMarkup == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAsMarkup, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -248,6 +326,9 @@ func (v *CEFDomnodeT) CallGetAsMarkup(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetDocument(fn uintptr) { v.GetDocument = fn }
 
 func (v *CEFDomnodeT) CallGetDocument(args ...uintptr) uintptr {
+	if v.GetDocument == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetDocument, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -255,6 +336,9 @@ func (v *CEFDomnodeT) CallGetDocument(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetParent(fn uintptr) { v.GetParent = fn }
 
 func (v *CEFDomnodeT) CallGetParent(args ...uintptr) uintptr {
+	if v.GetParent == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetParent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -262,6 +346,9 @@ func (v *CEFDomnodeT) CallGetParent(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetPreviousSibling(fn uintptr) { v.GetPreviousSibling = fn }
 
 func (v *CEFDomnodeT) CallGetPreviousSibling(args ...uintptr) uintptr {
+	if v.GetPreviousSibling == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPreviousSibling, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -269,6 +356,9 @@ func (v *CEFDomnodeT) CallGetPreviousSibling(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetNextSibling(fn uintptr) { v.GetNextSibling = fn }
 
 func (v *CEFDomnodeT) CallGetNextSibling(args ...uintptr) uintptr {
+	if v.GetNextSibling == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetNextSibling, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -276,6 +366,9 @@ func (v *CEFDomnodeT) CallGetNextSibling(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideHasChildren(fn uintptr) { v.HasChildren = fn }
 
 func (v *CEFDomnodeT) CallHasChildren(args ...uintptr) uintptr {
+	if v.HasChildren == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasChildren, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -283,6 +376,9 @@ func (v *CEFDomnodeT) CallHasChildren(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetFirstChild(fn uintptr) { v.GetFirstChild = fn }
 
 func (v *CEFDomnodeT) CallGetFirstChild(args ...uintptr) uintptr {
+	if v.GetFirstChild == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFirstChild, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -290,6 +386,9 @@ func (v *CEFDomnodeT) CallGetFirstChild(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetLastChild(fn uintptr) { v.GetLastChild = fn }
 
 func (v *CEFDomnodeT) CallGetLastChild(args ...uintptr) uintptr {
+	if v.GetLastChild == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLastChild, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -297,6 +396,9 @@ func (v *CEFDomnodeT) CallGetLastChild(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetElementTagName(fn uintptr) { v.GetElementTagName = fn }
 
 func (v *CEFDomnodeT) CallGetElementTagName(args ...uintptr) uintptr {
+	if v.GetElementTagName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetElementTagName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -304,6 +406,9 @@ func (v *CEFDomnodeT) CallGetElementTagName(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideHasElementAttributes(fn uintptr) { v.HasElementAttributes = fn }
 
 func (v *CEFDomnodeT) CallHasElementAttributes(args ...uintptr) uintptr {
+	if v.HasElementAttributes == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasElementAttributes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -311,6 +416,9 @@ func (v *CEFDomnodeT) CallHasElementAttributes(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideHasElementAttribute(fn uintptr) { v.HasElementAttribute = fn }
 
 func (v *CEFDomnodeT) CallHasElementAttribute(args ...uintptr) uintptr {
+	if v.HasElementAttribute == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasElementAttribute, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -318,6 +426,9 @@ func (v *CEFDomnodeT) CallHasElementAttribute(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetElementAttribute(fn uintptr) { v.GetElementAttribute = fn }
 
 func (v *CEFDomnodeT) CallGetElementAttribute(args ...uintptr) uintptr {
+	if v.GetElementAttribute == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetElementAttribute, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -325,6 +436,9 @@ func (v *CEFDomnodeT) CallGetElementAttribute(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetElementAttributes(fn uintptr) { v.GetElementAttributes = fn }
 
 func (v *CEFDomnodeT) CallGetElementAttributes(args ...uintptr) uintptr {
+	if v.GetElementAttributes == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetElementAttributes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -332,6 +446,9 @@ func (v *CEFDomnodeT) CallGetElementAttributes(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideSetElementAttribute(fn uintptr) { v.SetElementAttribute = fn }
 
 func (v *CEFDomnodeT) CallSetElementAttribute(args ...uintptr) uintptr {
+	if v.SetElementAttribute == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetElementAttribute, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -339,6 +456,9 @@ func (v *CEFDomnodeT) CallSetElementAttribute(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetElementInnerText(fn uintptr) { v.GetElementInnerText = fn }
 
 func (v *CEFDomnodeT) CallGetElementInnerText(args ...uintptr) uintptr {
+	if v.GetElementInnerText == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetElementInnerText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -346,9 +466,11 @@ func (v *CEFDomnodeT) CallGetElementInnerText(args ...uintptr) uintptr {
 func (v *CEFDomnodeT) OverrideGetElementBounds(fn uintptr) { v.GetElementBounds = fn }
 
 func (v *CEFDomnodeT) CallGetElementBounds(args ...uintptr) uintptr {
+	if v.GetElementBounds == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetElementBounds, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterDom(handle uintptr) {
-}
+func RegisterDom(_ uintptr) {}

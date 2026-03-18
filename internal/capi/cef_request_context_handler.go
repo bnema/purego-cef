@@ -19,6 +19,9 @@ func (v *CEFRequestContextHandlerT) OverrideOnRequestContextInitialized(fn uintp
 }
 
 func (v *CEFRequestContextHandlerT) CallOnRequestContextInitialized(args ...uintptr) uintptr {
+	if v.OnRequestContextInitialized == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnRequestContextInitialized, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -28,9 +31,11 @@ func (v *CEFRequestContextHandlerT) OverrideGetResourceRequestHandler(fn uintptr
 }
 
 func (v *CEFRequestContextHandlerT) CallGetResourceRequestHandler(args ...uintptr) uintptr {
+	if v.GetResourceRequestHandler == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetResourceRequestHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterRequestContextHandler(handle uintptr) {
-}
+func RegisterRequestContextHandler(_ uintptr) {}

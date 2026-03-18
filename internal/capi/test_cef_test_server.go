@@ -17,6 +17,9 @@ type CEFTestServerT struct {
 func (v *CEFTestServerT) OverrideStop(fn uintptr) { v.Stop = fn }
 
 func (v *CEFTestServerT) CallStop(args ...uintptr) uintptr {
+	if v.Stop == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Stop, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -24,6 +27,9 @@ func (v *CEFTestServerT) CallStop(args ...uintptr) uintptr {
 func (v *CEFTestServerT) OverrideGetOrigin(fn uintptr) { v.GetOrigin = fn }
 
 func (v *CEFTestServerT) CallGetOrigin(args ...uintptr) uintptr {
+	if v.GetOrigin == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOrigin, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -37,6 +43,9 @@ type CEFTestServerHandlerT struct {
 func (v *CEFTestServerHandlerT) OverrideOnTestServerRequest(fn uintptr) { v.OnTestServerRequest = fn }
 
 func (v *CEFTestServerHandlerT) CallOnTestServerRequest(args ...uintptr) uintptr {
+	if v.OnTestServerRequest == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnTestServerRequest, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -55,6 +64,9 @@ func (v *CEFTestServerConnectionT) OverrideSendHttp200Response(fn uintptr) {
 }
 
 func (v *CEFTestServerConnectionT) CallSendHttp200Response(args ...uintptr) uintptr {
+	if v.SendHttp200Response == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendHttp200Response, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -64,6 +76,9 @@ func (v *CEFTestServerConnectionT) OverrideSendHttp404Response(fn uintptr) {
 }
 
 func (v *CEFTestServerConnectionT) CallSendHttp404Response(args ...uintptr) uintptr {
+	if v.SendHttp404Response == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendHttp404Response, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -73,6 +88,9 @@ func (v *CEFTestServerConnectionT) OverrideSendHttp500Response(fn uintptr) {
 }
 
 func (v *CEFTestServerConnectionT) CallSendHttp500Response(args ...uintptr) uintptr {
+	if v.SendHttp500Response == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendHttp500Response, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -80,6 +98,9 @@ func (v *CEFTestServerConnectionT) CallSendHttp500Response(args ...uintptr) uint
 func (v *CEFTestServerConnectionT) OverrideSendHttpResponse(fn uintptr) { v.SendHttpResponse = fn }
 
 func (v *CEFTestServerConnectionT) CallSendHttpResponse(args ...uintptr) uintptr {
+	if v.SendHttpResponse == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendHttpResponse, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

@@ -16,6 +16,9 @@ type CEFSchemeRegistrarT struct {
 func (v *CEFSchemeRegistrarT) OverrideAddCustomScheme(fn uintptr) { v.AddCustomScheme = fn }
 
 func (v *CEFSchemeRegistrarT) CallAddCustomScheme(args ...uintptr) uintptr {
+	if v.AddCustomScheme == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AddCustomScheme, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -29,6 +32,9 @@ type CEFSchemeHandlerFactoryT struct {
 func (v *CEFSchemeHandlerFactoryT) OverrideCreate(fn uintptr) { v.Create = fn }
 
 func (v *CEFSchemeHandlerFactoryT) CallCreate(args ...uintptr) uintptr {
+	if v.Create == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Create, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

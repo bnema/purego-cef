@@ -345,6 +345,15 @@ func mapType(ctype string) string {
 	if ctype == "int16_t" {
 		return "int16"
 	}
+	if ctype == "uint8_t" {
+		return "uint8"
+	}
+	if ctype == "int8_t" {
+		return "int8"
+	}
+	if ctype == "char16_t" {
+		return "uint16"
+	}
 
 	// unsigned long -> uint64 (linux cef_window_handle_t etc.)
 	if ctype == "unsigned long" {

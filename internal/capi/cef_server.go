@@ -28,6 +28,9 @@ type CEFServerT struct {
 func (v *CEFServerT) OverrideGetTaskRunner(fn uintptr) { v.GetTaskRunner = fn }
 
 func (v *CEFServerT) CallGetTaskRunner(args ...uintptr) uintptr {
+	if v.GetTaskRunner == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetTaskRunner, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -35,6 +38,9 @@ func (v *CEFServerT) CallGetTaskRunner(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideShutdown(fn uintptr) { v.Shutdown = fn }
 
 func (v *CEFServerT) CallShutdown(args ...uintptr) uintptr {
+	if v.Shutdown == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Shutdown, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -42,6 +48,9 @@ func (v *CEFServerT) CallShutdown(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideIsRunning(fn uintptr) { v.IsRunning = fn }
 
 func (v *CEFServerT) CallIsRunning(args ...uintptr) uintptr {
+	if v.IsRunning == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsRunning, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -49,6 +58,9 @@ func (v *CEFServerT) CallIsRunning(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideGetAddress(fn uintptr) { v.GetAddress = fn }
 
 func (v *CEFServerT) CallGetAddress(args ...uintptr) uintptr {
+	if v.GetAddress == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAddress, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -56,6 +68,9 @@ func (v *CEFServerT) CallGetAddress(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideHasConnection(fn uintptr) { v.HasConnection = fn }
 
 func (v *CEFServerT) CallHasConnection(args ...uintptr) uintptr {
+	if v.HasConnection == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasConnection, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -63,6 +78,9 @@ func (v *CEFServerT) CallHasConnection(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideIsValidConnection(fn uintptr) { v.IsValidConnection = fn }
 
 func (v *CEFServerT) CallIsValidConnection(args ...uintptr) uintptr {
+	if v.IsValidConnection == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsValidConnection, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -70,6 +88,9 @@ func (v *CEFServerT) CallIsValidConnection(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideSendHttp200Response(fn uintptr) { v.SendHttp200Response = fn }
 
 func (v *CEFServerT) CallSendHttp200Response(args ...uintptr) uintptr {
+	if v.SendHttp200Response == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendHttp200Response, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -77,6 +98,9 @@ func (v *CEFServerT) CallSendHttp200Response(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideSendHttp404Response(fn uintptr) { v.SendHttp404Response = fn }
 
 func (v *CEFServerT) CallSendHttp404Response(args ...uintptr) uintptr {
+	if v.SendHttp404Response == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendHttp404Response, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -84,6 +108,9 @@ func (v *CEFServerT) CallSendHttp404Response(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideSendHttp500Response(fn uintptr) { v.SendHttp500Response = fn }
 
 func (v *CEFServerT) CallSendHttp500Response(args ...uintptr) uintptr {
+	if v.SendHttp500Response == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendHttp500Response, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -91,6 +118,9 @@ func (v *CEFServerT) CallSendHttp500Response(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideSendHttpResponse(fn uintptr) { v.SendHttpResponse = fn }
 
 func (v *CEFServerT) CallSendHttpResponse(args ...uintptr) uintptr {
+	if v.SendHttpResponse == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendHttpResponse, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -98,6 +128,9 @@ func (v *CEFServerT) CallSendHttpResponse(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideSendRawData(fn uintptr) { v.SendRawData = fn }
 
 func (v *CEFServerT) CallSendRawData(args ...uintptr) uintptr {
+	if v.SendRawData == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendRawData, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -105,6 +138,9 @@ func (v *CEFServerT) CallSendRawData(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideCloseConnection(fn uintptr) { v.CloseConnection = fn }
 
 func (v *CEFServerT) CallCloseConnection(args ...uintptr) uintptr {
+	if v.CloseConnection == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.CloseConnection, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -112,6 +148,9 @@ func (v *CEFServerT) CallCloseConnection(args ...uintptr) uintptr {
 func (v *CEFServerT) OverrideSendWebSocketMessage(fn uintptr) { v.SendWebSocketMessage = fn }
 
 func (v *CEFServerT) CallSendWebSocketMessage(args ...uintptr) uintptr {
+	if v.SendWebSocketMessage == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SendWebSocketMessage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -132,6 +171,9 @@ type CEFServerHandlerT struct {
 func (v *CEFServerHandlerT) OverrideOnServerCreated(fn uintptr) { v.OnServerCreated = fn }
 
 func (v *CEFServerHandlerT) CallOnServerCreated(args ...uintptr) uintptr {
+	if v.OnServerCreated == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnServerCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -139,6 +181,9 @@ func (v *CEFServerHandlerT) CallOnServerCreated(args ...uintptr) uintptr {
 func (v *CEFServerHandlerT) OverrideOnServerDestroyed(fn uintptr) { v.OnServerDestroyed = fn }
 
 func (v *CEFServerHandlerT) CallOnServerDestroyed(args ...uintptr) uintptr {
+	if v.OnServerDestroyed == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnServerDestroyed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -146,6 +191,9 @@ func (v *CEFServerHandlerT) CallOnServerDestroyed(args ...uintptr) uintptr {
 func (v *CEFServerHandlerT) OverrideOnClientConnected(fn uintptr) { v.OnClientConnected = fn }
 
 func (v *CEFServerHandlerT) CallOnClientConnected(args ...uintptr) uintptr {
+	if v.OnClientConnected == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnClientConnected, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -153,6 +201,9 @@ func (v *CEFServerHandlerT) CallOnClientConnected(args ...uintptr) uintptr {
 func (v *CEFServerHandlerT) OverrideOnClientDisconnected(fn uintptr) { v.OnClientDisconnected = fn }
 
 func (v *CEFServerHandlerT) CallOnClientDisconnected(args ...uintptr) uintptr {
+	if v.OnClientDisconnected == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnClientDisconnected, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -160,6 +211,9 @@ func (v *CEFServerHandlerT) CallOnClientDisconnected(args ...uintptr) uintptr {
 func (v *CEFServerHandlerT) OverrideOnHttpRequest(fn uintptr) { v.OnHttpRequest = fn }
 
 func (v *CEFServerHandlerT) CallOnHttpRequest(args ...uintptr) uintptr {
+	if v.OnHttpRequest == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnHttpRequest, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -167,6 +221,9 @@ func (v *CEFServerHandlerT) CallOnHttpRequest(args ...uintptr) uintptr {
 func (v *CEFServerHandlerT) OverrideOnWebSocketRequest(fn uintptr) { v.OnWebSocketRequest = fn }
 
 func (v *CEFServerHandlerT) CallOnWebSocketRequest(args ...uintptr) uintptr {
+	if v.OnWebSocketRequest == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnWebSocketRequest, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -174,6 +231,9 @@ func (v *CEFServerHandlerT) CallOnWebSocketRequest(args ...uintptr) uintptr {
 func (v *CEFServerHandlerT) OverrideOnWebSocketConnected(fn uintptr) { v.OnWebSocketConnected = fn }
 
 func (v *CEFServerHandlerT) CallOnWebSocketConnected(args ...uintptr) uintptr {
+	if v.OnWebSocketConnected == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnWebSocketConnected, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -181,6 +241,9 @@ func (v *CEFServerHandlerT) CallOnWebSocketConnected(args ...uintptr) uintptr {
 func (v *CEFServerHandlerT) OverrideOnWebSocketMessage(fn uintptr) { v.OnWebSocketMessage = fn }
 
 func (v *CEFServerHandlerT) CallOnWebSocketMessage(args ...uintptr) uintptr {
+	if v.OnWebSocketMessage == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnWebSocketMessage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

@@ -16,6 +16,9 @@ type CEFSelectClientCertificateCallbackT struct {
 func (v *CEFSelectClientCertificateCallbackT) OverrideSelect(fn uintptr) { v.Select = fn }
 
 func (v *CEFSelectClientCertificateCallbackT) CallSelect(args ...uintptr) uintptr {
+	if v.Select == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Select, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -39,6 +42,9 @@ type CEFRequestHandlerT struct {
 func (v *CEFRequestHandlerT) OverrideOnBeforeBrowse(fn uintptr) { v.OnBeforeBrowse = fn }
 
 func (v *CEFRequestHandlerT) CallOnBeforeBrowse(args ...uintptr) uintptr {
+	if v.OnBeforeBrowse == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBeforeBrowse, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -46,6 +52,9 @@ func (v *CEFRequestHandlerT) CallOnBeforeBrowse(args ...uintptr) uintptr {
 func (v *CEFRequestHandlerT) OverrideOnOpenUrlfromTab(fn uintptr) { v.OnOpenUrlfromTab = fn }
 
 func (v *CEFRequestHandlerT) CallOnOpenUrlfromTab(args ...uintptr) uintptr {
+	if v.OnOpenUrlfromTab == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnOpenUrlfromTab, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -55,6 +64,9 @@ func (v *CEFRequestHandlerT) OverrideGetResourceRequestHandler(fn uintptr) {
 }
 
 func (v *CEFRequestHandlerT) CallGetResourceRequestHandler(args ...uintptr) uintptr {
+	if v.GetResourceRequestHandler == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetResourceRequestHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -62,6 +74,9 @@ func (v *CEFRequestHandlerT) CallGetResourceRequestHandler(args ...uintptr) uint
 func (v *CEFRequestHandlerT) OverrideGetAuthCredentials(fn uintptr) { v.GetAuthCredentials = fn }
 
 func (v *CEFRequestHandlerT) CallGetAuthCredentials(args ...uintptr) uintptr {
+	if v.GetAuthCredentials == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAuthCredentials, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -69,6 +84,9 @@ func (v *CEFRequestHandlerT) CallGetAuthCredentials(args ...uintptr) uintptr {
 func (v *CEFRequestHandlerT) OverrideOnCertificateError(fn uintptr) { v.OnCertificateError = fn }
 
 func (v *CEFRequestHandlerT) CallOnCertificateError(args ...uintptr) uintptr {
+	if v.OnCertificateError == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnCertificateError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -78,6 +96,9 @@ func (v *CEFRequestHandlerT) OverrideOnSelectClientCertificate(fn uintptr) {
 }
 
 func (v *CEFRequestHandlerT) CallOnSelectClientCertificate(args ...uintptr) uintptr {
+	if v.OnSelectClientCertificate == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnSelectClientCertificate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -85,6 +106,9 @@ func (v *CEFRequestHandlerT) CallOnSelectClientCertificate(args ...uintptr) uint
 func (v *CEFRequestHandlerT) OverrideOnRenderViewReady(fn uintptr) { v.OnRenderViewReady = fn }
 
 func (v *CEFRequestHandlerT) CallOnRenderViewReady(args ...uintptr) uintptr {
+	if v.OnRenderViewReady == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnRenderViewReady, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -94,6 +118,9 @@ func (v *CEFRequestHandlerT) OverrideOnRenderProcessUnresponsive(fn uintptr) {
 }
 
 func (v *CEFRequestHandlerT) CallOnRenderProcessUnresponsive(args ...uintptr) uintptr {
+	if v.OnRenderProcessUnresponsive == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnRenderProcessUnresponsive, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -103,6 +130,9 @@ func (v *CEFRequestHandlerT) OverrideOnRenderProcessResponsive(fn uintptr) {
 }
 
 func (v *CEFRequestHandlerT) CallOnRenderProcessResponsive(args ...uintptr) uintptr {
+	if v.OnRenderProcessResponsive == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnRenderProcessResponsive, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -112,6 +142,9 @@ func (v *CEFRequestHandlerT) OverrideOnRenderProcessTerminated(fn uintptr) {
 }
 
 func (v *CEFRequestHandlerT) CallOnRenderProcessTerminated(args ...uintptr) uintptr {
+	if v.OnRenderProcessTerminated == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnRenderProcessTerminated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -121,9 +154,11 @@ func (v *CEFRequestHandlerT) OverrideOnDocumentAvailableInMainFrame(fn uintptr) 
 }
 
 func (v *CEFRequestHandlerT) CallOnDocumentAvailableInMainFrame(args ...uintptr) uintptr {
+	if v.OnDocumentAvailableInMainFrame == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnDocumentAvailableInMainFrame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterRequestHandler(handle uintptr) {
-}
+func RegisterRequestHandler(_ uintptr) {}

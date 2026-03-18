@@ -21,6 +21,9 @@ type CEFButtonT struct {
 func (v *CEFButtonT) OverrideAsLabelButton(fn uintptr) { v.AsLabelButton = fn }
 
 func (v *CEFButtonT) CallAsLabelButton(args ...uintptr) uintptr {
+	if v.AsLabelButton == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AsLabelButton, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -28,6 +31,9 @@ func (v *CEFButtonT) CallAsLabelButton(args ...uintptr) uintptr {
 func (v *CEFButtonT) OverrideSetState(fn uintptr) { v.SetState = fn }
 
 func (v *CEFButtonT) CallSetState(args ...uintptr) uintptr {
+	if v.SetState == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetState, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -35,6 +41,9 @@ func (v *CEFButtonT) CallSetState(args ...uintptr) uintptr {
 func (v *CEFButtonT) OverrideGetState(fn uintptr) { v.GetState = fn }
 
 func (v *CEFButtonT) CallGetState(args ...uintptr) uintptr {
+	if v.GetState == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetState, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -42,6 +51,9 @@ func (v *CEFButtonT) CallGetState(args ...uintptr) uintptr {
 func (v *CEFButtonT) OverrideSetInkDropEnabled(fn uintptr) { v.SetInkDropEnabled = fn }
 
 func (v *CEFButtonT) CallSetInkDropEnabled(args ...uintptr) uintptr {
+	if v.SetInkDropEnabled == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetInkDropEnabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -49,6 +61,9 @@ func (v *CEFButtonT) CallSetInkDropEnabled(args ...uintptr) uintptr {
 func (v *CEFButtonT) OverrideSetTooltipText(fn uintptr) { v.SetTooltipText = fn }
 
 func (v *CEFButtonT) CallSetTooltipText(args ...uintptr) uintptr {
+	if v.SetTooltipText == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetTooltipText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -56,9 +71,11 @@ func (v *CEFButtonT) CallSetTooltipText(args ...uintptr) uintptr {
 func (v *CEFButtonT) OverrideSetAccessibleName(fn uintptr) { v.SetAccessibleName = fn }
 
 func (v *CEFButtonT) CallSetAccessibleName(args ...uintptr) uintptr {
+	if v.SetAccessibleName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.SetAccessibleName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterButton(handle uintptr) {
-}
+func RegisterButton(_ uintptr) {}

@@ -16,6 +16,9 @@ type CEFTaskT struct {
 func (v *CEFTaskT) OverrideExecute(fn uintptr) { v.Execute = fn }
 
 func (v *CEFTaskT) CallExecute(args ...uintptr) uintptr {
+	if v.Execute == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Execute, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -33,6 +36,9 @@ type CEFTaskRunnerT struct {
 func (v *CEFTaskRunnerT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
 func (v *CEFTaskRunnerT) CallIsSame(args ...uintptr) uintptr {
+	if v.IsSame == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -40,6 +46,9 @@ func (v *CEFTaskRunnerT) CallIsSame(args ...uintptr) uintptr {
 func (v *CEFTaskRunnerT) OverrideBelongsToCurrentThread(fn uintptr) { v.BelongsToCurrentThread = fn }
 
 func (v *CEFTaskRunnerT) CallBelongsToCurrentThread(args ...uintptr) uintptr {
+	if v.BelongsToCurrentThread == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.BelongsToCurrentThread, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -47,6 +56,9 @@ func (v *CEFTaskRunnerT) CallBelongsToCurrentThread(args ...uintptr) uintptr {
 func (v *CEFTaskRunnerT) OverrideBelongsToThread(fn uintptr) { v.BelongsToThread = fn }
 
 func (v *CEFTaskRunnerT) CallBelongsToThread(args ...uintptr) uintptr {
+	if v.BelongsToThread == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.BelongsToThread, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -54,6 +66,9 @@ func (v *CEFTaskRunnerT) CallBelongsToThread(args ...uintptr) uintptr {
 func (v *CEFTaskRunnerT) OverridePostTask(fn uintptr) { v.PostTask = fn }
 
 func (v *CEFTaskRunnerT) CallPostTask(args ...uintptr) uintptr {
+	if v.PostTask == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.PostTask, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -61,6 +76,9 @@ func (v *CEFTaskRunnerT) CallPostTask(args ...uintptr) uintptr {
 func (v *CEFTaskRunnerT) OverridePostDelayedTask(fn uintptr) { v.PostDelayedTask = fn }
 
 func (v *CEFTaskRunnerT) CallPostDelayedTask(args ...uintptr) uintptr {
+	if v.PostDelayedTask == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.PostDelayedTask, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

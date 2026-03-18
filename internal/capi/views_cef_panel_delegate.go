@@ -9,5 +9,4 @@ type CEFPanelDelegateT struct {
 	Base CEFViewDelegateT
 }
 
-func RegisterPanelDelegate(handle uintptr) {
-}
+func RegisterPanelDelegate(_ uintptr) {}

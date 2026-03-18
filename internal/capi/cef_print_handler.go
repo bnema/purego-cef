@@ -17,6 +17,9 @@ type CEFPrintDialogCallbackT struct {
 func (v *CEFPrintDialogCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
 func (v *CEFPrintDialogCallbackT) CallCont(args ...uintptr) uintptr {
+	if v.Cont == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -24,6 +27,9 @@ func (v *CEFPrintDialogCallbackT) CallCont(args ...uintptr) uintptr {
 func (v *CEFPrintDialogCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
 func (v *CEFPrintDialogCallbackT) CallCancel(args ...uintptr) uintptr {
+	if v.Cancel == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -37,6 +43,9 @@ type CEFPrintJobCallbackT struct {
 func (v *CEFPrintJobCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
 func (v *CEFPrintJobCallbackT) CallCont(args ...uintptr) uintptr {
+	if v.Cont == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -55,6 +64,9 @@ type CEFPrintHandlerT struct {
 func (v *CEFPrintHandlerT) OverrideOnPrintStart(fn uintptr) { v.OnPrintStart = fn }
 
 func (v *CEFPrintHandlerT) CallOnPrintStart(args ...uintptr) uintptr {
+	if v.OnPrintStart == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnPrintStart, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -62,6 +74,9 @@ func (v *CEFPrintHandlerT) CallOnPrintStart(args ...uintptr) uintptr {
 func (v *CEFPrintHandlerT) OverrideOnPrintSettings(fn uintptr) { v.OnPrintSettings = fn }
 
 func (v *CEFPrintHandlerT) CallOnPrintSettings(args ...uintptr) uintptr {
+	if v.OnPrintSettings == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnPrintSettings, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -69,6 +84,9 @@ func (v *CEFPrintHandlerT) CallOnPrintSettings(args ...uintptr) uintptr {
 func (v *CEFPrintHandlerT) OverrideOnPrintDialog(fn uintptr) { v.OnPrintDialog = fn }
 
 func (v *CEFPrintHandlerT) CallOnPrintDialog(args ...uintptr) uintptr {
+	if v.OnPrintDialog == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnPrintDialog, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -76,6 +94,9 @@ func (v *CEFPrintHandlerT) CallOnPrintDialog(args ...uintptr) uintptr {
 func (v *CEFPrintHandlerT) OverrideOnPrintJob(fn uintptr) { v.OnPrintJob = fn }
 
 func (v *CEFPrintHandlerT) CallOnPrintJob(args ...uintptr) uintptr {
+	if v.OnPrintJob == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnPrintJob, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -83,6 +104,9 @@ func (v *CEFPrintHandlerT) CallOnPrintJob(args ...uintptr) uintptr {
 func (v *CEFPrintHandlerT) OverrideOnPrintReset(fn uintptr) { v.OnPrintReset = fn }
 
 func (v *CEFPrintHandlerT) CallOnPrintReset(args ...uintptr) uintptr {
+	if v.OnPrintReset == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnPrintReset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -90,9 +114,11 @@ func (v *CEFPrintHandlerT) CallOnPrintReset(args ...uintptr) uintptr {
 func (v *CEFPrintHandlerT) OverrideGetPdfPaperSize(fn uintptr) { v.GetPdfPaperSize = fn }
 
 func (v *CEFPrintHandlerT) CallGetPdfPaperSize(args ...uintptr) uintptr {
+	if v.GetPdfPaperSize == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPdfPaperSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterPrintHandler(handle uintptr) {
-}
+func RegisterPrintHandler(_ uintptr) {}

@@ -4,5 +4,4 @@ type CEFContentSettingTypesT int32
 
 type CEFContentSettingValuesT int32
 
-func RegisterTypesContentSettings(handle uintptr) {
-}
+func RegisterTypesContentSettings(_ uintptr) {}

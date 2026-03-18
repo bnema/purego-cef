@@ -18,6 +18,9 @@ type CEFLayoutT struct {
 func (v *CEFLayoutT) OverrideAsBoxLayout(fn uintptr) { v.AsBoxLayout = fn }
 
 func (v *CEFLayoutT) CallAsBoxLayout(args ...uintptr) uintptr {
+	if v.AsBoxLayout == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AsBoxLayout, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -25,6 +28,9 @@ func (v *CEFLayoutT) CallAsBoxLayout(args ...uintptr) uintptr {
 func (v *CEFLayoutT) OverrideAsFillLayout(fn uintptr) { v.AsFillLayout = fn }
 
 func (v *CEFLayoutT) CallAsFillLayout(args ...uintptr) uintptr {
+	if v.AsFillLayout == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AsFillLayout, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -32,9 +38,11 @@ func (v *CEFLayoutT) CallAsFillLayout(args ...uintptr) uintptr {
 func (v *CEFLayoutT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
 func (v *CEFLayoutT) CallIsValid(args ...uintptr) uintptr {
+	if v.IsValid == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterLayout(handle uintptr) {
-}
+func RegisterLayout(_ uintptr) {}

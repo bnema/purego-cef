@@ -19,6 +19,9 @@ func (v *CEFAccessibilityHandlerT) OverrideOnAccessibilityTreeChange(fn uintptr)
 }
 
 func (v *CEFAccessibilityHandlerT) CallOnAccessibilityTreeChange(args ...uintptr) uintptr {
+	if v.OnAccessibilityTreeChange == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnAccessibilityTreeChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -28,9 +31,11 @@ func (v *CEFAccessibilityHandlerT) OverrideOnAccessibilityLocationChange(fn uint
 }
 
 func (v *CEFAccessibilityHandlerT) CallOnAccessibilityLocationChange(args ...uintptr) uintptr {
+	if v.OnAccessibilityLocationChange == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnAccessibilityLocationChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterAccessibilityHandler(handle uintptr) {
-}
+func RegisterAccessibilityHandler(_ uintptr) {}

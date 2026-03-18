@@ -44,6 +44,9 @@ type CEFXmlReaderT struct {
 func (v *CEFXmlReaderT) OverrideMoveToNextNode(fn uintptr) { v.MoveToNextNode = fn }
 
 func (v *CEFXmlReaderT) CallMoveToNextNode(args ...uintptr) uintptr {
+	if v.MoveToNextNode == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToNextNode, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -51,6 +54,9 @@ func (v *CEFXmlReaderT) CallMoveToNextNode(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideClose(fn uintptr) { v.Close = fn }
 
 func (v *CEFXmlReaderT) CallClose(args ...uintptr) uintptr {
+	if v.Close == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Close, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -58,6 +64,9 @@ func (v *CEFXmlReaderT) CallClose(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideHasError(fn uintptr) { v.HasError = fn }
 
 func (v *CEFXmlReaderT) CallHasError(args ...uintptr) uintptr {
+	if v.HasError == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -65,6 +74,9 @@ func (v *CEFXmlReaderT) CallHasError(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetError(fn uintptr) { v.GetError = fn }
 
 func (v *CEFXmlReaderT) CallGetError(args ...uintptr) uintptr {
+	if v.GetError == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -72,6 +84,9 @@ func (v *CEFXmlReaderT) CallGetError(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetType(fn uintptr) { v.GetType = fn }
 
 func (v *CEFXmlReaderT) CallGetType(args ...uintptr) uintptr {
+	if v.GetType == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -79,6 +94,9 @@ func (v *CEFXmlReaderT) CallGetType(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetDepth(fn uintptr) { v.GetDepth = fn }
 
 func (v *CEFXmlReaderT) CallGetDepth(args ...uintptr) uintptr {
+	if v.GetDepth == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetDepth, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -86,6 +104,9 @@ func (v *CEFXmlReaderT) CallGetDepth(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetLocalName(fn uintptr) { v.GetLocalName = fn }
 
 func (v *CEFXmlReaderT) CallGetLocalName(args ...uintptr) uintptr {
+	if v.GetLocalName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLocalName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -93,6 +114,9 @@ func (v *CEFXmlReaderT) CallGetLocalName(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetPrefix(fn uintptr) { v.GetPrefix = fn }
 
 func (v *CEFXmlReaderT) CallGetPrefix(args ...uintptr) uintptr {
+	if v.GetPrefix == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetPrefix, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -100,6 +124,9 @@ func (v *CEFXmlReaderT) CallGetPrefix(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetQualifiedName(fn uintptr) { v.GetQualifiedName = fn }
 
 func (v *CEFXmlReaderT) CallGetQualifiedName(args ...uintptr) uintptr {
+	if v.GetQualifiedName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetQualifiedName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -107,6 +134,9 @@ func (v *CEFXmlReaderT) CallGetQualifiedName(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetNamespaceUri(fn uintptr) { v.GetNamespaceUri = fn }
 
 func (v *CEFXmlReaderT) CallGetNamespaceUri(args ...uintptr) uintptr {
+	if v.GetNamespaceUri == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetNamespaceUri, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -114,6 +144,9 @@ func (v *CEFXmlReaderT) CallGetNamespaceUri(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetBaseUri(fn uintptr) { v.GetBaseUri = fn }
 
 func (v *CEFXmlReaderT) CallGetBaseUri(args ...uintptr) uintptr {
+	if v.GetBaseUri == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetBaseUri, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -121,6 +154,9 @@ func (v *CEFXmlReaderT) CallGetBaseUri(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetXmlLang(fn uintptr) { v.GetXmlLang = fn }
 
 func (v *CEFXmlReaderT) CallGetXmlLang(args ...uintptr) uintptr {
+	if v.GetXmlLang == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetXmlLang, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -128,6 +164,9 @@ func (v *CEFXmlReaderT) CallGetXmlLang(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideIsEmptyElement(fn uintptr) { v.IsEmptyElement = fn }
 
 func (v *CEFXmlReaderT) CallIsEmptyElement(args ...uintptr) uintptr {
+	if v.IsEmptyElement == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsEmptyElement, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -135,6 +174,9 @@ func (v *CEFXmlReaderT) CallIsEmptyElement(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideHasValue(fn uintptr) { v.HasValue = fn }
 
 func (v *CEFXmlReaderT) CallHasValue(args ...uintptr) uintptr {
+	if v.HasValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -142,6 +184,9 @@ func (v *CEFXmlReaderT) CallHasValue(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetValue(fn uintptr) { v.GetValue = fn }
 
 func (v *CEFXmlReaderT) CallGetValue(args ...uintptr) uintptr {
+	if v.GetValue == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -149,6 +194,9 @@ func (v *CEFXmlReaderT) CallGetValue(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideHasAttributes(fn uintptr) { v.HasAttributes = fn }
 
 func (v *CEFXmlReaderT) CallHasAttributes(args ...uintptr) uintptr {
+	if v.HasAttributes == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasAttributes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -156,6 +204,9 @@ func (v *CEFXmlReaderT) CallHasAttributes(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetAttributeCount(fn uintptr) { v.GetAttributeCount = fn }
 
 func (v *CEFXmlReaderT) CallGetAttributeCount(args ...uintptr) uintptr {
+	if v.GetAttributeCount == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAttributeCount, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -163,6 +214,9 @@ func (v *CEFXmlReaderT) CallGetAttributeCount(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetAttributeByindex(fn uintptr) { v.GetAttributeByindex = fn }
 
 func (v *CEFXmlReaderT) CallGetAttributeByindex(args ...uintptr) uintptr {
+	if v.GetAttributeByindex == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAttributeByindex, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -170,6 +224,9 @@ func (v *CEFXmlReaderT) CallGetAttributeByindex(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetAttributeByqname(fn uintptr) { v.GetAttributeByqname = fn }
 
 func (v *CEFXmlReaderT) CallGetAttributeByqname(args ...uintptr) uintptr {
+	if v.GetAttributeByqname == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAttributeByqname, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -177,6 +234,9 @@ func (v *CEFXmlReaderT) CallGetAttributeByqname(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetAttributeBylname(fn uintptr) { v.GetAttributeBylname = fn }
 
 func (v *CEFXmlReaderT) CallGetAttributeBylname(args ...uintptr) uintptr {
+	if v.GetAttributeBylname == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetAttributeBylname, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -184,6 +244,9 @@ func (v *CEFXmlReaderT) CallGetAttributeBylname(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetInnerXml(fn uintptr) { v.GetInnerXml = fn }
 
 func (v *CEFXmlReaderT) CallGetInnerXml(args ...uintptr) uintptr {
+	if v.GetInnerXml == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetInnerXml, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -191,6 +254,9 @@ func (v *CEFXmlReaderT) CallGetInnerXml(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetOuterXml(fn uintptr) { v.GetOuterXml = fn }
 
 func (v *CEFXmlReaderT) CallGetOuterXml(args ...uintptr) uintptr {
+	if v.GetOuterXml == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetOuterXml, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -198,6 +264,9 @@ func (v *CEFXmlReaderT) CallGetOuterXml(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideGetLineNumber(fn uintptr) { v.GetLineNumber = fn }
 
 func (v *CEFXmlReaderT) CallGetLineNumber(args ...uintptr) uintptr {
+	if v.GetLineNumber == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetLineNumber, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -205,6 +274,9 @@ func (v *CEFXmlReaderT) CallGetLineNumber(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideMoveToAttributeByindex(fn uintptr) { v.MoveToAttributeByindex = fn }
 
 func (v *CEFXmlReaderT) CallMoveToAttributeByindex(args ...uintptr) uintptr {
+	if v.MoveToAttributeByindex == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToAttributeByindex, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -212,6 +284,9 @@ func (v *CEFXmlReaderT) CallMoveToAttributeByindex(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideMoveToAttributeByqname(fn uintptr) { v.MoveToAttributeByqname = fn }
 
 func (v *CEFXmlReaderT) CallMoveToAttributeByqname(args ...uintptr) uintptr {
+	if v.MoveToAttributeByqname == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToAttributeByqname, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -219,6 +294,9 @@ func (v *CEFXmlReaderT) CallMoveToAttributeByqname(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideMoveToAttributeBylname(fn uintptr) { v.MoveToAttributeBylname = fn }
 
 func (v *CEFXmlReaderT) CallMoveToAttributeBylname(args ...uintptr) uintptr {
+	if v.MoveToAttributeBylname == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToAttributeBylname, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -226,6 +304,9 @@ func (v *CEFXmlReaderT) CallMoveToAttributeBylname(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideMoveToFirstAttribute(fn uintptr) { v.MoveToFirstAttribute = fn }
 
 func (v *CEFXmlReaderT) CallMoveToFirstAttribute(args ...uintptr) uintptr {
+	if v.MoveToFirstAttribute == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToFirstAttribute, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -233,6 +314,9 @@ func (v *CEFXmlReaderT) CallMoveToFirstAttribute(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideMoveToNextAttribute(fn uintptr) { v.MoveToNextAttribute = fn }
 
 func (v *CEFXmlReaderT) CallMoveToNextAttribute(args ...uintptr) uintptr {
+	if v.MoveToNextAttribute == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToNextAttribute, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -240,6 +324,9 @@ func (v *CEFXmlReaderT) CallMoveToNextAttribute(args ...uintptr) uintptr {
 func (v *CEFXmlReaderT) OverrideMoveToCarryingElement(fn uintptr) { v.MoveToCarryingElement = fn }
 
 func (v *CEFXmlReaderT) CallMoveToCarryingElement(args ...uintptr) uintptr {
+	if v.MoveToCarryingElement == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToCarryingElement, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

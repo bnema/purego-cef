@@ -19,6 +19,9 @@ type CEFSharedProcessMessageBuilderT struct {
 func (v *CEFSharedProcessMessageBuilderT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
 func (v *CEFSharedProcessMessageBuilderT) CallIsValid(args ...uintptr) uintptr {
+	if v.IsValid == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -26,6 +29,9 @@ func (v *CEFSharedProcessMessageBuilderT) CallIsValid(args ...uintptr) uintptr {
 func (v *CEFSharedProcessMessageBuilderT) OverrideSize(fn uintptr) { v.Size = fn }
 
 func (v *CEFSharedProcessMessageBuilderT) CallSize(args ...uintptr) uintptr {
+	if v.Size == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Size, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -33,6 +39,9 @@ func (v *CEFSharedProcessMessageBuilderT) CallSize(args ...uintptr) uintptr {
 func (v *CEFSharedProcessMessageBuilderT) OverrideMemory(fn uintptr) { v.Memory = fn }
 
 func (v *CEFSharedProcessMessageBuilderT) CallMemory(args ...uintptr) uintptr {
+	if v.Memory == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Memory, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -40,6 +49,9 @@ func (v *CEFSharedProcessMessageBuilderT) CallMemory(args ...uintptr) uintptr {
 func (v *CEFSharedProcessMessageBuilderT) OverrideBuild(fn uintptr) { v.Build = fn }
 
 func (v *CEFSharedProcessMessageBuilderT) CallBuild(args ...uintptr) uintptr {
+	if v.Build == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Build, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

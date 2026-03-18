@@ -17,6 +17,9 @@ type CEFCallbackT struct {
 func (v *CEFCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
 func (v *CEFCallbackT) CallCont(args ...uintptr) uintptr {
+	if v.Cont == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -24,6 +27,9 @@ func (v *CEFCallbackT) CallCont(args ...uintptr) uintptr {
 func (v *CEFCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
 func (v *CEFCallbackT) CallCancel(args ...uintptr) uintptr {
+	if v.Cancel == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -37,9 +43,11 @@ type CEFCompletionCallbackT struct {
 func (v *CEFCompletionCallbackT) OverrideOnComplete(fn uintptr) { v.OnComplete = fn }
 
 func (v *CEFCompletionCallbackT) CallOnComplete(args ...uintptr) uintptr {
+	if v.OnComplete == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnComplete, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterCallback(handle uintptr) {
-}
+func RegisterCallback(_ uintptr) {}

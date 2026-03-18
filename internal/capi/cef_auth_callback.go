@@ -17,6 +17,9 @@ type CEFAuthCallbackT struct {
 func (v *CEFAuthCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
 func (v *CEFAuthCallbackT) CallCont(args ...uintptr) uintptr {
+	if v.Cont == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -24,9 +27,11 @@ func (v *CEFAuthCallbackT) CallCont(args ...uintptr) uintptr {
 func (v *CEFAuthCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
 func (v *CEFAuthCallbackT) CallCancel(args ...uintptr) uintptr {
+	if v.Cancel == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterAuthCallback(handle uintptr) {
-}
+func RegisterAuthCallback(_ uintptr) {}

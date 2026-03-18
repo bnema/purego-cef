@@ -27,6 +27,9 @@ type CEFZipReaderT struct {
 func (v *CEFZipReaderT) OverrideMoveToFirstFile(fn uintptr) { v.MoveToFirstFile = fn }
 
 func (v *CEFZipReaderT) CallMoveToFirstFile(args ...uintptr) uintptr {
+	if v.MoveToFirstFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToFirstFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -34,6 +37,9 @@ func (v *CEFZipReaderT) CallMoveToFirstFile(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideMoveToNextFile(fn uintptr) { v.MoveToNextFile = fn }
 
 func (v *CEFZipReaderT) CallMoveToNextFile(args ...uintptr) uintptr {
+	if v.MoveToNextFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToNextFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -41,6 +47,9 @@ func (v *CEFZipReaderT) CallMoveToNextFile(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideMoveToFile(fn uintptr) { v.MoveToFile = fn }
 
 func (v *CEFZipReaderT) CallMoveToFile(args ...uintptr) uintptr {
+	if v.MoveToFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.MoveToFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -48,6 +57,9 @@ func (v *CEFZipReaderT) CallMoveToFile(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideClose(fn uintptr) { v.Close = fn }
 
 func (v *CEFZipReaderT) CallClose(args ...uintptr) uintptr {
+	if v.Close == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Close, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -55,6 +67,9 @@ func (v *CEFZipReaderT) CallClose(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideGetFileName(fn uintptr) { v.GetFileName = fn }
 
 func (v *CEFZipReaderT) CallGetFileName(args ...uintptr) uintptr {
+	if v.GetFileName == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFileName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -62,6 +77,9 @@ func (v *CEFZipReaderT) CallGetFileName(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideGetFileSize(fn uintptr) { v.GetFileSize = fn }
 
 func (v *CEFZipReaderT) CallGetFileSize(args ...uintptr) uintptr {
+	if v.GetFileSize == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFileSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -69,6 +87,9 @@ func (v *CEFZipReaderT) CallGetFileSize(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideGetFileLastModified(fn uintptr) { v.GetFileLastModified = fn }
 
 func (v *CEFZipReaderT) CallGetFileLastModified(args ...uintptr) uintptr {
+	if v.GetFileLastModified == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetFileLastModified, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -76,6 +97,9 @@ func (v *CEFZipReaderT) CallGetFileLastModified(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideOpenFile(fn uintptr) { v.OpenFile = fn }
 
 func (v *CEFZipReaderT) CallOpenFile(args ...uintptr) uintptr {
+	if v.OpenFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OpenFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -83,6 +107,9 @@ func (v *CEFZipReaderT) CallOpenFile(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideCloseFile(fn uintptr) { v.CloseFile = fn }
 
 func (v *CEFZipReaderT) CallCloseFile(args ...uintptr) uintptr {
+	if v.CloseFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.CloseFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -90,6 +117,9 @@ func (v *CEFZipReaderT) CallCloseFile(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideReadFile(fn uintptr) { v.ReadFile = fn }
 
 func (v *CEFZipReaderT) CallReadFile(args ...uintptr) uintptr {
+	if v.ReadFile == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.ReadFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -97,6 +127,9 @@ func (v *CEFZipReaderT) CallReadFile(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideTell(fn uintptr) { v.Tell = fn }
 
 func (v *CEFZipReaderT) CallTell(args ...uintptr) uintptr {
+	if v.Tell == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Tell, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -104,6 +137,9 @@ func (v *CEFZipReaderT) CallTell(args ...uintptr) uintptr {
 func (v *CEFZipReaderT) OverrideEof(fn uintptr) { v.Eof = fn }
 
 func (v *CEFZipReaderT) CallEof(args ...uintptr) uintptr {
+	if v.Eof == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Eof, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

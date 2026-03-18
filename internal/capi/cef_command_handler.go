@@ -20,6 +20,9 @@ type CEFCommandHandlerT struct {
 func (v *CEFCommandHandlerT) OverrideOnChromeCommand(fn uintptr) { v.OnChromeCommand = fn }
 
 func (v *CEFCommandHandlerT) CallOnChromeCommand(args ...uintptr) uintptr {
+	if v.OnChromeCommand == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnChromeCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -29,6 +32,9 @@ func (v *CEFCommandHandlerT) OverrideIsChromeAppMenuItemVisible(fn uintptr) {
 }
 
 func (v *CEFCommandHandlerT) CallIsChromeAppMenuItemVisible(args ...uintptr) uintptr {
+	if v.IsChromeAppMenuItemVisible == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsChromeAppMenuItemVisible, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -38,6 +44,9 @@ func (v *CEFCommandHandlerT) OverrideIsChromeAppMenuItemEnabled(fn uintptr) {
 }
 
 func (v *CEFCommandHandlerT) CallIsChromeAppMenuItemEnabled(args ...uintptr) uintptr {
+	if v.IsChromeAppMenuItemEnabled == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsChromeAppMenuItemEnabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -47,6 +56,9 @@ func (v *CEFCommandHandlerT) OverrideIsChromePageActionIconVisible(fn uintptr) {
 }
 
 func (v *CEFCommandHandlerT) CallIsChromePageActionIconVisible(args ...uintptr) uintptr {
+	if v.IsChromePageActionIconVisible == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsChromePageActionIconVisible, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -56,9 +68,11 @@ func (v *CEFCommandHandlerT) OverrideIsChromeToolbarButtonVisible(fn uintptr) {
 }
 
 func (v *CEFCommandHandlerT) CallIsChromeToolbarButtonVisible(args ...uintptr) uintptr {
+	if v.IsChromeToolbarButtonVisible == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.IsChromeToolbarButtonVisible, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterCommandHandler(handle uintptr) {
-}
+func RegisterCommandHandler(_ uintptr) {}
