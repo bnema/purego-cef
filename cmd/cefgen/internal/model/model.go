@@ -59,3 +59,19 @@ type EnumValue struct {
 	Value    string
 	Comments []string
 }
+
+type Header struct {
+	Path      string
+	Package   string
+	Structs   []Struct
+	Functions []Function
+	Enums     []Enum
+	Typedefs  []Typedef
+}
+
+type Typedef struct {
+	CName  string
+	GoName string
+	CType  string
+	GoType string
+}
