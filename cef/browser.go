@@ -92,6 +92,8 @@ func CreateBrowser(cfg BrowserConfig) (*Browser, error) {
 
 // Close asks the browser host to close.
 func (b *Browser) Close() {
+	//nolint:govet // CallGetHost returns a CEF-owned pointer via SyscallN; the uintptr
+	// never leaves the runtime's stack and is immediately converted.
 	host := (*capi.CEFBrowserHostT)(unsafe.Pointer(b.raw.CallGetHost()))
 	host.CallCloseBrowser(1) // force_close = true
 }
