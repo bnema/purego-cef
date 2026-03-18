@@ -29,15 +29,16 @@ func TestOffscreenBrowserPaints(t *testing.T) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 
-	if err := cef.Init("", cef.DefaultSettings()); err != nil {
+	rt := cef.NewRuntime("")
+	if err := rt.Init(cef.DefaultSettings()); err != nil {
 		t.Fatal(err)
 	}
-	defer cef.Shutdown()
+	defer rt.Shutdown()
 
 	handler := &testRenderHandler{painted: make(chan struct{}, 1)}
 	client := cef.NewClient().WithRenderHandler(handler)
 
-	browser, err := cef.CreateBrowser(cef.BrowserConfig{
+	browser, err := rt.CreateBrowser(cef.BrowserConfig{
 		URL:       "data:text/html,<html><body>purego-cef</body></html>",
 		Width:     800,
 		Height:    600,
@@ -57,7 +58,7 @@ func TestOffscreenBrowserPaints(t *testing.T) {
 		case <-timeout:
 			t.Fatal("timed out waiting for first paint")
 		default:
-			cef.DoMessageLoopWork()
+			rt.DoMessageLoopWork()
 			time.Sleep(10 * time.Millisecond)
 		}
 	}

@@ -24,9 +24,8 @@ type BrowserConfig struct {
 	Client    *Client
 }
 
-// CreateBrowser creates an off-screen browser asynchronously and pumps
-// the message loop until OnAfterCreated fires or a timeout is reached.
-func CreateBrowser(cfg BrowserConfig) (Browser, error) {
+// createBrowser is the internal implementation called by runtime.CreateBrowser.
+func createBrowser(cfg BrowserConfig) (Browser, error) {
 	if cfg.Client == nil {
 		cfg.Client = NewClient()
 	}
@@ -97,6 +96,3 @@ func (b *browser) Close() {
 	host := (*capi.CEFBrowserHostT)(unsafe.Pointer(b.raw.CallGetHost()))
 	host.CallCloseBrowser(1) // force_close = true
 }
-
-// Raw returns the underlying CEF browser pointer for advanced use.
-func (b *browser) Raw() *capi.CEFBrowserT { return b.raw }
