@@ -1,0 +1,10 @@
+template: testify
+packages:
+  github.com/bnema/purego-cef/cef:
+    config:
+      dir: "{{.InterfaceDir}}"
+      filename: "mock_{{ .InterfaceName | snakecase }}_test.go"
+      pkgname: "cef"
+    interfaces:
+      Runtime:
+      Browser:
