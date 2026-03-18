@@ -2,6 +2,7 @@ package cef
 
 import (
 	"fmt"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -13,6 +14,8 @@ type runtime struct {
 	runtimeDir  string
 	handle      uintptr
 	initialized bool
+	initOnce    sync.Once
+	initErr     error
 }
 
 // NewRuntime creates a new CEF runtime. The runtimeDir parameter specifies
@@ -23,10 +26,13 @@ func NewRuntime(runtimeDir string) Runtime {
 }
 
 func (r *runtime) Init(settings Settings) error {
-	if r.initialized {
-		return fmt.Errorf("cef: runtime already initialized")
-	}
+	r.initOnce.Do(func() {
+		r.initErr = r.doInit(settings)
+	})
+	return r.initErr
+}
 
+func (r *runtime) doInit(settings Settings) error {
 	handle, err := loader.Open(r.runtimeDir)
 	if err != nil {
 		return fmt.Errorf("cef: open loader: %w", err)
@@ -52,6 +58,8 @@ func (r *runtime) Init(settings Settings) error {
 	return nil
 }
 
+// Shutdown releases all CEF resources. The library handle is intentionally
+// not closed via Dlclose because CEF does not support clean unloading.
 func (r *runtime) Shutdown() {
 	if !r.initialized {
 		return

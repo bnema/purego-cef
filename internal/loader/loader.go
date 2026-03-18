@@ -11,6 +11,12 @@ import (
 
 const defaultCEFVersion = 145
 
+// cefVersionInfoChromeMajor is the entry index for the chrome major version
+// in cef_version_info().
+const cefVersionInfoChromeMajor = 4
+
+// Open loads the CEF shared library from the resolved directory and validates
+// the runtime version. Currently Linux-only (libcef.so).
 func Open(dir string) (uintptr, error) {
 	runtimeDir, err := resolveDir(dir, os.UserHomeDir)
 	if err != nil {
@@ -21,8 +27,12 @@ func Open(dir string) (uintptr, error) {
 	if err != nil {
 		return 0, fmt.Errorf("dlopen %s: %w", libPath, err)
 	}
+	sym, err := purego.Dlsym(handle, "cef_version_info")
+	if err != nil {
+		return 0, fmt.Errorf("resolve cef_version_info: %w", err)
+	}
 	var versionInfo func(int32) int32
-	purego.RegisterLibFunc(&versionInfo, handle, "cef_version_info")
+	purego.RegisterFunc(&versionInfo, sym)
 	if err := validateVersion(versionInfo); err != nil {
 		return 0, err
 	}
@@ -56,7 +66,7 @@ func validateVersion(versionInfo func(int32) int32) error {
 	if os.Getenv("CEF_SKIP_VERSION_CHECK") == "1" {
 		return nil
 	}
-	got := versionInfo(4)
+	got := versionInfo(cefVersionInfoChromeMajor)
 	want := targetMajor()
 	if got != want {
 		return fmt.Errorf("unsupported CEF runtime: chrome major=%d want=%d", got, want)

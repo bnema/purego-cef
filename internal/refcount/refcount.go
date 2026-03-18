@@ -31,6 +31,9 @@ type baseRefCounted struct {
 }
 
 func Init(base unsafe.Pointer, size uintptr, owner any) *State {
+	if base == nil {
+		panic("refcount: Init called with nil base")
+	}
 	hdr := (*baseRefCounted)(base)
 	hdr.Size = size
 	hdr.AddRef = addRefCallback

@@ -35,7 +35,7 @@ func Parse(path string, data []byte) (*model.Header, error) {
 
 	out := &model.Header{Path: path, Package: "capi"}
 	for _, match := range structRE.FindAllSubmatch(clean, -1) {
-		st, err := parseStruct(string(match[1]), string(match[2]), string(match[3]))
+		st, err := parseStruct(string(match[2]), string(match[3]))
 		if err != nil {
 			return nil, fmt.Errorf("%s: struct %s: %w", path, string(match[3]), err)
 		}
@@ -111,8 +111,7 @@ func joinLines(data []byte) []byte {
 	return bytes.Join(result, []byte("\n"))
 }
 
-func parseStruct(tag, body, name string) (model.Struct, error) {
-	_ = tag
+func parseStruct(body, name string) (model.Struct, error) {
 	result := model.Struct{CName: name, GoName: goName(name)}
 	for _, raw := range strings.Split(body, ";") {
 		line := strings.TrimSpace(raw)
@@ -279,7 +278,7 @@ func mapType(ctype string) string {
 	// Normalize multiple spaces
 	ctype = strings.Join(strings.Fields(ctype), " ")
 
-	isPtr := strings.HasSuffix(ctype, "*") || strings.Contains(ctype, "* ")
+	isPtr := strings.Contains(ctype, "*")
 
 	// void* -> unsafe.Pointer
 	if ctype == "void*" || ctype == "void *" || ctype == "const void*" || ctype == "const void *" {

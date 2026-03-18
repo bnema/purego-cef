@@ -10,10 +10,23 @@ func TestClientBuilderStoresHandlers(t *testing.T) {
 	}
 }
 
-func TestClientBuilderStoresLifeSpanHandler(t *testing.T) {
+func TestClientBuilderStoresNilLifeSpanHandler(t *testing.T) {
 	client := NewClient().WithLifeSpanHandler(nil)
 	if client.lifeSpanHandler != nil {
 		t.Fatal("expected nil life span handler")
+	}
+}
+
+type stubLifeSpanHandler struct{}
+
+func (s *stubLifeSpanHandler) OnAfterCreated(Browser) {}
+func (s *stubLifeSpanHandler) OnBeforeClose(Browser)  {}
+
+func TestClientBuilderStoresNonNilLifeSpanHandler(t *testing.T) {
+	handler := &stubLifeSpanHandler{}
+	client := NewClient().WithLifeSpanHandler(handler)
+	if client.lifeSpanHandler == nil {
+		t.Fatal("life span handler not stored")
 	}
 }
 

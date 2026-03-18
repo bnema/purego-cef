@@ -53,7 +53,7 @@ func TestCallbacksAreCallable(t *testing.T) {
 	purego.RegisterFunc(&addRef, base.AddRef)
 	purego.RegisterFunc(&release, base.Release)
 	addRef(unsafe.Pointer(&base))
-	if release(unsafe.Pointer(&base)) != 0 {
-		t.Fatal("unexpected zero-release result")
+	if got := release(unsafe.Pointer(&base)); got != 0 {
+		t.Fatalf("expected release to return 0 (object still alive), got %d", got)
 	}
 }

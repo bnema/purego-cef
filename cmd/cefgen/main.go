@@ -18,8 +18,8 @@ type config struct {
 }
 
 func (c config) validate() error {
-	if c.headersDir == "" || c.outputDir == "" || c.version == "" {
-		return fmt.Errorf("--headers-dir, --output-dir, and --version are required")
+	if c.headersDir == "" || c.outputDir == "" {
+		return fmt.Errorf("--headers-dir and --output-dir are required")
 	}
 	return nil
 }

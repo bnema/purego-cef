@@ -10,9 +10,9 @@ type MouseEvent struct {
 
 // Event flag constants matching cef_event_flags_t.
 const (
-	EventFlagLeftMouseButton   uint32 = 1 << 5
-	EventFlagMiddleMouseButton uint32 = 1 << 6
-	EventFlagRightMouseButton  uint32 = 1 << 7
+	EventFlagLeftMouseButton   uint32 = 1 << 4
+	EventFlagMiddleMouseButton uint32 = 1 << 5
+	EventFlagRightMouseButton  uint32 = 1 << 6
 )
 
 // toC converts a public MouseEvent to the internal capi type.

@@ -5,7 +5,6 @@ import (
 	"embed"
 	"fmt"
 	"go/format"
-	"strings"
 	"text/template"
 
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
@@ -16,7 +15,7 @@ var templateFS embed.FS
 
 // Emit takes a parsed Header and returns formatted Go source code.
 func Emit(header *model.Header) (string, error) {
-	tmpl, err := template.New("file").Funcs(template.FuncMap{"lower": lowerFirst}).ParseFS(templateFS, "templates/*.tmpl")
+	tmpl, err := template.New("file").ParseFS(templateFS, "templates/*.tmpl")
 	if err != nil {
 		return "", err
 	}
@@ -29,11 +28,4 @@ func Emit(header *model.Header) (string, error) {
 		return "", fmt.Errorf("format source: %w\n%s", err, buf.String())
 	}
 	return string(formatted), nil
-}
-
-func lowerFirst(s string) string {
-	if s == "" {
-		return s
-	}
-	return strings.ToLower(s[:1]) + s[1:]
 }

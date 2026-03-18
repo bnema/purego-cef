@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -32,7 +33,11 @@ func TestParseExportedFunctions(t *testing.T) {
 }
 
 func TestParseRealHeaders(t *testing.T) {
-	headersDir := filepath.Join("/home/brice/.local/share/cef/include/capi")
+	cefDir := os.Getenv("CEF_DIR")
+	if cefDir == "" {
+		t.Skip("CEF_DIR not set")
+	}
+	headersDir := filepath.Join(cefDir, "include", "capi")
 	for _, name := range []string{
 		"cef_base_capi.h",
 		"cef_app_capi.h",

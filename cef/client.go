@@ -87,7 +87,7 @@ func newClientState(c *Client) *clientState {
 				Width:      width,
 				Height:     height,
 				Buffer:     buffer,
-				BufferSize: int(width) * int(height) * 4, // BGRA
+				BufferSize: int(int64(width) * int64(height) * 4), // BGRA
 				DirtyRects: rects,
 			}
 			c.renderHandler.OnPaint(evt)

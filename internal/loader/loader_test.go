@@ -1,7 +1,6 @@
 package loader
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 )
@@ -41,7 +40,7 @@ func TestResolveDirFallsBackToUserHome(t *testing.T) {
 }
 
 func TestTargetMajorDefaultAndEnvOverride(t *testing.T) {
-	os.Unsetenv("CEF_VERSION")
+	t.Setenv("CEF_VERSION", "")
 	if got := targetMajor(); got != 145 {
 		t.Fatalf("default target = %d", got)
 	}
