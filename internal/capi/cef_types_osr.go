@@ -15,10 +15,10 @@ type CEFAcceleratedPaintInfoCommonT struct {
 	CaptureUpdateRect    CEFRectT
 	RegionCaptureRect    CEFRectT
 	CaptureCounter       uint64
-	HasCaptureUpdateRect uintptr
-	HasRegionCaptureRect uintptr
-	HasSourceSize        uintptr
-	HasCaptureCounter    uintptr
+	HasCaptureUpdateRect uint8
+	HasRegionCaptureRect uint8
+	HasSourceSize        uint8
+	HasCaptureCounter    uint8
 }
 
 func RegisterTypesOsr(handle uintptr) {

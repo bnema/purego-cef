@@ -355,8 +355,8 @@ type CEFKeyEventT struct {
 	WindowsKeyCode       int32
 	NativeKeyCode        int32
 	IsSystemKey          int32
-	Character            uintptr
-	UnmodifiedCharacter  uintptr
+	Character            uint16
+	UnmodifiedCharacter  uint16
 	FocusOnEditableField int32
 }
 
