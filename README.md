@@ -1,32 +1,31 @@
 # purego-cef
 
-CEF (Chromium Embedded Framework) bindings for Go — no CGo, pure `purego`.
+Pure Go bindings for the Chromium Embedded Framework C API.
 
 ## Status
 
-Bootstrap phase.
+Milestone 1 targets a minimal offscreen browser on Linux with `CGO_ENABLED=0`.
 
 ## Requirements
 
 - Go 1.26+
-- CEF runtime bundle (`libcef.so` + resources) in `~/.local/share/cef` or `$CEF_PATH`
+- `github.com/ebitengine/purego` v0.10.0
+- CEF runtime bundle in `$CEF_DIR` or `~/.local/share/cef`
 
 ## Architecture
 
-```
-purego-cef/
-  cmd/cefgen/        # code generator: CEF C headers → Go bindings
-  internal/
-    gen/             # parser, policy, templates
-    loader/          # dlopen/dlsym + symbol resolution
-    capi/            # generated raw CEF C API bindings (version-pinned)
-    runtime/         # refcount, callback registry, thread utilities
-    versioning/      # api hash/version validation
-  cef/               # public safe API
-  examples/
-    minimal/
+```text
+cef/              handwritten public API
+internal/capi/    generated raw CEF bindings
+internal/loader/  libcef discovery + dlopen
+internal/cefstr/  cef_string_t helpers
+internal/refcount/ Go-owned refcount callbacks
+cmd/cefgen/       header parser + code emitter
 ```
 
-## License
+## Development
 
-MIT
+```bash
+CGO_ENABLED=0 go test ./...
+CGO_ENABLED=0 go generate ./internal/capi
+```
