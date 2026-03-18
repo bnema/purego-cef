@@ -37,7 +37,7 @@ type clientState struct {
 	renderHandler   capi.CEFRenderHandlerT
 	lifeSpanHandler capi.CEFLifeSpanHandlerT
 	owner           *Client
-	created         chan *Browser
+	created         chan *browser
 	closed          chan struct{}
 }
 
@@ -45,7 +45,7 @@ type clientState struct {
 func newClientState(c *Client) *clientState {
 	state := &clientState{
 		owner:   c,
-		created: make(chan *Browser, 1),
+		created: make(chan *browser, 1),
 		closed:  make(chan struct{}),
 	}
 
@@ -96,8 +96,8 @@ func newClientState(c *Client) *clientState {
 
 	// Wire life-span handler callbacks.
 	if c.lifeSpanHandler != nil {
-		state.lifeSpanHandler.OverrideOnAfterCreated(purego.NewCallback(func(self unsafe.Pointer, browser unsafe.Pointer) {
-			b := &Browser{raw: (*capi.CEFBrowserT)(browser)}
+		state.lifeSpanHandler.OverrideOnAfterCreated(purego.NewCallback(func(self unsafe.Pointer, rawBrowser unsafe.Pointer) {
+			b := &browser{raw: (*capi.CEFBrowserT)(rawBrowser)}
 			c.lifeSpanHandler.OnAfterCreated(b)
 			// Non-blocking send; the CreateBrowser pump reads from this.
 			select {
@@ -106,8 +106,8 @@ func newClientState(c *Client) *clientState {
 			}
 		}))
 
-		state.lifeSpanHandler.OverrideOnBeforeClose(purego.NewCallback(func(self unsafe.Pointer, browser unsafe.Pointer) {
-			b := &Browser{raw: (*capi.CEFBrowserT)(browser)}
+		state.lifeSpanHandler.OverrideOnBeforeClose(purego.NewCallback(func(self unsafe.Pointer, rawBrowser unsafe.Pointer) {
+			b := &browser{raw: (*capi.CEFBrowserT)(rawBrowser)}
 			c.lifeSpanHandler.OnBeforeClose(b)
 			select {
 			case <-state.closed:
@@ -118,8 +118,8 @@ func newClientState(c *Client) *clientState {
 	} else {
 		// Even without a user handler we need OnAfterCreated to signal
 		// browser creation to CreateBrowser.
-		state.lifeSpanHandler.OverrideOnAfterCreated(purego.NewCallback(func(self unsafe.Pointer, browser unsafe.Pointer) {
-			b := &Browser{raw: (*capi.CEFBrowserT)(browser)}
+		state.lifeSpanHandler.OverrideOnAfterCreated(purego.NewCallback(func(self unsafe.Pointer, rawBrowser unsafe.Pointer) {
+			b := &browser{raw: (*capi.CEFBrowserT)(rawBrowser)}
 			select {
 			case state.created <- b:
 			default:

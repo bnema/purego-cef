@@ -9,8 +9,8 @@ import (
 	"github.com/bnema/purego-cef/internal/cefstr"
 )
 
-// Browser wraps a CEF browser instance.
-type Browser struct {
+// browser wraps a CEF browser instance and implements the Browser interface.
+type browser struct {
 	raw   *capi.CEFBrowserT
 	state *clientState
 }
@@ -26,7 +26,7 @@ type BrowserConfig struct {
 
 // CreateBrowser creates an off-screen browser asynchronously and pumps
 // the message loop until OnAfterCreated fires or a timeout is reached.
-func CreateBrowser(cfg BrowserConfig) (*Browser, error) {
+func CreateBrowser(cfg BrowserConfig) (Browser, error) {
 	if cfg.Client == nil {
 		cfg.Client = NewClient()
 	}
@@ -78,9 +78,9 @@ func CreateBrowser(cfg BrowserConfig) (*Browser, error) {
 	defer timer.Stop()
 	for {
 		select {
-		case browser := <-state.created:
-			browser.state = state
-			return browser, nil
+		case b := <-state.created:
+			b.state = state
+			return b, nil
 		case <-timer.C:
 			return nil, fmt.Errorf("cef: timed out waiting for browser creation")
 		default:
@@ -91,7 +91,7 @@ func CreateBrowser(cfg BrowserConfig) (*Browser, error) {
 }
 
 // Close asks the browser host to close.
-func (b *Browser) Close() {
+func (b *browser) Close() {
 	//nolint:govet // CallGetHost returns a CEF-owned pointer via SyscallN; the uintptr
 	// never leaves the runtime's stack and is immediately converted.
 	host := (*capi.CEFBrowserHostT)(unsafe.Pointer(b.raw.CallGetHost()))
@@ -99,4 +99,4 @@ func (b *Browser) Close() {
 }
 
 // Raw returns the underlying CEF browser pointer for advanced use.
-func (b *Browser) Raw() *capi.CEFBrowserT { return b.raw }
+func (b *browser) Raw() *capi.CEFBrowserT { return b.raw }

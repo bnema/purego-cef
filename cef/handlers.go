@@ -19,8 +19,8 @@ type RenderHandler interface {
 
 // LifeSpanHandler receives browser lifecycle notifications.
 type LifeSpanHandler interface {
-	OnAfterCreated(*Browser)
-	OnBeforeClose(*Browser)
+	OnAfterCreated(*browser)
+	OnBeforeClose(*browser)
 }
 
 // RenderHandlerFunc adapts a simple paint callback into a full RenderHandler.
