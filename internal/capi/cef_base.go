@@ -19,6 +19,9 @@ type CEFBaseRefCountedT struct {
 func (v *CEFBaseRefCountedT) OverrideAddRef(fn uintptr) { v.AddRef = fn }
 
 func (v *CEFBaseRefCountedT) CallAddRef(args ...uintptr) uintptr {
+	if v.AddRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.AddRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -26,6 +29,9 @@ func (v *CEFBaseRefCountedT) CallAddRef(args ...uintptr) uintptr {
 func (v *CEFBaseRefCountedT) OverrideRelease(fn uintptr) { v.Release = fn }
 
 func (v *CEFBaseRefCountedT) CallRelease(args ...uintptr) uintptr {
+	if v.Release == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Release, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -33,6 +39,9 @@ func (v *CEFBaseRefCountedT) CallRelease(args ...uintptr) uintptr {
 func (v *CEFBaseRefCountedT) OverrideHasOneRef(fn uintptr) { v.HasOneRef = fn }
 
 func (v *CEFBaseRefCountedT) CallHasOneRef(args ...uintptr) uintptr {
+	if v.HasOneRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasOneRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -40,6 +49,9 @@ func (v *CEFBaseRefCountedT) CallHasOneRef(args ...uintptr) uintptr {
 func (v *CEFBaseRefCountedT) OverrideHasAtLeastOneRef(fn uintptr) { v.HasAtLeastOneRef = fn }
 
 func (v *CEFBaseRefCountedT) CallHasAtLeastOneRef(args ...uintptr) uintptr {
+	if v.HasAtLeastOneRef == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.HasAtLeastOneRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -53,9 +65,11 @@ type CEFBaseScopedT struct {
 func (v *CEFBaseScopedT) OverrideDel(fn uintptr) { v.Del = fn }
 
 func (v *CEFBaseScopedT) CallDel(args ...uintptr) uintptr {
+	if v.Del == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.Del, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterBase(handle uintptr) {
-}
+func RegisterBase(_ uintptr) {}

@@ -1,0 +1,34 @@
+package capi
+
+import (
+	"unsafe"
+
+	"github.com/ebitengine/purego"
+)
+
+var CEFCreateDirectory func(FullPath unsafe.Pointer) int32
+
+var CEFGetTempDirectory func(TempDir unsafe.Pointer) int32
+
+var CEFCreateNewTempDirectory func(Prefix unsafe.Pointer, NewTempPath unsafe.Pointer) int32
+
+var CEFCreateTempDirectoryInDirectory func(BaseDir unsafe.Pointer, Prefix unsafe.Pointer, NewDir unsafe.Pointer) int32
+
+var CEFDirectoryExists func(Path unsafe.Pointer) int32
+
+var CEFDeleteFile func(Path unsafe.Pointer, Recursive int32) int32
+
+var CEFZipDirectory func(SrcDir unsafe.Pointer, DestFile unsafe.Pointer, IncludeHiddenFiles int32) int32
+
+var CEFLoadCrlsetsFile func(Path unsafe.Pointer)
+
+func RegisterFileUtil(handle uintptr) {
+	purego.RegisterLibFunc(&CEFCreateDirectory, handle, "cef_create_directory")
+	purego.RegisterLibFunc(&CEFGetTempDirectory, handle, "cef_get_temp_directory")
+	purego.RegisterLibFunc(&CEFCreateNewTempDirectory, handle, "cef_create_new_temp_directory")
+	purego.RegisterLibFunc(&CEFCreateTempDirectoryInDirectory, handle, "cef_create_temp_directory_in_directory")
+	purego.RegisterLibFunc(&CEFDirectoryExists, handle, "cef_directory_exists")
+	purego.RegisterLibFunc(&CEFDeleteFile, handle, "cef_delete_file")
+	purego.RegisterLibFunc(&CEFZipDirectory, handle, "cef_zip_directory")
+	purego.RegisterLibFunc(&CEFLoadCrlsetsFile, handle, "cef_load_crlsets_file")
+}

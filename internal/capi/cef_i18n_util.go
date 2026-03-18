@@ -1,0 +1,11 @@
+package capi
+
+import (
+	"github.com/ebitengine/purego"
+)
+
+var CEFIsRtl func() int32
+
+func RegisterI18nUtil(handle uintptr) {
+	purego.RegisterLibFunc(&CEFIsRtl, handle, "cef_is_rtl")
+}

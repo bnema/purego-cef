@@ -46,7 +46,7 @@ func createBrowser(cfg BrowserConfig) (Browser, error) {
 
 	var window capi.CEFWindowInfoT
 	window.Size = uintptr(unsafe.Sizeof(window))
-	window.Bounds = capi.CEFRectT{W: cfg.Width, H: cfg.Height}
+	window.Bounds = capi.CEFRectT{Width: cfg.Width, Height: cfg.Height}
 	window.WindowlessRenderingEnabled = 1
 
 	var settings capi.CEFBrowserSettingsT

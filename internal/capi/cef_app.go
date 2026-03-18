@@ -22,6 +22,9 @@ func (v *CEFAppT) OverrideOnBeforeCommandLineProcessing(fn uintptr) {
 }
 
 func (v *CEFAppT) CallOnBeforeCommandLineProcessing(args ...uintptr) uintptr {
+	if v.OnBeforeCommandLineProcessing == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBeforeCommandLineProcessing, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -29,6 +32,9 @@ func (v *CEFAppT) CallOnBeforeCommandLineProcessing(args ...uintptr) uintptr {
 func (v *CEFAppT) OverrideOnRegisterCustomSchemes(fn uintptr) { v.OnRegisterCustomSchemes = fn }
 
 func (v *CEFAppT) CallOnRegisterCustomSchemes(args ...uintptr) uintptr {
+	if v.OnRegisterCustomSchemes == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnRegisterCustomSchemes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -36,6 +42,9 @@ func (v *CEFAppT) CallOnRegisterCustomSchemes(args ...uintptr) uintptr {
 func (v *CEFAppT) OverrideGetResourceBundleHandler(fn uintptr) { v.GetResourceBundleHandler = fn }
 
 func (v *CEFAppT) CallGetResourceBundleHandler(args ...uintptr) uintptr {
+	if v.GetResourceBundleHandler == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetResourceBundleHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -43,6 +52,9 @@ func (v *CEFAppT) CallGetResourceBundleHandler(args ...uintptr) uintptr {
 func (v *CEFAppT) OverrideGetBrowserProcessHandler(fn uintptr) { v.GetBrowserProcessHandler = fn }
 
 func (v *CEFAppT) CallGetBrowserProcessHandler(args ...uintptr) uintptr {
+	if v.GetBrowserProcessHandler == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetBrowserProcessHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -50,6 +62,9 @@ func (v *CEFAppT) CallGetBrowserProcessHandler(args ...uintptr) uintptr {
 func (v *CEFAppT) OverrideGetRenderProcessHandler(fn uintptr) { v.GetRenderProcessHandler = fn }
 
 func (v *CEFAppT) CallGetRenderProcessHandler(args ...uintptr) uintptr {
+	if v.GetRenderProcessHandler == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.GetRenderProcessHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }

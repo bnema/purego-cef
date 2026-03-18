@@ -1,12 +1,20 @@
 {{define "file.tmpl"}}
 package capi
 
+{{if or (.NeedsStructs) (.NeedsUnsafe) (.NeedsPurego)}}
 import (
+{{- if .NeedsStructs}}
 	"structs"
+{{- end}}
+{{- if .NeedsUnsafe}}
 	"unsafe"
+{{- end}}
+{{- if .NeedsPurego}}
 
 	"github.com/ebitengine/purego"
+{{- end}}
 )
+{{end}}
 
 {{range .Enums}}
 type {{.GoName}} int32

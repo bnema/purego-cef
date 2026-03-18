@@ -1,0 +1,13 @@
+package capi
+
+import (
+	"unsafe"
+
+	"github.com/ebitengine/purego"
+)
+
+var CEFLaunchProcess func(CommandLine unsafe.Pointer) int32
+
+func RegisterProcessUtil(handle uintptr) {
+	purego.RegisterLibFunc(&CEFLaunchProcess, handle, "cef_launch_process")
+}

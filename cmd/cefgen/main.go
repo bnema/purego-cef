@@ -40,36 +40,85 @@ func run(cfg config) error {
 	if err := cfg.validate(); err != nil {
 		return err
 	}
-	for _, rel := range []string{
-		"capi/cef_base_capi.h",
-		"capi/cef_app_capi.h",
-		"capi/cef_client_capi.h",
-		"capi/cef_life_span_handler_capi.h",
-		"capi/cef_render_handler_capi.h",
-		"capi/cef_browser_capi.h",
-	} {
-		header, err := parser.ParseFile(filepath.Join(cfg.headersDir, rel))
+
+	// Collect all register function names for the aggregator.
+	var registerNames []string
+
+	// Pass 1: Type headers (include/internal/cef_types*.h)
+	typeHeaders, err := filepath.Glob(filepath.Join(cfg.headersDir, "internal", "cef_types*.h"))
+	if err != nil {
+		return err
+	}
+	// Exclude wrappers header (C++ only)
+	typeHeaders = filterOut(typeHeaders, "cef_types_wrappers.h")
+
+	for _, path := range typeHeaders {
+		header, err := parser.ParseFile(path)
 		if err != nil {
-			return err
+			return fmt.Errorf("parse %s: %w", path, err)
 		}
-		header.RegisterName = registerName(filepath.Base(rel))
+		base := filepath.Base(path)
+		header.RegisterName = registerName(base)
+		registerNames = append(registerNames, header.RegisterName)
 		code, err := emitter.Emit(header)
 		if err != nil {
-			return err
+			return fmt.Errorf("emit %s: %w", path, err)
 		}
-		name := strings.TrimSuffix(filepath.Base(rel), "_capi.h") + ".go"
-		if err := os.WriteFile(filepath.Join(cfg.outputDir, name), []byte(code), 0o644); err != nil {
+		outName := outputName(base)
+		if err := os.WriteFile(filepath.Join(cfg.outputDir, outName), []byte(code), 0o644); err != nil {
 			return err
 		}
 	}
-	return nil
+
+	// Pass 2: CAPI headers (include/capi/**/*_capi.h)
+	capiDirs := []string{
+		filepath.Join(cfg.headersDir, "capi"),
+		filepath.Join(cfg.headersDir, "capi", "views"),
+		filepath.Join(cfg.headersDir, "capi", "test"),
+	}
+	for _, dir := range capiDirs {
+		matches, err := filepath.Glob(filepath.Join(dir, "*_capi.h"))
+		if err != nil {
+			return err
+		}
+		for _, path := range matches {
+			header, err := parser.ParseFile(path)
+			if err != nil {
+				return fmt.Errorf("parse %s: %w", path, err)
+			}
+			// Derive relative path for outputName (handles views/test prefix)
+			rel, _ := filepath.Rel(filepath.Join(cfg.headersDir, "capi"), path)
+			if rel == "" {
+				rel = filepath.Base(path)
+			}
+			header.RegisterName = registerName(filepath.Base(path))
+			registerNames = append(registerNames, header.RegisterName)
+			code, err := emitter.Emit(header)
+			if err != nil {
+				return fmt.Errorf("emit %s: %w", path, err)
+			}
+			outName := outputName(rel)
+			if err := os.WriteFile(filepath.Join(cfg.outputDir, outName), []byte(code), 0o644); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Generate register.go aggregator
+	return writeRegisterAggregator(cfg.outputDir, registerNames)
 }
 
-// registerName derives a unique Go register function name from a capi header
-// filename, e.g. "cef_app_capi.h" -> "RegisterApp".
+// registerName derives a unique Go register function name from a header
+// filename, e.g. "cef_app_capi.h" -> "RegisterApp",
+// "cef_types.h" -> "RegisterTypes".
 func registerName(base string) string {
-	// Strip _capi.h suffix
-	name := strings.TrimSuffix(base, "_capi.h")
+	name := base
+	// Strip suffix: try _capi.h first, then .h
+	if strings.HasSuffix(name, "_capi.h") {
+		name = strings.TrimSuffix(name, "_capi.h")
+	} else {
+		name = strings.TrimSuffix(name, ".h")
+	}
 	// Strip cef_ prefix
 	name = strings.TrimPrefix(name, "cef_")
 	// Title-case each word
@@ -83,4 +132,56 @@ func registerName(base string) string {
 		sb.WriteString(strings.ToUpper(p[:1]) + p[1:])
 	}
 	return sb.String()
+}
+
+// outputName derives the Go output filename from a header path.
+// Includes directory prefix for views/ and test/ to avoid collisions.
+func outputName(relPath string) string {
+	base := filepath.Base(relPath)
+	name := strings.TrimSuffix(base, "_capi.h")
+	if name == base {
+		name = strings.TrimSuffix(base, ".h")
+	}
+
+	// Prefix with directory for views/ and test/ headers
+	dir := filepath.Dir(relPath)
+	switch {
+	case strings.HasSuffix(dir, "views"):
+		name = "views_" + name
+	case strings.HasSuffix(dir, "test"):
+		name = "test_" + name
+	}
+
+	// Avoid generating files ending in _test.go (Go treats those as test files)
+	if strings.HasSuffix(name, "_test") {
+		name = name + "_"
+	}
+
+	return name + ".go"
+}
+
+// filterOut removes paths ending with the given suffix.
+func filterOut(paths []string, suffix string) []string {
+	out := make([]string, 0, len(paths))
+	for _, p := range paths {
+		if !strings.HasSuffix(p, suffix) {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// writeRegisterAggregator generates register.go that calls all per-header
+// register functions.
+func writeRegisterAggregator(dir string, names []string) error {
+	var sb strings.Builder
+	sb.WriteString("package capi\n\n")
+	sb.WriteString("// Register loads all CEF C API symbols from the shared library.\n")
+	sb.WriteString("// Code generated by cefgen. DO NOT EDIT.\n")
+	sb.WriteString("func Register(handle uintptr) {\n")
+	for _, name := range names {
+		sb.WriteString("\t" + name + "(handle)\n")
+	}
+	sb.WriteString("}\n")
+	return os.WriteFile(filepath.Join(dir, "register.go"), []byte(sb.String()), 0o644)
 }

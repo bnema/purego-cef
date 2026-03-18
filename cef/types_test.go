@@ -10,8 +10,8 @@ func TestNewMainArgsFromSlice(t *testing.T) {
 	if args.raw.Argc != 2 {
 		t.Fatalf("argc = %d, want 2", args.raw.Argc)
 	}
-	if args.raw.Argv == nil {
-		t.Fatal("argv is nil")
+	if args.raw.Argv == 0 {
+		t.Fatal("argv is zero")
 	}
 	if unsafe.Sizeof(args.raw) == 0 {
 		t.Fatal("unexpected zero-sized args")

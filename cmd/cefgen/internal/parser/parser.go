@@ -50,8 +50,21 @@ func Parse(path string, data []byte) (*model.Header, error) {
 	return out, nil
 }
 
-// stripComments removes single-line comments, preprocessor directives, and blank lines.
+// stripComments removes single-line comments, block comments, preprocessor directives, and blank lines.
 func stripComments(data []byte) []byte {
+	// First strip block comments /* ... */
+	for {
+		start := bytes.Index(data, []byte("/*"))
+		if start < 0 {
+			break
+		}
+		end := bytes.Index(data[start+2:], []byte("*/"))
+		if end < 0 {
+			break
+		}
+		data = append(data[:start], data[start+2+end+2:]...)
+	}
+
 	lines := bytes.Split(data, []byte("\n"))
 	out := make([][]byte, 0, len(lines))
 	for _, line := range lines {
@@ -274,8 +287,6 @@ func goName(cname string) string {
 // mapType maps a C type string to a Go type string.
 func mapType(ctype string) string {
 	ctype = strings.TrimSpace(ctype)
-
-	// Normalize multiple spaces
 	ctype = strings.Join(strings.Fields(ctype), " ")
 
 	isPtr := strings.Contains(ctype, "*")
@@ -310,6 +321,45 @@ func mapType(ctype string) string {
 		return "float64"
 	}
 
+	// float -> float32
+	if ctype == "float" {
+		return "float32"
+	}
+
+	// stdint types
+	if ctype == "uint32_t" {
+		return "uint32"
+	}
+	if ctype == "uint64_t" {
+		return "uint64"
+	}
+	if ctype == "int64_t" {
+		return "int64"
+	}
+	if ctype == "int32_t" {
+		return "int32"
+	}
+	if ctype == "uint16_t" {
+		return "uint16"
+	}
+	if ctype == "int16_t" {
+		return "int16"
+	}
+	if ctype == "uint8_t" {
+		return "uint8"
+	}
+	if ctype == "int8_t" {
+		return "int8"
+	}
+	if ctype == "char16_t" {
+		return "uint16"
+	}
+
+	// unsigned long -> uint64 (linux cef_window_handle_t etc.)
+	if ctype == "unsigned long" {
+		return "uint64"
+	}
+
 	// const char* -> *byte
 	if ctype == "const char*" || ctype == "const char *" {
 		return "*byte"
@@ -320,18 +370,27 @@ func mapType(ctype string) string {
 		return "*byte"
 	}
 
+	// char** -> uintptr
+	if ctype == "char**" || ctype == "char **" {
+		return "uintptr"
+	}
+
 	// Any pointer type -> unsafe.Pointer
 	if isPtr {
 		return "unsafe.Pointer"
 	}
 
-	// cef_string_t variants -> treat as uintptr (opaque)
-	if strings.HasPrefix(ctype, "cef_string") {
+	// Opaque string handle types -> uintptr
+	switch ctype {
+	case "cef_string_userfree_t", "cef_string_userfree_utf8_t",
+		"cef_string_userfree_utf16_t", "cef_string_userfree_wide_t",
+		"cef_string_list_t", "cef_string_map_t", "cef_string_multimap_t":
 		return "uintptr"
 	}
 
 	// Non-pointer cef_*_t types: use the Go struct/type name so embedded
-	// structs expand to their full layout (critical for cef_base_ref_counted_t).
+	// structs expand to their full layout (critical for cef_base_ref_counted_t
+	// and cef_string_t).
 	if strings.HasPrefix(ctype, "cef_") && strings.HasSuffix(ctype, "_t") {
 		return goName(ctype)
 	}

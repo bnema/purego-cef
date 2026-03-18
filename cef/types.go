@@ -30,7 +30,7 @@ func NewMainArgs(args []string) MainArgs {
 	}
 	m.raw.Argc = int32(len(args))
 	if len(m.ptrs) > 0 {
-		m.raw.Argv = &m.ptrs[0]
+		m.raw.Argv = uintptr(unsafe.Pointer(&m.ptrs[0]))
 	}
 	return m
 }
@@ -80,7 +80,7 @@ func (s Settings) toC() (capi.CEFSettingsT, func(), error) {
 	if s.DisableSignalHandlers {
 		c.DisableSignalHandlers = 1
 	}
-	c.LogSeverity = s.LogSeverity
+	c.LogSeverity = capi.CEFLogSeverityT(s.LogSeverity)
 
 	var cleanups []func()
 	cleanup := func() {

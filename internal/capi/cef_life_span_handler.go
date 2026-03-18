@@ -21,6 +21,9 @@ type CEFLifeSpanHandlerT struct {
 func (v *CEFLifeSpanHandlerT) OverrideOnBeforePopup(fn uintptr) { v.OnBeforePopup = fn }
 
 func (v *CEFLifeSpanHandlerT) CallOnBeforePopup(args ...uintptr) uintptr {
+	if v.OnBeforePopup == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBeforePopup, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -28,6 +31,9 @@ func (v *CEFLifeSpanHandlerT) CallOnBeforePopup(args ...uintptr) uintptr {
 func (v *CEFLifeSpanHandlerT) OverrideOnBeforePopupAborted(fn uintptr) { v.OnBeforePopupAborted = fn }
 
 func (v *CEFLifeSpanHandlerT) CallOnBeforePopupAborted(args ...uintptr) uintptr {
+	if v.OnBeforePopupAborted == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBeforePopupAborted, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -35,6 +41,9 @@ func (v *CEFLifeSpanHandlerT) CallOnBeforePopupAborted(args ...uintptr) uintptr 
 func (v *CEFLifeSpanHandlerT) OverrideOnBeforeDevToolsPopup(fn uintptr) { v.OnBeforeDevToolsPopup = fn }
 
 func (v *CEFLifeSpanHandlerT) CallOnBeforeDevToolsPopup(args ...uintptr) uintptr {
+	if v.OnBeforeDevToolsPopup == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBeforeDevToolsPopup, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -42,6 +51,9 @@ func (v *CEFLifeSpanHandlerT) CallOnBeforeDevToolsPopup(args ...uintptr) uintptr
 func (v *CEFLifeSpanHandlerT) OverrideOnAfterCreated(fn uintptr) { v.OnAfterCreated = fn }
 
 func (v *CEFLifeSpanHandlerT) CallOnAfterCreated(args ...uintptr) uintptr {
+	if v.OnAfterCreated == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnAfterCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -49,6 +61,9 @@ func (v *CEFLifeSpanHandlerT) CallOnAfterCreated(args ...uintptr) uintptr {
 func (v *CEFLifeSpanHandlerT) OverrideDoClose(fn uintptr) { v.DoClose = fn }
 
 func (v *CEFLifeSpanHandlerT) CallDoClose(args ...uintptr) uintptr {
+	if v.DoClose == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.DoClose, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
@@ -56,9 +71,11 @@ func (v *CEFLifeSpanHandlerT) CallDoClose(args ...uintptr) uintptr {
 func (v *CEFLifeSpanHandlerT) OverrideOnBeforeClose(fn uintptr) { v.OnBeforeClose = fn }
 
 func (v *CEFLifeSpanHandlerT) CallOnBeforeClose(args ...uintptr) uintptr {
+	if v.OnBeforeClose == 0 {
+		return 0
+	}
 	r1, _, _ := purego.SyscallN(v.OnBeforeClose, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
 	return r1
 }
 
-func RegisterLifeSpanHandler(handle uintptr) {
-}
+func RegisterLifeSpanHandler(_ uintptr) {}
