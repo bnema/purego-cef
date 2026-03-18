@@ -152,6 +152,11 @@ func outputName(relPath string) string {
 		name = "test_" + name
 	}
 
+	// Avoid generating files ending in _test.go (Go treats those as test files)
+	if strings.HasSuffix(name, "_test") {
+		name = name + "_"
+	}
+
 	return name + ".go"
 }
 

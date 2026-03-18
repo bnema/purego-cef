@@ -1,0 +1,101 @@
+package capi
+
+import (
+	"structs"
+	"unsafe"
+
+	"github.com/ebitengine/purego"
+)
+
+type CEFPreferenceRegistrarT struct {
+	_             structs.HostLayout
+	Base          CEFBaseScopedT
+	AddPreference uintptr
+}
+
+func (v *CEFPreferenceRegistrarT) OverrideAddPreference(fn uintptr) { v.AddPreference = fn }
+
+func (v *CEFPreferenceRegistrarT) CallAddPreference(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.AddPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+type CEFPreferenceObserverT struct {
+	_                   structs.HostLayout
+	Base                CEFBaseRefCountedT
+	OnPreferenceChanged uintptr
+}
+
+func (v *CEFPreferenceObserverT) OverrideOnPreferenceChanged(fn uintptr) { v.OnPreferenceChanged = fn }
+
+func (v *CEFPreferenceObserverT) CallOnPreferenceChanged(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.OnPreferenceChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+type CEFPreferenceManagerT struct {
+	_                     structs.HostLayout
+	Base                  CEFBaseRefCountedT
+	HasPreference         uintptr
+	GetPreference         uintptr
+	GetAllPreferences     uintptr
+	CanSetPreference      uintptr
+	SetPreference         uintptr
+	AddPreferenceObserver uintptr
+}
+
+func (v *CEFPreferenceManagerT) OverrideHasPreference(fn uintptr) { v.HasPreference = fn }
+
+func (v *CEFPreferenceManagerT) CallHasPreference(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.HasPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFPreferenceManagerT) OverrideGetPreference(fn uintptr) { v.GetPreference = fn }
+
+func (v *CEFPreferenceManagerT) CallGetPreference(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.GetPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFPreferenceManagerT) OverrideGetAllPreferences(fn uintptr) { v.GetAllPreferences = fn }
+
+func (v *CEFPreferenceManagerT) CallGetAllPreferences(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.GetAllPreferences, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFPreferenceManagerT) OverrideCanSetPreference(fn uintptr) { v.CanSetPreference = fn }
+
+func (v *CEFPreferenceManagerT) CallCanSetPreference(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.CanSetPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFPreferenceManagerT) OverrideSetPreference(fn uintptr) { v.SetPreference = fn }
+
+func (v *CEFPreferenceManagerT) CallSetPreference(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.SetPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFPreferenceManagerT) OverrideAddPreferenceObserver(fn uintptr) {
+	v.AddPreferenceObserver = fn
+}
+
+func (v *CEFPreferenceManagerT) CallAddPreferenceObserver(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.AddPreferenceObserver, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+var CEFPreferenceManagerGetChromeVariationsAsSwitches func(Switches uintptr)
+
+var CEFPreferenceManagerGetChromeVariationsAsStrings func(Strings uintptr)
+
+var CEFPreferenceManagerGetGlobal func() unsafe.Pointer
+
+func RegisterPreference(handle uintptr) {
+	purego.RegisterLibFunc(&CEFPreferenceManagerGetChromeVariationsAsSwitches, handle, "cef_preference_manager_get_chrome_variations_as_switches")
+	purego.RegisterLibFunc(&CEFPreferenceManagerGetChromeVariationsAsStrings, handle, "cef_preference_manager_get_chrome_variations_as_strings")
+	purego.RegisterLibFunc(&CEFPreferenceManagerGetGlobal, handle, "cef_preference_manager_get_global")
+}

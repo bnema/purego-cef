@@ -76,3 +76,54 @@ type Typedef struct {
 	CType  string
 	GoType string
 }
+
+// NeedsStructs returns true if the header has any struct definitions.
+func (h *Header) NeedsStructs() bool {
+	return len(h.Structs) > 0
+}
+
+// NeedsUnsafe returns true if any field or function parameter uses unsafe.Pointer.
+func (h *Header) NeedsUnsafe() bool {
+	for _, s := range h.Structs {
+		for _, f := range s.Fields {
+			if f.GoType == "unsafe.Pointer" {
+				return true
+			}
+			if f.ReturnGoType == "unsafe.Pointer" {
+				return true
+			}
+			for _, p := range f.Params {
+				if p.GoType == "unsafe.Pointer" {
+					return true
+				}
+			}
+		}
+	}
+	for _, fn := range h.Functions {
+		if fn.ReturnGoType == "unsafe.Pointer" {
+			return true
+		}
+		for _, p := range fn.Params {
+			if p.GoType == "unsafe.Pointer" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// NeedsPurego returns true if the header has any free functions to register
+// or any struct with function pointer fields (which generate Call methods using purego.SyscallN).
+func (h *Header) NeedsPurego() bool {
+	if len(h.Functions) > 0 {
+		return true
+	}
+	for _, s := range h.Structs {
+		for _, f := range s.Fields {
+			if f.IsFunction {
+				return true
+			}
+		}
+	}
+	return false
+}

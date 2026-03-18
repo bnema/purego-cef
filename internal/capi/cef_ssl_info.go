@@ -1,0 +1,35 @@
+package capi
+
+import (
+	"structs"
+	"unsafe"
+
+	"github.com/ebitengine/purego"
+)
+
+type CEFSslinfoT struct {
+	_                  structs.HostLayout
+	Base               CEFBaseRefCountedT
+	GetCertStatus      uintptr
+	GetX509Certificate uintptr
+}
+
+func (v *CEFSslinfoT) OverrideGetCertStatus(fn uintptr) { v.GetCertStatus = fn }
+
+func (v *CEFSslinfoT) CallGetCertStatus(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.GetCertStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFSslinfoT) OverrideGetX509Certificate(fn uintptr) { v.GetX509Certificate = fn }
+
+func (v *CEFSslinfoT) CallGetX509Certificate(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.GetX509Certificate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+var CEFIsCertStatusError func(Status CEFCertStatusT) int32
+
+func RegisterSslInfo(handle uintptr) {
+	purego.RegisterLibFunc(&CEFIsCertStatusError, handle, "cef_is_cert_status_error")
+}

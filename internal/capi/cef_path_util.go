@@ -1,0 +1,13 @@
+package capi
+
+import (
+	"unsafe"
+
+	"github.com/ebitengine/purego"
+)
+
+var CEFGetPath func(Key CEFPathKeyT, Path unsafe.Pointer) int32
+
+func RegisterPathUtil(handle uintptr) {
+	purego.RegisterLibFunc(&CEFGetPath, handle, "cef_get_path")
+}

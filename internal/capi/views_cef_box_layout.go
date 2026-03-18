@@ -1,0 +1,32 @@
+package capi
+
+import (
+	"structs"
+	"unsafe"
+
+	"github.com/ebitengine/purego"
+)
+
+type CEFBoxLayoutT struct {
+	_                structs.HostLayout
+	Base             CEFLayoutT
+	SetFlexForView   uintptr
+	ClearFlexForView uintptr
+}
+
+func (v *CEFBoxLayoutT) OverrideSetFlexForView(fn uintptr) { v.SetFlexForView = fn }
+
+func (v *CEFBoxLayoutT) CallSetFlexForView(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.SetFlexForView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFBoxLayoutT) OverrideClearFlexForView(fn uintptr) { v.ClearFlexForView = fn }
+
+func (v *CEFBoxLayoutT) CallClearFlexForView(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.ClearFlexForView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func RegisterBoxLayout(handle uintptr) {
+}

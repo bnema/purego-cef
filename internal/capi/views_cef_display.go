@@ -1,0 +1,99 @@
+package capi
+
+import (
+	"structs"
+	"unsafe"
+
+	"github.com/ebitengine/purego"
+)
+
+type CEFDisplayT struct {
+	_                      structs.HostLayout
+	Base                   CEFBaseRefCountedT
+	GetID                  uintptr
+	GetDeviceScaleFactor   uintptr
+	ConvertPointToPixels   uintptr
+	ConvertPointFromPixels uintptr
+	GetBounds              uintptr
+	GetWorkArea            uintptr
+	GetRotation            uintptr
+}
+
+func (v *CEFDisplayT) OverrideGetID(fn uintptr) { v.GetID = fn }
+
+func (v *CEFDisplayT) CallGetID(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.GetID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFDisplayT) OverrideGetDeviceScaleFactor(fn uintptr) { v.GetDeviceScaleFactor = fn }
+
+func (v *CEFDisplayT) CallGetDeviceScaleFactor(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.GetDeviceScaleFactor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFDisplayT) OverrideConvertPointToPixels(fn uintptr) { v.ConvertPointToPixels = fn }
+
+func (v *CEFDisplayT) CallConvertPointToPixels(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.ConvertPointToPixels, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFDisplayT) OverrideConvertPointFromPixels(fn uintptr) { v.ConvertPointFromPixels = fn }
+
+func (v *CEFDisplayT) CallConvertPointFromPixels(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.ConvertPointFromPixels, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFDisplayT) OverrideGetBounds(fn uintptr) { v.GetBounds = fn }
+
+func (v *CEFDisplayT) CallGetBounds(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.GetBounds, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFDisplayT) OverrideGetWorkArea(fn uintptr) { v.GetWorkArea = fn }
+
+func (v *CEFDisplayT) CallGetWorkArea(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.GetWorkArea, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFDisplayT) OverrideGetRotation(fn uintptr) { v.GetRotation = fn }
+
+func (v *CEFDisplayT) CallGetRotation(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.GetRotation, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+var CEFDisplayGetPrimary func() unsafe.Pointer
+
+var CEFDisplayGetNearestPoint func(Point unsafe.Pointer, InputPixelCoords int32) unsafe.Pointer
+
+var CEFDisplayGetMatchingBounds func(Bounds unsafe.Pointer, InputPixelCoords int32) unsafe.Pointer
+
+var CEFDisplayGetCount func() uintptr
+
+var CEFDisplayGetAlls func(Displayscount unsafe.Pointer, Displays unsafe.Pointer)
+
+var CEFDisplayConvertScreenPointToPixels func(Point unsafe.Pointer) CEFPointT
+
+var CEFDisplayConvertScreenPointFromPixels func(Point unsafe.Pointer) CEFPointT
+
+var CEFDisplayConvertScreenRectToPixels func(Rect unsafe.Pointer) CEFRectT
+
+var CEFDisplayConvertScreenRectFromPixels func(Rect unsafe.Pointer) CEFRectT
+
+func RegisterDisplay(handle uintptr) {
+	purego.RegisterLibFunc(&CEFDisplayGetPrimary, handle, "cef_display_get_primary")
+	purego.RegisterLibFunc(&CEFDisplayGetNearestPoint, handle, "cef_display_get_nearest_point")
+	purego.RegisterLibFunc(&CEFDisplayGetMatchingBounds, handle, "cef_display_get_matching_bounds")
+	purego.RegisterLibFunc(&CEFDisplayGetCount, handle, "cef_display_get_count")
+	purego.RegisterLibFunc(&CEFDisplayGetAlls, handle, "cef_display_get_alls")
+	purego.RegisterLibFunc(&CEFDisplayConvertScreenPointToPixels, handle, "cef_display_convert_screen_point_to_pixels")
+	purego.RegisterLibFunc(&CEFDisplayConvertScreenPointFromPixels, handle, "cef_display_convert_screen_point_from_pixels")
+	purego.RegisterLibFunc(&CEFDisplayConvertScreenRectToPixels, handle, "cef_display_convert_screen_rect_to_pixels")
+	purego.RegisterLibFunc(&CEFDisplayConvertScreenRectFromPixels, handle, "cef_display_convert_screen_rect_from_pixels")
+}

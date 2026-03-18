@@ -1,0 +1,34 @@
+package capi
+
+import (
+	"structs"
+	"unsafe"
+
+	"github.com/ebitengine/purego"
+)
+
+type CEFDragHandlerT struct {
+	_                         structs.HostLayout
+	Base                      CEFBaseRefCountedT
+	OnDragEnter               uintptr
+	OnDraggableRegionsChanged uintptr
+}
+
+func (v *CEFDragHandlerT) OverrideOnDragEnter(fn uintptr) { v.OnDragEnter = fn }
+
+func (v *CEFDragHandlerT) CallOnDragEnter(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.OnDragEnter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func (v *CEFDragHandlerT) OverrideOnDraggableRegionsChanged(fn uintptr) {
+	v.OnDraggableRegionsChanged = fn
+}
+
+func (v *CEFDragHandlerT) CallOnDraggableRegionsChanged(args ...uintptr) uintptr {
+	r1, _, _ := purego.SyscallN(v.OnDraggableRegionsChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+
+func RegisterDragHandler(handle uintptr) {
+}

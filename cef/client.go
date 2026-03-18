@@ -70,8 +70,8 @@ func newClientState(c *Client) *clientState {
 			out := (*capi.CEFRectT)(rect)
 			out.X = r.X
 			out.Y = r.Y
-			out.W = r.W
-			out.H = r.H
+			out.Width = r.W
+			out.Height = r.H
 		}))
 
 		state.renderHandler.OverrideOnPaint(purego.NewCallback(func(self unsafe.Pointer, browser unsafe.Pointer, paintType int32, dirtyRectsCount uintptr, dirtyRects unsafe.Pointer, buffer unsafe.Pointer, width int32, height int32) {
@@ -80,7 +80,7 @@ func newClientState(c *Client) *clientState {
 				raw := unsafe.Slice((*capi.CEFRectT)(dirtyRects), dirtyRectsCount)
 				rects = make([]Rect, dirtyRectsCount)
 				for i, r := range raw {
-					rects[i] = Rect{X: r.X, Y: r.Y, W: r.W, H: r.H}
+					rects[i] = Rect{X: r.X, Y: r.Y, W: r.Width, H: r.Height}
 				}
 			}
 			evt := PaintEvent{
