@@ -21,13 +21,13 @@ func New{{.Name}}(impl {{.Name}}) {{.Name}} {
 
 {{range .Methods}}
 	{{- if .IsGetter}}
-	// Cache the getter result once.
-	cached{{.Name}} := impl.{{.Name}}()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cached{{.Name}}Ptr unsafe.Pointer
+	if h := impl.{{.Name}}(); h != nil {
+		cached{{.Name}}Ptr = extractRawPointer(New{{.GetterInterface}}(h))
+	}
 	r.Override{{.RawFieldName}}(purego.NewCallback(func(_ uintptr) uintptr {
-		if cached{{.Name}} == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(New{{.GetterInterface}}(cached{{.Name}})))
+		return uintptr(cached{{.Name}}Ptr)
 	}))
 	{{- else}}
 	{{- $rawPs := .RawParams}}

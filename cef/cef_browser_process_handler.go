@@ -74,22 +74,22 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 		impl.OnScheduleMessagePumpWork(delayMs)
 	}))
 
-	// Cache the getter result once.
-	cachedGetDefaultClient := impl.GetDefaultClient()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetDefaultClientPtr unsafe.Pointer
+	if h := impl.GetDefaultClient(); h != nil {
+		cachedGetDefaultClientPtr = extractRawPointer(NewClient(h))
+	}
 	r.OverrideGetDefaultClient(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetDefaultClient == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewClient(cachedGetDefaultClient)))
+		return uintptr(cachedGetDefaultClientPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetDefaultRequestContextHandler := impl.GetDefaultRequestContextHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetDefaultRequestContextHandlerPtr unsafe.Pointer
+	if h := impl.GetDefaultRequestContextHandler(); h != nil {
+		cachedGetDefaultRequestContextHandlerPtr = extractRawPointer(NewRequestContextHandler(h))
+	}
 	r.OverrideGetDefaultRequestContextHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetDefaultRequestContextHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewRequestContextHandler(cachedGetDefaultRequestContextHandler)))
+		return uintptr(cachedGetDefaultRequestContextHandlerPtr)
 	}))
 
 	w := &browserProcessHandlerWrapper{rawPtr: r}

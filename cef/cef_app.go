@@ -55,31 +55,31 @@ func NewApp(impl App) App {
 		impl.OnRegisterCustomSchemes(registrar)
 	}))
 
-	// Cache the getter result once.
-	cachedGetResourceBundleHandler := impl.GetResourceBundleHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetResourceBundleHandlerPtr unsafe.Pointer
+	if h := impl.GetResourceBundleHandler(); h != nil {
+		cachedGetResourceBundleHandlerPtr = extractRawPointer(NewResourceBundleHandler(h))
+	}
 	r.OverrideGetResourceBundleHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetResourceBundleHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewResourceBundleHandler(cachedGetResourceBundleHandler)))
+		return uintptr(cachedGetResourceBundleHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetBrowserProcessHandler := impl.GetBrowserProcessHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetBrowserProcessHandlerPtr unsafe.Pointer
+	if h := impl.GetBrowserProcessHandler(); h != nil {
+		cachedGetBrowserProcessHandlerPtr = extractRawPointer(NewBrowserProcessHandler(h))
+	}
 	r.OverrideGetBrowserProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetBrowserProcessHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewBrowserProcessHandler(cachedGetBrowserProcessHandler)))
+		return uintptr(cachedGetBrowserProcessHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetRenderProcessHandler := impl.GetRenderProcessHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetRenderProcessHandlerPtr unsafe.Pointer
+	if h := impl.GetRenderProcessHandler(); h != nil {
+		cachedGetRenderProcessHandlerPtr = extractRawPointer(NewRenderProcessHandler(h))
+	}
 	r.OverrideGetRenderProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetRenderProcessHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewRenderProcessHandler(cachedGetRenderProcessHandler)))
+		return uintptr(cachedGetRenderProcessHandlerPtr)
 	}))
 
 	w := &appWrapper{rawPtr: r}

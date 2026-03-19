@@ -67,13 +67,13 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 		impl.OnBrowserDestroyed(browser)
 	}))
 
-	// Cache the getter result once.
-	cachedGetLoadHandler := impl.GetLoadHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetLoadHandlerPtr unsafe.Pointer
+	if h := impl.GetLoadHandler(); h != nil {
+		cachedGetLoadHandlerPtr = extractRawPointer(NewLoadHandler(h))
+	}
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetLoadHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewLoadHandler(cachedGetLoadHandler)))
+		return uintptr(cachedGetLoadHandlerPtr)
 	}))
 
 	r.OverrideOnContextCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {

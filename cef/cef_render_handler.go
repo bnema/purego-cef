@@ -69,13 +69,13 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 	r := new(raw.CEFRenderHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	// Cache the getter result once.
-	cachedGetAccessibilityHandler := impl.GetAccessibilityHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetAccessibilityHandlerPtr unsafe.Pointer
+	if h := impl.GetAccessibilityHandler(); h != nil {
+		cachedGetAccessibilityHandlerPtr = extractRawPointer(NewAccessibilityHandler(h))
+	}
 	r.OverrideGetAccessibilityHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetAccessibilityHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewAccessibilityHandler(cachedGetAccessibilityHandler)))
+		return uintptr(cachedGetAccessibilityHandlerPtr)
 	}))
 
 	r.OverrideGetRootScreenRect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {

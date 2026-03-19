@@ -72,166 +72,166 @@ func NewClient(impl Client) Client {
 	r := new(raw.CEFClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	// Cache the getter result once.
-	cachedGetAudioHandler := impl.GetAudioHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetAudioHandlerPtr unsafe.Pointer
+	if h := impl.GetAudioHandler(); h != nil {
+		cachedGetAudioHandlerPtr = extractRawPointer(NewAudioHandler(h))
+	}
 	r.OverrideGetAudioHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetAudioHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewAudioHandler(cachedGetAudioHandler)))
+		return uintptr(cachedGetAudioHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetCommandHandler := impl.GetCommandHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetCommandHandlerPtr unsafe.Pointer
+	if h := impl.GetCommandHandler(); h != nil {
+		cachedGetCommandHandlerPtr = extractRawPointer(NewCommandHandler(h))
+	}
 	r.OverrideGetCommandHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetCommandHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewCommandHandler(cachedGetCommandHandler)))
+		return uintptr(cachedGetCommandHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetContextMenuHandler := impl.GetContextMenuHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetContextMenuHandlerPtr unsafe.Pointer
+	if h := impl.GetContextMenuHandler(); h != nil {
+		cachedGetContextMenuHandlerPtr = extractRawPointer(NewContextMenuHandler(h))
+	}
 	r.OverrideGetContextMenuHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetContextMenuHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewContextMenuHandler(cachedGetContextMenuHandler)))
+		return uintptr(cachedGetContextMenuHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetDialogHandler := impl.GetDialogHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetDialogHandlerPtr unsafe.Pointer
+	if h := impl.GetDialogHandler(); h != nil {
+		cachedGetDialogHandlerPtr = extractRawPointer(NewDialogHandler(h))
+	}
 	r.OverrideGetDialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetDialogHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewDialogHandler(cachedGetDialogHandler)))
+		return uintptr(cachedGetDialogHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetDisplayHandler := impl.GetDisplayHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetDisplayHandlerPtr unsafe.Pointer
+	if h := impl.GetDisplayHandler(); h != nil {
+		cachedGetDisplayHandlerPtr = extractRawPointer(NewDisplayHandler(h))
+	}
 	r.OverrideGetDisplayHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetDisplayHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewDisplayHandler(cachedGetDisplayHandler)))
+		return uintptr(cachedGetDisplayHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetDownloadHandler := impl.GetDownloadHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetDownloadHandlerPtr unsafe.Pointer
+	if h := impl.GetDownloadHandler(); h != nil {
+		cachedGetDownloadHandlerPtr = extractRawPointer(NewDownloadHandler(h))
+	}
 	r.OverrideGetDownloadHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetDownloadHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewDownloadHandler(cachedGetDownloadHandler)))
+		return uintptr(cachedGetDownloadHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetDragHandler := impl.GetDragHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetDragHandlerPtr unsafe.Pointer
+	if h := impl.GetDragHandler(); h != nil {
+		cachedGetDragHandlerPtr = extractRawPointer(NewDragHandler(h))
+	}
 	r.OverrideGetDragHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetDragHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewDragHandler(cachedGetDragHandler)))
+		return uintptr(cachedGetDragHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetFindHandler := impl.GetFindHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetFindHandlerPtr unsafe.Pointer
+	if h := impl.GetFindHandler(); h != nil {
+		cachedGetFindHandlerPtr = extractRawPointer(NewFindHandler(h))
+	}
 	r.OverrideGetFindHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetFindHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewFindHandler(cachedGetFindHandler)))
+		return uintptr(cachedGetFindHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetFocusHandler := impl.GetFocusHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetFocusHandlerPtr unsafe.Pointer
+	if h := impl.GetFocusHandler(); h != nil {
+		cachedGetFocusHandlerPtr = extractRawPointer(NewFocusHandler(h))
+	}
 	r.OverrideGetFocusHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetFocusHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewFocusHandler(cachedGetFocusHandler)))
+		return uintptr(cachedGetFocusHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetFrameHandler := impl.GetFrameHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetFrameHandlerPtr unsafe.Pointer
+	if h := impl.GetFrameHandler(); h != nil {
+		cachedGetFrameHandlerPtr = extractRawPointer(NewFrameHandler(h))
+	}
 	r.OverrideGetFrameHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetFrameHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewFrameHandler(cachedGetFrameHandler)))
+		return uintptr(cachedGetFrameHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetPermissionHandler := impl.GetPermissionHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetPermissionHandlerPtr unsafe.Pointer
+	if h := impl.GetPermissionHandler(); h != nil {
+		cachedGetPermissionHandlerPtr = extractRawPointer(NewPermissionHandler(h))
+	}
 	r.OverrideGetPermissionHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetPermissionHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewPermissionHandler(cachedGetPermissionHandler)))
+		return uintptr(cachedGetPermissionHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetJsdialogHandler := impl.GetJsdialogHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetJsdialogHandlerPtr unsafe.Pointer
+	if h := impl.GetJsdialogHandler(); h != nil {
+		cachedGetJsdialogHandlerPtr = extractRawPointer(NewJsdialogHandler(h))
+	}
 	r.OverrideGetJsdialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetJsdialogHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewJsdialogHandler(cachedGetJsdialogHandler)))
+		return uintptr(cachedGetJsdialogHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetKeyboardHandler := impl.GetKeyboardHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetKeyboardHandlerPtr unsafe.Pointer
+	if h := impl.GetKeyboardHandler(); h != nil {
+		cachedGetKeyboardHandlerPtr = extractRawPointer(NewKeyboardHandler(h))
+	}
 	r.OverrideGetKeyboardHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetKeyboardHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewKeyboardHandler(cachedGetKeyboardHandler)))
+		return uintptr(cachedGetKeyboardHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetLifeSpanHandler := impl.GetLifeSpanHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetLifeSpanHandlerPtr unsafe.Pointer
+	if h := impl.GetLifeSpanHandler(); h != nil {
+		cachedGetLifeSpanHandlerPtr = extractRawPointer(NewLifeSpanHandler(h))
+	}
 	r.OverrideGetLifeSpanHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetLifeSpanHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewLifeSpanHandler(cachedGetLifeSpanHandler)))
+		return uintptr(cachedGetLifeSpanHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetLoadHandler := impl.GetLoadHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetLoadHandlerPtr unsafe.Pointer
+	if h := impl.GetLoadHandler(); h != nil {
+		cachedGetLoadHandlerPtr = extractRawPointer(NewLoadHandler(h))
+	}
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetLoadHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewLoadHandler(cachedGetLoadHandler)))
+		return uintptr(cachedGetLoadHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetPrintHandler := impl.GetPrintHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetPrintHandlerPtr unsafe.Pointer
+	if h := impl.GetPrintHandler(); h != nil {
+		cachedGetPrintHandlerPtr = extractRawPointer(NewPrintHandler(h))
+	}
 	r.OverrideGetPrintHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetPrintHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewPrintHandler(cachedGetPrintHandler)))
+		return uintptr(cachedGetPrintHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetRenderHandler := impl.GetRenderHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetRenderHandlerPtr unsafe.Pointer
+	if h := impl.GetRenderHandler(); h != nil {
+		cachedGetRenderHandlerPtr = extractRawPointer(NewRenderHandler(h))
+	}
 	r.OverrideGetRenderHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetRenderHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewRenderHandler(cachedGetRenderHandler)))
+		return uintptr(cachedGetRenderHandlerPtr)
 	}))
 
-	// Cache the getter result once.
-	cachedGetRequestHandler := impl.GetRequestHandler()
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetRequestHandlerPtr unsafe.Pointer
+	if h := impl.GetRequestHandler(); h != nil {
+		cachedGetRequestHandlerPtr = extractRawPointer(NewRequestHandler(h))
+	}
 	r.OverrideGetRequestHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		if cachedGetRequestHandler == nil {
-			return 0
-		}
-		return uintptr(extractRawPointer(NewRequestHandler(cachedGetRequestHandler)))
+		return uintptr(cachedGetRequestHandlerPtr)
 	}))
 
 	r.OverrideOnProcessMessageReceived(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {

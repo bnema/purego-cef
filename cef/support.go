@@ -94,9 +94,10 @@ func DecodeStringList(list uintptr) []string {
 	out := make([]string, n)
 	for i := range out {
 		var cs raw.CEFStringT
-		stringListVal(list, uintptr(i), &cs)
-		out[i] = goString(unsafe.Pointer(&cs))
-		stringClear(&cs)
+		if stringListVal(list, uintptr(i), &cs) != 0 {
+			out[i] = goString(unsafe.Pointer(&cs))
+			stringClear(&cs)
+		}
 	}
 	return out
 }
