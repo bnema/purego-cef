@@ -29,6 +29,10 @@ func ParseFile(path string) (*model.Header, error) {
 
 // Parse parses the given CEF capi header content.
 func Parse(path string, data []byte) (*model.Header, error) {
+	// Extract doc comments from raw source BEFORE stripping comments.
+	rawSource := string(data)
+	docIdx := buildDocIndex(rawSource)
+
 	clean := stripComments(data)
 	// Join continuation lines so multi-line declarations become single lines.
 	clean = joinLines(clean)
@@ -39,15 +43,65 @@ func Parse(path string, data []byte) (*model.Header, error) {
 		if err != nil {
 			return nil, fmt.Errorf("%s: struct %s: %w", path, string(match[3]), err)
 		}
+		// Populate doc, kind, and interface name from raw source.
+		populateStructDoc(&st, rawSource, docIdx)
 		out.Structs = append(out.Structs, st)
 	}
 	for _, match := range funcRE.FindAllSubmatch(clean, -1) {
-		out.Functions = append(out.Functions, parseFunction(string(match[2]), string(match[1]), string(match[3])))
+		fn := parseFunction(string(match[2]), string(match[1]), string(match[3]))
+		// Populate function doc from raw source.
+		populateFunctionDoc(&fn, rawSource, docIdx)
+		out.Functions = append(out.Functions, fn)
 	}
 	for _, match := range enumRE.FindAllSubmatch(clean, -1) {
 		out.Enums = append(out.Enums, parseEnum(string(match[2]), string(match[1])))
 	}
 	return out, nil
+}
+
+// populateStructDoc fills in Doc, Kind, and InterfaceName on a parsed struct
+// by looking up the doc block in the raw source.
+func populateStructDoc(st *model.Struct, rawSource string, docIdx *docIndex) {
+	// Find the typedef line for this struct in the raw source.
+	internalName := "_" + st.CName
+	needle := "typedef struct " + internalName
+	line := findLineOf(rawSource, needle)
+	if line >= 0 {
+		if db := docIdx.forLine(line); db != nil {
+			st.Doc = cleanDoc(db.lines)
+			kind := classifyKind(db.lines)
+			if kind != "" {
+				st.Kind = kind
+			}
+		}
+	}
+	// Default kind for structs without allocation comment.
+	if st.Kind == "" {
+		st.Kind = "data"
+	}
+	// Set InterfaceName from C name.
+	st.InterfaceName = model.PublicName(st.CName)
+
+	// Populate field docs from raw source.
+	for i := range st.Fields {
+		doc := findFieldDoc(rawSource, st.CName, st.Fields[i].CName)
+		if doc != "" {
+			st.Fields[i].Doc = doc
+		}
+	}
+}
+
+// populateFunctionDoc fills in Doc on a parsed function by looking up the
+// doc block in the raw source.
+func populateFunctionDoc(fn *model.Function, rawSource string, docIdx *docIndex) {
+	// Find the CEF_EXPORT line for this function.
+	needle := fn.CName + "("
+	line := findLineOf(rawSource, needle)
+	if line >= 0 {
+		if db := docIdx.forLine(line); db != nil {
+			fn.Doc = cleanDoc(db.lines)
+		}
+	}
 }
 
 // stripComments removes single-line comments, block comments, preprocessor directives, and blank lines.
