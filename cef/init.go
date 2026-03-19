@@ -189,6 +189,35 @@ var (
 	initErr     error
 )
 
+// defaultAPIVersion is the CEF API version we target. This must match
+// CEF_API_VERSION_LAST from the headers used for generation.
+const defaultAPIVersion = 14500
+
+// setAPIVersion patches the internal g_version global inside libcef.so so
+// that cef_api_version() returns our target version instead of -1. Without
+// this, CEF's versioned CToCpp wrappers reject all client structs.
+//
+// The cef_api_version function is a trivial global read:
+//
+//	push %rbp; mov %rsp,%rbp; mov <offset>(%rip),%eax; pop %rbp; ret
+//
+// We decode the RIP-relative offset to locate g_version and write to it.
+func setAPIVersion(handle uintptr) error {
+	sym, err := purego.Dlsym(handle, "cef_api_version")
+	if err != nil {
+		return fmt.Errorf("resolve cef_api_version: %w", err)
+	}
+
+	// Decode: mov offset(%rip),%eax at sym+4 (opcode 8b 05 xx xx xx xx)
+	// The offset is a 4-byte signed integer at sym+6.
+	// RIP points to the next instruction at sym+10.
+	offset := *(*int32)(unsafe.Pointer(sym + 6))
+	gVersionAddr := sym + 10 + uintptr(offset)
+
+	*(*int32)(unsafe.Pointer(gVersionAddr)) = defaultAPIVersion
+	return nil
+}
+
 // loadLibrary opens the CEF shared library and registers all raw symbols.
 // It is idempotent — safe to call from both MaybeExitSubprocess and Init.
 func loadLibrary(cefDir string) error {
@@ -199,6 +228,10 @@ func loadLibrary(cefDir string) error {
 			return
 		}
 		libHandle = handle
+		if err := setAPIVersion(handle); err != nil {
+			libErr = fmt.Errorf("cef: %w", err)
+			return
+		}
 		bindStringFuncs(handle)
 		raw.Register(handle)
 	})
