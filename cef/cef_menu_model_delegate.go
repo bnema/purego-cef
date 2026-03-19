@@ -15,7 +15,7 @@ type MenuModelDelegate interface {
 	// ExecuteCommand Perform the action associated with the specified |command_id| and optional |event_flags|.
 	ExecuteCommand(menuModel MenuModel, commandID int32, eventFlags EventFlags)
 	// MouseOutsideMenu Called when the user moves the mouse outside the menu and over the owning window.
-	MouseOutsideMenu(menuModel MenuModel, screenPoint uintptr)
+	MouseOutsideMenu(menuModel MenuModel, screenPoint *Point)
 	// UnhandledOpenSubmenu Called on unhandled open submenu keyboard commands. |is_rtl| will be true (1) if the menu is displaying a right-to-left language.
 	UnhandledOpenSubmenu(menuModel MenuModel, isRtl int32)
 	// UnhandledCloseSubmenu Called on unhandled close submenu keyboard commands. |is_rtl| will be true (1) if the menu is displaying a right-to-left language.
@@ -43,7 +43,7 @@ func NewMenuModelDelegate(impl MenuModelDelegate) unsafe.Pointer {
 
 	r.OverrideMouseOutsideMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
-		screenPoint := uintptr(arg1)
+		screenPoint := (*Point)(unsafe.Pointer(arg1))
 		impl.MouseOutsideMenu(menuModel, screenPoint)
 	}))
 

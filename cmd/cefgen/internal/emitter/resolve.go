@@ -111,6 +111,12 @@ func (r *TypeRegistry) ResolvePublicType(ctype string) string {
 		return s
 	}
 
+	// Handle bare "const cef_xxx_t*" pointers (no struct keyword).
+	// CEF types like cef_key_event_t are typedefs for struct _cef_key_event_t.
+	if s, ok := r.resolveBarePointer(ct); ok {
+		return s
+	}
+
 	// Enum pointer (rare but possible).
 	trimmed := strings.TrimSuffix(ct, "*")
 	trimmed = strings.TrimSpace(trimmed)
@@ -168,6 +174,59 @@ func (r *TypeRegistry) resolveStructPointer(ct string) (string, bool) {
 	return model.PublicName(s), true
 }
 
+// resolveBarePointer handles "const cef_xxx_t*" or "cef_xxx_t*" patterns
+// where the type is a typedef (not written with struct keyword). It strips
+// const and pointer, then looks up the bare name with underscore prefix
+// in the struct registry.
+func (r *TypeRegistry) resolveBarePointer(ct string) (string, bool) {
+	s := ct
+	s = strings.TrimPrefix(s, "const ")
+	if !strings.HasSuffix(s, "*") {
+		return "", false
+	}
+	ptrCount := strings.Count(s, "*")
+	s = strings.TrimRight(s, "*")
+	s = strings.TrimSpace(s)
+
+	if ptrCount >= 2 {
+		return "unsafe.Pointer", true
+	}
+
+	// Try with underscore prefix: cef_key_event_t → _cef_key_event_t
+	withUnderscore := "_" + s
+	if st, ok := r.structs[withUnderscore]; ok {
+		switch st.Kind {
+		case "handler", "object":
+			return st.InterfaceName, true
+		case "data":
+			return "*" + model.PublicName(withUnderscore), true
+		}
+	}
+	// Try bare name as-is.
+	if st, ok := r.structs[s]; ok {
+		switch st.Kind {
+		case "handler", "object":
+			return st.InterfaceName, true
+		case "data":
+			return "*" + model.PublicName(s), true
+		}
+	}
+
+	return "", false
+}
+
+// lookupStructByBareName looks up a non-pointer bare type name like "cef_rect_t"
+// in the struct registry (trying both with and without leading underscore).
+func (r *TypeRegistry) lookupStructByBareName(name string) *model.Struct {
+	if st, ok := r.structs["_"+name]; ok {
+		return st
+	}
+	if st, ok := r.structs[name]; ok {
+		return st
+	}
+	return nil
+}
+
 // IsEnumType returns true if the given C type resolves to an enum.
 func (r *TypeRegistry) IsEnumType(ctype string) bool {
 	ct := strings.TrimSpace(ctype)
@@ -213,21 +272,7 @@ func (r *TypeRegistry) IsGetterCallback(f model.Field) bool {
 
 // IsHandlerType returns true if the given C type resolves to a handler interface specifically.
 func (r *TypeRegistry) IsHandlerType(ctype string) bool {
-	ct := strings.TrimSpace(ctype)
-	ct = strings.TrimPrefix(ct, "const ")
-	if !strings.Contains(ct, "struct _") {
-		return false
-	}
-	s := ct
-	s = strings.TrimSuffix(s, "*")
-	s = strings.TrimSpace(s)
-	s = strings.TrimPrefix(s, "struct ")
-
-	if st, ok := r.structs[s]; ok {
-		return st.Kind == "handler"
-	}
-	trimmed := strings.TrimLeft(s, "_")
-	if st, ok := r.structs[trimmed]; ok {
+	if st := r.lookupStructForCType(ctype); st != nil {
 		return st.Kind == "handler"
 	}
 	return false
@@ -235,21 +280,7 @@ func (r *TypeRegistry) IsHandlerType(ctype string) bool {
 
 // IsInterfaceType returns true if the given C type resolves to a handler or object interface.
 func (r *TypeRegistry) IsInterfaceType(ctype string) bool {
-	ct := strings.TrimSpace(ctype)
-	ct = strings.TrimPrefix(ct, "const ")
-	if !strings.Contains(ct, "struct _") {
-		return false
-	}
-	s := ct
-	s = strings.TrimSuffix(s, "*")
-	s = strings.TrimSpace(s)
-	s = strings.TrimPrefix(s, "struct ")
-
-	if st, ok := r.structs[s]; ok {
-		return st.Kind == "handler" || st.Kind == "object"
-	}
-	trimmed := strings.TrimLeft(s, "_")
-	if st, ok := r.structs[trimmed]; ok {
+	if st := r.lookupStructForCType(ctype); st != nil {
 		return st.Kind == "handler" || st.Kind == "object"
 	}
 	return false
@@ -272,24 +303,41 @@ func (r *TypeRegistry) IsUserfreeString(ctype string) bool {
 
 // IsDataStructType returns true if the given C type resolves to a data struct pointer.
 func (r *TypeRegistry) IsDataStructType(ctype string) bool {
-	ct := strings.TrimSpace(ctype)
-	ct = strings.TrimPrefix(ct, "const ")
-	if !strings.Contains(ct, "struct _") {
-		return false
-	}
-	s := ct
-	s = strings.TrimSuffix(s, "*")
-	s = strings.TrimSpace(s)
-	s = strings.TrimPrefix(s, "struct ")
-
-	if st, ok := r.structs[s]; ok {
-		return st.Kind == "data"
-	}
-	trimmed := strings.TrimLeft(s, "_")
-	if st, ok := r.structs[trimmed]; ok {
+	if st := r.lookupStructForCType(ctype); st != nil {
 		return st.Kind == "data"
 	}
 	return false
+}
+
+// lookupStructForCType resolves a C type string to its struct registry entry.
+// Handles both "struct _cef_xxx_t*" and bare "cef_xxx_t*" patterns.
+func (r *TypeRegistry) lookupStructForCType(ctype string) *model.Struct {
+	ct := strings.TrimSpace(ctype)
+	ct = strings.TrimPrefix(ct, "const ")
+	if !strings.HasSuffix(ct, "*") {
+		return nil
+	}
+	s := ct
+	s = strings.TrimRight(s, "*")
+	s = strings.TrimSpace(s)
+	s = strings.TrimPrefix(s, "struct ")
+
+	// Try as-is (e.g., "_cef_browser_t").
+	if st, ok := r.structs[s]; ok {
+		return st
+	}
+	// Try without leading underscore (e.g., "cef_browser_t").
+	trimmed := strings.TrimLeft(s, "_")
+	if st, ok := r.structs[trimmed]; ok {
+		return st
+	}
+	// Try with leading underscore added (bare "cef_xxx_t" → "_cef_xxx_t").
+	if !strings.HasPrefix(s, "_") {
+		if st, ok := r.structs["_"+s]; ok {
+			return st
+		}
+	}
+	return nil
 }
 
 // IsBoolReturn returns true if a callback field returns int and its name

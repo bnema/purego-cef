@@ -387,8 +387,6 @@ func wrapMediaSource(ptr unsafe.Pointer) MediaSource {
 }
 
 // MediaRouterGetGlobal Returns the MediaRouter object associated with the global request context. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the manager's storage has been initialized. Equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >get_media_router().
-func MediaRouterGetGlobal(callback CompletionCallback) uintptr {
-	// TODO: marshal args, call raw.CEFMediaRouterGetGlobal(...), marshal return
-	_ = raw.CEFMediaRouterGetGlobal
-	return 0
+func MediaRouterGetGlobal(callback CompletionCallback) MediaRouter {
+	return wrapMediaRouter(raw.CEFMediaRouterGetGlobal(extractRawPointer(callback)))
 }

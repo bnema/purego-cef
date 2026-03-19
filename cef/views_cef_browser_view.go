@@ -66,15 +66,13 @@ func wrapBrowserView(ptr unsafe.Pointer) BrowserView {
 }
 
 // BrowserViewCreate Create a new BrowserView. The underlying cef_browser_t will not be created until this view is added to the views hierarchy. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
-func BrowserViewCreate(client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext, delegate BrowserViewDelegate) uintptr {
-	// TODO: marshal args, call raw.CEFBrowserViewCreate(...), marshal return
-	_ = raw.CEFBrowserViewCreate
-	return 0
+func BrowserViewCreate(client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext, delegate BrowserViewDelegate) BrowserView {
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	return wrapBrowserView(raw.CEFBrowserViewCreate(extractRawPointer(client), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext), extractRawPointer(delegate)))
 }
 
 // BrowserViewGetForBrowser Returns the BrowserView associated with |browser|.
-func BrowserViewGetForBrowser(browser Browser) uintptr {
-	// TODO: marshal args, call raw.CEFBrowserViewGetForBrowser(...), marshal return
-	_ = raw.CEFBrowserViewGetForBrowser
-	return 0
+func BrowserViewGetForBrowser(browser Browser) BrowserView {
+	return wrapBrowserView(raw.CEFBrowserViewGetForBrowser(extractRawPointer(browser)))
 }

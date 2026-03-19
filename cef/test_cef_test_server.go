@@ -124,7 +124,7 @@ func (obj *testServerConnectionImpl) SendHttp500Response(errorMessage string) {
 func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders uintptr) {
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
-	obj.rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), uintptr(extraHeaders))
+	obj.rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), extraHeaders)
 }
 
 func (obj *testServerConnectionImpl) rawPointer() unsafe.Pointer {
@@ -153,8 +153,6 @@ func wrapTestServerConnection(ptr unsafe.Pointer) TestServerConnection {
 }
 
 // TestServerCreateAndStart Create and start a new test server that binds to |port|. If |port| is 0 an available port number will be selected. If |https_server| is true (1) the server will be HTTPS, otherwise it will be HTTP. When |https_server| is true (1) the |https_cert_type| value is used to configure the certificate type. Returns the newly created server object on success, or nullptr if the server cannot be started. A new thread will be created for each CreateAndStart call (the "dedicated server thread"). It is therefore recommended to use a different cef_test_server_handler_t instance for each CreateAndStart call to avoid thread safety issues in the cef_test_server_handler_t implementation. On success, this function will block until the dedicated server thread has started. The server will continue running until Stop is called.
-func TestServerCreateAndStart(port uint16, httpsServer int32, httpsCertType TestCertType, handler TestServerHandler) uintptr {
-	// TODO: marshal args, call raw.CEFTestServerCreateAndStart(...), marshal return
-	_ = raw.CEFTestServerCreateAndStart
-	return 0
+func TestServerCreateAndStart(port uint16, httpsServer int32, httpsCertType TestCertType, handler TestServerHandler) TestServer {
+	return wrapTestServer(raw.CEFTestServerCreateAndStart(port, httpsServer, raw.CEFTestCertTypeT(httpsCertType), extractRawPointer(handler)))
 }

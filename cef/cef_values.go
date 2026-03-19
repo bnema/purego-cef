@@ -356,7 +356,7 @@ func (obj *dictionaryValueImpl) HasKey(key string) bool {
 }
 
 func (obj *dictionaryValueImpl) GetKeys(keys uintptr) int32 {
-	return int32(obj.rawPtr.CallGetKeys(uintptr(keys)))
+	return int32(obj.rawPtr.CallGetKeys(keys))
 }
 
 func (obj *dictionaryValueImpl) Remove(key string) int32 {
@@ -703,29 +703,21 @@ func wrapListValue(ptr unsafe.Pointer) ListValue {
 }
 
 // ValueCreate Creates a new object.
-func ValueCreate() uintptr {
-	// TODO: marshal args, call raw.CEFValueCreate(...), marshal return
-	_ = raw.CEFValueCreate
-	return 0
+func ValueCreate() Value {
+	return wrapValue(raw.CEFValueCreate())
 }
 
 // BinaryValueCreate Creates a new object that is not owned by any other object. The specified |data| will be copied.
-func BinaryValueCreate(data unsafe.Pointer, dataSize int) uintptr {
-	// TODO: marshal args, call raw.CEFBinaryValueCreate(...), marshal return
-	_ = raw.CEFBinaryValueCreate
-	return 0
+func BinaryValueCreate(data unsafe.Pointer, dataSize int) BinaryValue {
+	return wrapBinaryValue(raw.CEFBinaryValueCreate(data, uintptr(dataSize)))
 }
 
 // DictionaryValueCreate Creates a new object that is not owned by any other object.
-func DictionaryValueCreate() uintptr {
-	// TODO: marshal args, call raw.CEFDictionaryValueCreate(...), marshal return
-	_ = raw.CEFDictionaryValueCreate
-	return 0
+func DictionaryValueCreate() DictionaryValue {
+	return wrapDictionaryValue(raw.CEFDictionaryValueCreate())
 }
 
 // ListValueCreate Creates a new object that is not owned by any other object.
-func ListValueCreate() uintptr {
-	// TODO: marshal args, call raw.CEFListValueCreate(...), marshal return
-	_ = raw.CEFListValueCreate
-	return 0
+func ListValueCreate() ListValue {
+	return wrapListValue(raw.CEFListValueCreate())
 }

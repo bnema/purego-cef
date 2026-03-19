@@ -317,7 +317,7 @@ func (obj *domnodeImpl) GetElementAttribute(attrname string) string {
 }
 
 func (obj *domnodeImpl) GetElementAttributes(attrmap uintptr) {
-	obj.rawPtr.CallGetElementAttributes(uintptr(attrmap))
+	obj.rawPtr.CallGetElementAttributes(attrmap)
 }
 
 func (obj *domnodeImpl) SetElementAttribute(attrname string, value string) int32 {

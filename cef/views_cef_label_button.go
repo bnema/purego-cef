@@ -30,9 +30,9 @@ type LabelButton interface {
 	// SetHorizontalAlignment Sets the horizontal alignment; reversed in RTL. Default is CEF_HORIZONTAL_ALIGNMENT_CENTER.
 	SetHorizontalAlignment(alignment HorizontalAlignment)
 	// SetMinimumSize Reset the minimum size of this LabelButton to |size|.
-	SetMinimumSize(size uintptr)
+	SetMinimumSize(size *Size)
 	// SetMaximumSize Reset the maximum size of this LabelButton to |size|.
-	SetMaximumSize(size uintptr)
+	SetMaximumSize(size *Size)
 }
 
 type labelButtonImpl struct {
@@ -62,11 +62,11 @@ func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
 }
 
 func (obj *labelButtonImpl) SetTextColor(forState ButtonState, color uintptr) {
-	obj.rawPtr.CallSetTextColor(uintptr(forState), uintptr(color))
+	obj.rawPtr.CallSetTextColor(uintptr(forState), color)
 }
 
 func (obj *labelButtonImpl) SetEnabledTextColors(color uintptr) {
-	obj.rawPtr.CallSetEnabledTextColors(uintptr(color))
+	obj.rawPtr.CallSetEnabledTextColors(color)
 }
 
 func (obj *labelButtonImpl) SetFontList(fontList string) {
@@ -79,12 +79,12 @@ func (obj *labelButtonImpl) SetHorizontalAlignment(alignment HorizontalAlignment
 	obj.rawPtr.CallSetHorizontalAlignment(uintptr(alignment))
 }
 
-func (obj *labelButtonImpl) SetMinimumSize(size uintptr) {
-	obj.rawPtr.CallSetMinimumSize(uintptr(size))
+func (obj *labelButtonImpl) SetMinimumSize(size *Size) {
+	obj.rawPtr.CallSetMinimumSize(uintptr(unsafe.Pointer(size)))
 }
 
-func (obj *labelButtonImpl) SetMaximumSize(size uintptr) {
-	obj.rawPtr.CallSetMaximumSize(uintptr(size))
+func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
+	obj.rawPtr.CallSetMaximumSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *labelButtonImpl) rawPointer() unsafe.Pointer {
@@ -113,8 +113,8 @@ func wrapLabelButton(ptr unsafe.Pointer) LabelButton {
 }
 
 // LabelButtonCreate Create a new LabelButton. A |delegate| must be provided to handle the button click. |text| will be shown on the LabelButton and used as the default accessible name.
-func LabelButtonCreate(delegate ButtonDelegate, text string) uintptr {
-	// TODO: marshal args, call raw.CEFLabelButtonCreate(...), marshal return
-	_ = raw.CEFLabelButtonCreate
-	return 0
+func LabelButtonCreate(delegate ButtonDelegate, text string) LabelButton {
+	textStr := cefString(text)
+	defer freeCefString(&textStr)
+	return wrapLabelButton(raw.CEFLabelButtonCreate(extractRawPointer(delegate), unsafe.Pointer(&textStr)))
 }

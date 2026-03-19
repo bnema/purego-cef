@@ -350,19 +350,19 @@ func (obj *menuModelImpl) GetAcceleratorAt(index int, keyCode unsafe.Pointer, sh
 }
 
 func (obj *menuModelImpl) SetColor(commandID int32, colorType MenuColorType, color uintptr) int32 {
-	return int32(obj.rawPtr.CallSetColor(uintptr(commandID), uintptr(colorType), uintptr(color)))
+	return int32(obj.rawPtr.CallSetColor(uintptr(commandID), uintptr(colorType), color))
 }
 
 func (obj *menuModelImpl) SetColorAt(index int32, colorType MenuColorType, color uintptr) int32 {
-	return int32(obj.rawPtr.CallSetColorAt(uintptr(index), uintptr(colorType), uintptr(color)))
+	return int32(obj.rawPtr.CallSetColorAt(uintptr(index), uintptr(colorType), color))
 }
 
 func (obj *menuModelImpl) GetColor(commandID int32, colorType MenuColorType, color uintptr) int32 {
-	return int32(obj.rawPtr.CallGetColor(uintptr(commandID), uintptr(colorType), uintptr(color)))
+	return int32(obj.rawPtr.CallGetColor(uintptr(commandID), uintptr(colorType), color))
 }
 
 func (obj *menuModelImpl) GetColorAt(index int32, colorType MenuColorType, color uintptr) int32 {
-	return int32(obj.rawPtr.CallGetColorAt(uintptr(index), uintptr(colorType), uintptr(color)))
+	return int32(obj.rawPtr.CallGetColorAt(uintptr(index), uintptr(colorType), color))
 }
 
 func (obj *menuModelImpl) SetFontList(commandID int32, fontList string) int32 {
@@ -403,8 +403,6 @@ func wrapMenuModel(ptr unsafe.Pointer) MenuModel {
 }
 
 // MenuModelCreate Create a new MenuModel with the specified |delegate|.
-func MenuModelCreate(delegate MenuModelDelegate) uintptr {
-	// TODO: marshal args, call raw.CEFMenuModelCreate(...), marshal return
-	_ = raw.CEFMenuModelCreate
-	return 0
+func MenuModelCreate(delegate MenuModelDelegate) MenuModel {
+	return wrapMenuModel(raw.CEFMenuModelCreate(extractRawPointer(delegate)))
 }

@@ -13,7 +13,7 @@ import (
 // TextfieldDelegate Implement this structure to handle Textfield events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
 type TextfieldDelegate interface {
 	// OnKeyEvent Called when |textfield| receives a keyboard event. |event| contains information about the keyboard event. Return true (1) if the keyboard event was handled or false (0) otherwise for default handling.
-	OnKeyEvent(textfield Textfield, event uintptr) int32
+	OnKeyEvent(textfield Textfield, event *KeyEvent) int32
 	// OnAfterUserAction Called after performing a user action that may change |textfield|.
 	OnAfterUserAction(textfield Textfield)
 }
@@ -26,7 +26,7 @@ func NewTextfieldDelegate(impl TextfieldDelegate) unsafe.Pointer {
 
 	r.OverrideOnKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		textfield := wrapTextfield(unsafe.Pointer(arg0))
-		event := uintptr(arg1)
+		event := (*KeyEvent)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnKeyEvent(textfield, event))
 	}))
 

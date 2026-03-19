@@ -3,60 +3,65 @@
 package cef
 
 import (
+	"unsafe"
+
 	"github.com/bnema/purego-cef/cef/internal/raw"
 )
 
 // CreateDirectory Creates a directory and all parent directories if they don't already exist. Returns true (1) on successful creation or if the directory already exists. The directory is only readable by the current user. Calling this function on the browser process UI or IO threads is not allowed.
 func CreateDirectory(fullPath string) int32 {
-	// TODO: marshal args, call raw.CEFCreateDirectory(...), marshal return
-	_ = raw.CEFCreateDirectory
-	return 0
+	fullPathStr := cefString(fullPath)
+	defer freeCefString(&fullPathStr)
+	return int32(raw.CEFCreateDirectory(unsafe.Pointer(&fullPathStr)))
 }
 
 // GetTempDirectory Get the temporary directory provided by the system. WARNING: In general, you should use the temp directory variants below instead of this function. Those variants will ensure that the proper permissions are set so that other users on the system can't edit them while they're open (which could lead to security issues).
 func GetTempDirectory(tempDir uintptr) int32 {
-	// TODO: marshal args, call raw.CEFGetTempDirectory(...), marshal return
-	_ = raw.CEFGetTempDirectory
-	return 0
+	return int32(raw.CEFGetTempDirectory(unsafe.Pointer(tempDir)))
 }
 
 // CreateNewTempDirectory Creates a new directory. On Windows if |prefix| is provided the new directory name is in the format of "prefixyyyy". Returns true (1) on success and sets |new_temp_path| to the full path of the directory that was created. The directory is only readable by the current user. Calling this function on the browser process UI or IO threads is not allowed.
 func CreateNewTempDirectory(prefix string, newTempPath uintptr) int32 {
-	// TODO: marshal args, call raw.CEFCreateNewTempDirectory(...), marshal return
-	_ = raw.CEFCreateNewTempDirectory
-	return 0
+	prefixStr := cefString(prefix)
+	defer freeCefString(&prefixStr)
+	return int32(raw.CEFCreateNewTempDirectory(unsafe.Pointer(&prefixStr), unsafe.Pointer(newTempPath)))
 }
 
 // CreateTempDirectoryInDirectory Creates a directory within another directory. Extra characters will be appended to |prefix| to ensure that the new directory does not have the same name as an existing directory. Returns true (1) on success and sets |new_dir| to the full path of the directory that was created. The directory is only readable by the current user. Calling this function on the browser process UI or IO threads is not allowed.
 func CreateTempDirectoryInDirectory(baseDir string, prefix string, newDir uintptr) int32 {
-	// TODO: marshal args, call raw.CEFCreateTempDirectoryInDirectory(...), marshal return
-	_ = raw.CEFCreateTempDirectoryInDirectory
-	return 0
+	baseDirStr := cefString(baseDir)
+	defer freeCefString(&baseDirStr)
+	prefixStr := cefString(prefix)
+	defer freeCefString(&prefixStr)
+	return int32(raw.CEFCreateTempDirectoryInDirectory(unsafe.Pointer(&baseDirStr), unsafe.Pointer(&prefixStr), unsafe.Pointer(newDir)))
 }
 
 // DirectoryExists Returns true (1) if the given path exists and is a directory. Calling this function on the browser process UI or IO threads is not allowed.
 func DirectoryExists(path string) int32 {
-	// TODO: marshal args, call raw.CEFDirectoryExists(...), marshal return
-	_ = raw.CEFDirectoryExists
-	return 0
+	pathStr := cefString(path)
+	defer freeCefString(&pathStr)
+	return int32(raw.CEFDirectoryExists(unsafe.Pointer(&pathStr)))
 }
 
 // DeleteFile Deletes the given path whether it's a file or a directory. If |path| is a directory all contents will be deleted.  If |recursive| is true (1) any sub- directories and their contents will also be deleted (equivalent to executing "rm -rf", so use with caution). On POSIX environments if |path| is a symbolic link then only the symlink will be deleted. Returns true (1) on successful deletion or if |path| does not exist. Calling this function on the browser process UI or IO threads is not allowed.
 func DeleteFile(path string, recursive int32) int32 {
-	// TODO: marshal args, call raw.CEFDeleteFile(...), marshal return
-	_ = raw.CEFDeleteFile
-	return 0
+	pathStr := cefString(path)
+	defer freeCefString(&pathStr)
+	return int32(raw.CEFDeleteFile(unsafe.Pointer(&pathStr), recursive))
 }
 
 // ZipDirectory Writes the contents of |src_dir| into a zip archive at |dest_file|. If |include_hidden_files| is true (1) files starting with "." will be included. Returns true (1) on success.  Calling this function on the browser process UI or IO threads is not allowed.
 func ZipDirectory(srcDir string, destFile string, includeHiddenFiles int32) int32 {
-	// TODO: marshal args, call raw.CEFZipDirectory(...), marshal return
-	_ = raw.CEFZipDirectory
-	return 0
+	srcDirStr := cefString(srcDir)
+	defer freeCefString(&srcDirStr)
+	destFileStr := cefString(destFile)
+	defer freeCefString(&destFileStr)
+	return int32(raw.CEFZipDirectory(unsafe.Pointer(&srcDirStr), unsafe.Pointer(&destFileStr), includeHiddenFiles))
 }
 
 // LoadCrlsetsFile Loads the existing "Certificate Revocation Lists" file that is managed by Google Chrome. This file can generally be found in Chrome's User Data directory (e.g. "C:\Users\[User]\AppData\Local\Google\Chrome\User Data\" on Windows) and is updated periodically by Chrome's component updater service. Must be called in the browser process after the context has been initialized. See https://dev.chromium.org/Home/chromium-security/crlsets for background.
 func LoadCrlsetsFile(path string) {
-	// TODO: marshal args and call raw.CEFLoadCrlsetsFile(...)
-	_ = raw.CEFLoadCrlsetsFile
+	pathStr := cefString(path)
+	defer freeCefString(&pathStr)
+	raw.CEFLoadCrlsetsFile(unsafe.Pointer(&pathStr))
 }

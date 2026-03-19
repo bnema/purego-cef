@@ -220,7 +220,7 @@ func (obj *requestContextImpl) SetContentSetting(requestingURL string, topLevelU
 }
 
 func (obj *requestContextImpl) SetChromeColorScheme(variant ColorVariant, userColor uintptr) {
-	obj.rawPtr.CallSetChromeColorScheme(uintptr(variant), uintptr(userColor))
+	obj.rawPtr.CallSetChromeColorScheme(uintptr(variant), userColor)
 }
 
 func (obj *requestContextImpl) GetChromeColorSchemeMode() ColorVariant {
@@ -269,22 +269,16 @@ func wrapRequestContext(ptr unsafe.Pointer) RequestContext {
 }
 
 // RequestContextGetGlobalContext Returns the global context object.
-func RequestContextGetGlobalContext() uintptr {
-	// TODO: marshal args, call raw.CEFRequestContextGetGlobalContext(...), marshal return
-	_ = raw.CEFRequestContextGetGlobalContext
-	return 0
+func RequestContextGetGlobalContext() RequestContext {
+	return wrapRequestContext(raw.CEFRequestContextGetGlobalContext())
 }
 
 // RequestContextCreateContext Creates a new context object with the specified |settings| and optional |handler|.
-func RequestContextCreateContext(settings *RequestContextSettings, handler RequestContextHandler) uintptr {
-	// TODO: marshal args, call raw.CEFRequestContextCreateContext(...), marshal return
-	_ = raw.CEFRequestContextCreateContext
-	return 0
+func RequestContextCreateContext(settings *RequestContextSettings, handler RequestContextHandler) RequestContext {
+	return wrapRequestContext(raw.CEFRequestContextCreateContext(unsafe.Pointer(settings), extractRawPointer(handler)))
 }
 
 // RequestContextCefCreateContextShared Creates a new context object that shares storage with |other| and uses an optional |handler|.
-func RequestContextCefCreateContextShared(other uintptr, handler RequestContextHandler) uintptr {
-	// TODO: marshal args, call raw.CEFRequestContextCEFCreateContextShared(...), marshal return
-	_ = raw.CEFRequestContextCEFCreateContextShared
-	return 0
+func RequestContextCefCreateContextShared(other RequestContext, handler RequestContextHandler) RequestContext {
+	return wrapRequestContext(raw.CEFRequestContextCEFCreateContextShared(extractRawPointer(other), extractRawPointer(handler)))
 }

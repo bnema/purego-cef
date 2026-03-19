@@ -20,7 +20,7 @@ type PrintSettings interface {
 	// IsLandscape Returns true (1) if the orientation is landscape.
 	IsLandscape() bool
 	// SetPrinterPrintableArea Set the printer printable area in device units. Some platforms already provide flipped area. Set |landscape_needs_flip| to false (0) on those platforms to avoid double flipping.
-	SetPrinterPrintableArea(physicalSizeDeviceUnits uintptr, printableAreaDeviceUnits uintptr, landscapeNeedsFlip int32)
+	SetPrinterPrintableArea(physicalSizeDeviceUnits *Size, printableAreaDeviceUnits *Rect, landscapeNeedsFlip int32)
 	// SetDeviceName Set the device name.
 	SetDeviceName(name string)
 	// GetDeviceName Get the device name.
@@ -34,7 +34,7 @@ type PrintSettings interface {
 	// GetPageRangesCount Returns the number of page ranges that currently exist.
 	GetPageRangesCount() int
 	// GetPageRanges Returns the number of page ranges that currently exist.
-	GetPageRanges(rangescount *int, ranges uintptr)
+	GetPageRanges(rangescount *int, ranges *Range)
 	// SetSelectionOnly Set whether only the selection will be printed.
 	SetSelectionOnly(selectionOnly int32)
 	// IsSelectionOnly Returns true (1) if only the selection will be printed.
@@ -77,8 +77,8 @@ func (obj *printSettingsImpl) IsLandscape() bool {
 	return obj.rawPtr.CallIsLandscape() != 0
 }
 
-func (obj *printSettingsImpl) SetPrinterPrintableArea(physicalSizeDeviceUnits uintptr, printableAreaDeviceUnits uintptr, landscapeNeedsFlip int32) {
-	obj.rawPtr.CallSetPrinterPrintableArea(uintptr(physicalSizeDeviceUnits), uintptr(printableAreaDeviceUnits), uintptr(landscapeNeedsFlip))
+func (obj *printSettingsImpl) SetPrinterPrintableArea(physicalSizeDeviceUnits *Size, printableAreaDeviceUnits *Rect, landscapeNeedsFlip int32) {
+	obj.rawPtr.CallSetPrinterPrintableArea(uintptr(unsafe.Pointer(physicalSizeDeviceUnits)), uintptr(unsafe.Pointer(printableAreaDeviceUnits)), uintptr(landscapeNeedsFlip))
 }
 
 func (obj *printSettingsImpl) SetDeviceName(name string) {
@@ -100,15 +100,15 @@ func (obj *printSettingsImpl) GetDpi() int32 {
 }
 
 func (obj *printSettingsImpl) SetPageRanges(rangescount int, ranges uintptr) {
-	obj.rawPtr.CallSetPageRanges(uintptr(rangescount), uintptr(ranges))
+	obj.rawPtr.CallSetPageRanges(uintptr(rangescount), ranges)
 }
 
 func (obj *printSettingsImpl) GetPageRangesCount() int {
 	return int(obj.rawPtr.CallGetPageRangesCount())
 }
 
-func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges uintptr) {
-	obj.rawPtr.CallGetPageRanges(uintptr(unsafe.Pointer(rangescount)), uintptr(ranges))
+func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges *Range) {
+	obj.rawPtr.CallGetPageRanges(uintptr(unsafe.Pointer(rangescount)), uintptr(unsafe.Pointer(ranges)))
 }
 
 func (obj *printSettingsImpl) SetSelectionOnly(selectionOnly int32) {
@@ -177,8 +177,6 @@ func wrapPrintSettings(ptr unsafe.Pointer) PrintSettings {
 }
 
 // PrintSettingsCreate Create a new cef_print_settings_t object.
-func PrintSettingsCreate() uintptr {
-	// TODO: marshal args, call raw.CEFPrintSettingsCreate(...), marshal return
-	_ = raw.CEFPrintSettingsCreate
-	return 0
+func PrintSettingsCreate() PrintSettings {
+	return wrapPrintSettings(raw.CEFPrintSettingsCreate())
 }

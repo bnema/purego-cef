@@ -50,6 +50,34 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		"cbParamName": func(p ParamData, idx int) string {
 			return fmt.Sprintf("arg%d", idx)
 		},
+		// rawArgForParam finds the raw callback arg name for a public param by matching names.
+		"rawArgForParam": func(p ParamData, rawParams []ParamData) string {
+			for i, rp := range rawParams {
+				if rp.Name == p.Name {
+					return fmt.Sprintf("arg%d", i)
+				}
+			}
+			return "arg0" // fallback
+		},
+		// sliceCountArg finds the raw arg for the count param of a merged slice.
+		"sliceCountArg": func(p ParamData, rawParams []ParamData) string {
+			// The count param precedes the pointer param and has name = ptrName + "count"
+			for i, rp := range rawParams {
+				if strings.ToLower(rp.Name) == strings.ToLower(p.Name)+"count" {
+					return fmt.Sprintf("arg%d", i)
+				}
+			}
+			return "0"
+		},
+		// slicePtrArg finds the raw arg for the pointer param of a merged slice.
+		"slicePtrArg": func(p ParamData, rawParams []ParamData) string {
+			for i, rp := range rawParams {
+				if rp.Name == p.Name {
+					return fmt.Sprintf("arg%d", i)
+				}
+			}
+			return "0"
+		},
 		// marshalPreamble returns pre-call statements needed before the Call (e.g., string setup).
 		// Returns empty string if no preamble is needed.
 		"marshalPreamble": func(p ParamData) string {
@@ -58,6 +86,37 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return p.Name + "Str := cefString(" + p.Name + ")\n\tdefer freeCefString(&" + p.Name + "Str)"
 			default:
 				return ""
+			}
+		},
+		// marshalParamForRawFunc generates the Go expression for free function calls.
+		// Raw free functions use typed params (unsafe.Pointer, int32, etc.), not uintptr.
+		"marshalParamForRawFunc": func(p ParamData) string {
+			switch p.MarshalKind {
+			case "interface":
+				return "extractRawPointer(" + p.Name + ")"
+			case "string", "userfreeString":
+				return "unsafe.Pointer(&" + p.Name + "Str)"
+			case "dataStruct":
+				return "unsafe.Pointer(" + p.Name + ")"
+			case "enum":
+				// Cast public enum type to raw enum type if they differ.
+				if p.RawGoType != "" && p.RawGoType != "unsafe.Pointer" {
+					return "raw." + p.RawGoType + "(" + p.Name + ")"
+				}
+				return p.Name
+			case "numeric":
+				// Cast to raw type if it differs from public type.
+				if p.RawGoType != "" && p.RawGoType != p.PublicType {
+					// CEF types live in raw package.
+					if strings.HasPrefix(p.RawGoType, "CEF") {
+						return "raw." + p.RawGoType + "(" + p.Name + ")"
+					}
+					return p.RawGoType + "(" + p.Name + ")"
+				}
+				return p.Name
+			default:
+				// pointer — pass directly
+				return p.Name
 			}
 		},
 		// marshalParam generates the Go expression to convert a public Go param to uintptr.
@@ -79,6 +138,8 @@ func EmitPublic(data *PublicFileData) (string, error) {
 					return "uintptr(math.Float64bits(" + p.Name + "))"
 				case "float32":
 					return "uintptr(math.Float32bits(" + p.Name + "))"
+				case "uintptr":
+					return p.Name
 				default:
 					return "uintptr(" + p.Name + ")"
 				}
@@ -90,6 +151,9 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		"unmarshalParam": func(p ParamData, rawName string) string {
 			switch p.MarshalKind {
 			case "interface":
+				if p.PublicType == "unsafe.Pointer" {
+					return "unsafe.Pointer(" + rawName + ")"
+				}
 				return "wrap" + p.PublicType + "(unsafe.Pointer(" + rawName + "))"
 			case "string":
 				return "goString(unsafe.Pointer(" + rawName + "))"

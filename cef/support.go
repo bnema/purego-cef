@@ -190,12 +190,15 @@ func extractRawPointer(v any) unsafe.Pointer {
 	return nil
 }
 
-// decodeDirtyRects converts a raw pointer and count into a Go slice of Rect.
-func decodeDirtyRects(ptr uintptr, count int) []Rect {
+// decodeSlice converts a raw pointer and count into a Go slice of T.
+// The returned slice directly aliases native memory owned by CEF. It is only
+// valid for the duration of the callback and must not be retained after the
+// callback returns. Copy the data if persistence is needed.
+func decodeSlice[T any](ptr uintptr, count int) []T {
 	if count == 0 || ptr == 0 {
 		return nil
 	}
-	return unsafe.Slice((*Rect)(unsafe.Pointer(ptr)), count)
+	return unsafe.Slice((*T)(unsafe.Pointer(ptr)), count)
 }
 
 func loadRefState(base unsafe.Pointer) (*refState, bool) {

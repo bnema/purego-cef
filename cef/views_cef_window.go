@@ -18,7 +18,7 @@ type Window interface {
 	// Hide Hide the Window.
 	Hide()
 	// CenterWindow Sizes the Window to |size| and centers it in the current display.
-	CenterWindow(size uintptr)
+	CenterWindow(size *Size)
 	Close()
 	// IsClosed Returns true (1) if the Window has been closed.
 	IsClosed() bool
@@ -65,7 +65,7 @@ type Window interface {
 	// AddOverlayView Add a View that will be overlayed on the Window contents with absolute positioning and high z-order. Positioning is controlled by |docking_mode| as described below. Setting |can_activate| to true (1) will allow the overlay view to receive input focus. The returned cef_overlay_controller_t object is used to control the overlay. Overlays are hidden by default. With CEF_DOCKING_MODE_CUSTOM:   1. The overlay is initially hidden, sized to |view|'s preferred size,      and positioned in the top-left corner.   2. Optionally change the overlay position and/or size by calling      CefOverlayController methods.   3. Call CefOverlayController::SetVisible(true) to show the overlay.   4. The overlay will be automatically re-sized if |view|'s layout      changes. Optionally change the overlay position and/or size when      OnLayoutChanged is called on the Window's delegate to indicate a      change in Window bounds. With other docking modes:   1. The overlay is initially hidden, sized to |view|'s preferred size,      and positioned based on |docking_mode|.   2. Call CefOverlayController::SetVisible(true) to show the overlay.   3. The overlay will be automatically re-sized if |view|'s layout changes      and re-positioned as appropriate when the Window resizes. Overlays created by this function will receive a higher z-order then any child Views added previously. It is therefore recommended to call this function last after all other child Views have been added so that the overlay displays as the top-most child of the Window.
 	AddOverlayView(view View, dockingMode DockingMode, canActivate int32) OverlayController
 	// ShowMenu Show a menu with contents |menu_model|. |screen_point| specifies the menu position in screen coordinates. |anchor_position| specifies how the menu will be anchored relative to |screen_point|.
-	ShowMenu(menuModel MenuModel, screenPoint uintptr, anchorPosition MenuAnchorPosition)
+	ShowMenu(menuModel MenuModel, screenPoint *Point, anchorPosition MenuAnchorPosition)
 	// CancelMenu Cancel the menu that is currently showing, if any.
 	CancelMenu()
 	// GetDisplay Returns the Display that most closely intersects the bounds of this Window. May return NULL if this Window is not currently displayed.
@@ -112,8 +112,8 @@ func (obj *windowImpl) Hide() {
 	obj.rawPtr.CallHide()
 }
 
-func (obj *windowImpl) CenterWindow(size uintptr) {
-	obj.rawPtr.CallCenterWindow(uintptr(size))
+func (obj *windowImpl) CenterWindow(size *Size) {
+	obj.rawPtr.CallCenterWindow(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *windowImpl) Close() {
@@ -210,8 +210,8 @@ func (obj *windowImpl) AddOverlayView(view View, dockingMode DockingMode, canAct
 	return wrapOverlayController(unsafe.Pointer(obj.rawPtr.CallAddOverlayView(uintptr(extractRawPointer(view)), uintptr(dockingMode), uintptr(canActivate))))
 }
 
-func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint uintptr, anchorPosition MenuAnchorPosition) {
-	obj.rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(screenPoint), uintptr(anchorPosition))
+func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anchorPosition MenuAnchorPosition) {
+	obj.rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
 }
 
 func (obj *windowImpl) CancelMenu() {
@@ -227,7 +227,7 @@ func (obj *windowImpl) GetClientAreaBoundsInScreen() uintptr {
 }
 
 func (obj *windowImpl) SetDraggableRegions(regionscount int, regions uintptr) {
-	obj.rawPtr.CallSetDraggableRegions(uintptr(regionscount), uintptr(regions))
+	obj.rawPtr.CallSetDraggableRegions(uintptr(regionscount), regions)
 }
 
 func (obj *windowImpl) GetWindowHandle() uintptr {
@@ -259,7 +259,7 @@ func (obj *windowImpl) RemoveAllAccelerators() {
 }
 
 func (obj *windowImpl) SetThemeColor(colorID int32, color uintptr) {
-	obj.rawPtr.CallSetThemeColor(uintptr(colorID), uintptr(color))
+	obj.rawPtr.CallSetThemeColor(uintptr(colorID), color)
 }
 
 func (obj *windowImpl) ThemeChanged() {
@@ -296,8 +296,6 @@ func wrapWindow(ptr unsafe.Pointer) Window {
 }
 
 // WindowCreateTopLevel Create a new Window.
-func WindowCreateTopLevel(delegate WindowDelegate) uintptr {
-	// TODO: marshal args, call raw.CEFWindowCreateTopLevel(...), marshal return
-	_ = raw.CEFWindowCreateTopLevel
-	return 0
+func WindowCreateTopLevel(delegate WindowDelegate) Window {
+	return wrapWindow(raw.CEFWindowCreateTopLevel(extractRawPointer(delegate)))
 }

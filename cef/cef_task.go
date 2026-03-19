@@ -104,36 +104,26 @@ func wrapTaskRunner(ptr unsafe.Pointer) TaskRunner {
 }
 
 // TaskRunnerGetForCurrentThread Returns the task runner for the current thread. Only CEF threads will have task runners. An NULL reference will be returned if this function is called on an invalid thread.
-func TaskRunnerGetForCurrentThread() uintptr {
-	// TODO: marshal args, call raw.CEFTaskRunnerGetForCurrentThread(...), marshal return
-	_ = raw.CEFTaskRunnerGetForCurrentThread
-	return 0
+func TaskRunnerGetForCurrentThread() TaskRunner {
+	return wrapTaskRunner(raw.CEFTaskRunnerGetForCurrentThread())
 }
 
 // TaskRunnerGetForThread Returns the task runner for the specified CEF thread.
-func TaskRunnerGetForThread(threadid ThreadID) uintptr {
-	// TODO: marshal args, call raw.CEFTaskRunnerGetForThread(...), marshal return
-	_ = raw.CEFTaskRunnerGetForThread
-	return 0
+func TaskRunnerGetForThread(threadid ThreadID) TaskRunner {
+	return wrapTaskRunner(raw.CEFTaskRunnerGetForThread(raw.CEFThreadIDT(threadid)))
 }
 
 // CurrentlyOn Returns true (1) if called on the specified thread. Equivalent to using cef_task_runner_t::GetForThread(threadId)->belongs_to_current_thread().
 func CurrentlyOn(threadid ThreadID) int32 {
-	// TODO: marshal args, call raw.CEFCurrentlyOn(...), marshal return
-	_ = raw.CEFCurrentlyOn
-	return 0
+	return int32(raw.CEFCurrentlyOn(raw.CEFThreadIDT(threadid)))
 }
 
 // PostTask Post a task for execution on the specified thread. Equivalent to using cef_task_runner_t::GetForThread(threadId)->PostTask(task).
-func PostTask(threadid ThreadID, task uintptr) int32 {
-	// TODO: marshal args, call raw.CEFPostTask(...), marshal return
-	_ = raw.CEFPostTask
-	return 0
+func PostTask(threadid ThreadID, task Task) int32 {
+	return int32(raw.CEFPostTask(raw.CEFThreadIDT(threadid), extractRawPointer(task)))
 }
 
 // PostDelayedTask Post a task for delayed execution on the specified thread. Equivalent to using cef_task_runner_t::GetForThread(threadId)->PostDelayedTask(task, delay_ms).
-func PostDelayedTask(threadid ThreadID, task uintptr, delayMs int64) int32 {
-	// TODO: marshal args, call raw.CEFPostDelayedTask(...), marshal return
-	_ = raw.CEFPostDelayedTask
-	return 0
+func PostDelayedTask(threadid ThreadID, task Task, delayMs int64) int32 {
+	return int32(raw.CEFPostDelayedTask(raw.CEFThreadIDT(threadid), extractRawPointer(task), delayMs))
 }

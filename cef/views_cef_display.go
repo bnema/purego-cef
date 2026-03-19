@@ -15,9 +15,9 @@ type Display interface {
 	GetID() int64
 	GetDeviceScaleFactor() float32
 	// ConvertPointToPixels Convert |point| from DIP coordinates to pixel coordinates using this Display's device scale factor.
-	ConvertPointToPixels(point uintptr)
+	ConvertPointToPixels(point *Point)
 	// ConvertPointFromPixels Convert |point| from pixel coordinates to DIP coordinates using this Display's device scale factor.
-	ConvertPointFromPixels(point uintptr)
+	ConvertPointFromPixels(point *Point)
 	// GetBounds Returns this Display's bounds in DIP screen coordinates. This is the full size of the display.
 	GetBounds() uintptr
 	// GetWorkArea Returns this Display's work area in DIP screen coordinates. This excludes areas of the display that are occupied with window manager toolbars, etc.
@@ -38,12 +38,12 @@ func (obj *displayImpl) GetDeviceScaleFactor() float32 {
 	return float32(obj.rawPtr.CallGetDeviceScaleFactor())
 }
 
-func (obj *displayImpl) ConvertPointToPixels(point uintptr) {
-	obj.rawPtr.CallConvertPointToPixels(uintptr(point))
+func (obj *displayImpl) ConvertPointToPixels(point *Point) {
+	obj.rawPtr.CallConvertPointToPixels(uintptr(unsafe.Pointer(point)))
 }
 
-func (obj *displayImpl) ConvertPointFromPixels(point uintptr) {
-	obj.rawPtr.CallConvertPointFromPixels(uintptr(point))
+func (obj *displayImpl) ConvertPointFromPixels(point *Point) {
+	obj.rawPtr.CallConvertPointFromPixels(uintptr(unsafe.Pointer(point)))
 }
 
 func (obj *displayImpl) GetBounds() uintptr {
@@ -84,63 +84,26 @@ func wrapDisplay(ptr unsafe.Pointer) Display {
 }
 
 // DisplayGetPrimary Returns the primary Display.
-func DisplayGetPrimary() uintptr {
-	// TODO: marshal args, call raw.CEFDisplayGetPrimary(...), marshal return
-	_ = raw.CEFDisplayGetPrimary
-	return 0
+func DisplayGetPrimary() Display {
+	return wrapDisplay(raw.CEFDisplayGetPrimary())
 }
 
 // DisplayGetNearestPoint Returns the Display nearest |point|. Set |input_pixel_coords| to true (1) if |point| is in pixel screen coordinates instead of DIP screen coordinates.
-func DisplayGetNearestPoint(point uintptr, inputPixelCoords int32) uintptr {
-	// TODO: marshal args, call raw.CEFDisplayGetNearestPoint(...), marshal return
-	_ = raw.CEFDisplayGetNearestPoint
-	return 0
+func DisplayGetNearestPoint(point *Point, inputPixelCoords int32) Display {
+	return wrapDisplay(raw.CEFDisplayGetNearestPoint(unsafe.Pointer(point), inputPixelCoords))
 }
 
 // DisplayGetMatchingBounds Returns the Display that most closely intersects |bounds|.  Set |input_pixel_coords| to true (1) if |bounds| is in pixel screen coordinates instead of DIP screen coordinates.
-func DisplayGetMatchingBounds(bounds uintptr, inputPixelCoords int32) uintptr {
-	// TODO: marshal args, call raw.CEFDisplayGetMatchingBounds(...), marshal return
-	_ = raw.CEFDisplayGetMatchingBounds
-	return 0
+func DisplayGetMatchingBounds(bounds *Rect, inputPixelCoords int32) Display {
+	return wrapDisplay(raw.CEFDisplayGetMatchingBounds(unsafe.Pointer(bounds), inputPixelCoords))
 }
 
 // DisplayGetCount Returns the total number of Displays. Mirrored displays are excluded; this function is intended to return the number of distinct, usable displays.
 func DisplayGetCount() int {
-	// TODO: marshal args, call raw.CEFDisplayGetCount(...), marshal return
-	_ = raw.CEFDisplayGetCount
-	return 0
+	return int(raw.CEFDisplayGetCount())
 }
 
 // DisplayGetAlls Returns all Displays. Mirrored displays are excluded; this function is intended to return distinct, usable displays.
-func DisplayGetAlls(displayscount *int, displays uintptr) {
-	// TODO: marshal args and call raw.CEFDisplayGetAlls(...)
-	_ = raw.CEFDisplayGetAlls
-}
-
-// DisplayConvertScreenPointToPixels Convert |point| from DIP screen coordinates to pixel screen coordinates. This function is only used on Windows.
-func DisplayConvertScreenPointToPixels(point uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFDisplayConvertScreenPointToPixels(...), marshal return
-	_ = raw.CEFDisplayConvertScreenPointToPixels
-	return 0
-}
-
-// DisplayConvertScreenPointFromPixels Convert |point| from pixel screen coordinates to DIP screen coordinates. This function is only used on Windows.
-func DisplayConvertScreenPointFromPixels(point uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFDisplayConvertScreenPointFromPixels(...), marshal return
-	_ = raw.CEFDisplayConvertScreenPointFromPixels
-	return 0
-}
-
-// DisplayConvertScreenRectToPixels Convert |rect| from DIP screen coordinates to pixel screen coordinates. This function is only used on Windows.
-func DisplayConvertScreenRectToPixels(rect uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFDisplayConvertScreenRectToPixels(...), marshal return
-	_ = raw.CEFDisplayConvertScreenRectToPixels
-	return 0
-}
-
-// DisplayConvertScreenRectFromPixels Convert |rect| from pixel screen coordinates to DIP screen coordinates. This function is only used on Windows.
-func DisplayConvertScreenRectFromPixels(rect uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFDisplayConvertScreenRectFromPixels(...), marshal return
-	_ = raw.CEFDisplayConvertScreenRectFromPixels
-	return 0
+func DisplayGetAlls(displayscount *int, displays unsafe.Pointer) {
+	raw.CEFDisplayGetAlls(unsafe.Pointer(displayscount), extractRawPointer(displays))
 }

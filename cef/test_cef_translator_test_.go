@@ -65,13 +65,13 @@ type TranslatorTest interface {
 	// GetPoint Return a point value.
 	GetPoint() uintptr
 	// SetPoint Set a point value.
-	SetPoint(val uintptr) int32
+	SetPoint(val *Point) int32
 	// GetPointByRef Return a point value by out-param.
-	GetPointByRef(val uintptr)
+	GetPointByRef(val *Point)
 	// SetPointList Set a point list vlaue.
 	SetPointList(valcount int, val uintptr) int32
 	// GetPointListByRef Return a point list value by out-param.
-	GetPointListByRef(valcount *int, val uintptr) int32
+	GetPointListByRef(valcount *int, val *Point) int32
 	// GetPointListSize Return the number of points that will be output above.
 	GetPointListSize() int
 	// GetRefPtrLibrary Return an new library-side object.
@@ -181,7 +181,7 @@ func (obj *translatorTestImpl) SetDouble(val float64) int32 {
 }
 
 func (obj *translatorTestImpl) SetLong(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetLong(uintptr(val)))
+	return int32(obj.rawPtr.CallSetLong(val))
 }
 
 func (obj *translatorTestImpl) SetSizet(val int) int32 {
@@ -189,7 +189,7 @@ func (obj *translatorTestImpl) SetSizet(val int) int32 {
 }
 
 func (obj *translatorTestImpl) SetIntList(valcount int, val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetIntList(uintptr(valcount), uintptr(val)))
+	return int32(obj.rawPtr.CallSetIntList(uintptr(valcount), val))
 }
 
 func (obj *translatorTestImpl) GetIntListByRef(valcount *int, val unsafe.Pointer) int32 {
@@ -211,51 +211,51 @@ func (obj *translatorTestImpl) SetString(val string) int32 {
 }
 
 func (obj *translatorTestImpl) GetStringByRef(val uintptr) {
-	obj.rawPtr.CallGetStringByRef(uintptr(val))
+	obj.rawPtr.CallGetStringByRef(val)
 }
 
 func (obj *translatorTestImpl) SetStringList(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetStringList(uintptr(val)))
+	return int32(obj.rawPtr.CallSetStringList(val))
 }
 
 func (obj *translatorTestImpl) GetStringListByRef(val uintptr) int32 {
-	return int32(obj.rawPtr.CallGetStringListByRef(uintptr(val)))
+	return int32(obj.rawPtr.CallGetStringListByRef(val))
 }
 
 func (obj *translatorTestImpl) SetStringMap(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetStringMap(uintptr(val)))
+	return int32(obj.rawPtr.CallSetStringMap(val))
 }
 
 func (obj *translatorTestImpl) GetStringMapByRef(val uintptr) int32 {
-	return int32(obj.rawPtr.CallGetStringMapByRef(uintptr(val)))
+	return int32(obj.rawPtr.CallGetStringMapByRef(val))
 }
 
 func (obj *translatorTestImpl) SetStringMultimap(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetStringMultimap(uintptr(val)))
+	return int32(obj.rawPtr.CallSetStringMultimap(val))
 }
 
 func (obj *translatorTestImpl) GetStringMultimapByRef(val uintptr) int32 {
-	return int32(obj.rawPtr.CallGetStringMultimapByRef(uintptr(val)))
+	return int32(obj.rawPtr.CallGetStringMultimapByRef(val))
 }
 
 func (obj *translatorTestImpl) GetPoint() uintptr {
 	return uintptr(obj.rawPtr.CallGetPoint())
 }
 
-func (obj *translatorTestImpl) SetPoint(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetPoint(uintptr(val)))
+func (obj *translatorTestImpl) SetPoint(val *Point) int32 {
+	return int32(obj.rawPtr.CallSetPoint(uintptr(unsafe.Pointer(val))))
 }
 
-func (obj *translatorTestImpl) GetPointByRef(val uintptr) {
-	obj.rawPtr.CallGetPointByRef(uintptr(val))
+func (obj *translatorTestImpl) GetPointByRef(val *Point) {
+	obj.rawPtr.CallGetPointByRef(uintptr(unsafe.Pointer(val)))
 }
 
 func (obj *translatorTestImpl) SetPointList(valcount int, val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetPointList(uintptr(valcount), uintptr(val)))
+	return int32(obj.rawPtr.CallSetPointList(uintptr(valcount), val))
 }
 
-func (obj *translatorTestImpl) GetPointListByRef(valcount *int, val uintptr) int32 {
-	return int32(obj.rawPtr.CallGetPointListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val)))
+func (obj *translatorTestImpl) GetPointListByRef(valcount *int, val *Point) int32 {
+	return int32(obj.rawPtr.CallGetPointListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(unsafe.Pointer(val))))
 }
 
 func (obj *translatorTestImpl) GetPointListSize() int {
@@ -287,7 +287,7 @@ func (obj *translatorTestImpl) SetRefPtrLibraryList(valcount int, val unsafe.Poi
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(val1), uintptr(val2)))
+	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(extractRawPointer(val)), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibraryListSize() int {
@@ -315,7 +315,7 @@ func (obj *translatorTestImpl) SetRefPtrClientList(valcount int, val unsafe.Poin
 }
 
 func (obj *translatorTestImpl) GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 TranslatorTestRefPtrClient, val2 TranslatorTestRefPtrClient) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(extractRawPointer(val1)), uintptr(extractRawPointer(val2))))
+	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(extractRawPointer(val)), uintptr(extractRawPointer(val1)), uintptr(extractRawPointer(val2))))
 }
 
 func (obj *translatorTestImpl) GetRefPtrClientListSize() int {
@@ -785,50 +785,36 @@ func wrapTranslatorTestScopedClientChild(ptr unsafe.Pointer) TranslatorTestScope
 }
 
 // TranslatorTestCreate Create the test object.
-func TranslatorTestCreate() uintptr {
-	// TODO: marshal args, call raw.CEFTranslatorTestCreate(...), marshal return
-	_ = raw.CEFTranslatorTestCreate
-	return 0
+func TranslatorTestCreate() TranslatorTest {
+	return wrapTranslatorTest(raw.CEFTranslatorTestCreate())
 }
 
 // TranslatorTestRefPtrLibraryCreate Create the test object.
-func TranslatorTestRefPtrLibraryCreate(value int32) uintptr {
-	// TODO: marshal args, call raw.CEFTranslatorTestRefPtrLibraryCreate(...), marshal return
-	_ = raw.CEFTranslatorTestRefPtrLibraryCreate
-	return 0
+func TranslatorTestRefPtrLibraryCreate(value int32) TranslatorTestRefPtrLibrary {
+	return wrapTranslatorTestRefPtrLibrary(raw.CEFTranslatorTestRefPtrLibraryCreate(value))
 }
 
 // TranslatorTestRefPtrLibraryChildCreate Create the test object.
-func TranslatorTestRefPtrLibraryChildCreate(value int32, otherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFTranslatorTestRefPtrLibraryChildCreate(...), marshal return
-	_ = raw.CEFTranslatorTestRefPtrLibraryChildCreate
-	return 0
+func TranslatorTestRefPtrLibraryChildCreate(value int32, otherValue int32) TranslatorTestRefPtrLibraryChild {
+	return wrapTranslatorTestRefPtrLibraryChild(raw.CEFTranslatorTestRefPtrLibraryChildCreate(value, otherValue))
 }
 
 // TranslatorTestRefPtrLibraryChildChildCreate Create the test object.
-func TranslatorTestRefPtrLibraryChildChildCreate(value int32, otherValue int32, otherOtherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFTranslatorTestRefPtrLibraryChildChildCreate(...), marshal return
-	_ = raw.CEFTranslatorTestRefPtrLibraryChildChildCreate
-	return 0
+func TranslatorTestRefPtrLibraryChildChildCreate(value int32, otherValue int32, otherOtherValue int32) TranslatorTestRefPtrLibraryChildChild {
+	return wrapTranslatorTestRefPtrLibraryChildChild(raw.CEFTranslatorTestRefPtrLibraryChildChildCreate(value, otherValue, otherOtherValue))
 }
 
 // TranslatorTestScopedLibraryCreate Create the test object.
-func TranslatorTestScopedLibraryCreate(value int32) uintptr {
-	// TODO: marshal args, call raw.CEFTranslatorTestScopedLibraryCreate(...), marshal return
-	_ = raw.CEFTranslatorTestScopedLibraryCreate
-	return 0
+func TranslatorTestScopedLibraryCreate(value int32) TranslatorTestScopedLibrary {
+	return wrapTranslatorTestScopedLibrary(raw.CEFTranslatorTestScopedLibraryCreate(value))
 }
 
 // TranslatorTestScopedLibraryChildCreate Create the test object.
-func TranslatorTestScopedLibraryChildCreate(value int32, otherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFTranslatorTestScopedLibraryChildCreate(...), marshal return
-	_ = raw.CEFTranslatorTestScopedLibraryChildCreate
-	return 0
+func TranslatorTestScopedLibraryChildCreate(value int32, otherValue int32) TranslatorTestScopedLibraryChild {
+	return wrapTranslatorTestScopedLibraryChild(raw.CEFTranslatorTestScopedLibraryChildCreate(value, otherValue))
 }
 
 // TranslatorTestScopedLibraryChildChildCreate Create the test object.
-func TranslatorTestScopedLibraryChildChildCreate(value int32, otherValue int32, otherOtherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFTranslatorTestScopedLibraryChildChildCreate(...), marshal return
-	_ = raw.CEFTranslatorTestScopedLibraryChildChildCreate
-	return 0
+func TranslatorTestScopedLibraryChildChildCreate(value int32, otherValue int32, otherOtherValue int32) TranslatorTestScopedLibraryChildChild {
+	return wrapTranslatorTestScopedLibraryChildChild(raw.CEFTranslatorTestScopedLibraryChildChildCreate(value, otherValue, otherOtherValue))
 }

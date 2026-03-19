@@ -43,21 +43,19 @@ func wrapEndTracingCallback(ptr unsafe.Pointer) EndTracingCallback {
 
 // BeginTracing Start tracing events on all processes. Tracing is initialized asynchronously and |callback| will be executed on the UI thread after initialization is complete. If CefBeginTracing was called previously, or if a CefEndTracingAsync call is pending, CefBeginTracing will fail and return false (0). |categories| is a comma-delimited list of category wildcards. A category can have an optional '-' prefix to make it an excluded category. Having both included and excluded categories in the same list is not supported. Examples: - "test_MyTest*" - "test_MyTest*,test_OtherStuff" - "-excluded_category1,-excluded_category2" This function must be called on the browser process UI thread.
 func BeginTracing(categories string, callback CompletionCallback) int32 {
-	// TODO: marshal args, call raw.CEFBeginTracing(...), marshal return
-	_ = raw.CEFBeginTracing
-	return 0
+	categoriesStr := cefString(categories)
+	defer freeCefString(&categoriesStr)
+	return int32(raw.CEFBeginTracing(unsafe.Pointer(&categoriesStr), extractRawPointer(callback)))
 }
 
 // EndTracing Stop tracing events on all processes. This function will fail and return false (0) if a previous call to CefEndTracingAsync is already pending or if CefBeginTracing was not called. |tracing_file| is the path at which tracing data will be written and |callback| is the callback that will be executed once all processes have sent their trace data. If |tracing_file| is NULL a new temporary file path will be used. If |callback| is NULL no trace data will be written. This function must be called on the browser process UI thread.
-func EndTracing(tracingFile string, callback uintptr) int32 {
-	// TODO: marshal args, call raw.CEFEndTracing(...), marshal return
-	_ = raw.CEFEndTracing
-	return 0
+func EndTracing(tracingFile string, callback EndTracingCallback) int32 {
+	tracingFileStr := cefString(tracingFile)
+	defer freeCefString(&tracingFileStr)
+	return int32(raw.CEFEndTracing(unsafe.Pointer(&tracingFileStr), extractRawPointer(callback)))
 }
 
 // NowFromSystemTraceTime Returns the current system trace time or, if none is defined, the current high-res time. Can be used by clients to synchronize with the time information in trace events.
 func NowFromSystemTraceTime() int64 {
-	// TODO: marshal args, call raw.CEFNowFromSystemTraceTime(...), marshal return
-	_ = raw.CEFNowFromSystemTraceTime
-	return 0
+	return int64(raw.CEFNowFromSystemTraceTime())
 }

@@ -178,8 +178,6 @@ func wrapDeleteCookiesCallback(ptr unsafe.Pointer) DeleteCookiesCallback {
 }
 
 // CookieManagerGetGlobalManager Returns the global cookie manager. By default data will be stored at cef_settings_t.cache_path if specified or in memory otherwise. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the manager's storage has been initialized. Using this function is equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >GetDefaultCookieManager().
-func CookieManagerGetGlobalManager(callback CompletionCallback) uintptr {
-	// TODO: marshal args, call raw.CEFCookieManagerGetGlobalManager(...), marshal return
-	_ = raw.CEFCookieManagerGetGlobalManager
-	return 0
+func CookieManagerGetGlobalManager(callback CompletionCallback) CookieManager {
+	return wrapCookieManager(raw.CEFCookieManagerGetGlobalManager(extractRawPointer(callback)))
 }

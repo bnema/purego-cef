@@ -61,8 +61,6 @@ func wrapResourceBundle(ptr unsafe.Pointer) ResourceBundle {
 }
 
 // ResourceBundleGetGlobal Returns the global resource bundle instance.
-func ResourceBundleGetGlobal() uintptr {
-	// TODO: marshal args, call raw.CEFResourceBundleGetGlobal(...), marshal return
-	_ = raw.CEFResourceBundleGetGlobal
-	return 0
+func ResourceBundleGetGlobal() ResourceBundle {
+	return wrapResourceBundle(raw.CEFResourceBundleGetGlobal())
 }

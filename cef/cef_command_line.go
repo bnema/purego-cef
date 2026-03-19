@@ -17,7 +17,7 @@ type CommandLine interface {
 	IsReadOnly() bool
 	Copy() CommandLine
 	// InitFromArgv Initialize the command line with the specified |argc| and |argv| values. The first argument must be the name of the program. This function is only supported on non-Windows platforms.
-	InitFromArgv(argc int32, argv uintptr)
+	InitFromArgv(argc int32, argv unsafe.Pointer)
 	// InitFromString Initialize the command line with the string returned by calling GetCommandLineW(). This function is only supported on Windows.
 	InitFromString(commandLine string)
 	// Reset Reset the command-line switches and arguments but leave the program component unchanged.
@@ -70,7 +70,7 @@ func (obj *commandLineImpl) Copy() CommandLine {
 	return wrapCommandLine(unsafe.Pointer(obj.rawPtr.CallCopy()))
 }
 
-func (obj *commandLineImpl) InitFromArgv(argc int32, argv uintptr) {
+func (obj *commandLineImpl) InitFromArgv(argc int32, argv unsafe.Pointer) {
 	obj.rawPtr.CallInitFromArgv(uintptr(argc), uintptr(argv))
 }
 
@@ -85,7 +85,7 @@ func (obj *commandLineImpl) Reset() {
 }
 
 func (obj *commandLineImpl) GetArgv(argv uintptr) {
-	obj.rawPtr.CallGetArgv(uintptr(argv))
+	obj.rawPtr.CallGetArgv(argv)
 }
 
 func (obj *commandLineImpl) GetCommandLineString() string {
@@ -119,7 +119,7 @@ func (obj *commandLineImpl) GetSwitchValue(name string) string {
 }
 
 func (obj *commandLineImpl) GetSwitches(switches uintptr) {
-	obj.rawPtr.CallGetSwitches(uintptr(switches))
+	obj.rawPtr.CallGetSwitches(switches)
 }
 
 func (obj *commandLineImpl) AppendSwitch(name string) {
@@ -141,7 +141,7 @@ func (obj *commandLineImpl) HasArguments() bool {
 }
 
 func (obj *commandLineImpl) GetArguments(arguments uintptr) {
-	obj.rawPtr.CallGetArguments(uintptr(arguments))
+	obj.rawPtr.CallGetArguments(arguments)
 }
 
 func (obj *commandLineImpl) AppendArgument(argument string) {
@@ -188,15 +188,11 @@ func wrapCommandLine(ptr unsafe.Pointer) CommandLine {
 }
 
 // CommandLineCreate Create a new cef_command_line_t instance.
-func CommandLineCreate() uintptr {
-	// TODO: marshal args, call raw.CEFCommandLineCreate(...), marshal return
-	_ = raw.CEFCommandLineCreate
-	return 0
+func CommandLineCreate() CommandLine {
+	return wrapCommandLine(raw.CEFCommandLineCreate())
 }
 
 // CommandLineGetGlobal Returns the singleton global cef_command_line_t object. The returned object will be read-only.
-func CommandLineGetGlobal() uintptr {
-	// TODO: marshal args, call raw.CEFCommandLineGetGlobal(...), marshal return
-	_ = raw.CEFCommandLineGetGlobal
-	return 0
+func CommandLineGetGlobal() CommandLine {
+	return wrapCommandLine(raw.CEFCommandLineGetGlobal())
 }

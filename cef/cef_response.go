@@ -116,11 +116,11 @@ func (obj *responseImpl) SetHeaderByName(name string, value string, overwrite in
 }
 
 func (obj *responseImpl) GetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallGetHeaderMap(uintptr(headermap))
+	obj.rawPtr.CallGetHeaderMap(headermap)
 }
 
 func (obj *responseImpl) SetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallSetHeaderMap(uintptr(headermap))
+	obj.rawPtr.CallSetHeaderMap(headermap)
 }
 
 func (obj *responseImpl) GetURL() string {
@@ -159,8 +159,6 @@ func wrapResponse(ptr unsafe.Pointer) Response {
 }
 
 // ResponseCreate Create a new cef_response_t object.
-func ResponseCreate() uintptr {
-	// TODO: marshal args, call raw.CEFResponseCreate(...), marshal return
-	_ = raw.CEFResponseCreate
-	return 0
+func ResponseCreate() Response {
+	return wrapResponse(raw.CEFResponseCreate())
 }

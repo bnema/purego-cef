@@ -252,36 +252,30 @@ func wrapStreamWriter(ptr unsafe.Pointer) StreamWriter {
 }
 
 // StreamReaderCreateForFile Create a new cef_stream_reader_t object from a file.
-func StreamReaderCreateForFile(filename string) uintptr {
-	// TODO: marshal args, call raw.CEFStreamReaderCreateForFile(...), marshal return
-	_ = raw.CEFStreamReaderCreateForFile
-	return 0
+func StreamReaderCreateForFile(filename string) StreamReader {
+	filenameStr := cefString(filename)
+	defer freeCefString(&filenameStr)
+	return wrapStreamReader(raw.CEFStreamReaderCreateForFile(unsafe.Pointer(&filenameStr)))
 }
 
 // StreamReaderCreateForData Create a new cef_stream_reader_t object from data.
-func StreamReaderCreateForData(data unsafe.Pointer, size int) uintptr {
-	// TODO: marshal args, call raw.CEFStreamReaderCreateForData(...), marshal return
-	_ = raw.CEFStreamReaderCreateForData
-	return 0
+func StreamReaderCreateForData(data unsafe.Pointer, size int) StreamReader {
+	return wrapStreamReader(raw.CEFStreamReaderCreateForData(data, uintptr(size)))
 }
 
 // StreamReaderCreateForHandler Create a new cef_stream_reader_t object from a custom handler.
-func StreamReaderCreateForHandler(handler uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFStreamReaderCreateForHandler(...), marshal return
-	_ = raw.CEFStreamReaderCreateForHandler
-	return 0
+func StreamReaderCreateForHandler(handler ReadHandler) StreamReader {
+	return wrapStreamReader(raw.CEFStreamReaderCreateForHandler(extractRawPointer(handler)))
 }
 
 // StreamWriterCreateForFile Create a new cef_stream_writer_t object for a file.
-func StreamWriterCreateForFile(filename string) uintptr {
-	// TODO: marshal args, call raw.CEFStreamWriterCreateForFile(...), marshal return
-	_ = raw.CEFStreamWriterCreateForFile
-	return 0
+func StreamWriterCreateForFile(filename string) StreamWriter {
+	filenameStr := cefString(filename)
+	defer freeCefString(&filenameStr)
+	return wrapStreamWriter(raw.CEFStreamWriterCreateForFile(unsafe.Pointer(&filenameStr)))
 }
 
 // StreamWriterCreateForHandler Create a new cef_stream_writer_t object for a custom handler.
-func StreamWriterCreateForHandler(handler uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFStreamWriterCreateForHandler(...), marshal return
-	_ = raw.CEFStreamWriterCreateForHandler
-	return 0
+func StreamWriterCreateForHandler(handler WriteHandler) StreamWriter {
+	return wrapStreamWriter(raw.CEFStreamWriterCreateForHandler(extractRawPointer(handler)))
 }

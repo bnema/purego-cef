@@ -23,21 +23,21 @@ type OverlayController interface {
 	// Destroy Destroy this overlay.
 	Destroy()
 	// SetBounds Sets the bounds (size and position) of this overlay. This will set the bounds of the contents View to match and trigger a re-layout if necessary. |bounds| is in parent coordinates and any insets configured on this overlay will be ignored. Use this function only for overlays created with a docking mode value of CEF_DOCKING_MODE_CUSTOM. With other docking modes modify the insets of this overlay and/or layout of the contents View and call size_to_preferred_size() instead to calculate the new size and re- position the overlay if necessary.
-	SetBounds(bounds uintptr)
+	SetBounds(bounds *Rect)
 	// GetBounds Returns the bounds (size and position) of this overlay in parent coordinates.
 	GetBounds() uintptr
 	// GetBoundsInScreen Returns the bounds (size and position) of this overlay in DIP screen coordinates.
 	GetBoundsInScreen() uintptr
 	// SetSize Sets the size of this overlay without changing the position. This will set the size of the contents View to match and trigger a re-layout if necessary. |size| is in parent coordinates and any insets configured on this overlay will be ignored. Use this function only for overlays created with a docking mode value of CEF_DOCKING_MODE_CUSTOM. With other docking modes modify the insets of this overlay and/or layout of the contents View and call size_to_preferred_size() instead to calculate the new size and re-position the overlay if necessary.
-	SetSize(size uintptr)
+	SetSize(size *Size)
 	// GetSize Returns the size of this overlay in parent coordinates.
 	GetSize() uintptr
 	// SetPosition Sets the position of this overlay without changing the size. |position| is in parent coordinates and any insets configured on this overlay will be ignored. Use this function only for overlays created with a docking mode value of CEF_DOCKING_MODE_CUSTOM. With other docking modes modify the insets of this overlay and/or layout of the contents View and call size_to_preferred_size() instead to calculate the new size and re-position the overlay if necessary.
-	SetPosition(position uintptr)
+	SetPosition(position *Point)
 	// GetPosition Returns the position of this overlay in parent coordinates.
 	GetPosition() uintptr
 	// SetInsets Sets the insets for this overlay. |insets| is in parent coordinates. Use this function only for overlays created with a docking mode value other than CEF_DOCKING_MODE_CUSTOM.
-	SetInsets(insets uintptr)
+	SetInsets(insets *Insets)
 	// GetInsets Returns the insets for this overlay in parent coordinates.
 	GetInsets() uintptr
 	SizeToPreferredSize()
@@ -76,8 +76,8 @@ func (obj *overlayControllerImpl) Destroy() {
 	obj.rawPtr.CallDestroy()
 }
 
-func (obj *overlayControllerImpl) SetBounds(bounds uintptr) {
-	obj.rawPtr.CallSetBounds(uintptr(bounds))
+func (obj *overlayControllerImpl) SetBounds(bounds *Rect) {
+	obj.rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
 }
 
 func (obj *overlayControllerImpl) GetBounds() uintptr {
@@ -88,24 +88,24 @@ func (obj *overlayControllerImpl) GetBoundsInScreen() uintptr {
 	return uintptr(obj.rawPtr.CallGetBoundsInScreen())
 }
 
-func (obj *overlayControllerImpl) SetSize(size uintptr) {
-	obj.rawPtr.CallSetSize(uintptr(size))
+func (obj *overlayControllerImpl) SetSize(size *Size) {
+	obj.rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *overlayControllerImpl) GetSize() uintptr {
 	return uintptr(obj.rawPtr.CallGetSize())
 }
 
-func (obj *overlayControllerImpl) SetPosition(position uintptr) {
-	obj.rawPtr.CallSetPosition(uintptr(position))
+func (obj *overlayControllerImpl) SetPosition(position *Point) {
+	obj.rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
 }
 
 func (obj *overlayControllerImpl) GetPosition() uintptr {
 	return uintptr(obj.rawPtr.CallGetPosition())
 }
 
-func (obj *overlayControllerImpl) SetInsets(insets uintptr) {
-	obj.rawPtr.CallSetInsets(uintptr(insets))
+func (obj *overlayControllerImpl) SetInsets(insets *Insets) {
+	obj.rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
 }
 
 func (obj *overlayControllerImpl) GetInsets() uintptr {

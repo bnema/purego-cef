@@ -111,7 +111,7 @@ type ContextMenuHandler interface {
 	// OnContextMenuDismissed Called when the context menu is dismissed irregardless of whether the menu was canceled or a command was selected.
 	OnContextMenuDismissed(browser Browser, frame Frame)
 	// RunQuickMenu Called to allow custom display of the quick menu for a windowless browser. |location| is the top left corner of the selected region. |size| is the size of the selected region. |edit_state_flags| is a combination of flags that represent the state of the quick menu. Return true (1) if the menu will be handled and execute |callback| either synchronously or asynchronously with the selected command ID. Return false (0) to cancel the menu.
-	RunQuickMenu(browser Browser, frame Frame, location uintptr, size uintptr, editStateFlags QuickMenuEditStateFlags, callback RunQuickMenuCallback) int32
+	RunQuickMenu(browser Browser, frame Frame, location *Point, size *Size, editStateFlags QuickMenuEditStateFlags, callback RunQuickMenuCallback) int32
 	// OnQuickMenuCommand Called to execute a command selected from the quick menu for a windowless browser. Return true (1) if the command was handled or false (0) for the default implementation. See cef_menu_id_t for command IDs that have default implementations.
 	OnQuickMenuCommand(browser Browser, frame Frame, commandID int32, eventFlags EventFlags) int32
 	// OnQuickMenuDismissed Called when the quick menu for a windowless browser is dismissed irregardless of whether the menu was canceled or a command was selected.
@@ -159,8 +159,8 @@ func NewContextMenuHandler(impl ContextMenuHandler) unsafe.Pointer {
 	r.OverrideRunQuickMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
-		location := uintptr(arg2)
-		size := uintptr(arg3)
+		location := (*Point)(unsafe.Pointer(arg2))
+		size := (*Size)(unsafe.Pointer(arg3))
 		editStateFlags := QuickMenuEditStateFlags(arg4)
 		callback := wrapRunQuickMenuCallback(unsafe.Pointer(arg5))
 		return uintptr(impl.RunQuickMenu(browser, frame, location, size, editStateFlags, callback))
@@ -303,7 +303,7 @@ func (obj *contextMenuParamsImpl) GetMisspelledWord() string {
 }
 
 func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions uintptr) int32 {
-	return int32(obj.rawPtr.CallGetDictionarySuggestions(uintptr(suggestions)))
+	return int32(obj.rawPtr.CallGetDictionarySuggestions(suggestions))
 }
 
 func (obj *contextMenuParamsImpl) IsEditable() bool {

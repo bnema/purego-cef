@@ -66,8 +66,8 @@ func wrapThread(ptr unsafe.Pointer) Thread {
 }
 
 // ThreadCreate wraps the CEF CEFThreadCreate function.
-func ThreadCreate(displayName string, priority ThreadPriority, messageLoopType MessageLoopType, stoppable int32, comInitMode ComInitMode) uintptr {
-	// TODO: marshal args, call raw.CEFThreadCreate(...), marshal return
-	_ = raw.CEFThreadCreate
-	return 0
+func ThreadCreate(displayName string, priority ThreadPriority, messageLoopType MessageLoopType, stoppable int32, comInitMode ComInitMode) Thread {
+	displayNameStr := cefString(displayName)
+	defer freeCefString(&displayNameStr)
+	return wrapThread(raw.CEFThreadCreate(unsafe.Pointer(&displayNameStr), raw.CEFThreadPriorityT(priority), raw.CEFMessageLoopTypeT(messageLoopType), stoppable, raw.CEFComInitModeT(comInitMode)))
 }

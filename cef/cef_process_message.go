@@ -78,8 +78,8 @@ func wrapProcessMessage(ptr unsafe.Pointer) ProcessMessage {
 }
 
 // ProcessMessageCreate Create a new cef_process_message_t object with the specified name.
-func ProcessMessageCreate(name string) uintptr {
-	// TODO: marshal args, call raw.CEFProcessMessageCreate(...), marshal return
-	_ = raw.CEFProcessMessageCreate
-	return 0
+func ProcessMessageCreate(name string) ProcessMessage {
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	return wrapProcessMessage(raw.CEFProcessMessageCreate(unsafe.Pointer(&nameStr)))
 }

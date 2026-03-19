@@ -33,6 +33,15 @@ func (d *PublicFileData) NeedsUnsafe() bool {
 			if usesUnsafe(p.PublicType) {
 				return true
 			}
+			// Free func marshaling generates unsafe.Pointer for these kinds.
+			switch p.MarshalKind {
+			case "string", "userfreeString", "dataStruct":
+				return true
+			case "numeric":
+				if p.PublicType == "uintptr" {
+					return true
+				}
+			}
 		}
 	}
 	return false
@@ -54,13 +63,7 @@ func (d *PublicFileData) NeedsMath() bool {
 			}
 		}
 	}
-	for _, ff := range d.FreeFunctions {
-		for _, p := range ff.Params {
-			if p.MarshalKind == "numeric" && (p.PublicType == "float64" || p.PublicType == "float32") {
-				return true
-			}
-		}
-	}
+	// Free functions pass typed values directly to raw funcs — no math.Float64bits needed.
 	return false
 }
 
@@ -104,7 +107,8 @@ type InterfaceData struct {
 type MethodData struct {
 	Name            string // "GetHost"
 	Doc             string
-	Params          []ParamData
+	Params          []ParamData // Public params (may have count+pointer merged into slices)
+	RawParams       []ParamData // Original unmerged params (for handler callback signatures)
 	Return          ReturnData
 	IsGetter        bool   // only self param, returns handler pointer
 	GetterInterface string // for getters: "LifeSpanHandler"
@@ -116,7 +120,13 @@ type ParamData struct {
 	Name        string // "browser"
 	PublicType  string // "Browser"
 	CType       string // original C type for marshal decisions
-	MarshalKind string // "interface", "string", "enum", "numeric", "pointer", "userfreeString"
+	MarshalKind string // "interface", "string", "enum", "numeric", "pointer", "userfreeString", "slice"
+	RawGoType   string // raw Go type for free func params (e.g., "raw.CEFJsonParserOptionsT")
+
+	// For MarshalKind "slice": describes how to decode from raw callback args.
+	SliceCountArg string // raw arg name for the count (e.g., "arg2")
+	SlicePtrArg   string // raw arg name for the pointer (e.g., "arg3")
+	SliceElemType string // element type (e.g., "Rect")
 }
 
 // ReturnData represents a method return type.

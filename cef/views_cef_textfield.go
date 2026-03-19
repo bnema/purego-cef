@@ -38,7 +38,7 @@ type Textfield interface {
 	// GetSelectedRange Returns the selected logical text range.
 	GetSelectedRange() uintptr
 	// SelectRange Selects the specified logical text range.
-	SelectRange(range_ uintptr)
+	SelectRange(range_ *Range)
 	// GetCursorPosition Returns the current cursor position.
 	GetCursorPosition() int
 	// SetTextColor Sets the text color.
@@ -56,9 +56,9 @@ type Textfield interface {
 	// SetFontList Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>", where: - FONT_FAMILY_LIST is a comma-separated list of font family names, - STYLES is an optional space-separated list of style names (case-   sensitive "Bold" and "Italic" are supported), and - SIZE is an integer font size in pixels with the suffix "px". Here are examples of valid font description strings: - "Arial, Helvetica, Bold Italic 14px" - "Arial, 14px"
 	SetFontList(fontList string)
 	// ApplyTextColor Applies |color| to the specified |range| without changing the default color. If |range| is NULL the color will be set on the complete text contents.
-	ApplyTextColor(color uintptr, range_ uintptr)
+	ApplyTextColor(color uintptr, range_ *Range)
 	// ApplyTextStyle Applies |style| to the specified |range| without changing the default style. If |add| is true (1) the style will be added, otherwise the style will be removed. If |range| is NULL the style will be set on the complete text contents.
-	ApplyTextStyle(style TextStyle, add int32, range_ uintptr)
+	ApplyTextStyle(style TextStyle, add int32, range_ *Range)
 	// IsCommandEnabled Returns true (1) if the action associated with the specified command id is enabled. See additional comments on execute_command().
 	IsCommandEnabled(commandID TextFieldCommands) bool
 	ExecuteCommand(commandID TextFieldCommands)
@@ -136,8 +136,8 @@ func (obj *textfieldImpl) GetSelectedRange() uintptr {
 	return uintptr(obj.rawPtr.CallGetSelectedRange())
 }
 
-func (obj *textfieldImpl) SelectRange(range_ uintptr) {
-	obj.rawPtr.CallSelectRange(uintptr(range_))
+func (obj *textfieldImpl) SelectRange(range_ *Range) {
+	obj.rawPtr.CallSelectRange(uintptr(unsafe.Pointer(range_)))
 }
 
 func (obj *textfieldImpl) GetCursorPosition() int {
@@ -145,7 +145,7 @@ func (obj *textfieldImpl) GetCursorPosition() int {
 }
 
 func (obj *textfieldImpl) SetTextColor(color uintptr) {
-	obj.rawPtr.CallSetTextColor(uintptr(color))
+	obj.rawPtr.CallSetTextColor(color)
 }
 
 func (obj *textfieldImpl) GetTextColor() uintptr {
@@ -153,7 +153,7 @@ func (obj *textfieldImpl) GetTextColor() uintptr {
 }
 
 func (obj *textfieldImpl) SetSelectionTextColor(color uintptr) {
-	obj.rawPtr.CallSetSelectionTextColor(uintptr(color))
+	obj.rawPtr.CallSetSelectionTextColor(color)
 }
 
 func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
@@ -161,7 +161,7 @@ func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
 }
 
 func (obj *textfieldImpl) SetSelectionBackgroundColor(color uintptr) {
-	obj.rawPtr.CallSetSelectionBackgroundColor(uintptr(color))
+	obj.rawPtr.CallSetSelectionBackgroundColor(color)
 }
 
 func (obj *textfieldImpl) GetSelectionBackgroundColor() uintptr {
@@ -174,12 +174,12 @@ func (obj *textfieldImpl) SetFontList(fontList string) {
 	obj.rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
 }
 
-func (obj *textfieldImpl) ApplyTextColor(color uintptr, range_ uintptr) {
-	obj.rawPtr.CallApplyTextColor(uintptr(color), uintptr(range_))
+func (obj *textfieldImpl) ApplyTextColor(color uintptr, range_ *Range) {
+	obj.rawPtr.CallApplyTextColor(color, uintptr(unsafe.Pointer(range_)))
 }
 
-func (obj *textfieldImpl) ApplyTextStyle(style TextStyle, add int32, range_ uintptr) {
-	obj.rawPtr.CallApplyTextStyle(uintptr(style), uintptr(add), uintptr(range_))
+func (obj *textfieldImpl) ApplyTextStyle(style TextStyle, add int32, range_ *Range) {
+	obj.rawPtr.CallApplyTextStyle(uintptr(style), uintptr(add), uintptr(unsafe.Pointer(range_)))
 }
 
 func (obj *textfieldImpl) IsCommandEnabled(commandID TextFieldCommands) bool {
@@ -205,7 +205,7 @@ func (obj *textfieldImpl) GetPlaceholderText() string {
 }
 
 func (obj *textfieldImpl) SetPlaceholderTextColor(color uintptr) {
-	obj.rawPtr.CallSetPlaceholderTextColor(uintptr(color))
+	obj.rawPtr.CallSetPlaceholderTextColor(color)
 }
 
 func (obj *textfieldImpl) SetAccessibleName(name string) {
@@ -240,8 +240,6 @@ func wrapTextfield(ptr unsafe.Pointer) Textfield {
 }
 
 // TextfieldCreate Create a new Textfield.
-func TextfieldCreate(delegate TextfieldDelegate) uintptr {
-	// TODO: marshal args, call raw.CEFTextfieldCreate(...), marshal return
-	_ = raw.CEFTextfieldCreate
-	return 0
+func TextfieldCreate(delegate TextfieldDelegate) Textfield {
+	return wrapTextfield(raw.CEFTextfieldCreate(extractRawPointer(delegate)))
 }

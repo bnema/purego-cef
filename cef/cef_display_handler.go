@@ -28,17 +28,17 @@ type DisplayHandler interface {
 	// OnConsoleMessage Called to display a console message. Return true (1) to stop the message from being output to the console.
 	OnConsoleMessage(browser Browser, level LogSeverity, message string, source string, line int32) int32
 	// OnAutoResize Called when auto-resize is enabled via cef_browser_host_t::SetAutoResizeEnabled and the contents have auto- resized. |new_size| will be the desired size in DIP coordinates. Return true (1) if the resize was handled or false (0) for default handling.
-	OnAutoResize(browser Browser, newSize uintptr) int32
+	OnAutoResize(browser Browser, newSize *Size) int32
 	// OnLoadingProgressChange Called when the overall page loading progress has changed. |progress| ranges from 0.0 to 1.0.
 	OnLoadingProgressChange(browser Browser, progress float64)
 	// OnCursorChange Called when the browser's cursor has changed. If |type| is CT_CUSTOM then |custom_cursor_info| will be populated with the custom cursor information. Return true (1) if the cursor change was handled or false (0) for default handling.
-	OnCursorChange(browser Browser, cursor uintptr, type_ CursorType, customCursorInfo uintptr) int32
+	OnCursorChange(browser Browser, cursor uintptr, type_ CursorType, customCursorInfo *CursorInfo) int32
 	// OnMediaAccessChange Called when the browser's access to an audio and/or video source has changed.
 	OnMediaAccessChange(browser Browser, hasVideoAccess int32, hasAudioAccess int32)
 	// OnContentsBoundsChange Called when JavaScript is requesting new bounds via window.moveTo/By() or window.resizeTo/By(). |new_bounds| are in DIP screen coordinates. With Views-hosted browsers |new_bounds| are the desired bounds for the containing cef_window_t and may be passed directly to cef_window_t::SetBounds. With external (client-provided) parent on macOS and Windows |new_bounds| are the desired frame bounds for the containing root window. With other non-Views browsers |new_bounds| are the desired bounds for the browser content only unless the client implements either cef_display_handler_t::GetRootWindowScreenRect for windowed browsers or cef_render_handler_t::GetWindowScreenRect for windowless browsers. Clients may expand browser content bounds to window bounds using OS-specific or cef_display_t functions. Return true (1) if this function was handled or false (0) for default handling. Default move/resize behavior is only provided with Views-hosted Chrome style browsers.
-	OnContentsBoundsChange(browser Browser, newBounds uintptr) int32
+	OnContentsBoundsChange(browser Browser, newBounds *Rect) int32
 	// GetRootWindowScreenRect Called to retrieve the external (client-provided) root window rectangle in screen DIP coordinates. Only called for windowed browsers on Windows and Linux. Return true (1) if the rectangle was provided. Return false (0) to use the root window bounds on Windows or the browser content bounds on Linux. For additional usage details see cef_browser_host_t::NotifyScreenInfoChanged.
-	GetRootWindowScreenRect(browser Browser, rect uintptr) int32
+	GetRootWindowScreenRect(browser Browser, rect *Rect) int32
 }
 
 // NewDisplayHandler creates a CEF handler backed by the given implementation.
@@ -95,7 +95,7 @@ func NewDisplayHandler(impl DisplayHandler) unsafe.Pointer {
 
 	r.OverrideOnAutoResize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		newSize := uintptr(arg1)
+		newSize := (*Size)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnAutoResize(browser, newSize))
 	}))
 
@@ -109,7 +109,7 @@ func NewDisplayHandler(impl DisplayHandler) unsafe.Pointer {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		cursor := uintptr(arg1)
 		type_ := CursorType(arg2)
-		customCursorInfo := uintptr(arg3)
+		customCursorInfo := (*CursorInfo)(unsafe.Pointer(arg3))
 		return uintptr(impl.OnCursorChange(browser, cursor, type_, customCursorInfo))
 	}))
 
@@ -122,13 +122,13 @@ func NewDisplayHandler(impl DisplayHandler) unsafe.Pointer {
 
 	r.OverrideOnContentsBoundsChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		newBounds := uintptr(arg1)
+		newBounds := (*Rect)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnContentsBoundsChange(browser, newBounds))
 	}))
 
 	r.OverrideGetRootWindowScreenRect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		rect := uintptr(arg1)
+		rect := (*Rect)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetRootWindowScreenRect(browser, rect))
 	}))
 

@@ -21,7 +21,7 @@ type WindowDelegate interface {
 	// OnWindowActivationChanged Called when |window| is activated or deactivated.
 	OnWindowActivationChanged(window Window, active int32)
 	// OnWindowBoundsChanged Called when |window| bounds have changed. |new_bounds| will be in DIP screen coordinates.
-	OnWindowBoundsChanged(window Window, newBounds uintptr)
+	OnWindowBoundsChanged(window Window, newBounds *Rect)
 	// OnWindowFullscreenTransition Called when |window| is transitioning to or from fullscreen mode. On MacOS the transition occurs asynchronously with |is_competed| set to false (0) when the transition starts and true (1) after the transition completes. On other platforms the transition occurs synchronously with |is_completed| set to true (1) after the transition completes. With Alloy style you must also implement cef_display_handler_t::OnFullscreenModeChange to handle fullscreen transitions initiated by browser content.
 	OnWindowFullscreenTransition(window Window, isCompleted int32)
 	// GetParentWindow Return the parent for |window| or NULL if the |window| does not have a parent. Windows with parents will not get a taskbar button. Set |is_menu| to true (1) if |window| will be displayed as a menu, in which case it will not be clipped to the parent window bounds. Set |can_activate_menu| to false (0) if |is_menu| is true (1) and |window| should not be activated (given keyboard focus) when displayed.
@@ -50,7 +50,7 @@ type WindowDelegate interface {
 	// OnAccelerator Called when a keyboard accelerator registered with cef_window_t::SetAccelerator is triggered. Return true (1) if the accelerator was handled or false (0) otherwise.
 	OnAccelerator(window Window, commandID int32) int32
 	// OnKeyEvent Called after all other controls in the window have had a chance to handle the event. |event| contains information about the keyboard event. Return true (1) if the keyboard event was handled or false (0) otherwise.
-	OnKeyEvent(window Window, event uintptr) int32
+	OnKeyEvent(window Window, event *KeyEvent) int32
 	// OnThemeColorsChanged Called after the native/OS or Chrome theme for |window| has changed. |chrome_theme| will be true (1) if the notification is for a Chrome theme. Native/OS theme colors are configured globally and do not need to be customized for each Window individually. An example of a native/OS theme change that triggers this callback is when the user switches between dark and light mode during application lifespan. Native/OS theme changes can be disabled by passing the `--force-dark-mode` or `--force-light-mode` command-line flag. Chrome theme colors will be applied and this callback will be triggered if/when a BrowserView is added to the Window's component hierarchy. Chrome theme colors can be configured on a per-RequestContext basis using cef_request_context_t::SetChromeColorScheme or (Chrome style only) by visiting chrome://settings/manageProfile. Any theme changes using those mechanisms will also trigger this callback. Chrome theme colors will be persisted and restored from disk cache. This callback is not triggered on Window creation so clients that wish to customize the initial native/OS theme must call cef_window_t::SetThemeColor and cef_window_t::ThemeChanged before showing the first Window. Theme colors will be reset to standard values before this callback is called for the first affected Window. Call cef_window_t::SetThemeColor from inside this callback to override a standard color or add a custom color. cef_view_delegate_t::OnThemeChanged will be called after this callback for the complete |window| component hierarchy.
 	OnThemeColorsChanged(window Window, chromeTheme int32)
 	// GetWindowRuntimeStyle Optionally change the runtime style for this Window. See cef_runtime_style_t documentation for details.
@@ -88,7 +88,7 @@ func NewWindowDelegate(impl WindowDelegate) unsafe.Pointer {
 
 	r.OverrideOnWindowBoundsChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		window := wrapWindow(unsafe.Pointer(arg0))
-		newBounds := uintptr(arg1)
+		newBounds := (*Rect)(unsafe.Pointer(arg1))
 		impl.OnWindowBoundsChanged(window, newBounds)
 	}))
 
@@ -187,7 +187,7 @@ func NewWindowDelegate(impl WindowDelegate) unsafe.Pointer {
 
 	r.OverrideOnKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
-		event := uintptr(arg1)
+		event := (*KeyEvent)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnKeyEvent(window, event))
 	}))
 

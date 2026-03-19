@@ -72,7 +72,7 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 	defer freeCefString(&codeStr)
 	scriptURLStr := cefString(scriptURL)
 	defer freeCefString(&scriptURLStr)
-	return int32(obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception)))
+	return int32(obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(extractRawPointer(retval)), uintptr(extractRawPointer(exception))))
 }
 
 func (obj *v8ContextImpl) rawPointer() unsafe.Pointer {
@@ -622,7 +622,7 @@ func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattri
 }
 
 func (obj *v8ValueImpl) GetKeys(keys uintptr) int32 {
-	return int32(obj.rawPtr.CallGetKeys(uintptr(keys)))
+	return int32(obj.rawPtr.CallGetKeys(keys))
 }
 
 func (obj *v8ValueImpl) SetUserData(userData *BaseRefCounted) int32 {
@@ -845,134 +845,99 @@ func wrapV8StackFrame(ptr unsafe.Pointer) V8StackFrame {
 }
 
 // V8ContextGetCurrentContext Returns the current (top) context object in the V8 context stack.
-func V8ContextGetCurrentContext() uintptr {
-	// TODO: marshal args, call raw.CEFV8ContextGetCurrentContext(...), marshal return
-	_ = raw.CEFV8ContextGetCurrentContext
-	return 0
+func V8ContextGetCurrentContext() V8Context {
+	return wrapV8Context(raw.CEFV8ContextGetCurrentContext())
 }
 
 // V8ContextGetEnteredContext Returns the entered (bottom) context object in the V8 context stack.
-func V8ContextGetEnteredContext() uintptr {
-	// TODO: marshal args, call raw.CEFV8ContextGetEnteredContext(...), marshal return
-	_ = raw.CEFV8ContextGetEnteredContext
-	return 0
+func V8ContextGetEnteredContext() V8Context {
+	return wrapV8Context(raw.CEFV8ContextGetEnteredContext())
 }
 
 // V8ContextInContext Returns true (1) if V8 is currently inside a context.
 func V8ContextInContext() int32 {
-	// TODO: marshal args, call raw.CEFV8ContextInContext(...), marshal return
-	_ = raw.CEFV8ContextInContext
-	return 0
+	return int32(raw.CEFV8ContextInContext())
 }
 
 // V8ValueCreateUndefined Create a new cef_v8_value_t object of type undefined.
-func V8ValueCreateUndefined() uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateUndefined(...), marshal return
-	_ = raw.CEFV8ValueCreateUndefined
-	return 0
+func V8ValueCreateUndefined() V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateUndefined())
 }
 
 // V8ValueCreateNull Create a new cef_v8_value_t object of type null.
-func V8ValueCreateNull() uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateNull(...), marshal return
-	_ = raw.CEFV8ValueCreateNull
-	return 0
+func V8ValueCreateNull() V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateNull())
 }
 
 // V8ValueCreateBool Create a new cef_v8_value_t object of type bool.
-func V8ValueCreateBool(value int32) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateBool(...), marshal return
-	_ = raw.CEFV8ValueCreateBool
-	return 0
+func V8ValueCreateBool(value int32) V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateBool(value))
 }
 
 // V8ValueCreateInt Create a new cef_v8_value_t object of type int.
-func V8ValueCreateInt(value int32) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateInt(...), marshal return
-	_ = raw.CEFV8ValueCreateInt
-	return 0
+func V8ValueCreateInt(value int32) V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateInt(value))
 }
 
 // V8ValueCreateUint Create a new cef_v8_value_t object of type unsigned int.
-func V8ValueCreateUint(value uint32) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateUint(...), marshal return
-	_ = raw.CEFV8ValueCreateUint
-	return 0
+func V8ValueCreateUint(value uint32) V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateUint(value))
 }
 
 // V8ValueCreateDouble Create a new cef_v8_value_t object of type double.
-func V8ValueCreateDouble(value float64) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateDouble(...), marshal return
-	_ = raw.CEFV8ValueCreateDouble
-	return 0
-}
-
-// V8ValueCreateDate Create a new cef_v8_value_t object of type Date. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
-func V8ValueCreateDate(date uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateDate(...), marshal return
-	_ = raw.CEFV8ValueCreateDate
-	return 0
+func V8ValueCreateDouble(value float64) V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateDouble(value))
 }
 
 // V8ValueCreateString Create a new cef_v8_value_t object of type string.
-func V8ValueCreateString(value string) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateString(...), marshal return
-	_ = raw.CEFV8ValueCreateString
-	return 0
+func V8ValueCreateString(value string) V8Value {
+	valueStr := cefString(value)
+	defer freeCefString(&valueStr)
+	return wrapV8Value(raw.CEFV8ValueCreateString(unsafe.Pointer(&valueStr)))
 }
 
 // V8ValueCreateObject wraps the CEF CEFV8ValueCreateObject function.
-func V8ValueCreateObject(accessor uintptr, interceptor uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateObject(...), marshal return
-	_ = raw.CEFV8ValueCreateObject
-	return 0
+func V8ValueCreateObject(accessor V8Accessor, interceptor V8Interceptor) V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateObject(extractRawPointer(accessor), extractRawPointer(interceptor)))
 }
 
 // V8ValueCreateArray Create a new cef_v8_value_t object of type array with the specified |length|. If |length| is negative the returned array will have length 0. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
-func V8ValueCreateArray(length int32) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateArray(...), marshal return
-	_ = raw.CEFV8ValueCreateArray
-	return 0
+func V8ValueCreateArray(length int32) V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateArray(length))
 }
 
 // V8ValueCreateArrayBuffer Create a new cef_v8_value_t object of type ArrayBuffer which wraps the provided |buffer| of size |length| bytes. The ArrayBuffer is externalized, meaning that it does not own |buffer|. The caller is responsible for freeing |buffer| when requested via a call to cef_v8_array_buffer_release_callback_t::ReleaseBuffer. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference. NOTE: Always returns nullptr when V8 sandbox is enabled.
-func V8ValueCreateArrayBuffer(buffer unsafe.Pointer, length int, releaseCallback uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateArrayBuffer(...), marshal return
-	_ = raw.CEFV8ValueCreateArrayBuffer
-	return 0
+func V8ValueCreateArrayBuffer(buffer unsafe.Pointer, length int, releaseCallback V8ArrayBufferReleaseCallback) V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateArrayBuffer(buffer, uintptr(length), extractRawPointer(releaseCallback)))
 }
 
 // V8ValueCreateArrayBufferWithCopy Create a new cef_v8_value_t object of type ArrayBuffer which copies the provided |buffer| of size |length| bytes. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
-func V8ValueCreateArrayBufferWithCopy(buffer unsafe.Pointer, length int) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateArrayBufferWithCopy(...), marshal return
-	_ = raw.CEFV8ValueCreateArrayBufferWithCopy
-	return 0
+func V8ValueCreateArrayBufferWithCopy(buffer unsafe.Pointer, length int) V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreateArrayBufferWithCopy(buffer, uintptr(length)))
 }
 
 // V8ValueCreateFunction Create a new cef_v8_value_t object of type function. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
-func V8ValueCreateFunction(name string, handler uintptr) uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreateFunction(...), marshal return
-	_ = raw.CEFV8ValueCreateFunction
-	return 0
+func V8ValueCreateFunction(name string, handler V8Handler) V8Value {
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	return wrapV8Value(raw.CEFV8ValueCreateFunction(unsafe.Pointer(&nameStr), extractRawPointer(handler)))
 }
 
 // V8ValueCreatePromise Create a new cef_v8_value_t object of type Promise. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
-func V8ValueCreatePromise() uintptr {
-	// TODO: marshal args, call raw.CEFV8ValueCreatePromise(...), marshal return
-	_ = raw.CEFV8ValueCreatePromise
-	return 0
+func V8ValueCreatePromise() V8Value {
+	return wrapV8Value(raw.CEFV8ValueCreatePromise())
 }
 
 // V8StackTraceGetCurrent Returns the stack trace for the currently active context. |frame_limit| is the maximum number of frames that will be captured.
-func V8StackTraceGetCurrent(frameLimit int32) uintptr {
-	// TODO: marshal args, call raw.CEFV8StackTraceGetCurrent(...), marshal return
-	_ = raw.CEFV8StackTraceGetCurrent
-	return 0
+func V8StackTraceGetCurrent(frameLimit int32) V8StackTrace {
+	return wrapV8StackTrace(raw.CEFV8StackTraceGetCurrent(frameLimit))
 }
 
 // RegisterExtension Register a new V8 extension with the specified JavaScript extension code and handler. Functions implemented by the handler are prototyped using the keyword 'native'. The calling of a native function is restricted to the scope in which the prototype of the native function is defined. This function may only be called on the render process main thread. Example JavaScript extension code: <pre>   // create the 'example' global object if it doesn't already exist.   if (!example)     example = {};   // create the 'example.test' global object if it doesn't already exist.   if (!example.test)     example.test = {};   (function() {     // Define the function 'example.test.myfunction'.     example.test.myfunction = function() {       // Call CefV8Handler::Execute() with the function name 'MyFunction'       // and no arguments.       native function MyFunction();       return MyFunction();     };     // Define the getter function for parameter 'example.test.myparam'.     example.test.__defineGetter__('myparam', function() {       // Call CefV8Handler::Execute() with the function name 'GetMyParam'       // and no arguments.       native function GetMyParam();       return GetMyParam();     });     // Define the setter function for parameter 'example.test.myparam'.     example.test.__defineSetter__('myparam', function(b) {       // Call CefV8Handler::Execute() with the function name 'SetMyParam'       // and a single argument.       native function SetMyParam();       if(b) SetMyParam(b);     });     // Extension definitions can also contain normal JavaScript variables     // and functions.     var myint = 0;     example.test.increment = function() {       myint += 1;       return myint;     };   })(); </pre> Example usage in the page: <pre>   // Call the function.   example.test.myfunction();   // Set the parameter.   example.test.myparam = value;   // Get the parameter.   value = example.test.myparam;   // Call another function.   example.test.increment(); </pre>
-func RegisterExtension(extensionName string, javascriptCode string, handler uintptr) int32 {
-	// TODO: marshal args, call raw.CEFRegisterExtension(...), marshal return
-	_ = raw.CEFRegisterExtension
-	return 0
+func RegisterExtension(extensionName string, javascriptCode string, handler V8Handler) int32 {
+	extensionNameStr := cefString(extensionName)
+	defer freeCefString(&extensionNameStr)
+	javascriptCodeStr := cefString(javascriptCode)
+	defer freeCefString(&javascriptCodeStr)
+	return int32(raw.CEFRegisterExtension(unsafe.Pointer(&extensionNameStr), unsafe.Pointer(&javascriptCodeStr), extractRawPointer(handler)))
 }

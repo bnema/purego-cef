@@ -15,9 +15,9 @@ type ResourceBundleHandler interface {
 	// GetLocalizedString Called to retrieve a localized translation for the specified |string_id|. To provide the translation set |string| to the translation string and return true (1). To use the default translation return false (0). Use the cef_id_for_pack_string_name() function for version-safe mapping of string IDS names from cef_pack_strings.h to version-specific numerical |string_id| values.
 	GetLocalizedString(stringID int32, string uintptr) int32
 	// GetDataResource Called to retrieve data for the specified scale independent |resource_id|. To provide the resource data set |data| and |data_size| to the data pointer and size respectively and return true (1). To use the default resource data return false (0). The resource data will not be copied and must remain resident in memory. Use the cef_id_for_pack_resource_name() function for version-safe mapping of resource IDR names from cef_pack_resources.h to version-specific numerical |resource_id| values.
-	GetDataResource(resourceID int32, data uintptr, dataSize *int) int32
+	GetDataResource(resourceID int32, data unsafe.Pointer, dataSize *int) int32
 	// GetDataResourceForScale Called to retrieve data for the specified |resource_id| nearest the scale factor |scale_factor|. To provide the resource data set |data| and |data_size| to the data pointer and size respectively and return true (1). To use the default resource data return false (0). The resource data will not be copied and must remain resident in memory. Use the cef_id_for_pack_resource_name() function for version-safe mapping of resource IDR names from cef_pack_resources.h to version-specific numerical |resource_id| values.
-	GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor, data uintptr, dataSize *int) int32
+	GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor, data unsafe.Pointer, dataSize *int) int32
 }
 
 // NewResourceBundleHandler creates a CEF handler backed by the given implementation.
@@ -34,7 +34,7 @@ func NewResourceBundleHandler(impl ResourceBundleHandler) unsafe.Pointer {
 
 	r.OverrideGetDataResource(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		resourceID := int32(arg0)
-		data := uintptr(arg1)
+		data := unsafe.Pointer(arg1)
 		dataSize := (*int)(unsafe.Pointer(arg2))
 		return uintptr(impl.GetDataResource(resourceID, data, dataSize))
 	}))
@@ -42,7 +42,7 @@ func NewResourceBundleHandler(impl ResourceBundleHandler) unsafe.Pointer {
 	r.OverrideGetDataResourceForScale(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		resourceID := int32(arg0)
 		scaleFactor := ScaleFactor(arg1)
-		data := uintptr(arg2)
+		data := unsafe.Pointer(arg2)
 		dataSize := (*int)(unsafe.Pointer(arg3))
 		return uintptr(impl.GetDataResourceForScale(resourceID, scaleFactor, data, dataSize))
 	}))

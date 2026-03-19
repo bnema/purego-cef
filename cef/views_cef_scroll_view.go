@@ -85,8 +85,6 @@ func wrapScrollView(ptr unsafe.Pointer) ScrollView {
 }
 
 // ScrollViewCreate Create a new ScrollView.
-func ScrollViewCreate(delegate ViewDelegate) uintptr {
-	// TODO: marshal args, call raw.CEFScrollViewCreate(...), marshal return
-	_ = raw.CEFScrollViewCreate
-	return 0
+func ScrollViewCreate(delegate ViewDelegate) ScrollView {
+	return wrapScrollView(raw.CEFScrollViewCreate(extractRawPointer(delegate)))
 }

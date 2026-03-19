@@ -122,8 +122,6 @@ func wrapImage(ptr unsafe.Pointer) Image {
 }
 
 // ImageCreate Create a new cef_image_t. It will initially be NULL. Use the Add*() functions to add representations at different scale factors.
-func ImageCreate() uintptr {
-	// TODO: marshal args, call raw.CEFImageCreate(...), marshal return
-	_ = raw.CEFImageCreate
-	return 0
+func ImageCreate() Image {
+	return wrapImage(raw.CEFImageCreate())
 }

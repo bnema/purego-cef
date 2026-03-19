@@ -13,8 +13,8 @@ import (
 // KeyboardHandler Implement this structure to handle events related to keyboard input. The functions of this structure will be called on the UI thread.
 type KeyboardHandler interface {
 	// OnPreKeyEvent Called before a keyboard event is sent to the renderer. |event| contains information about the keyboard event. |os_event| is the operating system event message, if any. Return true (1) if the event was handled or false (0) otherwise. If the event will be handled in on_key_event() as a keyboard shortcut set |is_keyboard_shortcut| to true (1) and return false (0).
-	OnPreKeyEvent(browser Browser, event uintptr, osEvent uintptr, isKeyboardShortcut unsafe.Pointer) int32
-	OnKeyEvent(browser Browser, event uintptr, osEvent uintptr) int32
+	OnPreKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr, isKeyboardShortcut unsafe.Pointer) int32
+	OnKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr) int32
 }
 
 // NewKeyboardHandler creates a CEF handler backed by the given implementation.
@@ -25,7 +25,7 @@ func NewKeyboardHandler(impl KeyboardHandler) unsafe.Pointer {
 
 	r.OverrideOnPreKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		event := uintptr(arg1)
+		event := (*KeyEvent)(unsafe.Pointer(arg1))
 		osEvent := uintptr(arg2)
 		isKeyboardShortcut := unsafe.Pointer(arg3)
 		return uintptr(impl.OnPreKeyEvent(browser, event, osEvent, isKeyboardShortcut))
@@ -33,7 +33,7 @@ func NewKeyboardHandler(impl KeyboardHandler) unsafe.Pointer {
 
 	r.OverrideOnKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		event := uintptr(arg1)
+		event := (*KeyEvent)(unsafe.Pointer(arg1))
 		osEvent := uintptr(arg2)
 		return uintptr(impl.OnKeyEvent(browser, event, osEvent))
 	}))

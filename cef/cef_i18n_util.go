@@ -8,7 +8,5 @@ import (
 
 // IsRtl Returns true (1) if the application text direction is right-to-left.
 func IsRtl() int32 {
-	// TODO: marshal args, call raw.CEFIsRtl(...), marshal return
-	_ = raw.CEFIsRtl
-	return 0
+	return int32(raw.CEFIsRtl())
 }

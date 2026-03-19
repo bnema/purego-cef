@@ -229,8 +229,8 @@ func wrapXmlReader(ptr unsafe.Pointer) XmlReader {
 }
 
 // XmlReaderCreate Create a new cef_xml_reader_t object. The returned object's functions can only be called from the thread that created the object.
-func XmlReaderCreate(stream StreamReader, encodingtype XmlEncodingType, uri string) uintptr {
-	// TODO: marshal args, call raw.CEFXmlReaderCreate(...), marshal return
-	_ = raw.CEFXmlReaderCreate
-	return 0
+func XmlReaderCreate(stream StreamReader, encodingtype XmlEncodingType, uri string) XmlReader {
+	uriStr := cefString(uri)
+	defer freeCefString(&uriStr)
+	return wrapXmlReader(raw.CEFXmlReaderCreate(extractRawPointer(stream), raw.CEFXmlEncodingTypeT(encodingtype), unsafe.Pointer(&uriStr)))
 }

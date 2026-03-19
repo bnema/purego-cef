@@ -124,11 +124,11 @@ func (obj *dragDataImpl) GetFileContents(writer StreamWriter) int {
 }
 
 func (obj *dragDataImpl) GetFileNames(names uintptr) int32 {
-	return int32(obj.rawPtr.CallGetFileNames(uintptr(names)))
+	return int32(obj.rawPtr.CallGetFileNames(names))
 }
 
 func (obj *dragDataImpl) GetFilePaths(paths uintptr) int32 {
-	return int32(obj.rawPtr.CallGetFilePaths(uintptr(paths)))
+	return int32(obj.rawPtr.CallGetFilePaths(paths))
 }
 
 func (obj *dragDataImpl) SetLinkURL(uRL string) {
@@ -221,8 +221,6 @@ func wrapDragData(ptr unsafe.Pointer) DragData {
 }
 
 // DragDataCreate Create a new cef_drag_data_t object.
-func DragDataCreate() uintptr {
-	// TODO: marshal args, call raw.CEFDragDataCreate(...), marshal return
-	_ = raw.CEFDragDataCreate
-	return 0
+func DragDataCreate() DragData {
+	return wrapDragData(raw.CEFDragDataCreate())
 }

@@ -71,8 +71,6 @@ func wrapWaitableEvent(ptr unsafe.Pointer) WaitableEvent {
 }
 
 // WaitableEventCreate Create a new waitable event. If |automatic_reset| is true (1) then the event state is automatically reset to un-signaled after a single waiting thread has been released; otherwise, the state remains signaled until reset() is called manually. If |initially_signaled| is true (1) then the event will start in the signaled state.
-func WaitableEventCreate(automaticReset int32, initiallySignaled int32) uintptr {
-	// TODO: marshal args, call raw.CEFWaitableEventCreate(...), marshal return
-	_ = raw.CEFWaitableEventCreate
-	return 0
+func WaitableEventCreate(automaticReset int32, initiallySignaled int32) WaitableEvent {
+	return wrapWaitableEvent(raw.CEFWaitableEventCreate(automaticReset, initiallySignaled))
 }

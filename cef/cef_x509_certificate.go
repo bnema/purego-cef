@@ -52,11 +52,11 @@ func (obj *x509CertPrincipalImpl) GetCountryName() string {
 }
 
 func (obj *x509CertPrincipalImpl) GetOrganizationNames(names uintptr) {
-	obj.rawPtr.CallGetOrganizationNames(uintptr(names))
+	obj.rawPtr.CallGetOrganizationNames(names)
 }
 
 func (obj *x509CertPrincipalImpl) GetOrganizationUnitNames(names uintptr) {
-	obj.rawPtr.CallGetOrganizationUnitNames(uintptr(names))
+	obj.rawPtr.CallGetOrganizationUnitNames(names)
 }
 
 func (obj *x509CertPrincipalImpl) rawPointer() unsafe.Pointer {
@@ -145,11 +145,11 @@ func (obj *x509CertificateImpl) GetIssuerChainSize() int {
 }
 
 func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain unsafe.Pointer) {
-	obj.rawPtr.CallGetDerencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(chain))
+	obj.rawPtr.CallGetDerencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(extractRawPointer(chain)))
 }
 
 func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain unsafe.Pointer) {
-	obj.rawPtr.CallGetPemencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(chain))
+	obj.rawPtr.CallGetPemencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(extractRawPointer(chain)))
 }
 
 func (obj *x509CertificateImpl) rawPointer() unsafe.Pointer {

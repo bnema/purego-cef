@@ -108,11 +108,11 @@ func (obj *requestImpl) SetPostData(postdata PostData) {
 }
 
 func (obj *requestImpl) GetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallGetHeaderMap(uintptr(headermap))
+	obj.rawPtr.CallGetHeaderMap(headermap)
 }
 
 func (obj *requestImpl) SetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallSetHeaderMap(uintptr(headermap))
+	obj.rawPtr.CallSetHeaderMap(headermap)
 }
 
 func (obj *requestImpl) GetHeaderByName(name string) string {
@@ -134,7 +134,7 @@ func (obj *requestImpl) Set(uRL string, method string, postdata PostData, header
 	defer freeCefString(&uRLStr)
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
-	obj.rawPtr.CallSet(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(postdata)), uintptr(headermap))
+	obj.rawPtr.CallSet(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(postdata)), headermap)
 }
 
 func (obj *requestImpl) GetFlags() int32 {
@@ -227,7 +227,7 @@ func (obj *postDataImpl) GetElementCount() int {
 }
 
 func (obj *postDataImpl) GetElements(elementscount *int, elements unsafe.Pointer) {
-	obj.rawPtr.CallGetElements(uintptr(unsafe.Pointer(elementscount)), uintptr(elements))
+	obj.rawPtr.CallGetElements(uintptr(unsafe.Pointer(elementscount)), uintptr(extractRawPointer(elements)))
 }
 
 func (obj *postDataImpl) RemoveElement(element PostDataElement) int32 {
@@ -351,22 +351,16 @@ func wrapPostDataElement(ptr unsafe.Pointer) PostDataElement {
 }
 
 // RequestCreate Create a new cef_request_t object.
-func RequestCreate() uintptr {
-	// TODO: marshal args, call raw.CEFRequestCreate(...), marshal return
-	_ = raw.CEFRequestCreate
-	return 0
+func RequestCreate() Request {
+	return wrapRequest(raw.CEFRequestCreate())
 }
 
 // PostDataCreate Create a new cef_post_data_t object.
-func PostDataCreate() uintptr {
-	// TODO: marshal args, call raw.CEFPostDataCreate(...), marshal return
-	_ = raw.CEFPostDataCreate
-	return 0
+func PostDataCreate() PostData {
+	return wrapPostData(raw.CEFPostDataCreate())
 }
 
 // PostDataElementCreate Create a new cef_post_data_element_t object.
-func PostDataElementCreate() uintptr {
-	// TODO: marshal args, call raw.CEFPostDataElementCreate(...), marshal return
-	_ = raw.CEFPostDataElementCreate
-	return 0
+func PostDataElementCreate() PostDataElement {
+	return wrapPostDataElement(raw.CEFPostDataElementCreate())
 }

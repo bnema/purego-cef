@@ -77,15 +77,15 @@ func wrapSchemeHandlerFactory(ptr unsafe.Pointer) SchemeHandlerFactory {
 }
 
 // RegisterSchemeHandlerFactory Register a scheme handler factory with the global request context. An NULL |domain_name| value for a standard scheme will cause the factory to match all domain names. The |domain_name| value will be ignored for non-standard schemes. If |scheme_name| is a built-in scheme and no handler is returned by |factory| then the built-in scheme handler factory will be called. If |scheme_name| is a custom scheme then you must also implement the cef_app_t::on_register_custom_schemes() function in all processes. This function may be called multiple times to change or remove the factory that matches the specified |scheme_name| and optional |domain_name|. Returns false (0) if an error occurs. This function may be called on any thread in the browser process. Using this function is equivalent to calling cef_reques t_context_t::cef_request_context_get_global_context()- >register_scheme_handler_factory().
-func RegisterSchemeHandlerFactory(schemeName string, domainName string, factory uintptr) int32 {
-	// TODO: marshal args, call raw.CEFRegisterSchemeHandlerFactory(...), marshal return
-	_ = raw.CEFRegisterSchemeHandlerFactory
-	return 0
+func RegisterSchemeHandlerFactory(schemeName string, domainName string, factory SchemeHandlerFactory) int32 {
+	schemeNameStr := cefString(schemeName)
+	defer freeCefString(&schemeNameStr)
+	domainNameStr := cefString(domainName)
+	defer freeCefString(&domainNameStr)
+	return int32(raw.CEFRegisterSchemeHandlerFactory(unsafe.Pointer(&schemeNameStr), unsafe.Pointer(&domainNameStr), extractRawPointer(factory)))
 }
 
 // ClearSchemeHandlerFactories Clear all scheme handler factories registered with the global request context. Returns false (0) on error. This function may be called on any thread in the browser process. Using this function is equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >clear_scheme_handler_factories().
 func ClearSchemeHandlerFactories() int32 {
-	// TODO: marshal args, call raw.CEFClearSchemeHandlerFactories(...), marshal return
-	_ = raw.CEFClearSchemeHandlerFactories
-	return 0
+	return int32(raw.CEFClearSchemeHandlerFactories())
 }

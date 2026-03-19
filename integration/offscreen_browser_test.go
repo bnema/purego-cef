@@ -54,13 +54,13 @@ func (h *testRenderHandler) GetScreenPoint(browser cef.Browser, viewx, viewy int
 func (h *testRenderHandler) GetScreenInfo(browser cef.Browser, screenInfo uintptr) int32 { return 0 }
 func (h *testRenderHandler) OnPopupShow(browser cef.Browser, show int32)                 {}
 func (h *testRenderHandler) OnPopupSize(browser cef.Browser, rect uintptr)                {}
-func (h *testRenderHandler) OnPaint(browser cef.Browser, type_ cef.PaintElementType, dirtyRects []cef.Rect, buffer unsafe.Pointer, width, height int32) {
+func (h *testRenderHandler) OnPaint(browser cef.Browser, type_ cef.PaintElementType, dirtyrectscount int, dirtyrects uintptr, buffer unsafe.Pointer, width, height int32) {
 	select {
 	case h.painted <- struct{}{}:
 	default:
 	}
 }
-func (h *testRenderHandler) OnAcceleratedPaint(browser cef.Browser, type_ cef.PaintElementType, dirtyrectscount int, dirtyrects uintptr, info uintptr) {
+func (h *testRenderHandler) OnAcceleratedPaint(browser cef.Browser, type_ cef.PaintElementType, dirtyrectscount int, dirtyrects uintptr, info *cef.AcceleratedPaintInfo) {
 }
 func (h *testRenderHandler) GetTouchHandleSize(browser cef.Browser, orientation cef.HorizontalAlignment, size uintptr) {
 }

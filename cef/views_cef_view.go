@@ -48,21 +48,21 @@ type View interface {
 	// GetViewForID Recursively descends the view tree starting at this View, and returns the first child that it encounters with the given ID. Returns NULL if no matching child view is found.
 	GetViewForID(iD int32) View
 	// SetBounds Sets the bounds (size and position) of this View. |bounds| is in parent coordinates, or DIP screen coordinates if there is no parent.
-	SetBounds(bounds uintptr)
+	SetBounds(bounds *Rect)
 	// GetBounds Returns the bounds (size and position) of this View in parent coordinates, or DIP screen coordinates if there is no parent.
 	GetBounds() uintptr
 	// GetBoundsInScreen Returns the bounds (size and position) of this View in DIP screen coordinates.
 	GetBoundsInScreen() uintptr
 	// SetSize Sets the size of this View without changing the position. |size| in parent coordinates, or DIP screen coordinates if there is no parent.
-	SetSize(size uintptr)
+	SetSize(size *Size)
 	// GetSize Returns the size of this View in parent coordinates, or DIP screen coordinates if there is no parent.
 	GetSize() uintptr
 	// SetPosition Sets the position of this View without changing the size. |position| is in parent coordinates, or DIP screen coordinates if there is no parent.
-	SetPosition(position uintptr)
+	SetPosition(position *Point)
 	// GetPosition Returns the position of this View. Position is in parent coordinates, or DIP screen coordinates if there is no parent.
 	GetPosition() uintptr
 	// SetInsets Sets the insets for this View. |insets| is in parent coordinates, or DIP screen coordinates if there is no parent.
-	SetInsets(insets uintptr)
+	SetInsets(insets *Insets)
 	// GetInsets Returns the insets for this View in parent coordinates, or DIP screen coordinates if there is no parent.
 	GetInsets() uintptr
 	// GetPreferredSize Returns the size this View would like to be if enough space is available. Size is in parent coordinates, or DIP screen coordinates if there is no parent.
@@ -103,17 +103,17 @@ type View interface {
 	// GetThemeColor Returns the current theme color associated with |color_id|, or the placeholder color (red) if unset. See cef_color_ids.h for standard ID values. Standard colors can be overridden and custom colors can be added using cef_window_t::SetThemeColor.
 	GetThemeColor(colorID int32) uintptr
 	// ConvertPointToScreen Convert |point| from this View's coordinate system to DIP screen coordinates. This View must belong to a Window when calling this function. Returns true (1) if the conversion is successful or false (0) otherwise. Use cef_display_t::convert_point_to_pixels() after calling this function if further conversion to display-specific pixel coordinates is desired.
-	ConvertPointToScreen(point uintptr) int32
+	ConvertPointToScreen(point *Point) int32
 	// ConvertPointFromScreen Convert |point| to this View's coordinate system from DIP screen coordinates. This View must belong to a Window when calling this function. Returns true (1) if the conversion is successful or false (0) otherwise. Use cef_display_t::convert_point_from_pixels() before calling this function if conversion from display-specific pixel coordinates is necessary.
-	ConvertPointFromScreen(point uintptr) int32
+	ConvertPointFromScreen(point *Point) int32
 	// ConvertPointToWindow Convert |point| from this View's coordinate system to that of the Window. This View must belong to a Window when calling this function. Returns true (1) if the conversion is successful or false (0) otherwise.
-	ConvertPointToWindow(point uintptr) int32
+	ConvertPointToWindow(point *Point) int32
 	// ConvertPointFromWindow Convert |point| to this View's coordinate system from that of the Window. This View must belong to a Window when calling this function. Returns true (1) if the conversion is successful or false (0) otherwise.
-	ConvertPointFromWindow(point uintptr) int32
+	ConvertPointFromWindow(point *Point) int32
 	// ConvertPointToView Convert |point| from this View's coordinate system to that of |view|. |view| needs to be in the same Window but not necessarily the same view hierarchy. Returns true (1) if the conversion is successful or false (0) otherwise.
-	ConvertPointToView(view View, point uintptr) int32
+	ConvertPointToView(view View, point *Point) int32
 	// ConvertPointFromView Convert |point| to this View's coordinate system from that |view|. |view| needs to be in the same Window but not necessarily the same view hierarchy. Returns true (1) if the conversion is successful or false (0) otherwise.
-	ConvertPointFromView(view View, point uintptr) int32
+	ConvertPointFromView(view View, point *Point) int32
 }
 
 type viewImpl struct {
@@ -192,8 +192,8 @@ func (obj *viewImpl) GetViewForID(iD int32) View {
 	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetViewForID(uintptr(iD))))
 }
 
-func (obj *viewImpl) SetBounds(bounds uintptr) {
-	obj.rawPtr.CallSetBounds(uintptr(bounds))
+func (obj *viewImpl) SetBounds(bounds *Rect) {
+	obj.rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
 }
 
 func (obj *viewImpl) GetBounds() uintptr {
@@ -204,24 +204,24 @@ func (obj *viewImpl) GetBoundsInScreen() uintptr {
 	return uintptr(obj.rawPtr.CallGetBoundsInScreen())
 }
 
-func (obj *viewImpl) SetSize(size uintptr) {
-	obj.rawPtr.CallSetSize(uintptr(size))
+func (obj *viewImpl) SetSize(size *Size) {
+	obj.rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *viewImpl) GetSize() uintptr {
 	return uintptr(obj.rawPtr.CallGetSize())
 }
 
-func (obj *viewImpl) SetPosition(position uintptr) {
-	obj.rawPtr.CallSetPosition(uintptr(position))
+func (obj *viewImpl) SetPosition(position *Point) {
+	obj.rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
 }
 
 func (obj *viewImpl) GetPosition() uintptr {
 	return uintptr(obj.rawPtr.CallGetPosition())
 }
 
-func (obj *viewImpl) SetInsets(insets uintptr) {
-	obj.rawPtr.CallSetInsets(uintptr(insets))
+func (obj *viewImpl) SetInsets(insets *Insets) {
+	obj.rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
 }
 
 func (obj *viewImpl) GetInsets() uintptr {
@@ -293,7 +293,7 @@ func (obj *viewImpl) RequestFocus() {
 }
 
 func (obj *viewImpl) SetBackgroundColor(color uintptr) {
-	obj.rawPtr.CallSetBackgroundColor(uintptr(color))
+	obj.rawPtr.CallSetBackgroundColor(color)
 }
 
 func (obj *viewImpl) GetBackgroundColor() uintptr {
@@ -304,28 +304,28 @@ func (obj *viewImpl) GetThemeColor(colorID int32) uintptr {
 	return uintptr(obj.rawPtr.CallGetThemeColor(uintptr(colorID)))
 }
 
-func (obj *viewImpl) ConvertPointToScreen(point uintptr) int32 {
-	return int32(obj.rawPtr.CallConvertPointToScreen(uintptr(point)))
+func (obj *viewImpl) ConvertPointToScreen(point *Point) int32 {
+	return int32(obj.rawPtr.CallConvertPointToScreen(uintptr(unsafe.Pointer(point))))
 }
 
-func (obj *viewImpl) ConvertPointFromScreen(point uintptr) int32 {
-	return int32(obj.rawPtr.CallConvertPointFromScreen(uintptr(point)))
+func (obj *viewImpl) ConvertPointFromScreen(point *Point) int32 {
+	return int32(obj.rawPtr.CallConvertPointFromScreen(uintptr(unsafe.Pointer(point))))
 }
 
-func (obj *viewImpl) ConvertPointToWindow(point uintptr) int32 {
-	return int32(obj.rawPtr.CallConvertPointToWindow(uintptr(point)))
+func (obj *viewImpl) ConvertPointToWindow(point *Point) int32 {
+	return int32(obj.rawPtr.CallConvertPointToWindow(uintptr(unsafe.Pointer(point))))
 }
 
-func (obj *viewImpl) ConvertPointFromWindow(point uintptr) int32 {
-	return int32(obj.rawPtr.CallConvertPointFromWindow(uintptr(point)))
+func (obj *viewImpl) ConvertPointFromWindow(point *Point) int32 {
+	return int32(obj.rawPtr.CallConvertPointFromWindow(uintptr(unsafe.Pointer(point))))
 }
 
-func (obj *viewImpl) ConvertPointToView(view View, point uintptr) int32 {
-	return int32(obj.rawPtr.CallConvertPointToView(uintptr(extractRawPointer(view)), uintptr(point)))
+func (obj *viewImpl) ConvertPointToView(view View, point *Point) int32 {
+	return int32(obj.rawPtr.CallConvertPointToView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point))))
 }
 
-func (obj *viewImpl) ConvertPointFromView(view View, point uintptr) int32 {
-	return int32(obj.rawPtr.CallConvertPointFromView(uintptr(extractRawPointer(view)), uintptr(point)))
+func (obj *viewImpl) ConvertPointFromView(view View, point *Point) int32 {
+	return int32(obj.rawPtr.CallConvertPointFromView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point))))
 }
 
 func (obj *viewImpl) rawPointer() unsafe.Pointer {

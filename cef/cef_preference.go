@@ -115,7 +115,7 @@ func (obj *preferenceManagerImpl) CanSetPreference(name string) bool {
 func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error uintptr) int32 {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return int32(obj.rawPtr.CallSetPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(value)), uintptr(error)))
+	return int32(obj.rawPtr.CallSetPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(value)), error))
 }
 
 func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer PreferenceObserver) Registration {
@@ -151,19 +151,15 @@ func wrapPreferenceManager(ptr unsafe.Pointer) PreferenceManager {
 
 // PreferenceManagerGetChromeVariationsAsSwitches Returns the current Chrome Variations configuration (combination of field trials and chrome://flags) as equivalent command-line switches (`--[enable|disable]-features=XXXX`, etc). These switches can be used to apply the same configuration when launching a CEF-based application. See https://developer.chrome.com/docs/web-platform/chrome-variations for background and details. Note that field trial tests are disabled by default in Official CEF builds (via the `disable_fieldtrial_testing_config=true (1)` GN flag). This function must be called on the browser process UI thread.
 func PreferenceManagerGetChromeVariationsAsSwitches(switches uintptr) {
-	// TODO: marshal args and call raw.CEFPreferenceManagerGetChromeVariationsAsSwitches(...)
-	_ = raw.CEFPreferenceManagerGetChromeVariationsAsSwitches
+	raw.CEFPreferenceManagerGetChromeVariationsAsSwitches(switches)
 }
 
 // PreferenceManagerGetChromeVariationsAsStrings Returns the current Chrome Variations configuration (combination of field trials and chrome://flags) as human-readable strings. This is the human- readable equivalent of the "Active Variations" section of chrome://version. See https://developer.chrome.com/docs/web-platform/chrome-variations for background and details. Note that field trial tests are disabled by default in Official CEF builds (via the `disable_fieldtrial_testing_config=true (1)` GN flag). This function must be called on the browser process UI thread.
 func PreferenceManagerGetChromeVariationsAsStrings(strings uintptr) {
-	// TODO: marshal args and call raw.CEFPreferenceManagerGetChromeVariationsAsStrings(...)
-	_ = raw.CEFPreferenceManagerGetChromeVariationsAsStrings
+	raw.CEFPreferenceManagerGetChromeVariationsAsStrings(strings)
 }
 
 // PreferenceManagerGetGlobal Returns the global preference manager object.
-func PreferenceManagerGetGlobal() uintptr {
-	// TODO: marshal args, call raw.CEFPreferenceManagerGetGlobal(...), marshal return
-	_ = raw.CEFPreferenceManagerGetGlobal
-	return 0
+func PreferenceManagerGetGlobal() PreferenceManager {
+	return wrapPreferenceManager(raw.CEFPreferenceManagerGetGlobal())
 }

@@ -114,7 +114,7 @@ func (obj *apiVersionTestImpl) SetRefPtrLibraryList(valcount int, val unsafe.Poi
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(val1), uintptr(val2)))
+	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(extractRawPointer(val)), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibraryListSize() int {
@@ -142,7 +142,7 @@ func (obj *apiVersionTestImpl) SetRefPtrClientList(valcount int, val unsafe.Poin
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 ApiVersionTestRefPtrClient, val2 ApiVersionTestRefPtrClient) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(extractRawPointer(val1)), uintptr(extractRawPointer(val2))))
+	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(extractRawPointer(val)), uintptr(extractRawPointer(val1)), uintptr(extractRawPointer(val2))))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrClientListSize() int {
@@ -1040,134 +1040,96 @@ func wrapApiVersionTestScopedClientChildV2(ptr unsafe.Pointer) ApiVersionTestSco
 }
 
 // ApiVersionTestCreate Create the test object.
-func ApiVersionTestCreate() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestCreate(...), marshal return
-	_ = raw.CEFApiVersionTestCreate
-	return 0
+func ApiVersionTestCreate() ApiVersionTest {
+	return wrapApiVersionTest(raw.CEFApiVersionTestCreate())
 }
 
 // ApiVersionTestRefPtrLibraryCreate Create the test object.
-func ApiVersionTestRefPtrLibraryCreate() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestRefPtrLibraryCreate(...), marshal return
-	_ = raw.CEFApiVersionTestRefPtrLibraryCreate
-	return 0
+func ApiVersionTestRefPtrLibraryCreate() ApiVersionTestRefPtrLibrary {
+	return wrapApiVersionTestRefPtrLibrary(raw.CEFApiVersionTestRefPtrLibraryCreate())
 }
 
 // ApiVersionTestRefPtrLibraryCreateWithDefault Create the test object with default value.
-func ApiVersionTestRefPtrLibraryCreateWithDefault(value int32) uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestRefPtrLibraryCreateWithDefault(...), marshal return
-	_ = raw.CEFApiVersionTestRefPtrLibraryCreateWithDefault
-	return 0
+func ApiVersionTestRefPtrLibraryCreateWithDefault(value int32) ApiVersionTestRefPtrLibrary {
+	return wrapApiVersionTestRefPtrLibrary(raw.CEFApiVersionTestRefPtrLibraryCreateWithDefault(value))
 }
 
 // ApiVersionTestRefPtrLibraryChildCreate Create the test object.
-func ApiVersionTestRefPtrLibraryChildCreate() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestRefPtrLibraryChildCreate(...), marshal return
-	_ = raw.CEFApiVersionTestRefPtrLibraryChildCreate
-	return 0
+func ApiVersionTestRefPtrLibraryChildCreate() ApiVersionTestRefPtrLibraryChild {
+	return wrapApiVersionTestRefPtrLibraryChild(raw.CEFApiVersionTestRefPtrLibraryChildCreate())
 }
 
 // ApiVersionTestRefPtrLibraryChildCreateWithDefault Create the test object with default value.
-func ApiVersionTestRefPtrLibraryChildCreateWithDefault(value int32, otherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestRefPtrLibraryChildCreateWithDefault(...), marshal return
-	_ = raw.CEFApiVersionTestRefPtrLibraryChildCreateWithDefault
-	return 0
+func ApiVersionTestRefPtrLibraryChildCreateWithDefault(value int32, otherValue int32) ApiVersionTestRefPtrLibraryChild {
+	return wrapApiVersionTestRefPtrLibraryChild(raw.CEFApiVersionTestRefPtrLibraryChildCreateWithDefault(value, otherValue))
 }
 
 // ApiVersionTestRefPtrLibraryChildChildCreate Create the test object.
-func ApiVersionTestRefPtrLibraryChildChildCreate() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestRefPtrLibraryChildChildCreate(...), marshal return
-	_ = raw.CEFApiVersionTestRefPtrLibraryChildChildCreate
-	return 0
+func ApiVersionTestRefPtrLibraryChildChildCreate() ApiVersionTestRefPtrLibraryChildChild {
+	return wrapApiVersionTestRefPtrLibraryChildChild(raw.CEFApiVersionTestRefPtrLibraryChildChildCreate())
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV1Create Create the test object.
-func ApiVersionTestRefPtrLibraryChildChildV1Create() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestRefPtrLibraryChildChildV1Create(...), marshal return
-	_ = raw.CEFApiVersionTestRefPtrLibraryChildChildV1Create
-	return 0
+func ApiVersionTestRefPtrLibraryChildChildV1Create() ApiVersionTestRefPtrLibraryChildChildV1 {
+	return wrapApiVersionTestRefPtrLibraryChildChildV1(raw.CEFApiVersionTestRefPtrLibraryChildChildV1Create())
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV1CreateWithDefault Create the test object with default value.
-func ApiVersionTestRefPtrLibraryChildChildV1CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestRefPtrLibraryChildChildV1CreateWithDefault(...), marshal return
-	_ = raw.CEFApiVersionTestRefPtrLibraryChildChildV1CreateWithDefault
-	return 0
+func ApiVersionTestRefPtrLibraryChildChildV1CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) ApiVersionTestRefPtrLibraryChildChildV1 {
+	return wrapApiVersionTestRefPtrLibraryChildChildV1(raw.CEFApiVersionTestRefPtrLibraryChildChildV1CreateWithDefault(value, otherValue, otherOtherValue))
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV2Create Create the test object.
-func ApiVersionTestRefPtrLibraryChildChildV2Create() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestRefPtrLibraryChildChildV2Create(...), marshal return
-	_ = raw.CEFApiVersionTestRefPtrLibraryChildChildV2Create
-	return 0
+func ApiVersionTestRefPtrLibraryChildChildV2Create() ApiVersionTestRefPtrLibraryChildChildV2 {
+	return wrapApiVersionTestRefPtrLibraryChildChildV2(raw.CEFApiVersionTestRefPtrLibraryChildChildV2Create())
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault Create the test object with default value.
-func ApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault(...), marshal return
-	_ = raw.CEFApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault
-	return 0
+func ApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) ApiVersionTestRefPtrLibraryChildChildV2 {
+	return wrapApiVersionTestRefPtrLibraryChildChildV2(raw.CEFApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault(value, otherValue, otherOtherValue))
 }
 
 // ApiVersionTestScopedLibraryCreate Create the test object.
-func ApiVersionTestScopedLibraryCreate() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestScopedLibraryCreate(...), marshal return
-	_ = raw.CEFApiVersionTestScopedLibraryCreate
-	return 0
+func ApiVersionTestScopedLibraryCreate() ApiVersionTestScopedLibrary {
+	return wrapApiVersionTestScopedLibrary(raw.CEFApiVersionTestScopedLibraryCreate())
 }
 
 // ApiVersionTestScopedLibraryCreateWithDefault Create the test object with default value.
-func ApiVersionTestScopedLibraryCreateWithDefault(value int32) uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestScopedLibraryCreateWithDefault(...), marshal return
-	_ = raw.CEFApiVersionTestScopedLibraryCreateWithDefault
-	return 0
+func ApiVersionTestScopedLibraryCreateWithDefault(value int32) ApiVersionTestScopedLibrary {
+	return wrapApiVersionTestScopedLibrary(raw.CEFApiVersionTestScopedLibraryCreateWithDefault(value))
 }
 
 // ApiVersionTestScopedLibraryChildCreate Create the test object.
-func ApiVersionTestScopedLibraryChildCreate() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestScopedLibraryChildCreate(...), marshal return
-	_ = raw.CEFApiVersionTestScopedLibraryChildCreate
-	return 0
+func ApiVersionTestScopedLibraryChildCreate() ApiVersionTestScopedLibraryChild {
+	return wrapApiVersionTestScopedLibraryChild(raw.CEFApiVersionTestScopedLibraryChildCreate())
 }
 
 // ApiVersionTestScopedLibraryChildCreateWithDefault Create the test object with default value.
-func ApiVersionTestScopedLibraryChildCreateWithDefault(value int32, otherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestScopedLibraryChildCreateWithDefault(...), marshal return
-	_ = raw.CEFApiVersionTestScopedLibraryChildCreateWithDefault
-	return 0
+func ApiVersionTestScopedLibraryChildCreateWithDefault(value int32, otherValue int32) ApiVersionTestScopedLibraryChild {
+	return wrapApiVersionTestScopedLibraryChild(raw.CEFApiVersionTestScopedLibraryChildCreateWithDefault(value, otherValue))
 }
 
 // ApiVersionTestScopedLibraryChildChildCreate Create the test object.
-func ApiVersionTestScopedLibraryChildChildCreate() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestScopedLibraryChildChildCreate(...), marshal return
-	_ = raw.CEFApiVersionTestScopedLibraryChildChildCreate
-	return 0
+func ApiVersionTestScopedLibraryChildChildCreate() ApiVersionTestScopedLibraryChildChild {
+	return wrapApiVersionTestScopedLibraryChildChild(raw.CEFApiVersionTestScopedLibraryChildChildCreate())
 }
 
 // ApiVersionTestScopedLibraryChildChildV1Create Create the test object.
-func ApiVersionTestScopedLibraryChildChildV1Create() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestScopedLibraryChildChildV1Create(...), marshal return
-	_ = raw.CEFApiVersionTestScopedLibraryChildChildV1Create
-	return 0
+func ApiVersionTestScopedLibraryChildChildV1Create() ApiVersionTestScopedLibraryChildChildV1 {
+	return wrapApiVersionTestScopedLibraryChildChildV1(raw.CEFApiVersionTestScopedLibraryChildChildV1Create())
 }
 
 // ApiVersionTestScopedLibraryChildChildV1CreateWithDefault Create the test object with default value.
-func ApiVersionTestScopedLibraryChildChildV1CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestScopedLibraryChildChildV1CreateWithDefault(...), marshal return
-	_ = raw.CEFApiVersionTestScopedLibraryChildChildV1CreateWithDefault
-	return 0
+func ApiVersionTestScopedLibraryChildChildV1CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) ApiVersionTestScopedLibraryChildChildV1 {
+	return wrapApiVersionTestScopedLibraryChildChildV1(raw.CEFApiVersionTestScopedLibraryChildChildV1CreateWithDefault(value, otherValue, otherOtherValue))
 }
 
 // ApiVersionTestScopedLibraryChildChildV2Create Create the test object.
-func ApiVersionTestScopedLibraryChildChildV2Create() uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestScopedLibraryChildChildV2Create(...), marshal return
-	_ = raw.CEFApiVersionTestScopedLibraryChildChildV2Create
-	return 0
+func ApiVersionTestScopedLibraryChildChildV2Create() ApiVersionTestScopedLibraryChildChildV2 {
+	return wrapApiVersionTestScopedLibraryChildChildV2(raw.CEFApiVersionTestScopedLibraryChildChildV2Create())
 }
 
 // ApiVersionTestScopedLibraryChildChildV2CreateWithDefault Create the test object with default value.
-func ApiVersionTestScopedLibraryChildChildV2CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) uintptr {
-	// TODO: marshal args, call raw.CEFApiVersionTestScopedLibraryChildChildV2CreateWithDefault(...), marshal return
-	_ = raw.CEFApiVersionTestScopedLibraryChildChildV2CreateWithDefault
-	return 0
+func ApiVersionTestScopedLibraryChildChildV2CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) ApiVersionTestScopedLibraryChildChildV2 {
+	return wrapApiVersionTestScopedLibraryChildChildV2(raw.CEFApiVersionTestScopedLibraryChildChildV2CreateWithDefault(value, otherValue, otherOtherValue))
 }

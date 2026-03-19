@@ -16,7 +16,7 @@ type Panel interface {
 	// SetToFillLayout Set this Panel's Layout to FillLayout and return the FillLayout object.
 	SetToFillLayout() FillLayout
 	// SetToBoxLayout Set this Panel's Layout to BoxLayout and return the BoxLayout object.
-	SetToBoxLayout(settings uintptr) BoxLayout
+	SetToBoxLayout(settings *BoxLayoutSettings) BoxLayout
 	// GetLayout Get the Layout.
 	GetLayout() Layout
 	// Layout Set this Panel's Layout to FillLayout and return the FillLayout object.
@@ -49,8 +49,8 @@ func (obj *panelImpl) SetToFillLayout() FillLayout {
 	return wrapFillLayout(unsafe.Pointer(obj.rawPtr.CallSetToFillLayout()))
 }
 
-func (obj *panelImpl) SetToBoxLayout(settings uintptr) BoxLayout {
-	return wrapBoxLayout(unsafe.Pointer(obj.rawPtr.CallSetToBoxLayout(uintptr(settings))))
+func (obj *panelImpl) SetToBoxLayout(settings *BoxLayoutSettings) BoxLayout {
+	return wrapBoxLayout(unsafe.Pointer(obj.rawPtr.CallSetToBoxLayout(uintptr(unsafe.Pointer(settings)))))
 }
 
 func (obj *panelImpl) GetLayout() Layout {
@@ -115,8 +115,6 @@ func wrapPanel(ptr unsafe.Pointer) Panel {
 }
 
 // PanelCreate Create a new Panel.
-func PanelCreate(delegate PanelDelegate) uintptr {
-	// TODO: marshal args, call raw.CEFPanelCreate(...), marshal return
-	_ = raw.CEFPanelCreate
-	return 0
+func PanelCreate(delegate PanelDelegate) Panel {
+	return wrapPanel(raw.CEFPanelCreate(extractRawPointer(delegate)))
 }

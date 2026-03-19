@@ -64,8 +64,8 @@ func wrapSharedProcessMessageBuilder(ptr unsafe.Pointer) SharedProcessMessageBui
 }
 
 // SharedProcessMessageBuilderCreate Creates a new cef_shared_process_message_builder_t with the specified |name| and shared memory region of specified |byte_size|.
-func SharedProcessMessageBuilderCreate(name string, byteSize int) uintptr {
-	// TODO: marshal args, call raw.CEFSharedProcessMessageBuilderCreate(...), marshal return
-	_ = raw.CEFSharedProcessMessageBuilderCreate
-	return 0
+func SharedProcessMessageBuilderCreate(name string, byteSize int) SharedProcessMessageBuilder {
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	return wrapSharedProcessMessageBuilder(raw.CEFSharedProcessMessageBuilderCreate(unsafe.Pointer(&nameStr), uintptr(byteSize)))
 }

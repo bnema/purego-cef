@@ -73,8 +73,6 @@ func wrapTaskManager(ptr unsafe.Pointer) TaskManager {
 }
 
 // TaskManagerGet Returns the global task manager object. Returns nullptr if the function was called from the incorrect thread.
-func TaskManagerGet() uintptr {
-	// TODO: marshal args, call raw.CEFTaskManagerGet(...), marshal return
-	_ = raw.CEFTaskManagerGet
-	return 0
+func TaskManagerGet() TaskManager {
+	return wrapTaskManager(raw.CEFTaskManagerGet())
 }

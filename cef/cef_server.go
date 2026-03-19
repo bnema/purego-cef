@@ -88,7 +88,7 @@ func (obj *serverImpl) SendHttp500Response(connectionID int32, errorMessage stri
 func (obj *serverImpl) SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders uintptr) {
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
-	obj.rawPtr.CallSendHttpResponse(uintptr(connectionID), uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(contentLength), uintptr(extraHeaders))
+	obj.rawPtr.CallSendHttpResponse(uintptr(connectionID), uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(contentLength), extraHeaders)
 }
 
 func (obj *serverImpl) SendRawData(connectionID int32, data unsafe.Pointer, dataSize int) {
@@ -223,6 +223,7 @@ func wrapServerHandler(ptr unsafe.Pointer) ServerHandler {
 
 // ServerCreate Create a new server that binds to |address| and |port|. |address| must be a valid IPv4 or IPv6 address (e.g. 127.0.0.1 or ::1) and |port| must be a port number outside of the reserved range (e.g. between 1025 and 65535 on most platforms). |backlog| is the maximum number of pending connections. A new thread will be created for each CreateServer call (the "dedicated server thread"). It is therefore recommended to use a different cef_server_handler_t instance for each CreateServer call to avoid thread safety issues in the cef_server_handler_t implementation. The cef_server_handler_t::OnServerCreated function will be called on the dedicated server thread to report success or failure. See cef_server_handler_t::OnServerCreated documentation for a description of server lifespan.
 func ServerCreate(address string, port uint16, backlog int32, handler ServerHandler) {
-	// TODO: marshal args and call raw.CEFServerCreate(...)
-	_ = raw.CEFServerCreate
+	addressStr := cefString(address)
+	defer freeCefString(&addressStr)
+	raw.CEFServerCreate(unsafe.Pointer(&addressStr), port, backlog, extractRawPointer(handler))
 }

@@ -143,11 +143,11 @@ func (obj *browserImpl) GetFrameCount() int {
 }
 
 func (obj *browserImpl) GetFrameIdentifiers(identifiers uintptr) {
-	obj.rawPtr.CallGetFrameIdentifiers(uintptr(identifiers))
+	obj.rawPtr.CallGetFrameIdentifiers(identifiers)
 }
 
 func (obj *browserImpl) GetFrameNames(names uintptr) {
-	obj.rawPtr.CallGetFrameNames(uintptr(names))
+	obj.rawPtr.CallGetFrameNames(names)
 }
 
 func (obj *browserImpl) rawPointer() unsafe.Pointer {
@@ -348,7 +348,7 @@ type BrowserHost interface {
 	// StopFinding Cancel all searches that are currently going on.
 	StopFinding(clearselection int32)
 	// ShowDevTools Open developer tools (DevTools) in its own browser. The DevTools browser will remain associated with this browser. If the DevTools browser is already open then it will be focused, in which case the |windowInfo|, |client| and |settings| parameters will be ignored. If |inspect_element_at| is non-NULL then the element at the specified (x,y) location will be inspected. The |windowInfo| parameter will be ignored if this browser is wrapped in a cef_browser_view_t.
-	ShowDevTools(windowinfo *WindowInfo, client Client, settings *BrowserSettings, inspectElementAt uintptr)
+	ShowDevTools(windowinfo *WindowInfo, client Client, settings *BrowserSettings, inspectElementAt *Point)
 	// CloseDevTools Explicitly close the associated DevTools browser, if any.
 	CloseDevTools()
 	// HasDevTools Returns true (1) if this browser currently has an associated DevTools browser. Must be called on the browser process UI thread.
@@ -396,21 +396,21 @@ type BrowserHost interface {
 	// SetWindowlessFrameRate Set the maximum rate in frames per second (fps) that cef_render_handler_t:: OnPaint will be called for a windowless browser. The actual fps may be lower if the browser cannot generate frames at the requested rate. The minimum value is 1 and the default value is 30. Can also be set at browser creation via cef_browser_tSettings.windowless_frame_rate.
 	SetWindowlessFrameRate(frameRate int32)
 	// ImeSetComposition Begins a new composition or updates the existing composition. Blink has a special node (a composition node) that allows the input function to change text without affecting other DOM nodes. |text| is the optional text that will be inserted into the composition node. |underlines| is an optional set of ranges that will be underlined in the resulting text. |replacement_range| is an optional range of the existing text that will be replaced. |selection_range| is an optional range of the resulting text that will be selected after insertion or replacement. The |replacement_range| value is only used on OS X. This function may be called multiple times as the composition changes. When the client is done making changes the composition should either be canceled or completed. To cancel the composition call ImeCancelComposition. To complete the composition call either ImeCommitText or ImeFinishComposingText. Completion is usually signaled when: 1. The client receives a WM_IME_COMPOSITION message with a GCS_RESULTSTR    flag (on Windows), or; 2. The client receives a "commit" signal of GtkIMContext (on Linux), or; 3. insertText of NSTextInput is called (on Mac). This function is only used when window rendering is disabled.
-	ImeSetComposition(text string, underlinescount int, underlines uintptr, replacementRange uintptr, selectionRange uintptr)
+	ImeSetComposition(text string, underlinescount int, underlines uintptr, replacementRange *Range, selectionRange *Range)
 	// ImeCommitText Completes the existing composition by optionally inserting the specified |text| into the composition node. |replacement_range| is an optional range of the existing text that will be replaced. |relative_cursor_pos| is where the cursor will be positioned relative to the current cursor position. See comments on ImeSetComposition for usage. The |replacement_range| and |relative_cursor_pos| values are only used on OS X. This function is only used when window rendering is disabled.
-	ImeCommitText(text string, replacementRange uintptr, relativeCursorPos int32)
+	ImeCommitText(text string, replacementRange *Range, relativeCursorPos int32)
 	// ImeFinishComposingText Completes the existing composition by applying the current composition node contents. If |keep_selection| is false (0) the current selection, if any, will be discarded. See comments on ImeSetComposition for usage. This function is only used when window rendering is disabled.
 	ImeFinishComposingText(keepSelection int32)
 	// ImeCancelComposition Cancels the existing composition and discards the composition node contents without applying them. See comments on ImeSetComposition for usage. This function is only used when window rendering is disabled.
 	ImeCancelComposition()
 	// DragTargetDragEnter Call this function when the user drags the mouse into the web view (before calling DragTargetDragOver/DragTargetLeave/DragTargetDrop). |drag_data| should not contain file contents as this type of data is not allowed to be dragged into the web view. File contents can be removed using cef_drag_data_t::ResetFileContents (for example, if |drag_data| comes from cef_render_handler_t::StartDragging). This function is only used when window rendering is disabled.
-	DragTargetDragEnter(dragData DragData, event uintptr, allowedOps DragOperationsMask)
+	DragTargetDragEnter(dragData DragData, event *MouseEvent, allowedOps DragOperationsMask)
 	// DragTargetDragOver Call this function each time the mouse is moved across the web view during a drag operation (after calling DragTargetDragEnter and before calling DragTargetDragLeave/DragTargetDrop). This function is only used when window rendering is disabled.
-	DragTargetDragOver(event uintptr, allowedOps DragOperationsMask)
+	DragTargetDragOver(event *MouseEvent, allowedOps DragOperationsMask)
 	// DragTargetDragLeave Call this function when the user drags the mouse out of the web view (after calling DragTargetDragEnter). This function is only used when window rendering is disabled.
 	DragTargetDragLeave()
 	// DragTargetDrop Call this function when the user completes the drag operation by dropping the object onto the web view (after calling DragTargetDragEnter). The object being dropped is |drag_data|, given as an argument to the previous DragTargetDragEnter call. This function is only used when window rendering is disabled.
-	DragTargetDrop(event uintptr)
+	DragTargetDrop(event *MouseEvent)
 	// DragSourceEndedAt Call this function when the drag operation started by a cef_render_handler_t::StartDragging call has ended either in a drop or by being cancelled. |x| and |y| are mouse coordinates relative to the upper- left corner of the view. If the web view is both the drag source and the drag target then all DragTarget* functions should be called before DragSource* mthods. This function is only used when window rendering is disabled.
 	DragSourceEndedAt(x int32, y int32, op DragOperationsMask)
 	// DragSourceSystemDragEnded Call this function when the drag operation started by a cef_render_handler_t::StartDragging call has completed. This function may be called immediately without first calling DragSourceEndedAt to cancel a drag operation. If the web view is both the drag source and the drag target then all DragTarget* functions should be called before DragSource* mthods. This function is only used when window rendering is disabled.
@@ -420,7 +420,7 @@ type BrowserHost interface {
 	// SetAccessibilityState Set accessibility state for all frames. |accessibility_state| may be default, enabled or disabled. If |accessibility_state| is STATE_DEFAULT then accessibility will be disabled by default and the state may be further controlled with the "force-renderer-accessibility" and "disable- renderer-accessibility" command-line switches. If |accessibility_state| is STATE_ENABLED then accessibility will be enabled. If |accessibility_state| is STATE_DISABLED then accessibility will be completely disabled. For windowed browsers accessibility will be enabled in Complete mode (which corresponds to kAccessibilityModeComplete in Chromium). In this mode all platform accessibility objects will be created and managed by Chromium's internal implementation. The client needs only to detect the screen reader and call this function appropriately. For example, on macOS the client can handle the @"AXEnhancedUserStructure" accessibility attribute to detect VoiceOver state changes and on Windows the client can handle WM_GETOBJECT with OBJID_CLIENT to detect accessibility readers. For windowless browsers accessibility will be enabled in TreeOnly mode (which corresponds to kAccessibilityModeWebContentsOnly in Chromium). In this mode renderer accessibility is enabled, the full tree is computed, and events are passed to CefAccessibiltyHandler, but platform accessibility objects are not created. The client may implement platform accessibility objects using CefAccessibiltyHandler callbacks if desired.
 	SetAccessibilityState(accessibilityState State)
 	// SetAutoResizeEnabled Enable notifications of auto resize via cef_display_handler_t::OnAutoResize. Notifications are disabled by default. |min_size| and |max_size| define the range of allowed sizes.
-	SetAutoResizeEnabled(enabled int32, minSize uintptr, maxSize uintptr)
+	SetAutoResizeEnabled(enabled int32, minSize *Size, maxSize *Size)
 	// SetAudioMuted Set whether the browser's audio is muted.
 	SetAudioMuted(mute int32)
 	// IsAudioMuted Returns true (1) if the browser's audio is muted.  This function can only be called on the UI thread.
@@ -512,7 +512,7 @@ func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, def
 	defer freeCefString(&titleStr)
 	defaultFilePathStr := cefString(defaultFilePath)
 	defer freeCefString(&defaultFilePathStr)
-	obj.rawPtr.CallRunFileDialog(uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), uintptr(acceptFilters), uintptr(extractRawPointer(callback)))
+	obj.rawPtr.CallRunFileDialog(uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), acceptFilters, uintptr(extractRawPointer(callback)))
 }
 
 func (obj *browserHostImpl) StartDownload(uRL string) {
@@ -547,8 +547,8 @@ func (obj *browserHostImpl) StopFinding(clearselection int32) {
 	obj.rawPtr.CallStopFinding(uintptr(clearselection))
 }
 
-func (obj *browserHostImpl) ShowDevTools(windowinfo *WindowInfo, client Client, settings *BrowserSettings, inspectElementAt uintptr) {
-	obj.rawPtr.CallShowDevTools(uintptr(unsafe.Pointer(windowinfo)), uintptr(extractRawPointer(client)), uintptr(unsafe.Pointer(settings)), uintptr(inspectElementAt))
+func (obj *browserHostImpl) ShowDevTools(windowinfo *WindowInfo, client Client, settings *BrowserSettings, inspectElementAt *Point) {
+	obj.rawPtr.CallShowDevTools(uintptr(unsafe.Pointer(windowinfo)), uintptr(extractRawPointer(client)), uintptr(unsafe.Pointer(settings)), uintptr(unsafe.Pointer(inspectElementAt)))
 }
 
 func (obj *browserHostImpl) CloseDevTools() {
@@ -649,16 +649,16 @@ func (obj *browserHostImpl) SetWindowlessFrameRate(frameRate int32) {
 	obj.rawPtr.CallSetWindowlessFrameRate(uintptr(frameRate))
 }
 
-func (obj *browserHostImpl) ImeSetComposition(text string, underlinescount int, underlines uintptr, replacementRange uintptr, selectionRange uintptr) {
+func (obj *browserHostImpl) ImeSetComposition(text string, underlinescount int, underlines uintptr, replacementRange *Range, selectionRange *Range) {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	obj.rawPtr.CallImeSetComposition(uintptr(unsafe.Pointer(&textStr)), uintptr(underlinescount), uintptr(underlines), uintptr(replacementRange), uintptr(selectionRange))
+	obj.rawPtr.CallImeSetComposition(uintptr(unsafe.Pointer(&textStr)), uintptr(underlinescount), underlines, uintptr(unsafe.Pointer(replacementRange)), uintptr(unsafe.Pointer(selectionRange)))
 }
 
-func (obj *browserHostImpl) ImeCommitText(text string, replacementRange uintptr, relativeCursorPos int32) {
+func (obj *browserHostImpl) ImeCommitText(text string, replacementRange *Range, relativeCursorPos int32) {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	obj.rawPtr.CallImeCommitText(uintptr(unsafe.Pointer(&textStr)), uintptr(replacementRange), uintptr(relativeCursorPos))
+	obj.rawPtr.CallImeCommitText(uintptr(unsafe.Pointer(&textStr)), uintptr(unsafe.Pointer(replacementRange)), uintptr(relativeCursorPos))
 }
 
 func (obj *browserHostImpl) ImeFinishComposingText(keepSelection int32) {
@@ -669,20 +669,20 @@ func (obj *browserHostImpl) ImeCancelComposition() {
 	obj.rawPtr.CallImeCancelComposition()
 }
 
-func (obj *browserHostImpl) DragTargetDragEnter(dragData DragData, event uintptr, allowedOps DragOperationsMask) {
-	obj.rawPtr.CallDragTargetDragEnter(uintptr(extractRawPointer(dragData)), uintptr(event), uintptr(allowedOps))
+func (obj *browserHostImpl) DragTargetDragEnter(dragData DragData, event *MouseEvent, allowedOps DragOperationsMask) {
+	obj.rawPtr.CallDragTargetDragEnter(uintptr(extractRawPointer(dragData)), uintptr(unsafe.Pointer(event)), uintptr(allowedOps))
 }
 
-func (obj *browserHostImpl) DragTargetDragOver(event uintptr, allowedOps DragOperationsMask) {
-	obj.rawPtr.CallDragTargetDragOver(uintptr(event), uintptr(allowedOps))
+func (obj *browserHostImpl) DragTargetDragOver(event *MouseEvent, allowedOps DragOperationsMask) {
+	obj.rawPtr.CallDragTargetDragOver(uintptr(unsafe.Pointer(event)), uintptr(allowedOps))
 }
 
 func (obj *browserHostImpl) DragTargetDragLeave() {
 	obj.rawPtr.CallDragTargetDragLeave()
 }
 
-func (obj *browserHostImpl) DragTargetDrop(event uintptr) {
-	obj.rawPtr.CallDragTargetDrop(uintptr(event))
+func (obj *browserHostImpl) DragTargetDrop(event *MouseEvent) {
+	obj.rawPtr.CallDragTargetDrop(uintptr(unsafe.Pointer(event)))
 }
 
 func (obj *browserHostImpl) DragSourceEndedAt(x int32, y int32, op DragOperationsMask) {
@@ -701,8 +701,8 @@ func (obj *browserHostImpl) SetAccessibilityState(accessibilityState State) {
 	obj.rawPtr.CallSetAccessibilityState(uintptr(accessibilityState))
 }
 
-func (obj *browserHostImpl) SetAutoResizeEnabled(enabled int32, minSize uintptr, maxSize uintptr) {
-	obj.rawPtr.CallSetAutoResizeEnabled(uintptr(enabled), uintptr(minSize), uintptr(maxSize))
+func (obj *browserHostImpl) SetAutoResizeEnabled(enabled int32, minSize *Size, maxSize *Size) {
+	obj.rawPtr.CallSetAutoResizeEnabled(uintptr(enabled), uintptr(unsafe.Pointer(minSize)), uintptr(unsafe.Pointer(maxSize)))
 }
 
 func (obj *browserHostImpl) SetAudioMuted(mute int32) {
@@ -766,61 +766,17 @@ func wrapBrowserHost(ptr unsafe.Pointer) BrowserHost {
 func BrowserHostCreateBrowser(windowinfo *WindowInfo, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) int32 {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-
-	var clientPtr unsafe.Pointer
-	if client != nil {
-		clientPtr = extractRawPointer(client)
-	}
-	var extraInfoPtr unsafe.Pointer
-	if extraInfo != nil {
-		extraInfoPtr = extractRawPointer(extraInfo)
-	}
-	var rcPtr unsafe.Pointer
-	if requestContext != nil {
-		rcPtr = extractRawPointer(requestContext)
-	}
-
-	return raw.CEFBrowserHostCreateBrowser(
-		unsafe.Pointer(windowinfo),
-		clientPtr,
-		unsafe.Pointer(&uRLStr),
-		unsafe.Pointer(settings),
-		extraInfoPtr,
-		rcPtr,
-	)
+	return int32(raw.CEFBrowserHostCreateBrowser(unsafe.Pointer(windowinfo), extractRawPointer(client), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext)))
 }
 
 // BrowserHostCreateBrowserSync Create a new browser using the window parameters specified by |windowInfo|. If |request_context| is NULL the global request context will be used. This function can only be called on the browser process UI thread. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
 func BrowserHostCreateBrowserSync(windowinfo *WindowInfo, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) Browser {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-
-	var clientPtr unsafe.Pointer
-	if client != nil {
-		clientPtr = extractRawPointer(client)
-	}
-	var extraInfoPtr unsafe.Pointer
-	if extraInfo != nil {
-		extraInfoPtr = extractRawPointer(extraInfo)
-	}
-	var rcPtr unsafe.Pointer
-	if requestContext != nil {
-		rcPtr = extractRawPointer(requestContext)
-	}
-
-	ptr := raw.CEFBrowserHostCreateBrowserSync(
-		unsafe.Pointer(windowinfo),
-		clientPtr,
-		unsafe.Pointer(&uRLStr),
-		unsafe.Pointer(settings),
-		extraInfoPtr,
-		rcPtr,
-	)
-	return wrapBrowser(ptr)
+	return wrapBrowser(raw.CEFBrowserHostCreateBrowserSync(unsafe.Pointer(windowinfo), extractRawPointer(client), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext)))
 }
 
 // BrowserHostGetBrowserByIdentifier Returns the browser (if any) with the specified identifier.
 func BrowserHostGetBrowserByIdentifier(browserID int32) Browser {
-	ptr := raw.CEFBrowserHostGetBrowserByIdentifier(browserID)
-	return wrapBrowser(ptr)
+	return wrapBrowser(raw.CEFBrowserHostGetBrowserByIdentifier(browserID))
 }

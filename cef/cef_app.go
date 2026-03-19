@@ -75,25 +75,20 @@ func wrapApp(ptr unsafe.Pointer) App {
 
 // GetExitCode This function can optionally be called on the main application thread after CefInitialize to retrieve the initialization exit code. When CefInitialize returns true (1) the exit code will be 0 (CEF_RESULT_CODE_NORMAL_EXIT). Otherwise, see cef_resultcode_t for possible exit code values including browser process initialization errors and normal early exit conditions (such as CEF_RESULT_CODE_NORMAL_EXIT_PROCESS_NOTIFIED for process singleton relaunch behavior).
 func GetExitCode() int32 {
-	// TODO: marshal args, call raw.CEFGetExitCode(...), marshal return
-	_ = raw.CEFGetExitCode
-	return 0
+	return int32(raw.CEFGetExitCode())
 }
 
 // RunMessageLoop wraps the CEF CEFRunMessageLoop function.
 func RunMessageLoop() {
-	// TODO: marshal args and call raw.CEFRunMessageLoop(...)
-	_ = raw.CEFRunMessageLoop
+	raw.CEFRunMessageLoop()
 }
 
 // QuitMessageLoop Quit the CEF message loop that was started by calling cef_run_message_loop(). This function should only be called on the main application thread and only if cef_run_message_loop() was used.
 func QuitMessageLoop() {
-	// TODO: marshal args and call raw.CEFQuitMessageLoop(...)
-	_ = raw.CEFQuitMessageLoop
+	raw.CEFQuitMessageLoop()
 }
 
 // SetNestableTasksAllowed Set to true (1) before calling OS APIs on the CEF UI thread that will enter a native message loop (see usage restrictions below). Set to false (0) after exiting the native message loop. On Windows, use the CefSetOSModalLoop function instead in cases like native top menus where resize of the browser content is not required, or in cases like printer APIs where reentrancy safety cannot be guaranteed. Nested processing of Chromium tasks is disabled by default because common controls and/or printer functions may use nested native message loops that lead to unplanned reentrancy. This function re-enables nested processing in the scope of an upcoming native message loop. It must only be used in cases where the stack is reentrancy safe and processing nestable tasks is explicitly safe. Do not use in cases (like the printer example) where an OS API may experience unplanned reentrancy as a result of a new task executing immediately. For instance, - The UI thread is running a message loop. - It receives a task #1 and executes it. - The task #1 implicitly starts a nested message loop. For example, via   Windows APIs such as MessageBox or GetSaveFileName, or default handling of   a user-initiated drag/resize operation (e.g. DefWindowProc handling of   WM_SYSCOMMAND for SC_MOVE/SC_SIZE). - The UI thread receives a task #2 before or while in this second message   loop. - With NestableTasksAllowed set to true (1), the task #2 will run right   away. Otherwise, it will be executed right after task #1 completes at   "thread message loop level".
 func SetNestableTasksAllowed(allowed int32) {
-	// TODO: marshal args and call raw.CEFSetNestableTasksAllowed(...)
-	_ = raw.CEFSetNestableTasksAllowed
+	raw.CEFSetNestableTasksAllowed(allowed)
 }

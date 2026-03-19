@@ -13,9 +13,14 @@ func New{{.Name}}(impl {{.Name}}) unsafe.Pointer {
 		return uintptr(New{{.GetterInterface}}(cached{{.Name}}))
 	}))
 	{{- else}}
-	r.Override{{.RawFieldName}}(purego.NewCallback(func(self uintptr{{range $i, $p := .Params}}, {{cbParamName $p $i}} uintptr{{end}}) {{if .Return.IsVoid}}{{else}}uintptr{{end}} {
+	{{- $rawPs := .RawParams}}
+	r.Override{{.RawFieldName}}(purego.NewCallback(func(self uintptr{{range $i, $p := .RawParams}}, {{cbParamName $p $i}} uintptr{{end}}) {{if .Return.IsVoid}}{{else}}uintptr{{end}} {
 		{{- range $i, $p := .Params}}
-		{{$p.Name}} := {{unmarshalParam $p (cbParamName $p $i)}}
+		{{- if eq $p.MarshalKind "slice"}}
+		{{$p.Name}} := decodeSlice[{{$p.SliceElemType}}]({{slicePtrArg $p $rawPs}}, int({{sliceCountArg $p $rawPs}}))
+		{{- else}}
+		{{$p.Name}} := {{unmarshalParam $p (rawArgForParam $p $rawPs)}}
+		{{- end}}
 		{{- end}}
 		{{- if .Return.IsVoid}}
 		impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})

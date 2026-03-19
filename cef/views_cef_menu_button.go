@@ -12,7 +12,7 @@ import (
 // MenuButton MenuButton is a button with optional text, icon and/or menu marker that shows a menu when clicked with the left mouse button. All size and position values are in density independent pixels (DIP) unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
 type MenuButton interface {
 	// ShowMenu Show a menu with contents |menu_model|. |screen_point| specifies the menu position in screen coordinates. |anchor_position| specifies how the menu will be anchored relative to |screen_point|. This function should be called from cef_menu_button_delegate_t::on_menu_button_pressed().
-	ShowMenu(menuModel MenuModel, screenPoint uintptr, anchorPosition MenuAnchorPosition)
+	ShowMenu(menuModel MenuModel, screenPoint *Point, anchorPosition MenuAnchorPosition)
 	// TriggerMenu Show the menu for this button. Results in a call to cef_menu_button_delegate_t::on_menu_button_pressed().
 	TriggerMenu()
 }
@@ -21,8 +21,8 @@ type menuButtonImpl struct {
 	rawPtr *raw.CEFMenuButtonT
 }
 
-func (obj *menuButtonImpl) ShowMenu(menuModel MenuModel, screenPoint uintptr, anchorPosition MenuAnchorPosition) {
-	obj.rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(screenPoint), uintptr(anchorPosition))
+func (obj *menuButtonImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anchorPosition MenuAnchorPosition) {
+	obj.rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
 }
 
 func (obj *menuButtonImpl) TriggerMenu() {
@@ -55,8 +55,8 @@ func wrapMenuButton(ptr unsafe.Pointer) MenuButton {
 }
 
 // MenuButtonCreate Create a new MenuButton. A |delegate| must be provided to call show_menu() when the button is clicked. |text| will be shown on the MenuButton and used as the default accessible name. If |with_frame| is true (1) the button will have a visible frame at all times, center alignment, additional padding and a default minimum size of 70x33 DIP. If |with_frame| is false (0) the button will only have a visible frame on hover/press, left alignment, less padding and no default minimum size.
-func MenuButtonCreate(delegate MenuButtonDelegate, text string) uintptr {
-	// TODO: marshal args, call raw.CEFMenuButtonCreate(...), marshal return
-	_ = raw.CEFMenuButtonCreate
-	return 0
+func MenuButtonCreate(delegate MenuButtonDelegate, text string) MenuButton {
+	textStr := cefString(text)
+	defer freeCefString(&textStr)
+	return wrapMenuButton(raw.CEFMenuButtonCreate(extractRawPointer(delegate), unsafe.Pointer(&textStr)))
 }

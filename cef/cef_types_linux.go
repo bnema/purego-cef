@@ -17,7 +17,5 @@ type AcceleratedPaintInfo = raw.CEFAcceleratedPaintInfoT
 
 // GetXdisplay Return the singleton X11 display shared with Chromium. The display is not thread-safe and must only be accessed on the browser process UI thread.
 func GetXdisplay() uintptr {
-	// TODO: marshal args, call raw.CEFGetXdisplay(...), marshal return
-	_ = raw.CEFGetXdisplay
-	return 0
+	return uintptr(raw.CEFGetXdisplay())
 }

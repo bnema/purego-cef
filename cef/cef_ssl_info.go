@@ -56,7 +56,5 @@ func wrapSslinfo(ptr unsafe.Pointer) Sslinfo {
 
 // IsCertStatusError Returns true (1) if the certificate status represents an error.
 func IsCertStatusError(status CertStatus) int32 {
-	// TODO: marshal args, call raw.CEFIsCertStatusError(...), marshal return
-	_ = raw.CEFIsCertStatusError
-	return 0
+	return int32(raw.CEFIsCertStatusError(raw.CEFCertStatusT(status)))
 }

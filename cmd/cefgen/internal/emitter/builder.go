@@ -16,6 +16,12 @@ var skipPublicTypes = map[string]bool{
 	"DoMessageLoopWork": true,
 	"Initialize":        true,
 	"ExecuteProcess":    true,
+	// Functions with struct-by-value params/returns need hand-written wrappers.
+	"V8ValueCreateDate":                   true,
+	"DisplayConvertScreenPointToPixels":   true,
+	"DisplayConvertScreenPointFromPixels": true,
+	"DisplayConvertScreenRectToPixels":    true,
+	"DisplayConvertScreenRectFromPixels":  true,
 }
 
 // BuildPublicFileData converts a parsed header and type registry into the
@@ -112,6 +118,11 @@ func buildMethod(f model.Field, registry *TypeRegistry) MethodData {
 		}
 		m.Params = append(m.Params, pd)
 	}
+
+	// Save original params for raw callback signatures, then merge count+pointer pairs.
+	m.RawParams = make([]ParamData, len(m.Params))
+	copy(m.RawParams, m.Params)
+	m.Params = mergeCountPointerParams(m.Params, registry)
 
 	// Build return type.
 	ret := strings.TrimSpace(f.ReturnCType)
@@ -215,9 +226,11 @@ func buildFreeFunc(fn *model.Function, registry *TypeRegistry) FreeFuncData {
 
 	for _, p := range fn.Params {
 		ff.Params = append(ff.Params, ParamData{
-			Name:       paramName(p),
-			PublicType: registry.ResolvePublicType(p.CType),
-			CType:      p.CType,
+			Name:        paramName(p),
+			PublicType:  registry.ResolvePublicType(p.CType),
+			CType:       p.CType,
+			MarshalKind: classifyParamType(p.CType, registry),
+			RawGoType:   p.GoType,
 		})
 	}
 
@@ -225,9 +238,16 @@ func buildFreeFunc(fn *model.Function, registry *TypeRegistry) FreeFuncData {
 	if ret == "" || ret == "void" {
 		ff.Return = ReturnData{IsVoid: true, CType: ret}
 	} else {
+		pubType := registry.ResolvePublicType(ret)
 		ff.Return = ReturnData{
-			PublicType: registry.ResolvePublicType(ret),
-			CType:      ret,
+			PublicType:  pubType,
+			CType:       ret,
+			IsInterface: registry.IsInterfaceType(ret),
+			IsString:    registry.IsStringType(ret),
+			IsEnum:      registry.IsEnumType(ret),
+			IsNumeric:   isNumericType(pubType),
+			IsPointer:   pubType == "unsafe.Pointer",
+			IsBool:      false, // free functions don't use bool heuristic
 		}
 	}
 
@@ -365,4 +385,65 @@ func cleanEnumValueName(cName, prefix string) string {
 		return cName // fallback to original
 	}
 	return result
+}
+
+// mergeCountPointerParams detects count+pointer param pairs in handler callbacks
+// and merges them into a single []ElemType slice param.
+//
+// Pattern: param[i] has name ending in "count" with numeric type, and param[i+1]
+// has a name matching the prefix (e.g., "dirtyrectscount" + "dirtyrects").
+// The pointer param's type must resolve to a data struct pointer ("*Rect" etc.).
+func mergeCountPointerParams(params []ParamData, registry *TypeRegistry) []ParamData {
+	if len(params) < 2 {
+		return params
+	}
+
+	var merged []ParamData
+	skip := false
+	for i := 0; i < len(params); i++ {
+		if skip {
+			skip = false
+			continue
+		}
+		if i+1 < len(params) {
+			countP := params[i]
+			ptrP := params[i+1]
+
+			// Check: count param is numeric, name ends with "count",
+			// and the pointer param's name matches the prefix.
+			countName := strings.ToLower(countP.Name)
+			ptrName := strings.ToLower(ptrP.Name)
+			if strings.HasSuffix(countName, "count") &&
+				isIntLikeType(countP.PublicType) &&
+				strings.HasPrefix(countName, ptrName) &&
+				ptrP.MarshalKind == "dataStruct" {
+
+				// Extract element type: "*Rect" → "Rect"
+				elemType := strings.TrimPrefix(ptrP.PublicType, "*")
+
+				sliceParam := ParamData{
+					Name:          ptrP.Name,
+					PublicType:    "[]" + elemType,
+					CType:         ptrP.CType,
+					MarshalKind:   "slice",
+					SliceElemType: elemType,
+					// SliceCountArg/SlicePtrArg set by template using RawParams indices
+				}
+				merged = append(merged, sliceParam)
+				skip = true
+				continue
+			}
+		}
+		merged = append(merged, params[i])
+	}
+	return merged
+}
+
+// isIntLikeType returns true if the Go type is an integer type suitable as an array count.
+func isIntLikeType(goType string) bool {
+	switch goType {
+	case "int", "int32", "int64", "uint", "uint32", "uint64", "uintptr":
+		return true
+	}
+	return false
 }

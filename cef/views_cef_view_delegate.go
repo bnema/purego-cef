@@ -27,7 +27,7 @@ type ViewDelegate interface {
 	// OnWindowChanged Called when |view| is added or removed from the cef_window_t.
 	OnWindowChanged(view View, added int32)
 	// OnLayoutChanged Called when the layout of |view| has changed.
-	OnLayoutChanged(view View, newBounds uintptr)
+	OnLayoutChanged(view View, newBounds *Rect)
 	// OnFocus Called when |view| gains focus.
 	OnFocus(view View)
 	// OnBlur Called when |view| loses focus.
@@ -85,7 +85,7 @@ func NewViewDelegate(impl ViewDelegate) unsafe.Pointer {
 
 	r.OverrideOnLayoutChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		view := wrapView(unsafe.Pointer(arg0))
-		newBounds := uintptr(arg1)
+		newBounds := (*Rect)(unsafe.Pointer(arg1))
 		impl.OnLayoutChanged(view, newBounds)
 	}))
 

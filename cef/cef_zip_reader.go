@@ -119,8 +119,6 @@ func wrapZipReader(ptr unsafe.Pointer) ZipReader {
 }
 
 // ZipReaderCreate Create a new cef_zip_reader_t object. The returned object's functions can only be called from the thread that created the object.
-func ZipReaderCreate(stream StreamReader) uintptr {
-	// TODO: marshal args, call raw.CEFZipReaderCreate(...), marshal return
-	_ = raw.CEFZipReaderCreate
-	return 0
+func ZipReaderCreate(stream StreamReader) ZipReader {
+	return wrapZipReader(raw.CEFZipReaderCreate(extractRawPointer(stream)))
 }
