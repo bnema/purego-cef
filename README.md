@@ -4,6 +4,17 @@ Go bindings for the [Chromium Embedded Framework](https://bitbucket.org/chromium
 
 Linux only. `CGO_ENABLED=0`.
 
+## Architecture
+
+The entire public API is **generated** from CEF C headers. The generator parses all 114 CEF headers and produces:
+
+- **Go interfaces** for every CEF type (both handler structs you implement and CEF objects you receive)
+- **Typed constructors** for handlers (`NewClient(impl Client)`, `NewRenderHandler(impl RenderHandler)`, etc.)
+- **Typed wrappers** for CEF objects with automatic refcount management
+- **Doc comments** extracted from CEF C headers
+
+A small hand-written support layer (~200 LOC) handles UTF-16 string conversion, refcount wiring, and CEF lifecycle orchestration.
+
 ## Usage
 
 ```go
@@ -12,45 +23,34 @@ package main
 import (
 	"os"
 	"runtime"
+	"unsafe"
 
 	"github.com/bnema/purego-cef/cef"
 )
 
 func main() {
 	runtime.LockOSThread()
+	cef.MaybeExitSubprocess()
 
-	// Subprocess handling (multi-process mode)
-	if code, err := cef.MaybeExitSubprocess(""); err == nil && code >= 0 {
-		os.Exit(code)
-	}
-
-	rt := cef.NewRuntime("")
-	if err := rt.Init(cef.DefaultSettings()); err != nil {
+	if err := cef.Init(cef.DefaultSettings()); err != nil {
 		panic(err)
 	}
-	defer rt.Shutdown()
+	defer cef.Shutdown()
 
-	client := cef.NewClient().WithRenderHandler(cef.RenderHandlerFunc(func(e cef.PaintEvent) {
-		// e.Buffer contains the BGRA pixel data
-	}))
-
-	browser, err := rt.CreateBrowser(cef.BrowserConfig{
-		URL:       "https://example.com",
-		Width:     1280,
-		Height:    720,
-		FrameRate: 60,
-		Client:    client,
-	})
-	if err != nil {
-		panic(err)
-	}
-	defer browser.Close()
+	client := cef.NewClient(myClient{})
 
 	// Your render loop here
 	for {
-		rt.DoMessageLoopWork()
+		cef.DoMessageLoopWork()
 	}
 }
+
+// Implement the Client interface — only the methods you need.
+type myClient struct{}
+
+func (c myClient) GetLifeSpanHandler() cef.LifeSpanHandler { return nil }
+func (c myClient) GetRenderHandler() cef.RenderHandler     { return myRenderer{} }
+// ... other handler getters return nil
 ```
 
 ## Requirements
@@ -73,21 +73,24 @@ CEF_DIR=$HOME/.local/share/cef go test -tags=cef_integration ./integration
 
 ## Regenerating bindings
 
-The raw C API bindings in `internal/capi/` are generated from CEF headers:
+The public API in `cef/` and raw bindings in `cef/internal/raw/` are generated from CEF headers:
 
 ```
-CEF_DIR=$HOME/.local/share/cef go generate ./internal/capi
+go run ./cmd/cefgen \
+  --headers-dir ~/.local/share/cef/include \
+  --raw-dir cef/internal/raw \
+  --public-dir cef
 ```
 
 ## Project layout
 
 ```
-cef/               public API (interfaces, runtime, browser)
-internal/capi/     generated C API bindings
-internal/loader/   libcef.so discovery + dlopen
-internal/cefstr/   UTF-16 string helpers
-internal/refcount/ prevent GC of Go-owned CEF structs
-cmd/cefgen/        binding generator (parses headers, emits Go)
+cef/                 generated public API (interfaces, wrappers, constructors)
+cef/support.go       hand-written: string conversion, refcount wiring
+cef/init.go          hand-written: Init(), Shutdown(), orchestration
+cef/internal/raw/    generated C struct layouts + purego bindings
+cmd/cefgen/          binding generator (parser, model, emitter, templates)
+integration/         integration tests (require CEF runtime)
 ```
 
 ## License
