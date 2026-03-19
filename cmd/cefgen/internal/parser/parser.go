@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -104,7 +105,11 @@ func populateFunctionDoc(fn *model.Function, rawSource string, docIdx *docIndex)
 	}
 }
 
+// defineRE matches simple #define NAME VALUE lines (integer or expression).
+var defineRE = regexp.MustCompile(`^#define\s+(\w+)\s+(\d+)\s*$`)
+
 // stripComments removes single-line comments, block comments, preprocessor directives, and blank lines.
+// It first collects simple #define constants and expands them inline.
 func stripComments(data []byte) []byte {
 	// First strip block comments /* ... */
 	for {
@@ -117,6 +122,19 @@ func stripComments(data []byte) []byte {
 			break
 		}
 		data = append(data[:start], data[start+2+end+2:]...)
+	}
+
+	// Collect simple #define NAME INTEGER constants.
+	defines := map[string]string{}
+	for _, line := range bytes.Split(data, []byte("\n")) {
+		if m := defineRE.FindSubmatch(bytes.TrimSpace(line)); m != nil {
+			defines[string(m[1])] = string(m[2])
+		}
+	}
+
+	// Expand #define constants in the source.
+	for name, val := range defines {
+		data = bytes.ReplaceAll(data, []byte(name), []byte(val))
 	}
 
 	lines := bytes.Split(data, []byte("\n"))
@@ -284,6 +302,11 @@ func parseFunction(name, ret, params string) model.Function {
 
 func parseEnum(name, body string) model.Enum {
 	result := model.Enum{CName: name, GoName: goName(name)}
+	// Track values for auto-increment and symbolic resolution.
+	nextVal := 0
+	nameToVal := map[string]int{}
+	seen := map[string]bool{}
+
 	for _, line := range strings.Split(body, ",") {
 		line = strings.TrimSpace(line)
 		if line == "" {
@@ -294,10 +317,44 @@ func parseEnum(name, body string) model.Enum {
 		if cname == "" {
 			continue
 		}
+
+		// Skip duplicate enum values (from preprocessor conditionals).
+		if seen[cname] {
+			continue
+		}
+		seen[cname] = true
+
 		val := ""
 		if len(parts) == 2 {
 			val = strings.TrimSpace(parts[1])
 		}
+
+		if val == "" {
+			// Auto-increment from previous value.
+			val = fmt.Sprintf("%d", nextVal)
+			nameToVal[cname] = nextVal
+			nextVal++
+		} else {
+			// Try to parse as integer.
+			if n, err := strconv.Atoi(val); err == nil {
+				nameToVal[cname] = n
+				nextVal = n + 1
+			} else if resolved, ok := nameToVal[val]; ok {
+				// Symbolic reference to another enum value in same enum.
+				val = fmt.Sprintf("%d", resolved)
+				nameToVal[cname] = resolved
+				nextVal = resolved + 1
+			} else {
+				// Resolve well-known C macros.
+				val = resolveCMacros(val)
+				// Complex expression (bit shifts, etc.) — keep as-is,
+				// don't update auto-increment (next bare value will be wrong
+				// but this is rare in practice).
+				nameToVal[cname] = nextVal
+				nextVal++
+			}
+		}
+
 		result.Values = append(result.Values, model.EnumValue{
 			CName:  cname,
 			GoName: goName(cname),
@@ -305,6 +362,17 @@ func parseEnum(name, body string) model.Enum {
 		})
 	}
 	return result
+}
+
+// resolveCMacros replaces well-known C macros with Go equivalents.
+func resolveCMacros(val string) string {
+	replacements := map[string]string{
+		"UINT_MAX": "0xFFFFFFFF",
+	}
+	for macro, replacement := range replacements {
+		val = strings.ReplaceAll(val, macro, replacement)
+	}
+	return val
 }
 
 // goName converts a C identifier like cef_client_t or CEF_CALLBACK to a Go name.

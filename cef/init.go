@@ -60,7 +60,7 @@ func (s Settings) toRaw() (raw.CEFSettingsT, func()) {
 	if s.WindowlessRenderingEnabled {
 		c.WindowlessRenderingEnabled = 1
 	}
-	c.LogSeverity = int32(s.LogSeverity)
+	c.LogSeverity = raw.CEFLogSeverityT(s.LogSeverity)
 
 	return c, func() {} // cleanup placeholder; strings would be freed here
 }

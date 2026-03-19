@@ -65,14 +65,15 @@ func goString(cs unsafe.Pointer) string {
 	return string(utf16.Decode(slice))
 }
 
-// goStringUserfree converts a cef_string_userfree_t (returned by CEF as a
-// uintptr) to a Go string and frees the userfree string.
-func goStringUserfree(ptr uintptr) string {
-	if ptr == 0 {
+// goStringUserfree converts a cef_string_userfree_t to a Go string and frees
+// the userfree string. The pointer parameter is unsafe.Pointer because CEF
+// returns userfree strings as opaque handles.
+func goStringUserfree(ptr unsafe.Pointer) string {
+	if ptr == nil {
 		return ""
 	}
-	cs := (*raw.CEFStringT)(unsafe.Pointer(ptr))
-	s := goString(unsafe.Pointer(cs))
+	cs := (*raw.CEFStringT)(ptr)
+	s := goString(ptr)
 	stringFreeFn(cs)
 	return s
 }

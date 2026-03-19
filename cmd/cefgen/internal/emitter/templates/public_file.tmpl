@@ -3,18 +3,20 @@
 
 package {{.PackageName}}
 
-{{if or .Interfaces .DataStructs .FreeFunctions}}
+{{if or .NeedsRaw .NeedsUnsafe .HasObjects .HasHandlers .Enums}}
 import (
-{{- if .Interfaces}}
+{{- if .HasObjects}}
 	"runtime"
+{{- end}}
+{{- if or .Interfaces .NeedsUnsafe}}
 	"unsafe"
+{{- end}}
+{{- if .HasHandlers}}
 
 	"github.com/ebitengine/purego"
+{{- end}}
+{{- if .NeedsRaw}}
 
-	"github.com/bnema/purego-cef/cef/internal/raw"
-{{- else if .DataStructs}}
-	"github.com/bnema/purego-cef/cef/internal/raw"
-{{- else if .FreeFunctions}}
 	"github.com/bnema/purego-cef/cef/internal/raw"
 {{- end}}
 )

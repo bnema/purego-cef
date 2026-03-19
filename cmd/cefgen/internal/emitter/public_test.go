@@ -15,7 +15,7 @@ func TestEmitPublicObjectInterface(t *testing.T) {
 			Kind:          "object",
 			InterfaceName: "Browser",
 			Fields: []model.Field{
-				{CName: "base", GoName: "Base", IsFunction: false},
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
 				{
 					CName:       "get_host",
 					GoName:      "GetHost",
@@ -57,7 +57,7 @@ func TestEmitPublicObjectInterface(t *testing.T) {
 		{"method CanGoBack", "CanGoBack() bool"},
 		{"impl struct", "type browserImpl struct"},
 		{"wrap function", "func wrapBrowser(ptr unsafe.Pointer) Browser"},
-		{"Release method", "func (x *browserImpl) Release()"},
+		{"Release method", "func (obj *browserImpl) Release()"},
 		{"runtime import", `"runtime"`},
 		{"raw import", `raw`},
 	}
@@ -77,7 +77,7 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 			Kind:          "handler",
 			InterfaceName: "LifeSpanHandler",
 			Fields: []model.Field{
-				{CName: "base", GoName: "Base", IsFunction: false},
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
 				{
 					CName:       "on_before_popup",
 					GoName:      "OnBeforePopup",
@@ -118,7 +118,7 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 	}{
 		{"interface declaration", "type LifeSpanHandler interface"},
 		{"constructor function", "func NewLifeSpanHandler(impl LifeSpanHandler) unsafe.Pointer"},
-		{"initRefCount call", "initRefCount(unsafe.Pointer(raw))"},
+		{"initRefCount call", "initRefCount(unsafe.Pointer(r)"},
 		{"purego.NewCallback", "purego.NewCallback"},
 	}
 
@@ -171,13 +171,14 @@ func TestEmitPublicEnum(t *testing.T) {
 }
 
 func TestEmitPublicFreeFunc(t *testing.T) {
+	// Use a function name that's NOT in skipPublicTypes.
 	header := &model.Header{
 		Functions: []model.Function{{
-			CName:       "cef_initialize",
-			GoName:      "CEFInitialize",
-			ReturnCType: "int",
+			CName:       "cef_get_mime_type",
+			GoName:      "CEFGetMimeType",
+			ReturnCType: "cef_string_userfree_t",
 			Params: []model.Param{
-				{CName: "args", GoName: "args", CType: "const cef_main_args_t*"},
+				{CName: "extension", GoName: "extension", CType: "const cef_string_t*"},
 			},
 		}},
 	}
@@ -192,11 +193,11 @@ func TestEmitPublicFreeFunc(t *testing.T) {
 
 	t.Log(code)
 
-	if !strings.Contains(code, "func Initialize(") {
+	if !strings.Contains(code, "func GetMimeType(") {
 		t.Error("missing free function wrapper")
 	}
-	if !strings.Contains(code, "raw.CEFInitialize") {
-		t.Error("missing raw function call")
+	if !strings.Contains(code, "raw.CEFGetMimeType") {
+		t.Error("missing raw function reference")
 	}
 }
 
@@ -209,7 +210,7 @@ func TestBuildPublicFileData(t *testing.T) {
 				Kind:          "object",
 				InterfaceName: "Browser",
 				Fields: []model.Field{
-					{CName: "base", GoName: "Base", IsFunction: false},
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
 					{
 						CName:       "get_host",
 						GoName:      "GetHost",
@@ -226,7 +227,8 @@ func TestBuildPublicFileData(t *testing.T) {
 			}},
 		},
 		Functions: []model.Function{
-			{CName: "cef_initialize", GoName: "CEFInitialize", ReturnCType: "int"},
+			// Use a non-skipped function name.
+			{CName: "cef_get_mime_type", GoName: "CEFGetMimeType", ReturnCType: "cef_string_userfree_t"},
 		},
 	}
 
@@ -256,7 +258,7 @@ func TestBuildPublicFileData(t *testing.T) {
 	if len(data.FreeFunctions) != 1 {
 		t.Fatalf("expected 1 free func, got %d", len(data.FreeFunctions))
 	}
-	if data.FreeFunctions[0].Name != "Initialize" {
-		t.Errorf("expected func name Initialize, got %s", data.FreeFunctions[0].Name)
+	if data.FreeFunctions[0].Name != "GetMimeType" {
+		t.Errorf("expected func name GetMimeType, got %s", data.FreeFunctions[0].Name)
 	}
 }

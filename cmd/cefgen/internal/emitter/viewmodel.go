@@ -1,5 +1,7 @@
 package emitter
 
+import "strings"
+
 // PublicFileData holds all data needed to render the public API file for one header.
 type PublicFileData struct {
 	PackageName   string
@@ -9,11 +11,69 @@ type PublicFileData struct {
 	FreeFunctions []FreeFuncData
 }
 
+// NeedsUnsafe returns true if any type reference uses unsafe.Pointer.
+func (d *PublicFileData) NeedsUnsafe() bool {
+	for _, iface := range d.Interfaces {
+		for _, m := range iface.Methods {
+			if usesUnsafe(m.Return.PublicType) {
+				return true
+			}
+			for _, p := range m.Params {
+				if usesUnsafe(p.PublicType) {
+					return true
+				}
+			}
+		}
+	}
+	for _, ff := range d.FreeFunctions {
+		if usesUnsafe(ff.Return.PublicType) {
+			return true
+		}
+		for _, p := range ff.Params {
+			if usesUnsafe(p.PublicType) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func usesUnsafe(typ string) bool {
+	return strings.Contains(typ, "unsafe.Pointer")
+}
+
+// HasObjects returns true if there are non-scoped object interfaces.
+func (d *PublicFileData) HasObjects() bool {
+	for _, iface := range d.Interfaces {
+		if iface.Kind == "object" && !iface.IsScoped {
+			return true
+		}
+	}
+	return false
+}
+
+// HasHandlers returns true if there are handler interfaces with methods
+// (which need purego.NewCallback).
+func (d *PublicFileData) HasHandlers() bool {
+	for _, iface := range d.Interfaces {
+		if iface.Kind == "handler" && len(iface.Methods) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// NeedsRaw returns true if the file references the raw package.
+func (d *PublicFileData) NeedsRaw() bool {
+	return len(d.Interfaces) > 0 || len(d.DataStructs) > 0 || len(d.FreeFunctions) > 0
+}
+
 // InterfaceData represents a handler or object interface.
 type InterfaceData struct {
 	Name      string // "Browser", "LifeSpanHandler"
 	Doc       string
 	Kind      string // "handler" or "object"
+	IsScoped  bool   // true for scoped types (cef_base_scoped_t base)
 	RawGoName string // "CEFBrowserT"
 	Methods   []MethodData
 }
@@ -42,6 +102,7 @@ type ReturnData struct {
 	CType      string
 	IsBool     bool
 	IsVoid     bool
+	IsEnum     bool
 }
 
 // DataStructData represents a plain data struct re-export.
@@ -64,6 +125,7 @@ type EnumData struct {
 	Name      string // "State" (from cef_state_t)
 	Doc       string
 	RawGoName string // "CEFStateT"
+	Unsigned  bool   // true if any value exceeds int32 range
 	Values    []EnumValueData
 }
 

@@ -87,6 +87,18 @@ func (r *TypeRegistry) ResolvePublicType(ctype string) string {
 		return "string"
 	case "size_t*":
 		return "*int"
+	case "int*":
+		return "unsafe.Pointer"
+	case "uint32_t*":
+		return "unsafe.Pointer"
+	case "int64_t*":
+		return "unsafe.Pointer"
+	case "uint64_t*":
+		return "unsafe.Pointer"
+	case "double*":
+		return "unsafe.Pointer"
+	case "float*":
+		return "unsafe.Pointer"
 	}
 
 	// Enum lookup: bare enum type name like "cef_process_id_t".
@@ -109,7 +121,8 @@ func (r *TypeRegistry) ResolvePublicType(ctype string) string {
 	return "uintptr"
 }
 
-// resolveStructPointer handles "struct _cef_xxx_t*" and "const struct _cef_xxx_t*".
+// resolveStructPointer handles "struct _cef_xxx_t*", "const struct _cef_xxx_t*",
+// and double-pointer "struct _cef_xxx_t**" forms.
 // It strips const, struct prefix, and pointer suffix, then looks up in the registry.
 func (r *TypeRegistry) resolveStructPointer(ct string) (string, bool) {
 	s := ct
@@ -117,10 +130,18 @@ func (r *TypeRegistry) resolveStructPointer(ct string) (string, bool) {
 	if !strings.HasPrefix(s, "struct _") {
 		return "", false
 	}
-	s = strings.TrimSuffix(s, "*")
+
+	// Count and strip pointer stars.
+	ptrCount := strings.Count(s, "*")
+	s = strings.TrimRight(s, "*")
 	s = strings.TrimSpace(s)
 	// "struct _cef_browser_t" -> "_cef_browser_t"
 	s = strings.TrimPrefix(s, "struct ")
+
+	// For double pointers (output params like **client), use unsafe.Pointer.
+	if ptrCount >= 2 {
+		return "unsafe.Pointer", true
+	}
 
 	// Look up in registry using the underscore-prefixed name.
 	if st, ok := r.structs[s]; ok {
@@ -145,6 +166,13 @@ func (r *TypeRegistry) resolveStructPointer(ct string) (string, bool) {
 
 	// Not found in registry; fall back to public name.
 	return model.PublicName(s), true
+}
+
+// IsEnumType returns true if the given C type resolves to an enum.
+func (r *TypeRegistry) IsEnumType(ctype string) bool {
+	ct := strings.TrimSpace(ctype)
+	_, ok := r.enums[ct]
+	return ok
 }
 
 // IsGetterCallback returns true if the field is a function callback with

@@ -1,10 +1,22 @@
 package emitter
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
 )
+
+// skipPublicTypes lists type/function names (after PublicName conversion) that
+// are hand-written in init.go or support.go and must not be generated.
+var skipPublicTypes = map[string]bool{
+	"Settings":          true,
+	"MainArgs":          true,
+	"Shutdown":          true,
+	"DoMessageLoopWork": true,
+	"Initialize":        true,
+	"ExecuteProcess":    true,
+}
 
 // BuildPublicFileData converts a parsed header and type registry into the
 // view model used by the public API templates.
@@ -15,6 +27,10 @@ func BuildPublicFileData(header *model.Header, registry *TypeRegistry) *PublicFi
 
 	for i := range header.Structs {
 		s := &header.Structs[i]
+		pubName := model.PublicName(s.CName)
+		if skipPublicTypes[pubName] {
+			continue
+		}
 		switch s.Kind {
 		case "handler", "object":
 			data.Interfaces = append(data.Interfaces, buildInterface(s, registry))
@@ -28,17 +44,32 @@ func BuildPublicFileData(header *model.Header, registry *TypeRegistry) *PublicFi
 	}
 
 	for i := range header.Functions {
-		data.FreeFunctions = append(data.FreeFunctions, buildFreeFunc(&header.Functions[i], registry))
+		fn := &header.Functions[i]
+		pubName := model.PublicName(fn.CName)
+		if skipPublicTypes[pubName] {
+			continue
+		}
+		data.FreeFunctions = append(data.FreeFunctions, buildFreeFunc(fn, registry))
 	}
 
 	return data
 }
 
 func buildInterface(s *model.Struct, registry *TypeRegistry) InterfaceData {
+	// Detect scoped types by checking the base field type.
+	isScoped := false
+	for _, f := range s.Fields {
+		if strings.EqualFold(f.CName, "base") && strings.Contains(f.CType, "cef_base_scoped_t") {
+			isScoped = true
+			break
+		}
+	}
+
 	iface := InterfaceData{
 		Name:      s.InterfaceName,
 		Doc:       s.Doc,
 		Kind:      s.Kind,
+		IsScoped:  isScoped,
 		RawGoName: s.GoName,
 	}
 
@@ -58,8 +89,12 @@ func buildInterface(s *model.Struct, registry *TypeRegistry) InterfaceData {
 }
 
 func buildMethod(f model.Field, registry *TypeRegistry) MethodData {
+	name := model.PublicName(f.CName)
+	if renamed, ok := methodRenames[name]; ok {
+		name = renamed
+	}
 	m := MethodData{
-		Name:         model.PublicName(f.CName),
+		Name:         name,
 		Doc:          f.Doc,
 		RawFieldName: f.GoName,
 	}
@@ -90,6 +125,7 @@ func buildMethod(f model.Field, registry *TypeRegistry) MethodData {
 			PublicType: pubType,
 			CType:      ret,
 			IsBool:     isBool,
+			IsEnum:     registry.IsEnumType(ret),
 		}
 	}
 
@@ -139,9 +175,27 @@ func buildEnum(e *model.Enum) EnumData {
 			Name:  name,
 			Value: v.Value,
 		})
+		// Detect unsigned values (hex > 0x7FFFFFFF or large decimal).
+		if isUnsignedValue(v.Value) {
+			ed.Unsigned = true
+		}
 	}
 
 	return ed
+}
+
+// isUnsignedValue returns true if the value string represents a number
+// that exceeds the int32 range.
+func isUnsignedValue(val string) bool {
+	val = strings.TrimSpace(val)
+	if strings.HasPrefix(val, "0x") || strings.HasPrefix(val, "0X") {
+		// Parse as uint64 and check if > MaxInt32.
+		n, err := strconv.ParseUint(val[2:], 16, 64)
+		if err == nil && n > 0x7FFFFFFF {
+			return true
+		}
+	}
+	return false
 }
 
 func buildFreeFunc(fn *model.Function, registry *TypeRegistry) FreeFuncData {
@@ -172,6 +226,22 @@ func buildFreeFunc(fn *model.Function, registry *TypeRegistry) FreeFuncData {
 	return ff
 }
 
+// methodRenames maps method names that conflict with Go standard interfaces
+// (like io.Seeker's Seek) to alternative names to avoid go vet warnings.
+var methodRenames = map[string]string{
+	"Seek": "SeekOffset",
+}
+
+// goKeywords are Go reserved words that cannot be used as identifiers.
+var goKeywords = map[string]bool{
+	"break": true, "case": true, "chan": true, "const": true, "continue": true,
+	"default": true, "defer": true, "else": true, "fallthrough": true,
+	"for": true, "func": true, "go": true, "goto": true, "if": true,
+	"import": true, "interface": true, "map": true, "package": true,
+	"range": true, "return": true, "select": true, "struct": true,
+	"switch": true, "type": true, "var": true,
+}
+
 // paramName converts a C parameter name to a Go-idiomatic name.
 func paramName(p model.Param) string {
 	name := p.GoName
@@ -181,6 +251,10 @@ func paramName(p model.Param) string {
 	// Lowercase first letter for parameter names.
 	if len(name) > 0 {
 		name = strings.ToLower(name[:1]) + name[1:]
+	}
+	// Escape Go keywords by appending an underscore.
+	if goKeywords[name] {
+		name = name + "_"
 	}
 	return name
 }

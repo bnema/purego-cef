@@ -56,9 +56,12 @@ func EmitPublic(data *PublicFileData) (string, error) {
 					strings.HasPrefix(typ, "map[") || typ == "unsafe.Pointer" {
 					return "nil"
 				}
-				// Interface types or named types default to nil.
+				// Interface types default to nil.
 				return "nil"
 			}
+		},
+		"isEnumReturn": func(ret ReturnData) bool {
+			return ret.IsEnum
 		},
 	}
 

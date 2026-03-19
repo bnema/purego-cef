@@ -1,37 +1,52 @@
 {{define "object_wrapper.tmpl"}}
 type {{lower .Name}}Impl struct {
-	raw *raw.{{.RawGoName}}
+	rawPtr *raw.{{.RawGoName}}
 }
 
 {{range .Methods}}
-func (x *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
 	{{- if .Return.IsVoid}}
-	x.raw.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})
+	obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})
 	{{- else if .Return.IsBool}}
-	return x.raw.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}) != 0
+	return obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}) != 0
+	{{- else if .Return.IsEnum}}
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}))
 	{{- else}}
-	ret := x.raw.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})
+	ret := obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})
 	_ = ret
 	return {{zeroVal .Return.PublicType}}
 	{{- end}}
 }
 {{end}}
 
+{{if .IsScoped}}
+func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+	if ptr == nil {
+		return nil
+	}
+	r := (*raw.{{.RawGoName}})(ptr)
+	return &{{lower .Name}}Impl{rawPtr: r}
+}
+{{else}}
 // Release releases the underlying CEF object.
-func (x *{{lower .Name}}Impl) Release() {
-	x.raw.CallBaseRelease()
+func (obj *{{lower .Name}}Impl) Release() {
+	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
 }
 
 func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
 	if ptr == nil {
 		return nil
 	}
-	raw := (*raw.{{.RawGoName}})(ptr)
-	raw.CallBaseAddRef()
-	impl := &{{lower .Name}}Impl{raw: raw}
+	r := (*raw.{{.RawGoName}})(ptr)
+	base := (*raw.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &{{lower .Name}}Impl{rawPtr: r}
 	runtime.SetFinalizer(impl, func(o *{{lower .Name}}Impl) {
-		o.raw.CallBaseRelease()
+		b := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
 	})
 	return impl
 }
+{{end}}
 {{end}}
