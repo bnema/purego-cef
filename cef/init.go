@@ -25,6 +25,10 @@ type Settings struct {
 	// LogSeverity controls the CEF log level.
 	LogSeverity int32
 
+	// MultiThreadedMessageLoop runs the browser process message loop on a
+	// dedicated CEF-managed thread. This is supported on Linux and Windows.
+	MultiThreadedMessageLoop bool
+
 	// WindowlessRenderingEnabled enables off-screen rendering mode.
 	WindowlessRenderingEnabled bool
 
@@ -76,7 +80,10 @@ func (s Settings) toRaw() (raw.CEFSettingsT, func()) {
 	if s.NoSandbox {
 		c.NoSandbox = 1
 	}
-	if s.ExternalMessagePump {
+	if s.MultiThreadedMessageLoop {
+		c.MultiThreadedMessageLoop = 1
+	}
+	if s.ExternalMessagePump && !s.MultiThreadedMessageLoop {
 		c.ExternalMessagePump = 1
 	}
 	if s.WindowlessRenderingEnabled {
