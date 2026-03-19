@@ -16,10 +16,12 @@ import (
 // ---------------------------------------------------------------------------
 
 var (
-	stringSet    func(*uint16, uintptr, *raw.CEFStringT, int32) int32
-	stringClear  func(*raw.CEFStringT)
-	stringFreeFn func(*raw.CEFStringT)
-	stringsBound atomic.Bool
+	stringSet      func(*uint16, uintptr, *raw.CEFStringT, int32) int32
+	stringClear    func(*raw.CEFStringT)
+	stringFreeFn   func(*raw.CEFStringT)
+	stringListSize func(uintptr) uintptr
+	stringListVal  func(uintptr, uintptr, *raw.CEFStringT) int32
+	stringsBound   atomic.Bool
 )
 
 // bindStringFuncs registers the CEF UTF-16 string functions from the loaded
@@ -28,6 +30,8 @@ func bindStringFuncs(handle uintptr) {
 	purego.RegisterLibFunc(&stringSet, handle, "cef_string_utf16_set")
 	purego.RegisterLibFunc(&stringClear, handle, "cef_string_utf16_clear")
 	purego.RegisterLibFunc(&stringFreeFn, handle, "cef_string_userfree_utf16_free")
+	purego.RegisterLibFunc(&stringListSize, handle, "cef_string_list_size")
+	purego.RegisterLibFunc(&stringListVal, handle, "cef_string_list_value")
 	stringsBound.Store(true)
 }
 
@@ -76,6 +80,25 @@ func goStringUserfree(ptr unsafe.Pointer) string {
 	s := goString(ptr)
 	stringFreeFn(cs)
 	return s
+}
+
+// DecodeStringList converts a cef_string_list_t handle to a Go string slice.
+func DecodeStringList(list uintptr) []string {
+	if list == 0 {
+		return nil
+	}
+	n := int(stringListSize(list))
+	if n == 0 {
+		return nil
+	}
+	out := make([]string, n)
+	for i := range out {
+		var cs raw.CEFStringT
+		stringListVal(list, uintptr(i), &cs)
+		out[i] = goString(unsafe.Pointer(&cs))
+		stringClear(&cs)
+	}
+	return out
 }
 
 // ---------------------------------------------------------------------------
