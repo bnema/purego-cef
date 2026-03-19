@@ -50,9 +50,23 @@ type MenuButtonDelegate interface {
 	OnMenuButtonPressed(menuButton MenuButton, screenPoint *Point, buttonPressedLock MenuButtonPressedLock)
 }
 
+// menuButtonDelegateWrapper wraps a user-provided MenuButtonDelegate implementation together
+// with the raw CEF struct pointer allocated by NewMenuButtonDelegate.  It satisfies the
+// MenuButtonDelegate interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type menuButtonDelegateWrapper struct {
+	MenuButtonDelegate // embed user impl for interface delegation
+	rawPtr             *raw.CEFMenuButtonDelegateT
+}
+
+func (w *menuButtonDelegateWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewMenuButtonDelegate creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewMenuButtonDelegate(impl MenuButtonDelegate) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewMenuButtonDelegate(impl MenuButtonDelegate) MenuButtonDelegate {
 	r := new(raw.CEFMenuButtonDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -63,7 +77,9 @@ func NewMenuButtonDelegate(impl MenuButtonDelegate) unsafe.Pointer {
 		impl.OnMenuButtonPressed(menuButton, screenPoint, buttonPressedLock)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &menuButtonDelegateWrapper{rawPtr: r}
+	w.MenuButtonDelegate = impl
+	return w
 }
 
 // wrapMenuButtonDelegate wraps a CEF handler pointer received from CEF into a Go interface.

@@ -52,118 +52,186 @@ type Client interface {
 	OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32
 }
 
+// clientWrapper wraps a user-provided Client implementation together
+// with the raw CEF struct pointer allocated by NewClient.  It satisfies the
+// Client interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type clientWrapper struct {
+	Client // embed user impl for interface delegation
+	rawPtr *raw.CEFClientT
+}
+
+func (w *clientWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewClient creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewClient(impl Client) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewClient(impl Client) Client {
 	r := new(raw.CEFClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
 	// Cache the getter result once.
 	cachedGetAudioHandler := impl.GetAudioHandler()
 	r.OverrideGetAudioHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewAudioHandler(cachedGetAudioHandler))
+		if cachedGetAudioHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewAudioHandler(cachedGetAudioHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetCommandHandler := impl.GetCommandHandler()
 	r.OverrideGetCommandHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewCommandHandler(cachedGetCommandHandler))
+		if cachedGetCommandHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewCommandHandler(cachedGetCommandHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetContextMenuHandler := impl.GetContextMenuHandler()
 	r.OverrideGetContextMenuHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewContextMenuHandler(cachedGetContextMenuHandler))
+		if cachedGetContextMenuHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewContextMenuHandler(cachedGetContextMenuHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDialogHandler := impl.GetDialogHandler()
 	r.OverrideGetDialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewDialogHandler(cachedGetDialogHandler))
+		if cachedGetDialogHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewDialogHandler(cachedGetDialogHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDisplayHandler := impl.GetDisplayHandler()
 	r.OverrideGetDisplayHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewDisplayHandler(cachedGetDisplayHandler))
+		if cachedGetDisplayHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewDisplayHandler(cachedGetDisplayHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDownloadHandler := impl.GetDownloadHandler()
 	r.OverrideGetDownloadHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewDownloadHandler(cachedGetDownloadHandler))
+		if cachedGetDownloadHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewDownloadHandler(cachedGetDownloadHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDragHandler := impl.GetDragHandler()
 	r.OverrideGetDragHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewDragHandler(cachedGetDragHandler))
+		if cachedGetDragHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewDragHandler(cachedGetDragHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetFindHandler := impl.GetFindHandler()
 	r.OverrideGetFindHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewFindHandler(cachedGetFindHandler))
+		if cachedGetFindHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewFindHandler(cachedGetFindHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetFocusHandler := impl.GetFocusHandler()
 	r.OverrideGetFocusHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewFocusHandler(cachedGetFocusHandler))
+		if cachedGetFocusHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewFocusHandler(cachedGetFocusHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetFrameHandler := impl.GetFrameHandler()
 	r.OverrideGetFrameHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewFrameHandler(cachedGetFrameHandler))
+		if cachedGetFrameHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewFrameHandler(cachedGetFrameHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetPermissionHandler := impl.GetPermissionHandler()
 	r.OverrideGetPermissionHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewPermissionHandler(cachedGetPermissionHandler))
+		if cachedGetPermissionHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewPermissionHandler(cachedGetPermissionHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetJsdialogHandler := impl.GetJsdialogHandler()
 	r.OverrideGetJsdialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewJsdialogHandler(cachedGetJsdialogHandler))
+		if cachedGetJsdialogHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewJsdialogHandler(cachedGetJsdialogHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetKeyboardHandler := impl.GetKeyboardHandler()
 	r.OverrideGetKeyboardHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewKeyboardHandler(cachedGetKeyboardHandler))
+		if cachedGetKeyboardHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewKeyboardHandler(cachedGetKeyboardHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetLifeSpanHandler := impl.GetLifeSpanHandler()
 	r.OverrideGetLifeSpanHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewLifeSpanHandler(cachedGetLifeSpanHandler))
+		if cachedGetLifeSpanHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewLifeSpanHandler(cachedGetLifeSpanHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetLoadHandler := impl.GetLoadHandler()
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewLoadHandler(cachedGetLoadHandler))
+		if cachedGetLoadHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewLoadHandler(cachedGetLoadHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetPrintHandler := impl.GetPrintHandler()
 	r.OverrideGetPrintHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewPrintHandler(cachedGetPrintHandler))
+		if cachedGetPrintHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewPrintHandler(cachedGetPrintHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetRenderHandler := impl.GetRenderHandler()
 	r.OverrideGetRenderHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewRenderHandler(cachedGetRenderHandler))
+		if cachedGetRenderHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewRenderHandler(cachedGetRenderHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetRequestHandler := impl.GetRequestHandler()
 	r.OverrideGetRequestHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewRequestHandler(cachedGetRequestHandler))
+		if cachedGetRequestHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewRequestHandler(cachedGetRequestHandler)))
 	}))
 
 	r.OverrideOnProcessMessageReceived(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
@@ -174,7 +242,9 @@ func NewClient(impl Client) unsafe.Pointer {
 		return uintptr(impl.OnProcessMessageReceived(browser, frame, sourceProcess, message))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &clientWrapper{rawPtr: r}
+	w.Client = impl
+	return w
 }
 
 // wrapClient wraps a CEF handler pointer received from CEF into a Go interface.

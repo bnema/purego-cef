@@ -16,9 +16,23 @@ type FindHandler interface {
 	OnFindResult(browser Browser, identifier int32, count int32, selectionrect *Rect, activematchordinal int32, finalupdate int32)
 }
 
+// findHandlerWrapper wraps a user-provided FindHandler implementation together
+// with the raw CEF struct pointer allocated by NewFindHandler.  It satisfies the
+// FindHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type findHandlerWrapper struct {
+	FindHandler // embed user impl for interface delegation
+	rawPtr      *raw.CEFFindHandlerT
+}
+
+func (w *findHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewFindHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewFindHandler(impl FindHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewFindHandler(impl FindHandler) FindHandler {
 	r := new(raw.CEFFindHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -32,7 +46,9 @@ func NewFindHandler(impl FindHandler) unsafe.Pointer {
 		impl.OnFindResult(browser, identifier, count, selectionrect, activematchordinal, finalupdate)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &findHandlerWrapper{rawPtr: r}
+	w.FindHandler = impl
+	return w
 }
 
 // wrapFindHandler wraps a CEF handler pointer received from CEF into a Go interface.

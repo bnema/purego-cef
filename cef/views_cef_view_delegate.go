@@ -36,9 +36,23 @@ type ViewDelegate interface {
 	OnThemeChanged(view View)
 }
 
+// viewDelegateWrapper wraps a user-provided ViewDelegate implementation together
+// with the raw CEF struct pointer allocated by NewViewDelegate.  It satisfies the
+// ViewDelegate interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type viewDelegateWrapper struct {
+	ViewDelegate // embed user impl for interface delegation
+	rawPtr       *raw.CEFViewDelegateT
+}
+
+func (w *viewDelegateWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewViewDelegate creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewViewDelegate(impl ViewDelegate) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewViewDelegate(impl ViewDelegate) ViewDelegate {
 	r := new(raw.CEFViewDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -104,7 +118,9 @@ func NewViewDelegate(impl ViewDelegate) unsafe.Pointer {
 		impl.OnThemeChanged(view)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &viewDelegateWrapper{rawPtr: r}
+	w.ViewDelegate = impl
+	return w
 }
 
 // wrapViewDelegate wraps a CEF handler pointer received from CEF into a Go interface.

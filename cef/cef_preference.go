@@ -45,9 +45,23 @@ type PreferenceObserver interface {
 	OnPreferenceChanged(name string)
 }
 
+// preferenceObserverWrapper wraps a user-provided PreferenceObserver implementation together
+// with the raw CEF struct pointer allocated by NewPreferenceObserver.  It satisfies the
+// PreferenceObserver interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type preferenceObserverWrapper struct {
+	PreferenceObserver // embed user impl for interface delegation
+	rawPtr             *raw.CEFPreferenceObserverT
+}
+
+func (w *preferenceObserverWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewPreferenceObserver creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewPreferenceObserver(impl PreferenceObserver) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewPreferenceObserver(impl PreferenceObserver) PreferenceObserver {
 	r := new(raw.CEFPreferenceObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -56,7 +70,9 @@ func NewPreferenceObserver(impl PreferenceObserver) unsafe.Pointer {
 		impl.OnPreferenceChanged(name)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &preferenceObserverWrapper{rawPtr: r}
+	w.PreferenceObserver = impl
+	return w
 }
 
 // wrapPreferenceObserver wraps a CEF handler pointer received from CEF into a Go interface.

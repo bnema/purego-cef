@@ -24,9 +24,23 @@ type App interface {
 	GetRenderProcessHandler() RenderProcessHandler
 }
 
+// appWrapper wraps a user-provided App implementation together
+// with the raw CEF struct pointer allocated by NewApp.  It satisfies the
+// App interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type appWrapper struct {
+	App    // embed user impl for interface delegation
+	rawPtr *raw.CEFAppT
+}
+
+func (w *appWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewApp creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewApp(impl App) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewApp(impl App) App {
 	r := new(raw.CEFAppT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -44,22 +58,33 @@ func NewApp(impl App) unsafe.Pointer {
 	// Cache the getter result once.
 	cachedGetResourceBundleHandler := impl.GetResourceBundleHandler()
 	r.OverrideGetResourceBundleHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewResourceBundleHandler(cachedGetResourceBundleHandler))
+		if cachedGetResourceBundleHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewResourceBundleHandler(cachedGetResourceBundleHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetBrowserProcessHandler := impl.GetBrowserProcessHandler()
 	r.OverrideGetBrowserProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewBrowserProcessHandler(cachedGetBrowserProcessHandler))
+		if cachedGetBrowserProcessHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewBrowserProcessHandler(cachedGetBrowserProcessHandler)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetRenderProcessHandler := impl.GetRenderProcessHandler()
 	r.OverrideGetRenderProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewRenderProcessHandler(cachedGetRenderProcessHandler))
+		if cachedGetRenderProcessHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewRenderProcessHandler(cachedGetRenderProcessHandler)))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &appWrapper{rawPtr: r}
+	w.App = impl
+	return w
 }
 
 // wrapApp wraps a CEF handler pointer received from CEF into a Go interface.

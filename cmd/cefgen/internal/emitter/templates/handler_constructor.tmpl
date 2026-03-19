@@ -1,7 +1,21 @@
 {{define "handler_constructor.tmpl"}}
+// {{lower .Name}}Wrapper wraps a user-provided {{.Name}} implementation together
+// with the raw CEF struct pointer allocated by New{{.Name}}.  It satisfies the
+// {{.Name}} interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type {{lower .Name}}Wrapper struct {
+	{{.Name}}                           // embed user impl for interface delegation
+	rawPtr *raw.{{.RawGoName}}
+}
+
+func (w *{{lower .Name}}Wrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // New{{.Name}} creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func New{{.Name}}(impl {{.Name}}) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func New{{.Name}}(impl {{.Name}}) {{.Name}} {
 	r := new(raw.{{.RawGoName}})
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -10,7 +24,10 @@ func New{{.Name}}(impl {{.Name}}) unsafe.Pointer {
 	// Cache the getter result once.
 	cached{{.Name}} := impl.{{.Name}}()
 	r.Override{{.RawFieldName}}(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(New{{.GetterInterface}}(cached{{.Name}}))
+		if cached{{.Name}} == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(New{{.GetterInterface}}(cached{{.Name}})))
 	}))
 	{{- else}}
 	{{- $rawPs := .RawParams}}
@@ -34,7 +51,7 @@ func New{{.Name}}(impl {{.Name}}) unsafe.Pointer {
 		if result == nil {
 			return 0
 		}
-		return uintptr(New{{.Return.PublicType}}(result))
+		return uintptr(extractRawPointer(New{{.Return.PublicType}}(result)))
 		{{- else if .Return.IsInterface}}
 		return uintptr(extractRawPointer(impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})))
 		{{- else}}
@@ -44,7 +61,9 @@ func New{{.Name}}(impl {{.Name}}) unsafe.Pointer {
 	{{- end}}
 {{end}}
 
-	return unsafe.Pointer(r)
+	w := &{{lower .Name}}Wrapper{rawPtr: r}
+	w.{{.Name}} = impl
+	return w
 }
 
 // wrap{{.Name}} wraps a CEF handler pointer received from CEF into a Go interface.

@@ -111,9 +111,23 @@ type PrintHandler interface {
 	GetPdfPaperSize(browser Browser, deviceUnitsPerInch int32) uintptr
 }
 
+// printHandlerWrapper wraps a user-provided PrintHandler implementation together
+// with the raw CEF struct pointer allocated by NewPrintHandler.  It satisfies the
+// PrintHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type printHandlerWrapper struct {
+	PrintHandler // embed user impl for interface delegation
+	rawPtr       *raw.CEFPrintHandlerT
+}
+
+func (w *printHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewPrintHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewPrintHandler(impl PrintHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewPrintHandler(impl PrintHandler) PrintHandler {
 	r := new(raw.CEFPrintHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -155,7 +169,9 @@ func NewPrintHandler(impl PrintHandler) unsafe.Pointer {
 		return uintptr(impl.GetPdfPaperSize(browser, deviceUnitsPerInch))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &printHandlerWrapper{rawPtr: r}
+	w.PrintHandler = impl
+	return w
 }
 
 // wrapPrintHandler wraps a CEF handler pointer received from CEF into a Go interface.

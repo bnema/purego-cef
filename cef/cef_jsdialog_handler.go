@@ -64,9 +64,23 @@ type JsdialogHandler interface {
 	OnDialogClosed(browser Browser)
 }
 
+// jsdialogHandlerWrapper wraps a user-provided JsdialogHandler implementation together
+// with the raw CEF struct pointer allocated by NewJsdialogHandler.  It satisfies the
+// JsdialogHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type jsdialogHandlerWrapper struct {
+	JsdialogHandler // embed user impl for interface delegation
+	rawPtr          *raw.CEFJsdialogHandlerT
+}
+
+func (w *jsdialogHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewJsdialogHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewJsdialogHandler(impl JsdialogHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 	r := new(raw.CEFJsdialogHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -102,7 +116,9 @@ func NewJsdialogHandler(impl JsdialogHandler) unsafe.Pointer {
 		impl.OnDialogClosed(browser)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &jsdialogHandlerWrapper{rawPtr: r}
+	w.JsdialogHandler = impl
+	return w
 }
 
 // wrapJsdialogHandler wraps a CEF handler pointer received from CEF into a Go interface.

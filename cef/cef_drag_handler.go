@@ -18,9 +18,23 @@ type DragHandler interface {
 	OnDraggableRegionsChanged(browser Browser, frame Frame, regions []DraggableRegion)
 }
 
+// dragHandlerWrapper wraps a user-provided DragHandler implementation together
+// with the raw CEF struct pointer allocated by NewDragHandler.  It satisfies the
+// DragHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type dragHandlerWrapper struct {
+	DragHandler // embed user impl for interface delegation
+	rawPtr      *raw.CEFDragHandlerT
+}
+
+func (w *dragHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewDragHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewDragHandler(impl DragHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewDragHandler(impl DragHandler) DragHandler {
 	r := new(raw.CEFDragHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -38,7 +52,9 @@ func NewDragHandler(impl DragHandler) unsafe.Pointer {
 		impl.OnDraggableRegionsChanged(browser, frame, regions)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &dragHandlerWrapper{rawPtr: r}
+	w.DragHandler = impl
+	return w
 }
 
 // wrapDragHandler wraps a CEF handler pointer received from CEF into a Go interface.

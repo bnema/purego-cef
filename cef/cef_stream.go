@@ -24,9 +24,23 @@ type ReadHandler interface {
 	MayBlock() int32
 }
 
+// readHandlerWrapper wraps a user-provided ReadHandler implementation together
+// with the raw CEF struct pointer allocated by NewReadHandler.  It satisfies the
+// ReadHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type readHandlerWrapper struct {
+	ReadHandler // embed user impl for interface delegation
+	rawPtr      *raw.CEFReadHandlerT
+}
+
+func (w *readHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewReadHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewReadHandler(impl ReadHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewReadHandler(impl ReadHandler) ReadHandler {
 	r := new(raw.CEFReadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -55,7 +69,9 @@ func NewReadHandler(impl ReadHandler) unsafe.Pointer {
 		return uintptr(impl.MayBlock())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &readHandlerWrapper{rawPtr: r}
+	w.ReadHandler = impl
+	return w
 }
 
 // wrapReadHandler wraps a CEF handler pointer received from CEF into a Go interface.
@@ -144,9 +160,23 @@ type WriteHandler interface {
 	MayBlock() int32
 }
 
+// writeHandlerWrapper wraps a user-provided WriteHandler implementation together
+// with the raw CEF struct pointer allocated by NewWriteHandler.  It satisfies the
+// WriteHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type writeHandlerWrapper struct {
+	WriteHandler // embed user impl for interface delegation
+	rawPtr       *raw.CEFWriteHandlerT
+}
+
+func (w *writeHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewWriteHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewWriteHandler(impl WriteHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewWriteHandler(impl WriteHandler) WriteHandler {
 	r := new(raw.CEFWriteHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -175,7 +205,9 @@ func NewWriteHandler(impl WriteHandler) unsafe.Pointer {
 		return uintptr(impl.MayBlock())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &writeHandlerWrapper{rawPtr: r}
+	w.WriteHandler = impl
+	return w
 }
 
 // wrapWriteHandler wraps a CEF handler pointer received from CEF into a Go interface.

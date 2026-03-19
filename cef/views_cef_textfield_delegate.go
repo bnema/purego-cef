@@ -18,9 +18,23 @@ type TextfieldDelegate interface {
 	OnAfterUserAction(textfield Textfield)
 }
 
+// textfieldDelegateWrapper wraps a user-provided TextfieldDelegate implementation together
+// with the raw CEF struct pointer allocated by NewTextfieldDelegate.  It satisfies the
+// TextfieldDelegate interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type textfieldDelegateWrapper struct {
+	TextfieldDelegate // embed user impl for interface delegation
+	rawPtr            *raw.CEFTextfieldDelegateT
+}
+
+func (w *textfieldDelegateWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewTextfieldDelegate creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewTextfieldDelegate(impl TextfieldDelegate) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewTextfieldDelegate(impl TextfieldDelegate) TextfieldDelegate {
 	r := new(raw.CEFTextfieldDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -35,7 +49,9 @@ func NewTextfieldDelegate(impl TextfieldDelegate) unsafe.Pointer {
 		impl.OnAfterUserAction(textfield)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &textfieldDelegateWrapper{rawPtr: r}
+	w.TextfieldDelegate = impl
+	return w
 }
 
 // wrapTextfieldDelegate wraps a CEF handler pointer received from CEF into a Go interface.

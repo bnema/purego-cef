@@ -100,9 +100,23 @@ type UrlrequestClient interface {
 	GetAuthCredentials(isproxy int32, host string, port int32, realm string, scheme string, callback AuthCallback) int32
 }
 
+// urlrequestClientWrapper wraps a user-provided UrlrequestClient implementation together
+// with the raw CEF struct pointer allocated by NewUrlrequestClient.  It satisfies the
+// UrlrequestClient interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type urlrequestClientWrapper struct {
+	UrlrequestClient // embed user impl for interface delegation
+	rawPtr           *raw.CEFUrlrequestClientT
+}
+
+func (w *urlrequestClientWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewUrlrequestClient creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewUrlrequestClient(impl UrlrequestClient) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
 	r := new(raw.CEFUrlrequestClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -142,7 +156,9 @@ func NewUrlrequestClient(impl UrlrequestClient) unsafe.Pointer {
 		return uintptr(impl.GetAuthCredentials(isproxy, host, port, realm, scheme, callback))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &urlrequestClientWrapper{rawPtr: r}
+	w.UrlrequestClient = impl
+	return w
 }
 
 // wrapUrlrequestClient wraps a CEF handler pointer received from CEF into a Go interface.

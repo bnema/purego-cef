@@ -62,9 +62,23 @@ type TestServerHandler interface {
 	OnTestServerRequest(server TestServer, request Request, connection TestServerConnection) int32
 }
 
+// testServerHandlerWrapper wraps a user-provided TestServerHandler implementation together
+// with the raw CEF struct pointer allocated by NewTestServerHandler.  It satisfies the
+// TestServerHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type testServerHandlerWrapper struct {
+	TestServerHandler // embed user impl for interface delegation
+	rawPtr            *raw.CEFTestServerHandlerT
+}
+
+func (w *testServerHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewTestServerHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewTestServerHandler(impl TestServerHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewTestServerHandler(impl TestServerHandler) TestServerHandler {
 	r := new(raw.CEFTestServerHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -75,7 +89,9 @@ func NewTestServerHandler(impl TestServerHandler) unsafe.Pointer {
 		return uintptr(impl.OnTestServerRequest(server, request, connection))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &testServerHandlerWrapper{rawPtr: r}
+	w.TestServerHandler = impl
+	return w
 }
 
 // wrapTestServerHandler wraps a CEF handler pointer received from CEF into a Go interface.

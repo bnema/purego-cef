@@ -28,9 +28,23 @@ type MenuModelDelegate interface {
 	FormatLabel(menuModel MenuModel, label uintptr) int32
 }
 
+// menuModelDelegateWrapper wraps a user-provided MenuModelDelegate implementation together
+// with the raw CEF struct pointer allocated by NewMenuModelDelegate.  It satisfies the
+// MenuModelDelegate interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type menuModelDelegateWrapper struct {
+	MenuModelDelegate // embed user impl for interface delegation
+	rawPtr            *raw.CEFMenuModelDelegateT
+}
+
+func (w *menuModelDelegateWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewMenuModelDelegate creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewMenuModelDelegate(impl MenuModelDelegate) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewMenuModelDelegate(impl MenuModelDelegate) MenuModelDelegate {
 	r := new(raw.CEFMenuModelDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -75,7 +89,9 @@ func NewMenuModelDelegate(impl MenuModelDelegate) unsafe.Pointer {
 		return uintptr(impl.FormatLabel(menuModel, label))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &menuModelDelegateWrapper{rawPtr: r}
+	w.MenuModelDelegate = impl
+	return w
 }
 
 // wrapMenuModelDelegate wraps a CEF handler pointer received from CEF into a Go interface.

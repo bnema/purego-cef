@@ -15,9 +15,23 @@ type StringVisitor interface {
 	Visit(string string)
 }
 
+// stringVisitorWrapper wraps a user-provided StringVisitor implementation together
+// with the raw CEF struct pointer allocated by NewStringVisitor.  It satisfies the
+// StringVisitor interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type stringVisitorWrapper struct {
+	StringVisitor // embed user impl for interface delegation
+	rawPtr        *raw.CEFStringVisitorT
+}
+
+func (w *stringVisitorWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewStringVisitor creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewStringVisitor(impl StringVisitor) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewStringVisitor(impl StringVisitor) StringVisitor {
 	r := new(raw.CEFStringVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -26,7 +40,9 @@ func NewStringVisitor(impl StringVisitor) unsafe.Pointer {
 		impl.Visit(string)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &stringVisitorWrapper{rawPtr: r}
+	w.StringVisitor = impl
+	return w
 }
 
 // wrapStringVisitor wraps a CEF handler pointer received from CEF into a Go interface.

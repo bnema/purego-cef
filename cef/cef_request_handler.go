@@ -75,9 +75,23 @@ type RequestHandler interface {
 	OnDocumentAvailableInMainFrame(browser Browser)
 }
 
+// requestHandlerWrapper wraps a user-provided RequestHandler implementation together
+// with the raw CEF struct pointer allocated by NewRequestHandler.  It satisfies the
+// RequestHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type requestHandlerWrapper struct {
+	RequestHandler // embed user impl for interface delegation
+	rawPtr         *raw.CEFRequestHandlerT
+}
+
+func (w *requestHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewRequestHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewRequestHandler(impl RequestHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewRequestHandler(impl RequestHandler) RequestHandler {
 	r := new(raw.CEFRequestHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -114,7 +128,7 @@ func NewRequestHandler(impl RequestHandler) unsafe.Pointer {
 		if result == nil {
 			return 0
 		}
-		return uintptr(NewResourceRequestHandler(result))
+		return uintptr(extractRawPointer(NewResourceRequestHandler(result)))
 	}))
 
 	r.OverrideGetAuthCredentials(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr) uintptr {
@@ -178,7 +192,9 @@ func NewRequestHandler(impl RequestHandler) unsafe.Pointer {
 		impl.OnDocumentAvailableInMainFrame(browser)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &requestHandlerWrapper{rawPtr: r}
+	w.RequestHandler = impl
+	return w
 }
 
 // wrapRequestHandler wraps a CEF handler pointer received from CEF into a Go interface.

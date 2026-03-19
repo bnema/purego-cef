@@ -17,9 +17,23 @@ type ResponseFilter interface {
 	Filter(dataIn unsafe.Pointer, dataInSize int, dataInRead *int, dataOut unsafe.Pointer, dataOutSize int, dataOutWritten *int) ResponseFilterStatus
 }
 
+// responseFilterWrapper wraps a user-provided ResponseFilter implementation together
+// with the raw CEF struct pointer allocated by NewResponseFilter.  It satisfies the
+// ResponseFilter interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type responseFilterWrapper struct {
+	ResponseFilter // embed user impl for interface delegation
+	rawPtr         *raw.CEFResponseFilterT
+}
+
+func (w *responseFilterWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewResponseFilter creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewResponseFilter(impl ResponseFilter) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewResponseFilter(impl ResponseFilter) ResponseFilter {
 	r := new(raw.CEFResponseFilterT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -37,7 +51,9 @@ func NewResponseFilter(impl ResponseFilter) unsafe.Pointer {
 		return uintptr(impl.Filter(dataIn, dataInSize, dataInRead, dataOut, dataOutSize, dataOutWritten))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &responseFilterWrapper{rawPtr: r}
+	w.ResponseFilter = impl
+	return w
 }
 
 // wrapResponseFilter wraps a CEF handler pointer received from CEF into a Go interface.

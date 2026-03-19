@@ -109,9 +109,23 @@ type DownloadHandler interface {
 	OnDownloadUpdated(browser Browser, downloadItem DownloadItem, callback DownloadItemCallback)
 }
 
+// downloadHandlerWrapper wraps a user-provided DownloadHandler implementation together
+// with the raw CEF struct pointer allocated by NewDownloadHandler.  It satisfies the
+// DownloadHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type downloadHandlerWrapper struct {
+	DownloadHandler // embed user impl for interface delegation
+	rawPtr          *raw.CEFDownloadHandlerT
+}
+
+func (w *downloadHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewDownloadHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewDownloadHandler(impl DownloadHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
 	r := new(raw.CEFDownloadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -143,7 +157,9 @@ func NewDownloadHandler(impl DownloadHandler) unsafe.Pointer {
 		impl.OnDownloadUpdated(browser, downloadItem, callback)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &downloadHandlerWrapper{rawPtr: r}
+	w.DownloadHandler = impl
+	return w
 }
 
 // wrapDownloadHandler wraps a CEF handler pointer received from CEF into a Go interface.

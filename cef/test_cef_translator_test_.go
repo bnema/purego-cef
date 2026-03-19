@@ -552,9 +552,23 @@ type TranslatorTestRefPtrClient interface {
 	GetValue() int32
 }
 
+// translatorTestRefPtrClientWrapper wraps a user-provided TranslatorTestRefPtrClient implementation together
+// with the raw CEF struct pointer allocated by NewTranslatorTestRefPtrClient.  It satisfies the
+// TranslatorTestRefPtrClient interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type translatorTestRefPtrClientWrapper struct {
+	TranslatorTestRefPtrClient // embed user impl for interface delegation
+	rawPtr                     *raw.CEFTranslatorTestRefPtrClientT
+}
+
+func (w *translatorTestRefPtrClientWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewTranslatorTestRefPtrClient creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewTranslatorTestRefPtrClient(impl TranslatorTestRefPtrClient) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewTranslatorTestRefPtrClient(impl TranslatorTestRefPtrClient) TranslatorTestRefPtrClient {
 	r := new(raw.CEFTranslatorTestRefPtrClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -562,7 +576,9 @@ func NewTranslatorTestRefPtrClient(impl TranslatorTestRefPtrClient) unsafe.Point
 		return uintptr(impl.GetValue())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &translatorTestRefPtrClientWrapper{rawPtr: r}
+	w.TranslatorTestRefPtrClient = impl
+	return w
 }
 
 // wrapTranslatorTestRefPtrClient wraps a CEF handler pointer received from CEF into a Go interface.
@@ -582,9 +598,23 @@ type TranslatorTestRefPtrClientChild interface {
 	GetOtherValue() int32
 }
 
+// translatorTestRefPtrClientChildWrapper wraps a user-provided TranslatorTestRefPtrClientChild implementation together
+// with the raw CEF struct pointer allocated by NewTranslatorTestRefPtrClientChild.  It satisfies the
+// TranslatorTestRefPtrClientChild interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type translatorTestRefPtrClientChildWrapper struct {
+	TranslatorTestRefPtrClientChild // embed user impl for interface delegation
+	rawPtr                          *raw.CEFTranslatorTestRefPtrClientChildT
+}
+
+func (w *translatorTestRefPtrClientChildWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewTranslatorTestRefPtrClientChild creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewTranslatorTestRefPtrClientChild(impl TranslatorTestRefPtrClientChild) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewTranslatorTestRefPtrClientChild(impl TranslatorTestRefPtrClientChild) TranslatorTestRefPtrClientChild {
 	r := new(raw.CEFTranslatorTestRefPtrClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -592,7 +622,9 @@ func NewTranslatorTestRefPtrClientChild(impl TranslatorTestRefPtrClientChild) un
 		return uintptr(impl.GetOtherValue())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &translatorTestRefPtrClientChildWrapper{rawPtr: r}
+	w.TranslatorTestRefPtrClientChild = impl
+	return w
 }
 
 // wrapTranslatorTestRefPtrClientChild wraps a CEF handler pointer received from CEF into a Go interface.
@@ -734,9 +766,23 @@ type TranslatorTestScopedClient interface {
 	GetValue() int32
 }
 
+// translatorTestScopedClientWrapper wraps a user-provided TranslatorTestScopedClient implementation together
+// with the raw CEF struct pointer allocated by NewTranslatorTestScopedClient.  It satisfies the
+// TranslatorTestScopedClient interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type translatorTestScopedClientWrapper struct {
+	TranslatorTestScopedClient // embed user impl for interface delegation
+	rawPtr                     *raw.CEFTranslatorTestScopedClientT
+}
+
+func (w *translatorTestScopedClientWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewTranslatorTestScopedClient creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewTranslatorTestScopedClient(impl TranslatorTestScopedClient) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewTranslatorTestScopedClient(impl TranslatorTestScopedClient) TranslatorTestScopedClient {
 	r := new(raw.CEFTranslatorTestScopedClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -744,7 +790,9 @@ func NewTranslatorTestScopedClient(impl TranslatorTestScopedClient) unsafe.Point
 		return uintptr(impl.GetValue())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &translatorTestScopedClientWrapper{rawPtr: r}
+	w.TranslatorTestScopedClient = impl
+	return w
 }
 
 // wrapTranslatorTestScopedClient wraps a CEF handler pointer received from CEF into a Go interface.
@@ -764,9 +812,23 @@ type TranslatorTestScopedClientChild interface {
 	GetOtherValue() int32
 }
 
+// translatorTestScopedClientChildWrapper wraps a user-provided TranslatorTestScopedClientChild implementation together
+// with the raw CEF struct pointer allocated by NewTranslatorTestScopedClientChild.  It satisfies the
+// TranslatorTestScopedClientChild interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type translatorTestScopedClientChildWrapper struct {
+	TranslatorTestScopedClientChild // embed user impl for interface delegation
+	rawPtr                          *raw.CEFTranslatorTestScopedClientChildT
+}
+
+func (w *translatorTestScopedClientChildWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewTranslatorTestScopedClientChild creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewTranslatorTestScopedClientChild(impl TranslatorTestScopedClientChild) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewTranslatorTestScopedClientChild(impl TranslatorTestScopedClientChild) TranslatorTestScopedClientChild {
 	r := new(raw.CEFTranslatorTestScopedClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -774,7 +836,9 @@ func NewTranslatorTestScopedClientChild(impl TranslatorTestScopedClientChild) un
 		return uintptr(impl.GetOtherValue())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &translatorTestScopedClientChildWrapper{rawPtr: r}
+	w.TranslatorTestScopedClientChild = impl
+	return w
 }
 
 // wrapTranslatorTestScopedClientChild wraps a CEF handler pointer received from CEF into a Go interface.

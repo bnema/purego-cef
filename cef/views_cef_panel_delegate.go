@@ -12,13 +12,29 @@ import (
 type PanelDelegate interface {
 }
 
+// panelDelegateWrapper wraps a user-provided PanelDelegate implementation together
+// with the raw CEF struct pointer allocated by NewPanelDelegate.  It satisfies the
+// PanelDelegate interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type panelDelegateWrapper struct {
+	PanelDelegate // embed user impl for interface delegation
+	rawPtr        *raw.CEFPanelDelegateT
+}
+
+func (w *panelDelegateWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewPanelDelegate creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewPanelDelegate(impl PanelDelegate) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewPanelDelegate(impl PanelDelegate) PanelDelegate {
 	r := new(raw.CEFPanelDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	return unsafe.Pointer(r)
+	w := &panelDelegateWrapper{rawPtr: r}
+	w.PanelDelegate = impl
+	return w
 }
 
 // wrapPanelDelegate wraps a CEF handler pointer received from CEF into a Go interface.

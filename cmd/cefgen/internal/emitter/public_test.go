@@ -117,7 +117,7 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 		want string
 	}{
 		{"interface declaration", "type LifeSpanHandler interface"},
-		{"constructor function", "func NewLifeSpanHandler(impl LifeSpanHandler) unsafe.Pointer"},
+		{"constructor function", "func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler"},
 		{"initRefCount call", "initRefCount(unsafe.Pointer(r)"},
 		{"purego.NewCallback", "purego.NewCallback"},
 	}

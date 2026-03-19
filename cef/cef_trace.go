@@ -16,9 +16,23 @@ type EndTracingCallback interface {
 	OnEndTracingComplete(tracingFile string)
 }
 
+// endTracingCallbackWrapper wraps a user-provided EndTracingCallback implementation together
+// with the raw CEF struct pointer allocated by NewEndTracingCallback.  It satisfies the
+// EndTracingCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type endTracingCallbackWrapper struct {
+	EndTracingCallback // embed user impl for interface delegation
+	rawPtr             *raw.CEFEndTracingCallbackT
+}
+
+func (w *endTracingCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewEndTracingCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewEndTracingCallback(impl EndTracingCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewEndTracingCallback(impl EndTracingCallback) EndTracingCallback {
 	r := new(raw.CEFEndTracingCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -27,7 +41,9 @@ func NewEndTracingCallback(impl EndTracingCallback) unsafe.Pointer {
 		impl.OnEndTracingComplete(tracingFile)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &endTracingCallbackWrapper{rawPtr: r}
+	w.EndTracingCallback = impl
+	return w
 }
 
 // wrapEndTracingCallback wraps a CEF handler pointer received from CEF into a Go interface.

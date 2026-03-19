@@ -32,9 +32,23 @@ type RenderProcessHandler interface {
 	OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32
 }
 
+// renderProcessHandlerWrapper wraps a user-provided RenderProcessHandler implementation together
+// with the raw CEF struct pointer allocated by NewRenderProcessHandler.  It satisfies the
+// RenderProcessHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type renderProcessHandlerWrapper struct {
+	RenderProcessHandler // embed user impl for interface delegation
+	rawPtr               *raw.CEFRenderProcessHandlerT
+}
+
+func (w *renderProcessHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewRenderProcessHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewRenderProcessHandler(impl RenderProcessHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 	r := new(raw.CEFRenderProcessHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -56,7 +70,10 @@ func NewRenderProcessHandler(impl RenderProcessHandler) unsafe.Pointer {
 	// Cache the getter result once.
 	cachedGetLoadHandler := impl.GetLoadHandler()
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewLoadHandler(cachedGetLoadHandler))
+		if cachedGetLoadHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewLoadHandler(cachedGetLoadHandler)))
 	}))
 
 	r.OverrideOnContextCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
@@ -97,7 +114,9 @@ func NewRenderProcessHandler(impl RenderProcessHandler) unsafe.Pointer {
 		return uintptr(impl.OnProcessMessageReceived(browser, frame, sourceProcess, message))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &renderProcessHandlerWrapper{rawPtr: r}
+	w.RenderProcessHandler = impl
+	return w
 }
 
 // wrapRenderProcessHandler wraps a CEF handler pointer received from CEF into a Go interface.

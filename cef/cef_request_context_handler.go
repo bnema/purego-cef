@@ -18,9 +18,23 @@ type RequestContextHandler interface {
 	GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling unsafe.Pointer) ResourceRequestHandler
 }
 
+// requestContextHandlerWrapper wraps a user-provided RequestContextHandler implementation together
+// with the raw CEF struct pointer allocated by NewRequestContextHandler.  It satisfies the
+// RequestContextHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type requestContextHandlerWrapper struct {
+	RequestContextHandler // embed user impl for interface delegation
+	rawPtr                *raw.CEFRequestContextHandlerT
+}
+
+func (w *requestContextHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewRequestContextHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewRequestContextHandler(impl RequestContextHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler {
 	r := new(raw.CEFRequestContextHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -41,10 +55,12 @@ func NewRequestContextHandler(impl RequestContextHandler) unsafe.Pointer {
 		if result == nil {
 			return 0
 		}
-		return uintptr(NewResourceRequestHandler(result))
+		return uintptr(extractRawPointer(NewResourceRequestHandler(result)))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &requestContextHandlerWrapper{rawPtr: r}
+	w.RequestContextHandler = impl
+	return w
 }
 
 // wrapRequestContextHandler wraps a CEF handler pointer received from CEF into a Go interface.

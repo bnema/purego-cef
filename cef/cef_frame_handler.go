@@ -24,9 +24,23 @@ type FrameHandler interface {
 	OnMainFrameChanged(browser Browser, oldFrame Frame, newFrame Frame)
 }
 
+// frameHandlerWrapper wraps a user-provided FrameHandler implementation together
+// with the raw CEF struct pointer allocated by NewFrameHandler.  It satisfies the
+// FrameHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type frameHandlerWrapper struct {
+	FrameHandler // embed user impl for interface delegation
+	rawPtr       *raw.CEFFrameHandlerT
+}
+
+func (w *frameHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewFrameHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewFrameHandler(impl FrameHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewFrameHandler(impl FrameHandler) FrameHandler {
 	r := new(raw.CEFFrameHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -62,7 +76,9 @@ func NewFrameHandler(impl FrameHandler) unsafe.Pointer {
 		impl.OnMainFrameChanged(browser, oldFrame, newFrame)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &frameHandlerWrapper{rawPtr: r}
+	w.FrameHandler = impl
+	return w
 }
 
 // wrapFrameHandler wraps a CEF handler pointer received from CEF into a Go interface.

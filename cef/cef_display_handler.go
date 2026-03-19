@@ -41,9 +41,23 @@ type DisplayHandler interface {
 	GetRootWindowScreenRect(browser Browser, rect *Rect) int32
 }
 
+// displayHandlerWrapper wraps a user-provided DisplayHandler implementation together
+// with the raw CEF struct pointer allocated by NewDisplayHandler.  It satisfies the
+// DisplayHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type displayHandlerWrapper struct {
+	DisplayHandler // embed user impl for interface delegation
+	rawPtr         *raw.CEFDisplayHandlerT
+}
+
+func (w *displayHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewDisplayHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewDisplayHandler(impl DisplayHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
 	r := new(raw.CEFDisplayHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -132,7 +146,9 @@ func NewDisplayHandler(impl DisplayHandler) unsafe.Pointer {
 		return uintptr(impl.GetRootWindowScreenRect(browser, rect))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &displayHandlerWrapper{rawPtr: r}
+	w.DisplayHandler = impl
+	return w
 }
 
 // wrapDisplayHandler wraps a CEF handler pointer received from CEF into a Go interface.

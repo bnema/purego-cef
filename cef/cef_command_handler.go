@@ -24,9 +24,23 @@ type CommandHandler interface {
 	IsChromeToolbarButtonVisible(buttonType ChromeToolbarButtonType) bool
 }
 
+// commandHandlerWrapper wraps a user-provided CommandHandler implementation together
+// with the raw CEF struct pointer allocated by NewCommandHandler.  It satisfies the
+// CommandHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type commandHandlerWrapper struct {
+	CommandHandler // embed user impl for interface delegation
+	rawPtr         *raw.CEFCommandHandlerT
+}
+
+func (w *commandHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewCommandHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewCommandHandler(impl CommandHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewCommandHandler(impl CommandHandler) CommandHandler {
 	r := new(raw.CEFCommandHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -71,7 +85,9 @@ func NewCommandHandler(impl CommandHandler) unsafe.Pointer {
 		return 0
 	}))
 
-	return unsafe.Pointer(r)
+	w := &commandHandlerWrapper{rawPtr: r}
+	w.CommandHandler = impl
+	return w
 }
 
 // wrapCommandHandler wraps a CEF handler pointer received from CEF into a Go interface.

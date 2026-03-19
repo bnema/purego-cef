@@ -88,9 +88,23 @@ type MediaObserver interface {
 	OnRouteMessageReceived(route MediaRoute, message unsafe.Pointer, messageSize int)
 }
 
+// mediaObserverWrapper wraps a user-provided MediaObserver implementation together
+// with the raw CEF struct pointer allocated by NewMediaObserver.  It satisfies the
+// MediaObserver interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type mediaObserverWrapper struct {
+	MediaObserver // embed user impl for interface delegation
+	rawPtr        *raw.CEFMediaObserverT
+}
+
+func (w *mediaObserverWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewMediaObserver creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewMediaObserver(impl MediaObserver) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewMediaObserver(impl MediaObserver) MediaObserver {
 	r := new(raw.CEFMediaObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -119,7 +133,9 @@ func NewMediaObserver(impl MediaObserver) unsafe.Pointer {
 		impl.OnRouteMessageReceived(route, message, messageSize)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &mediaObserverWrapper{rawPtr: r}
+	w.MediaObserver = impl
+	return w
 }
 
 // wrapMediaObserver wraps a CEF handler pointer received from CEF into a Go interface.
@@ -202,9 +218,23 @@ type MediaRouteCreateCallback interface {
 	OnMediaRouteCreateFinished(result MediaRouteCreateResult, error string, route MediaRoute)
 }
 
+// mediaRouteCreateCallbackWrapper wraps a user-provided MediaRouteCreateCallback implementation together
+// with the raw CEF struct pointer allocated by NewMediaRouteCreateCallback.  It satisfies the
+// MediaRouteCreateCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type mediaRouteCreateCallbackWrapper struct {
+	MediaRouteCreateCallback // embed user impl for interface delegation
+	rawPtr                   *raw.CEFMediaRouteCreateCallbackT
+}
+
+func (w *mediaRouteCreateCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewMediaRouteCreateCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewMediaRouteCreateCallback(impl MediaRouteCreateCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewMediaRouteCreateCallback(impl MediaRouteCreateCallback) MediaRouteCreateCallback {
 	r := new(raw.CEFMediaRouteCreateCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -215,7 +245,9 @@ func NewMediaRouteCreateCallback(impl MediaRouteCreateCallback) unsafe.Pointer {
 		impl.OnMediaRouteCreateFinished(result, error, route)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &mediaRouteCreateCallbackWrapper{rawPtr: r}
+	w.MediaRouteCreateCallback = impl
+	return w
 }
 
 // wrapMediaRouteCreateCallback wraps a CEF handler pointer received from CEF into a Go interface.
@@ -310,9 +342,23 @@ type MediaSinkDeviceInfoCallback interface {
 	OnMediaSinkDeviceInfo(deviceInfo *MediaSinkDeviceInfo)
 }
 
+// mediaSinkDeviceInfoCallbackWrapper wraps a user-provided MediaSinkDeviceInfoCallback implementation together
+// with the raw CEF struct pointer allocated by NewMediaSinkDeviceInfoCallback.  It satisfies the
+// MediaSinkDeviceInfoCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type mediaSinkDeviceInfoCallbackWrapper struct {
+	MediaSinkDeviceInfoCallback // embed user impl for interface delegation
+	rawPtr                      *raw.CEFMediaSinkDeviceInfoCallbackT
+}
+
+func (w *mediaSinkDeviceInfoCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewMediaSinkDeviceInfoCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewMediaSinkDeviceInfoCallback(impl MediaSinkDeviceInfoCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewMediaSinkDeviceInfoCallback(impl MediaSinkDeviceInfoCallback) MediaSinkDeviceInfoCallback {
 	r := new(raw.CEFMediaSinkDeviceInfoCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -321,7 +367,9 @@ func NewMediaSinkDeviceInfoCallback(impl MediaSinkDeviceInfoCallback) unsafe.Poi
 		impl.OnMediaSinkDeviceInfo(deviceInfo)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &mediaSinkDeviceInfoCallbackWrapper{rawPtr: r}
+	w.MediaSinkDeviceInfoCallback = impl
+	return w
 }
 
 // wrapMediaSinkDeviceInfoCallback wraps a CEF handler pointer received from CEF into a Go interface.

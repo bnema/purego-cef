@@ -18,9 +18,23 @@ type AccessibilityHandler interface {
 	OnAccessibilityLocationChange(value Value)
 }
 
+// accessibilityHandlerWrapper wraps a user-provided AccessibilityHandler implementation together
+// with the raw CEF struct pointer allocated by NewAccessibilityHandler.  It satisfies the
+// AccessibilityHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type accessibilityHandlerWrapper struct {
+	AccessibilityHandler // embed user impl for interface delegation
+	rawPtr               *raw.CEFAccessibilityHandlerT
+}
+
+func (w *accessibilityHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewAccessibilityHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewAccessibilityHandler(impl AccessibilityHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewAccessibilityHandler(impl AccessibilityHandler) AccessibilityHandler {
 	r := new(raw.CEFAccessibilityHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -34,7 +48,9 @@ func NewAccessibilityHandler(impl AccessibilityHandler) unsafe.Pointer {
 		impl.OnAccessibilityLocationChange(value)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &accessibilityHandlerWrapper{rawPtr: r}
+	w.AccessibilityHandler = impl
+	return w
 }
 
 // wrapAccessibilityHandler wraps a CEF handler pointer received from CEF into a Go interface.

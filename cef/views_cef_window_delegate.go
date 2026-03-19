@@ -59,9 +59,23 @@ type WindowDelegate interface {
 	GetLinuxWindowProperties(window Window, properties *LinuxWindowProperties) int32
 }
 
+// windowDelegateWrapper wraps a user-provided WindowDelegate implementation together
+// with the raw CEF struct pointer allocated by NewWindowDelegate.  It satisfies the
+// WindowDelegate interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type windowDelegateWrapper struct {
+	WindowDelegate // embed user impl for interface delegation
+	rawPtr         *raw.CEFWindowDelegateT
+}
+
+func (w *windowDelegateWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewWindowDelegate creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewWindowDelegate(impl WindowDelegate) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 	r := new(raw.CEFWindowDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -207,7 +221,9 @@ func NewWindowDelegate(impl WindowDelegate) unsafe.Pointer {
 		return uintptr(impl.GetLinuxWindowProperties(window, properties))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &windowDelegateWrapper{rawPtr: r}
+	w.WindowDelegate = impl
+	return w
 }
 
 // wrapWindowDelegate wraps a CEF handler pointer received from CEF into a Go interface.

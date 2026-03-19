@@ -541,9 +541,23 @@ type ApiVersionTestRefPtrClient interface {
 	GetValueExp() int32
 }
 
+// apiVersionTestRefPtrClientWrapper wraps a user-provided ApiVersionTestRefPtrClient implementation together
+// with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClient.  It satisfies the
+// ApiVersionTestRefPtrClient interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type apiVersionTestRefPtrClientWrapper struct {
+	ApiVersionTestRefPtrClient // embed user impl for interface delegation
+	rawPtr                     *raw.CEFApiVersionTestRefPtrClientT
+}
+
+func (w *apiVersionTestRefPtrClientWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewApiVersionTestRefPtrClient creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) ApiVersionTestRefPtrClient {
 	r := new(raw.CEFApiVersionTestRefPtrClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -567,7 +581,9 @@ func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) unsafe.Point
 		return uintptr(impl.GetValueExp())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &apiVersionTestRefPtrClientWrapper{rawPtr: r}
+	w.ApiVersionTestRefPtrClient = impl
+	return w
 }
 
 // wrapApiVersionTestRefPtrClient wraps a CEF handler pointer received from CEF into a Go interface.
@@ -589,9 +605,23 @@ type ApiVersionTestRefPtrClientChild interface {
 	GetOtherValueV1() int32
 }
 
+// apiVersionTestRefPtrClientChildWrapper wraps a user-provided ApiVersionTestRefPtrClientChild implementation together
+// with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClientChild.  It satisfies the
+// ApiVersionTestRefPtrClientChild interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type apiVersionTestRefPtrClientChildWrapper struct {
+	ApiVersionTestRefPtrClientChild // embed user impl for interface delegation
+	rawPtr                          *raw.CEFApiVersionTestRefPtrClientChildT
+}
+
+func (w *apiVersionTestRefPtrClientChildWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewApiVersionTestRefPtrClientChild creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) ApiVersionTestRefPtrClientChild {
 	r := new(raw.CEFApiVersionTestRefPtrClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -603,7 +633,9 @@ func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) un
 		return uintptr(impl.GetOtherValueV1())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &apiVersionTestRefPtrClientChildWrapper{rawPtr: r}
+	w.ApiVersionTestRefPtrClientChild = impl
+	return w
 }
 
 // wrapApiVersionTestRefPtrClientChild wraps a CEF handler pointer received from CEF into a Go interface.
@@ -625,9 +657,23 @@ type ApiVersionTestRefPtrClientChildV2 interface {
 	GetAnotherValue() int32
 }
 
+// apiVersionTestRefPtrClientChildV2Wrapper wraps a user-provided ApiVersionTestRefPtrClientChildV2 implementation together
+// with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClientChildV2.  It satisfies the
+// ApiVersionTestRefPtrClientChildV2 interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type apiVersionTestRefPtrClientChildV2Wrapper struct {
+	ApiVersionTestRefPtrClientChildV2 // embed user impl for interface delegation
+	rawPtr                            *raw.CEFApiVersionTestRefPtrClientChildV2T
+}
+
+func (w *apiVersionTestRefPtrClientChildV2Wrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewApiVersionTestRefPtrClientChildV2 creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2) ApiVersionTestRefPtrClientChildV2 {
 	r := new(raw.CEFApiVersionTestRefPtrClientChildV2T)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -639,7 +685,9 @@ func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2
 		return uintptr(impl.GetAnotherValue())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &apiVersionTestRefPtrClientChildV2Wrapper{rawPtr: r}
+	w.ApiVersionTestRefPtrClientChildV2 = impl
+	return w
 }
 
 // wrapApiVersionTestRefPtrClientChildV2 wraps a CEF handler pointer received from CEF into a Go interface.
@@ -927,9 +975,23 @@ type ApiVersionTestScopedClient interface {
 	GetValueExp() int32
 }
 
+// apiVersionTestScopedClientWrapper wraps a user-provided ApiVersionTestScopedClient implementation together
+// with the raw CEF struct pointer allocated by NewApiVersionTestScopedClient.  It satisfies the
+// ApiVersionTestScopedClient interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type apiVersionTestScopedClientWrapper struct {
+	ApiVersionTestScopedClient // embed user impl for interface delegation
+	rawPtr                     *raw.CEFApiVersionTestScopedClientT
+}
+
+func (w *apiVersionTestScopedClientWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewApiVersionTestScopedClient creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewApiVersionTestScopedClient(impl ApiVersionTestScopedClient) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewApiVersionTestScopedClient(impl ApiVersionTestScopedClient) ApiVersionTestScopedClient {
 	r := new(raw.CEFApiVersionTestScopedClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -953,7 +1015,9 @@ func NewApiVersionTestScopedClient(impl ApiVersionTestScopedClient) unsafe.Point
 		return uintptr(impl.GetValueExp())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &apiVersionTestScopedClientWrapper{rawPtr: r}
+	w.ApiVersionTestScopedClient = impl
+	return w
 }
 
 // wrapApiVersionTestScopedClient wraps a CEF handler pointer received from CEF into a Go interface.
@@ -975,9 +1039,23 @@ type ApiVersionTestScopedClientChild interface {
 	GetOtherValueV1() int32
 }
 
+// apiVersionTestScopedClientChildWrapper wraps a user-provided ApiVersionTestScopedClientChild implementation together
+// with the raw CEF struct pointer allocated by NewApiVersionTestScopedClientChild.  It satisfies the
+// ApiVersionTestScopedClientChild interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type apiVersionTestScopedClientChildWrapper struct {
+	ApiVersionTestScopedClientChild // embed user impl for interface delegation
+	rawPtr                          *raw.CEFApiVersionTestScopedClientChildT
+}
+
+func (w *apiVersionTestScopedClientChildWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewApiVersionTestScopedClientChild creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) ApiVersionTestScopedClientChild {
 	r := new(raw.CEFApiVersionTestScopedClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -989,7 +1067,9 @@ func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) un
 		return uintptr(impl.GetOtherValueV1())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &apiVersionTestScopedClientChildWrapper{rawPtr: r}
+	w.ApiVersionTestScopedClientChild = impl
+	return w
 }
 
 // wrapApiVersionTestScopedClientChild wraps a CEF handler pointer received from CEF into a Go interface.
@@ -1011,9 +1091,23 @@ type ApiVersionTestScopedClientChildV2 interface {
 	GetAnotherValue() int32
 }
 
+// apiVersionTestScopedClientChildV2Wrapper wraps a user-provided ApiVersionTestScopedClientChildV2 implementation together
+// with the raw CEF struct pointer allocated by NewApiVersionTestScopedClientChildV2.  It satisfies the
+// ApiVersionTestScopedClientChildV2 interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type apiVersionTestScopedClientChildV2Wrapper struct {
+	ApiVersionTestScopedClientChildV2 // embed user impl for interface delegation
+	rawPtr                            *raw.CEFApiVersionTestScopedClientChildV2T
+}
+
+func (w *apiVersionTestScopedClientChildV2Wrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewApiVersionTestScopedClientChildV2 creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2) ApiVersionTestScopedClientChildV2 {
 	r := new(raw.CEFApiVersionTestScopedClientChildV2T)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -1025,7 +1119,9 @@ func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2
 		return uintptr(impl.GetAnotherValue())
 	}))
 
-	return unsafe.Pointer(r)
+	w := &apiVersionTestScopedClientChildV2Wrapper{rawPtr: r}
+	w.ApiVersionTestScopedClientChildV2 = impl
+	return w
 }
 
 // wrapApiVersionTestScopedClientChildV2 wraps a CEF handler pointer received from CEF into a Go interface.

@@ -105,9 +105,23 @@ type PermissionHandler interface {
 	OnDismissPermissionPrompt(browser Browser, promptID uint64, result PermissionRequestResult)
 }
 
+// permissionHandlerWrapper wraps a user-provided PermissionHandler implementation together
+// with the raw CEF struct pointer allocated by NewPermissionHandler.  It satisfies the
+// PermissionHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type permissionHandlerWrapper struct {
+	PermissionHandler // embed user impl for interface delegation
+	rawPtr            *raw.CEFPermissionHandlerT
+}
+
+func (w *permissionHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewPermissionHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewPermissionHandler(impl PermissionHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 	r := new(raw.CEFPermissionHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -136,7 +150,9 @@ func NewPermissionHandler(impl PermissionHandler) unsafe.Pointer {
 		impl.OnDismissPermissionPrompt(browser, promptID, result)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &permissionHandlerWrapper{rawPtr: r}
+	w.PermissionHandler = impl
+	return w
 }
 
 // wrapPermissionHandler wraps a CEF handler pointer received from CEF into a Go interface.

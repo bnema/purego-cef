@@ -16,9 +16,23 @@ type Domvisitor interface {
 	Visit(document Domdocument)
 }
 
+// domvisitorWrapper wraps a user-provided Domvisitor implementation together
+// with the raw CEF struct pointer allocated by NewDomvisitor.  It satisfies the
+// Domvisitor interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type domvisitorWrapper struct {
+	Domvisitor // embed user impl for interface delegation
+	rawPtr     *raw.CEFDomvisitorT
+}
+
+func (w *domvisitorWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewDomvisitor creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewDomvisitor(impl Domvisitor) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewDomvisitor(impl Domvisitor) Domvisitor {
 	r := new(raw.CEFDomvisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -27,7 +41,9 @@ func NewDomvisitor(impl Domvisitor) unsafe.Pointer {
 		impl.Visit(document)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &domvisitorWrapper{rawPtr: r}
+	w.Domvisitor = impl
+	return w
 }
 
 // wrapDomvisitor wraps a CEF handler pointer received from CEF into a Go interface.

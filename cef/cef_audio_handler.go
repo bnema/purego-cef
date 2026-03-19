@@ -24,9 +24,23 @@ type AudioHandler interface {
 	OnAudioStreamError(browser Browser, message string)
 }
 
+// audioHandlerWrapper wraps a user-provided AudioHandler implementation together
+// with the raw CEF struct pointer allocated by NewAudioHandler.  It satisfies the
+// AudioHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type audioHandlerWrapper struct {
+	AudioHandler // embed user impl for interface delegation
+	rawPtr       *raw.CEFAudioHandlerT
+}
+
+func (w *audioHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewAudioHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewAudioHandler(impl AudioHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewAudioHandler(impl AudioHandler) AudioHandler {
 	r := new(raw.CEFAudioHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -62,7 +76,9 @@ func NewAudioHandler(impl AudioHandler) unsafe.Pointer {
 		impl.OnAudioStreamError(browser, message)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &audioHandlerWrapper{rawPtr: r}
+	w.AudioHandler = impl
+	return w
 }
 
 // wrapAudioHandler wraps a CEF handler pointer received from CEF into a Go interface.

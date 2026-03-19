@@ -20,9 +20,23 @@ type FocusHandler interface {
 	OnGotFocus(browser Browser)
 }
 
+// focusHandlerWrapper wraps a user-provided FocusHandler implementation together
+// with the raw CEF struct pointer allocated by NewFocusHandler.  It satisfies the
+// FocusHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type focusHandlerWrapper struct {
+	FocusHandler // embed user impl for interface delegation
+	rawPtr       *raw.CEFFocusHandlerT
+}
+
+func (w *focusHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewFocusHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewFocusHandler(impl FocusHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewFocusHandler(impl FocusHandler) FocusHandler {
 	r := new(raw.CEFFocusHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -43,7 +57,9 @@ func NewFocusHandler(impl FocusHandler) unsafe.Pointer {
 		impl.OnGotFocus(browser)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &focusHandlerWrapper{rawPtr: r}
+	w.FocusHandler = impl
+	return w
 }
 
 // wrapFocusHandler wraps a CEF handler pointer received from CEF into a Go interface.

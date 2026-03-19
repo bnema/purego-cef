@@ -33,9 +33,23 @@ type BrowserViewDelegate interface {
 	AllowPictureInPictureWithoutUserActivation(browserView BrowserView) int32
 }
 
+// browserViewDelegateWrapper wraps a user-provided BrowserViewDelegate implementation together
+// with the raw CEF struct pointer allocated by NewBrowserViewDelegate.  It satisfies the
+// BrowserViewDelegate interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type browserViewDelegateWrapper struct {
+	BrowserViewDelegate // embed user impl for interface delegation
+	rawPtr              *raw.CEFBrowserViewDelegateT
+}
+
+func (w *browserViewDelegateWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewBrowserViewDelegate creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewBrowserViewDelegate(impl BrowserViewDelegate) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
 	r := new(raw.CEFBrowserViewDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -60,7 +74,7 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) unsafe.Pointer {
 		if result == nil {
 			return 0
 		}
-		return uintptr(NewBrowserViewDelegate(result))
+		return uintptr(extractRawPointer(NewBrowserViewDelegate(result)))
 	}))
 
 	r.OverrideOnPopupBrowserViewCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
@@ -100,7 +114,9 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) unsafe.Pointer {
 		return uintptr(impl.AllowPictureInPictureWithoutUserActivation(browserView))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &browserViewDelegateWrapper{rawPtr: r}
+	w.BrowserViewDelegate = impl
+	return w
 }
 
 // wrapBrowserViewDelegate wraps a CEF handler pointer received from CEF into a Go interface.

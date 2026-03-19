@@ -17,9 +17,23 @@ type KeyboardHandler interface {
 	OnKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr) int32
 }
 
+// keyboardHandlerWrapper wraps a user-provided KeyboardHandler implementation together
+// with the raw CEF struct pointer allocated by NewKeyboardHandler.  It satisfies the
+// KeyboardHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type keyboardHandlerWrapper struct {
+	KeyboardHandler // embed user impl for interface delegation
+	rawPtr          *raw.CEFKeyboardHandlerT
+}
+
+func (w *keyboardHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewKeyboardHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewKeyboardHandler(impl KeyboardHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
 	r := new(raw.CEFKeyboardHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -38,7 +52,9 @@ func NewKeyboardHandler(impl KeyboardHandler) unsafe.Pointer {
 		return uintptr(impl.OnKeyEvent(browser, event, osEvent))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &keyboardHandlerWrapper{rawPtr: r}
+	w.KeyboardHandler = impl
+	return w
 }
 
 // wrapKeyboardHandler wraps a CEF handler pointer received from CEF into a Go interface.

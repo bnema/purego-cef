@@ -118,9 +118,23 @@ type ContextMenuHandler interface {
 	OnQuickMenuDismissed(browser Browser, frame Frame)
 }
 
+// contextMenuHandlerWrapper wraps a user-provided ContextMenuHandler implementation together
+// with the raw CEF struct pointer allocated by NewContextMenuHandler.  It satisfies the
+// ContextMenuHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type contextMenuHandlerWrapper struct {
+	ContextMenuHandler // embed user impl for interface delegation
+	rawPtr             *raw.CEFContextMenuHandlerT
+}
+
+func (w *contextMenuHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewContextMenuHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewContextMenuHandler(impl ContextMenuHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	r := new(raw.CEFContextMenuHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -180,7 +194,9 @@ func NewContextMenuHandler(impl ContextMenuHandler) unsafe.Pointer {
 		impl.OnQuickMenuDismissed(browser, frame)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &contextMenuHandlerWrapper{rawPtr: r}
+	w.ContextMenuHandler = impl
+	return w
 }
 
 // wrapContextMenuHandler wraps a CEF handler pointer received from CEF into a Go interface.

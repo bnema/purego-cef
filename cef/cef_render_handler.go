@@ -49,16 +49,33 @@ type RenderHandler interface {
 	OnVirtualKeyboardRequested(browser Browser, inputMode TextInputMode)
 }
 
+// renderHandlerWrapper wraps a user-provided RenderHandler implementation together
+// with the raw CEF struct pointer allocated by NewRenderHandler.  It satisfies the
+// RenderHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type renderHandlerWrapper struct {
+	RenderHandler // embed user impl for interface delegation
+	rawPtr        *raw.CEFRenderHandlerT
+}
+
+func (w *renderHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewRenderHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewRenderHandler(impl RenderHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewRenderHandler(impl RenderHandler) RenderHandler {
 	r := new(raw.CEFRenderHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
 	// Cache the getter result once.
 	cachedGetAccessibilityHandler := impl.GetAccessibilityHandler()
 	r.OverrideGetAccessibilityHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewAccessibilityHandler(cachedGetAccessibilityHandler))
+		if cachedGetAccessibilityHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewAccessibilityHandler(cachedGetAccessibilityHandler)))
 	}))
 
 	r.OverrideGetRootScreenRect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
@@ -173,7 +190,9 @@ func NewRenderHandler(impl RenderHandler) unsafe.Pointer {
 		impl.OnVirtualKeyboardRequested(browser, inputMode)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &renderHandlerWrapper{rawPtr: r}
+	w.RenderHandler = impl
+	return w
 }
 
 // wrapRenderHandler wraps a CEF handler pointer received from CEF into a Go interface.

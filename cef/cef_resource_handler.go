@@ -101,9 +101,23 @@ type ResourceHandler interface {
 	Cancel()
 }
 
+// resourceHandlerWrapper wraps a user-provided ResourceHandler implementation together
+// with the raw CEF struct pointer allocated by NewResourceHandler.  It satisfies the
+// ResourceHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type resourceHandlerWrapper struct {
+	ResourceHandler // embed user impl for interface delegation
+	rawPtr          *raw.CEFResourceHandlerT
+}
+
+func (w *resourceHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewResourceHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewResourceHandler(impl ResourceHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 	r := new(raw.CEFResourceHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -154,7 +168,9 @@ func NewResourceHandler(impl ResourceHandler) unsafe.Pointer {
 		impl.Cancel()
 	}))
 
-	return unsafe.Pointer(r)
+	w := &resourceHandlerWrapper{rawPtr: r}
+	w.ResourceHandler = impl
+	return w
 }
 
 // wrapResourceHandler wraps a CEF handler pointer received from CEF into a Go interface.

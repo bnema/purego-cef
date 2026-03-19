@@ -28,9 +28,23 @@ type BrowserProcessHandler interface {
 	GetDefaultRequestContextHandler() RequestContextHandler
 }
 
+// browserProcessHandlerWrapper wraps a user-provided BrowserProcessHandler implementation together
+// with the raw CEF struct pointer allocated by NewBrowserProcessHandler.  It satisfies the
+// BrowserProcessHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type browserProcessHandlerWrapper struct {
+	BrowserProcessHandler // embed user impl for interface delegation
+	rawPtr                *raw.CEFBrowserProcessHandlerT
+}
+
+func (w *browserProcessHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewBrowserProcessHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewBrowserProcessHandler(impl BrowserProcessHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler {
 	r := new(raw.CEFBrowserProcessHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -63,16 +77,24 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) unsafe.Pointer {
 	// Cache the getter result once.
 	cachedGetDefaultClient := impl.GetDefaultClient()
 	r.OverrideGetDefaultClient(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewClient(cachedGetDefaultClient))
+		if cachedGetDefaultClient == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewClient(cachedGetDefaultClient)))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDefaultRequestContextHandler := impl.GetDefaultRequestContextHandler()
 	r.OverrideGetDefaultRequestContextHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		return uintptr(NewRequestContextHandler(cachedGetDefaultRequestContextHandler))
+		if cachedGetDefaultRequestContextHandler == nil {
+			return 0
+		}
+		return uintptr(extractRawPointer(NewRequestContextHandler(cachedGetDefaultRequestContextHandler)))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &browserProcessHandlerWrapper{rawPtr: r}
+	w.BrowserProcessHandler = impl
+	return w
 }
 
 // wrapBrowserProcessHandler wraps a CEF handler pointer received from CEF into a Go interface.

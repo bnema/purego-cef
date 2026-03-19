@@ -181,9 +181,23 @@ type RunFileDialogCallback interface {
 	OnFileDialogDismissed(filePaths uintptr)
 }
 
+// runFileDialogCallbackWrapper wraps a user-provided RunFileDialogCallback implementation together
+// with the raw CEF struct pointer allocated by NewRunFileDialogCallback.  It satisfies the
+// RunFileDialogCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type runFileDialogCallbackWrapper struct {
+	RunFileDialogCallback // embed user impl for interface delegation
+	rawPtr                *raw.CEFRunFileDialogCallbackT
+}
+
+func (w *runFileDialogCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewRunFileDialogCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewRunFileDialogCallback(impl RunFileDialogCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewRunFileDialogCallback(impl RunFileDialogCallback) RunFileDialogCallback {
 	r := new(raw.CEFRunFileDialogCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -192,7 +206,9 @@ func NewRunFileDialogCallback(impl RunFileDialogCallback) unsafe.Pointer {
 		impl.OnFileDialogDismissed(filePaths)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &runFileDialogCallbackWrapper{rawPtr: r}
+	w.RunFileDialogCallback = impl
+	return w
 }
 
 // wrapRunFileDialogCallback wraps a CEF handler pointer received from CEF into a Go interface.
@@ -211,9 +227,23 @@ type NavigationEntryVisitor interface {
 	Visit(entry NavigationEntry, current int32, index int32, total int32) int32
 }
 
+// navigationEntryVisitorWrapper wraps a user-provided NavigationEntryVisitor implementation together
+// with the raw CEF struct pointer allocated by NewNavigationEntryVisitor.  It satisfies the
+// NavigationEntryVisitor interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type navigationEntryVisitorWrapper struct {
+	NavigationEntryVisitor // embed user impl for interface delegation
+	rawPtr                 *raw.CEFNavigationEntryVisitorT
+}
+
+func (w *navigationEntryVisitorWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewNavigationEntryVisitor creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewNavigationEntryVisitor(impl NavigationEntryVisitor) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewNavigationEntryVisitor(impl NavigationEntryVisitor) NavigationEntryVisitor {
 	r := new(raw.CEFNavigationEntryVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -225,7 +255,9 @@ func NewNavigationEntryVisitor(impl NavigationEntryVisitor) unsafe.Pointer {
 		return uintptr(impl.Visit(entry, current, index, total))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &navigationEntryVisitorWrapper{rawPtr: r}
+	w.NavigationEntryVisitor = impl
+	return w
 }
 
 // wrapNavigationEntryVisitor wraps a CEF handler pointer received from CEF into a Go interface.
@@ -245,9 +277,23 @@ type PdfPrintCallback interface {
 	OnPdfPrintFinished(path string, ok int32)
 }
 
+// pdfPrintCallbackWrapper wraps a user-provided PdfPrintCallback implementation together
+// with the raw CEF struct pointer allocated by NewPdfPrintCallback.  It satisfies the
+// PdfPrintCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type pdfPrintCallbackWrapper struct {
+	PdfPrintCallback // embed user impl for interface delegation
+	rawPtr           *raw.CEFPdfPrintCallbackT
+}
+
+func (w *pdfPrintCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewPdfPrintCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewPdfPrintCallback(impl PdfPrintCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewPdfPrintCallback(impl PdfPrintCallback) PdfPrintCallback {
 	r := new(raw.CEFPdfPrintCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -257,7 +303,9 @@ func NewPdfPrintCallback(impl PdfPrintCallback) unsafe.Pointer {
 		impl.OnPdfPrintFinished(path, ok)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &pdfPrintCallbackWrapper{rawPtr: r}
+	w.PdfPrintCallback = impl
+	return w
 }
 
 // wrapPdfPrintCallback wraps a CEF handler pointer received from CEF into a Go interface.
@@ -277,9 +325,23 @@ type DownloadImageCallback interface {
 	OnDownloadImageFinished(imageURL string, httpStatusCode int32, image Image)
 }
 
+// downloadImageCallbackWrapper wraps a user-provided DownloadImageCallback implementation together
+// with the raw CEF struct pointer allocated by NewDownloadImageCallback.  It satisfies the
+// DownloadImageCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type downloadImageCallbackWrapper struct {
+	DownloadImageCallback // embed user impl for interface delegation
+	rawPtr                *raw.CEFDownloadImageCallbackT
+}
+
+func (w *downloadImageCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewDownloadImageCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewDownloadImageCallback(impl DownloadImageCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewDownloadImageCallback(impl DownloadImageCallback) DownloadImageCallback {
 	r := new(raw.CEFDownloadImageCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -290,7 +352,9 @@ func NewDownloadImageCallback(impl DownloadImageCallback) unsafe.Pointer {
 		impl.OnDownloadImageFinished(imageURL, httpStatusCode, image)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &downloadImageCallbackWrapper{rawPtr: r}
+	w.DownloadImageCallback = impl
+	return w
 }
 
 // wrapDownloadImageCallback wraps a CEF handler pointer received from CEF into a Go interface.

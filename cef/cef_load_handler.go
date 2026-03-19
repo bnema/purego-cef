@@ -22,9 +22,23 @@ type LoadHandler interface {
 	OnLoadError(browser Browser, frame Frame, errorcode Errorcode, errortext string, failedurl string)
 }
 
+// loadHandlerWrapper wraps a user-provided LoadHandler implementation together
+// with the raw CEF struct pointer allocated by NewLoadHandler.  It satisfies the
+// LoadHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type loadHandlerWrapper struct {
+	LoadHandler // embed user impl for interface delegation
+	rawPtr      *raw.CEFLoadHandlerT
+}
+
+func (w *loadHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewLoadHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewLoadHandler(impl LoadHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewLoadHandler(impl LoadHandler) LoadHandler {
 	r := new(raw.CEFLoadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -59,7 +73,9 @@ func NewLoadHandler(impl LoadHandler) unsafe.Pointer {
 		impl.OnLoadError(browser, frame, errorcode, errortext, failedurl)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &loadHandlerWrapper{rawPtr: r}
+	w.LoadHandler = impl
+	return w
 }
 
 // wrapLoadHandler wraps a CEF handler pointer received from CEF into a Go interface.

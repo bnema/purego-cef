@@ -24,9 +24,23 @@ type LifeSpanHandler interface {
 	OnBeforeClose(browser Browser)
 }
 
+// lifeSpanHandlerWrapper wraps a user-provided LifeSpanHandler implementation together
+// with the raw CEF struct pointer allocated by NewLifeSpanHandler.  It satisfies the
+// LifeSpanHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type lifeSpanHandlerWrapper struct {
+	LifeSpanHandler // embed user impl for interface delegation
+	rawPtr          *raw.CEFLifeSpanHandlerT
+}
+
+func (w *lifeSpanHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewLifeSpanHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewLifeSpanHandler(impl LifeSpanHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 	r := new(raw.CEFLifeSpanHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -84,7 +98,9 @@ func NewLifeSpanHandler(impl LifeSpanHandler) unsafe.Pointer {
 		impl.OnBeforeClose(browser)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &lifeSpanHandlerWrapper{rawPtr: r}
+	w.LifeSpanHandler = impl
+	return w
 }
 
 // wrapLifeSpanHandler wraps a CEF handler pointer received from CEF into a Go interface.

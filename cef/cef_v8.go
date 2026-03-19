@@ -106,9 +106,23 @@ type V8Handler interface {
 	Execute(name string, object V8Value, argumentscount int, arguments unsafe.Pointer, retval unsafe.Pointer, exception uintptr) int32
 }
 
+// v8HandlerWrapper wraps a user-provided V8Handler implementation together
+// with the raw CEF struct pointer allocated by NewV8Handler.  It satisfies the
+// V8Handler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type v8HandlerWrapper struct {
+	V8Handler // embed user impl for interface delegation
+	rawPtr    *raw.CEFV8HandlerT
+}
+
+func (w *v8HandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewV8Handler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewV8Handler(impl V8Handler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewV8Handler(impl V8Handler) V8Handler {
 	r := new(raw.CEFV8HandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -122,7 +136,9 @@ func NewV8Handler(impl V8Handler) unsafe.Pointer {
 		return uintptr(impl.Execute(name, object, argumentscount, arguments, retval, exception))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &v8HandlerWrapper{rawPtr: r}
+	w.V8Handler = impl
+	return w
 }
 
 // wrapV8Handler wraps a CEF handler pointer received from CEF into a Go interface.
@@ -143,9 +159,23 @@ type V8Accessor interface {
 	Set(name string, object V8Value, value V8Value, exception uintptr) int32
 }
 
+// v8AccessorWrapper wraps a user-provided V8Accessor implementation together
+// with the raw CEF struct pointer allocated by NewV8Accessor.  It satisfies the
+// V8Accessor interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type v8AccessorWrapper struct {
+	V8Accessor // embed user impl for interface delegation
+	rawPtr     *raw.CEFV8AccessorT
+}
+
+func (w *v8AccessorWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewV8Accessor creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewV8Accessor(impl V8Accessor) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewV8Accessor(impl V8Accessor) V8Accessor {
 	r := new(raw.CEFV8AccessorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -165,7 +195,9 @@ func NewV8Accessor(impl V8Accessor) unsafe.Pointer {
 		return uintptr(impl.Set(name, object, value, exception))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &v8AccessorWrapper{rawPtr: r}
+	w.V8Accessor = impl
+	return w
 }
 
 // wrapV8Accessor wraps a CEF handler pointer received from CEF into a Go interface.
@@ -191,9 +223,23 @@ type V8Interceptor interface {
 	SetByindex(index int32, object V8Value, value V8Value, exception uintptr) int32
 }
 
+// v8InterceptorWrapper wraps a user-provided V8Interceptor implementation together
+// with the raw CEF struct pointer allocated by NewV8Interceptor.  It satisfies the
+// V8Interceptor interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type v8InterceptorWrapper struct {
+	V8Interceptor // embed user impl for interface delegation
+	rawPtr        *raw.CEFV8InterceptorT
+}
+
+func (w *v8InterceptorWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewV8Interceptor creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewV8Interceptor(impl V8Interceptor) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 	r := new(raw.CEFV8InterceptorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -229,7 +275,9 @@ func NewV8Interceptor(impl V8Interceptor) unsafe.Pointer {
 		return uintptr(impl.SetByindex(index, object, value, exception))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &v8InterceptorWrapper{rawPtr: r}
+	w.V8Interceptor = impl
+	return w
 }
 
 // wrapV8Interceptor wraps a CEF handler pointer received from CEF into a Go interface.
@@ -330,9 +378,23 @@ type V8ArrayBufferReleaseCallback interface {
 	ReleaseBuffer(buffer unsafe.Pointer)
 }
 
+// v8ArrayBufferReleaseCallbackWrapper wraps a user-provided V8ArrayBufferReleaseCallback implementation together
+// with the raw CEF struct pointer allocated by NewV8ArrayBufferReleaseCallback.  It satisfies the
+// V8ArrayBufferReleaseCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type v8ArrayBufferReleaseCallbackWrapper struct {
+	V8ArrayBufferReleaseCallback // embed user impl for interface delegation
+	rawPtr                       *raw.CEFV8ArrayBufferReleaseCallbackT
+}
+
+func (w *v8ArrayBufferReleaseCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewV8ArrayBufferReleaseCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) V8ArrayBufferReleaseCallback {
 	r := new(raw.CEFV8ArrayBufferReleaseCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -341,7 +403,9 @@ func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) unsafe.P
 		impl.ReleaseBuffer(buffer)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &v8ArrayBufferReleaseCallbackWrapper{rawPtr: r}
+	w.V8ArrayBufferReleaseCallback = impl
+	return w
 }
 
 // wrapV8ArrayBufferReleaseCallback wraps a CEF handler pointer received from CEF into a Go interface.

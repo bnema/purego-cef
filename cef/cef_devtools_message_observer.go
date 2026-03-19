@@ -24,9 +24,23 @@ type DevToolsMessageObserver interface {
 	OnDevToolsAgentDetached(browser Browser)
 }
 
+// devToolsMessageObserverWrapper wraps a user-provided DevToolsMessageObserver implementation together
+// with the raw CEF struct pointer allocated by NewDevToolsMessageObserver.  It satisfies the
+// DevToolsMessageObserver interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type devToolsMessageObserverWrapper struct {
+	DevToolsMessageObserver // embed user impl for interface delegation
+	rawPtr                  *raw.CEFDevToolsMessageObserverT
+}
+
+func (w *devToolsMessageObserverWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewDevToolsMessageObserver creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewDevToolsMessageObserver(impl DevToolsMessageObserver) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObserver {
 	r := new(raw.CEFDevToolsMessageObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -64,7 +78,9 @@ func NewDevToolsMessageObserver(impl DevToolsMessageObserver) unsafe.Pointer {
 		impl.OnDevToolsAgentDetached(browser)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &devToolsMessageObserverWrapper{rawPtr: r}
+	w.DevToolsMessageObserver = impl
+	return w
 }
 
 // wrapDevToolsMessageObserver wraps a CEF handler pointer received from CEF into a Go interface.

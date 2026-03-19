@@ -30,9 +30,23 @@ type ResourceRequestHandler interface {
 	OnProtocolExecution(browser Browser, frame Frame, request Request, allowOsExecution unsafe.Pointer)
 }
 
+// resourceRequestHandlerWrapper wraps a user-provided ResourceRequestHandler implementation together
+// with the raw CEF struct pointer allocated by NewResourceRequestHandler.  It satisfies the
+// ResourceRequestHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type resourceRequestHandlerWrapper struct {
+	ResourceRequestHandler // embed user impl for interface delegation
+	rawPtr                 *raw.CEFResourceRequestHandlerT
+}
+
+func (w *resourceRequestHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewResourceRequestHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewResourceRequestHandler(impl ResourceRequestHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandler {
 	r := new(raw.CEFResourceRequestHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -44,7 +58,7 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) unsafe.Pointer {
 		if result == nil {
 			return 0
 		}
-		return uintptr(NewCookieAccessFilter(result))
+		return uintptr(extractRawPointer(NewCookieAccessFilter(result)))
 	}))
 
 	r.OverrideOnBeforeResourceLoad(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
@@ -63,7 +77,7 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) unsafe.Pointer {
 		if result == nil {
 			return 0
 		}
-		return uintptr(NewResourceHandler(result))
+		return uintptr(extractRawPointer(NewResourceHandler(result)))
 	}))
 
 	r.OverrideOnResourceRedirect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
@@ -92,7 +106,7 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) unsafe.Pointer {
 		if result == nil {
 			return 0
 		}
-		return uintptr(NewResponseFilter(result))
+		return uintptr(extractRawPointer(NewResponseFilter(result)))
 	}))
 
 	r.OverrideOnResourceLoadComplete(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
@@ -113,7 +127,9 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) unsafe.Pointer {
 		impl.OnProtocolExecution(browser, frame, request, allowOsExecution)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &resourceRequestHandlerWrapper{rawPtr: r}
+	w.ResourceRequestHandler = impl
+	return w
 }
 
 // wrapResourceRequestHandler wraps a CEF handler pointer received from CEF into a Go interface.
@@ -135,9 +151,23 @@ type CookieAccessFilter interface {
 	CanSaveCookie(browser Browser, frame Frame, request Request, response Response, cookie *Cookie) bool
 }
 
+// cookieAccessFilterWrapper wraps a user-provided CookieAccessFilter implementation together
+// with the raw CEF struct pointer allocated by NewCookieAccessFilter.  It satisfies the
+// CookieAccessFilter interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type cookieAccessFilterWrapper struct {
+	CookieAccessFilter // embed user impl for interface delegation
+	rawPtr             *raw.CEFCookieAccessFilterT
+}
+
+func (w *cookieAccessFilterWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewCookieAccessFilter creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewCookieAccessFilter(impl CookieAccessFilter) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewCookieAccessFilter(impl CookieAccessFilter) CookieAccessFilter {
 	r := new(raw.CEFCookieAccessFilterT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -164,7 +194,9 @@ func NewCookieAccessFilter(impl CookieAccessFilter) unsafe.Pointer {
 		return 0
 	}))
 
-	return unsafe.Pointer(r)
+	w := &cookieAccessFilterWrapper{rawPtr: r}
+	w.CookieAccessFilter = impl
+	return w
 }
 
 // wrapCookieAccessFilter wraps a CEF handler pointer received from CEF into a Go interface.

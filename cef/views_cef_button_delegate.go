@@ -18,9 +18,23 @@ type ButtonDelegate interface {
 	OnButtonStateChanged(button Button)
 }
 
+// buttonDelegateWrapper wraps a user-provided ButtonDelegate implementation together
+// with the raw CEF struct pointer allocated by NewButtonDelegate.  It satisfies the
+// ButtonDelegate interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type buttonDelegateWrapper struct {
+	ButtonDelegate // embed user impl for interface delegation
+	rawPtr         *raw.CEFButtonDelegateT
+}
+
+func (w *buttonDelegateWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewButtonDelegate creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewButtonDelegate(impl ButtonDelegate) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewButtonDelegate(impl ButtonDelegate) ButtonDelegate {
 	r := new(raw.CEFButtonDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -34,7 +48,9 @@ func NewButtonDelegate(impl ButtonDelegate) unsafe.Pointer {
 		impl.OnButtonStateChanged(button)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &buttonDelegateWrapper{rawPtr: r}
+	w.ButtonDelegate = impl
+	return w
 }
 
 // wrapButtonDelegate wraps a CEF handler pointer received from CEF into a Go interface.

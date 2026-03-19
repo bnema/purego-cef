@@ -61,9 +61,23 @@ type DialogHandler interface {
 	OnFileDialog(browser Browser, mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, acceptExtensions uintptr, acceptDescriptions uintptr, callback FileDialogCallback) int32
 }
 
+// dialogHandlerWrapper wraps a user-provided DialogHandler implementation together
+// with the raw CEF struct pointer allocated by NewDialogHandler.  It satisfies the
+// DialogHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type dialogHandlerWrapper struct {
+	DialogHandler // embed user impl for interface delegation
+	rawPtr        *raw.CEFDialogHandlerT
+}
+
+func (w *dialogHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewDialogHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewDialogHandler(impl DialogHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewDialogHandler(impl DialogHandler) DialogHandler {
 	r := new(raw.CEFDialogHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -79,7 +93,9 @@ func NewDialogHandler(impl DialogHandler) unsafe.Pointer {
 		return uintptr(impl.OnFileDialog(browser, mode, title, defaultFilePath, acceptFilters, acceptExtensions, acceptDescriptions, callback))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &dialogHandlerWrapper{rawPtr: r}
+	w.DialogHandler = impl
+	return w
 }
 
 // wrapDialogHandler wraps a CEF handler pointer received from CEF into a Go interface.

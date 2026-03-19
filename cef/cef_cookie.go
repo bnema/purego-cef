@@ -87,9 +87,23 @@ type CookieVisitor interface {
 	Visit(cookie *Cookie, count int32, total int32, deletecookie unsafe.Pointer) int32
 }
 
+// cookieVisitorWrapper wraps a user-provided CookieVisitor implementation together
+// with the raw CEF struct pointer allocated by NewCookieVisitor.  It satisfies the
+// CookieVisitor interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type cookieVisitorWrapper struct {
+	CookieVisitor // embed user impl for interface delegation
+	rawPtr        *raw.CEFCookieVisitorT
+}
+
+func (w *cookieVisitorWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewCookieVisitor creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewCookieVisitor(impl CookieVisitor) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewCookieVisitor(impl CookieVisitor) CookieVisitor {
 	r := new(raw.CEFCookieVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -101,7 +115,9 @@ func NewCookieVisitor(impl CookieVisitor) unsafe.Pointer {
 		return uintptr(impl.Visit(cookie, count, total, deletecookie))
 	}))
 
-	return unsafe.Pointer(r)
+	w := &cookieVisitorWrapper{rawPtr: r}
+	w.CookieVisitor = impl
+	return w
 }
 
 // wrapCookieVisitor wraps a CEF handler pointer received from CEF into a Go interface.
@@ -121,9 +137,23 @@ type SetCookieCallback interface {
 	OnComplete(success int32)
 }
 
+// setCookieCallbackWrapper wraps a user-provided SetCookieCallback implementation together
+// with the raw CEF struct pointer allocated by NewSetCookieCallback.  It satisfies the
+// SetCookieCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type setCookieCallbackWrapper struct {
+	SetCookieCallback // embed user impl for interface delegation
+	rawPtr            *raw.CEFSetCookieCallbackT
+}
+
+func (w *setCookieCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewSetCookieCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewSetCookieCallback(impl SetCookieCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewSetCookieCallback(impl SetCookieCallback) SetCookieCallback {
 	r := new(raw.CEFSetCookieCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -132,7 +162,9 @@ func NewSetCookieCallback(impl SetCookieCallback) unsafe.Pointer {
 		impl.OnComplete(success)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &setCookieCallbackWrapper{rawPtr: r}
+	w.SetCookieCallback = impl
+	return w
 }
 
 // wrapSetCookieCallback wraps a CEF handler pointer received from CEF into a Go interface.
@@ -152,9 +184,23 @@ type DeleteCookiesCallback interface {
 	OnComplete(numDeleted int32)
 }
 
+// deleteCookiesCallbackWrapper wraps a user-provided DeleteCookiesCallback implementation together
+// with the raw CEF struct pointer allocated by NewDeleteCookiesCallback.  It satisfies the
+// DeleteCookiesCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type deleteCookiesCallbackWrapper struct {
+	DeleteCookiesCallback // embed user impl for interface delegation
+	rawPtr                *raw.CEFDeleteCookiesCallbackT
+}
+
+func (w *deleteCookiesCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewDeleteCookiesCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewDeleteCookiesCallback(impl DeleteCookiesCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewDeleteCookiesCallback(impl DeleteCookiesCallback) DeleteCookiesCallback {
 	r := new(raw.CEFDeleteCookiesCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -163,7 +209,9 @@ func NewDeleteCookiesCallback(impl DeleteCookiesCallback) unsafe.Pointer {
 		impl.OnComplete(numDeleted)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &deleteCookiesCallbackWrapper{rawPtr: r}
+	w.DeleteCookiesCallback = impl
+	return w
 }
 
 // wrapDeleteCookiesCallback wraps a CEF handler pointer received from CEF into a Go interface.

@@ -16,9 +16,23 @@ type Task interface {
 	Execute()
 }
 
+// taskWrapper wraps a user-provided Task implementation together
+// with the raw CEF struct pointer allocated by NewTask.  It satisfies the
+// Task interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type taskWrapper struct {
+	Task   // embed user impl for interface delegation
+	rawPtr *raw.CEFTaskT
+}
+
+func (w *taskWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewTask creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewTask(impl Task) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewTask(impl Task) Task {
 	r := new(raw.CEFTaskT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -26,7 +40,9 @@ func NewTask(impl Task) unsafe.Pointer {
 		impl.Execute()
 	}))
 
-	return unsafe.Pointer(r)
+	w := &taskWrapper{rawPtr: r}
+	w.Task = impl
+	return w
 }
 
 // wrapTask wraps a CEF handler pointer received from CEF into a Go interface.

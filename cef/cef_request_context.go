@@ -17,9 +17,23 @@ type ResolveCallback interface {
 	OnResolveCompleted(result Errorcode, resolvedIps uintptr)
 }
 
+// resolveCallbackWrapper wraps a user-provided ResolveCallback implementation together
+// with the raw CEF struct pointer allocated by NewResolveCallback.  It satisfies the
+// ResolveCallback interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type resolveCallbackWrapper struct {
+	ResolveCallback // embed user impl for interface delegation
+	rawPtr          *raw.CEFResolveCallbackT
+}
+
+func (w *resolveCallbackWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewResolveCallback creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewResolveCallback(impl ResolveCallback) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewResolveCallback(impl ResolveCallback) ResolveCallback {
 	r := new(raw.CEFResolveCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -29,7 +43,9 @@ func NewResolveCallback(impl ResolveCallback) unsafe.Pointer {
 		impl.OnResolveCompleted(result, resolvedIps)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &resolveCallbackWrapper{rawPtr: r}
+	w.ResolveCallback = impl
+	return w
 }
 
 // wrapResolveCallback wraps a CEF handler pointer received from CEF into a Go interface.
@@ -49,9 +65,23 @@ type SettingObserver interface {
 	OnSettingChanged(requestingURL string, topLevelURL string, contentType ContentSettingTypes)
 }
 
+// settingObserverWrapper wraps a user-provided SettingObserver implementation together
+// with the raw CEF struct pointer allocated by NewSettingObserver.  It satisfies the
+// SettingObserver interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type settingObserverWrapper struct {
+	SettingObserver // embed user impl for interface delegation
+	rawPtr          *raw.CEFSettingObserverT
+}
+
+func (w *settingObserverWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewSettingObserver creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewSettingObserver(impl SettingObserver) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewSettingObserver(impl SettingObserver) SettingObserver {
 	r := new(raw.CEFSettingObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -62,7 +92,9 @@ func NewSettingObserver(impl SettingObserver) unsafe.Pointer {
 		impl.OnSettingChanged(requestingURL, topLevelURL, contentType)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &settingObserverWrapper{rawPtr: r}
+	w.SettingObserver = impl
+	return w
 }
 
 // wrapSettingObserver wraps a CEF handler pointer received from CEF into a Go interface.

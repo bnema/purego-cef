@@ -148,9 +148,23 @@ type ServerHandler interface {
 	OnWebSocketMessage(server Server, connectionID int32, data unsafe.Pointer, dataSize int)
 }
 
+// serverHandlerWrapper wraps a user-provided ServerHandler implementation together
+// with the raw CEF struct pointer allocated by NewServerHandler.  It satisfies the
+// ServerHandler interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type serverHandlerWrapper struct {
+	ServerHandler // embed user impl for interface delegation
+	rawPtr        *raw.CEFServerHandlerT
+}
+
+func (w *serverHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
 // NewServerHandler creates a CEF handler backed by the given implementation.
-// The returned pointer can be passed to CEF functions that expect this handler type.
-func NewServerHandler(impl ServerHandler) unsafe.Pointer {
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func NewServerHandler(impl ServerHandler) ServerHandler {
 	r := new(raw.CEFServerHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -207,7 +221,9 @@ func NewServerHandler(impl ServerHandler) unsafe.Pointer {
 		impl.OnWebSocketMessage(server, connectionID, data, dataSize)
 	}))
 
-	return unsafe.Pointer(r)
+	w := &serverHandlerWrapper{rawPtr: r}
+	w.ServerHandler = impl
+	return w
 }
 
 // wrapServerHandler wraps a CEF handler pointer received from CEF into a Go interface.
