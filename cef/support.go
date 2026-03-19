@@ -201,14 +201,25 @@ type rawPointerHolder interface {
 	rawPointer() unsafe.Pointer
 }
 
+// RawPointer is implemented by external wrapper types that hold a raw CEF
+// pointer obtained from a New* constructor. This allows extractRawPointer
+// to recover the pointer from types defined outside this package.
+type RawPointer interface {
+	RawPointer() unsafe.Pointer
+}
+
 // extractRawPointer returns the underlying raw CEF pointer from an interface
-// value, or nil if the value is nil or does not implement rawPointerHolder.
+// value, or nil if the value is nil or does not implement rawPointerHolder
+// or RawPointer.
 func extractRawPointer(v any) unsafe.Pointer {
 	if v == nil {
 		return nil
 	}
 	if h, ok := v.(rawPointerHolder); ok {
 		return h.rawPointer()
+	}
+	if rp, ok := v.(RawPointer); ok {
+		return rp.RawPointer()
 	}
 	return nil
 }
