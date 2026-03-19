@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"sync"
 	"unsafe"
 
@@ -256,16 +255,6 @@ func DoMessageLoopWork() {
 	raw.CEFDoMessageLoopWork()
 }
 
-// isSubprocess returns true if os.Args contains a --type= flag, indicating
-// this process was spawned by CEF as a renderer, GPU, or utility subprocess.
-func isSubprocess() bool {
-	for _, arg := range os.Args {
-		if strings.HasPrefix(arg, "--type=") {
-			return true
-		}
-	}
-	return false
-}
 
 // MaybeExitSubprocess calls cef_execute_process and exits the current process
 // if it was launched as a CEF sub-process. For the browser process this is a
