@@ -8,18 +8,20 @@ import (
 	"strings"
 
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/emitter"
+	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/parser"
 )
 
 type config struct {
 	headersDir string
-	outputDir  string
+	rawDir     string // cef/internal/raw/
+	publicDir  string // cef/
 	version    string
 }
 
 func (c config) validate() error {
-	if c.headersDir == "" || c.outputDir == "" {
-		return fmt.Errorf("--headers-dir and --output-dir are required")
+	if c.headersDir == "" || c.rawDir == "" || c.publicDir == "" {
+		return fmt.Errorf("--headers-dir, --raw-dir, and --public-dir are required")
 	}
 	return nil
 }
@@ -27,7 +29,8 @@ func (c config) validate() error {
 func main() {
 	var cfg config
 	flag.StringVar(&cfg.headersDir, "headers-dir", "", "CEF include root")
-	flag.StringVar(&cfg.outputDir, "output-dir", "", "generated package directory")
+	flag.StringVar(&cfg.rawDir, "raw-dir", "", "raw struct output directory")
+	flag.StringVar(&cfg.publicDir, "public-dir", "", "public API output directory")
 	flag.StringVar(&cfg.version, "version", "145", "target major version")
 	flag.Parse()
 	if err := run(cfg); err != nil {
@@ -36,12 +39,27 @@ func main() {
 	}
 }
 
+// headerEntry holds a parsed header and its derived output filename.
+type headerEntry struct {
+	header  *model.Header
+	outName string
+}
+
 func run(cfg config) error {
 	if err := cfg.validate(); err != nil {
 		return err
 	}
 
-	// Collect all register function names for the aggregator.
+	// Ensure output directories exist.
+	if err := os.MkdirAll(cfg.rawDir, 0o755); err != nil {
+		return fmt.Errorf("create raw dir: %w", err)
+	}
+	if err := os.MkdirAll(cfg.publicDir, 0o755); err != nil {
+		return fmt.Errorf("create public dir: %w", err)
+	}
+
+	var allHeaders []*model.Header
+	var entries []headerEntry
 	var registerNames []string
 
 	// Pass 1: Type headers (include/internal/cef_types*.h)
@@ -49,7 +67,6 @@ func run(cfg config) error {
 	if err != nil {
 		return err
 	}
-	// Exclude wrappers header (C++ only)
 	typeHeaders = filterOut(typeHeaders, "cef_types_wrappers.h")
 
 	for _, path := range typeHeaders {
@@ -60,14 +77,9 @@ func run(cfg config) error {
 		base := filepath.Base(path)
 		header.RegisterName = registerName(base)
 		registerNames = append(registerNames, header.RegisterName)
-		code, err := emitter.Emit(header)
-		if err != nil {
-			return fmt.Errorf("emit %s: %w", path, err)
-		}
 		outName := outputName(base)
-		if err := os.WriteFile(filepath.Join(cfg.outputDir, outName), []byte(code), 0o644); err != nil {
-			return err
-		}
+		allHeaders = append(allHeaders, header)
+		entries = append(entries, headerEntry{header: header, outName: outName})
 	}
 
 	// Pass 2: CAPI headers (include/capi/**/*_capi.h)
@@ -86,26 +98,45 @@ func run(cfg config) error {
 			if err != nil {
 				return fmt.Errorf("parse %s: %w", path, err)
 			}
-			// Derive relative path for outputName (handles views/test prefix)
 			rel, _ := filepath.Rel(filepath.Join(cfg.headersDir, "capi"), path)
 			if rel == "" {
 				rel = filepath.Base(path)
 			}
 			header.RegisterName = registerName(filepath.Base(path))
 			registerNames = append(registerNames, header.RegisterName)
-			code, err := emitter.Emit(header)
-			if err != nil {
-				return fmt.Errorf("emit %s: %w", path, err)
-			}
 			outName := outputName(rel)
-			if err := os.WriteFile(filepath.Join(cfg.outputDir, outName), []byte(code), 0o644); err != nil {
-				return err
-			}
+			allHeaders = append(allHeaders, header)
+			entries = append(entries, headerEntry{header: header, outName: outName})
 		}
 	}
 
-	// Generate register.go aggregator
-	return writeRegisterAggregator(cfg.outputDir, registerNames)
+	// Build type registry from all parsed headers.
+	registry := emitter.NewTypeRegistry(allHeaders)
+
+	// Emit both raw and public output for each header.
+	for _, e := range entries {
+		// Raw output
+		rawCode, err := emitter.EmitRaw(e.header)
+		if err != nil {
+			return fmt.Errorf("emit raw %s: %w", e.outName, err)
+		}
+		if err := os.WriteFile(filepath.Join(cfg.rawDir, e.outName), []byte(rawCode), 0o644); err != nil {
+			return fmt.Errorf("write raw %s: %w", e.outName, err)
+		}
+
+		// Public output
+		pubData := emitter.BuildPublicFileData(e.header, registry)
+		pubCode, err := emitter.EmitPublic(pubData)
+		if err != nil {
+			return fmt.Errorf("emit public %s: %w", e.outName, err)
+		}
+		if err := os.WriteFile(filepath.Join(cfg.publicDir, e.outName), []byte(pubCode), 0o644); err != nil {
+			return fmt.Errorf("write public %s: %w", e.outName, err)
+		}
+	}
+
+	// Generate register.go aggregator for raw directory.
+	return writeRawRegisterAggregator(cfg.rawDir, registerNames)
 }
 
 // registerName derives a unique Go register function name from a header
@@ -171,11 +202,11 @@ func filterOut(paths []string, suffix string) []string {
 	return out
 }
 
-// writeRegisterAggregator generates register.go that calls all per-header
-// register functions.
-func writeRegisterAggregator(dir string, names []string) error {
+// writeRawRegisterAggregator generates register.go for the raw package that
+// calls all per-header register functions.
+func writeRawRegisterAggregator(dir string, names []string) error {
 	var sb strings.Builder
-	sb.WriteString("package capi\n\n")
+	sb.WriteString("package raw\n\n")
 	sb.WriteString("// Register loads all CEF C API symbols from the shared library.\n")
 	sb.WriteString("// Code generated by cefgen. DO NOT EDIT.\n")
 	sb.WriteString("func Register(handle uintptr) {\n")
