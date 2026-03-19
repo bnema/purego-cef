@@ -1,0 +1,13 @@
+{{define "free_func.tmpl"}}
+{{- if .Doc}}// {{.Name}} {{.Doc}}{{else}}// {{.Name}} wraps the CEF {{.RawGoName}} function.{{end}}
+func {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+	{{- if .Return.IsVoid}}
+	// TODO: marshal args and call raw.{{.RawGoName}}(...)
+	_ = raw.{{.RawGoName}}
+	{{- else}}
+	// TODO: marshal args, call raw.{{.RawGoName}}(...), marshal return
+	_ = raw.{{.RawGoName}}
+	return {{zeroVal .Return.PublicType}}
+	{{- end}}
+}
+{{end}}

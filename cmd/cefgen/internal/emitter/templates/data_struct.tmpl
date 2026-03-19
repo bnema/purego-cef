@@ -1,0 +1,4 @@
+{{define "data_struct.tmpl"}}
+{{- if .Doc}}// {{.Name}} {{.Doc}}{{else}}// {{.Name}} is a CEF data structure.{{end}}
+type {{.Name}} = raw.{{.RawGoName}}
+{{end}}

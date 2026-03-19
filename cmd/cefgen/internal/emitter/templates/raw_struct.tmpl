@@ -1,0 +1,20 @@
+{{define "raw_struct.tmpl"}}
+type {{.GoName}} struct {
+	_ structs.HostLayout
+{{- range .Fields}}
+	{{.GoName}} {{.GoType}}
+{{- end}}
+}
+
+{{range .Fields}}{{if .IsFunction}}
+func (v *{{$.GoName}}) Override{{.GoName}}(fn uintptr) { v.{{.GoName}} = fn }
+
+func (v *{{$.GoName}}) Call{{.GoName}}(args ...uintptr) uintptr {
+	if v.{{.GoName}} == 0 {
+		return 0
+	}
+	r1, _, _ := purego.SyscallN(v.{{.GoName}}, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	return r1
+}
+{{end}}{{end}}
+{{end}}

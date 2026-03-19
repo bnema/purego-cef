@@ -1,0 +1,55 @@
+{{define "handler_constructor.tmpl"}}
+// New{{.Name}} creates a CEF handler backed by the given implementation.
+// The returned pointer can be passed to CEF functions that expect this handler type.
+func New{{.Name}}(impl {{.Name}}) unsafe.Pointer {
+	r := new(raw.{{.RawGoName}})
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+
+{{range .Methods}}
+	{{- if .IsGetter}}
+	// Cache the getter result once.
+	cached{{.Name}} := impl.{{.Name}}()
+	r.Override{{.RawFieldName}}(purego.NewCallback(func(_ uintptr) uintptr {
+		return uintptr(New{{.GetterInterface}}(cached{{.Name}}))
+	}))
+	{{- else}}
+	r.Override{{.RawFieldName}}(purego.NewCallback(func(self uintptr{{range $i, $p := .Params}}, {{cbParamName $p $i}} uintptr{{end}}) {{if .Return.IsVoid}}{{else}}uintptr{{end}} {
+		{{- range $i, $p := .Params}}
+		{{$p.Name}} := {{unmarshalParam $p (cbParamName $p $i)}}
+		{{- end}}
+		{{- if .Return.IsVoid}}
+		impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})
+		{{- else if .Return.IsBool}}
+		if impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}}) {
+			return 1
+		}
+		return 0
+		{{- else if .Return.IsHandler}}
+		result := impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})
+		if result == nil {
+			return 0
+		}
+		return uintptr(New{{.Return.PublicType}}(result))
+		{{- else if .Return.IsInterface}}
+		return uintptr(extractRawPointer(impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})))
+		{{- else}}
+		return uintptr(impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}}))
+		{{- end}}
+	}))
+	{{- end}}
+{{end}}
+
+	return unsafe.Pointer(r)
+}
+
+// wrap{{.Name}} wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
+}
+{{end}}

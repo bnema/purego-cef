@@ -1,0 +1,64 @@
+{{define "object_wrapper.tmpl"}}
+type {{lower .Name}}Impl struct {
+	rawPtr *raw.{{.RawGoName}}
+}
+
+{{range .Methods}}
+func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+	{{- if .Return.IsVoid}}
+	obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})
+	{{- else if .Return.IsBool}}
+	return obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}) != 0
+	{{- else if .Return.IsEnum}}
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}))
+	{{- else if .Return.IsString}}
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})))
+	{{- else if .Return.IsInterface}}
+	return wrap{{.Return.PublicType}}(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})))
+	{{- else if .Return.IsDataStruct}}
+	return ({{.Return.PublicType}})(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})))
+	{{- else if .Return.IsPointer}}
+	return unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}))
+	{{- else if .Return.IsNumeric}}
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}))
+	{{- else}}
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}))
+	{{- end}}
+}
+{{end}}
+
+func (obj *{{lower .Name}}Impl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+{{if .IsScoped}}
+func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+	if ptr == nil {
+		return nil
+	}
+	r := (*raw.{{.RawGoName}})(ptr)
+	return &{{lower .Name}}Impl{rawPtr: r}
+}
+{{else}}
+// Release releases the underlying CEF object.
+func (obj *{{lower .Name}}Impl) Release() {
+	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+	if ptr == nil {
+		return nil
+	}
+	r := (*raw.{{.RawGoName}})(ptr)
+	base := (*raw.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &{{lower .Name}}Impl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *{{lower .Name}}Impl) {
+		b := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
+}
+{{end}}
+{{end}}

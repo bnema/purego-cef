@@ -1,0 +1,368 @@
+package emitter
+
+import (
+	"strconv"
+	"strings"
+
+	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
+)
+
+// skipPublicTypes lists type/function names (after PublicName conversion) that
+// are hand-written in init.go or support.go and must not be generated.
+var skipPublicTypes = map[string]bool{
+	"Settings":          true,
+	"MainArgs":          true,
+	"Shutdown":          true,
+	"DoMessageLoopWork": true,
+	"Initialize":        true,
+	"ExecuteProcess":    true,
+}
+
+// BuildPublicFileData converts a parsed header and type registry into the
+// view model used by the public API templates.
+func BuildPublicFileData(header *model.Header, registry *TypeRegistry) *PublicFileData {
+	data := &PublicFileData{
+		PackageName: "cef",
+	}
+
+	for i := range header.Structs {
+		s := &header.Structs[i]
+		pubName := model.PublicName(s.CName)
+		if skipPublicTypes[pubName] {
+			continue
+		}
+		switch s.Kind {
+		case "handler", "object":
+			data.Interfaces = append(data.Interfaces, buildInterface(s, registry))
+		case "data":
+			data.DataStructs = append(data.DataStructs, buildDataStruct(s, registry))
+		}
+	}
+
+	for i := range header.Enums {
+		data.Enums = append(data.Enums, buildEnum(&header.Enums[i]))
+	}
+
+	for i := range header.Functions {
+		fn := &header.Functions[i]
+		pubName := model.PublicName(fn.CName)
+		if skipPublicTypes[pubName] {
+			continue
+		}
+		data.FreeFunctions = append(data.FreeFunctions, buildFreeFunc(fn, registry))
+	}
+
+	return data
+}
+
+func buildInterface(s *model.Struct, registry *TypeRegistry) InterfaceData {
+	// Detect scoped types by checking the base field type.
+	isScoped := false
+	for _, f := range s.Fields {
+		if strings.EqualFold(f.CName, "base") && strings.Contains(f.CType, "cef_base_scoped_t") {
+			isScoped = true
+			break
+		}
+	}
+
+	iface := InterfaceData{
+		Name:      s.InterfaceName,
+		Doc:       s.Doc,
+		Kind:      s.Kind,
+		IsScoped:  isScoped,
+		RawGoName: s.GoName,
+	}
+
+	for _, f := range s.Fields {
+		if !f.IsFunction {
+			continue
+		}
+		if strings.EqualFold(f.CName, "base") {
+			continue
+		}
+
+		m := buildMethod(f, registry)
+		iface.Methods = append(iface.Methods, m)
+	}
+
+	return iface
+}
+
+func buildMethod(f model.Field, registry *TypeRegistry) MethodData {
+	name := model.PublicName(f.CName)
+	if renamed, ok := methodRenames[name]; ok {
+		name = renamed
+	}
+	m := MethodData{
+		Name:         name,
+		Doc:          f.Doc,
+		RawFieldName: f.GoName,
+	}
+
+	// Build params, skipping the first "self" parameter.
+	for i, p := range f.Params {
+		if i == 0 {
+			continue // skip self
+		}
+		pd := ParamData{
+			Name:        paramName(p),
+			PublicType:  registry.ResolvePublicType(p.CType),
+			CType:       p.CType,
+			MarshalKind: classifyParamType(p.CType, registry),
+		}
+		m.Params = append(m.Params, pd)
+	}
+
+	// Build return type.
+	ret := strings.TrimSpace(f.ReturnCType)
+	if ret == "" || ret == "void" {
+		m.Return = ReturnData{IsVoid: true, CType: ret}
+	} else {
+		isBool := IsBoolReturn(f)
+		pubType := registry.ResolvePublicType(ret)
+		if isBool {
+			pubType = "bool"
+		}
+		m.Return = ReturnData{
+			PublicType:   pubType,
+			CType:        ret,
+			IsBool:       isBool,
+			IsEnum:       registry.IsEnumType(ret),
+			IsString:     registry.IsStringType(ret),
+			IsInterface:  registry.IsInterfaceType(ret),
+			IsNumeric:    isNumericType(pubType),
+			IsPointer:    pubType == "unsafe.Pointer",
+			IsHandler:    registry.IsHandlerType(ret),
+			IsDataStruct: registry.IsDataStructType(ret),
+		}
+	}
+
+	// Check if this is a getter callback.
+	if registry.IsGetterCallback(f) {
+		m.IsGetter = true
+		m.GetterInterface = registry.ResolvePublicType(f.ReturnCType)
+	}
+
+	return m
+}
+
+func buildDataStruct(s *model.Struct, registry *TypeRegistry) DataStructData {
+	ds := DataStructData{
+		Name:      model.PublicName(s.CName),
+		Doc:       s.Doc,
+		RawGoName: s.GoName,
+	}
+
+	for _, f := range s.Fields {
+		if strings.EqualFold(f.CName, "base") {
+			continue
+		}
+		ds.Fields = append(ds.Fields, DataFieldData{
+			Name:       model.PublicName(f.CName),
+			PublicType: registry.ResolvePublicType(f.CType),
+			Doc:        f.Doc,
+		})
+	}
+
+	return ds
+}
+
+func buildEnum(e *model.Enum) EnumData {
+	ed := EnumData{
+		Name:      model.PublicName(e.CName),
+		RawGoName: e.GoName,
+	}
+
+	// Determine the common prefix to strip from enum values.
+	// e.g., for cef_state_t values like STATE_DEFAULT, STATE_ENABLED, etc.
+	prefix := enumValuePrefix(e)
+
+	for _, v := range e.Values {
+		name := cleanEnumValueName(v.CName, prefix)
+		ed.Values = append(ed.Values, EnumValueData{
+			Name:  name,
+			Value: v.Value,
+		})
+		// Detect unsigned values (hex > 0x7FFFFFFF or large decimal).
+		if isUnsignedValue(v.Value) {
+			ed.Unsigned = true
+		}
+	}
+
+	return ed
+}
+
+// isUnsignedValue returns true if the value string represents a number
+// that exceeds the int32 range.
+func isUnsignedValue(val string) bool {
+	val = strings.TrimSpace(val)
+	if strings.HasPrefix(val, "0x") || strings.HasPrefix(val, "0X") {
+		// Parse as uint64 and check if > MaxInt32.
+		n, err := strconv.ParseUint(val[2:], 16, 64)
+		if err == nil && n > 0x7FFFFFFF {
+			return true
+		}
+	}
+	return false
+}
+
+func buildFreeFunc(fn *model.Function, registry *TypeRegistry) FreeFuncData {
+	ff := FreeFuncData{
+		Name:      model.PublicName(fn.CName),
+		Doc:       fn.Doc,
+		RawGoName: fn.GoName,
+	}
+
+	for _, p := range fn.Params {
+		ff.Params = append(ff.Params, ParamData{
+			Name:       paramName(p),
+			PublicType: registry.ResolvePublicType(p.CType),
+			CType:      p.CType,
+		})
+	}
+
+	ret := strings.TrimSpace(fn.ReturnCType)
+	if ret == "" || ret == "void" {
+		ff.Return = ReturnData{IsVoid: true, CType: ret}
+	} else {
+		ff.Return = ReturnData{
+			PublicType: registry.ResolvePublicType(ret),
+			CType:      ret,
+		}
+	}
+
+	return ff
+}
+
+// methodRenames maps method names that conflict with Go standard interfaces
+// (like io.Seeker's Seek) to alternative names to avoid go vet warnings.
+var methodRenames = map[string]string{
+	"Seek": "SeekOffset",
+}
+
+// goKeywords are Go reserved words that cannot be used as identifiers.
+var goKeywords = map[string]bool{
+	"break": true, "case": true, "chan": true, "const": true, "continue": true,
+	"default": true, "defer": true, "else": true, "fallthrough": true,
+	"for": true, "func": true, "go": true, "goto": true, "if": true,
+	"import": true, "interface": true, "map": true, "package": true,
+	"range": true, "return": true, "select": true, "struct": true,
+	"switch": true, "type": true, "var": true,
+}
+
+// paramName converts a C parameter name to a Go-idiomatic name.
+func paramName(p model.Param) string {
+	name := p.GoName
+	if name == "" {
+		name = model.PublicName(p.CName)
+	}
+	// Lowercase first letter for parameter names.
+	if len(name) > 0 {
+		name = strings.ToLower(name[:1]) + name[1:]
+	}
+	// Escape Go keywords by appending an underscore.
+	if goKeywords[name] {
+		name = name + "_"
+	}
+	return name
+}
+
+// enumValuePrefix finds the common prefix of all enum value C names.
+// For CEF enums, values typically look like CEF_STATE_DEFAULT, CEF_STATE_ENABLED.
+// We strip "CEF_" and the type-specific prefix.
+func enumValuePrefix(e *model.Enum) string {
+	if len(e.Values) == 0 {
+		return ""
+	}
+
+	// Strip "cef_" prefix and "_t" suffix to get the enum stem, e.g. "state".
+	stem := strings.TrimLeft(e.CName, "_")
+	stem = strings.TrimPrefix(stem, "cef_")
+	stem = strings.TrimSuffix(stem, "_t")
+
+	// The enum value prefix is usually "CEF_" + uppercase stem + "_".
+	// e.g., stem = "state" → prefix = "CEF_STATE_"
+	// But also handle: "CEFV8_" style prefixes.
+	prefix := "CEF_" + strings.ToUpper(stem) + "_"
+
+	// Verify this prefix works for at least one value.
+	for _, v := range e.Values {
+		if strings.HasPrefix(v.CName, prefix) {
+			return prefix
+		}
+	}
+
+	// Fallback: just strip "CEF_".
+	return "CEF_"
+}
+
+// classifyParamType returns a MarshalKind string for a given C type.
+func classifyParamType(ctype string, registry *TypeRegistry) string {
+	ct := strings.TrimSpace(ctype)
+	switch ct {
+	case "const cef_string_t*", "const char*", "char*":
+		return "string"
+	case "cef_string_userfree_t":
+		return "userfreeString"
+	case "void*", "const void*":
+		return "pointer"
+	case "cef_string_t*", "cef_string_list_t", "cef_string_map_t", "cef_string_multimap_t":
+		return "numeric" // opaque handles, passed as uintptr
+	}
+	if registry.IsEnumType(ct) {
+		return "enum"
+	}
+	if registry.IsInterfaceType(ct) {
+		return "interface"
+	}
+	if registry.IsDataStructType(ct) {
+		return "dataStruct"
+	}
+	pub := registry.ResolvePublicType(ct)
+	if pub == "unsafe.Pointer" {
+		return "pointer"
+	}
+	if strings.HasPrefix(pub, "*") {
+		return "dataStruct" // pointer to struct/int/etc, cast as (*Type)(unsafe.Pointer(...))
+	}
+	if isNumericType(pub) {
+		return "numeric"
+	}
+	return "numeric" // default fallback
+}
+
+// isNumericType returns true if the Go type is a numeric primitive.
+func isNumericType(goType string) bool {
+	switch goType {
+	case "int", "int8", "int16", "int32", "int64",
+		"uint", "uint8", "uint16", "uint32", "uint64",
+		"uintptr", "float32", "float64":
+		return true
+	}
+	return false
+}
+
+// cleanEnumValueName strips the common prefix and PascalCases the result.
+func cleanEnumValueName(cName, prefix string) string {
+	name := cName
+	if strings.HasPrefix(name, prefix) {
+		name = name[len(prefix):]
+	} else if strings.HasPrefix(name, "CEF_") {
+		name = name[4:]
+	}
+
+	// Convert UPPER_SNAKE to PascalCase.
+	parts := strings.Split(strings.ToLower(name), "_")
+	var b strings.Builder
+	for _, p := range parts {
+		if p == "" {
+			continue
+		}
+		b.WriteString(strings.ToUpper(p[:1]) + p[1:])
+	}
+	result := b.String()
+	if result == "" {
+		return cName // fallback to original
+	}
+	return result
+}
