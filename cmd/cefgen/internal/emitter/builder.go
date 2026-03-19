@@ -318,7 +318,7 @@ func enumValuePrefix(e *model.Enum) string {
 
 // classifyParamType returns a MarshalKind string for a given C type.
 func classifyParamType(ctype string, registry *TypeRegistry) string {
-	ct := strings.TrimSpace(ctype)
+	ct := normalizeConst(strings.TrimSpace(ctype))
 	switch ct {
 	case "const cef_string_t*", "const char*", "char*":
 		return "string"
@@ -442,7 +442,8 @@ func mergeCountPointerParams(params []ParamData, registry *TypeRegistry) []Param
 // isIntLikeType returns true if the Go type is an integer type suitable as an array count.
 func isIntLikeType(goType string) bool {
 	switch goType {
-	case "int", "int32", "int64", "uint", "uint32", "uint64", "uintptr":
+	case "int", "int8", "int16", "int32", "int64",
+		"uint", "uint8", "uint16", "uint32", "uint64", "uintptr":
 		return true
 	}
 	return false

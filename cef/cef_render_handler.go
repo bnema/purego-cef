@@ -28,9 +28,9 @@ type RenderHandler interface {
 	// OnPopupSize Called when the browser wants to move or resize the popup widget. |rect| contains the new location and size in view coordinates.
 	OnPopupSize(browser Browser, rect *Rect)
 	// OnPaint Called when an element should be painted. Pixel values passed to this function are scaled relative to view coordinates based on the value of CefScreenInfo.device_scale_factor returned from GetScreenInfo. |type| indicates whether the element is the view or the popup widget. |buffer| contains the pixel data for the whole image. |dirtyRects| contains the set of rectangles in pixel coordinates that need to be repainted. |buffer| will be |width|*|height|*4 bytes in size and represents a BGRA image with an upper-left origin. This function is only called when cef_window_tInfo::shared_texture_enabled is set to false (0).
-	OnPaint(browser Browser, type_ PaintElementType, dirtyrectscount int, dirtyrects uintptr, buffer unsafe.Pointer, width int32, height int32)
+	OnPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, buffer unsafe.Pointer, width int32, height int32)
 	// OnAcceleratedPaint Called when an element has been rendered to the shared texture handle. |type| indicates whether the element is the view or the popup widget. |dirtyRects| contains the set of rectangles in pixel coordinates that need to be repainted. |info| contains the shared handle; on Windows it is a HANDLE to a texture that can be opened with D3D11 OpenSharedResource1 or D3D12 OpenSharedHandle, on macOS it is an IOSurface pointer that can be opened with Metal or OpenGL, and on Linux it contains several planes, each with an fd to the underlying system native buffer. The underlying implementation uses a pool to deliver frames. As a result, the handle may differ every frame depending on how many frames are in- progress. The handle's resource cannot be cached and cannot be accessed outside of this callback. It should be reopened each time this callback is executed and the contents should be copied to a texture owned by the client application. The contents of |info| will be released back to the pool after this callback returns.
-	OnAcceleratedPaint(browser Browser, type_ PaintElementType, dirtyrectscount int, dirtyrects uintptr, info *AcceleratedPaintInfo)
+	OnAcceleratedPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, info *AcceleratedPaintInfo)
 	// GetTouchHandleSize Called to retrieve the size of the touch handle for the specified |orientation|.
 	GetTouchHandleSize(browser Browser, orientation HorizontalAlignment, size *Size)
 	// OnTouchHandleStateChanged Called when touch handle state is updated. The client is responsible for rendering the touch handles.
@@ -42,7 +42,7 @@ type RenderHandler interface {
 	// OnScrollOffsetChanged Called when the scroll offset has changed.
 	OnScrollOffsetChanged(browser Browser, x float64, y float64)
 	// OnImeCompositionRangeChanged Called when the IME composition range has changed. |selected_range| is the range of characters that have been selected. |character_bounds| is the bounds of each character in view coordinates.
-	OnImeCompositionRangeChanged(browser Browser, selectedRange *Range, characterBoundscount int, characterBounds uintptr)
+	OnImeCompositionRangeChanged(browser Browser, selectedRange *Range, characterBounds []Rect)
 	// OnTextSelectionChanged Called when text selection has changed for the specified |browser|. |selected_text| is the currently selected text and |selected_range| is the character range.
 	OnTextSelectionChanged(browser Browser, selectedText string, selectedRange *Range)
 	// OnVirtualKeyboardRequested Called when an on-screen keyboard should be shown or hidden for the specified |browser|. |input_mode| specifies what kind of keyboard should be opened. If |input_mode| is CEF_TEXT_INPUT_MODE_NONE, any existing keyboard for this browser should be hidden.
@@ -103,21 +103,19 @@ func NewRenderHandler(impl RenderHandler) unsafe.Pointer {
 	r.OverrideOnPaint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		type_ := PaintElementType(arg1)
-		dirtyrectscount := int(arg2)
-		dirtyrects := uintptr(arg3)
+		dirtyrects := decodeSlice[Rect](arg3, int(arg2))
 		buffer := unsafe.Pointer(arg4)
 		width := int32(arg5)
 		height := int32(arg6)
-		impl.OnPaint(browser, type_, dirtyrectscount, dirtyrects, buffer, width, height)
+		impl.OnPaint(browser, type_, dirtyrects, buffer, width, height)
 	}))
 
 	r.OverrideOnAcceleratedPaint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		type_ := PaintElementType(arg1)
-		dirtyrectscount := int(arg2)
-		dirtyrects := uintptr(arg3)
+		dirtyrects := decodeSlice[Rect](arg3, int(arg2))
 		info := (*AcceleratedPaintInfo)(unsafe.Pointer(arg4))
-		impl.OnAcceleratedPaint(browser, type_, dirtyrectscount, dirtyrects, info)
+		impl.OnAcceleratedPaint(browser, type_, dirtyrects, info)
 	}))
 
 	r.OverrideGetTouchHandleSize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
@@ -158,9 +156,8 @@ func NewRenderHandler(impl RenderHandler) unsafe.Pointer {
 	r.OverrideOnImeCompositionRangeChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		selectedRange := (*Range)(unsafe.Pointer(arg1))
-		characterBoundscount := int(arg2)
-		characterBounds := uintptr(arg3)
-		impl.OnImeCompositionRangeChanged(browser, selectedRange, characterBoundscount, characterBounds)
+		characterBounds := decodeSlice[Rect](arg3, int(arg2))
+		impl.OnImeCompositionRangeChanged(browser, selectedRange, characterBounds)
 	}))
 
 	r.OverrideOnTextSelectionChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {

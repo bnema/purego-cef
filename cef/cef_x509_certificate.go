@@ -145,11 +145,11 @@ func (obj *x509CertificateImpl) GetIssuerChainSize() int {
 }
 
 func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain unsafe.Pointer) {
-	obj.rawPtr.CallGetDerencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(extractRawPointer(chain)))
+	obj.rawPtr.CallGetDerencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(chain))
 }
 
 func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain unsafe.Pointer) {
-	obj.rawPtr.CallGetPemencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(extractRawPointer(chain)))
+	obj.rawPtr.CallGetPemencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(chain))
 }
 
 func (obj *x509CertificateImpl) rawPointer() unsafe.Pointer {

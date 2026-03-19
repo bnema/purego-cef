@@ -79,6 +79,12 @@ func TestResolvePublicType(t *testing.T) {
 		// enum type
 		{"cef_process_id_t", "ProcessID"},
 		{"cef_log_severity_t", "LogSeverity"},
+		// "TYPE const*" form (same as "const TYPE*")
+		{"cef_popup_features_t const*", "*PopupFeatures"},
+		{"struct _cef_browser_t const*", "Browser"},
+		// bare pointer (no struct keyword)
+		{"cef_browser_t*", "Browser"},
+		{"cef_popup_features_t*", "*PopupFeatures"},
 		// fallback
 		{"some_unknown_type", "uintptr"},
 	}
@@ -261,6 +267,30 @@ func TestIsBoolReturn(t *testing.T) {
 			got := IsBoolReturn(tt.f)
 			if got != tt.want {
 				t.Errorf("IsBoolReturn() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNormalizeConst(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{"const cef_rect_t*", "const cef_rect_t*"}, // already normalized
+		{"cef_rect_t const*", "const cef_rect_t*"}, // needs normalization
+		{"struct _cef_rect_t const*", "const struct _cef_rect_t*"},
+		{"cef_rect_t*", "cef_rect_t*"},                           // no const, unchanged
+		{"const void*", "const void*"},                           // already normalized
+		{"void*", "void*"},                                       // no const
+		{"int", "int"},                                           // no pointer, no const
+		{"cef_rect_t const* const*", "const cef_rect_t const**"}, // double pointer — inner const preserved
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := normalizeConst(tt.input)
+			if got != tt.want {
+				t.Errorf("normalizeConst(%q) = %q, want %q", tt.input, got, tt.want)
 			}
 		})
 	}

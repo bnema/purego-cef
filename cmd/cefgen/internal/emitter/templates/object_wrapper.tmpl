@@ -12,23 +12,23 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	{{- end}}
 	{{- end}}
 	{{- if .Return.IsVoid}}
-	obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}})
+	obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
 	{{- else if .Return.IsBool}}
-	return obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}) != 0
+	return obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}) != 0
 	{{- else if .Return.IsEnum}}
-	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}))
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}))
 	{{- else if .Return.IsString}}
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}})))
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})))
 	{{- else if .Return.IsInterface}}
-	return wrap{{.Return.PublicType}}(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}})))
+	return wrap{{.Return.PublicType}}(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})))
 	{{- else if .Return.IsDataStruct}}
-	return ({{.Return.PublicType}})(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}})))
+	return ({{.Return.PublicType}})(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})))
 	{{- else if .Return.IsPointer}}
-	return unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}))
+	return unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}))
 	{{- else if .Return.IsNumeric}}
-	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}))
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}))
 	{{- else}}
-	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}))
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}))
 	{{- end}}
 }
 {{end}}

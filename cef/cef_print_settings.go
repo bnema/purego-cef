@@ -30,7 +30,7 @@ type PrintSettings interface {
 	// GetDpi Get the DPI (dots per inch).
 	GetDpi() int32
 	// SetPageRanges Set the page ranges.
-	SetPageRanges(rangescount int, ranges uintptr)
+	SetPageRanges(ranges []Range)
 	// GetPageRangesCount Returns the number of page ranges that currently exist.
 	GetPageRangesCount() int
 	// GetPageRanges Returns the number of page ranges that currently exist.
@@ -99,8 +99,12 @@ func (obj *printSettingsImpl) GetDpi() int32 {
 	return int32(obj.rawPtr.CallGetDpi())
 }
 
-func (obj *printSettingsImpl) SetPageRanges(rangescount int, ranges uintptr) {
-	obj.rawPtr.CallSetPageRanges(uintptr(rangescount), ranges)
+func (obj *printSettingsImpl) SetPageRanges(ranges []Range) {
+	var rangesPtr unsafe.Pointer
+	if len(ranges) > 0 {
+		rangesPtr = unsafe.Pointer(&ranges[0])
+	}
+	obj.rawPtr.CallSetPageRanges(uintptr(len(ranges)), uintptr(rangesPtr))
 }
 
 func (obj *printSettingsImpl) GetPageRangesCount() int {

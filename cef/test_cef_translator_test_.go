@@ -69,7 +69,7 @@ type TranslatorTest interface {
 	// GetPointByRef Return a point value by out-param.
 	GetPointByRef(val *Point)
 	// SetPointList Set a point list vlaue.
-	SetPointList(valcount int, val uintptr) int32
+	SetPointList(val []Point) int32
 	// GetPointListByRef Return a point list value by out-param.
 	GetPointListByRef(valcount *int, val *Point) int32
 	// GetPointListSize Return the number of points that will be output above.
@@ -250,8 +250,12 @@ func (obj *translatorTestImpl) GetPointByRef(val *Point) {
 	obj.rawPtr.CallGetPointByRef(uintptr(unsafe.Pointer(val)))
 }
 
-func (obj *translatorTestImpl) SetPointList(valcount int, val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetPointList(uintptr(valcount), val))
+func (obj *translatorTestImpl) SetPointList(val []Point) int32 {
+	var valPtr unsafe.Pointer
+	if len(val) > 0 {
+		valPtr = unsafe.Pointer(&val[0])
+	}
+	return int32(obj.rawPtr.CallSetPointList(uintptr(len(val)), uintptr(valPtr)))
 }
 
 func (obj *translatorTestImpl) GetPointListByRef(valcount *int, val *Point) int32 {
@@ -287,7 +291,7 @@ func (obj *translatorTestImpl) SetRefPtrLibraryList(valcount int, val unsafe.Poi
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(extractRawPointer(val)), uintptr(val1), uintptr(val2)))
+	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibraryListSize() int {
@@ -315,7 +319,7 @@ func (obj *translatorTestImpl) SetRefPtrClientList(valcount int, val unsafe.Poin
 }
 
 func (obj *translatorTestImpl) GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 TranslatorTestRefPtrClient, val2 TranslatorTestRefPtrClient) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(extractRawPointer(val)), uintptr(extractRawPointer(val1)), uintptr(extractRawPointer(val2))))
+	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(extractRawPointer(val1)), uintptr(extractRawPointer(val2))))
 }
 
 func (obj *translatorTestImpl) GetRefPtrClientListSize() int {

@@ -57,7 +57,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 					return fmt.Sprintf("arg%d", i)
 				}
 			}
-			return "arg0" // fallback
+			panic(fmt.Sprintf("rawArgForParam: no raw param match for %q", p.Name))
 		},
 		// sliceCountArg finds the raw arg for the count param of a merged slice.
 		"sliceCountArg": func(p ParamData, rawParams []ParamData) string {
@@ -84,9 +84,56 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			switch p.MarshalKind {
 			case "string", "userfreeString":
 				return p.Name + "Str := cefString(" + p.Name + ")\n\tdefer freeCefString(&" + p.Name + "Str)"
+			case "slice":
+				return "var " + p.Name + "Ptr unsafe.Pointer\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "[0])\n\t}"
 			default:
 				return ""
 			}
+		},
+		// marshalCallArgs generates the full comma-separated argument list for a raw Call,
+		// expanding slice params into count + pointer pairs.
+		"marshalCallArgs": func(params []ParamData) string {
+			marshalOne := func(p ParamData) string {
+				switch p.MarshalKind {
+				case "interface":
+					if p.PublicType == "unsafe.Pointer" {
+						return "uintptr(" + p.Name + ")"
+					}
+					return "uintptr(extractRawPointer(" + p.Name + "))"
+				case "string", "userfreeString":
+					return "uintptr(unsafe.Pointer(&" + p.Name + "Str))"
+				case "enum":
+					return "uintptr(" + p.Name + ")"
+				case "pointer":
+					return "uintptr(" + p.Name + ")"
+				case "dataStruct":
+					return "uintptr(unsafe.Pointer(" + p.Name + "))"
+				case "numeric":
+					switch p.PublicType {
+					case "float64":
+						return "uintptr(math.Float64bits(" + p.Name + "))"
+					case "float32":
+						return "uintptr(math.Float32bits(" + p.Name + "))"
+					case "uintptr":
+						return p.Name
+					default:
+						return "uintptr(" + p.Name + ")"
+					}
+				default:
+					return "uintptr(" + p.Name + ")"
+				}
+			}
+
+			var args []string
+			for _, p := range params {
+				if p.MarshalKind == "slice" {
+					args = append(args, "uintptr(len("+p.Name+"))")
+					args = append(args, "uintptr("+p.Name+"Ptr)")
+				} else {
+					args = append(args, marshalOne(p))
+				}
+			}
+			return strings.Join(args, ", ")
 		},
 		// marshalParamForRawFunc generates the Go expression for free function calls.
 		// Raw free functions use typed params (unsafe.Pointer, int32, etc.), not uintptr.
@@ -123,6 +170,9 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		"marshalParam": func(p ParamData) string {
 			switch p.MarshalKind {
 			case "interface":
+				if p.PublicType == "unsafe.Pointer" {
+					return "uintptr(" + p.Name + ")"
+				}
 				return "uintptr(extractRawPointer(" + p.Name + "))"
 			case "string", "userfreeString":
 				return "uintptr(unsafe.Pointer(&" + p.Name + "Str))"

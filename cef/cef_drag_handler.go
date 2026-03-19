@@ -15,7 +15,7 @@ type DragHandler interface {
 	// OnDragEnter Called when an external drag event enters the browser window. |dragData| contains the drag event data and |mask| represents the type of drag operation. Return false (0) for default drag handling behavior or true (1) to cancel the drag event.
 	OnDragEnter(browser Browser, dragdata DragData, mask DragOperationsMask) int32
 	// OnDraggableRegionsChanged Called whenever draggable regions for the browser window change. These can be specified using the '-webkit-app-region: drag/no-drag' CSS-property. If draggable regions are never defined in a document this function will also never be called. If the last draggable region is removed from a document this function will be called with an NULL vector.
-	OnDraggableRegionsChanged(browser Browser, frame Frame, regionscount int, regions uintptr)
+	OnDraggableRegionsChanged(browser Browser, frame Frame, regions []DraggableRegion)
 }
 
 // NewDragHandler creates a CEF handler backed by the given implementation.
@@ -34,9 +34,8 @@ func NewDragHandler(impl DragHandler) unsafe.Pointer {
 	r.OverrideOnDraggableRegionsChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
-		regionscount := int(arg2)
-		regions := uintptr(arg3)
-		impl.OnDraggableRegionsChanged(browser, frame, regionscount, regions)
+		regions := decodeSlice[DraggableRegion](arg3, int(arg2))
+		impl.OnDraggableRegionsChanged(browser, frame, regions)
 	}))
 
 	return unsafe.Pointer(r)

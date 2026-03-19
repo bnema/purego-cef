@@ -33,9 +33,30 @@ func NewTypeRegistry(headers []*model.Header) *TypeRegistry {
 	return r
 }
 
+// normalizeConst rewrites C type qualifiers so that "const" always appears as a
+// leading prefix: "cef_rect_t const*" → "const cef_rect_t*".  This ensures the
+// rest of the resolver pipeline can rely on a single canonical form.
+func normalizeConst(ct string) string {
+	// Strip trailing pointer(s), check for trailing "const", then reassemble.
+	starCount := 0
+	s := ct
+	for {
+		trimmed, ok := strings.CutSuffix(s, "*")
+		if !ok {
+			break
+		}
+		starCount++
+		s = strings.TrimSpace(trimmed)
+	}
+	if base, ok := strings.CutSuffix(s, " const"); ok {
+		return "const " + base + strings.Repeat("*", starCount)
+	}
+	return ct
+}
+
 // ResolvePublicType converts a C type string to the corresponding Go public API type.
 func (r *TypeRegistry) ResolvePublicType(ctype string) string {
-	ct := strings.TrimSpace(ctype)
+	ct := normalizeConst(strings.TrimSpace(ctype))
 
 	// Exact matches first.
 	switch ct {
@@ -215,18 +236,6 @@ func (r *TypeRegistry) resolveBarePointer(ct string) (string, bool) {
 	return "", false
 }
 
-// lookupStructByBareName looks up a non-pointer bare type name like "cef_rect_t"
-// in the struct registry (trying both with and without leading underscore).
-func (r *TypeRegistry) lookupStructByBareName(name string) *model.Struct {
-	if st, ok := r.structs["_"+name]; ok {
-		return st
-	}
-	if st, ok := r.structs[name]; ok {
-		return st
-	}
-	return nil
-}
-
 // IsEnumType returns true if the given C type resolves to an enum.
 func (r *TypeRegistry) IsEnumType(ctype string) bool {
 	ct := strings.TrimSpace(ctype)
@@ -312,7 +321,7 @@ func (r *TypeRegistry) IsDataStructType(ctype string) bool {
 // lookupStructForCType resolves a C type string to its struct registry entry.
 // Handles both "struct _cef_xxx_t*" and bare "cef_xxx_t*" patterns.
 func (r *TypeRegistry) lookupStructForCType(ctype string) *model.Struct {
-	ct := strings.TrimSpace(ctype)
+	ct := normalizeConst(strings.TrimSpace(ctype))
 	ct = strings.TrimPrefix(ct, "const ")
 	if !strings.HasSuffix(ct, "*") {
 		return nil

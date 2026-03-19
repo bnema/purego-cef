@@ -44,36 +44,39 @@ type testRenderHandler struct {
 }
 
 func (h *testRenderHandler) GetAccessibilityHandler() cef.AccessibilityHandler { return nil }
-func (h *testRenderHandler) GetRootScreenRect(browser cef.Browser, rect uintptr) int32 {
+func (h *testRenderHandler) GetRootScreenRect(browser cef.Browser, rect *cef.Rect) int32 {
 	return 0
 }
-func (h *testRenderHandler) GetViewRect(browser cef.Browser, rect uintptr) {}
+func (h *testRenderHandler) GetViewRect(browser cef.Browser, rect *cef.Rect) {}
 func (h *testRenderHandler) GetScreenPoint(browser cef.Browser, viewx, viewy int32, screenx, screeny unsafe.Pointer) int32 {
 	return 0
 }
-func (h *testRenderHandler) GetScreenInfo(browser cef.Browser, screenInfo uintptr) int32 { return 0 }
+func (h *testRenderHandler) GetScreenInfo(browser cef.Browser, screenInfo *cef.ScreenInfo) int32 {
+	return 0
+}
 func (h *testRenderHandler) OnPopupShow(browser cef.Browser, show int32)                 {}
-func (h *testRenderHandler) OnPopupSize(browser cef.Browser, rect uintptr)                {}
-func (h *testRenderHandler) OnPaint(browser cef.Browser, type_ cef.PaintElementType, dirtyrectscount int, dirtyrects uintptr, buffer unsafe.Pointer, width, height int32) {
+func (h *testRenderHandler) OnPopupSize(browser cef.Browser, rect *cef.Rect)                {}
+func (h *testRenderHandler) OnPaint(browser cef.Browser, type_ cef.PaintElementType, dirtyrects []cef.Rect, buffer unsafe.Pointer, width, height int32) {
 	select {
 	case h.painted <- struct{}{}:
 	default:
 	}
 }
-func (h *testRenderHandler) OnAcceleratedPaint(browser cef.Browser, type_ cef.PaintElementType, dirtyrectscount int, dirtyrects uintptr, info *cef.AcceleratedPaintInfo) {
+func (h *testRenderHandler) OnAcceleratedPaint(browser cef.Browser, type_ cef.PaintElementType, dirtyrects []cef.Rect, info *cef.AcceleratedPaintInfo) {
 }
-func (h *testRenderHandler) GetTouchHandleSize(browser cef.Browser, orientation cef.HorizontalAlignment, size uintptr) {
+func (h *testRenderHandler) GetTouchHandleSize(browser cef.Browser, orientation cef.HorizontalAlignment, size *cef.Size) {
 }
-func (h *testRenderHandler) OnTouchHandleStateChanged(browser cef.Browser, state uintptr)        {}
+func (h *testRenderHandler) OnTouchHandleStateChanged(browser cef.Browser, state *cef.TouchHandleState) {
+}
 func (h *testRenderHandler) StartDragging(browser cef.Browser, dragData cef.DragData, allowedOps cef.DragOperationsMask, x, y int32) int32 {
 	return 0
 }
 func (h *testRenderHandler) UpdateDragCursor(browser cef.Browser, operation cef.DragOperationsMask) {
 }
 func (h *testRenderHandler) OnScrollOffsetChanged(browser cef.Browser, x, y float64) {}
-func (h *testRenderHandler) OnImeCompositionRangeChanged(browser cef.Browser, selectedRange uintptr, characterBoundscount int, characterBounds uintptr) {
+func (h *testRenderHandler) OnImeCompositionRangeChanged(browser cef.Browser, selectedRange *cef.Range, characterBounds []cef.Rect) {
 }
-func (h *testRenderHandler) OnTextSelectionChanged(browser cef.Browser, selectedText string, selectedRange uintptr) {
+func (h *testRenderHandler) OnTextSelectionChanged(browser cef.Browser, selectedText string, selectedRange *cef.Range) {
 }
 func (h *testRenderHandler) OnVirtualKeyboardRequested(browser cef.Browser, inputMode cef.TextInputMode) {
 }

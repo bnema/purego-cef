@@ -73,7 +73,7 @@ type Window interface {
 	// GetClientAreaBoundsInScreen Returns the bounds (size and position) of this Window's client area. Position is in screen coordinates.
 	GetClientAreaBoundsInScreen() uintptr
 	// SetDraggableRegions Set the regions where mouse events will be intercepted by this Window to support drag operations. Call this function with an NULL vector to clear the draggable regions. The draggable region bounds should be in window coordinates.
-	SetDraggableRegions(regionscount int, regions uintptr)
+	SetDraggableRegions(regions []DraggableRegion)
 	// GetWindowHandle Retrieve the platform window handle for this Window.
 	GetWindowHandle() uintptr
 	// SendKeyPress Simulate a key press. |key_code| is the VKEY_* value from Chromium's ui/events/keycodes/keyboard_codes.h header (VK_* values on Windows). |event_flags| is some combination of EVENTFLAG_SHIFT_DOWN, EVENTFLAG_CONTROL_DOWN and/or EVENTFLAG_ALT_DOWN. This function is exposed primarily for testing purposes.
@@ -226,8 +226,12 @@ func (obj *windowImpl) GetClientAreaBoundsInScreen() uintptr {
 	return uintptr(obj.rawPtr.CallGetClientAreaBoundsInScreen())
 }
 
-func (obj *windowImpl) SetDraggableRegions(regionscount int, regions uintptr) {
-	obj.rawPtr.CallSetDraggableRegions(uintptr(regionscount), regions)
+func (obj *windowImpl) SetDraggableRegions(regions []DraggableRegion) {
+	var regionsPtr unsafe.Pointer
+	if len(regions) > 0 {
+		regionsPtr = unsafe.Pointer(&regions[0])
+	}
+	obj.rawPtr.CallSetDraggableRegions(uintptr(len(regions)), uintptr(regionsPtr))
 }
 
 func (obj *windowImpl) GetWindowHandle() uintptr {

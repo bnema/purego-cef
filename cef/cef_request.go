@@ -227,7 +227,7 @@ func (obj *postDataImpl) GetElementCount() int {
 }
 
 func (obj *postDataImpl) GetElements(elementscount *int, elements unsafe.Pointer) {
-	obj.rawPtr.CallGetElements(uintptr(unsafe.Pointer(elementscount)), uintptr(extractRawPointer(elements)))
+	obj.rawPtr.CallGetElements(uintptr(unsafe.Pointer(elementscount)), uintptr(elements))
 }
 
 func (obj *postDataImpl) RemoveElement(element PostDataElement) int32 {

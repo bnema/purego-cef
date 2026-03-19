@@ -396,7 +396,7 @@ type BrowserHost interface {
 	// SetWindowlessFrameRate Set the maximum rate in frames per second (fps) that cef_render_handler_t:: OnPaint will be called for a windowless browser. The actual fps may be lower if the browser cannot generate frames at the requested rate. The minimum value is 1 and the default value is 30. Can also be set at browser creation via cef_browser_tSettings.windowless_frame_rate.
 	SetWindowlessFrameRate(frameRate int32)
 	// ImeSetComposition Begins a new composition or updates the existing composition. Blink has a special node (a composition node) that allows the input function to change text without affecting other DOM nodes. |text| is the optional text that will be inserted into the composition node. |underlines| is an optional set of ranges that will be underlined in the resulting text. |replacement_range| is an optional range of the existing text that will be replaced. |selection_range| is an optional range of the resulting text that will be selected after insertion or replacement. The |replacement_range| value is only used on OS X. This function may be called multiple times as the composition changes. When the client is done making changes the composition should either be canceled or completed. To cancel the composition call ImeCancelComposition. To complete the composition call either ImeCommitText or ImeFinishComposingText. Completion is usually signaled when: 1. The client receives a WM_IME_COMPOSITION message with a GCS_RESULTSTR    flag (on Windows), or; 2. The client receives a "commit" signal of GtkIMContext (on Linux), or; 3. insertText of NSTextInput is called (on Mac). This function is only used when window rendering is disabled.
-	ImeSetComposition(text string, underlinescount int, underlines uintptr, replacementRange *Range, selectionRange *Range)
+	ImeSetComposition(text string, underlines []CompositionUnderline, replacementRange *Range, selectionRange *Range)
 	// ImeCommitText Completes the existing composition by optionally inserting the specified |text| into the composition node. |replacement_range| is an optional range of the existing text that will be replaced. |relative_cursor_pos| is where the cursor will be positioned relative to the current cursor position. See comments on ImeSetComposition for usage. The |replacement_range| and |relative_cursor_pos| values are only used on OS X. This function is only used when window rendering is disabled.
 	ImeCommitText(text string, replacementRange *Range, relativeCursorPos int32)
 	// ImeFinishComposingText Completes the existing composition by applying the current composition node contents. If |keep_selection| is false (0) the current selection, if any, will be discarded. See comments on ImeSetComposition for usage. This function is only used when window rendering is disabled.
@@ -649,10 +649,14 @@ func (obj *browserHostImpl) SetWindowlessFrameRate(frameRate int32) {
 	obj.rawPtr.CallSetWindowlessFrameRate(uintptr(frameRate))
 }
 
-func (obj *browserHostImpl) ImeSetComposition(text string, underlinescount int, underlines uintptr, replacementRange *Range, selectionRange *Range) {
+func (obj *browserHostImpl) ImeSetComposition(text string, underlines []CompositionUnderline, replacementRange *Range, selectionRange *Range) {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	obj.rawPtr.CallImeSetComposition(uintptr(unsafe.Pointer(&textStr)), uintptr(underlinescount), underlines, uintptr(unsafe.Pointer(replacementRange)), uintptr(unsafe.Pointer(selectionRange)))
+	var underlinesPtr unsafe.Pointer
+	if len(underlines) > 0 {
+		underlinesPtr = unsafe.Pointer(&underlines[0])
+	}
+	obj.rawPtr.CallImeSetComposition(uintptr(unsafe.Pointer(&textStr)), uintptr(len(underlines)), uintptr(underlinesPtr), uintptr(unsafe.Pointer(replacementRange)), uintptr(unsafe.Pointer(selectionRange)))
 }
 
 func (obj *browserHostImpl) ImeCommitText(text string, replacementRange *Range, relativeCursorPos int32) {

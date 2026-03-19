@@ -114,7 +114,7 @@ func (obj *apiVersionTestImpl) SetRefPtrLibraryList(valcount int, val unsafe.Poi
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(extractRawPointer(val)), uintptr(val1), uintptr(val2)))
+	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibraryListSize() int {
@@ -142,7 +142,7 @@ func (obj *apiVersionTestImpl) SetRefPtrClientList(valcount int, val unsafe.Poin
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 ApiVersionTestRefPtrClient, val2 ApiVersionTestRefPtrClient) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(extractRawPointer(val)), uintptr(extractRawPointer(val1)), uintptr(extractRawPointer(val2))))
+	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(extractRawPointer(val1)), uintptr(extractRawPointer(val2))))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrClientListSize() int {

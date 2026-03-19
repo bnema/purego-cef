@@ -72,7 +72,7 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 	defer freeCefString(&codeStr)
 	scriptURLStr := cefString(scriptURL)
 	defer freeCefString(&scriptURLStr)
-	return int32(obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(extractRawPointer(retval)), uintptr(extractRawPointer(exception))))
+	return int32(obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception)))
 }
 
 func (obj *v8ContextImpl) rawPointer() unsafe.Pointer {
