@@ -38,9 +38,9 @@ type DragData interface {
 	// GetFileContents Write the contents of the file being dragged out of the web view into |writer|. Returns the number of bytes sent to |writer|. If |writer| is NULL this function will return the size of the file contents in bytes. Call get_file_name() to get a suggested name for the file.
 	GetFileContents(writer StreamWriter) int
 	// GetFileNames Retrieve the list of file names that are being dragged into the browser window.
-	GetFileNames(names []string) int32
+	GetFileNames(names uintptr) int32
 	// GetFilePaths Retrieve the list of file paths that are being dragged into the browser window.
-	GetFilePaths(paths []string) int32
+	GetFilePaths(paths uintptr) int32
 	// SetLinkURL Set the link URL that is being dragged.
 	SetLinkURL(uRL string)
 	// SetLinkTitle Set the title associated with the link being dragged.
@@ -72,9 +72,7 @@ type dragDataImpl struct {
 }
 
 func (obj *dragDataImpl) Clone() DragData {
-	ret := obj.rawPtr.CallClone()
-	_ = ret
-	return nil
+	return wrapDragData(unsafe.Pointer(obj.rawPtr.CallClone()))
 }
 
 func (obj *dragDataImpl) IsReadOnly() bool {
@@ -94,63 +92,43 @@ func (obj *dragDataImpl) IsFile() bool {
 }
 
 func (obj *dragDataImpl) GetLinkURL() string {
-	ret := obj.rawPtr.CallGetLinkURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLinkURL()))
 }
 
 func (obj *dragDataImpl) GetLinkTitle() string {
-	ret := obj.rawPtr.CallGetLinkTitle()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLinkTitle()))
 }
 
 func (obj *dragDataImpl) GetLinkMetadata() string {
-	ret := obj.rawPtr.CallGetLinkMetadata()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLinkMetadata()))
 }
 
 func (obj *dragDataImpl) GetFragmentText() string {
-	ret := obj.rawPtr.CallGetFragmentText()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFragmentText()))
 }
 
 func (obj *dragDataImpl) GetFragmentHtml() string {
-	ret := obj.rawPtr.CallGetFragmentHtml()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFragmentHtml()))
 }
 
 func (obj *dragDataImpl) GetFragmentBaseURL() string {
-	ret := obj.rawPtr.CallGetFragmentBaseURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFragmentBaseURL()))
 }
 
 func (obj *dragDataImpl) GetFileName() string {
-	ret := obj.rawPtr.CallGetFileName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFileName()))
 }
 
 func (obj *dragDataImpl) GetFileContents(writer StreamWriter) int {
-	ret := obj.rawPtr.CallGetFileContents(uintptr(0) /* writer */)
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetFileContents(uintptr(0) /* writer */))
 }
 
-func (obj *dragDataImpl) GetFileNames(names []string) int32 {
-	ret := obj.rawPtr.CallGetFileNames(uintptr(0) /* names */)
-	_ = ret
-	return 0
+func (obj *dragDataImpl) GetFileNames(names uintptr) int32 {
+	return int32(obj.rawPtr.CallGetFileNames(uintptr(0) /* names */))
 }
 
-func (obj *dragDataImpl) GetFilePaths(paths []string) int32 {
-	ret := obj.rawPtr.CallGetFilePaths(uintptr(0) /* paths */)
-	_ = ret
-	return 0
+func (obj *dragDataImpl) GetFilePaths(paths uintptr) int32 {
+	return int32(obj.rawPtr.CallGetFilePaths(uintptr(0) /* paths */))
 }
 
 func (obj *dragDataImpl) SetLinkURL(uRL string) {
@@ -190,19 +168,19 @@ func (obj *dragDataImpl) ClearFilenames() {
 }
 
 func (obj *dragDataImpl) GetImage() Image {
-	ret := obj.rawPtr.CallGetImage()
-	_ = ret
-	return nil
+	return wrapImage(unsafe.Pointer(obj.rawPtr.CallGetImage()))
 }
 
 func (obj *dragDataImpl) GetImageHotspot() uintptr {
-	ret := obj.rawPtr.CallGetImageHotspot()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetImageHotspot())
 }
 
 func (obj *dragDataImpl) HasImage() bool {
 	return obj.rawPtr.CallHasImage() != 0
+}
+
+func (obj *dragDataImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

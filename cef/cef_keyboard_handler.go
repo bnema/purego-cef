@@ -23,15 +23,31 @@ func NewKeyboardHandler(impl KeyboardHandler) unsafe.Pointer {
 	r := new(raw.CEFKeyboardHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnPreKeyEvent(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnPreKeyEvent(...), marshal return
-		return 0
+	r.OverrideOnPreKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		event := uintptr(arg1)
+		osEvent := uintptr(arg2)
+		isKeyboardShortcut := unsafe.Pointer(arg3)
+		return uintptr(impl.OnPreKeyEvent(browser, event, osEvent, isKeyboardShortcut))
 	}))
 
-	r.OverrideOnKeyEvent(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnKeyEvent(...), marshal return
-		return 0
+	r.OverrideOnKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		event := uintptr(arg1)
+		osEvent := uintptr(arg2)
+		return uintptr(impl.OnKeyEvent(browser, event, osEvent))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapKeyboardHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapKeyboardHandler(ptr unsafe.Pointer) KeyboardHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

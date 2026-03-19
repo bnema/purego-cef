@@ -19,6 +19,10 @@ type menuButtonPressedLockImpl struct {
 	rawPtr *raw.CEFMenuButtonPressedLockT
 }
 
+func (obj *menuButtonPressedLockImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *menuButtonPressedLockImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -52,9 +56,23 @@ func NewMenuButtonDelegate(impl MenuButtonDelegate) unsafe.Pointer {
 	r := new(raw.CEFMenuButtonDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnMenuButtonPressed(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnMenuButtonPressed(...)
+	r.OverrideOnMenuButtonPressed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		menuButton := wrapMenuButton(unsafe.Pointer(arg0))
+		screenPoint := uintptr(arg1)
+		buttonPressedLock := wrapMenuButtonPressedLock(unsafe.Pointer(arg2))
+		impl.OnMenuButtonPressed(menuButton, screenPoint, buttonPressedLock)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapMenuButtonDelegate wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapMenuButtonDelegate(ptr unsafe.Pointer) MenuButtonDelegate {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

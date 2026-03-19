@@ -36,15 +36,11 @@ func (obj *scrollViewImpl) SetContentView(view View) {
 }
 
 func (obj *scrollViewImpl) GetContentView() View {
-	ret := obj.rawPtr.CallGetContentView()
-	_ = ret
-	return nil
+	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetContentView()))
 }
 
 func (obj *scrollViewImpl) GetVisibleContentRect() uintptr {
-	ret := obj.rawPtr.CallGetVisibleContentRect()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetVisibleContentRect())
 }
 
 func (obj *scrollViewImpl) HasHorizontalScrollbar() bool {
@@ -52,9 +48,7 @@ func (obj *scrollViewImpl) HasHorizontalScrollbar() bool {
 }
 
 func (obj *scrollViewImpl) GetHorizontalScrollbarHeight() int32 {
-	ret := obj.rawPtr.CallGetHorizontalScrollbarHeight()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetHorizontalScrollbarHeight())
 }
 
 func (obj *scrollViewImpl) HasVerticalScrollbar() bool {
@@ -62,9 +56,11 @@ func (obj *scrollViewImpl) HasVerticalScrollbar() bool {
 }
 
 func (obj *scrollViewImpl) GetVerticalScrollbarWidth() int32 {
-	ret := obj.rawPtr.CallGetVerticalScrollbarWidth()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetVerticalScrollbarWidth())
+}
+
+func (obj *scrollViewImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

@@ -95,9 +95,7 @@ func (obj *textfieldImpl) IsReadOnly() bool {
 }
 
 func (obj *textfieldImpl) GetText() string {
-	ret := obj.rawPtr.CallGetText()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetText()))
 }
 
 func (obj *textfieldImpl) SetText(text string) {
@@ -117,9 +115,7 @@ func (obj *textfieldImpl) HasSelection() bool {
 }
 
 func (obj *textfieldImpl) GetSelectedText() string {
-	ret := obj.rawPtr.CallGetSelectedText()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSelectedText()))
 }
 
 func (obj *textfieldImpl) SelectAll(reversed int32) {
@@ -131,9 +127,7 @@ func (obj *textfieldImpl) ClearSelection() {
 }
 
 func (obj *textfieldImpl) GetSelectedRange() uintptr {
-	ret := obj.rawPtr.CallGetSelectedRange()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetSelectedRange())
 }
 
 func (obj *textfieldImpl) SelectRange(range_ uintptr) {
@@ -141,9 +135,7 @@ func (obj *textfieldImpl) SelectRange(range_ uintptr) {
 }
 
 func (obj *textfieldImpl) GetCursorPosition() int {
-	ret := obj.rawPtr.CallGetCursorPosition()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetCursorPosition())
 }
 
 func (obj *textfieldImpl) SetTextColor(color uintptr) {
@@ -151,9 +143,7 @@ func (obj *textfieldImpl) SetTextColor(color uintptr) {
 }
 
 func (obj *textfieldImpl) GetTextColor() uintptr {
-	ret := obj.rawPtr.CallGetTextColor()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetTextColor())
 }
 
 func (obj *textfieldImpl) SetSelectionTextColor(color uintptr) {
@@ -161,9 +151,7 @@ func (obj *textfieldImpl) SetSelectionTextColor(color uintptr) {
 }
 
 func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
-	ret := obj.rawPtr.CallGetSelectionTextColor()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetSelectionTextColor())
 }
 
 func (obj *textfieldImpl) SetSelectionBackgroundColor(color uintptr) {
@@ -171,9 +159,7 @@ func (obj *textfieldImpl) SetSelectionBackgroundColor(color uintptr) {
 }
 
 func (obj *textfieldImpl) GetSelectionBackgroundColor() uintptr {
-	ret := obj.rawPtr.CallGetSelectionBackgroundColor()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetSelectionBackgroundColor())
 }
 
 func (obj *textfieldImpl) SetFontList(fontList string) {
@@ -205,9 +191,7 @@ func (obj *textfieldImpl) SetPlaceholderText(text string) {
 }
 
 func (obj *textfieldImpl) GetPlaceholderText() string {
-	ret := obj.rawPtr.CallGetPlaceholderText()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetPlaceholderText()))
 }
 
 func (obj *textfieldImpl) SetPlaceholderTextColor(color uintptr) {
@@ -216,6 +200,10 @@ func (obj *textfieldImpl) SetPlaceholderTextColor(color uintptr) {
 
 func (obj *textfieldImpl) SetAccessibleName(name string) {
 	obj.rawPtr.CallSetAccessibleName(uintptr(0) /* name */)
+}
+
+func (obj *textfieldImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

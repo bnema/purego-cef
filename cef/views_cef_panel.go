@@ -42,27 +42,19 @@ type panelImpl struct {
 }
 
 func (obj *panelImpl) AsWindow() Window {
-	ret := obj.rawPtr.CallAsWindow()
-	_ = ret
-	return nil
+	return wrapWindow(unsafe.Pointer(obj.rawPtr.CallAsWindow()))
 }
 
 func (obj *panelImpl) SetToFillLayout() FillLayout {
-	ret := obj.rawPtr.CallSetToFillLayout()
-	_ = ret
-	return nil
+	return wrapFillLayout(unsafe.Pointer(obj.rawPtr.CallSetToFillLayout()))
 }
 
 func (obj *panelImpl) SetToBoxLayout(settings uintptr) BoxLayout {
-	ret := obj.rawPtr.CallSetToBoxLayout(uintptr(0) /* settings */)
-	_ = ret
-	return nil
+	return wrapBoxLayout(unsafe.Pointer(obj.rawPtr.CallSetToBoxLayout(uintptr(0) /* settings */)))
 }
 
 func (obj *panelImpl) GetLayout() Layout {
-	ret := obj.rawPtr.CallGetLayout()
-	_ = ret
-	return nil
+	return wrapLayout(unsafe.Pointer(obj.rawPtr.CallGetLayout()))
 }
 
 func (obj *panelImpl) Layout() {
@@ -90,15 +82,15 @@ func (obj *panelImpl) RemoveAllChildViews() {
 }
 
 func (obj *panelImpl) GetChildViewCount() int {
-	ret := obj.rawPtr.CallGetChildViewCount()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetChildViewCount())
 }
 
 func (obj *panelImpl) GetChildViewAt(index int32) View {
-	ret := obj.rawPtr.CallGetChildViewAt(uintptr(0) /* index */)
-	_ = ret
-	return nil
+	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetChildViewAt(uintptr(0) /* index */)))
+}
+
+func (obj *panelImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

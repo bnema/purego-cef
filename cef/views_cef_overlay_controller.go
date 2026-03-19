@@ -61,15 +61,11 @@ func (obj *overlayControllerImpl) IsSame(that OverlayController) bool {
 }
 
 func (obj *overlayControllerImpl) GetContentsView() View {
-	ret := obj.rawPtr.CallGetContentsView()
-	_ = ret
-	return nil
+	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetContentsView()))
 }
 
 func (obj *overlayControllerImpl) GetWindow() Window {
-	ret := obj.rawPtr.CallGetWindow()
-	_ = ret
-	return nil
+	return wrapWindow(unsafe.Pointer(obj.rawPtr.CallGetWindow()))
 }
 
 func (obj *overlayControllerImpl) GetDockingMode() DockingMode {
@@ -85,15 +81,11 @@ func (obj *overlayControllerImpl) SetBounds(bounds uintptr) {
 }
 
 func (obj *overlayControllerImpl) GetBounds() uintptr {
-	ret := obj.rawPtr.CallGetBounds()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetBounds())
 }
 
 func (obj *overlayControllerImpl) GetBoundsInScreen() uintptr {
-	ret := obj.rawPtr.CallGetBoundsInScreen()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetBoundsInScreen())
 }
 
 func (obj *overlayControllerImpl) SetSize(size uintptr) {
@@ -101,9 +93,7 @@ func (obj *overlayControllerImpl) SetSize(size uintptr) {
 }
 
 func (obj *overlayControllerImpl) GetSize() uintptr {
-	ret := obj.rawPtr.CallGetSize()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetSize())
 }
 
 func (obj *overlayControllerImpl) SetPosition(position uintptr) {
@@ -111,9 +101,7 @@ func (obj *overlayControllerImpl) SetPosition(position uintptr) {
 }
 
 func (obj *overlayControllerImpl) GetPosition() uintptr {
-	ret := obj.rawPtr.CallGetPosition()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetPosition())
 }
 
 func (obj *overlayControllerImpl) SetInsets(insets uintptr) {
@@ -121,9 +109,7 @@ func (obj *overlayControllerImpl) SetInsets(insets uintptr) {
 }
 
 func (obj *overlayControllerImpl) GetInsets() uintptr {
-	ret := obj.rawPtr.CallGetInsets()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetInsets())
 }
 
 func (obj *overlayControllerImpl) SizeToPreferredSize() {
@@ -140,6 +126,10 @@ func (obj *overlayControllerImpl) IsVisible() bool {
 
 func (obj *overlayControllerImpl) IsDrawn() bool {
 	return obj.rawPtr.CallIsDrawn() != 0
+}
+
+func (obj *overlayControllerImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

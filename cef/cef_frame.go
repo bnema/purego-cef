@@ -132,39 +132,27 @@ func (obj *frameImpl) IsFocused() bool {
 }
 
 func (obj *frameImpl) GetName() string {
-	ret := obj.rawPtr.CallGetName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetName()))
 }
 
 func (obj *frameImpl) GetIdentifier() string {
-	ret := obj.rawPtr.CallGetIdentifier()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetIdentifier()))
 }
 
 func (obj *frameImpl) GetParent() Frame {
-	ret := obj.rawPtr.CallGetParent()
-	_ = ret
-	return nil
+	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetParent()))
 }
 
 func (obj *frameImpl) GetURL() string {
-	ret := obj.rawPtr.CallGetURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetURL()))
 }
 
 func (obj *frameImpl) GetBrowser() Browser {
-	ret := obj.rawPtr.CallGetBrowser()
-	_ = ret
-	return nil
+	return wrapBrowser(unsafe.Pointer(obj.rawPtr.CallGetBrowser()))
 }
 
 func (obj *frameImpl) GetV8Context() V8Context {
-	ret := obj.rawPtr.CallGetV8Context()
-	_ = ret
-	return nil
+	return wrapV8Context(unsafe.Pointer(obj.rawPtr.CallGetV8Context()))
 }
 
 func (obj *frameImpl) VisitDom(visitor Domvisitor) {
@@ -172,13 +160,15 @@ func (obj *frameImpl) VisitDom(visitor Domvisitor) {
 }
 
 func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient) Urlrequest {
-	ret := obj.rawPtr.CallCreateUrlrequest(uintptr(0) /* request */, uintptr(0) /* client */)
-	_ = ret
-	return nil
+	return wrapUrlrequest(unsafe.Pointer(obj.rawPtr.CallCreateUrlrequest(uintptr(0) /* request */, uintptr(0) /* client */)))
 }
 
 func (obj *frameImpl) SendProcessMessage(targetProcess ProcessID, message ProcessMessage) {
 	obj.rawPtr.CallSendProcessMessage(uintptr(0) /* targetProcess */, uintptr(0) /* message */)
+}
+
+func (obj *frameImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

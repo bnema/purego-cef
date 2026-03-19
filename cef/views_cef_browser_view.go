@@ -25,15 +25,11 @@ type browserViewImpl struct {
 }
 
 func (obj *browserViewImpl) GetBrowser() Browser {
-	ret := obj.rawPtr.CallGetBrowser()
-	_ = ret
-	return nil
+	return wrapBrowser(unsafe.Pointer(obj.rawPtr.CallGetBrowser()))
 }
 
 func (obj *browserViewImpl) GetChromeToolbar() View {
-	ret := obj.rawPtr.CallGetChromeToolbar()
-	_ = ret
-	return nil
+	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetChromeToolbar()))
 }
 
 func (obj *browserViewImpl) SetPreferAccelerators(preferAccelerators int32) {
@@ -42,6 +38,10 @@ func (obj *browserViewImpl) SetPreferAccelerators(preferAccelerators int32) {
 
 func (obj *browserViewImpl) GetRuntimeStyle() RuntimeStyle {
 	return RuntimeStyle(obj.rawPtr.CallGetRuntimeStyle())
+}
+
+func (obj *browserViewImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

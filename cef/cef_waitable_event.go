@@ -42,9 +42,11 @@ func (obj *waitableEventImpl) Wait() {
 }
 
 func (obj *waitableEventImpl) TimedWait(maxMs int64) int32 {
-	ret := obj.rawPtr.CallTimedWait(uintptr(0) /* maxMs */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallTimedWait(uintptr(0) /* maxMs */))
+}
+
+func (obj *waitableEventImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

@@ -31,6 +31,10 @@ func (obj *callbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
+func (obj *callbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *callbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -64,9 +68,20 @@ func NewCompletionCallback(impl CompletionCallback) unsafe.Pointer {
 	r := new(raw.CEFCompletionCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnComplete(purego.NewCallback(func() {
-		// TODO: unmarshal args, call impl.OnComplete(...)
+	r.OverrideOnComplete(purego.NewCallback(func(self uintptr) {
+		impl.OnComplete()
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapCompletionCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapCompletionCallback(ptr unsafe.Pointer) CompletionCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

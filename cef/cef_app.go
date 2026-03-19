@@ -30,36 +30,47 @@ func NewApp(impl App) unsafe.Pointer {
 	r := new(raw.CEFAppT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnBeforeCommandLineProcessing(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnBeforeCommandLineProcessing(...)
+	r.OverrideOnBeforeCommandLineProcessing(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		processType := goString(unsafe.Pointer(arg0))
+		commandLine := wrapCommandLine(unsafe.Pointer(arg1))
+		impl.OnBeforeCommandLineProcessing(processType, commandLine)
 	}))
 
-	r.OverrideOnRegisterCustomSchemes(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnRegisterCustomSchemes(...)
+	r.OverrideOnRegisterCustomSchemes(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		registrar := wrapSchemeRegistrar(unsafe.Pointer(arg0))
+		impl.OnRegisterCustomSchemes(registrar)
 	}))
 
 	// Cache the getter result once.
 	cachedGetResourceBundleHandler := impl.GetResourceBundleHandler()
 	r.OverrideGetResourceBundleHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetResourceBundleHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewResourceBundleHandler(cachedGetResourceBundleHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetBrowserProcessHandler := impl.GetBrowserProcessHandler()
 	r.OverrideGetBrowserProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetBrowserProcessHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewBrowserProcessHandler(cachedGetBrowserProcessHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetRenderProcessHandler := impl.GetRenderProcessHandler()
 	r.OverrideGetRenderProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetRenderProcessHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewRenderProcessHandler(cachedGetRenderProcessHandler))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapApp wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapApp(ptr unsafe.Pointer) App {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // GetExitCode This function can optionally be called on the main application thread after CefInitialize to retrieve the initialization exit code. When CefInitialize returns true (1) the exit code will be 0 (CEF_RESULT_CODE_NORMAL_EXIT). Otherwise, see cef_resultcode_t for possible exit code values including browser process initialization errors and normal early exit conditions (such as CEF_RESULT_CODE_NORMAL_EXIT_PROCESS_NOTIFIED for process singleton relaunch behavior).

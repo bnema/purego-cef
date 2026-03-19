@@ -28,21 +28,47 @@ func NewLoadHandler(impl LoadHandler) unsafe.Pointer {
 	r := new(raw.CEFLoadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnLoadingStateChange(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnLoadingStateChange(...)
+	r.OverrideOnLoadingStateChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		isloading := int32(arg1)
+		cangoback := int32(arg2)
+		cangoforward := int32(arg3)
+		impl.OnLoadingStateChange(browser, isloading, cangoback, cangoforward)
 	}))
 
-	r.OverrideOnLoadStart(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnLoadStart(...)
+	r.OverrideOnLoadStart(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		transitionType := TransitionType(arg2)
+		impl.OnLoadStart(browser, frame, transitionType)
 	}))
 
-	r.OverrideOnLoadEnd(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnLoadEnd(...)
+	r.OverrideOnLoadEnd(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		httpstatuscode := int32(arg2)
+		impl.OnLoadEnd(browser, frame, httpstatuscode)
 	}))
 
-	r.OverrideOnLoadError(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnLoadError(...)
+	r.OverrideOnLoadError(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		errorcode := Errorcode(arg2)
+		errortext := goString(unsafe.Pointer(arg3))
+		failedurl := goString(unsafe.Pointer(arg4))
+		impl.OnLoadError(browser, frame, errorcode, errortext, failedurl)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapLoadHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapLoadHandler(ptr unsafe.Pointer) LoadHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

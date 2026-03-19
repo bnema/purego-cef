@@ -17,6 +17,10 @@ type registrationImpl struct {
 	rawPtr *raw.CEFRegistrationT
 }
 
+func (obj *registrationImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *registrationImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))

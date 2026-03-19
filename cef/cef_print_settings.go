@@ -86,9 +86,7 @@ func (obj *printSettingsImpl) SetDeviceName(name string) {
 }
 
 func (obj *printSettingsImpl) GetDeviceName() string {
-	ret := obj.rawPtr.CallGetDeviceName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetDeviceName()))
 }
 
 func (obj *printSettingsImpl) SetDpi(dpi int32) {
@@ -96,9 +94,7 @@ func (obj *printSettingsImpl) SetDpi(dpi int32) {
 }
 
 func (obj *printSettingsImpl) GetDpi() int32 {
-	ret := obj.rawPtr.CallGetDpi()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetDpi())
 }
 
 func (obj *printSettingsImpl) SetPageRanges(rangescount int, ranges uintptr) {
@@ -106,9 +102,7 @@ func (obj *printSettingsImpl) SetPageRanges(rangescount int, ranges uintptr) {
 }
 
 func (obj *printSettingsImpl) GetPageRangesCount() int {
-	ret := obj.rawPtr.CallGetPageRangesCount()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetPageRangesCount())
 }
 
 func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges uintptr) {
@@ -128,9 +122,7 @@ func (obj *printSettingsImpl) SetCollate(collate int32) {
 }
 
 func (obj *printSettingsImpl) WillCollate() int32 {
-	ret := obj.rawPtr.CallWillCollate()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallWillCollate())
 }
 
 func (obj *printSettingsImpl) SetColorModel(model ColorModel) {
@@ -146,9 +138,7 @@ func (obj *printSettingsImpl) SetCopies(copies int32) {
 }
 
 func (obj *printSettingsImpl) GetCopies() int32 {
-	ret := obj.rawPtr.CallGetCopies()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetCopies())
 }
 
 func (obj *printSettingsImpl) SetDuplexMode(mode DuplexMode) {
@@ -157,6 +147,10 @@ func (obj *printSettingsImpl) SetDuplexMode(mode DuplexMode) {
 
 func (obj *printSettingsImpl) GetDuplexMode() DuplexMode {
 	return DuplexMode(obj.rawPtr.CallGetDuplexMode())
+}
+
+func (obj *printSettingsImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

@@ -26,15 +26,15 @@ func (obj *sharedMemoryRegionImpl) IsValid() bool {
 }
 
 func (obj *sharedMemoryRegionImpl) Size() int {
-	ret := obj.rawPtr.CallSize()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallSize())
 }
 
 func (obj *sharedMemoryRegionImpl) Memory() unsafe.Pointer {
-	ret := obj.rawPtr.CallMemory()
-	_ = ret
-	return nil
+	return unsafe.Pointer(obj.rawPtr.CallMemory())
+}
+
+func (obj *sharedMemoryRegionImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

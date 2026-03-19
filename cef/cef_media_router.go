@@ -30,15 +30,11 @@ type mediaRouterImpl struct {
 }
 
 func (obj *mediaRouterImpl) AddObserver(observer MediaObserver) Registration {
-	ret := obj.rawPtr.CallAddObserver(uintptr(0) /* observer */)
-	_ = ret
-	return nil
+	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddObserver(uintptr(0) /* observer */)))
 }
 
 func (obj *mediaRouterImpl) GetSource(urn string) MediaSource {
-	ret := obj.rawPtr.CallGetSource(uintptr(0) /* urn */)
-	_ = ret
-	return nil
+	return wrapMediaSource(unsafe.Pointer(obj.rawPtr.CallGetSource(uintptr(0) /* urn */)))
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentSinks() {
@@ -51,6 +47,10 @@ func (obj *mediaRouterImpl) CreateRoute(source MediaSource, sink MediaSink, call
 
 func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
 	obj.rawPtr.CallNotifyCurrentRoutes()
+}
+
+func (obj *mediaRouterImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -92,23 +92,43 @@ func NewMediaObserver(impl MediaObserver) unsafe.Pointer {
 	r := new(raw.CEFMediaObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnSinks(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnSinks(...)
+	r.OverrideOnSinks(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		sinkscount := int(arg0)
+		sinks := unsafe.Pointer(arg1)
+		impl.OnSinks(sinkscount, sinks)
 	}))
 
-	r.OverrideOnRoutes(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnRoutes(...)
+	r.OverrideOnRoutes(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		routescount := int(arg0)
+		routes := unsafe.Pointer(arg1)
+		impl.OnRoutes(routescount, routes)
 	}))
 
-	r.OverrideOnRouteStateChanged(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnRouteStateChanged(...)
+	r.OverrideOnRouteStateChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		route := wrapMediaRoute(unsafe.Pointer(arg0))
+		state := MediaRouteConnectionState(arg1)
+		impl.OnRouteStateChanged(route, state)
 	}))
 
-	r.OverrideOnRouteMessageReceived(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnRouteMessageReceived(...)
+	r.OverrideOnRouteMessageReceived(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		route := wrapMediaRoute(unsafe.Pointer(arg0))
+		message := unsafe.Pointer(arg1)
+		messageSize := int(arg2)
+		impl.OnRouteMessageReceived(route, message, messageSize)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapMediaObserver wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapMediaObserver(ptr unsafe.Pointer) MediaObserver {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // MediaRoute Represents the route between a media source and sink. Instances of this object are created via cef_media_router_t::CreateRoute and retrieved via cef_media_observer_t::OnRoutes. Contains the status and metadata of a routing operation. The functions of this structure may be called on any browser process thread unless otherwise indicated.
@@ -130,21 +150,15 @@ type mediaRouteImpl struct {
 }
 
 func (obj *mediaRouteImpl) GetID() string {
-	ret := obj.rawPtr.CallGetID()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetID()))
 }
 
 func (obj *mediaRouteImpl) GetSource() MediaSource {
-	ret := obj.rawPtr.CallGetSource()
-	_ = ret
-	return nil
+	return wrapMediaSource(unsafe.Pointer(obj.rawPtr.CallGetSource()))
 }
 
 func (obj *mediaRouteImpl) GetSink() MediaSink {
-	ret := obj.rawPtr.CallGetSink()
-	_ = ret
-	return nil
+	return wrapMediaSink(unsafe.Pointer(obj.rawPtr.CallGetSink()))
 }
 
 func (obj *mediaRouteImpl) SendRouteMessage(message unsafe.Pointer, messageSize int) {
@@ -153,6 +167,10 @@ func (obj *mediaRouteImpl) SendRouteMessage(message unsafe.Pointer, messageSize 
 
 func (obj *mediaRouteImpl) Terminate() {
 	obj.rawPtr.CallTerminate()
+}
+
+func (obj *mediaRouteImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -188,11 +206,25 @@ func NewMediaRouteCreateCallback(impl MediaRouteCreateCallback) unsafe.Pointer {
 	r := new(raw.CEFMediaRouteCreateCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnMediaRouteCreateFinished(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnMediaRouteCreateFinished(...)
+	r.OverrideOnMediaRouteCreateFinished(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		result := MediaRouteCreateResult(arg0)
+		error := goString(unsafe.Pointer(arg1))
+		route := wrapMediaRoute(unsafe.Pointer(arg2))
+		impl.OnMediaRouteCreateFinished(result, error, route)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapMediaRouteCreateCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapMediaRouteCreateCallback(ptr unsafe.Pointer) MediaRouteCreateCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // MediaSink Represents a sink to which media can be routed. Instances of this object are retrieved via cef_media_observer_t::OnSinks. The functions of this structure may be called on any browser process thread unless otherwise indicated.
@@ -218,15 +250,11 @@ type mediaSinkImpl struct {
 }
 
 func (obj *mediaSinkImpl) GetID() string {
-	ret := obj.rawPtr.CallGetID()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetID()))
 }
 
 func (obj *mediaSinkImpl) GetName() string {
-	ret := obj.rawPtr.CallGetName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetName()))
 }
 
 func (obj *mediaSinkImpl) GetIconType() MediaSinkIconType {
@@ -247,6 +275,10 @@ func (obj *mediaSinkImpl) IsDialSink() bool {
 
 func (obj *mediaSinkImpl) IsCompatibleWith(source MediaSource) bool {
 	return obj.rawPtr.CallIsCompatibleWith(uintptr(0) /* source */) != 0
+}
+
+func (obj *mediaSinkImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -282,11 +314,23 @@ func NewMediaSinkDeviceInfoCallback(impl MediaSinkDeviceInfoCallback) unsafe.Poi
 	r := new(raw.CEFMediaSinkDeviceInfoCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnMediaSinkDeviceInfo(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnMediaSinkDeviceInfo(...)
+	r.OverrideOnMediaSinkDeviceInfo(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		deviceInfo := (*MediaSinkDeviceInfo)(unsafe.Pointer(arg0))
+		impl.OnMediaSinkDeviceInfo(deviceInfo)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapMediaSinkDeviceInfoCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapMediaSinkDeviceInfoCallback(ptr unsafe.Pointer) MediaSinkDeviceInfoCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // MediaSource Represents a source from which media can be routed. Instances of this object are retrieved via cef_media_router_t::GetSource. The functions of this structure may be called on any browser process thread unless otherwise indicated.
@@ -304,9 +348,7 @@ type mediaSourceImpl struct {
 }
 
 func (obj *mediaSourceImpl) GetID() string {
-	ret := obj.rawPtr.CallGetID()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetID()))
 }
 
 func (obj *mediaSourceImpl) IsCastSource() bool {
@@ -315,6 +357,10 @@ func (obj *mediaSourceImpl) IsCastSource() bool {
 
 func (obj *mediaSourceImpl) IsDialSource() bool {
 	return obj.rawPtr.CallIsDialSource() != 0
+}
+
+func (obj *mediaSourceImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

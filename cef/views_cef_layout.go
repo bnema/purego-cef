@@ -24,19 +24,19 @@ type layoutImpl struct {
 }
 
 func (obj *layoutImpl) AsBoxLayout() BoxLayout {
-	ret := obj.rawPtr.CallAsBoxLayout()
-	_ = ret
-	return nil
+	return wrapBoxLayout(unsafe.Pointer(obj.rawPtr.CallAsBoxLayout()))
 }
 
 func (obj *layoutImpl) AsFillLayout() FillLayout {
-	ret := obj.rawPtr.CallAsFillLayout()
-	_ = ret
-	return nil
+	return wrapFillLayout(unsafe.Pointer(obj.rawPtr.CallAsFillLayout()))
 }
 
 func (obj *layoutImpl) IsValid() bool {
 	return obj.rawPtr.CallIsValid() != 0
+}
+
+func (obj *layoutImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

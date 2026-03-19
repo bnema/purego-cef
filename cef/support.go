@@ -171,6 +171,25 @@ func loadRefOwner(base unsafe.Pointer) (any, bool) {
 	return refPins.Load(uintptr(base))
 }
 
+// rawPointerHolder is implemented by all generated xxxImpl types that wrap
+// a raw CEF struct pointer.  It allows handler callbacks to extract the
+// underlying pointer when the user returns an interface value.
+type rawPointerHolder interface {
+	rawPointer() unsafe.Pointer
+}
+
+// extractRawPointer returns the underlying raw CEF pointer from an interface
+// value, or nil if the value is nil or does not implement rawPointerHolder.
+func extractRawPointer(v any) unsafe.Pointer {
+	if v == nil {
+		return nil
+	}
+	if h, ok := v.(rawPointerHolder); ok {
+		return h.rawPointer()
+	}
+	return nil
+}
+
 func loadRefState(base unsafe.Pointer) (*refState, bool) {
 	v, ok := refStates.Load(uintptr(base))
 	if !ok {

@@ -32,7 +32,7 @@ type Server interface {
 	// SendHttp500Response Send an HTTP 500 "Internal Server Error" response to the connection identified by |connection_id|. |error_message| is the associated error message. The connection will be closed automatically after the response is sent.
 	SendHttp500Response(connectionID int32, errorMessage string)
 	// SendHttpResponse Send a custom HTTP response to the connection identified by |connection_id|. |response_code| is the HTTP response code sent in the status line (e.g. 200), |content_type| is the response content type sent as the "Content-Type" header (e.g. "text/html"), |content_length| is the expected content length, and |extra_headers| is the map of extra response headers. If |content_length| is >= 0 then the "Content-Length" header will be sent. If |content_length| is 0 then no content is expected and the connection will be closed automatically after the response is sent. If |content_length| is < 0 then no "Content-Length" header will be sent and the client will continue reading until the connection is closed. Use the SendRawData function to send the content, if applicable, and call CloseConnection after all content has been sent.
-	SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders map[string][]string)
+	SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders uintptr)
 	// SendRawData Send raw data directly to the connection identified by |connection_id|. |data| is the raw data and |data_size| is the size of |data| in bytes. The contents of |data| will be copied. No validation of |data| is performed internally so the client should be careful to send the amount indicated by the "Content-Length" header, if specified. See SendHttpResponse documentation for intended usage.
 	SendRawData(connectionID int32, data unsafe.Pointer, dataSize int)
 	// CloseConnection Close the connection identified by |connection_id|. See SendHttpResponse documentation for intended usage.
@@ -46,9 +46,7 @@ type serverImpl struct {
 }
 
 func (obj *serverImpl) GetTaskRunner() TaskRunner {
-	ret := obj.rawPtr.CallGetTaskRunner()
-	_ = ret
-	return nil
+	return wrapTaskRunner(unsafe.Pointer(obj.rawPtr.CallGetTaskRunner()))
 }
 
 func (obj *serverImpl) Shutdown() {
@@ -60,9 +58,7 @@ func (obj *serverImpl) IsRunning() bool {
 }
 
 func (obj *serverImpl) GetAddress() string {
-	ret := obj.rawPtr.CallGetAddress()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetAddress()))
 }
 
 func (obj *serverImpl) HasConnection() bool {
@@ -85,7 +81,7 @@ func (obj *serverImpl) SendHttp500Response(connectionID int32, errorMessage stri
 	obj.rawPtr.CallSendHttp500Response(uintptr(0) /* connectionID */, uintptr(0) /* errorMessage */)
 }
 
-func (obj *serverImpl) SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders map[string][]string) {
+func (obj *serverImpl) SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders uintptr) {
 	obj.rawPtr.CallSendHttpResponse(uintptr(0) /* connectionID */, uintptr(0) /* responseCode */, uintptr(0) /* contentType */, uintptr(0) /* contentLength */, uintptr(0) /* extraHeaders */)
 }
 
@@ -99,6 +95,10 @@ func (obj *serverImpl) CloseConnection(connectionID int32) {
 
 func (obj *serverImpl) SendWebSocketMessage(connectionID int32, data unsafe.Pointer, dataSize int) {
 	obj.rawPtr.CallSendWebSocketMessage(uintptr(0) /* connectionID */, uintptr(0) /* data */, uintptr(0) /* dataSize */)
+}
+
+func (obj *serverImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -148,39 +148,71 @@ func NewServerHandler(impl ServerHandler) unsafe.Pointer {
 	r := new(raw.CEFServerHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnServerCreated(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnServerCreated(...)
+	r.OverrideOnServerCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		server := wrapServer(unsafe.Pointer(arg0))
+		impl.OnServerCreated(server)
 	}))
 
-	r.OverrideOnServerDestroyed(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnServerDestroyed(...)
+	r.OverrideOnServerDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		server := wrapServer(unsafe.Pointer(arg0))
+		impl.OnServerDestroyed(server)
 	}))
 
-	r.OverrideOnClientConnected(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnClientConnected(...)
+	r.OverrideOnClientConnected(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		server := wrapServer(unsafe.Pointer(arg0))
+		connectionID := int32(arg1)
+		impl.OnClientConnected(server, connectionID)
 	}))
 
-	r.OverrideOnClientDisconnected(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnClientDisconnected(...)
+	r.OverrideOnClientDisconnected(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		server := wrapServer(unsafe.Pointer(arg0))
+		connectionID := int32(arg1)
+		impl.OnClientDisconnected(server, connectionID)
 	}))
 
-	r.OverrideOnHttpRequest(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnHttpRequest(...)
+	r.OverrideOnHttpRequest(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		server := wrapServer(unsafe.Pointer(arg0))
+		connectionID := int32(arg1)
+		clientAddress := goString(unsafe.Pointer(arg2))
+		request := wrapRequest(unsafe.Pointer(arg3))
+		impl.OnHttpRequest(server, connectionID, clientAddress, request)
 	}))
 
-	r.OverrideOnWebSocketRequest(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnWebSocketRequest(...)
+	r.OverrideOnWebSocketRequest(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		server := wrapServer(unsafe.Pointer(arg0))
+		connectionID := int32(arg1)
+		clientAddress := goString(unsafe.Pointer(arg2))
+		request := wrapRequest(unsafe.Pointer(arg3))
+		callback := wrapCallback(unsafe.Pointer(arg4))
+		impl.OnWebSocketRequest(server, connectionID, clientAddress, request, callback)
 	}))
 
-	r.OverrideOnWebSocketConnected(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnWebSocketConnected(...)
+	r.OverrideOnWebSocketConnected(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		server := wrapServer(unsafe.Pointer(arg0))
+		connectionID := int32(arg1)
+		impl.OnWebSocketConnected(server, connectionID)
 	}))
 
-	r.OverrideOnWebSocketMessage(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnWebSocketMessage(...)
+	r.OverrideOnWebSocketMessage(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		server := wrapServer(unsafe.Pointer(arg0))
+		connectionID := int32(arg1)
+		data := unsafe.Pointer(arg2)
+		dataSize := int(arg3)
+		impl.OnWebSocketMessage(server, connectionID, data, dataSize)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapServerHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapServerHandler(ptr unsafe.Pointer) ServerHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // ServerCreate Create a new server that binds to |address| and |port|. |address| must be a valid IPv4 or IPv6 address (e.g. 127.0.0.1 or ::1) and |port| must be a port number outside of the reserved range (e.g. between 1025 and 65535 on most platforms). |backlog| is the maximum number of pending connections. A new thread will be created for each CreateServer call (the "dedicated server thread"). It is therefore recommended to use a different cef_server_handler_t instance for each CreateServer call to avoid thread safety issues in the cef_server_handler_t implementation. The cef_server_handler_t::OnServerCreated function will be called on the dedicated server thread to report success or failure. See cef_server_handler_t::OnServerCreated documentation for a description of server lifespan.

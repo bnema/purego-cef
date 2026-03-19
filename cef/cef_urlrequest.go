@@ -34,15 +34,11 @@ type urlrequestImpl struct {
 }
 
 func (obj *urlrequestImpl) GetRequest() Request {
-	ret := obj.rawPtr.CallGetRequest()
-	_ = ret
-	return nil
+	return wrapRequest(unsafe.Pointer(obj.rawPtr.CallGetRequest()))
 }
 
 func (obj *urlrequestImpl) GetClient() UrlrequestClient {
-	ret := obj.rawPtr.CallGetClient()
-	_ = ret
-	return nil
+	return wrapUrlrequestClient(unsafe.Pointer(obj.rawPtr.CallGetClient()))
 }
 
 func (obj *urlrequestImpl) GetRequestStatus() UrlrequestStatus {
@@ -54,19 +50,19 @@ func (obj *urlrequestImpl) GetRequestError() Errorcode {
 }
 
 func (obj *urlrequestImpl) GetResponse() Response {
-	ret := obj.rawPtr.CallGetResponse()
-	_ = ret
-	return nil
+	return wrapResponse(unsafe.Pointer(obj.rawPtr.CallGetResponse()))
 }
 
 func (obj *urlrequestImpl) ResponseWasCached() int32 {
-	ret := obj.rawPtr.CallResponseWasCached()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallResponseWasCached())
 }
 
 func (obj *urlrequestImpl) Cancel() {
 	obj.rawPtr.CallCancel()
+}
+
+func (obj *urlrequestImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -110,28 +106,54 @@ func NewUrlrequestClient(impl UrlrequestClient) unsafe.Pointer {
 	r := new(raw.CEFUrlrequestClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnRequestComplete(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnRequestComplete(...)
+	r.OverrideOnRequestComplete(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		request := wrapUrlrequest(unsafe.Pointer(arg0))
+		impl.OnRequestComplete(request)
 	}))
 
-	r.OverrideOnUploadProgress(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnUploadProgress(...)
+	r.OverrideOnUploadProgress(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		request := wrapUrlrequest(unsafe.Pointer(arg0))
+		current := int64(arg1)
+		total := int64(arg2)
+		impl.OnUploadProgress(request, current, total)
 	}))
 
-	r.OverrideOnDownloadProgress(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnDownloadProgress(...)
+	r.OverrideOnDownloadProgress(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		request := wrapUrlrequest(unsafe.Pointer(arg0))
+		current := int64(arg1)
+		total := int64(arg2)
+		impl.OnDownloadProgress(request, current, total)
 	}))
 
-	r.OverrideOnDownloadData(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnDownloadData(...)
+	r.OverrideOnDownloadData(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		request := wrapUrlrequest(unsafe.Pointer(arg0))
+		data := unsafe.Pointer(arg1)
+		dataLength := int(arg2)
+		impl.OnDownloadData(request, data, dataLength)
 	}))
 
-	r.OverrideGetAuthCredentials(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetAuthCredentials(...), marshal return
-		return 0
+	r.OverrideGetAuthCredentials(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+		isproxy := int32(arg0)
+		host := goString(unsafe.Pointer(arg1))
+		port := int32(arg2)
+		realm := goString(unsafe.Pointer(arg3))
+		scheme := goString(unsafe.Pointer(arg4))
+		callback := wrapAuthCallback(unsafe.Pointer(arg5))
+		return uintptr(impl.GetAuthCredentials(isproxy, host, port, realm, scheme, callback))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapUrlrequestClient wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapUrlrequestClient(ptr unsafe.Pointer) UrlrequestClient {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // UrlrequestCreate Create a new URL request that is not associated with a specific browser or frame. Use cef_frame_t::CreateURLRequest instead if you want the request to have this association, in which case it may be handled differently (see documentation on that function). A request created with this function may only originate from the browser process, and will behave as follows:   - It may be intercepted by the client via CefResourceRequestHandler or     CefSchemeHandlerFactory.   - POST data may only contain only a single element of type PDE_TYPE_FILE     or PDE_TYPE_BYTES.   - If |request_context| is empty the global request context will be used. The |request| object will be marked as read-only after calling this function.

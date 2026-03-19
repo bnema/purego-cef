@@ -10,21 +10,46 @@ func New{{.Name}}(impl {{.Name}}) unsafe.Pointer {
 	// Cache the getter result once.
 	cached{{.Name}} := impl.{{.Name}}()
 	r.Override{{.RawFieldName}}(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cached{{.Name}}
-		return 0 // TODO: marshal cached result
+		return uintptr(New{{.GetterInterface}}(cached{{.Name}}))
 	}))
 	{{- else}}
-	r.Override{{.RawFieldName}}(purego.NewCallback(func({{range $i, $p := .Params}}{{if $i}}, {{end}}_ uintptr{{end}}) {{if .Return.IsVoid}}{{else}}uintptr{{end}} {
-		{{- if not .Return.IsVoid}}
-		// TODO: unmarshal args, call impl.{{.Name}}(...), marshal return
+	r.Override{{.RawFieldName}}(purego.NewCallback(func(self uintptr{{range $i, $p := .Params}}, {{cbParamName $p $i}} uintptr{{end}}) {{if .Return.IsVoid}}{{else}}uintptr{{end}} {
+		{{- range $i, $p := .Params}}
+		{{$p.Name}} := {{unmarshalParam $p (cbParamName $p $i)}}
+		{{- end}}
+		{{- if .Return.IsVoid}}
+		impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})
+		{{- else if .Return.IsBool}}
+		if impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}}) {
+			return 1
+		}
 		return 0
+		{{- else if .Return.IsHandler}}
+		result := impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})
+		if result == nil {
+			return 0
+		}
+		return uintptr(New{{.Return.PublicType}}(result))
+		{{- else if .Return.IsInterface}}
+		return uintptr(extractRawPointer(impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})))
 		{{- else}}
-		// TODO: unmarshal args, call impl.{{.Name}}(...)
+		return uintptr(impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}}))
 		{{- end}}
 	}))
 	{{- end}}
 {{end}}
 
 	return unsafe.Pointer(r)
+}
+
+// wrap{{.Name}} wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 {{end}}

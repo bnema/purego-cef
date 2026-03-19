@@ -24,13 +24,26 @@ func NewAccessibilityHandler(impl AccessibilityHandler) unsafe.Pointer {
 	r := new(raw.CEFAccessibilityHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnAccessibilityTreeChange(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnAccessibilityTreeChange(...)
+	r.OverrideOnAccessibilityTreeChange(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		value := wrapValue(unsafe.Pointer(arg0))
+		impl.OnAccessibilityTreeChange(value)
 	}))
 
-	r.OverrideOnAccessibilityLocationChange(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnAccessibilityLocationChange(...)
+	r.OverrideOnAccessibilityLocationChange(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		value := wrapValue(unsafe.Pointer(arg0))
+		impl.OnAccessibilityLocationChange(value)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapAccessibilityHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapAccessibilityHandler(ptr unsafe.Pointer) AccessibilityHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

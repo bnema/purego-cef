@@ -31,6 +31,10 @@ func (obj *printDialogCallbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
+func (obj *printDialogCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *printDialogCallbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -64,6 +68,10 @@ type printJobCallbackImpl struct {
 
 func (obj *printJobCallbackImpl) Cont() {
 	obj.rawPtr.CallCont()
+}
+
+func (obj *printJobCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -109,32 +117,54 @@ func NewPrintHandler(impl PrintHandler) unsafe.Pointer {
 	r := new(raw.CEFPrintHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnPrintStart(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnPrintStart(...)
+	r.OverrideOnPrintStart(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnPrintStart(browser)
 	}))
 
-	r.OverrideOnPrintSettings(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnPrintSettings(...)
+	r.OverrideOnPrintSettings(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		settings := wrapPrintSettings(unsafe.Pointer(arg1))
+		getDefaults := int32(arg2)
+		impl.OnPrintSettings(browser, settings, getDefaults)
 	}))
 
-	r.OverrideOnPrintDialog(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnPrintDialog(...), marshal return
-		return 0
+	r.OverrideOnPrintDialog(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		hasSelection := int32(arg1)
+		callback := wrapPrintDialogCallback(unsafe.Pointer(arg2))
+		return uintptr(impl.OnPrintDialog(browser, hasSelection, callback))
 	}))
 
-	r.OverrideOnPrintJob(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnPrintJob(...), marshal return
-		return 0
+	r.OverrideOnPrintJob(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		documentName := goString(unsafe.Pointer(arg1))
+		pdfFilePath := goString(unsafe.Pointer(arg2))
+		callback := wrapPrintJobCallback(unsafe.Pointer(arg3))
+		return uintptr(impl.OnPrintJob(browser, documentName, pdfFilePath, callback))
 	}))
 
-	r.OverrideOnPrintReset(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnPrintReset(...)
+	r.OverrideOnPrintReset(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnPrintReset(browser)
 	}))
 
-	r.OverrideGetPdfPaperSize(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetPdfPaperSize(...), marshal return
-		return 0
+	r.OverrideGetPdfPaperSize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		deviceUnitsPerInch := int32(arg1)
+		return uintptr(impl.GetPdfPaperSize(browser, deviceUnitsPerInch))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapPrintHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapPrintHandler(ptr unsafe.Pointer) PrintHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

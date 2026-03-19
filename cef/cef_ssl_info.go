@@ -26,9 +26,11 @@ func (obj *sslinfoImpl) GetCertStatus() CertStatus {
 }
 
 func (obj *sslinfoImpl) GetX509Certificate() X509Certificate {
-	ret := obj.rawPtr.CallGetX509Certificate()
-	_ = ret
-	return nil
+	return wrapX509Certificate(unsafe.Pointer(obj.rawPtr.CallGetX509Certificate()))
+}
+
+func (obj *sslinfoImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

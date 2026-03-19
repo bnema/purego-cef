@@ -29,6 +29,10 @@ func (obj *boxLayoutImpl) ClearFlexForView(view View) {
 	obj.rawPtr.CallClearFlexForView(uintptr(0) /* view */)
 }
 
+func (obj *boxLayoutImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *boxLayoutImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))

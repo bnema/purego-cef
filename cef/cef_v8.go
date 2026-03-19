@@ -36,9 +36,7 @@ type v8ContextImpl struct {
 }
 
 func (obj *v8ContextImpl) GetTaskRunner() TaskRunner {
-	ret := obj.rawPtr.CallGetTaskRunner()
-	_ = ret
-	return nil
+	return wrapTaskRunner(unsafe.Pointer(obj.rawPtr.CallGetTaskRunner()))
 }
 
 func (obj *v8ContextImpl) IsValid() bool {
@@ -46,33 +44,23 @@ func (obj *v8ContextImpl) IsValid() bool {
 }
 
 func (obj *v8ContextImpl) GetBrowser() Browser {
-	ret := obj.rawPtr.CallGetBrowser()
-	_ = ret
-	return nil
+	return wrapBrowser(unsafe.Pointer(obj.rawPtr.CallGetBrowser()))
 }
 
 func (obj *v8ContextImpl) GetFrame() Frame {
-	ret := obj.rawPtr.CallGetFrame()
-	_ = ret
-	return nil
+	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrame()))
 }
 
 func (obj *v8ContextImpl) GetGlobal() V8Value {
-	ret := obj.rawPtr.CallGetGlobal()
-	_ = ret
-	return nil
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetGlobal()))
 }
 
 func (obj *v8ContextImpl) Enter() int32 {
-	ret := obj.rawPtr.CallEnter()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallEnter())
 }
 
 func (obj *v8ContextImpl) Exit() int32 {
-	ret := obj.rawPtr.CallExit()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallExit())
 }
 
 func (obj *v8ContextImpl) IsSame(that V8Context) bool {
@@ -80,9 +68,11 @@ func (obj *v8ContextImpl) IsSame(that V8Context) bool {
 }
 
 func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, retval unsafe.Pointer, exception unsafe.Pointer) int32 {
-	ret := obj.rawPtr.CallEval(uintptr(0) /* code */, uintptr(0) /* scriptURL */, uintptr(0) /* startLine */, uintptr(0) /* retval */, uintptr(0) /* exception */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallEval(uintptr(0) /* code */, uintptr(0) /* scriptURL */, uintptr(0) /* startLine */, uintptr(0) /* retval */, uintptr(0) /* exception */))
+}
+
+func (obj *v8ContextImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -109,7 +99,7 @@ func wrapV8Context(ptr unsafe.Pointer) V8Context {
 // V8Handler Structure that should be implemented to handle V8 function calls. The functions of this structure will be called on the thread associated with the V8 function.
 type V8Handler interface {
 	// Execute Handle execution of the function identified by |name|. |object| is the receiver ('this' object) of the function. |arguments| is the list of arguments passed to the function. If execution succeeds set |retval| to the function return value. If execution fails set |exception| to the exception that will be thrown. Return true (1) if execution was handled.
-	Execute(name string, object V8Value, argumentscount int, arguments unsafe.Pointer, retval unsafe.Pointer, exception *string) int32
+	Execute(name string, object V8Value, argumentscount int, arguments unsafe.Pointer, retval unsafe.Pointer, exception uintptr) int32
 }
 
 // NewV8Handler creates a CEF handler backed by the given implementation.
@@ -118,19 +108,35 @@ func NewV8Handler(impl V8Handler) unsafe.Pointer {
 	r := new(raw.CEFV8HandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideExecute(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Execute(...), marshal return
-		return 0
+	r.OverrideExecute(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+		name := goString(unsafe.Pointer(arg0))
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		argumentscount := int(arg2)
+		arguments := unsafe.Pointer(arg3)
+		retval := unsafe.Pointer(arg4)
+		exception := uintptr(arg5)
+		return uintptr(impl.Execute(name, object, argumentscount, arguments, retval, exception))
 	}))
 
 	return unsafe.Pointer(r)
 }
 
+// wrapV8Handler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapV8Handler(ptr unsafe.Pointer) V8Handler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
+}
+
 // V8Accessor Structure that should be implemented to handle V8 accessor calls. Accessor identifiers are registered by calling cef_v8_value_t::set_value(). The functions of this structure will be called on the thread associated with the V8 accessor.
 type V8Accessor interface {
 	// Get Handle retrieval the accessor value identified by |name|. |object| is the receiver ('this' object) of the accessor. If retrieval succeeds set |retval| to the return value. If retrieval fails set |exception| to the exception that will be thrown. Return true (1) if accessor retrieval was handled.
-	Get(name string, object V8Value, retval unsafe.Pointer, exception *string) int32
-	Set(name string, object V8Value, value V8Value, exception *string) int32
+	Get(name string, object V8Value, retval unsafe.Pointer, exception uintptr) int32
+	Set(name string, object V8Value, value V8Value, exception uintptr) int32
 }
 
 // NewV8Accessor creates a CEF handler backed by the given implementation.
@@ -139,29 +145,46 @@ func NewV8Accessor(impl V8Accessor) unsafe.Pointer {
 	r := new(raw.CEFV8AccessorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGet(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Get(...), marshal return
-		return 0
+	r.OverrideGet(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		name := goString(unsafe.Pointer(arg0))
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		retval := unsafe.Pointer(arg2)
+		exception := uintptr(arg3)
+		return uintptr(impl.Get(name, object, retval, exception))
 	}))
 
-	r.OverrideSet(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Set(...), marshal return
-		return 0
+	r.OverrideSet(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		name := goString(unsafe.Pointer(arg0))
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		value := wrapV8Value(unsafe.Pointer(arg2))
+		exception := uintptr(arg3)
+		return uintptr(impl.Set(name, object, value, exception))
 	}))
 
 	return unsafe.Pointer(r)
 }
 
+// wrapV8Accessor wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapV8Accessor(ptr unsafe.Pointer) V8Accessor {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
+}
+
 // V8Interceptor Structure that should be implemented to handle V8 interceptor calls. The functions of this structure will be called on the thread associated with the V8 interceptor. Interceptor's named property handlers (with first argument of type CefString) are called when object is indexed by string. Indexed property handlers (with first argument of type int) are called when object is indexed by integer.
 type V8Interceptor interface {
 	// GetByname Handle retrieval of the interceptor value identified by |name|. |object| is the receiver ('this' object) of the interceptor. If retrieval succeeds, set |retval| to the return value. If the requested value does not exist, don't set either |retval| or |exception|. If retrieval fails, set |exception| to the exception that will be thrown. If the property has an associated accessor, it will be called only if you don't set |retval|. Return true (1) if interceptor retrieval was handled, false (0) otherwise.
-	GetByname(name string, object V8Value, retval unsafe.Pointer, exception *string) int32
+	GetByname(name string, object V8Value, retval unsafe.Pointer, exception uintptr) int32
 	// GetByindex Handle retrieval of the interceptor value identified by |index|. |object| is the receiver ('this' object) of the interceptor. If retrieval succeeds, set |retval| to the return value. If the requested value does not exist, don't set either |retval| or |exception|. If retrieval fails, set |exception| to the exception that will be thrown. Return true (1) if interceptor retrieval was handled, false (0) otherwise.
-	GetByindex(index int32, object V8Value, retval unsafe.Pointer, exception *string) int32
+	GetByindex(index int32, object V8Value, retval unsafe.Pointer, exception uintptr) int32
 	// SetByname Handle assignment of the interceptor value identified by |name|. |object| is the receiver ('this' object) of the interceptor. |value| is the new value being assigned to the interceptor. If assignment fails, set |exception| to the exception that will be thrown. This setter will always be called, even when the property has an associated accessor. Return true (1) if interceptor assignment was handled, false (0) otherwise.
-	SetByname(name string, object V8Value, value V8Value, exception *string) int32
+	SetByname(name string, object V8Value, value V8Value, exception uintptr) int32
 	// SetByindex Handle assignment of the interceptor value identified by |index|. |object| is the receiver ('this' object) of the interceptor. |value| is the new value being assigned to the interceptor. If assignment fails, set |exception| to the exception that will be thrown. Return true (1) if interceptor assignment was handled, false (0) otherwise.
-	SetByindex(index int32, object V8Value, value V8Value, exception *string) int32
+	SetByindex(index int32, object V8Value, value V8Value, exception uintptr) int32
 }
 
 // NewV8Interceptor creates a CEF handler backed by the given implementation.
@@ -170,27 +193,50 @@ func NewV8Interceptor(impl V8Interceptor) unsafe.Pointer {
 	r := new(raw.CEFV8InterceptorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetByname(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetByname(...), marshal return
-		return 0
+	r.OverrideGetByname(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		name := goString(unsafe.Pointer(arg0))
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		retval := unsafe.Pointer(arg2)
+		exception := uintptr(arg3)
+		return uintptr(impl.GetByname(name, object, retval, exception))
 	}))
 
-	r.OverrideGetByindex(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetByindex(...), marshal return
-		return 0
+	r.OverrideGetByindex(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		index := int32(arg0)
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		retval := unsafe.Pointer(arg2)
+		exception := uintptr(arg3)
+		return uintptr(impl.GetByindex(index, object, retval, exception))
 	}))
 
-	r.OverrideSetByname(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.SetByname(...), marshal return
-		return 0
+	r.OverrideSetByname(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		name := goString(unsafe.Pointer(arg0))
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		value := wrapV8Value(unsafe.Pointer(arg2))
+		exception := uintptr(arg3)
+		return uintptr(impl.SetByname(name, object, value, exception))
 	}))
 
-	r.OverrideSetByindex(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.SetByindex(...), marshal return
-		return 0
+	r.OverrideSetByindex(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		index := int32(arg0)
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		value := wrapV8Value(unsafe.Pointer(arg2))
+		exception := uintptr(arg3)
+		return uintptr(impl.SetByindex(index, object, value, exception))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapV8Interceptor wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapV8Interceptor(ptr unsafe.Pointer) V8Interceptor {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // V8Exception Structure representing a V8 exception. The functions of this structure may be called on any render process thread.
@@ -218,51 +264,39 @@ type v8ExceptionImpl struct {
 }
 
 func (obj *v8ExceptionImpl) GetMessage() string {
-	ret := obj.rawPtr.CallGetMessage()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetMessage()))
 }
 
 func (obj *v8ExceptionImpl) GetSourceLine() string {
-	ret := obj.rawPtr.CallGetSourceLine()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSourceLine()))
 }
 
 func (obj *v8ExceptionImpl) GetScriptResourceName() string {
-	ret := obj.rawPtr.CallGetScriptResourceName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetScriptResourceName()))
 }
 
 func (obj *v8ExceptionImpl) GetLineNumber() int32 {
-	ret := obj.rawPtr.CallGetLineNumber()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetLineNumber())
 }
 
 func (obj *v8ExceptionImpl) GetStartPosition() int32 {
-	ret := obj.rawPtr.CallGetStartPosition()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetStartPosition())
 }
 
 func (obj *v8ExceptionImpl) GetEndPosition() int32 {
-	ret := obj.rawPtr.CallGetEndPosition()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetEndPosition())
 }
 
 func (obj *v8ExceptionImpl) GetStartColumn() int32 {
-	ret := obj.rawPtr.CallGetStartColumn()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetStartColumn())
 }
 
 func (obj *v8ExceptionImpl) GetEndColumn() int32 {
-	ret := obj.rawPtr.CallGetEndColumn()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetEndColumn())
+}
+
+func (obj *v8ExceptionImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -298,11 +332,23 @@ func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) unsafe.P
 	r := new(raw.CEFV8ArrayBufferReleaseCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideReleaseBuffer(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.ReleaseBuffer(...)
+	r.OverrideReleaseBuffer(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		buffer := unsafe.Pointer(arg0)
+		impl.ReleaseBuffer(buffer)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapV8ArrayBufferReleaseCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapV8ArrayBufferReleaseCallback(ptr unsafe.Pointer) V8ArrayBufferReleaseCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // V8Value Structure representing a V8 value handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
@@ -380,7 +426,7 @@ type V8Value interface {
 	// SetValueByaccessor Registers an identifier and returns true (1) on success. Access to the identifier will be forwarded to the cef_v8_accessor_t instance passed to cef_v8_value_t::cef_v8_value_create_object(). Returns false (0) if this function is called incorrectly or an exception is thrown. For read-only values this function will return true (1) even though assignment failed.
 	SetValueByaccessor(key string, attribute V8Propertyattribute) int32
 	// GetKeys Read the keys for the object's values into the specified vector. Integer- based keys will also be returned as strings.
-	GetKeys(keys []string) int32
+	GetKeys(keys uintptr) int32
 	// SetUserData Sets the user data for this object and returns true (1) on success. Returns false (0) if this function is called incorrectly. This function can only be called on user created objects.
 	SetUserData(userData *BaseRefCounted) int32
 	// GetUserData Returns the user data, if any, assigned to this object.
@@ -478,39 +524,27 @@ func (obj *v8ValueImpl) IsSame(that V8Value) bool {
 }
 
 func (obj *v8ValueImpl) GetBoolValue() int32 {
-	ret := obj.rawPtr.CallGetBoolValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetBoolValue())
 }
 
 func (obj *v8ValueImpl) GetIntValue() int32 {
-	ret := obj.rawPtr.CallGetIntValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetIntValue())
 }
 
 func (obj *v8ValueImpl) GetUintValue() uint32 {
-	ret := obj.rawPtr.CallGetUintValue()
-	_ = ret
-	return 0
+	return uint32(obj.rawPtr.CallGetUintValue())
 }
 
 func (obj *v8ValueImpl) GetDoubleValue() float64 {
-	ret := obj.rawPtr.CallGetDoubleValue()
-	_ = ret
-	return 0
+	return float64(obj.rawPtr.CallGetDoubleValue())
 }
 
 func (obj *v8ValueImpl) GetDateValue() uintptr {
-	ret := obj.rawPtr.CallGetDateValue()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetDateValue())
 }
 
 func (obj *v8ValueImpl) GetStringValue() string {
-	ret := obj.rawPtr.CallGetStringValue()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetStringValue()))
 }
 
 func (obj *v8ValueImpl) IsUserCreated() bool {
@@ -522,27 +556,19 @@ func (obj *v8ValueImpl) HasException() bool {
 }
 
 func (obj *v8ValueImpl) GetException() V8Exception {
-	ret := obj.rawPtr.CallGetException()
-	_ = ret
-	return nil
+	return wrapV8Exception(unsafe.Pointer(obj.rawPtr.CallGetException()))
 }
 
 func (obj *v8ValueImpl) ClearException() int32 {
-	ret := obj.rawPtr.CallClearException()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallClearException())
 }
 
 func (obj *v8ValueImpl) WillRethrowExceptions() int32 {
-	ret := obj.rawPtr.CallWillRethrowExceptions()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallWillRethrowExceptions())
 }
 
 func (obj *v8ValueImpl) SetRethrowExceptions(rethrow int32) int32 {
-	ret := obj.rawPtr.CallSetRethrowExceptions(uintptr(0) /* rethrow */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetRethrowExceptions(uintptr(0) /* rethrow */))
 }
 
 func (obj *v8ValueImpl) HasValueBykey(key string) bool {
@@ -554,141 +580,99 @@ func (obj *v8ValueImpl) HasValueByindex(index int32) bool {
 }
 
 func (obj *v8ValueImpl) DeleteValueBykey(key string) int32 {
-	ret := obj.rawPtr.CallDeleteValueBykey(uintptr(0) /* key */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallDeleteValueBykey(uintptr(0) /* key */))
 }
 
 func (obj *v8ValueImpl) DeleteValueByindex(index int32) int32 {
-	ret := obj.rawPtr.CallDeleteValueByindex(uintptr(0) /* index */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallDeleteValueByindex(uintptr(0) /* index */))
 }
 
 func (obj *v8ValueImpl) GetValueBykey(key string) V8Value {
-	ret := obj.rawPtr.CallGetValueBykey(uintptr(0) /* key */)
-	_ = ret
-	return nil
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetValueBykey(uintptr(0) /* key */)))
 }
 
 func (obj *v8ValueImpl) GetValueByindex(index int32) V8Value {
-	ret := obj.rawPtr.CallGetValueByindex(uintptr(0) /* index */)
-	_ = ret
-	return nil
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetValueByindex(uintptr(0) /* index */)))
 }
 
 func (obj *v8ValueImpl) SetValueBykey(key string, value V8Value, attribute V8Propertyattribute) int32 {
-	ret := obj.rawPtr.CallSetValueBykey(uintptr(0) /* key */, uintptr(0) /* value */, uintptr(0) /* attribute */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetValueBykey(uintptr(0) /* key */, uintptr(0) /* value */, uintptr(0) /* attribute */))
 }
 
 func (obj *v8ValueImpl) SetValueByindex(index int32, value V8Value) int32 {
-	ret := obj.rawPtr.CallSetValueByindex(uintptr(0) /* index */, uintptr(0) /* value */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetValueByindex(uintptr(0) /* index */, uintptr(0) /* value */))
 }
 
 func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattribute) int32 {
-	ret := obj.rawPtr.CallSetValueByaccessor(uintptr(0) /* key */, uintptr(0) /* attribute */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetValueByaccessor(uintptr(0) /* key */, uintptr(0) /* attribute */))
 }
 
-func (obj *v8ValueImpl) GetKeys(keys []string) int32 {
-	ret := obj.rawPtr.CallGetKeys(uintptr(0) /* keys */)
-	_ = ret
-	return 0
+func (obj *v8ValueImpl) GetKeys(keys uintptr) int32 {
+	return int32(obj.rawPtr.CallGetKeys(uintptr(0) /* keys */))
 }
 
 func (obj *v8ValueImpl) SetUserData(userData *BaseRefCounted) int32 {
-	ret := obj.rawPtr.CallSetUserData(uintptr(0) /* userData */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetUserData(uintptr(0) /* userData */))
 }
 
 func (obj *v8ValueImpl) GetUserData() *BaseRefCounted {
-	ret := obj.rawPtr.CallGetUserData()
-	_ = ret
-	return nil
+	return (*BaseRefCounted)(unsafe.Pointer(obj.rawPtr.CallGetUserData()))
 }
 
 func (obj *v8ValueImpl) GetExternallyAllocatedMemory() int32 {
-	ret := obj.rawPtr.CallGetExternallyAllocatedMemory()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetExternallyAllocatedMemory())
 }
 
 func (obj *v8ValueImpl) AdjustExternallyAllocatedMemory(changeInBytes int32) int32 {
-	ret := obj.rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(0) /* changeInBytes */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(0) /* changeInBytes */))
 }
 
 func (obj *v8ValueImpl) GetArrayLength() int32 {
-	ret := obj.rawPtr.CallGetArrayLength()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetArrayLength())
 }
 
 func (obj *v8ValueImpl) GetArrayBufferReleaseCallback() V8ArrayBufferReleaseCallback {
-	ret := obj.rawPtr.CallGetArrayBufferReleaseCallback()
-	_ = ret
-	return nil
+	return wrapV8ArrayBufferReleaseCallback(unsafe.Pointer(obj.rawPtr.CallGetArrayBufferReleaseCallback()))
 }
 
 func (obj *v8ValueImpl) NeuterArrayBuffer() int32 {
-	ret := obj.rawPtr.CallNeuterArrayBuffer()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallNeuterArrayBuffer())
 }
 
 func (obj *v8ValueImpl) GetArrayBufferByteLength() int {
-	ret := obj.rawPtr.CallGetArrayBufferByteLength()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetArrayBufferByteLength())
 }
 
 func (obj *v8ValueImpl) GetArrayBufferData() unsafe.Pointer {
-	ret := obj.rawPtr.CallGetArrayBufferData()
-	_ = ret
-	return nil
+	return unsafe.Pointer(obj.rawPtr.CallGetArrayBufferData())
 }
 
 func (obj *v8ValueImpl) GetFunctionName() string {
-	ret := obj.rawPtr.CallGetFunctionName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFunctionName()))
 }
 
 func (obj *v8ValueImpl) GetFunctionHandler() V8Handler {
-	ret := obj.rawPtr.CallGetFunctionHandler()
-	_ = ret
-	return nil
+	return wrapV8Handler(unsafe.Pointer(obj.rawPtr.CallGetFunctionHandler()))
 }
 
 func (obj *v8ValueImpl) ExecuteFunction(object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value {
-	ret := obj.rawPtr.CallExecuteFunction(uintptr(0) /* object */, uintptr(0) /* argumentscount */, uintptr(0) /* arguments */)
-	_ = ret
-	return nil
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunction(uintptr(0) /* object */, uintptr(0) /* argumentscount */, uintptr(0) /* arguments */)))
 }
 
 func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value {
-	ret := obj.rawPtr.CallExecuteFunctionWithContext(uintptr(0) /* context */, uintptr(0) /* object */, uintptr(0) /* argumentscount */, uintptr(0) /* arguments */)
-	_ = ret
-	return nil
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunctionWithContext(uintptr(0) /* context */, uintptr(0) /* object */, uintptr(0) /* argumentscount */, uintptr(0) /* arguments */)))
 }
 
 func (obj *v8ValueImpl) ResolvePromise(arg V8Value) int32 {
-	ret := obj.rawPtr.CallResolvePromise(uintptr(0) /* arg */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallResolvePromise(uintptr(0) /* arg */))
 }
 
 func (obj *v8ValueImpl) RejectPromise(errormsg string) int32 {
-	ret := obj.rawPtr.CallRejectPromise(uintptr(0) /* errormsg */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallRejectPromise(uintptr(0) /* errormsg */))
+}
+
+func (obj *v8ValueImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -731,15 +715,15 @@ func (obj *v8StackTraceImpl) IsValid() bool {
 }
 
 func (obj *v8StackTraceImpl) GetFrameCount() int32 {
-	ret := obj.rawPtr.CallGetFrameCount()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetFrameCount())
 }
 
 func (obj *v8StackTraceImpl) GetFrame(index int32) V8StackFrame {
-	ret := obj.rawPtr.CallGetFrame(uintptr(0) /* index */)
-	_ = ret
-	return nil
+	return wrapV8StackFrame(unsafe.Pointer(obj.rawPtr.CallGetFrame(uintptr(0) /* index */)))
+}
+
+func (obj *v8StackTraceImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -792,33 +776,23 @@ func (obj *v8StackFrameImpl) IsValid() bool {
 }
 
 func (obj *v8StackFrameImpl) GetScriptName() string {
-	ret := obj.rawPtr.CallGetScriptName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetScriptName()))
 }
 
 func (obj *v8StackFrameImpl) GetScriptNameOrSourceURL() string {
-	ret := obj.rawPtr.CallGetScriptNameOrSourceURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetScriptNameOrSourceURL()))
 }
 
 func (obj *v8StackFrameImpl) GetFunctionName() string {
-	ret := obj.rawPtr.CallGetFunctionName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFunctionName()))
 }
 
 func (obj *v8StackFrameImpl) GetLineNumber() int32 {
-	ret := obj.rawPtr.CallGetLineNumber()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetLineNumber())
 }
 
 func (obj *v8StackFrameImpl) GetColumn() int32 {
-	ret := obj.rawPtr.CallGetColumn()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetColumn())
 }
 
 func (obj *v8StackFrameImpl) IsEval() bool {
@@ -827,6 +801,10 @@ func (obj *v8StackFrameImpl) IsEval() bool {
 
 func (obj *v8StackFrameImpl) IsConstructor() bool {
 	return obj.rawPtr.CallIsConstructor() != 0
+}
+
+func (obj *v8StackFrameImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

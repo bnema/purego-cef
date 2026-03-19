@@ -23,15 +23,30 @@ func NewResponseFilter(impl ResponseFilter) unsafe.Pointer {
 	r := new(raw.CEFResponseFilterT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideInitFilter(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.InitFilter(...), marshal return
-		return 0
+	r.OverrideInitFilter(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.InitFilter())
 	}))
 
-	r.OverrideFilter(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Filter(...), marshal return
-		return 0
+	r.OverrideFilter(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+		dataIn := unsafe.Pointer(arg0)
+		dataInSize := int(arg1)
+		dataInRead := (*int)(unsafe.Pointer(arg2))
+		dataOut := unsafe.Pointer(arg3)
+		dataOutSize := int(arg4)
+		dataOutWritten := (*int)(unsafe.Pointer(arg5))
+		return uintptr(impl.Filter(dataIn, dataInSize, dataInRead, dataOut, dataOutSize, dataOutWritten))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapResponseFilter wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapResponseFilter(ptr unsafe.Pointer) ResponseFilter {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

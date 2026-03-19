@@ -22,9 +22,11 @@ type preferenceRegistrarImpl struct {
 }
 
 func (obj *preferenceRegistrarImpl) AddPreference(name string, defaultValue Value) int32 {
-	ret := obj.rawPtr.CallAddPreference(uintptr(0) /* name */, uintptr(0) /* defaultValue */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallAddPreference(uintptr(0) /* name */, uintptr(0) /* defaultValue */))
+}
+
+func (obj *preferenceRegistrarImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 func wrapPreferenceRegistrar(ptr unsafe.Pointer) PreferenceRegistrar {
@@ -47,11 +49,23 @@ func NewPreferenceObserver(impl PreferenceObserver) unsafe.Pointer {
 	r := new(raw.CEFPreferenceObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnPreferenceChanged(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnPreferenceChanged(...)
+	r.OverrideOnPreferenceChanged(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		name := goString(unsafe.Pointer(arg0))
+		impl.OnPreferenceChanged(name)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapPreferenceObserver wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapPreferenceObserver(ptr unsafe.Pointer) PreferenceObserver {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // PreferenceManager Manage access to preferences. Many built-in preferences are registered by Chromium. Custom preferences can be registered in cef_browser_process_handler_t::OnRegisterCustomPreferences.
@@ -65,7 +79,7 @@ type PreferenceManager interface {
 	// CanSetPreference Returns true (1) if the preference with the specified |name| can be modified using SetPreference. As one example preferences set via the command-line usually cannot be modified. This function must be called on the browser process UI thread.
 	CanSetPreference(name string) bool
 	// SetPreference Returns true (1) if the preference with the specified |name| can be modified using SetPreference. As one example preferences set via the command-line usually cannot be modified. This function must be called on the browser process UI thread.
-	SetPreference(name string, value Value, error *string) int32
+	SetPreference(name string, value Value, error uintptr) int32
 	// AddPreferenceObserver Add an observer for preference changes. |name| is the name of the preference to observe. If |name| is NULL then all preferences will be observed. Observing all preferences has performance consequences and is not recommended outside of testing scenarios. The observer will remain registered until the returned Registration object is destroyed. This function must be called on the browser process UI thread.
 	AddPreferenceObserver(name string, observer PreferenceObserver) Registration
 }
@@ -79,31 +93,27 @@ func (obj *preferenceManagerImpl) HasPreference(name string) bool {
 }
 
 func (obj *preferenceManagerImpl) GetPreference(name string) Value {
-	ret := obj.rawPtr.CallGetPreference(uintptr(0) /* name */)
-	_ = ret
-	return nil
+	return wrapValue(unsafe.Pointer(obj.rawPtr.CallGetPreference(uintptr(0) /* name */)))
 }
 
 func (obj *preferenceManagerImpl) GetAllPreferences(includeDefaults int32) DictionaryValue {
-	ret := obj.rawPtr.CallGetAllPreferences(uintptr(0) /* includeDefaults */)
-	_ = ret
-	return nil
+	return wrapDictionaryValue(unsafe.Pointer(obj.rawPtr.CallGetAllPreferences(uintptr(0) /* includeDefaults */)))
 }
 
 func (obj *preferenceManagerImpl) CanSetPreference(name string) bool {
 	return obj.rawPtr.CallCanSetPreference(uintptr(0) /* name */) != 0
 }
 
-func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error *string) int32 {
-	ret := obj.rawPtr.CallSetPreference(uintptr(0) /* name */, uintptr(0) /* value */, uintptr(0) /* error */)
-	_ = ret
-	return 0
+func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error uintptr) int32 {
+	return int32(obj.rawPtr.CallSetPreference(uintptr(0) /* name */, uintptr(0) /* value */, uintptr(0) /* error */))
 }
 
 func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer PreferenceObserver) Registration {
-	ret := obj.rawPtr.CallAddPreferenceObserver(uintptr(0) /* name */, uintptr(0) /* observer */)
-	_ = ret
-	return nil
+	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddPreferenceObserver(uintptr(0) /* name */, uintptr(0) /* observer */)))
+}
+
+func (obj *preferenceManagerImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -128,13 +138,13 @@ func wrapPreferenceManager(ptr unsafe.Pointer) PreferenceManager {
 }
 
 // PreferenceManagerGetChromeVariationsAsSwitches Returns the current Chrome Variations configuration (combination of field trials and chrome://flags) as equivalent command-line switches (`--[enable|disable]-features=XXXX`, etc). These switches can be used to apply the same configuration when launching a CEF-based application. See https://developer.chrome.com/docs/web-platform/chrome-variations for background and details. Note that field trial tests are disabled by default in Official CEF builds (via the `disable_fieldtrial_testing_config=true (1)` GN flag). This function must be called on the browser process UI thread.
-func PreferenceManagerGetChromeVariationsAsSwitches(switches []string) {
+func PreferenceManagerGetChromeVariationsAsSwitches(switches uintptr) {
 	// TODO: marshal args and call raw.CEFPreferenceManagerGetChromeVariationsAsSwitches(...)
 	_ = raw.CEFPreferenceManagerGetChromeVariationsAsSwitches
 }
 
 // PreferenceManagerGetChromeVariationsAsStrings Returns the current Chrome Variations configuration (combination of field trials and chrome://flags) as human-readable strings. This is the human- readable equivalent of the "Active Variations" section of chrome://version. See https://developer.chrome.com/docs/web-platform/chrome-variations for background and details. Note that field trial tests are disabled by default in Official CEF builds (via the `disable_fieldtrial_testing_config=true (1)` GN flag). This function must be called on the browser process UI thread.
-func PreferenceManagerGetChromeVariationsAsStrings(strings []string) {
+func PreferenceManagerGetChromeVariationsAsStrings(strings uintptr) {
 	// TODO: marshal args and call raw.CEFPreferenceManagerGetChromeVariationsAsStrings(...)
 	_ = raw.CEFPreferenceManagerGetChromeVariationsAsStrings
 }

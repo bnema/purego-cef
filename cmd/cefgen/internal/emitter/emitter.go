@@ -46,6 +46,30 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		"isEnumReturn": func(ret ReturnData) bool {
 			return ret.IsEnum
 		},
+		// cbParamName generates a raw parameter name for callbacks (e.g., "arg0", "arg1").
+		"cbParamName": func(p ParamData, idx int) string {
+			return fmt.Sprintf("arg%d", idx)
+		},
+		// unmarshalParam generates the Go expression to convert a uintptr to the public type.
+		"unmarshalParam": func(p ParamData, rawName string) string {
+			switch p.MarshalKind {
+			case "interface":
+				return "wrap" + p.PublicType + "(unsafe.Pointer(" + rawName + "))"
+			case "string":
+				return "goString(unsafe.Pointer(" + rawName + "))"
+			case "userfreeString":
+				return "goStringUserfree(unsafe.Pointer(" + rawName + "))"
+			case "enum":
+				return p.PublicType + "(" + rawName + ")"
+			case "pointer":
+				return "unsafe.Pointer(" + rawName + ")"
+			case "dataStruct":
+				// PublicType is "*WindowInfo" etc, we need "(*WindowInfo)(unsafe.Pointer(...))"
+				return "(" + p.PublicType + ")(unsafe.Pointer(" + rawName + "))"
+			default:
+				return p.PublicType + "(" + rawName + ")"
+			}
+		},
 	}
 
 	tmpl, err := template.New("public").Funcs(funcMap).ParseFS(templateFS,

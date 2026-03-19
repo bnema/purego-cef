@@ -24,6 +24,10 @@ func (obj *beforeDownloadCallbackImpl) Cont(downloadPath string, showDialog int3
 	obj.rawPtr.CallCont(uintptr(0) /* downloadPath */, uintptr(0) /* showDialog */)
 }
 
+func (obj *beforeDownloadCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *beforeDownloadCallbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -68,6 +72,10 @@ func (obj *downloadItemCallbackImpl) Resume() {
 	obj.rawPtr.CallResume()
 }
 
+func (obj *downloadItemCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *downloadItemCallbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -105,19 +113,44 @@ func NewDownloadHandler(impl DownloadHandler) unsafe.Pointer {
 	r := new(raw.CEFDownloadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideCanDownload(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.CanDownload(...), marshal return
+	r.OverrideCanDownload(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		uRL := goString(unsafe.Pointer(arg1))
+		requestMethod := goString(unsafe.Pointer(arg2))
+		if impl.CanDownload(browser, uRL, requestMethod) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideOnBeforeDownload(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnBeforeDownload(...), marshal return
+	r.OverrideOnBeforeDownload(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		downloadItem := wrapDownloadItem(unsafe.Pointer(arg1))
+		suggestedName := goString(unsafe.Pointer(arg2))
+		callback := wrapBeforeDownloadCallback(unsafe.Pointer(arg3))
+		if impl.OnBeforeDownload(browser, downloadItem, suggestedName, callback) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideOnDownloadUpdated(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnDownloadUpdated(...)
+	r.OverrideOnDownloadUpdated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		downloadItem := wrapDownloadItem(unsafe.Pointer(arg1))
+		callback := wrapDownloadItemCallback(unsafe.Pointer(arg2))
+		impl.OnDownloadUpdated(browser, downloadItem, callback)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapDownloadHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapDownloadHandler(ptr unsafe.Pointer) DownloadHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

@@ -30,32 +30,43 @@ func NewReadHandler(impl ReadHandler) unsafe.Pointer {
 	r := new(raw.CEFReadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideRead(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Read(...), marshal return
-		return 0
+	r.OverrideRead(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		ptr := unsafe.Pointer(arg0)
+		size := int(arg1)
+		n := int(arg2)
+		return uintptr(impl.Read(ptr, size, n))
 	}))
 
-	r.OverrideSeek(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.SeekOffset(...), marshal return
-		return 0
+	r.OverrideSeek(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		offset := int64(arg0)
+		whence := int32(arg1)
+		return uintptr(impl.SeekOffset(offset, whence))
 	}))
 
-	r.OverrideTell(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.Tell(...), marshal return
-		return 0
+	r.OverrideTell(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.Tell())
 	}))
 
-	r.OverrideEof(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.Eof(...), marshal return
-		return 0
+	r.OverrideEof(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.Eof())
 	}))
 
-	r.OverrideMayBlock(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.MayBlock(...), marshal return
-		return 0
+	r.OverrideMayBlock(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.MayBlock())
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapReadHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapReadHandler(ptr unsafe.Pointer) ReadHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // StreamReader Structure used to read data from a stream. The functions of this structure may be called on any thread.
@@ -76,33 +87,27 @@ type streamReaderImpl struct {
 }
 
 func (obj *streamReaderImpl) Read(ptr unsafe.Pointer, size int, n int) int {
-	ret := obj.rawPtr.CallRead(uintptr(0) /* ptr */, uintptr(0) /* size */, uintptr(0) /* n */)
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallRead(uintptr(0) /* ptr */, uintptr(0) /* size */, uintptr(0) /* n */))
 }
 
 func (obj *streamReaderImpl) SeekOffset(offset int64, whence int32) int32 {
-	ret := obj.rawPtr.CallSeek(uintptr(0) /* offset */, uintptr(0) /* whence */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSeek(uintptr(0) /* offset */, uintptr(0) /* whence */))
 }
 
 func (obj *streamReaderImpl) Tell() int64 {
-	ret := obj.rawPtr.CallTell()
-	_ = ret
-	return 0
+	return int64(obj.rawPtr.CallTell())
 }
 
 func (obj *streamReaderImpl) Eof() int32 {
-	ret := obj.rawPtr.CallEof()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallEof())
 }
 
 func (obj *streamReaderImpl) MayBlock() int32 {
-	ret := obj.rawPtr.CallMayBlock()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallMayBlock())
+}
+
+func (obj *streamReaderImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -145,32 +150,43 @@ func NewWriteHandler(impl WriteHandler) unsafe.Pointer {
 	r := new(raw.CEFWriteHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideWrite(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Write(...), marshal return
-		return 0
+	r.OverrideWrite(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		ptr := unsafe.Pointer(arg0)
+		size := int(arg1)
+		n := int(arg2)
+		return uintptr(impl.Write(ptr, size, n))
 	}))
 
-	r.OverrideSeek(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.SeekOffset(...), marshal return
-		return 0
+	r.OverrideSeek(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		offset := int64(arg0)
+		whence := int32(arg1)
+		return uintptr(impl.SeekOffset(offset, whence))
 	}))
 
-	r.OverrideTell(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.Tell(...), marshal return
-		return 0
+	r.OverrideTell(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.Tell())
 	}))
 
-	r.OverrideFlush(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.Flush(...), marshal return
-		return 0
+	r.OverrideFlush(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.Flush())
 	}))
 
-	r.OverrideMayBlock(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.MayBlock(...), marshal return
-		return 0
+	r.OverrideMayBlock(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.MayBlock())
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapWriteHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapWriteHandler(ptr unsafe.Pointer) WriteHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // StreamWriter Structure used to write data to a stream. The functions of this structure may be called on any thread.
@@ -191,33 +207,27 @@ type streamWriterImpl struct {
 }
 
 func (obj *streamWriterImpl) Write(ptr unsafe.Pointer, size int, n int) int {
-	ret := obj.rawPtr.CallWrite(uintptr(0) /* ptr */, uintptr(0) /* size */, uintptr(0) /* n */)
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallWrite(uintptr(0) /* ptr */, uintptr(0) /* size */, uintptr(0) /* n */))
 }
 
 func (obj *streamWriterImpl) SeekOffset(offset int64, whence int32) int32 {
-	ret := obj.rawPtr.CallSeek(uintptr(0) /* offset */, uintptr(0) /* whence */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSeek(uintptr(0) /* offset */, uintptr(0) /* whence */))
 }
 
 func (obj *streamWriterImpl) Tell() int64 {
-	ret := obj.rawPtr.CallTell()
-	_ = ret
-	return 0
+	return int64(obj.rawPtr.CallTell())
 }
 
 func (obj *streamWriterImpl) Flush() int32 {
-	ret := obj.rawPtr.CallFlush()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallFlush())
 }
 
 func (obj *streamWriterImpl) MayBlock() int32 {
-	ret := obj.rawPtr.CallMayBlock()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallMayBlock())
+}
+
+func (obj *streamWriterImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

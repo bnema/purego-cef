@@ -19,7 +19,7 @@ type ResourceRequestHandler interface {
 	// GetResourceHandler Called on the IO thread before a resource is loaded. The |browser| and |frame| values represent the source of the request, and may be NULL for requests originating from service workers or cef_urlrequest_t. To allow the resource to load using the default network loader return NULL. To specify a handler for the resource return a cef_resource_handler_t object. The |request| object cannot not be modified in this callback.
 	GetResourceHandler(browser Browser, frame Frame, request Request) ResourceHandler
 	// OnResourceRedirect Called on the IO thread when a resource load is redirected. The |browser| and |frame| values represent the source of the request, and may be NULL for requests originating from service workers or cef_urlrequest_t. The |request| parameter will contain the old URL and other request-related information. The |response| parameter will contain the response that resulted in the redirect. The |new_url| parameter will contain the new URL and can be changed if desired. The |request| and |response| objects cannot be modified in this callback.
-	OnResourceRedirect(browser Browser, frame Frame, request Request, response Response, newURL *string)
+	OnResourceRedirect(browser Browser, frame Frame, request Request, response Response, newURL uintptr)
 	// OnResourceResponse Called on the IO thread when a resource response is received. The |browser| and |frame| values represent the source of the request, and may be NULL for requests originating from service workers or cef_urlrequest_t. To allow the resource load to proceed without modification return false (0). To redirect or retry the resource load optionally modify |request| and return true (1). Modification of the request URL will be treated as a redirect. Requests handled using the default network loader cannot be redirected in this callback. The |response| object cannot be modified in this callback. WARNING: Redirecting using this function is deprecated. Use OnBeforeResourceLoad or GetResourceHandler to perform redirects.
 	OnResourceResponse(browser Browser, frame Frame, request Request, response Response) int32
 	// GetResourceResponseFilter Called on the IO thread to optionally filter resource response content. The |browser| and |frame| values represent the source of the request, and may be NULL for requests originating from service workers or cef_urlrequest_t. |request| and |response| represent the request and response respectively and cannot be modified in this callback.
@@ -36,44 +36,95 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) unsafe.Pointer {
 	r := new(raw.CEFResourceRequestHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetCookieAccessFilter(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetCookieAccessFilter(...), marshal return
-		return 0
+	r.OverrideGetCookieAccessFilter(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		result := impl.GetCookieAccessFilter(browser, frame, request)
+		if result == nil {
+			return 0
+		}
+		return uintptr(NewCookieAccessFilter(result))
 	}))
 
-	r.OverrideOnBeforeResourceLoad(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnBeforeResourceLoad(...), marshal return
-		return 0
+	r.OverrideOnBeforeResourceLoad(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		callback := wrapCallback(unsafe.Pointer(arg3))
+		return uintptr(impl.OnBeforeResourceLoad(browser, frame, request, callback))
 	}))
 
-	r.OverrideGetResourceHandler(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetResourceHandler(...), marshal return
-		return 0
+	r.OverrideGetResourceHandler(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		result := impl.GetResourceHandler(browser, frame, request)
+		if result == nil {
+			return 0
+		}
+		return uintptr(NewResourceHandler(result))
 	}))
 
-	r.OverrideOnResourceRedirect(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnResourceRedirect(...)
+	r.OverrideOnResourceRedirect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		response := wrapResponse(unsafe.Pointer(arg3))
+		newURL := uintptr(arg4)
+		impl.OnResourceRedirect(browser, frame, request, response, newURL)
 	}))
 
-	r.OverrideOnResourceResponse(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnResourceResponse(...), marshal return
-		return 0
+	r.OverrideOnResourceResponse(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		response := wrapResponse(unsafe.Pointer(arg3))
+		return uintptr(impl.OnResourceResponse(browser, frame, request, response))
 	}))
 
-	r.OverrideGetResourceResponseFilter(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetResourceResponseFilter(...), marshal return
-		return 0
+	r.OverrideGetResourceResponseFilter(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		response := wrapResponse(unsafe.Pointer(arg3))
+		result := impl.GetResourceResponseFilter(browser, frame, request, response)
+		if result == nil {
+			return 0
+		}
+		return uintptr(NewResponseFilter(result))
 	}))
 
-	r.OverrideOnResourceLoadComplete(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnResourceLoadComplete(...)
+	r.OverrideOnResourceLoadComplete(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		response := wrapResponse(unsafe.Pointer(arg3))
+		status := UrlrequestStatus(arg4)
+		receivedContentLength := int64(arg5)
+		impl.OnResourceLoadComplete(browser, frame, request, response, status, receivedContentLength)
 	}))
 
-	r.OverrideOnProtocolExecution(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnProtocolExecution(...)
+	r.OverrideOnProtocolExecution(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		allowOsExecution := unsafe.Pointer(arg3)
+		impl.OnProtocolExecution(browser, frame, request, allowOsExecution)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapResourceRequestHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapResourceRequestHandler(ptr unsafe.Pointer) ResourceRequestHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // CookieAccessFilter Implement this structure to filter cookies that may be sent or received from resource requests. The functions of this structure will be called on the IO thread unless otherwise indicated.
@@ -90,15 +141,39 @@ func NewCookieAccessFilter(impl CookieAccessFilter) unsafe.Pointer {
 	r := new(raw.CEFCookieAccessFilterT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideCanSendCookie(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.CanSendCookie(...), marshal return
+	r.OverrideCanSendCookie(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		cookie := (*Cookie)(unsafe.Pointer(arg3))
+		if impl.CanSendCookie(browser, frame, request, cookie) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideCanSaveCookie(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.CanSaveCookie(...), marshal return
+	r.OverrideCanSaveCookie(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		response := wrapResponse(unsafe.Pointer(arg3))
+		cookie := (*Cookie)(unsafe.Pointer(arg4))
+		if impl.CanSaveCookie(browser, frame, request, response, cookie) {
+			return 1
+		}
 		return 0
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapCookieAccessFilter wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapCookieAccessFilter(ptr unsafe.Pointer) CookieAccessFilter {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

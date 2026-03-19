@@ -30,31 +30,70 @@ func NewLifeSpanHandler(impl LifeSpanHandler) unsafe.Pointer {
 	r := new(raw.CEFLifeSpanHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnBeforePopup(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnBeforePopup(...), marshal return
+	r.OverrideOnBeforePopup(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr, arg8 uintptr, arg9 uintptr, arg10 uintptr, arg11 uintptr, arg12 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		popupID := int32(arg2)
+		targetURL := goString(unsafe.Pointer(arg3))
+		targetFrameName := goString(unsafe.Pointer(arg4))
+		targetDisposition := WindowOpenDisposition(arg5)
+		userGesture := int32(arg6)
+		popupfeatures := uintptr(arg7)
+		windowinfo := (*WindowInfo)(unsafe.Pointer(arg8))
+		client := unsafe.Pointer(arg9)
+		settings := (*BrowserSettings)(unsafe.Pointer(arg10))
+		extraInfo := unsafe.Pointer(arg11)
+		noJavascriptAccess := unsafe.Pointer(arg12)
+		if impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupfeatures, windowinfo, client, settings, extraInfo, noJavascriptAccess) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideOnBeforePopupAborted(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnBeforePopupAborted(...)
+	r.OverrideOnBeforePopupAborted(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		popupID := int32(arg1)
+		impl.OnBeforePopupAborted(browser, popupID)
 	}))
 
-	r.OverrideOnBeforeDevToolsPopup(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnBeforeDevToolsPopup(...)
+	r.OverrideOnBeforeDevToolsPopup(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		windowinfo := (*WindowInfo)(unsafe.Pointer(arg1))
+		client := unsafe.Pointer(arg2)
+		settings := (*BrowserSettings)(unsafe.Pointer(arg3))
+		extraInfo := unsafe.Pointer(arg4)
+		useDefaultWindow := unsafe.Pointer(arg5)
+		impl.OnBeforeDevToolsPopup(browser, windowinfo, client, settings, extraInfo, useDefaultWindow)
 	}))
 
-	r.OverrideOnAfterCreated(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnAfterCreated(...)
+	r.OverrideOnAfterCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnAfterCreated(browser)
 	}))
 
-	r.OverrideDoClose(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.DoClose(...), marshal return
+	r.OverrideDoClose(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		if impl.DoClose(browser) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideOnBeforeClose(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnBeforeClose(...)
+	r.OverrideOnBeforeClose(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnBeforeClose(browser)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapLifeSpanHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapLifeSpanHandler(ptr unsafe.Pointer) LifeSpanHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

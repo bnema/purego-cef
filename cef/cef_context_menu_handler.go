@@ -30,6 +30,10 @@ func (obj *runContextMenuCallbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
+func (obj *runContextMenuCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *runContextMenuCallbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -69,6 +73,10 @@ func (obj *runQuickMenuCallbackImpl) Cont(commandID int32, eventFlags EventFlags
 
 func (obj *runQuickMenuCallbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
+}
+
+func (obj *runQuickMenuCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -116,39 +124,74 @@ func NewContextMenuHandler(impl ContextMenuHandler) unsafe.Pointer {
 	r := new(raw.CEFContextMenuHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnBeforeContextMenu(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnBeforeContextMenu(...)
+	r.OverrideOnBeforeContextMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		params := wrapContextMenuParams(unsafe.Pointer(arg2))
+		model := wrapMenuModel(unsafe.Pointer(arg3))
+		impl.OnBeforeContextMenu(browser, frame, params, model)
 	}))
 
-	r.OverrideRunContextMenu(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.RunContextMenu(...), marshal return
-		return 0
+	r.OverrideRunContextMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		params := wrapContextMenuParams(unsafe.Pointer(arg2))
+		model := wrapMenuModel(unsafe.Pointer(arg3))
+		callback := wrapRunContextMenuCallback(unsafe.Pointer(arg4))
+		return uintptr(impl.RunContextMenu(browser, frame, params, model, callback))
 	}))
 
-	r.OverrideOnContextMenuCommand(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnContextMenuCommand(...), marshal return
-		return 0
+	r.OverrideOnContextMenuCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		params := wrapContextMenuParams(unsafe.Pointer(arg2))
+		commandID := int32(arg3)
+		eventFlags := EventFlags(arg4)
+		return uintptr(impl.OnContextMenuCommand(browser, frame, params, commandID, eventFlags))
 	}))
 
-	r.OverrideOnContextMenuDismissed(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnContextMenuDismissed(...)
+	r.OverrideOnContextMenuDismissed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		impl.OnContextMenuDismissed(browser, frame)
 	}))
 
-	r.OverrideRunQuickMenu(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.RunQuickMenu(...), marshal return
-		return 0
+	r.OverrideRunQuickMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		location := uintptr(arg2)
+		size := uintptr(arg3)
+		editStateFlags := QuickMenuEditStateFlags(arg4)
+		callback := wrapRunQuickMenuCallback(unsafe.Pointer(arg5))
+		return uintptr(impl.RunQuickMenu(browser, frame, location, size, editStateFlags, callback))
 	}))
 
-	r.OverrideOnQuickMenuCommand(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnQuickMenuCommand(...), marshal return
-		return 0
+	r.OverrideOnQuickMenuCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		commandID := int32(arg2)
+		eventFlags := EventFlags(arg3)
+		return uintptr(impl.OnQuickMenuCommand(browser, frame, commandID, eventFlags))
 	}))
 
-	r.OverrideOnQuickMenuDismissed(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnQuickMenuDismissed(...)
+	r.OverrideOnQuickMenuDismissed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		impl.OnQuickMenuDismissed(browser, frame)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapContextMenuHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapContextMenuHandler(ptr unsafe.Pointer) ContextMenuHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // ContextMenuParams Provides information about the context menu state. The functions of this structure can only be accessed on browser process the UI thread.
@@ -184,7 +227,7 @@ type ContextMenuParams interface {
 	// GetMisspelledWord Returns the text of the misspelled word, if any, that the context menu was invoked on.
 	GetMisspelledWord() string
 	// GetDictionarySuggestions Returns true (1) if suggestions exist, false (0) otherwise. Fills in |suggestions| from the spell check service for the misspelled word if there is one.
-	GetDictionarySuggestions(suggestions []string) int32
+	GetDictionarySuggestions(suggestions uintptr) int32
 	// IsEditable Returns true (1) if the context menu was invoked on an editable node.
 	IsEditable() bool
 	// IsSpellCheckEnabled Returns true (1) if the context menu was invoked on an editable node where spell-check is enabled.
@@ -200,15 +243,11 @@ type contextMenuParamsImpl struct {
 }
 
 func (obj *contextMenuParamsImpl) GetXcoord() int32 {
-	ret := obj.rawPtr.CallGetXcoord()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetXcoord())
 }
 
 func (obj *contextMenuParamsImpl) GetYcoord() int32 {
-	ret := obj.rawPtr.CallGetYcoord()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetYcoord())
 }
 
 func (obj *contextMenuParamsImpl) GetTypeFlags() ContextMenuTypeFlags {
@@ -216,21 +255,15 @@ func (obj *contextMenuParamsImpl) GetTypeFlags() ContextMenuTypeFlags {
 }
 
 func (obj *contextMenuParamsImpl) GetLinkURL() string {
-	ret := obj.rawPtr.CallGetLinkURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLinkURL()))
 }
 
 func (obj *contextMenuParamsImpl) GetUnfilteredLinkURL() string {
-	ret := obj.rawPtr.CallGetUnfilteredLinkURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetUnfilteredLinkURL()))
 }
 
 func (obj *contextMenuParamsImpl) GetSourceURL() string {
-	ret := obj.rawPtr.CallGetSourceURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSourceURL()))
 }
 
 func (obj *contextMenuParamsImpl) HasImageContents() bool {
@@ -238,27 +271,19 @@ func (obj *contextMenuParamsImpl) HasImageContents() bool {
 }
 
 func (obj *contextMenuParamsImpl) GetTitleText() string {
-	ret := obj.rawPtr.CallGetTitleText()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetTitleText()))
 }
 
 func (obj *contextMenuParamsImpl) GetPageURL() string {
-	ret := obj.rawPtr.CallGetPageURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetPageURL()))
 }
 
 func (obj *contextMenuParamsImpl) GetFrameURL() string {
-	ret := obj.rawPtr.CallGetFrameURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFrameURL()))
 }
 
 func (obj *contextMenuParamsImpl) GetFrameCharset() string {
-	ret := obj.rawPtr.CallGetFrameCharset()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFrameCharset()))
 }
 
 func (obj *contextMenuParamsImpl) GetMediaType() ContextMenuMediaType {
@@ -270,21 +295,15 @@ func (obj *contextMenuParamsImpl) GetMediaStateFlags() ContextMenuMediaStateFlag
 }
 
 func (obj *contextMenuParamsImpl) GetSelectionText() string {
-	ret := obj.rawPtr.CallGetSelectionText()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSelectionText()))
 }
 
 func (obj *contextMenuParamsImpl) GetMisspelledWord() string {
-	ret := obj.rawPtr.CallGetMisspelledWord()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetMisspelledWord()))
 }
 
-func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions []string) int32 {
-	ret := obj.rawPtr.CallGetDictionarySuggestions(uintptr(0) /* suggestions */)
-	_ = ret
-	return 0
+func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions uintptr) int32 {
+	return int32(obj.rawPtr.CallGetDictionarySuggestions(uintptr(0) /* suggestions */))
 }
 
 func (obj *contextMenuParamsImpl) IsEditable() bool {
@@ -301,6 +320,10 @@ func (obj *contextMenuParamsImpl) GetEditStateFlags() ContextMenuEditStateFlags 
 
 func (obj *contextMenuParamsImpl) IsCustomMenu() bool {
 	return obj.rawPtr.CallIsCustomMenu() != 0
+}
+
+func (obj *contextMenuParamsImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

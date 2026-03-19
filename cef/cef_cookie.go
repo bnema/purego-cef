@@ -30,33 +30,27 @@ type cookieManagerImpl struct {
 }
 
 func (obj *cookieManagerImpl) VisitAllCookies(visitor CookieVisitor) int32 {
-	ret := obj.rawPtr.CallVisitAllCookies(uintptr(0) /* visitor */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallVisitAllCookies(uintptr(0) /* visitor */))
 }
 
 func (obj *cookieManagerImpl) VisitURLCookies(uRL string, includehttponly int32, visitor CookieVisitor) int32 {
-	ret := obj.rawPtr.CallVisitURLCookies(uintptr(0) /* uRL */, uintptr(0) /* includehttponly */, uintptr(0) /* visitor */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallVisitURLCookies(uintptr(0) /* uRL */, uintptr(0) /* includehttponly */, uintptr(0) /* visitor */))
 }
 
 func (obj *cookieManagerImpl) SetCookie(uRL string, cookie *Cookie, callback SetCookieCallback) int32 {
-	ret := obj.rawPtr.CallSetCookie(uintptr(0) /* uRL */, uintptr(0) /* cookie */, uintptr(0) /* callback */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetCookie(uintptr(0) /* uRL */, uintptr(0) /* cookie */, uintptr(0) /* callback */))
 }
 
 func (obj *cookieManagerImpl) DeleteCookies(uRL string, cookieName string, callback DeleteCookiesCallback) int32 {
-	ret := obj.rawPtr.CallDeleteCookies(uintptr(0) /* uRL */, uintptr(0) /* cookieName */, uintptr(0) /* callback */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallDeleteCookies(uintptr(0) /* uRL */, uintptr(0) /* cookieName */, uintptr(0) /* callback */))
 }
 
 func (obj *cookieManagerImpl) FlushStore(callback CompletionCallback) int32 {
-	ret := obj.rawPtr.CallFlushStore(uintptr(0) /* callback */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallFlushStore(uintptr(0) /* callback */))
+}
+
+func (obj *cookieManagerImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -91,12 +85,26 @@ func NewCookieVisitor(impl CookieVisitor) unsafe.Pointer {
 	r := new(raw.CEFCookieVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideVisit(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Visit(...), marshal return
-		return 0
+	r.OverrideVisit(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		cookie := (*Cookie)(unsafe.Pointer(arg0))
+		count := int32(arg1)
+		total := int32(arg2)
+		deletecookie := unsafe.Pointer(arg3)
+		return uintptr(impl.Visit(cookie, count, total, deletecookie))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapCookieVisitor wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapCookieVisitor(ptr unsafe.Pointer) CookieVisitor {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // SetCookieCallback Structure to implement to be notified of asynchronous completion via cef_cookie_manager_t::set_cookie().
@@ -111,11 +119,23 @@ func NewSetCookieCallback(impl SetCookieCallback) unsafe.Pointer {
 	r := new(raw.CEFSetCookieCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnComplete(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnComplete(...)
+	r.OverrideOnComplete(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		success := int32(arg0)
+		impl.OnComplete(success)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapSetCookieCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapSetCookieCallback(ptr unsafe.Pointer) SetCookieCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // DeleteCookiesCallback Structure to implement to be notified of asynchronous completion via cef_cookie_manager_t::delete_cookies().
@@ -130,11 +150,23 @@ func NewDeleteCookiesCallback(impl DeleteCookiesCallback) unsafe.Pointer {
 	r := new(raw.CEFDeleteCookiesCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnComplete(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnComplete(...)
+	r.OverrideOnComplete(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		numDeleted := int32(arg0)
+		impl.OnComplete(numDeleted)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapDeleteCookiesCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapDeleteCookiesCallback(ptr unsafe.Pointer) DeleteCookiesCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // CookieManagerGetGlobalManager Returns the global cookie manager. By default data will be stored at cef_settings_t.cache_path if specified or in memory otherwise. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the manager's storage has been initialized. Using this function is equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >GetDefaultCookieManager().

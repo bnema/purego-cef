@@ -42,75 +42,55 @@ type zipReaderImpl struct {
 }
 
 func (obj *zipReaderImpl) MoveToFirstFile() int32 {
-	ret := obj.rawPtr.CallMoveToFirstFile()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallMoveToFirstFile())
 }
 
 func (obj *zipReaderImpl) MoveToNextFile() int32 {
-	ret := obj.rawPtr.CallMoveToNextFile()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallMoveToNextFile())
 }
 
 func (obj *zipReaderImpl) MoveToFile(filename string, casesensitive int32) int32 {
-	ret := obj.rawPtr.CallMoveToFile(uintptr(0) /* filename */, uintptr(0) /* casesensitive */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallMoveToFile(uintptr(0) /* filename */, uintptr(0) /* casesensitive */))
 }
 
 func (obj *zipReaderImpl) Close() int32 {
-	ret := obj.rawPtr.CallClose()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallClose())
 }
 
 func (obj *zipReaderImpl) GetFileName() string {
-	ret := obj.rawPtr.CallGetFileName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFileName()))
 }
 
 func (obj *zipReaderImpl) GetFileSize() int64 {
-	ret := obj.rawPtr.CallGetFileSize()
-	_ = ret
-	return 0
+	return int64(obj.rawPtr.CallGetFileSize())
 }
 
 func (obj *zipReaderImpl) GetFileLastModified() uintptr {
-	ret := obj.rawPtr.CallGetFileLastModified()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetFileLastModified())
 }
 
 func (obj *zipReaderImpl) OpenFile(password string) int32 {
-	ret := obj.rawPtr.CallOpenFile(uintptr(0) /* password */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallOpenFile(uintptr(0) /* password */))
 }
 
 func (obj *zipReaderImpl) CloseFile() int32 {
-	ret := obj.rawPtr.CallCloseFile()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallCloseFile())
 }
 
 func (obj *zipReaderImpl) ReadFile(buffer unsafe.Pointer, buffersize int) int32 {
-	ret := obj.rawPtr.CallReadFile(uintptr(0) /* buffer */, uintptr(0) /* buffersize */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallReadFile(uintptr(0) /* buffer */, uintptr(0) /* buffersize */))
 }
 
 func (obj *zipReaderImpl) Tell() int64 {
-	ret := obj.rawPtr.CallTell()
-	_ = ret
-	return 0
+	return int64(obj.rawPtr.CallTell())
 }
 
 func (obj *zipReaderImpl) Eof() int32 {
-	ret := obj.rawPtr.CallEof()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallEof())
+}
+
+func (obj *zipReaderImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

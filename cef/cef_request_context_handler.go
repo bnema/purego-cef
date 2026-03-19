@@ -24,14 +24,36 @@ func NewRequestContextHandler(impl RequestContextHandler) unsafe.Pointer {
 	r := new(raw.CEFRequestContextHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnRequestContextInitialized(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnRequestContextInitialized(...)
+	r.OverrideOnRequestContextInitialized(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		requestContext := wrapRequestContext(unsafe.Pointer(arg0))
+		impl.OnRequestContextInitialized(requestContext)
 	}))
 
-	r.OverrideGetResourceRequestHandler(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetResourceRequestHandler(...), marshal return
-		return 0
+	r.OverrideGetResourceRequestHandler(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		isNavigation := int32(arg3)
+		isDownload := int32(arg4)
+		requestInitiator := goString(unsafe.Pointer(arg5))
+		disableDefaultHandling := unsafe.Pointer(arg6)
+		result := impl.GetResourceRequestHandler(browser, frame, request, isNavigation, isDownload, requestInitiator, disableDefaultHandling)
+		if result == nil {
+			return 0
+		}
+		return uintptr(NewResourceRequestHandler(result))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapRequestContextHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapRequestContextHandler(ptr unsafe.Pointer) RequestContextHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

@@ -37,27 +37,23 @@ func (obj *processMessageImpl) IsReadOnly() bool {
 }
 
 func (obj *processMessageImpl) Copy() ProcessMessage {
-	ret := obj.rawPtr.CallCopy()
-	_ = ret
-	return nil
+	return wrapProcessMessage(unsafe.Pointer(obj.rawPtr.CallCopy()))
 }
 
 func (obj *processMessageImpl) GetName() string {
-	ret := obj.rawPtr.CallGetName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetName()))
 }
 
 func (obj *processMessageImpl) GetArgumentList() ListValue {
-	ret := obj.rawPtr.CallGetArgumentList()
-	_ = ret
-	return nil
+	return wrapListValue(unsafe.Pointer(obj.rawPtr.CallGetArgumentList()))
 }
 
 func (obj *processMessageImpl) GetSharedMemoryRegion() SharedMemoryRegion {
-	ret := obj.rawPtr.CallGetSharedMemoryRegion()
-	_ = ret
-	return nil
+	return wrapSharedMemoryRegion(unsafe.Pointer(obj.rawPtr.CallGetSharedMemoryRegion()))
+}
+
+func (obj *processMessageImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

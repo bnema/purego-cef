@@ -28,33 +28,27 @@ type taskManagerImpl struct {
 }
 
 func (obj *taskManagerImpl) GetTasksCount() int {
-	ret := obj.rawPtr.CallGetTasksCount()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetTasksCount())
 }
 
 func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds unsafe.Pointer) int32 {
-	ret := obj.rawPtr.CallGetTaskIdsList(uintptr(0) /* taskIdscount */, uintptr(0) /* taskIds */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetTaskIdsList(uintptr(0) /* taskIdscount */, uintptr(0) /* taskIds */))
 }
 
 func (obj *taskManagerImpl) GetTaskInfo(taskID int64, info *TaskInfo) int32 {
-	ret := obj.rawPtr.CallGetTaskInfo(uintptr(0) /* taskID */, uintptr(0) /* info */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetTaskInfo(uintptr(0) /* taskID */, uintptr(0) /* info */))
 }
 
 func (obj *taskManagerImpl) KillTask(taskID int64) int32 {
-	ret := obj.rawPtr.CallKillTask(uintptr(0) /* taskID */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallKillTask(uintptr(0) /* taskID */))
 }
 
 func (obj *taskManagerImpl) GetTaskIDForBrowserID(browserID int32) int64 {
-	ret := obj.rawPtr.CallGetTaskIDForBrowserID(uintptr(0) /* browserID */)
-	_ = ret
-	return 0
+	return int64(obj.rawPtr.CallGetTaskIDForBrowserID(uintptr(0) /* browserID */))
+}
+
+func (obj *taskManagerImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

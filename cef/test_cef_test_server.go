@@ -28,9 +28,11 @@ func (obj *testServerImpl) Stop() {
 }
 
 func (obj *testServerImpl) GetOrigin() string {
-	ret := obj.rawPtr.CallGetOrigin()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetOrigin()))
+}
+
+func (obj *testServerImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -66,12 +68,25 @@ func NewTestServerHandler(impl TestServerHandler) unsafe.Pointer {
 	r := new(raw.CEFTestServerHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnTestServerRequest(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnTestServerRequest(...), marshal return
-		return 0
+	r.OverrideOnTestServerRequest(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		server := wrapTestServer(unsafe.Pointer(arg0))
+		request := wrapRequest(unsafe.Pointer(arg1))
+		connection := wrapTestServerConnection(unsafe.Pointer(arg2))
+		return uintptr(impl.OnTestServerRequest(server, request, connection))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapTestServerHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapTestServerHandler(ptr unsafe.Pointer) TestServerHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // TestServerConnection Structure representing a test server connection. The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.
@@ -83,7 +98,7 @@ type TestServerConnection interface {
 	// SendHttp500Response Send an HTTP 500 "Internal Server Error" response. |error_message| is the associated error message. The connection will be closed automatically after the response is sent.
 	SendHttp500Response(errorMessage string)
 	// SendHttpResponse Send a custom HTTP response. |response_code| is the HTTP response code sent in the status line (e.g. 200). |content_type| is the response content type (e.g. "text/html"). |data| is the response content and |data_size| is the size of |data| in bytes. The contents of |data| will be copied. |extra_headers| is an optional map of additional header key/value pairs. The connection will be closed automatically after the response is sent.
-	SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders map[string][]string)
+	SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders uintptr)
 }
 
 type testServerConnectionImpl struct {
@@ -102,8 +117,12 @@ func (obj *testServerConnectionImpl) SendHttp500Response(errorMessage string) {
 	obj.rawPtr.CallSendHttp500Response(uintptr(0) /* errorMessage */)
 }
 
-func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders map[string][]string) {
+func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders uintptr) {
 	obj.rawPtr.CallSendHttpResponse(uintptr(0) /* responseCode */, uintptr(0) /* contentType */, uintptr(0) /* data */, uintptr(0) /* dataSize */, uintptr(0) /* extraHeaders */)
+}
+
+func (obj *testServerConnectionImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

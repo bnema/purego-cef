@@ -39,53 +39,77 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) unsafe.Pointer {
 	r := new(raw.CEFBrowserViewDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnBrowserCreated(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnBrowserCreated(...)
+	r.OverrideOnBrowserCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browserView := wrapBrowserView(unsafe.Pointer(arg0))
+		browser := wrapBrowser(unsafe.Pointer(arg1))
+		impl.OnBrowserCreated(browserView, browser)
 	}))
 
-	r.OverrideOnBrowserDestroyed(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnBrowserDestroyed(...)
+	r.OverrideOnBrowserDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browserView := wrapBrowserView(unsafe.Pointer(arg0))
+		browser := wrapBrowser(unsafe.Pointer(arg1))
+		impl.OnBrowserDestroyed(browserView, browser)
 	}))
 
-	r.OverrideGetDelegateForPopupBrowserView(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetDelegateForPopupBrowserView(...), marshal return
-		return 0
+	r.OverrideGetDelegateForPopupBrowserView(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browserView := wrapBrowserView(unsafe.Pointer(arg0))
+		settings := (*BrowserSettings)(unsafe.Pointer(arg1))
+		client := wrapClient(unsafe.Pointer(arg2))
+		isDevtools := int32(arg3)
+		result := impl.GetDelegateForPopupBrowserView(browserView, settings, client, isDevtools)
+		if result == nil {
+			return 0
+		}
+		return uintptr(NewBrowserViewDelegate(result))
 	}))
 
-	r.OverrideOnPopupBrowserViewCreated(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnPopupBrowserViewCreated(...), marshal return
-		return 0
+	r.OverrideOnPopupBrowserViewCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		browserView := wrapBrowserView(unsafe.Pointer(arg0))
+		popupBrowserView := wrapBrowserView(unsafe.Pointer(arg1))
+		isDevtools := int32(arg2)
+		return uintptr(impl.OnPopupBrowserViewCreated(browserView, popupBrowserView, isDevtools))
 	}))
 
-	r.OverrideGetChromeToolbarType(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetChromeToolbarType(...), marshal return
-		return 0
+	r.OverrideGetChromeToolbarType(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		browserView := wrapBrowserView(unsafe.Pointer(arg0))
+		return uintptr(impl.GetChromeToolbarType(browserView))
 	}))
 
-	r.OverrideUseFramelessWindowForPictureInPicture(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.UseFramelessWindowForPictureInPicture(...), marshal return
-		return 0
+	r.OverrideUseFramelessWindowForPictureInPicture(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		browserView := wrapBrowserView(unsafe.Pointer(arg0))
+		return uintptr(impl.UseFramelessWindowForPictureInPicture(browserView))
 	}))
 
-	r.OverrideOnGestureCommand(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnGestureCommand(...), marshal return
-		return 0
+	r.OverrideOnGestureCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browserView := wrapBrowserView(unsafe.Pointer(arg0))
+		gestureCommand := GestureCommand(arg1)
+		return uintptr(impl.OnGestureCommand(browserView, gestureCommand))
 	}))
 
-	r.OverrideGetBrowserRuntimeStyle(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetBrowserRuntimeStyle(...), marshal return
-		return 0
+	r.OverrideGetBrowserRuntimeStyle(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetBrowserRuntimeStyle())
 	}))
 
-	r.OverrideAllowMoveForPictureInPicture(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.AllowMoveForPictureInPicture(...), marshal return
-		return 0
+	r.OverrideAllowMoveForPictureInPicture(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		browserView := wrapBrowserView(unsafe.Pointer(arg0))
+		return uintptr(impl.AllowMoveForPictureInPicture(browserView))
 	}))
 
-	r.OverrideAllowPictureInPictureWithoutUserActivation(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.AllowPictureInPictureWithoutUserActivation(...), marshal return
-		return 0
+	r.OverrideAllowPictureInPictureWithoutUserActivation(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		browserView := wrapBrowserView(unsafe.Pointer(arg0))
+		return uintptr(impl.AllowPictureInPictureWithoutUserActivation(browserView))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapBrowserViewDelegate wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapBrowserViewDelegate(ptr unsafe.Pointer) BrowserViewDelegate {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

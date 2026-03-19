@@ -46,15 +46,15 @@ func (r *TypeRegistry) ResolvePublicType(ctype string) string {
 	case "const cef_string_t*":
 		return "string"
 	case "cef_string_t*":
-		return "*string"
+		return "uintptr"
 	case "cef_string_userfree_t":
 		return "string"
 	case "cef_string_list_t":
-		return "[]string"
+		return "uintptr"
 	case "cef_string_map_t":
-		return "map[string]string"
+		return "uintptr"
 	case "cef_string_multimap_t":
-		return "map[string][]string"
+		return "uintptr"
 	case "int":
 		return "int32"
 	case "unsigned int":
@@ -207,6 +207,87 @@ func (r *TypeRegistry) IsGetterCallback(f model.Field) bool {
 	trimmed := strings.TrimLeft(s, "_")
 	if st, ok := r.structs[trimmed]; ok {
 		return st.Kind == "handler"
+	}
+	return false
+}
+
+// IsHandlerType returns true if the given C type resolves to a handler interface specifically.
+func (r *TypeRegistry) IsHandlerType(ctype string) bool {
+	ct := strings.TrimSpace(ctype)
+	ct = strings.TrimPrefix(ct, "const ")
+	if !strings.Contains(ct, "struct _") {
+		return false
+	}
+	s := ct
+	s = strings.TrimSuffix(s, "*")
+	s = strings.TrimSpace(s)
+	s = strings.TrimPrefix(s, "struct ")
+
+	if st, ok := r.structs[s]; ok {
+		return st.Kind == "handler"
+	}
+	trimmed := strings.TrimLeft(s, "_")
+	if st, ok := r.structs[trimmed]; ok {
+		return st.Kind == "handler"
+	}
+	return false
+}
+
+// IsInterfaceType returns true if the given C type resolves to a handler or object interface.
+func (r *TypeRegistry) IsInterfaceType(ctype string) bool {
+	ct := strings.TrimSpace(ctype)
+	ct = strings.TrimPrefix(ct, "const ")
+	if !strings.Contains(ct, "struct _") {
+		return false
+	}
+	s := ct
+	s = strings.TrimSuffix(s, "*")
+	s = strings.TrimSpace(s)
+	s = strings.TrimPrefix(s, "struct ")
+
+	if st, ok := r.structs[s]; ok {
+		return st.Kind == "handler" || st.Kind == "object"
+	}
+	trimmed := strings.TrimLeft(s, "_")
+	if st, ok := r.structs[trimmed]; ok {
+		return st.Kind == "handler" || st.Kind == "object"
+	}
+	return false
+}
+
+// IsStringType returns true if the C type is a string type (cef_string_userfree_t, cef_string_t*, etc.)
+func (r *TypeRegistry) IsStringType(ctype string) bool {
+	ct := strings.TrimSpace(ctype)
+	switch ct {
+	case "cef_string_userfree_t", "const cef_string_t*", "cef_string_t*", "const char*", "char*":
+		return true
+	}
+	return false
+}
+
+// IsUserfreeString returns true if the C type is cef_string_userfree_t.
+func (r *TypeRegistry) IsUserfreeString(ctype string) bool {
+	return strings.TrimSpace(ctype) == "cef_string_userfree_t"
+}
+
+// IsDataStructType returns true if the given C type resolves to a data struct pointer.
+func (r *TypeRegistry) IsDataStructType(ctype string) bool {
+	ct := strings.TrimSpace(ctype)
+	ct = strings.TrimPrefix(ct, "const ")
+	if !strings.Contains(ct, "struct _") {
+		return false
+	}
+	s := ct
+	s = strings.TrimSuffix(s, "*")
+	s = strings.TrimSpace(s)
+	s = strings.TrimPrefix(s, "struct ")
+
+	if st, ok := r.structs[s]; ok {
+		return st.Kind == "data"
+	}
+	trimmed := strings.TrimLeft(s, "_")
+	if st, ok := r.structs[trimmed]; ok {
+		return st.Kind == "data"
 	}
 	return false
 }

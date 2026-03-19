@@ -52,9 +52,9 @@ type Browser interface {
 	// GetFrameCount Returns the number of frames that currently exist.
 	GetFrameCount() int
 	// GetFrameIdentifiers Returns the identifiers of all existing frames.
-	GetFrameIdentifiers(identifiers []string)
+	GetFrameIdentifiers(identifiers uintptr)
 	// GetFrameNames Returns the names of all existing frames.
-	GetFrameNames(names []string)
+	GetFrameNames(names uintptr)
 }
 
 type browserImpl struct {
@@ -66,9 +66,7 @@ func (obj *browserImpl) IsValid() bool {
 }
 
 func (obj *browserImpl) GetHost() BrowserHost {
-	ret := obj.rawPtr.CallGetHost()
-	_ = ret
-	return nil
+	return wrapBrowserHost(unsafe.Pointer(obj.rawPtr.CallGetHost()))
 }
 
 func (obj *browserImpl) CanGoBack() bool {
@@ -104,9 +102,7 @@ func (obj *browserImpl) StopLoad() {
 }
 
 func (obj *browserImpl) GetIdentifier() int32 {
-	ret := obj.rawPtr.CallGetIdentifier()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetIdentifier())
 }
 
 func (obj *browserImpl) IsSame(that Browser) bool {
@@ -122,41 +118,35 @@ func (obj *browserImpl) HasDocument() bool {
 }
 
 func (obj *browserImpl) GetMainFrame() Frame {
-	ret := obj.rawPtr.CallGetMainFrame()
-	_ = ret
-	return nil
+	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetMainFrame()))
 }
 
 func (obj *browserImpl) GetFocusedFrame() Frame {
-	ret := obj.rawPtr.CallGetFocusedFrame()
-	_ = ret
-	return nil
+	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFocusedFrame()))
 }
 
 func (obj *browserImpl) GetFrameByIdentifier(identifier string) Frame {
-	ret := obj.rawPtr.CallGetFrameByIdentifier(uintptr(0) /* identifier */)
-	_ = ret
-	return nil
+	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrameByIdentifier(uintptr(0) /* identifier */)))
 }
 
 func (obj *browserImpl) GetFrameByName(name string) Frame {
-	ret := obj.rawPtr.CallGetFrameByName(uintptr(0) /* name */)
-	_ = ret
-	return nil
+	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrameByName(uintptr(0) /* name */)))
 }
 
 func (obj *browserImpl) GetFrameCount() int {
-	ret := obj.rawPtr.CallGetFrameCount()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetFrameCount())
 }
 
-func (obj *browserImpl) GetFrameIdentifiers(identifiers []string) {
+func (obj *browserImpl) GetFrameIdentifiers(identifiers uintptr) {
 	obj.rawPtr.CallGetFrameIdentifiers(uintptr(0) /* identifiers */)
 }
 
-func (obj *browserImpl) GetFrameNames(names []string) {
+func (obj *browserImpl) GetFrameNames(names uintptr) {
 	obj.rawPtr.CallGetFrameNames(uintptr(0) /* names */)
+}
+
+func (obj *browserImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -183,7 +173,7 @@ func wrapBrowser(ptr unsafe.Pointer) Browser {
 // RunFileDialogCallback Callback structure for cef_browser_host_t::RunFileDialog. The functions of this structure will be called on the browser process UI thread.
 type RunFileDialogCallback interface {
 	// OnFileDialogDismissed Called asynchronously after the file dialog is dismissed. |file_paths| will be a single value or a list of values depending on the dialog mode. If the selection was cancelled |file_paths| will be NULL.
-	OnFileDialogDismissed(filePaths []string)
+	OnFileDialogDismissed(filePaths uintptr)
 }
 
 // NewRunFileDialogCallback creates a CEF handler backed by the given implementation.
@@ -192,11 +182,23 @@ func NewRunFileDialogCallback(impl RunFileDialogCallback) unsafe.Pointer {
 	r := new(raw.CEFRunFileDialogCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnFileDialogDismissed(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnFileDialogDismissed(...)
+	r.OverrideOnFileDialogDismissed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		filePaths := uintptr(arg0)
+		impl.OnFileDialogDismissed(filePaths)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapRunFileDialogCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapRunFileDialogCallback(ptr unsafe.Pointer) RunFileDialogCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // NavigationEntryVisitor Callback structure for cef_browser_host_t::GetNavigationEntries. The functions of this structure will be called on the browser process UI thread.
@@ -210,12 +212,26 @@ func NewNavigationEntryVisitor(impl NavigationEntryVisitor) unsafe.Pointer {
 	r := new(raw.CEFNavigationEntryVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideVisit(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Visit(...), marshal return
-		return 0
+	r.OverrideVisit(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		entry := wrapNavigationEntry(unsafe.Pointer(arg0))
+		current := int32(arg1)
+		index := int32(arg2)
+		total := int32(arg3)
+		return uintptr(impl.Visit(entry, current, index, total))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapNavigationEntryVisitor wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapNavigationEntryVisitor(ptr unsafe.Pointer) NavigationEntryVisitor {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // PdfPrintCallback Callback structure for cef_browser_host_t::PrintToPDF. The functions of this structure will be called on the browser process UI thread.
@@ -230,11 +246,24 @@ func NewPdfPrintCallback(impl PdfPrintCallback) unsafe.Pointer {
 	r := new(raw.CEFPdfPrintCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnPdfPrintFinished(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnPdfPrintFinished(...)
+	r.OverrideOnPdfPrintFinished(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		path := goString(unsafe.Pointer(arg0))
+		ok := int32(arg1)
+		impl.OnPdfPrintFinished(path, ok)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapPdfPrintCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapPdfPrintCallback(ptr unsafe.Pointer) PdfPrintCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // DownloadImageCallback Callback structure for cef_browser_host_t::DownloadImage. The functions of this structure will be called on the browser process UI thread.
@@ -249,11 +278,25 @@ func NewDownloadImageCallback(impl DownloadImageCallback) unsafe.Pointer {
 	r := new(raw.CEFDownloadImageCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnDownloadImageFinished(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnDownloadImageFinished(...)
+	r.OverrideOnDownloadImageFinished(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		imageURL := goString(unsafe.Pointer(arg0))
+		httpStatusCode := int32(arg1)
+		image := wrapImage(unsafe.Pointer(arg2))
+		impl.OnDownloadImageFinished(imageURL, httpStatusCode, image)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapDownloadImageCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapDownloadImageCallback(ptr unsafe.Pointer) DownloadImageCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // BrowserHost Structure used to represent the browser process aspects of a browser. The functions of this structure can only be called in the browser process. They may be called on any thread in that process unless otherwise indicated in the comments.
@@ -287,7 +330,7 @@ type BrowserHost interface {
 	// SetZoomLevel Change the zoom level to the specified value. Specify 0.0 to reset the zoom level to the default. If called on the UI thread the change will be applied immediately. Otherwise, the change will be applied asynchronously on the UI thread.
 	SetZoomLevel(zoomlevel float64)
 	// RunFileDialog Call to run a file chooser dialog. Only a single file chooser dialog may be pending at any given time. |mode| represents the type of dialog to display. |title| to the title to be used for the dialog and may be NULL to show the default title ("Open" or "Save" depending on the mode). |default_file_path| is the path with optional directory and/or file name component that will be initially selected in the dialog. |accept_filters| are used to restrict the selectable file types and may any combination of (a) valid lower-cased MIME types (e.g. "text/*" or "image/*"), (b) individual file extensions (e.g. ".txt" or ".png"), or (c) combined description and file extension delimited using "|" and ";" (e.g. "Image Types|.png;.gif;.jpg"). |callback| will be executed after the dialog is dismissed or immediately if another dialog is already pending. The dialog will be initiated asynchronously on the UI thread.
-	RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters []string, callback RunFileDialogCallback)
+	RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, callback RunFileDialogCallback)
 	// StartDownload Download the file at |url| using cef_download_handler_t.
 	StartDownload(uRL string)
 	// DownloadImage Download |image_url| and execute |callback| on completion with the images received from the renderer. If |is_favicon| is true (1) then cookies are not sent and not accepted during download. Images with density independent pixel (DIP) sizes larger than |max_image_size| are filtered out from the image results. Versions of the image at different scale factors may be downloaded up to the maximum scale factor supported by the system. If there are no image results <= |max_image_size| then the smallest image is resized to |max_image_size| and is the only result. A |max_image_size| of 0 means unlimited. If |bypass_cache| is true (1) then |image_url| is requested from the server even if it is present in the browser cache.
@@ -396,9 +439,7 @@ type browserHostImpl struct {
 }
 
 func (obj *browserHostImpl) GetBrowser() Browser {
-	ret := obj.rawPtr.CallGetBrowser()
-	_ = ret
-	return nil
+	return wrapBrowser(unsafe.Pointer(obj.rawPtr.CallGetBrowser()))
 }
 
 func (obj *browserHostImpl) CloseBrowser(forceClose int32) {
@@ -406,9 +447,7 @@ func (obj *browserHostImpl) CloseBrowser(forceClose int32) {
 }
 
 func (obj *browserHostImpl) TryCloseBrowser() int32 {
-	ret := obj.rawPtr.CallTryCloseBrowser()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallTryCloseBrowser())
 }
 
 func (obj *browserHostImpl) IsReadyToBeClosed() bool {
@@ -420,21 +459,15 @@ func (obj *browserHostImpl) SetFocus(focus int32) {
 }
 
 func (obj *browserHostImpl) GetWindowHandle() uintptr {
-	ret := obj.rawPtr.CallGetWindowHandle()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetWindowHandle())
 }
 
 func (obj *browserHostImpl) GetOpenerWindowHandle() uintptr {
-	ret := obj.rawPtr.CallGetOpenerWindowHandle()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetOpenerWindowHandle())
 }
 
 func (obj *browserHostImpl) GetOpenerIdentifier() int32 {
-	ret := obj.rawPtr.CallGetOpenerIdentifier()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetOpenerIdentifier())
 }
 
 func (obj *browserHostImpl) HasView() bool {
@@ -442,15 +475,11 @@ func (obj *browserHostImpl) HasView() bool {
 }
 
 func (obj *browserHostImpl) GetClient() Client {
-	ret := obj.rawPtr.CallGetClient()
-	_ = ret
-	return nil
+	return wrapClient(unsafe.Pointer(obj.rawPtr.CallGetClient()))
 }
 
 func (obj *browserHostImpl) GetRequestContext() RequestContext {
-	ret := obj.rawPtr.CallGetRequestContext()
-	_ = ret
-	return nil
+	return wrapRequestContext(unsafe.Pointer(obj.rawPtr.CallGetRequestContext()))
 }
 
 func (obj *browserHostImpl) CanZoom(command ZoomCommand) bool {
@@ -462,22 +491,18 @@ func (obj *browserHostImpl) Zoom(command ZoomCommand) {
 }
 
 func (obj *browserHostImpl) GetDefaultZoomLevel() float64 {
-	ret := obj.rawPtr.CallGetDefaultZoomLevel()
-	_ = ret
-	return 0
+	return float64(obj.rawPtr.CallGetDefaultZoomLevel())
 }
 
 func (obj *browserHostImpl) GetZoomLevel() float64 {
-	ret := obj.rawPtr.CallGetZoomLevel()
-	_ = ret
-	return 0
+	return float64(obj.rawPtr.CallGetZoomLevel())
 }
 
 func (obj *browserHostImpl) SetZoomLevel(zoomlevel float64) {
 	obj.rawPtr.CallSetZoomLevel(uintptr(0) /* zoomlevel */)
 }
 
-func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters []string, callback RunFileDialogCallback) {
+func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, callback RunFileDialogCallback) {
 	obj.rawPtr.CallRunFileDialog(uintptr(0) /* mode */, uintptr(0) /* title */, uintptr(0) /* defaultFilePath */, uintptr(0) /* acceptFilters */, uintptr(0) /* callback */)
 }
 
@@ -518,21 +543,15 @@ func (obj *browserHostImpl) HasDevTools() bool {
 }
 
 func (obj *browserHostImpl) SendDevToolsMessage(message unsafe.Pointer, messageSize int) int32 {
-	ret := obj.rawPtr.CallSendDevToolsMessage(uintptr(0) /* message */, uintptr(0) /* messageSize */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSendDevToolsMessage(uintptr(0) /* message */, uintptr(0) /* messageSize */))
 }
 
 func (obj *browserHostImpl) ExecuteDevToolsMethod(messageID int32, method string, params DictionaryValue) int32 {
-	ret := obj.rawPtr.CallExecuteDevToolsMethod(uintptr(0) /* messageID */, uintptr(0) /* method */, uintptr(0) /* params */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallExecuteDevToolsMethod(uintptr(0) /* messageID */, uintptr(0) /* method */, uintptr(0) /* params */))
 }
 
 func (obj *browserHostImpl) AddDevToolsMessageObserver(observer DevToolsMessageObserver) Registration {
-	ret := obj.rawPtr.CallAddDevToolsMessageObserver(uintptr(0) /* observer */)
-	_ = ret
-	return nil
+	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddDevToolsMessageObserver(uintptr(0) /* observer */)))
 }
 
 func (obj *browserHostImpl) GetNavigationEntries(visitor NavigationEntryVisitor, currentOnly int32) {
@@ -600,9 +619,7 @@ func (obj *browserHostImpl) NotifyMoveOrResizeStarted() {
 }
 
 func (obj *browserHostImpl) GetWindowlessFrameRate() int32 {
-	ret := obj.rawPtr.CallGetWindowlessFrameRate()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetWindowlessFrameRate())
 }
 
 func (obj *browserHostImpl) SetWindowlessFrameRate(frameRate int32) {
@@ -650,9 +667,7 @@ func (obj *browserHostImpl) DragSourceSystemDragEnded() {
 }
 
 func (obj *browserHostImpl) GetVisibleNavigationEntry() NavigationEntry {
-	ret := obj.rawPtr.CallGetVisibleNavigationEntry()
-	_ = ret
-	return nil
+	return wrapNavigationEntry(unsafe.Pointer(obj.rawPtr.CallGetVisibleNavigationEntry()))
 }
 
 func (obj *browserHostImpl) SetAccessibilityState(accessibilityState State) {
@@ -693,6 +708,10 @@ func (obj *browserHostImpl) IsRenderProcessUnresponsive() bool {
 
 func (obj *browserHostImpl) GetRuntimeStyle() RuntimeStyle {
 	return RuntimeStyle(obj.rawPtr.CallGetRuntimeStyle())
+}
+
+func (obj *browserHostImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

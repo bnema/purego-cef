@@ -26,18 +26,33 @@ func NewFocusHandler(impl FocusHandler) unsafe.Pointer {
 	r := new(raw.CEFFocusHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnTakeFocus(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnTakeFocus(...)
+	r.OverrideOnTakeFocus(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		next := int32(arg1)
+		impl.OnTakeFocus(browser, next)
 	}))
 
-	r.OverrideOnSetFocus(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnSetFocus(...), marshal return
-		return 0
+	r.OverrideOnSetFocus(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		source := FocusSource(arg1)
+		return uintptr(impl.OnSetFocus(browser, source))
 	}))
 
-	r.OverrideOnGotFocus(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnGotFocus(...)
+	r.OverrideOnGotFocus(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnGotFocus(browser)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapFocusHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapFocusHandler(ptr unsafe.Pointer) FocusHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

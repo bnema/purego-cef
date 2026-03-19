@@ -22,11 +22,23 @@ func NewEndTracingCallback(impl EndTracingCallback) unsafe.Pointer {
 	r := new(raw.CEFEndTracingCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnEndTracingComplete(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnEndTracingComplete(...)
+	r.OverrideOnEndTracingComplete(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		tracingFile := goString(unsafe.Pointer(arg0))
+		impl.OnEndTracingComplete(tracingFile)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapEndTracingCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapEndTracingCallback(ptr unsafe.Pointer) EndTracingCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // BeginTracing Start tracing events on all processes. Tracing is initialized asynchronously and |callback| will be executed on the UI thread after initialization is complete. If CefBeginTracing was called previously, or if a CefEndTracingAsync call is pending, CefBeginTracing will fail and return false (0). |categories| is a comma-delimited list of category wildcards. A category can have an optional '-' prefix to make it an excluded category. Having both included and excluded categories in the same list is not supported. Examples: - "test_MyTest*" - "test_MyTest*,test_OtherStuff" - "-excluded_category1,-excluded_category2" This function must be called on the browser process UI thread.

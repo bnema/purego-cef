@@ -27,21 +27,19 @@ func (obj *sharedProcessMessageBuilderImpl) IsValid() bool {
 }
 
 func (obj *sharedProcessMessageBuilderImpl) Size() int {
-	ret := obj.rawPtr.CallSize()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallSize())
 }
 
 func (obj *sharedProcessMessageBuilderImpl) Memory() unsafe.Pointer {
-	ret := obj.rawPtr.CallMemory()
-	_ = ret
-	return nil
+	return unsafe.Pointer(obj.rawPtr.CallMemory())
 }
 
 func (obj *sharedProcessMessageBuilderImpl) Build() ProcessMessage {
-	ret := obj.rawPtr.CallBuild()
-	_ = ret
-	return nil
+	return wrapProcessMessage(unsafe.Pointer(obj.rawPtr.CallBuild()))
+}
+
+func (obj *sharedProcessMessageBuilderImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

@@ -42,53 +42,78 @@ func NewViewDelegate(impl ViewDelegate) unsafe.Pointer {
 	r := new(raw.CEFViewDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetPreferredSize(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetPreferredSize(...), marshal return
-		return 0
+	r.OverrideGetPreferredSize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		view := wrapView(unsafe.Pointer(arg0))
+		return uintptr(impl.GetPreferredSize(view))
 	}))
 
-	r.OverrideGetMinimumSize(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetMinimumSize(...), marshal return
-		return 0
+	r.OverrideGetMinimumSize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		view := wrapView(unsafe.Pointer(arg0))
+		return uintptr(impl.GetMinimumSize(view))
 	}))
 
-	r.OverrideGetMaximumSize(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetMaximumSize(...), marshal return
-		return 0
+	r.OverrideGetMaximumSize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		view := wrapView(unsafe.Pointer(arg0))
+		return uintptr(impl.GetMaximumSize(view))
 	}))
 
-	r.OverrideGetHeightForWidth(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetHeightForWidth(...), marshal return
-		return 0
+	r.OverrideGetHeightForWidth(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		view := wrapView(unsafe.Pointer(arg0))
+		width := int32(arg1)
+		return uintptr(impl.GetHeightForWidth(view, width))
 	}))
 
-	r.OverrideOnParentViewChanged(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnParentViewChanged(...)
+	r.OverrideOnParentViewChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		view := wrapView(unsafe.Pointer(arg0))
+		added := int32(arg1)
+		parent := wrapView(unsafe.Pointer(arg2))
+		impl.OnParentViewChanged(view, added, parent)
 	}))
 
-	r.OverrideOnChildViewChanged(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnChildViewChanged(...)
+	r.OverrideOnChildViewChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		view := wrapView(unsafe.Pointer(arg0))
+		added := int32(arg1)
+		child := wrapView(unsafe.Pointer(arg2))
+		impl.OnChildViewChanged(view, added, child)
 	}))
 
-	r.OverrideOnWindowChanged(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnWindowChanged(...)
+	r.OverrideOnWindowChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		view := wrapView(unsafe.Pointer(arg0))
+		added := int32(arg1)
+		impl.OnWindowChanged(view, added)
 	}))
 
-	r.OverrideOnLayoutChanged(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnLayoutChanged(...)
+	r.OverrideOnLayoutChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		view := wrapView(unsafe.Pointer(arg0))
+		newBounds := uintptr(arg1)
+		impl.OnLayoutChanged(view, newBounds)
 	}))
 
-	r.OverrideOnFocus(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnFocus(...)
+	r.OverrideOnFocus(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		view := wrapView(unsafe.Pointer(arg0))
+		impl.OnFocus(view)
 	}))
 
-	r.OverrideOnBlur(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnBlur(...)
+	r.OverrideOnBlur(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		view := wrapView(unsafe.Pointer(arg0))
+		impl.OnBlur(view)
 	}))
 
-	r.OverrideOnThemeChanged(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnThemeChanged(...)
+	r.OverrideOnThemeChanged(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		view := wrapView(unsafe.Pointer(arg0))
+		impl.OnThemeChanged(view)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapViewDelegate wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapViewDelegate(ptr unsafe.Pointer) ViewDelegate {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

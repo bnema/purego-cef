@@ -31,15 +31,11 @@ type displayImpl struct {
 }
 
 func (obj *displayImpl) GetID() int64 {
-	ret := obj.rawPtr.CallGetID()
-	_ = ret
-	return 0
+	return int64(obj.rawPtr.CallGetID())
 }
 
 func (obj *displayImpl) GetDeviceScaleFactor() float32 {
-	ret := obj.rawPtr.CallGetDeviceScaleFactor()
-	_ = ret
-	return 0
+	return float32(obj.rawPtr.CallGetDeviceScaleFactor())
 }
 
 func (obj *displayImpl) ConvertPointToPixels(point uintptr) {
@@ -51,21 +47,19 @@ func (obj *displayImpl) ConvertPointFromPixels(point uintptr) {
 }
 
 func (obj *displayImpl) GetBounds() uintptr {
-	ret := obj.rawPtr.CallGetBounds()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetBounds())
 }
 
 func (obj *displayImpl) GetWorkArea() uintptr {
-	ret := obj.rawPtr.CallGetWorkArea()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetWorkArea())
 }
 
 func (obj *displayImpl) GetRotation() int32 {
-	ret := obj.rawPtr.CallGetRotation()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetRotation())
+}
+
+func (obj *displayImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

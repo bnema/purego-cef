@@ -25,7 +25,7 @@ type MenuModelDelegate interface {
 	// MenuClosed The menu has closed.
 	MenuClosed(menuModel MenuModel)
 	// FormatLabel Optionally modify a menu item label. Return true (1) if |label| was modified.
-	FormatLabel(menuModel MenuModel, label *string) int32
+	FormatLabel(menuModel MenuModel, label uintptr) int32
 }
 
 // NewMenuModelDelegate creates a CEF handler backed by the given implementation.
@@ -34,34 +34,57 @@ func NewMenuModelDelegate(impl MenuModelDelegate) unsafe.Pointer {
 	r := new(raw.CEFMenuModelDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideExecuteCommand(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.ExecuteCommand(...)
+	r.OverrideExecuteCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		commandID := int32(arg1)
+		eventFlags := EventFlags(arg2)
+		impl.ExecuteCommand(menuModel, commandID, eventFlags)
 	}))
 
-	r.OverrideMouseOutsideMenu(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.MouseOutsideMenu(...)
+	r.OverrideMouseOutsideMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		screenPoint := uintptr(arg1)
+		impl.MouseOutsideMenu(menuModel, screenPoint)
 	}))
 
-	r.OverrideUnhandledOpenSubmenu(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.UnhandledOpenSubmenu(...)
+	r.OverrideUnhandledOpenSubmenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		isRtl := int32(arg1)
+		impl.UnhandledOpenSubmenu(menuModel, isRtl)
 	}))
 
-	r.OverrideUnhandledCloseSubmenu(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.UnhandledCloseSubmenu(...)
+	r.OverrideUnhandledCloseSubmenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		isRtl := int32(arg1)
+		impl.UnhandledCloseSubmenu(menuModel, isRtl)
 	}))
 
-	r.OverrideMenuWillShow(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.MenuWillShow(...)
+	r.OverrideMenuWillShow(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		impl.MenuWillShow(menuModel)
 	}))
 
-	r.OverrideMenuClosed(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.MenuClosed(...)
+	r.OverrideMenuClosed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		impl.MenuClosed(menuModel)
 	}))
 
-	r.OverrideFormatLabel(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.FormatLabel(...), marshal return
-		return 0
+	r.OverrideFormatLabel(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		label := uintptr(arg1)
+		return uintptr(impl.FormatLabel(menuModel, label))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapMenuModelDelegate wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapMenuModelDelegate(ptr unsafe.Pointer) MenuModelDelegate {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

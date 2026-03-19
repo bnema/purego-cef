@@ -14,7 +14,7 @@ import (
 // ResolveCallback Callback structure for cef_request_context_t::ResolveHost.
 type ResolveCallback interface {
 	// OnResolveCompleted Called on the UI thread after the ResolveHost request has completed. |result| will be the result code. |resolved_ips| will be the list of resolved IP addresses or NULL if the resolution failed.
-	OnResolveCompleted(result Errorcode, resolvedIps []string)
+	OnResolveCompleted(result Errorcode, resolvedIps uintptr)
 }
 
 // NewResolveCallback creates a CEF handler backed by the given implementation.
@@ -23,11 +23,24 @@ func NewResolveCallback(impl ResolveCallback) unsafe.Pointer {
 	r := new(raw.CEFResolveCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnResolveCompleted(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnResolveCompleted(...)
+	r.OverrideOnResolveCompleted(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		result := Errorcode(arg0)
+		resolvedIps := uintptr(arg1)
+		impl.OnResolveCompleted(result, resolvedIps)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapResolveCallback wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapResolveCallback(ptr unsafe.Pointer) ResolveCallback {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // SettingObserver Implemented by the client to observe content and website setting changes and registered via cef_request_context_t::AddSettingObserver. The functions of this structure will be called on the browser process UI thread.
@@ -42,11 +55,25 @@ func NewSettingObserver(impl SettingObserver) unsafe.Pointer {
 	r := new(raw.CEFSettingObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnSettingChanged(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnSettingChanged(...)
+	r.OverrideOnSettingChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		requestingURL := goString(unsafe.Pointer(arg0))
+		topLevelURL := goString(unsafe.Pointer(arg1))
+		contentType := ContentSettingTypes(arg2)
+		impl.OnSettingChanged(requestingURL, topLevelURL, contentType)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapSettingObserver wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapSettingObserver(ptr unsafe.Pointer) SettingObserver {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // RequestContext A request context provides request handling for a set of related browser or URL request objects. A request context can be specified when creating a new browser via the cef_browser_host_t static factory functions or when creating a new URL request via the cef_urlrequest_t static factory functions. Browser objects with different request contexts will never be hosted in the same render process. Browser objects with the same request context may or may not be hosted in the same render process depending on the process model. Browser objects created indirectly via the JavaScript window.open function or targeted links will share the same render process and the same request context as the source browser. When running in single-process mode there is only a single render process (the main process) and so all browsers created in single-process mode will share the same request context. This will be the first request context passed into a cef_browser_host_t static factory function and all other request context objects will be ignored.
@@ -115,33 +142,23 @@ func (obj *requestContextImpl) IsGlobal() bool {
 }
 
 func (obj *requestContextImpl) GetHandler() RequestContextHandler {
-	ret := obj.rawPtr.CallGetHandler()
-	_ = ret
-	return nil
+	return wrapRequestContextHandler(unsafe.Pointer(obj.rawPtr.CallGetHandler()))
 }
 
 func (obj *requestContextImpl) GetCachePath() string {
-	ret := obj.rawPtr.CallGetCachePath()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetCachePath()))
 }
 
 func (obj *requestContextImpl) GetCookieManager(callback CompletionCallback) CookieManager {
-	ret := obj.rawPtr.CallGetCookieManager(uintptr(0) /* callback */)
-	_ = ret
-	return nil
+	return wrapCookieManager(unsafe.Pointer(obj.rawPtr.CallGetCookieManager(uintptr(0) /* callback */)))
 }
 
 func (obj *requestContextImpl) RegisterSchemeHandlerFactory(schemeName string, domainName string, factory SchemeHandlerFactory) int32 {
-	ret := obj.rawPtr.CallRegisterSchemeHandlerFactory(uintptr(0) /* schemeName */, uintptr(0) /* domainName */, uintptr(0) /* factory */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallRegisterSchemeHandlerFactory(uintptr(0) /* schemeName */, uintptr(0) /* domainName */, uintptr(0) /* factory */))
 }
 
 func (obj *requestContextImpl) ClearSchemeHandlerFactories() int32 {
-	ret := obj.rawPtr.CallClearSchemeHandlerFactories()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallClearSchemeHandlerFactories())
 }
 
 func (obj *requestContextImpl) ClearCertificateExceptions(callback CompletionCallback) {
@@ -161,15 +178,11 @@ func (obj *requestContextImpl) ResolveHost(origin string, callback ResolveCallba
 }
 
 func (obj *requestContextImpl) GetMediaRouter(callback CompletionCallback) MediaRouter {
-	ret := obj.rawPtr.CallGetMediaRouter(uintptr(0) /* callback */)
-	_ = ret
-	return nil
+	return wrapMediaRouter(unsafe.Pointer(obj.rawPtr.CallGetMediaRouter(uintptr(0) /* callback */)))
 }
 
 func (obj *requestContextImpl) GetWebsiteSetting(requestingURL string, topLevelURL string, contentType ContentSettingTypes) Value {
-	ret := obj.rawPtr.CallGetWebsiteSetting(uintptr(0) /* requestingURL */, uintptr(0) /* topLevelURL */, uintptr(0) /* contentType */)
-	_ = ret
-	return nil
+	return wrapValue(unsafe.Pointer(obj.rawPtr.CallGetWebsiteSetting(uintptr(0) /* requestingURL */, uintptr(0) /* topLevelURL */, uintptr(0) /* contentType */)))
 }
 
 func (obj *requestContextImpl) SetWebsiteSetting(requestingURL string, topLevelURL string, contentType ContentSettingTypes, value Value) {
@@ -193,9 +206,7 @@ func (obj *requestContextImpl) GetChromeColorSchemeMode() ColorVariant {
 }
 
 func (obj *requestContextImpl) GetChromeColorSchemeColor() uintptr {
-	ret := obj.rawPtr.CallGetChromeColorSchemeColor()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetChromeColorSchemeColor())
 }
 
 func (obj *requestContextImpl) GetChromeColorSchemeVariant() ColorVariant {
@@ -203,13 +214,15 @@ func (obj *requestContextImpl) GetChromeColorSchemeVariant() ColorVariant {
 }
 
 func (obj *requestContextImpl) AddSettingObserver(observer SettingObserver) Registration {
-	ret := obj.rawPtr.CallAddSettingObserver(uintptr(0) /* observer */)
-	_ = ret
-	return nil
+	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddSettingObserver(uintptr(0) /* observer */)))
 }
 
 func (obj *requestContextImpl) ClearHttpCache(callback CompletionCallback) {
 	obj.rawPtr.CallClearHttpCache(uintptr(0) /* callback */)
+}
+
+func (obj *requestContextImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

@@ -90,213 +90,147 @@ type apiVersionTestImpl struct {
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibrary(val int32) ApiVersionTestRefPtrLibrary {
-	ret := obj.rawPtr.CallGetRefPtrLibrary(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallGetRefPtrLibrary(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrLibrary(val ApiVersionTestRefPtrLibrary) int32 {
-	ret := obj.rawPtr.CallSetRefPtrLibrary(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetRefPtrLibrary(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrLibraryAndReturn(val ApiVersionTestRefPtrLibrary) ApiVersionTestRefPtrLibrary {
-	ret := obj.rawPtr.CallSetRefPtrLibraryAndReturn(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallSetRefPtrLibraryAndReturn(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrLibrary(val ApiVersionTestRefPtrLibraryChild) int32 {
-	ret := obj.rawPtr.CallSetChildRefPtrLibrary(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetChildRefPtrLibrary(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrLibraryAndReturnParent(val ApiVersionTestRefPtrLibraryChild) ApiVersionTestRefPtrLibrary {
-	ret := obj.rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	ret := obj.rawPtr.CallSetRefPtrLibraryList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetRefPtrLibraryList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	ret := obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibraryListSize() int {
-	ret := obj.rawPtr.CallGetRefPtrLibraryListSize()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetRefPtrLibraryListSize())
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrClient(val ApiVersionTestRefPtrClient) int32 {
-	ret := obj.rawPtr.CallSetRefPtrClient(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetRefPtrClient(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrClientAndReturn(val ApiVersionTestRefPtrClient) ApiVersionTestRefPtrClient {
-	ret := obj.rawPtr.CallSetRefPtrClientAndReturn(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(obj.rawPtr.CallSetRefPtrClientAndReturn(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrClient(val ApiVersionTestRefPtrClientChild) int32 {
-	ret := obj.rawPtr.CallSetChildRefPtrClient(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetChildRefPtrClient(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrClientAndReturnParent(val ApiVersionTestRefPtrClientChild) ApiVersionTestRefPtrClient {
-	ret := obj.rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(obj.rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	ret := obj.rawPtr.CallSetRefPtrClientList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetRefPtrClientList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 ApiVersionTestRefPtrClient, val2 ApiVersionTestRefPtrClient) int32 {
-	ret := obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrClientListSize() int {
-	ret := obj.rawPtr.CallGetRefPtrClientListSize()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetRefPtrClientListSize())
 }
 
 func (obj *apiVersionTestImpl) GetOwnPtrLibrary(val int32) ApiVersionTestScopedLibrary {
-	ret := obj.rawPtr.CallGetOwnPtrLibrary(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(obj.rawPtr.CallGetOwnPtrLibrary(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetOwnPtrLibrary(val ApiVersionTestScopedLibrary) int32 {
-	ret := obj.rawPtr.CallSetOwnPtrLibrary(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetOwnPtrLibrary(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetOwnPtrLibraryAndReturn(val ApiVersionTestScopedLibrary) ApiVersionTestScopedLibrary {
-	ret := obj.rawPtr.CallSetOwnPtrLibraryAndReturn(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(obj.rawPtr.CallSetOwnPtrLibraryAndReturn(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrLibrary(val ApiVersionTestScopedLibraryChild) int32 {
-	ret := obj.rawPtr.CallSetChildOwnPtrLibrary(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetChildOwnPtrLibrary(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrLibraryAndReturnParent(val ApiVersionTestScopedLibraryChild) ApiVersionTestScopedLibrary {
-	ret := obj.rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(obj.rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetOwnPtrClient(val ApiVersionTestScopedClient) int32 {
-	ret := obj.rawPtr.CallSetOwnPtrClient(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetOwnPtrClient(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetOwnPtrClientAndReturn(val ApiVersionTestScopedClient) ApiVersionTestScopedClient {
-	ret := obj.rawPtr.CallSetOwnPtrClientAndReturn(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestScopedClient(unsafe.Pointer(obj.rawPtr.CallSetOwnPtrClientAndReturn(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrClient(val ApiVersionTestScopedClientChild) int32 {
-	ret := obj.rawPtr.CallSetChildOwnPtrClient(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetChildOwnPtrClient(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrClientAndReturnParent(val ApiVersionTestScopedClientChild) ApiVersionTestScopedClient {
-	ret := obj.rawPtr.CallSetChildOwnPtrClientAndReturnParent(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestScopedClient(unsafe.Pointer(obj.rawPtr.CallSetChildOwnPtrClientAndReturnParent(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetRawPtrLibrary(val ApiVersionTestScopedLibrary) int32 {
-	ret := obj.rawPtr.CallSetRawPtrLibrary(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetRawPtrLibrary(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetChildRawPtrLibrary(val ApiVersionTestScopedLibraryChild) int32 {
-	ret := obj.rawPtr.CallSetChildRawPtrLibrary(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetChildRawPtrLibrary(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetRawPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	ret := obj.rawPtr.CallSetRawPtrLibraryList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetRawPtrLibraryList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
 }
 
 func (obj *apiVersionTestImpl) SetRawPtrClient(val ApiVersionTestScopedClient) int32 {
-	ret := obj.rawPtr.CallSetRawPtrClient(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetRawPtrClient(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetChildRawPtrClient(val ApiVersionTestScopedClientChild) int32 {
-	ret := obj.rawPtr.CallSetChildRawPtrClient(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetChildRawPtrClient(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetRawPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	ret := obj.rawPtr.CallSetRawPtrClientList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetRawPtrClientList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrClientV2(val ApiVersionTestRefPtrClientChildV2) int32 {
-	ret := obj.rawPtr.CallSetChildRefPtrClientV2(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetChildRefPtrClientV2(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrClientAndReturnParentV2(val ApiVersionTestRefPtrClientChildV2) ApiVersionTestRefPtrClient {
-	ret := obj.rawPtr.CallSetChildRefPtrClientAndReturnParentV2(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(obj.rawPtr.CallSetChildRefPtrClientAndReturnParentV2(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrClientV2(val ApiVersionTestScopedClientChildV2) int32 {
-	ret := obj.rawPtr.CallSetChildOwnPtrClientV2(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetChildOwnPtrClientV2(uintptr(0) /* val */))
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrClientAndReturnParentV2(val ApiVersionTestScopedClientChildV2) ApiVersionTestScopedClient {
-	ret := obj.rawPtr.CallSetChildOwnPtrClientAndReturnParentV2(uintptr(0) /* val */)
-	_ = ret
-	return nil
+	return wrapApiVersionTestScopedClient(unsafe.Pointer(obj.rawPtr.CallSetChildOwnPtrClientAndReturnParentV2(uintptr(0) /* val */)))
 }
 
 func (obj *apiVersionTestImpl) SetChildRawPtrClientV2(val ApiVersionTestScopedClientChildV2) int32 {
-	ret := obj.rawPtr.CallSetChildRawPtrClientV2(uintptr(0) /* val */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallSetChildRawPtrClientV2(uintptr(0) /* val */))
+}
+
+func (obj *apiVersionTestImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -349,9 +283,7 @@ type apiVersionTestRefPtrLibraryImpl struct {
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueLegacy() int32 {
-	ret := obj.rawPtr.CallGetValueLegacy()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValueLegacy())
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValueLegacy(value int32) {
@@ -359,9 +291,7 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueLegacy(value int32) {
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValue() int32 {
-	ret := obj.rawPtr.CallGetValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValue())
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValue(value int32) {
@@ -369,9 +299,7 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValue(value int32) {
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV1() int32 {
-	ret := obj.rawPtr.CallGetValueV1()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValueV1())
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV1(value int32) {
@@ -379,9 +307,7 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV1(value int32) {
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV2() int32 {
-	ret := obj.rawPtr.CallGetValueV2()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValueV2())
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV2(value int32) {
@@ -389,13 +315,15 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV2(value int32) {
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueExp() int32 {
-	ret := obj.rawPtr.CallGetValueExp()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValueExp())
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValueExp(value int32) {
 	obj.rawPtr.CallSetValueExp(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestRefPtrLibraryImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -432,13 +360,15 @@ type apiVersionTestRefPtrLibraryChildImpl struct {
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildImpl) GetOtherValue() int32 {
-	ret := obj.rawPtr.CallGetOtherValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetOtherValue())
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildImpl) SetOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherValue(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestRefPtrLibraryChildImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -475,13 +405,15 @@ type apiVersionTestRefPtrLibraryChildChildImpl struct {
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildImpl) GetOtherOtherValue() int32 {
-	ret := obj.rawPtr.CallGetOtherOtherValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetOtherOtherValue())
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildImpl) SetOtherOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestRefPtrLibraryChildChildImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -518,13 +450,15 @@ type apiVersionTestRefPtrLibraryChildChildV1Impl struct {
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) GetOtherOtherValue() int32 {
-	ret := obj.rawPtr.CallGetOtherOtherValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetOtherOtherValue())
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) SetOtherOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -561,13 +495,15 @@ type apiVersionTestRefPtrLibraryChildChildV2Impl struct {
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) GetOtherOtherValue() int32 {
-	ret := obj.rawPtr.CallGetOtherOtherValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetOtherOtherValue())
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) SetOtherOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -611,32 +547,38 @@ func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) unsafe.Point
 	r := new(raw.CEFApiVersionTestRefPtrClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetValueLegacy(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValueLegacy(...), marshal return
-		return 0
+	r.OverrideGetValueLegacy(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValueLegacy())
 	}))
 
-	r.OverrideGetValue(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValue(...), marshal return
-		return 0
+	r.OverrideGetValue(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValue())
 	}))
 
-	r.OverrideGetValueV1(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValueV1(...), marshal return
-		return 0
+	r.OverrideGetValueV1(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValueV1())
 	}))
 
-	r.OverrideGetValueV2(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValueV2(...), marshal return
-		return 0
+	r.OverrideGetValueV2(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValueV2())
 	}))
 
-	r.OverrideGetValueExp(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValueExp(...), marshal return
-		return 0
+	r.OverrideGetValueExp(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValueExp())
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapApiVersionTestRefPtrClient wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapApiVersionTestRefPtrClient(ptr unsafe.Pointer) ApiVersionTestRefPtrClient {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // ApiVersionTestRefPtrClientChild Client-side child test object for RefPtr. This is replaced with cef_api_version_test_ref_ptr_client_child_v2_t in version 13302.
@@ -653,17 +595,26 @@ func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) un
 	r := new(raw.CEFApiVersionTestRefPtrClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetOtherValue(...), marshal return
-		return 0
+	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetOtherValue())
 	}))
 
-	r.OverrideGetOtherValueV1(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetOtherValueV1(...), marshal return
-		return 0
+	r.OverrideGetOtherValueV1(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetOtherValueV1())
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapApiVersionTestRefPtrClientChild wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapApiVersionTestRefPtrClientChild(ptr unsafe.Pointer) ApiVersionTestRefPtrClientChild {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // ApiVersionTestRefPtrClientChildV2 Client-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_client_child_t in version 13302.
@@ -680,17 +631,26 @@ func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2
 	r := new(raw.CEFApiVersionTestRefPtrClientChildV2T)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetOtherValue(...), marshal return
-		return 0
+	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetOtherValue())
 	}))
 
-	r.OverrideGetAnotherValue(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetAnotherValue(...), marshal return
-		return 0
+	r.OverrideGetAnotherValue(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetAnotherValue())
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapApiVersionTestRefPtrClientChildV2 wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapApiVersionTestRefPtrClientChildV2(ptr unsafe.Pointer) ApiVersionTestRefPtrClientChildV2 {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // ApiVersionTestScopedLibrary Library-side test object for OwnPtr/RawPtr.
@@ -722,9 +682,7 @@ type apiVersionTestScopedLibraryImpl struct {
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueLegacy() int32 {
-	ret := obj.rawPtr.CallGetValueLegacy()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValueLegacy())
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValueLegacy(value int32) {
@@ -732,9 +690,7 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValueLegacy(value int32) {
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValue() int32 {
-	ret := obj.rawPtr.CallGetValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValue())
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValue(value int32) {
@@ -742,9 +698,7 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValue(value int32) {
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueV1() int32 {
-	ret := obj.rawPtr.CallGetValueV1()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValueV1())
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValueV1(value int32) {
@@ -752,9 +706,7 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValueV1(value int32) {
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueV2() int32 {
-	ret := obj.rawPtr.CallGetValueV2()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValueV2())
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValueV2(value int32) {
@@ -762,13 +714,15 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValueV2(value int32) {
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueExp() int32 {
-	ret := obj.rawPtr.CallGetValueExp()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetValueExp())
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValueExp(value int32) {
 	obj.rawPtr.CallSetValueExp(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestScopedLibraryImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 func wrapApiVersionTestScopedLibrary(ptr unsafe.Pointer) ApiVersionTestScopedLibrary {
@@ -792,13 +746,15 @@ type apiVersionTestScopedLibraryChildImpl struct {
 }
 
 func (obj *apiVersionTestScopedLibraryChildImpl) GetOtherValue() int32 {
-	ret := obj.rawPtr.CallGetOtherValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetOtherValue())
 }
 
 func (obj *apiVersionTestScopedLibraryChildImpl) SetOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherValue(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestScopedLibraryChildImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -835,13 +791,15 @@ type apiVersionTestScopedLibraryChildChildImpl struct {
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildImpl) GetOtherOtherValue() int32 {
-	ret := obj.rawPtr.CallGetOtherOtherValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetOtherOtherValue())
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildImpl) SetOtherOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestScopedLibraryChildChildImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -878,13 +836,15 @@ type apiVersionTestScopedLibraryChildChildV1Impl struct {
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV1Impl) GetOtherOtherValue() int32 {
-	ret := obj.rawPtr.CallGetOtherOtherValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetOtherOtherValue())
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV1Impl) SetOtherOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestScopedLibraryChildChildV1Impl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -921,13 +881,15 @@ type apiVersionTestScopedLibraryChildChildV2Impl struct {
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV2Impl) GetOtherOtherValue() int32 {
-	ret := obj.rawPtr.CallGetOtherOtherValue()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetOtherOtherValue())
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV2Impl) SetOtherOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(0) /* value */)
+}
+
+func (obj *apiVersionTestScopedLibraryChildChildV2Impl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -971,32 +933,38 @@ func NewApiVersionTestScopedClient(impl ApiVersionTestScopedClient) unsafe.Point
 	r := new(raw.CEFApiVersionTestScopedClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetValueLegacy(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValueLegacy(...), marshal return
-		return 0
+	r.OverrideGetValueLegacy(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValueLegacy())
 	}))
 
-	r.OverrideGetValue(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValue(...), marshal return
-		return 0
+	r.OverrideGetValue(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValue())
 	}))
 
-	r.OverrideGetValueV1(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValueV1(...), marshal return
-		return 0
+	r.OverrideGetValueV1(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValueV1())
 	}))
 
-	r.OverrideGetValueV2(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValueV2(...), marshal return
-		return 0
+	r.OverrideGetValueV2(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValueV2())
 	}))
 
-	r.OverrideGetValueExp(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetValueExp(...), marshal return
-		return 0
+	r.OverrideGetValueExp(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetValueExp())
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapApiVersionTestScopedClient wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapApiVersionTestScopedClient(ptr unsafe.Pointer) ApiVersionTestScopedClient {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // ApiVersionTestScopedClientChild Client-side child test object for OwnPtr/RawPtr. This is replaced with cef_api_version_test_scoped_client_child_v2_t in version 13302.
@@ -1013,17 +981,26 @@ func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) un
 	r := new(raw.CEFApiVersionTestScopedClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetOtherValue(...), marshal return
-		return 0
+	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetOtherValue())
 	}))
 
-	r.OverrideGetOtherValueV1(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetOtherValueV1(...), marshal return
-		return 0
+	r.OverrideGetOtherValueV1(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetOtherValueV1())
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapApiVersionTestScopedClientChild wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapApiVersionTestScopedClientChild(ptr unsafe.Pointer) ApiVersionTestScopedClientChild {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // ApiVersionTestScopedClientChildV2 Client-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_client_child_t in version 13302.
@@ -1040,17 +1017,26 @@ func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2
 	r := new(raw.CEFApiVersionTestScopedClientChildV2T)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetOtherValue(...), marshal return
-		return 0
+	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetOtherValue())
 	}))
 
-	r.OverrideGetAnotherValue(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetAnotherValue(...), marshal return
-		return 0
+	r.OverrideGetAnotherValue(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetAnotherValue())
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapApiVersionTestScopedClientChildV2 wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapApiVersionTestScopedClientChildV2(ptr unsafe.Pointer) ApiVersionTestScopedClientChildV2 {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // ApiVersionTestCreate Create the test object.

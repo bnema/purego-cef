@@ -29,6 +29,10 @@ func (obj *menuButtonImpl) TriggerMenu() {
 	obj.rawPtr.CallTriggerMenu()
 }
 
+func (obj *menuButtonImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *menuButtonImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))

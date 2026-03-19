@@ -24,6 +24,10 @@ func (obj *selectClientCertificateCallbackImpl) Select(cert X509Certificate) {
 	obj.rawPtr.CallSelect(uintptr(0) /* cert */)
 }
 
+func (obj *selectClientCertificateCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *selectClientCertificateCallbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -77,56 +81,113 @@ func NewRequestHandler(impl RequestHandler) unsafe.Pointer {
 	r := new(raw.CEFRequestHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnBeforeBrowse(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnBeforeBrowse(...), marshal return
+	r.OverrideOnBeforeBrowse(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		userGesture := int32(arg3)
+		isRedirect := int32(arg4)
+		if impl.OnBeforeBrowse(browser, frame, request, userGesture, isRedirect) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideOnOpenUrlfromTab(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnOpenUrlfromTab(...), marshal return
-		return 0
+	r.OverrideOnOpenUrlfromTab(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		targetURL := goString(unsafe.Pointer(arg2))
+		targetDisposition := WindowOpenDisposition(arg3)
+		userGesture := int32(arg4)
+		return uintptr(impl.OnOpenUrlfromTab(browser, frame, targetURL, targetDisposition, userGesture))
 	}))
 
-	r.OverrideGetResourceRequestHandler(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetResourceRequestHandler(...), marshal return
-		return 0
+	r.OverrideGetResourceRequestHandler(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		request := wrapRequest(unsafe.Pointer(arg2))
+		isNavigation := int32(arg3)
+		isDownload := int32(arg4)
+		requestInitiator := goString(unsafe.Pointer(arg5))
+		disableDefaultHandling := unsafe.Pointer(arg6)
+		result := impl.GetResourceRequestHandler(browser, frame, request, isNavigation, isDownload, requestInitiator, disableDefaultHandling)
+		if result == nil {
+			return 0
+		}
+		return uintptr(NewResourceRequestHandler(result))
 	}))
 
-	r.OverrideGetAuthCredentials(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetAuthCredentials(...), marshal return
-		return 0
+	r.OverrideGetAuthCredentials(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		originURL := goString(unsafe.Pointer(arg1))
+		isproxy := int32(arg2)
+		host := goString(unsafe.Pointer(arg3))
+		port := int32(arg4)
+		realm := goString(unsafe.Pointer(arg5))
+		scheme := goString(unsafe.Pointer(arg6))
+		callback := wrapAuthCallback(unsafe.Pointer(arg7))
+		return uintptr(impl.GetAuthCredentials(browser, originURL, isproxy, host, port, realm, scheme, callback))
 	}))
 
-	r.OverrideOnCertificateError(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnCertificateError(...), marshal return
-		return 0
+	r.OverrideOnCertificateError(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		certError := Errorcode(arg1)
+		requestURL := goString(unsafe.Pointer(arg2))
+		sslInfo := wrapSslinfo(unsafe.Pointer(arg3))
+		callback := wrapCallback(unsafe.Pointer(arg4))
+		return uintptr(impl.OnCertificateError(browser, certError, requestURL, sslInfo, callback))
 	}))
 
-	r.OverrideOnSelectClientCertificate(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnSelectClientCertificate(...), marshal return
-		return 0
+	r.OverrideOnSelectClientCertificate(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		isproxy := int32(arg1)
+		host := goString(unsafe.Pointer(arg2))
+		port := int32(arg3)
+		certificatescount := int(arg4)
+		certificates := unsafe.Pointer(arg5)
+		callback := wrapSelectClientCertificateCallback(unsafe.Pointer(arg6))
+		return uintptr(impl.OnSelectClientCertificate(browser, isproxy, host, port, certificatescount, certificates, callback))
 	}))
 
-	r.OverrideOnRenderViewReady(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnRenderViewReady(...)
+	r.OverrideOnRenderViewReady(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnRenderViewReady(browser)
 	}))
 
-	r.OverrideOnRenderProcessUnresponsive(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnRenderProcessUnresponsive(...), marshal return
-		return 0
+	r.OverrideOnRenderProcessUnresponsive(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		callback := wrapUnresponsiveProcessCallback(unsafe.Pointer(arg1))
+		return uintptr(impl.OnRenderProcessUnresponsive(browser, callback))
 	}))
 
-	r.OverrideOnRenderProcessResponsive(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnRenderProcessResponsive(...)
+	r.OverrideOnRenderProcessResponsive(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnRenderProcessResponsive(browser)
 	}))
 
-	r.OverrideOnRenderProcessTerminated(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnRenderProcessTerminated(...)
+	r.OverrideOnRenderProcessTerminated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		status := TerminationStatus(arg1)
+		errorCode := int32(arg2)
+		errorString := goString(unsafe.Pointer(arg3))
+		impl.OnRenderProcessTerminated(browser, status, errorCode, errorString)
 	}))
 
-	r.OverrideOnDocumentAvailableInMainFrame(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnDocumentAvailableInMainFrame(...)
+	r.OverrideOnDocumentAvailableInMainFrame(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnDocumentAvailableInMainFrame(browser)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapRequestHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapRequestHandler(ptr unsafe.Pointer) RequestHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

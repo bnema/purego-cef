@@ -40,9 +40,7 @@ type labelButtonImpl struct {
 }
 
 func (obj *labelButtonImpl) AsMenuButton() MenuButton {
-	ret := obj.rawPtr.CallAsMenuButton()
-	_ = ret
-	return nil
+	return wrapMenuButton(unsafe.Pointer(obj.rawPtr.CallAsMenuButton()))
 }
 
 func (obj *labelButtonImpl) SetText(text string) {
@@ -50,9 +48,7 @@ func (obj *labelButtonImpl) SetText(text string) {
 }
 
 func (obj *labelButtonImpl) GetText() string {
-	ret := obj.rawPtr.CallGetText()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetText()))
 }
 
 func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
@@ -60,9 +56,7 @@ func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
 }
 
 func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
-	ret := obj.rawPtr.CallGetImage(uintptr(0) /* buttonState */)
-	_ = ret
-	return nil
+	return wrapImage(unsafe.Pointer(obj.rawPtr.CallGetImage(uintptr(0) /* buttonState */)))
 }
 
 func (obj *labelButtonImpl) SetTextColor(forState ButtonState, color uintptr) {
@@ -87,6 +81,10 @@ func (obj *labelButtonImpl) SetMinimumSize(size uintptr) {
 
 func (obj *labelButtonImpl) SetMaximumSize(size uintptr) {
 	obj.rawPtr.CallSetMaximumSize(uintptr(0) /* size */)
+}
+
+func (obj *labelButtonImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

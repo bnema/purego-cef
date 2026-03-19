@@ -17,6 +17,10 @@ type fillLayoutImpl struct {
 	rawPtr *raw.CEFFillLayoutT
 }
 
+func (obj *fillLayoutImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *fillLayoutImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))

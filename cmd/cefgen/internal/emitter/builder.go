@@ -104,11 +104,13 @@ func buildMethod(f model.Field, registry *TypeRegistry) MethodData {
 		if i == 0 {
 			continue // skip self
 		}
-		m.Params = append(m.Params, ParamData{
-			Name:       paramName(p),
-			PublicType: registry.ResolvePublicType(p.CType),
-			CType:      p.CType,
-		})
+		pd := ParamData{
+			Name:        paramName(p),
+			PublicType:  registry.ResolvePublicType(p.CType),
+			CType:       p.CType,
+			MarshalKind: classifyParamType(p.CType, registry),
+		}
+		m.Params = append(m.Params, pd)
 	}
 
 	// Build return type.
@@ -122,10 +124,16 @@ func buildMethod(f model.Field, registry *TypeRegistry) MethodData {
 			pubType = "bool"
 		}
 		m.Return = ReturnData{
-			PublicType: pubType,
-			CType:      ret,
-			IsBool:     isBool,
-			IsEnum:     registry.IsEnumType(ret),
+			PublicType:   pubType,
+			CType:        ret,
+			IsBool:       isBool,
+			IsEnum:       registry.IsEnumType(ret),
+			IsString:     registry.IsStringType(ret),
+			IsInterface:  registry.IsInterfaceType(ret),
+			IsNumeric:    isNumericType(pubType),
+			IsPointer:    pubType == "unsafe.Pointer",
+			IsHandler:    registry.IsHandlerType(ret),
+			IsDataStruct: registry.IsDataStructType(ret),
 		}
 	}
 
@@ -286,6 +294,52 @@ func enumValuePrefix(e *model.Enum) string {
 
 	// Fallback: just strip "CEF_".
 	return "CEF_"
+}
+
+// classifyParamType returns a MarshalKind string for a given C type.
+func classifyParamType(ctype string, registry *TypeRegistry) string {
+	ct := strings.TrimSpace(ctype)
+	switch ct {
+	case "const cef_string_t*", "const char*", "char*":
+		return "string"
+	case "cef_string_userfree_t":
+		return "userfreeString"
+	case "void*", "const void*":
+		return "pointer"
+	case "cef_string_t*", "cef_string_list_t", "cef_string_map_t", "cef_string_multimap_t":
+		return "numeric" // opaque handles, passed as uintptr
+	}
+	if registry.IsEnumType(ct) {
+		return "enum"
+	}
+	if registry.IsInterfaceType(ct) {
+		return "interface"
+	}
+	if registry.IsDataStructType(ct) {
+		return "dataStruct"
+	}
+	pub := registry.ResolvePublicType(ct)
+	if pub == "unsafe.Pointer" {
+		return "pointer"
+	}
+	if strings.HasPrefix(pub, "*") {
+		return "dataStruct" // pointer to struct/int/etc, cast as (*Type)(unsafe.Pointer(...))
+	}
+	if isNumericType(pub) {
+		return "numeric"
+	}
+	return "numeric" // default fallback
+}
+
+// isNumericType returns true if the Go type is a numeric primitive.
+func isNumericType(goType string) bool {
+	switch goType {
+	case "int", "int8", "int16", "int32", "int64",
+		"uint", "uint8", "uint16", "uint32", "uint64",
+		"uintptr", "float32", "float64":
+		return true
+	}
+	return false
 }
 
 // cleanEnumValueName strips the common prefix and PascalCases the result.

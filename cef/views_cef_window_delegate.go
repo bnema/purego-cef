@@ -65,113 +65,158 @@ func NewWindowDelegate(impl WindowDelegate) unsafe.Pointer {
 	r := new(raw.CEFWindowDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnWindowCreated(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnWindowCreated(...)
+	r.OverrideOnWindowCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		impl.OnWindowCreated(window)
 	}))
 
-	r.OverrideOnWindowClosing(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnWindowClosing(...)
+	r.OverrideOnWindowClosing(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		impl.OnWindowClosing(window)
 	}))
 
-	r.OverrideOnWindowDestroyed(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnWindowDestroyed(...)
+	r.OverrideOnWindowDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		impl.OnWindowDestroyed(window)
 	}))
 
-	r.OverrideOnWindowActivationChanged(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnWindowActivationChanged(...)
+	r.OverrideOnWindowActivationChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		active := int32(arg1)
+		impl.OnWindowActivationChanged(window, active)
 	}))
 
-	r.OverrideOnWindowBoundsChanged(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnWindowBoundsChanged(...)
+	r.OverrideOnWindowBoundsChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		newBounds := uintptr(arg1)
+		impl.OnWindowBoundsChanged(window, newBounds)
 	}))
 
-	r.OverrideOnWindowFullscreenTransition(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnWindowFullscreenTransition(...)
+	r.OverrideOnWindowFullscreenTransition(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		isCompleted := int32(arg1)
+		impl.OnWindowFullscreenTransition(window, isCompleted)
 	}))
 
-	r.OverrideGetParentWindow(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetParentWindow(...), marshal return
+	r.OverrideGetParentWindow(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		isMenu := unsafe.Pointer(arg1)
+		canActivateMenu := unsafe.Pointer(arg2)
+		return uintptr(extractRawPointer(impl.GetParentWindow(window, isMenu, canActivateMenu)))
+	}))
+
+	r.OverrideIsWindowModalDialog(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.IsWindowModalDialog(window) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideIsWindowModalDialog(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.IsWindowModalDialog(...), marshal return
+	r.OverrideGetInitialBounds(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		return uintptr(impl.GetInitialBounds(window))
+	}))
+
+	r.OverrideGetInitialShowState(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		return uintptr(impl.GetInitialShowState(window))
+	}))
+
+	r.OverrideIsFrameless(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.IsFrameless(window) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideGetInitialBounds(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetInitialBounds(...), marshal return
+	r.OverrideWithStandardWindowButtons(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		return uintptr(impl.WithStandardWindowButtons(window))
+	}))
+
+	r.OverrideGetTitlebarHeight(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		titlebarHeight := unsafe.Pointer(arg1)
+		return uintptr(impl.GetTitlebarHeight(window, titlebarHeight))
+	}))
+
+	r.OverrideAcceptsFirstMouse(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		return uintptr(impl.AcceptsFirstMouse(window))
+	}))
+
+	r.OverrideCanResize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.CanResize(window) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideGetInitialShowState(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetInitialShowState(...), marshal return
+	r.OverrideCanMaximize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.CanMaximize(window) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideIsFrameless(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.IsFrameless(...), marshal return
+	r.OverrideCanMinimize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.CanMinimize(window) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideWithStandardWindowButtons(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.WithStandardWindowButtons(...), marshal return
+	r.OverrideCanClose(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.CanClose(window) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideGetTitlebarHeight(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetTitlebarHeight(...), marshal return
-		return 0
+	r.OverrideOnAccelerator(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		commandID := int32(arg1)
+		return uintptr(impl.OnAccelerator(window, commandID))
 	}))
 
-	r.OverrideAcceptsFirstMouse(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.AcceptsFirstMouse(...), marshal return
-		return 0
+	r.OverrideOnKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		event := uintptr(arg1)
+		return uintptr(impl.OnKeyEvent(window, event))
 	}))
 
-	r.OverrideCanResize(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.CanResize(...), marshal return
-		return 0
+	r.OverrideOnThemeColorsChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		chromeTheme := int32(arg1)
+		impl.OnThemeColorsChanged(window, chromeTheme)
 	}))
 
-	r.OverrideCanMaximize(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.CanMaximize(...), marshal return
-		return 0
+	r.OverrideGetWindowRuntimeStyle(purego.NewCallback(func(self uintptr) uintptr {
+		return uintptr(impl.GetWindowRuntimeStyle())
 	}))
 
-	r.OverrideCanMinimize(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.CanMinimize(...), marshal return
-		return 0
-	}))
-
-	r.OverrideCanClose(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.CanClose(...), marshal return
-		return 0
-	}))
-
-	r.OverrideOnAccelerator(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnAccelerator(...), marshal return
-		return 0
-	}))
-
-	r.OverrideOnKeyEvent(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnKeyEvent(...), marshal return
-		return 0
-	}))
-
-	r.OverrideOnThemeColorsChanged(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnThemeColorsChanged(...)
-	}))
-
-	r.OverrideGetWindowRuntimeStyle(purego.NewCallback(func() uintptr {
-		// TODO: unmarshal args, call impl.GetWindowRuntimeStyle(...), marshal return
-		return 0
-	}))
-
-	r.OverrideGetLinuxWindowProperties(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetLinuxWindowProperties(...), marshal return
-		return 0
+	r.OverrideGetLinuxWindowProperties(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		window := wrapWindow(unsafe.Pointer(arg0))
+		properties := (*LinuxWindowProperties)(unsafe.Pointer(arg1))
+		return uintptr(impl.GetLinuxWindowProperties(window, properties))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapWindowDelegate wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapWindowDelegate(ptr unsafe.Pointer) WindowDelegate {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

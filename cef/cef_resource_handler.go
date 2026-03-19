@@ -24,6 +24,10 @@ func (obj *resourceSkipCallbackImpl) Cont(bytesSkipped int64) {
 	obj.rawPtr.CallCont(uintptr(0) /* bytesSkipped */)
 }
 
+func (obj *resourceSkipCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *resourceSkipCallbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -58,6 +62,10 @@ func (obj *resourceReadCallbackImpl) Cont(bytesRead int32) {
 	obj.rawPtr.CallCont(uintptr(0) /* bytesRead */)
 }
 
+func (obj *resourceReadCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *resourceReadCallbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -86,7 +94,7 @@ type ResourceHandler interface {
 	// ProcessRequest Begin processing the request. To handle the request return true (1) and call cef_callback_t::cont() once the response header information is available (cef_callback_t::cont() can also be called from inside this function if header information is available immediately). To cancel the request return false (0). WARNING: This function is deprecated. Use Open instead.
 	ProcessRequest(request Request, callback Callback) int32
 	// GetResponseHeaders Retrieve response header information. If the response length is not known set |response_length| to -1 and read_response() will be called until it returns false (0). If the response length is known set |response_length| to a positive value and read_response() will be called until it returns false (0) or the specified number of bytes have been read. Use the |response| object to set the mime type, http status code and other optional header values. To redirect the request to a new URL set |redirectUrl| to the new URL. |redirectUrl| can be either a relative or fully qualified URL. It is also possible to set |response| to a redirect http status code and pass the new URL via a Location header. Likewise with |redirectUrl| it is valid to set a relative or fully qualified URL as the Location header value. If an error occured while setting up the request you can call set_error() on |response| to indicate the error condition.
-	GetResponseHeaders(response Response, responseLength unsafe.Pointer, redirecturl *string)
+	GetResponseHeaders(response Response, responseLength unsafe.Pointer, redirecturl uintptr)
 	Skip(bytesToSkip int64, bytesSkipped unsafe.Pointer, callback ResourceSkipCallback) int32
 	Read(dataOut unsafe.Pointer, bytesToRead int32, bytesRead unsafe.Pointer, callback ResourceReadCallback) int32
 	ReadResponse(dataOut unsafe.Pointer, bytesToRead int32, bytesRead unsafe.Pointer, callback Callback) int32
@@ -99,38 +107,63 @@ func NewResourceHandler(impl ResourceHandler) unsafe.Pointer {
 	r := new(raw.CEFResourceHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOpen(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Open(...), marshal return
-		return 0
+	r.OverrideOpen(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		request := wrapRequest(unsafe.Pointer(arg0))
+		handleRequest := unsafe.Pointer(arg1)
+		callback := wrapCallback(unsafe.Pointer(arg2))
+		return uintptr(impl.Open(request, handleRequest, callback))
 	}))
 
-	r.OverrideProcessRequest(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.ProcessRequest(...), marshal return
-		return 0
+	r.OverrideProcessRequest(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		request := wrapRequest(unsafe.Pointer(arg0))
+		callback := wrapCallback(unsafe.Pointer(arg1))
+		return uintptr(impl.ProcessRequest(request, callback))
 	}))
 
-	r.OverrideGetResponseHeaders(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.GetResponseHeaders(...)
+	r.OverrideGetResponseHeaders(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		response := wrapResponse(unsafe.Pointer(arg0))
+		responseLength := unsafe.Pointer(arg1)
+		redirecturl := uintptr(arg2)
+		impl.GetResponseHeaders(response, responseLength, redirecturl)
 	}))
 
-	r.OverrideSkip(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Skip(...), marshal return
-		return 0
+	r.OverrideSkip(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		bytesToSkip := int64(arg0)
+		bytesSkipped := unsafe.Pointer(arg1)
+		callback := wrapResourceSkipCallback(unsafe.Pointer(arg2))
+		return uintptr(impl.Skip(bytesToSkip, bytesSkipped, callback))
 	}))
 
-	r.OverrideRead(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Read(...), marshal return
-		return 0
+	r.OverrideRead(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		dataOut := unsafe.Pointer(arg0)
+		bytesToRead := int32(arg1)
+		bytesRead := unsafe.Pointer(arg2)
+		callback := wrapResourceReadCallback(unsafe.Pointer(arg3))
+		return uintptr(impl.Read(dataOut, bytesToRead, bytesRead, callback))
 	}))
 
-	r.OverrideReadResponse(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.ReadResponse(...), marshal return
-		return 0
+	r.OverrideReadResponse(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		dataOut := unsafe.Pointer(arg0)
+		bytesToRead := int32(arg1)
+		bytesRead := unsafe.Pointer(arg2)
+		callback := wrapCallback(unsafe.Pointer(arg3))
+		return uintptr(impl.ReadResponse(dataOut, bytesToRead, bytesRead, callback))
 	}))
 
-	r.OverrideCancel(purego.NewCallback(func() {
-		// TODO: unmarshal args, call impl.Cancel(...)
+	r.OverrideCancel(purego.NewCallback(func(self uintptr) {
+		impl.Cancel()
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapResourceHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapResourceHandler(ptr unsafe.Pointer) ResourceHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

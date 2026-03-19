@@ -25,15 +25,11 @@ type threadImpl struct {
 }
 
 func (obj *threadImpl) GetTaskRunner() TaskRunner {
-	ret := obj.rawPtr.CallGetTaskRunner()
-	_ = ret
-	return nil
+	return wrapTaskRunner(unsafe.Pointer(obj.rawPtr.CallGetTaskRunner()))
 }
 
 func (obj *threadImpl) GetPlatformThreadID() uintptr {
-	ret := obj.rawPtr.CallGetPlatformThreadID()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetPlatformThreadID())
 }
 
 func (obj *threadImpl) Stop() {
@@ -42,6 +38,10 @@ func (obj *threadImpl) Stop() {
 
 func (obj *threadImpl) IsRunning() bool {
 	return obj.rawPtr.CallIsRunning() != 0
+}
+
+func (obj *threadImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

@@ -91,18 +91,25 @@ type MethodData struct {
 
 // ParamData represents a method parameter.
 type ParamData struct {
-	Name       string // "browser"
-	PublicType string // "Browser"
-	CType      string // original C type for marshal decisions
+	Name        string // "browser"
+	PublicType  string // "Browser"
+	CType       string // original C type for marshal decisions
+	MarshalKind string // "interface", "string", "enum", "numeric", "pointer", "userfreeString"
 }
 
 // ReturnData represents a method return type.
 type ReturnData struct {
-	PublicType string
-	CType      string
-	IsBool     bool
-	IsVoid     bool
-	IsEnum     bool
+	PublicType   string
+	CType        string
+	IsBool       bool
+	IsVoid       bool
+	IsEnum       bool
+	IsString     bool // cef_string_userfree_t return
+	IsInterface  bool // returns a handler/object interface type
+	IsNumeric    bool // int32, int64, uint32, float64, int, etc.
+	IsPointer    bool // unsafe.Pointer
+	IsHandler    bool // returns a handler interface (needs NewXxx wrapping in callbacks)
+	IsDataStruct bool // returns a pointer to a data struct (*Type)
 }
 
 // DataStructData represents a plain data struct re-export.

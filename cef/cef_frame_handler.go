@@ -30,25 +30,48 @@ func NewFrameHandler(impl FrameHandler) unsafe.Pointer {
 	r := new(raw.CEFFrameHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnFrameCreated(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnFrameCreated(...)
+	r.OverrideOnFrameCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		impl.OnFrameCreated(browser, frame)
 	}))
 
-	r.OverrideOnFrameDestroyed(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnFrameDestroyed(...)
+	r.OverrideOnFrameDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		impl.OnFrameDestroyed(browser, frame)
 	}))
 
-	r.OverrideOnFrameAttached(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnFrameAttached(...)
+	r.OverrideOnFrameAttached(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		reattached := int32(arg2)
+		impl.OnFrameAttached(browser, frame, reattached)
 	}))
 
-	r.OverrideOnFrameDetached(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnFrameDetached(...)
+	r.OverrideOnFrameDetached(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		impl.OnFrameDetached(browser, frame)
 	}))
 
-	r.OverrideOnMainFrameChanged(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnMainFrameChanged(...)
+	r.OverrideOnMainFrameChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		oldFrame := wrapFrame(unsafe.Pointer(arg1))
+		newFrame := wrapFrame(unsafe.Pointer(arg2))
+		impl.OnMainFrameChanged(browser, oldFrame, newFrame)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapFrameHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapFrameHandler(ptr unsafe.Pointer) FrameHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

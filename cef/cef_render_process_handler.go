@@ -38,45 +38,75 @@ func NewRenderProcessHandler(impl RenderProcessHandler) unsafe.Pointer {
 	r := new(raw.CEFRenderProcessHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnWebKitInitialized(purego.NewCallback(func() {
-		// TODO: unmarshal args, call impl.OnWebKitInitialized(...)
+	r.OverrideOnWebKitInitialized(purego.NewCallback(func(self uintptr) {
+		impl.OnWebKitInitialized()
 	}))
 
-	r.OverrideOnBrowserCreated(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnBrowserCreated(...)
+	r.OverrideOnBrowserCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		extraInfo := wrapDictionaryValue(unsafe.Pointer(arg1))
+		impl.OnBrowserCreated(browser, extraInfo)
 	}))
 
-	r.OverrideOnBrowserDestroyed(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnBrowserDestroyed(...)
+	r.OverrideOnBrowserDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnBrowserDestroyed(browser)
 	}))
 
 	// Cache the getter result once.
 	cachedGetLoadHandler := impl.GetLoadHandler()
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetLoadHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewLoadHandler(cachedGetLoadHandler))
 	}))
 
-	r.OverrideOnContextCreated(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnContextCreated(...)
+	r.OverrideOnContextCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		context := wrapV8Context(unsafe.Pointer(arg2))
+		impl.OnContextCreated(browser, frame, context)
 	}))
 
-	r.OverrideOnContextReleased(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnContextReleased(...)
+	r.OverrideOnContextReleased(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		context := wrapV8Context(unsafe.Pointer(arg2))
+		impl.OnContextReleased(browser, frame, context)
 	}))
 
-	r.OverrideOnUncaughtException(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnUncaughtException(...)
+	r.OverrideOnUncaughtException(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		context := wrapV8Context(unsafe.Pointer(arg2))
+		exception := wrapV8Exception(unsafe.Pointer(arg3))
+		stacktrace := wrapV8StackTrace(unsafe.Pointer(arg4))
+		impl.OnUncaughtException(browser, frame, context, exception, stacktrace)
 	}))
 
-	r.OverrideOnFocusedNodeChanged(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnFocusedNodeChanged(...)
+	r.OverrideOnFocusedNodeChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		node := wrapDomnode(unsafe.Pointer(arg2))
+		impl.OnFocusedNodeChanged(browser, frame, node)
 	}))
 
-	r.OverrideOnProcessMessageReceived(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnProcessMessageReceived(...), marshal return
-		return 0
+	r.OverrideOnProcessMessageReceived(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		sourceProcess := ProcessID(arg2)
+		message := wrapProcessMessage(unsafe.Pointer(arg3))
+		return uintptr(impl.OnProcessMessageReceived(browser, frame, sourceProcess, message))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapRenderProcessHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapRenderProcessHandler(ptr unsafe.Pointer) RenderProcessHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

@@ -24,13 +24,26 @@ func NewButtonDelegate(impl ButtonDelegate) unsafe.Pointer {
 	r := new(raw.CEFButtonDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnButtonPressed(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnButtonPressed(...)
+	r.OverrideOnButtonPressed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		button := wrapButton(unsafe.Pointer(arg0))
+		impl.OnButtonPressed(button)
 	}))
 
-	r.OverrideOnButtonStateChanged(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnButtonStateChanged(...)
+	r.OverrideOnButtonStateChanged(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		button := wrapButton(unsafe.Pointer(arg0))
+		impl.OnButtonStateChanged(button)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapButtonDelegate wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapButtonDelegate(ptr unsafe.Pointer) ButtonDelegate {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

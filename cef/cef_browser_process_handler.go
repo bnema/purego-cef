@@ -34,40 +34,54 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) unsafe.Pointer {
 	r := new(raw.CEFBrowserProcessHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnRegisterCustomPreferences(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnRegisterCustomPreferences(...)
+	r.OverrideOnRegisterCustomPreferences(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		type_ := PreferencesType(arg0)
+		registrar := wrapPreferenceRegistrar(unsafe.Pointer(arg1))
+		impl.OnRegisterCustomPreferences(type_, registrar)
 	}))
 
-	r.OverrideOnContextInitialized(purego.NewCallback(func() {
-		// TODO: unmarshal args, call impl.OnContextInitialized(...)
+	r.OverrideOnContextInitialized(purego.NewCallback(func(self uintptr) {
+		impl.OnContextInitialized()
 	}))
 
-	r.OverrideOnBeforeChildProcessLaunch(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnBeforeChildProcessLaunch(...)
+	r.OverrideOnBeforeChildProcessLaunch(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		commandLine := wrapCommandLine(unsafe.Pointer(arg0))
+		impl.OnBeforeChildProcessLaunch(commandLine)
 	}))
 
-	r.OverrideOnAlreadyRunningAppRelaunch(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnAlreadyRunningAppRelaunch(...), marshal return
-		return 0
+	r.OverrideOnAlreadyRunningAppRelaunch(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		commandLine := wrapCommandLine(unsafe.Pointer(arg0))
+		currentDirectory := goString(unsafe.Pointer(arg1))
+		return uintptr(impl.OnAlreadyRunningAppRelaunch(commandLine, currentDirectory))
 	}))
 
-	r.OverrideOnScheduleMessagePumpWork(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnScheduleMessagePumpWork(...)
+	r.OverrideOnScheduleMessagePumpWork(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		delayMs := int64(arg0)
+		impl.OnScheduleMessagePumpWork(delayMs)
 	}))
 
 	// Cache the getter result once.
 	cachedGetDefaultClient := impl.GetDefaultClient()
 	r.OverrideGetDefaultClient(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetDefaultClient
-		return 0 // TODO: marshal cached result
+		return uintptr(NewClient(cachedGetDefaultClient))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDefaultRequestContextHandler := impl.GetDefaultRequestContextHandler()
 	r.OverrideGetDefaultRequestContextHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetDefaultRequestContextHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewRequestContextHandler(cachedGetDefaultRequestContextHandler))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapBrowserProcessHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapBrowserProcessHandler(ptr unsafe.Pointer) BrowserProcessHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

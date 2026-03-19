@@ -24,14 +24,31 @@ func NewDragHandler(impl DragHandler) unsafe.Pointer {
 	r := new(raw.CEFDragHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnDragEnter(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnDragEnter(...), marshal return
-		return 0
+	r.OverrideOnDragEnter(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		dragdata := wrapDragData(unsafe.Pointer(arg1))
+		mask := DragOperationsMask(arg2)
+		return uintptr(impl.OnDragEnter(browser, dragdata, mask))
 	}))
 
-	r.OverrideOnDraggableRegionsChanged(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnDraggableRegionsChanged(...)
+	r.OverrideOnDraggableRegionsChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		regionscount := int(arg2)
+		regions := uintptr(arg3)
+		impl.OnDraggableRegionsChanged(browser, frame, regionscount, regions)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapDragHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapDragHandler(ptr unsafe.Pointer) DragHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

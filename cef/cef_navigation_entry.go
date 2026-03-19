@@ -41,27 +41,19 @@ func (obj *navigationEntryImpl) IsValid() bool {
 }
 
 func (obj *navigationEntryImpl) GetURL() string {
-	ret := obj.rawPtr.CallGetURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetURL()))
 }
 
 func (obj *navigationEntryImpl) GetDisplayURL() string {
-	ret := obj.rawPtr.CallGetDisplayURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetDisplayURL()))
 }
 
 func (obj *navigationEntryImpl) GetOriginalURL() string {
-	ret := obj.rawPtr.CallGetOriginalURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetOriginalURL()))
 }
 
 func (obj *navigationEntryImpl) GetTitle() string {
-	ret := obj.rawPtr.CallGetTitle()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetTitle()))
 }
 
 func (obj *navigationEntryImpl) GetTransitionType() TransitionType {
@@ -73,21 +65,19 @@ func (obj *navigationEntryImpl) HasPostData() bool {
 }
 
 func (obj *navigationEntryImpl) GetCompletionTime() uintptr {
-	ret := obj.rawPtr.CallGetCompletionTime()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetCompletionTime())
 }
 
 func (obj *navigationEntryImpl) GetHttpStatusCode() int32 {
-	ret := obj.rawPtr.CallGetHttpStatusCode()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetHttpStatusCode())
 }
 
 func (obj *navigationEntryImpl) GetSslstatus() Sslstatus {
-	ret := obj.rawPtr.CallGetSslstatus()
-	_ = ret
-	return nil
+	return wrapSslstatus(unsafe.Pointer(obj.rawPtr.CallGetSslstatus()))
+}
+
+func (obj *navigationEntryImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

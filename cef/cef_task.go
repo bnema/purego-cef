@@ -22,11 +22,22 @@ func NewTask(impl Task) unsafe.Pointer {
 	r := new(raw.CEFTaskT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideExecute(purego.NewCallback(func() {
-		// TODO: unmarshal args, call impl.Execute(...)
+	r.OverrideExecute(purego.NewCallback(func(self uintptr) {
+		impl.Execute()
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapTask wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapTask(ptr unsafe.Pointer) Task {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // TaskRunner Structure that asynchronously executes tasks on the associated thread. It is safe to call the functions of this structure on any thread. CEF maintains multiple internal threads that are used for handling different types of tasks in different processes. The cef_thread_id_t definitions in cef_types.h list the common CEF threads. Task runners are also available for other CEF threads as appropriate (for example, V8 WebWorker threads).
@@ -52,27 +63,23 @@ func (obj *taskRunnerImpl) IsSame(that TaskRunner) bool {
 }
 
 func (obj *taskRunnerImpl) BelongsToCurrentThread() int32 {
-	ret := obj.rawPtr.CallBelongsToCurrentThread()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallBelongsToCurrentThread())
 }
 
 func (obj *taskRunnerImpl) BelongsToThread(threadid ThreadID) int32 {
-	ret := obj.rawPtr.CallBelongsToThread(uintptr(0) /* threadid */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallBelongsToThread(uintptr(0) /* threadid */))
 }
 
 func (obj *taskRunnerImpl) PostTask(task Task) int32 {
-	ret := obj.rawPtr.CallPostTask(uintptr(0) /* task */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallPostTask(uintptr(0) /* task */))
 }
 
 func (obj *taskRunnerImpl) PostDelayedTask(task Task, delayMs int64) int32 {
-	ret := obj.rawPtr.CallPostDelayedTask(uintptr(0) /* task */, uintptr(0) /* delayMs */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallPostDelayedTask(uintptr(0) /* task */, uintptr(0) /* delayMs */))
+}
+
+func (obj *taskRunnerImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

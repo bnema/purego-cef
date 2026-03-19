@@ -22,9 +22,9 @@ type X509CertPrincipal interface {
 	// GetCountryName Returns the country name.
 	GetCountryName() string
 	// GetOrganizationNames Retrieve the list of organization names.
-	GetOrganizationNames(names []string)
+	GetOrganizationNames(names uintptr)
 	// GetOrganizationUnitNames Retrieve the list of organization unit names.
-	GetOrganizationUnitNames(names []string)
+	GetOrganizationUnitNames(names uintptr)
 }
 
 type x509CertPrincipalImpl struct {
@@ -32,41 +32,35 @@ type x509CertPrincipalImpl struct {
 }
 
 func (obj *x509CertPrincipalImpl) GetDisplayName() string {
-	ret := obj.rawPtr.CallGetDisplayName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetDisplayName()))
 }
 
 func (obj *x509CertPrincipalImpl) GetCommonName() string {
-	ret := obj.rawPtr.CallGetCommonName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetCommonName()))
 }
 
 func (obj *x509CertPrincipalImpl) GetLocalityName() string {
-	ret := obj.rawPtr.CallGetLocalityName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLocalityName()))
 }
 
 func (obj *x509CertPrincipalImpl) GetStateOrProvinceName() string {
-	ret := obj.rawPtr.CallGetStateOrProvinceName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetStateOrProvinceName()))
 }
 
 func (obj *x509CertPrincipalImpl) GetCountryName() string {
-	ret := obj.rawPtr.CallGetCountryName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetCountryName()))
 }
 
-func (obj *x509CertPrincipalImpl) GetOrganizationNames(names []string) {
+func (obj *x509CertPrincipalImpl) GetOrganizationNames(names uintptr) {
 	obj.rawPtr.CallGetOrganizationNames(uintptr(0) /* names */)
 }
 
-func (obj *x509CertPrincipalImpl) GetOrganizationUnitNames(names []string) {
+func (obj *x509CertPrincipalImpl) GetOrganizationUnitNames(names uintptr) {
 	obj.rawPtr.CallGetOrganizationUnitNames(uintptr(0) /* names */)
+}
+
+func (obj *x509CertPrincipalImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
@@ -119,51 +113,35 @@ type x509CertificateImpl struct {
 }
 
 func (obj *x509CertificateImpl) GetSubject() X509CertPrincipal {
-	ret := obj.rawPtr.CallGetSubject()
-	_ = ret
-	return nil
+	return wrapX509CertPrincipal(unsafe.Pointer(obj.rawPtr.CallGetSubject()))
 }
 
 func (obj *x509CertificateImpl) GetIssuer() X509CertPrincipal {
-	ret := obj.rawPtr.CallGetIssuer()
-	_ = ret
-	return nil
+	return wrapX509CertPrincipal(unsafe.Pointer(obj.rawPtr.CallGetIssuer()))
 }
 
 func (obj *x509CertificateImpl) GetSerialNumber() BinaryValue {
-	ret := obj.rawPtr.CallGetSerialNumber()
-	_ = ret
-	return nil
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetSerialNumber()))
 }
 
 func (obj *x509CertificateImpl) GetValidStart() uintptr {
-	ret := obj.rawPtr.CallGetValidStart()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetValidStart())
 }
 
 func (obj *x509CertificateImpl) GetValidExpiry() uintptr {
-	ret := obj.rawPtr.CallGetValidExpiry()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetValidExpiry())
 }
 
 func (obj *x509CertificateImpl) GetDerencoded() BinaryValue {
-	ret := obj.rawPtr.CallGetDerencoded()
-	_ = ret
-	return nil
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDerencoded()))
 }
 
 func (obj *x509CertificateImpl) GetPemencoded() BinaryValue {
-	ret := obj.rawPtr.CallGetPemencoded()
-	_ = ret
-	return nil
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetPemencoded()))
 }
 
 func (obj *x509CertificateImpl) GetIssuerChainSize() int {
-	ret := obj.rawPtr.CallGetIssuerChainSize()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetIssuerChainSize())
 }
 
 func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain unsafe.Pointer) {
@@ -172,6 +150,10 @@ func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain 
 
 func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain unsafe.Pointer) {
 	obj.rawPtr.CallGetPemencodedIssuerChain(uintptr(0) /* chaincount */, uintptr(0) /* chain */)
+}
+
+func (obj *x509CertificateImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

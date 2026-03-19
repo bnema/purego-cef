@@ -57,77 +57,134 @@ func NewRenderHandler(impl RenderHandler) unsafe.Pointer {
 	// Cache the getter result once.
 	cachedGetAccessibilityHandler := impl.GetAccessibilityHandler()
 	r.OverrideGetAccessibilityHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetAccessibilityHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewAccessibilityHandler(cachedGetAccessibilityHandler))
 	}))
 
-	r.OverrideGetRootScreenRect(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetRootScreenRect(...), marshal return
-		return 0
+	r.OverrideGetRootScreenRect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		rect := uintptr(arg1)
+		return uintptr(impl.GetRootScreenRect(browser, rect))
 	}))
 
-	r.OverrideGetViewRect(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.GetViewRect(...)
+	r.OverrideGetViewRect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		rect := uintptr(arg1)
+		impl.GetViewRect(browser, rect)
 	}))
 
-	r.OverrideGetScreenPoint(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetScreenPoint(...), marshal return
-		return 0
+	r.OverrideGetScreenPoint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		viewx := int32(arg1)
+		viewy := int32(arg2)
+		screenx := unsafe.Pointer(arg3)
+		screeny := unsafe.Pointer(arg4)
+		return uintptr(impl.GetScreenPoint(browser, viewx, viewy, screenx, screeny))
 	}))
 
-	r.OverrideGetScreenInfo(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetScreenInfo(...), marshal return
-		return 0
+	r.OverrideGetScreenInfo(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		screenInfo := uintptr(arg1)
+		return uintptr(impl.GetScreenInfo(browser, screenInfo))
 	}))
 
-	r.OverrideOnPopupShow(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnPopupShow(...)
+	r.OverrideOnPopupShow(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		show := int32(arg1)
+		impl.OnPopupShow(browser, show)
 	}))
 
-	r.OverrideOnPopupSize(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnPopupSize(...)
+	r.OverrideOnPopupSize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		rect := uintptr(arg1)
+		impl.OnPopupSize(browser, rect)
 	}))
 
-	r.OverrideOnPaint(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnPaint(...)
+	r.OverrideOnPaint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		type_ := PaintElementType(arg1)
+		dirtyrectscount := int(arg2)
+		dirtyrects := uintptr(arg3)
+		buffer := unsafe.Pointer(arg4)
+		width := int32(arg5)
+		height := int32(arg6)
+		impl.OnPaint(browser, type_, dirtyrectscount, dirtyrects, buffer, width, height)
 	}))
 
-	r.OverrideOnAcceleratedPaint(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnAcceleratedPaint(...)
+	r.OverrideOnAcceleratedPaint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		type_ := PaintElementType(arg1)
+		dirtyrectscount := int(arg2)
+		dirtyrects := uintptr(arg3)
+		info := uintptr(arg4)
+		impl.OnAcceleratedPaint(browser, type_, dirtyrectscount, dirtyrects, info)
 	}))
 
-	r.OverrideGetTouchHandleSize(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.GetTouchHandleSize(...)
+	r.OverrideGetTouchHandleSize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		orientation := HorizontalAlignment(arg1)
+		size := uintptr(arg2)
+		impl.GetTouchHandleSize(browser, orientation, size)
 	}))
 
-	r.OverrideOnTouchHandleStateChanged(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnTouchHandleStateChanged(...)
+	r.OverrideOnTouchHandleStateChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		state := uintptr(arg1)
+		impl.OnTouchHandleStateChanged(browser, state)
 	}))
 
-	r.OverrideStartDragging(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.StartDragging(...), marshal return
-		return 0
+	r.OverrideStartDragging(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		dragData := wrapDragData(unsafe.Pointer(arg1))
+		allowedOps := DragOperationsMask(arg2)
+		x := int32(arg3)
+		y := int32(arg4)
+		return uintptr(impl.StartDragging(browser, dragData, allowedOps, x, y))
 	}))
 
-	r.OverrideUpdateDragCursor(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.UpdateDragCursor(...)
+	r.OverrideUpdateDragCursor(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		operation := DragOperationsMask(arg1)
+		impl.UpdateDragCursor(browser, operation)
 	}))
 
-	r.OverrideOnScrollOffsetChanged(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnScrollOffsetChanged(...)
+	r.OverrideOnScrollOffsetChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		x := float64(arg1)
+		y := float64(arg2)
+		impl.OnScrollOffsetChanged(browser, x, y)
 	}))
 
-	r.OverrideOnImeCompositionRangeChanged(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnImeCompositionRangeChanged(...)
+	r.OverrideOnImeCompositionRangeChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		selectedRange := uintptr(arg1)
+		characterBoundscount := int(arg2)
+		characterBounds := uintptr(arg3)
+		impl.OnImeCompositionRangeChanged(browser, selectedRange, characterBoundscount, characterBounds)
 	}))
 
-	r.OverrideOnTextSelectionChanged(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnTextSelectionChanged(...)
+	r.OverrideOnTextSelectionChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		selectedText := goString(unsafe.Pointer(arg1))
+		selectedRange := uintptr(arg2)
+		impl.OnTextSelectionChanged(browser, selectedText, selectedRange)
 	}))
 
-	r.OverrideOnVirtualKeyboardRequested(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnVirtualKeyboardRequested(...)
+	r.OverrideOnVirtualKeyboardRequested(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		inputMode := TextInputMode(arg1)
+		impl.OnVirtualKeyboardRequested(browser, inputMode)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapRenderHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapRenderHandler(ptr unsafe.Pointer) RenderHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

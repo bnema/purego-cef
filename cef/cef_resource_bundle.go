@@ -24,21 +24,19 @@ type resourceBundleImpl struct {
 }
 
 func (obj *resourceBundleImpl) GetLocalizedString(stringID int32) string {
-	ret := obj.rawPtr.CallGetLocalizedString(uintptr(0) /* stringID */)
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLocalizedString(uintptr(0) /* stringID */)))
 }
 
 func (obj *resourceBundleImpl) GetDataResource(resourceID int32) BinaryValue {
-	ret := obj.rawPtr.CallGetDataResource(uintptr(0) /* resourceID */)
-	_ = ret
-	return nil
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDataResource(uintptr(0) /* resourceID */)))
 }
 
 func (obj *resourceBundleImpl) GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor) BinaryValue {
-	ret := obj.rawPtr.CallGetDataResourceForScale(uintptr(0) /* resourceID */, uintptr(0) /* scaleFactor */)
-	_ = ret
-	return nil
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDataResourceForScale(uintptr(0) /* resourceID */, uintptr(0) /* scaleFactor */)))
+}
+
+func (obj *resourceBundleImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

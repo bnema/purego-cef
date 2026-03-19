@@ -25,6 +25,10 @@ func (obj *jsdialogCallbackImpl) Cont(success int32, userInput string) {
 	obj.rawPtr.CallCont(uintptr(0) /* success */, uintptr(0) /* userInput */)
 }
 
+func (obj *jsdialogCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *jsdialogCallbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
@@ -64,23 +68,48 @@ func NewJsdialogHandler(impl JsdialogHandler) unsafe.Pointer {
 	r := new(raw.CEFJsdialogHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnJsdialog(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnJsdialog(...), marshal return
+	r.OverrideOnJsdialog(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		originURL := goString(unsafe.Pointer(arg1))
+		dialogType := JsdialogType(arg2)
+		messageText := goString(unsafe.Pointer(arg3))
+		defaultPromptText := goString(unsafe.Pointer(arg4))
+		callback := wrapJsdialogCallback(unsafe.Pointer(arg5))
+		suppressMessage := unsafe.Pointer(arg6)
+		return uintptr(impl.OnJsdialog(browser, originURL, dialogType, messageText, defaultPromptText, callback, suppressMessage))
+	}))
+
+	r.OverrideOnBeforeUnloadDialog(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		messageText := goString(unsafe.Pointer(arg1))
+		isReload := int32(arg2)
+		callback := wrapJsdialogCallback(unsafe.Pointer(arg3))
+		if impl.OnBeforeUnloadDialog(browser, messageText, isReload, callback) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideOnBeforeUnloadDialog(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnBeforeUnloadDialog(...), marshal return
-		return 0
+	r.OverrideOnResetDialogState(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnResetDialogState(browser)
 	}))
 
-	r.OverrideOnResetDialogState(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnResetDialogState(...)
-	}))
-
-	r.OverrideOnDialogClosed(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnDialogClosed(...)
+	r.OverrideOnDialogClosed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnDialogClosed(browser)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapJsdialogHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapJsdialogHandler(ptr unsafe.Pointer) JsdialogHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

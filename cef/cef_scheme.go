@@ -21,9 +21,11 @@ type schemeRegistrarImpl struct {
 }
 
 func (obj *schemeRegistrarImpl) AddCustomScheme(schemeName string, options int32) int32 {
-	ret := obj.rawPtr.CallAddCustomScheme(uintptr(0) /* schemeName */, uintptr(0) /* options */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallAddCustomScheme(uintptr(0) /* schemeName */, uintptr(0) /* options */))
+}
+
+func (obj *schemeRegistrarImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 func wrapSchemeRegistrar(ptr unsafe.Pointer) SchemeRegistrar {
@@ -46,12 +48,30 @@ func NewSchemeHandlerFactory(impl SchemeHandlerFactory) unsafe.Pointer {
 	r := new(raw.CEFSchemeHandlerFactoryT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideCreate(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.Create(...), marshal return
-		return 0
+	r.OverrideCreate(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		schemeName := goString(unsafe.Pointer(arg2))
+		request := wrapRequest(unsafe.Pointer(arg3))
+		result := impl.Create(browser, frame, schemeName, request)
+		if result == nil {
+			return 0
+		}
+		return uintptr(NewResourceHandler(result))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapSchemeHandlerFactory wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapSchemeHandlerFactory(ptr unsafe.Pointer) SchemeHandlerFactory {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
 
 // RegisterSchemeHandlerFactory Register a scheme handler factory with the global request context. An NULL |domain_name| value for a standard scheme will cause the factory to match all domain names. The |domain_name| value will be ignored for non-standard schemes. If |scheme_name| is a built-in scheme and no handler is returned by |factory| then the built-in scheme handler factory will be called. If |scheme_name| is a custom scheme then you must also implement the cef_app_t::on_register_custom_schemes() function in all processes. This function may be called multiple times to change or remove the factory that matches the specified |scheme_name| and optional |domain_name|. Returns false (0) if an error occurs. This function may be called on any thread in the browser process. Using this function is equivalent to calling cef_reques t_context_t::cef_request_context_get_global_context()- >register_scheme_handler_factory().

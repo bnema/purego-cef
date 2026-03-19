@@ -30,26 +30,48 @@ func NewAudioHandler(impl AudioHandler) unsafe.Pointer {
 	r := new(raw.CEFAudioHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetAudioParameters(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetAudioParameters(...), marshal return
-		return 0
+	r.OverrideGetAudioParameters(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		params := uintptr(arg1)
+		return uintptr(impl.GetAudioParameters(browser, params))
 	}))
 
-	r.OverrideOnAudioStreamStarted(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnAudioStreamStarted(...)
+	r.OverrideOnAudioStreamStarted(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		params := uintptr(arg1)
+		channels := int32(arg2)
+		impl.OnAudioStreamStarted(browser, params, channels)
 	}))
 
-	r.OverrideOnAudioStreamPacket(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnAudioStreamPacket(...)
+	r.OverrideOnAudioStreamPacket(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		data := uintptr(arg1)
+		frames := int32(arg2)
+		pts := int64(arg3)
+		impl.OnAudioStreamPacket(browser, data, frames, pts)
 	}))
 
-	r.OverrideOnAudioStreamStopped(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnAudioStreamStopped(...)
+	r.OverrideOnAudioStreamStopped(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnAudioStreamStopped(browser)
 	}))
 
-	r.OverrideOnAudioStreamError(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnAudioStreamError(...)
+	r.OverrideOnAudioStreamError(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		message := goString(unsafe.Pointer(arg1))
+		impl.OnAudioStreamError(browser, message)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapAudioHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapAudioHandler(ptr unsafe.Pointer) AudioHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

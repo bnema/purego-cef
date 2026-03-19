@@ -177,9 +177,7 @@ func (obj *windowImpl) IsFullscreen() bool {
 }
 
 func (obj *windowImpl) GetFocusedView() View {
-	ret := obj.rawPtr.CallGetFocusedView()
-	_ = ret
-	return nil
+	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetFocusedView()))
 }
 
 func (obj *windowImpl) SetTitle(title string) {
@@ -187,9 +185,7 @@ func (obj *windowImpl) SetTitle(title string) {
 }
 
 func (obj *windowImpl) GetTitle() string {
-	ret := obj.rawPtr.CallGetTitle()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetTitle()))
 }
 
 func (obj *windowImpl) SetWindowIcon(image Image) {
@@ -197,9 +193,7 @@ func (obj *windowImpl) SetWindowIcon(image Image) {
 }
 
 func (obj *windowImpl) GetWindowIcon() Image {
-	ret := obj.rawPtr.CallGetWindowIcon()
-	_ = ret
-	return nil
+	return wrapImage(unsafe.Pointer(obj.rawPtr.CallGetWindowIcon()))
 }
 
 func (obj *windowImpl) SetWindowAppIcon(image Image) {
@@ -207,15 +201,11 @@ func (obj *windowImpl) SetWindowAppIcon(image Image) {
 }
 
 func (obj *windowImpl) GetWindowAppIcon() Image {
-	ret := obj.rawPtr.CallGetWindowAppIcon()
-	_ = ret
-	return nil
+	return wrapImage(unsafe.Pointer(obj.rawPtr.CallGetWindowAppIcon()))
 }
 
 func (obj *windowImpl) AddOverlayView(view View, dockingMode DockingMode, canActivate int32) OverlayController {
-	ret := obj.rawPtr.CallAddOverlayView(uintptr(0) /* view */, uintptr(0) /* dockingMode */, uintptr(0) /* canActivate */)
-	_ = ret
-	return nil
+	return wrapOverlayController(unsafe.Pointer(obj.rawPtr.CallAddOverlayView(uintptr(0) /* view */, uintptr(0) /* dockingMode */, uintptr(0) /* canActivate */)))
 }
 
 func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint uintptr, anchorPosition MenuAnchorPosition) {
@@ -227,15 +217,11 @@ func (obj *windowImpl) CancelMenu() {
 }
 
 func (obj *windowImpl) GetDisplay() Display {
-	ret := obj.rawPtr.CallGetDisplay()
-	_ = ret
-	return nil
+	return wrapDisplay(unsafe.Pointer(obj.rawPtr.CallGetDisplay()))
 }
 
 func (obj *windowImpl) GetClientAreaBoundsInScreen() uintptr {
-	ret := obj.rawPtr.CallGetClientAreaBoundsInScreen()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetClientAreaBoundsInScreen())
 }
 
 func (obj *windowImpl) SetDraggableRegions(regionscount int, regions uintptr) {
@@ -243,9 +229,7 @@ func (obj *windowImpl) SetDraggableRegions(regionscount int, regions uintptr) {
 }
 
 func (obj *windowImpl) GetWindowHandle() uintptr {
-	ret := obj.rawPtr.CallGetWindowHandle()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetWindowHandle())
 }
 
 func (obj *windowImpl) SendKeyPress(keyCode int32, eventFlags uint32) {
@@ -282,6 +266,10 @@ func (obj *windowImpl) ThemeChanged() {
 
 func (obj *windowImpl) GetRuntimeStyle() RuntimeStyle {
 	return RuntimeStyle(obj.rawPtr.CallGetRuntimeStyle())
+}
+
+func (obj *windowImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

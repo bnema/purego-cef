@@ -52,33 +52,23 @@ func (obj *imageImpl) IsSame(that Image) bool {
 }
 
 func (obj *imageImpl) AddBitmap(scaleFactor float32, pixelWidth int32, pixelHeight int32, colorType ColorType, alphaType AlphaType, pixelData unsafe.Pointer, pixelDataSize int) int32 {
-	ret := obj.rawPtr.CallAddBitmap(uintptr(0) /* scaleFactor */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */, uintptr(0) /* colorType */, uintptr(0) /* alphaType */, uintptr(0) /* pixelData */, uintptr(0) /* pixelDataSize */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallAddBitmap(uintptr(0) /* scaleFactor */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */, uintptr(0) /* colorType */, uintptr(0) /* alphaType */, uintptr(0) /* pixelData */, uintptr(0) /* pixelDataSize */))
 }
 
 func (obj *imageImpl) AddPng(scaleFactor float32, pngData unsafe.Pointer, pngDataSize int) int32 {
-	ret := obj.rawPtr.CallAddPng(uintptr(0) /* scaleFactor */, uintptr(0) /* pngData */, uintptr(0) /* pngDataSize */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallAddPng(uintptr(0) /* scaleFactor */, uintptr(0) /* pngData */, uintptr(0) /* pngDataSize */))
 }
 
 func (obj *imageImpl) AddJpeg(scaleFactor float32, jpegData unsafe.Pointer, jpegDataSize int) int32 {
-	ret := obj.rawPtr.CallAddJpeg(uintptr(0) /* scaleFactor */, uintptr(0) /* jpegData */, uintptr(0) /* jpegDataSize */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallAddJpeg(uintptr(0) /* scaleFactor */, uintptr(0) /* jpegData */, uintptr(0) /* jpegDataSize */))
 }
 
 func (obj *imageImpl) GetWidth() int {
-	ret := obj.rawPtr.CallGetWidth()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetWidth())
 }
 
 func (obj *imageImpl) GetHeight() int {
-	ret := obj.rawPtr.CallGetHeight()
-	_ = ret
-	return 0
+	return int(obj.rawPtr.CallGetHeight())
 }
 
 func (obj *imageImpl) HasRepresentation(scaleFactor float32) bool {
@@ -86,33 +76,27 @@ func (obj *imageImpl) HasRepresentation(scaleFactor float32) bool {
 }
 
 func (obj *imageImpl) RemoveRepresentation(scaleFactor float32) int32 {
-	ret := obj.rawPtr.CallRemoveRepresentation(uintptr(0) /* scaleFactor */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallRemoveRepresentation(uintptr(0) /* scaleFactor */))
 }
 
 func (obj *imageImpl) GetRepresentationInfo(scaleFactor float32, actualScaleFactor unsafe.Pointer, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) int32 {
-	ret := obj.rawPtr.CallGetRepresentationInfo(uintptr(0) /* scaleFactor */, uintptr(0) /* actualScaleFactor */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */)
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetRepresentationInfo(uintptr(0) /* scaleFactor */, uintptr(0) /* actualScaleFactor */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */))
 }
 
 func (obj *imageImpl) GetAsBitmap(scaleFactor float32, colorType ColorType, alphaType AlphaType, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue {
-	ret := obj.rawPtr.CallGetAsBitmap(uintptr(0) /* scaleFactor */, uintptr(0) /* colorType */, uintptr(0) /* alphaType */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */)
-	_ = ret
-	return nil
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetAsBitmap(uintptr(0) /* scaleFactor */, uintptr(0) /* colorType */, uintptr(0) /* alphaType */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */)))
 }
 
 func (obj *imageImpl) GetAsPng(scaleFactor float32, withTransparency int32, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue {
-	ret := obj.rawPtr.CallGetAsPng(uintptr(0) /* scaleFactor */, uintptr(0) /* withTransparency */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */)
-	_ = ret
-	return nil
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetAsPng(uintptr(0) /* scaleFactor */, uintptr(0) /* withTransparency */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */)))
 }
 
 func (obj *imageImpl) GetAsJpeg(scaleFactor float32, quality int32, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue {
-	ret := obj.rawPtr.CallGetAsJpeg(uintptr(0) /* scaleFactor */, uintptr(0) /* quality */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */)
-	_ = ret
-	return nil
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetAsJpeg(uintptr(0) /* scaleFactor */, uintptr(0) /* quality */, uintptr(0) /* pixelWidth */, uintptr(0) /* pixelHeight */)))
+}
+
+func (obj *imageImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

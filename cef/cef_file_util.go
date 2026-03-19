@@ -14,21 +14,21 @@ func CreateDirectory(fullPath string) int32 {
 }
 
 // GetTempDirectory Get the temporary directory provided by the system. WARNING: In general, you should use the temp directory variants below instead of this function. Those variants will ensure that the proper permissions are set so that other users on the system can't edit them while they're open (which could lead to security issues).
-func GetTempDirectory(tempDir *string) int32 {
+func GetTempDirectory(tempDir uintptr) int32 {
 	// TODO: marshal args, call raw.CEFGetTempDirectory(...), marshal return
 	_ = raw.CEFGetTempDirectory
 	return 0
 }
 
 // CreateNewTempDirectory Creates a new directory. On Windows if |prefix| is provided the new directory name is in the format of "prefixyyyy". Returns true (1) on success and sets |new_temp_path| to the full path of the directory that was created. The directory is only readable by the current user. Calling this function on the browser process UI or IO threads is not allowed.
-func CreateNewTempDirectory(prefix string, newTempPath *string) int32 {
+func CreateNewTempDirectory(prefix string, newTempPath uintptr) int32 {
 	// TODO: marshal args, call raw.CEFCreateNewTempDirectory(...), marshal return
 	_ = raw.CEFCreateNewTempDirectory
 	return 0
 }
 
 // CreateTempDirectoryInDirectory Creates a directory within another directory. Extra characters will be appended to |prefix| to ensure that the new directory does not have the same name as an existing directory. Returns true (1) on success and sets |new_dir| to the full path of the directory that was created. The directory is only readable by the current user. Calling this function on the browser process UI or IO threads is not allowed.
-func CreateTempDirectoryInDirectory(baseDir string, prefix string, newDir *string) int32 {
+func CreateTempDirectoryInDirectory(baseDir string, prefix string, newDir uintptr) int32 {
 	// TODO: marshal args, call raw.CEFCreateTempDirectoryInDirectory(...), marshal return
 	_ = raw.CEFCreateTempDirectoryInDirectory
 	return 0

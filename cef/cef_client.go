@@ -61,133 +61,129 @@ func NewClient(impl Client) unsafe.Pointer {
 	// Cache the getter result once.
 	cachedGetAudioHandler := impl.GetAudioHandler()
 	r.OverrideGetAudioHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetAudioHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewAudioHandler(cachedGetAudioHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetCommandHandler := impl.GetCommandHandler()
 	r.OverrideGetCommandHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetCommandHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewCommandHandler(cachedGetCommandHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetContextMenuHandler := impl.GetContextMenuHandler()
 	r.OverrideGetContextMenuHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetContextMenuHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewContextMenuHandler(cachedGetContextMenuHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDialogHandler := impl.GetDialogHandler()
 	r.OverrideGetDialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetDialogHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewDialogHandler(cachedGetDialogHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDisplayHandler := impl.GetDisplayHandler()
 	r.OverrideGetDisplayHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetDisplayHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewDisplayHandler(cachedGetDisplayHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDownloadHandler := impl.GetDownloadHandler()
 	r.OverrideGetDownloadHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetDownloadHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewDownloadHandler(cachedGetDownloadHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetDragHandler := impl.GetDragHandler()
 	r.OverrideGetDragHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetDragHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewDragHandler(cachedGetDragHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetFindHandler := impl.GetFindHandler()
 	r.OverrideGetFindHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetFindHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewFindHandler(cachedGetFindHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetFocusHandler := impl.GetFocusHandler()
 	r.OverrideGetFocusHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetFocusHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewFocusHandler(cachedGetFocusHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetFrameHandler := impl.GetFrameHandler()
 	r.OverrideGetFrameHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetFrameHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewFrameHandler(cachedGetFrameHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetPermissionHandler := impl.GetPermissionHandler()
 	r.OverrideGetPermissionHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetPermissionHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewPermissionHandler(cachedGetPermissionHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetJsdialogHandler := impl.GetJsdialogHandler()
 	r.OverrideGetJsdialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetJsdialogHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewJsdialogHandler(cachedGetJsdialogHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetKeyboardHandler := impl.GetKeyboardHandler()
 	r.OverrideGetKeyboardHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetKeyboardHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewKeyboardHandler(cachedGetKeyboardHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetLifeSpanHandler := impl.GetLifeSpanHandler()
 	r.OverrideGetLifeSpanHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetLifeSpanHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewLifeSpanHandler(cachedGetLifeSpanHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetLoadHandler := impl.GetLoadHandler()
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetLoadHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewLoadHandler(cachedGetLoadHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetPrintHandler := impl.GetPrintHandler()
 	r.OverrideGetPrintHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetPrintHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewPrintHandler(cachedGetPrintHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetRenderHandler := impl.GetRenderHandler()
 	r.OverrideGetRenderHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetRenderHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewRenderHandler(cachedGetRenderHandler))
 	}))
 
 	// Cache the getter result once.
 	cachedGetRequestHandler := impl.GetRequestHandler()
 	r.OverrideGetRequestHandler(purego.NewCallback(func(_ uintptr) uintptr {
-		_ = cachedGetRequestHandler
-		return 0 // TODO: marshal cached result
+		return uintptr(NewRequestHandler(cachedGetRequestHandler))
 	}))
 
-	r.OverrideOnProcessMessageReceived(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnProcessMessageReceived(...), marshal return
-		return 0
+	r.OverrideOnProcessMessageReceived(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		sourceProcess := ProcessID(arg2)
+		message := wrapProcessMessage(unsafe.Pointer(arg3))
+		return uintptr(impl.OnProcessMessageReceived(browser, frame, sourceProcess, message))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapClient wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapClient(ptr unsafe.Pointer) Client {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

@@ -30,30 +30,57 @@ func NewCommandHandler(impl CommandHandler) unsafe.Pointer {
 	r := new(raw.CEFCommandHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnChromeCommand(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnChromeCommand(...), marshal return
+	r.OverrideOnChromeCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		commandID := int32(arg1)
+		disposition := WindowOpenDisposition(arg2)
+		return uintptr(impl.OnChromeCommand(browser, commandID, disposition))
+	}))
+
+	r.OverrideIsChromeAppMenuItemVisible(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		commandID := int32(arg1)
+		if impl.IsChromeAppMenuItemVisible(browser, commandID) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideIsChromeAppMenuItemVisible(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.IsChromeAppMenuItemVisible(...), marshal return
+	r.OverrideIsChromeAppMenuItemEnabled(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		commandID := int32(arg1)
+		if impl.IsChromeAppMenuItemEnabled(browser, commandID) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideIsChromeAppMenuItemEnabled(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.IsChromeAppMenuItemEnabled(...), marshal return
+	r.OverrideIsChromePageActionIconVisible(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		iconType := ChromePageActionIconType(arg0)
+		if impl.IsChromePageActionIconVisible(iconType) {
+			return 1
+		}
 		return 0
 	}))
 
-	r.OverrideIsChromePageActionIconVisible(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.IsChromePageActionIconVisible(...), marshal return
-		return 0
-	}))
-
-	r.OverrideIsChromeToolbarButtonVisible(purego.NewCallback(func(_ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.IsChromeToolbarButtonVisible(...), marshal return
+	r.OverrideIsChromeToolbarButtonVisible(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		buttonType := ChromeToolbarButtonType(arg0)
+		if impl.IsChromeToolbarButtonVisible(buttonType) {
+			return 1
+		}
 		return 0
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapCommandHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapCommandHandler(ptr unsafe.Pointer) CommandHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

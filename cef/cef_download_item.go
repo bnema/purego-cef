@@ -82,85 +82,63 @@ func (obj *downloadItemImpl) GetInterruptReason() DownloadInterruptReason {
 }
 
 func (obj *downloadItemImpl) GetCurrentSpeed() int64 {
-	ret := obj.rawPtr.CallGetCurrentSpeed()
-	_ = ret
-	return 0
+	return int64(obj.rawPtr.CallGetCurrentSpeed())
 }
 
 func (obj *downloadItemImpl) GetPercentComplete() int32 {
-	ret := obj.rawPtr.CallGetPercentComplete()
-	_ = ret
-	return 0
+	return int32(obj.rawPtr.CallGetPercentComplete())
 }
 
 func (obj *downloadItemImpl) GetTotalBytes() int64 {
-	ret := obj.rawPtr.CallGetTotalBytes()
-	_ = ret
-	return 0
+	return int64(obj.rawPtr.CallGetTotalBytes())
 }
 
 func (obj *downloadItemImpl) GetReceivedBytes() int64 {
-	ret := obj.rawPtr.CallGetReceivedBytes()
-	_ = ret
-	return 0
+	return int64(obj.rawPtr.CallGetReceivedBytes())
 }
 
 func (obj *downloadItemImpl) GetStartTime() uintptr {
-	ret := obj.rawPtr.CallGetStartTime()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetStartTime())
 }
 
 func (obj *downloadItemImpl) GetEndTime() uintptr {
-	ret := obj.rawPtr.CallGetEndTime()
-	_ = ret
-	return 0
+	return uintptr(obj.rawPtr.CallGetEndTime())
 }
 
 func (obj *downloadItemImpl) GetFullPath() string {
-	ret := obj.rawPtr.CallGetFullPath()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFullPath()))
 }
 
 func (obj *downloadItemImpl) GetID() uint32 {
-	ret := obj.rawPtr.CallGetID()
-	_ = ret
-	return 0
+	return uint32(obj.rawPtr.CallGetID())
 }
 
 func (obj *downloadItemImpl) GetURL() string {
-	ret := obj.rawPtr.CallGetURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetURL()))
 }
 
 func (obj *downloadItemImpl) GetOriginalURL() string {
-	ret := obj.rawPtr.CallGetOriginalURL()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetOriginalURL()))
 }
 
 func (obj *downloadItemImpl) GetSuggestedFileName() string {
-	ret := obj.rawPtr.CallGetSuggestedFileName()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSuggestedFileName()))
 }
 
 func (obj *downloadItemImpl) GetContentDisposition() string {
-	ret := obj.rawPtr.CallGetContentDisposition()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetContentDisposition()))
 }
 
 func (obj *downloadItemImpl) GetMimeType() string {
-	ret := obj.rawPtr.CallGetMimeType()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetMimeType()))
 }
 
 func (obj *downloadItemImpl) IsPaused() bool {
 	return obj.rawPtr.CallIsPaused() != 0
+}
+
+func (obj *downloadItemImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

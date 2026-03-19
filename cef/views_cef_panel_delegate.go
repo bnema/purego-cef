@@ -20,3 +20,14 @@ func NewPanelDelegate(impl PanelDelegate) unsafe.Pointer {
 
 	return unsafe.Pointer(r)
 }
+
+// wrapPanelDelegate wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapPanelDelegate(ptr unsafe.Pointer) PanelDelegate {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
+}

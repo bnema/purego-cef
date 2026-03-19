@@ -30,9 +30,7 @@ type buttonImpl struct {
 }
 
 func (obj *buttonImpl) AsLabelButton() LabelButton {
-	ret := obj.rawPtr.CallAsLabelButton()
-	_ = ret
-	return nil
+	return wrapLabelButton(unsafe.Pointer(obj.rawPtr.CallAsLabelButton()))
 }
 
 func (obj *buttonImpl) SetState(state ButtonState) {
@@ -53,6 +51,10 @@ func (obj *buttonImpl) SetTooltipText(tooltipText string) {
 
 func (obj *buttonImpl) SetAccessibleName(name string) {
 	obj.rawPtr.CallSetAccessibleName(uintptr(0) /* name */)
+}
+
+func (obj *buttonImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

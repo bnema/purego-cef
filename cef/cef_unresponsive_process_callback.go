@@ -29,6 +29,10 @@ func (obj *unresponsiveProcessCallbackImpl) Terminate() {
 	obj.rawPtr.CallTerminate()
 }
 
+func (obj *unresponsiveProcessCallbackImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 // Release releases the underlying CEF object.
 func (obj *unresponsiveProcessCallbackImpl) Release() {
 	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))

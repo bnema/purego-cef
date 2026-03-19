@@ -7,7 +7,7 @@ import (
 )
 
 // GetPath Retrieve the path associated with the specified |key|. Returns true (1) on success. Can be called on any thread in the browser process.
-func GetPath(key PathKey, path *string) int32 {
+func GetPath(key PathKey, path uintptr) int32 {
 	// TODO: marshal args, call raw.CEFGetPath(...), marshal return
 	_ = raw.CEFGetPath
 	return 0

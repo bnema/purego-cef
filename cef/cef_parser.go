@@ -9,7 +9,7 @@ import (
 )
 
 // ResolveURL Combines specified |base_url| and |relative_url| into |resolved_url|. Returns false (0) if one of the URLs is NULL or invalid.
-func ResolveURL(baseURL string, relativeURL string, resolvedURL *string) int32 {
+func ResolveURL(baseURL string, relativeURL string, resolvedURL uintptr) int32 {
 	// TODO: marshal args, call raw.CEFResolveURL(...), marshal return
 	_ = raw.CEFResolveURL
 	return 0
@@ -23,7 +23,7 @@ func ParseURL(uRL string, parts *Urlparts) int32 {
 }
 
 // CreateURL Creates a URL from the specified |parts|, which must contain a non-NULL spec or a non-NULL host and path (at a minimum), but not both. Returns false (0) if |parts| isn't initialized as described.
-func CreateURL(parts *Urlparts, uRL *string) int32 {
+func CreateURL(parts *Urlparts, uRL uintptr) int32 {
 	// TODO: marshal args, call raw.CEFCreateURL(...), marshal return
 	_ = raw.CEFCreateURL
 	return 0
@@ -44,7 +44,7 @@ func GetMimeType(extension string) string {
 }
 
 // GetExtensionsForMimeType Get the extensions associated with the given mime type. This should be passed in lower case. There could be multiple extensions for a given mime type, like "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing elements in the provided vector will not be erased.
-func GetExtensionsForMimeType(mimeType string, extensions []string) {
+func GetExtensionsForMimeType(mimeType string, extensions uintptr) {
 	// TODO: marshal args and call raw.CEFGetExtensionsForMimeType(...)
 	_ = raw.CEFGetExtensionsForMimeType
 }
@@ -92,7 +92,7 @@ func ParseJsonBuffer(json unsafe.Pointer, jsonSize int, options JsonParserOption
 }
 
 // ParseJsonandReturnError Parses the specified |json_string| and returns a dictionary or list representation. If JSON parsing fails this function returns NULL and populates |error_msg_out| with a formatted error message.
-func ParseJsonandReturnError(jsonString string, options JsonParserOptions, errorMsgOut *string) Value {
+func ParseJsonandReturnError(jsonString string, options JsonParserOptions, errorMsgOut uintptr) Value {
 	// TODO: marshal args, call raw.CEFParseJsonandReturnError(...), marshal return
 	_ = raw.CEFParseJsonandReturnError
 	return nil

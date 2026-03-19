@@ -30,26 +30,50 @@ func NewDevToolsMessageObserver(impl DevToolsMessageObserver) unsafe.Pointer {
 	r := new(raw.CEFDevToolsMessageObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnDevToolsMessage(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnDevToolsMessage(...), marshal return
-		return 0
+	r.OverrideOnDevToolsMessage(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		message := unsafe.Pointer(arg1)
+		messageSize := int(arg2)
+		return uintptr(impl.OnDevToolsMessage(browser, message, messageSize))
 	}))
 
-	r.OverrideOnDevToolsMethodResult(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnDevToolsMethodResult(...)
+	r.OverrideOnDevToolsMethodResult(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		messageID := int32(arg1)
+		success := int32(arg2)
+		result := unsafe.Pointer(arg3)
+		resultSize := int(arg4)
+		impl.OnDevToolsMethodResult(browser, messageID, success, result, resultSize)
 	}))
 
-	r.OverrideOnDevToolsEvent(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnDevToolsEvent(...)
+	r.OverrideOnDevToolsEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		method := goString(unsafe.Pointer(arg1))
+		params := unsafe.Pointer(arg2)
+		paramsSize := int(arg3)
+		impl.OnDevToolsEvent(browser, method, params, paramsSize)
 	}))
 
-	r.OverrideOnDevToolsAgentAttached(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnDevToolsAgentAttached(...)
+	r.OverrideOnDevToolsAgentAttached(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnDevToolsAgentAttached(browser)
 	}))
 
-	r.OverrideOnDevToolsAgentDetached(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnDevToolsAgentDetached(...)
+	r.OverrideOnDevToolsAgentDetached(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnDevToolsAgentDetached(browser)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapDevToolsMessageObserver wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapDevToolsMessageObserver(ptr unsafe.Pointer) DevToolsMessageObserver {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

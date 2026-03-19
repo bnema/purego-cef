@@ -23,7 +23,7 @@ type CommandLine interface {
 	// Reset Reset the command-line switches and arguments but leave the program component unchanged.
 	Reset()
 	// GetArgv Retrieve the original command line string as a vector of strings. The argv array: `{ program, [(--|-|/)switch[=value]]*, [--], [argument]* }`
-	GetArgv(argv []string)
+	GetArgv(argv uintptr)
 	// GetCommandLineString Constructs and returns the represented command line string. Use this function cautiously because quoting behavior is unclear.
 	GetCommandLineString() string
 	// GetProgram Get the program part of the command line string (the first item).
@@ -37,7 +37,7 @@ type CommandLine interface {
 	// GetSwitchValue Returns the value associated with the given switch. If the switch has no value or isn't present this function returns the NULL string.
 	GetSwitchValue(name string) string
 	// GetSwitches Returns the map of switch names and values. If a switch has no value an NULL string is returned.
-	GetSwitches(switches map[string]string)
+	GetSwitches(switches uintptr)
 	// AppendSwitch Add a switch to the end of the command line.
 	AppendSwitch(name string)
 	// AppendSwitchWithValue Add a switch with the specified value to the end of the command line. If the switch has no value pass an NULL value string.
@@ -45,7 +45,7 @@ type CommandLine interface {
 	// HasArguments True if there are remaining command line arguments.
 	HasArguments() bool
 	// GetArguments Get the remaining command line arguments.
-	GetArguments(arguments []string)
+	GetArguments(arguments uintptr)
 	// AppendArgument Add an argument to the end of the command line.
 	AppendArgument(argument string)
 	// PrependWrapper Insert a command before the current command. Common for debuggers, like "valgrind" or "gdb --args".
@@ -67,9 +67,7 @@ func (obj *commandLineImpl) IsReadOnly() bool {
 }
 
 func (obj *commandLineImpl) Copy() CommandLine {
-	ret := obj.rawPtr.CallCopy()
-	_ = ret
-	return nil
+	return wrapCommandLine(unsafe.Pointer(obj.rawPtr.CallCopy()))
 }
 
 func (obj *commandLineImpl) InitFromArgv(argc int32, argv uintptr) {
@@ -84,20 +82,16 @@ func (obj *commandLineImpl) Reset() {
 	obj.rawPtr.CallReset()
 }
 
-func (obj *commandLineImpl) GetArgv(argv []string) {
+func (obj *commandLineImpl) GetArgv(argv uintptr) {
 	obj.rawPtr.CallGetArgv(uintptr(0) /* argv */)
 }
 
 func (obj *commandLineImpl) GetCommandLineString() string {
-	ret := obj.rawPtr.CallGetCommandLineString()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetCommandLineString()))
 }
 
 func (obj *commandLineImpl) GetProgram() string {
-	ret := obj.rawPtr.CallGetProgram()
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetProgram()))
 }
 
 func (obj *commandLineImpl) SetProgram(program string) {
@@ -113,12 +107,10 @@ func (obj *commandLineImpl) HasSwitch(name string) bool {
 }
 
 func (obj *commandLineImpl) GetSwitchValue(name string) string {
-	ret := obj.rawPtr.CallGetSwitchValue(uintptr(0) /* name */)
-	_ = ret
-	return ""
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSwitchValue(uintptr(0) /* name */)))
 }
 
-func (obj *commandLineImpl) GetSwitches(switches map[string]string) {
+func (obj *commandLineImpl) GetSwitches(switches uintptr) {
 	obj.rawPtr.CallGetSwitches(uintptr(0) /* switches */)
 }
 
@@ -134,7 +126,7 @@ func (obj *commandLineImpl) HasArguments() bool {
 	return obj.rawPtr.CallHasArguments() != 0
 }
 
-func (obj *commandLineImpl) GetArguments(arguments []string) {
+func (obj *commandLineImpl) GetArguments(arguments uintptr) {
 	obj.rawPtr.CallGetArguments(uintptr(0) /* arguments */)
 }
 
@@ -148,6 +140,10 @@ func (obj *commandLineImpl) PrependWrapper(wrapper string) {
 
 func (obj *commandLineImpl) RemoveSwitch(name string) {
 	obj.rawPtr.CallRemoveSwitch(uintptr(0) /* name */)
+}
+
+func (obj *commandLineImpl) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.

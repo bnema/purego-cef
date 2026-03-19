@@ -17,11 +17,11 @@ type DisplayHandler interface {
 	// OnTitleChange Called when the page title changes.
 	OnTitleChange(browser Browser, title string)
 	// OnFaviconUrlchange Called when the page icon changes.
-	OnFaviconUrlchange(browser Browser, iconUrls []string)
+	OnFaviconUrlchange(browser Browser, iconUrls uintptr)
 	// OnFullscreenModeChange Called when web content in the page has toggled fullscreen mode. If |fullscreen| is true (1) the content will automatically be sized to fill the browser content area. If |fullscreen| is false (0) the content will automatically return to its original size and position. With Alloy style the client is responsible for triggering the fullscreen transition (for example, by calling cef_window_t::SetFullscreen when using Views). With Chrome style the fullscreen transition will be triggered automatically. The cef_window_delegate_t::OnWindowFullscreenTransition function will be called during the fullscreen transition for notification purposes.
 	OnFullscreenModeChange(browser Browser, fullscreen int32)
 	// OnTooltip Called when the browser is about to display a tooltip. |text| contains the text that will be displayed in the tooltip. To handle the display of the tooltip yourself return true (1). Otherwise, you can optionally modify |text| and then return false (0) to allow the browser to display the tooltip. When window rendering is disabled the application is responsible for drawing tooltips and the return value is ignored.
-	OnTooltip(browser Browser, text *string) int32
+	OnTooltip(browser Browser, text uintptr) int32
 	// OnStatusMessage Called when the browser receives a status message. |value| contains the text that will be displayed in the status message.
 	OnStatusMessage(browser Browser, value string)
 	// OnConsoleMessage Called to display a console message. Return true (1) to stop the message from being output to the console.
@@ -46,63 +46,101 @@ func NewDisplayHandler(impl DisplayHandler) unsafe.Pointer {
 	r := new(raw.CEFDisplayHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnAddressChange(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnAddressChange(...)
+	r.OverrideOnAddressChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		uRL := goString(unsafe.Pointer(arg2))
+		impl.OnAddressChange(browser, frame, uRL)
 	}))
 
-	r.OverrideOnTitleChange(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnTitleChange(...)
+	r.OverrideOnTitleChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		title := goString(unsafe.Pointer(arg1))
+		impl.OnTitleChange(browser, title)
 	}))
 
-	r.OverrideOnFaviconUrlchange(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnFaviconUrlchange(...)
+	r.OverrideOnFaviconUrlchange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		iconUrls := uintptr(arg1)
+		impl.OnFaviconUrlchange(browser, iconUrls)
 	}))
 
-	r.OverrideOnFullscreenModeChange(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnFullscreenModeChange(...)
+	r.OverrideOnFullscreenModeChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		fullscreen := int32(arg1)
+		impl.OnFullscreenModeChange(browser, fullscreen)
 	}))
 
-	r.OverrideOnTooltip(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnTooltip(...), marshal return
-		return 0
+	r.OverrideOnTooltip(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		text := uintptr(arg1)
+		return uintptr(impl.OnTooltip(browser, text))
 	}))
 
-	r.OverrideOnStatusMessage(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnStatusMessage(...)
+	r.OverrideOnStatusMessage(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		value := goString(unsafe.Pointer(arg1))
+		impl.OnStatusMessage(browser, value)
 	}))
 
-	r.OverrideOnConsoleMessage(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnConsoleMessage(...), marshal return
-		return 0
+	r.OverrideOnConsoleMessage(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		level := LogSeverity(arg1)
+		message := goString(unsafe.Pointer(arg2))
+		source := goString(unsafe.Pointer(arg3))
+		line := int32(arg4)
+		return uintptr(impl.OnConsoleMessage(browser, level, message, source, line))
 	}))
 
-	r.OverrideOnAutoResize(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnAutoResize(...), marshal return
-		return 0
+	r.OverrideOnAutoResize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		newSize := uintptr(arg1)
+		return uintptr(impl.OnAutoResize(browser, newSize))
 	}))
 
-	r.OverrideOnLoadingProgressChange(purego.NewCallback(func(_ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnLoadingProgressChange(...)
+	r.OverrideOnLoadingProgressChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		progress := float64(arg1)
+		impl.OnLoadingProgressChange(browser, progress)
 	}))
 
-	r.OverrideOnCursorChange(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnCursorChange(...), marshal return
-		return 0
+	r.OverrideOnCursorChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		cursor := uintptr(arg1)
+		type_ := CursorType(arg2)
+		customCursorInfo := uintptr(arg3)
+		return uintptr(impl.OnCursorChange(browser, cursor, type_, customCursorInfo))
 	}))
 
-	r.OverrideOnMediaAccessChange(purego.NewCallback(func(_ uintptr, _ uintptr, _ uintptr) {
-		// TODO: unmarshal args, call impl.OnMediaAccessChange(...)
+	r.OverrideOnMediaAccessChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		hasVideoAccess := int32(arg1)
+		hasAudioAccess := int32(arg2)
+		impl.OnMediaAccessChange(browser, hasVideoAccess, hasAudioAccess)
 	}))
 
-	r.OverrideOnContentsBoundsChange(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnContentsBoundsChange(...), marshal return
-		return 0
+	r.OverrideOnContentsBoundsChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		newBounds := uintptr(arg1)
+		return uintptr(impl.OnContentsBoundsChange(browser, newBounds))
 	}))
 
-	r.OverrideGetRootWindowScreenRect(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.GetRootWindowScreenRect(...), marshal return
-		return 0
+	r.OverrideGetRootWindowScreenRect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		rect := uintptr(arg1)
+		return uintptr(impl.GetRootWindowScreenRect(browser, rect))
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapDisplayHandler wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapDisplayHandler(ptr unsafe.Pointer) DisplayHandler {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }

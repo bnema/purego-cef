@@ -42,12 +42,12 @@ func TestResolvePublicType(t *testing.T) {
 		{"const void*", "unsafe.Pointer"},
 		// string types
 		{"const cef_string_t*", "string"},
-		{"cef_string_t*", "*string"},
+		{"cef_string_t*", "uintptr"},
 		{"cef_string_userfree_t", "string"},
-		// string collections
-		{"cef_string_list_t", "[]string"},
-		{"cef_string_map_t", "map[string]string"},
-		{"cef_string_multimap_t", "map[string][]string"},
+		// string collections (opaque handles)
+		{"cef_string_list_t", "uintptr"},
+		{"cef_string_map_t", "uintptr"},
+		{"cef_string_multimap_t", "uintptr"},
 		// primitive types
 		{"int", "int32"},
 		{"unsigned int", "uint32"},

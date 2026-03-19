@@ -24,14 +24,27 @@ func NewTextfieldDelegate(impl TextfieldDelegate) unsafe.Pointer {
 	r := new(raw.CEFTextfieldDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnKeyEvent(purego.NewCallback(func(_ uintptr, _ uintptr) uintptr {
-		// TODO: unmarshal args, call impl.OnKeyEvent(...), marshal return
-		return 0
+	r.OverrideOnKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		textfield := wrapTextfield(unsafe.Pointer(arg0))
+		event := uintptr(arg1)
+		return uintptr(impl.OnKeyEvent(textfield, event))
 	}))
 
-	r.OverrideOnAfterUserAction(purego.NewCallback(func(_ uintptr) {
-		// TODO: unmarshal args, call impl.OnAfterUserAction(...)
+	r.OverrideOnAfterUserAction(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		textfield := wrapTextfield(unsafe.Pointer(arg0))
+		impl.OnAfterUserAction(textfield)
 	}))
 
 	return unsafe.Pointer(r)
+}
+
+// wrapTextfieldDelegate wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrapTextfieldDelegate(ptr unsafe.Pointer) TextfieldDelegate {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
 }
