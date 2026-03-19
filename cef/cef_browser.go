@@ -763,22 +763,64 @@ func wrapBrowserHost(ptr unsafe.Pointer) BrowserHost {
 }
 
 // BrowserHostCreateBrowser Create a new browser using the window parameters specified by |windowInfo|. All values will be copied internally and the actual window (if any) will be created on the UI thread. If |request_context| is NULL the global request context will be used. This function can be called on any browser process thread and will not block. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
-func BrowserHostCreateBrowser(windowinfo uintptr, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) int32 {
-	// TODO: marshal args, call raw.CEFBrowserHostCreateBrowser(...), marshal return
-	_ = raw.CEFBrowserHostCreateBrowser
-	return 0
+func BrowserHostCreateBrowser(windowinfo *WindowInfo, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) int32 {
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+
+	var clientPtr unsafe.Pointer
+	if client != nil {
+		clientPtr = extractRawPointer(client)
+	}
+	var extraInfoPtr unsafe.Pointer
+	if extraInfo != nil {
+		extraInfoPtr = extractRawPointer(extraInfo)
+	}
+	var rcPtr unsafe.Pointer
+	if requestContext != nil {
+		rcPtr = extractRawPointer(requestContext)
+	}
+
+	return raw.CEFBrowserHostCreateBrowser(
+		unsafe.Pointer(windowinfo),
+		clientPtr,
+		unsafe.Pointer(&uRLStr),
+		unsafe.Pointer(settings),
+		extraInfoPtr,
+		rcPtr,
+	)
 }
 
 // BrowserHostCreateBrowserSync Create a new browser using the window parameters specified by |windowInfo|. If |request_context| is NULL the global request context will be used. This function can only be called on the browser process UI thread. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
-func BrowserHostCreateBrowserSync(windowinfo uintptr, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) uintptr {
-	// TODO: marshal args, call raw.CEFBrowserHostCreateBrowserSync(...), marshal return
-	_ = raw.CEFBrowserHostCreateBrowserSync
-	return 0
+func BrowserHostCreateBrowserSync(windowinfo *WindowInfo, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) Browser {
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+
+	var clientPtr unsafe.Pointer
+	if client != nil {
+		clientPtr = extractRawPointer(client)
+	}
+	var extraInfoPtr unsafe.Pointer
+	if extraInfo != nil {
+		extraInfoPtr = extractRawPointer(extraInfo)
+	}
+	var rcPtr unsafe.Pointer
+	if requestContext != nil {
+		rcPtr = extractRawPointer(requestContext)
+	}
+
+	ptr := raw.CEFBrowserHostCreateBrowserSync(
+		unsafe.Pointer(windowinfo),
+		clientPtr,
+		unsafe.Pointer(&uRLStr),
+		unsafe.Pointer(settings),
+		extraInfoPtr,
+		rcPtr,
+	)
+	return wrapBrowser(ptr)
 }
 
 // BrowserHostGetBrowserByIdentifier Returns the browser (if any) with the specified identifier.
-func BrowserHostGetBrowserByIdentifier(browserID int32) uintptr {
-	// TODO: marshal args, call raw.CEFBrowserHostGetBrowserByIdentifier(...), marshal return
-	_ = raw.CEFBrowserHostGetBrowserByIdentifier
-	return 0
+func BrowserHostGetBrowserByIdentifier(browserID int32) Browser {
+	ptr := raw.CEFBrowserHostGetBrowserByIdentifier(browserID)
+	return wrapBrowser(ptr)
 }
