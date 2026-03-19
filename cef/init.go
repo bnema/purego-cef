@@ -45,6 +45,23 @@ func DefaultSettings() Settings {
 	}
 }
 
+// DefaultWindowInfo returns a WindowInfo with the Size field correctly
+// initialized. Callers should set WindowlessRenderingEnabled and other
+// fields as needed after construction.
+func DefaultWindowInfo() WindowInfo {
+	var info WindowInfo
+	info.Size = unsafe.Sizeof(info)
+	return info
+}
+
+// DefaultBrowserSettings returns a BrowserSettings with the Size field
+// correctly initialized. Callers may override individual fields as needed.
+func DefaultBrowserSettings() BrowserSettings {
+	var s BrowserSettings
+	s.Size = unsafe.Sizeof(s)
+	return s
+}
+
 // toRaw converts Settings to the raw C struct. The returned cleanup function
 // must be called after cef_initialize returns.
 func (s Settings) toRaw() (raw.CEFSettingsT, func()) {
