@@ -1,0 +1,37 @@
+{{define "object_wrapper.tmpl"}}
+type {{lower .Name}}Impl struct {
+	raw *raw.{{.RawGoName}}
+}
+
+{{range .Methods}}
+func (x *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+	{{- if .Return.IsVoid}}
+	x.raw.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})
+	{{- else if .Return.IsBool}}
+	return x.raw.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}) != 0
+	{{- else}}
+	ret := x.raw.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})
+	_ = ret
+	return {{zeroVal .Return.PublicType}}
+	{{- end}}
+}
+{{end}}
+
+// Release releases the underlying CEF object.
+func (x *{{lower .Name}}Impl) Release() {
+	x.raw.CallBaseRelease()
+}
+
+func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+	if ptr == nil {
+		return nil
+	}
+	raw := (*raw.{{.RawGoName}})(ptr)
+	raw.CallBaseAddRef()
+	impl := &{{lower .Name}}Impl{raw: raw}
+	runtime.SetFinalizer(impl, func(o *{{lower .Name}}Impl) {
+		o.raw.CallBaseRelease()
+	})
+	return impl
+}
+{{end}}

@@ -1,0 +1,10 @@
+{{define "free_func.tmpl"}}
+{{- if .Doc}}// {{.Name}} {{.Doc}}{{else}}// {{.Name}} wraps the CEF {{.RawGoName}} function.{{end}}
+func {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+	{{- if .Return.IsVoid}}
+	raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})
+	{{- else}}
+	return raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})
+	{{- end}}
+}
+{{end}}

@@ -1,0 +1,30 @@
+{{define "handler_constructor.tmpl"}}
+// New{{.Name}} creates a CEF handler backed by the given implementation.
+// The returned pointer can be passed to CEF functions that expect this handler type.
+func New{{.Name}}(impl {{.Name}}) unsafe.Pointer {
+	raw := new(raw.{{.RawGoName}})
+	initRefCount(unsafe.Pointer(raw))
+
+{{range .Methods}}
+	{{- if .IsGetter}}
+	// Cache the getter result once.
+	cached{{.Name}} := impl.{{.Name}}()
+	raw.Override{{.RawFieldName}}(purego.NewCallback(func(_ uintptr) uintptr {
+		_ = cached{{.Name}}
+		return 0 // TODO: marshal cached result
+	}))
+	{{- else}}
+	raw.Override{{.RawFieldName}}(purego.NewCallback(func({{range $i, $p := .Params}}{{if $i}}, {{end}}_ uintptr{{end}}) {{if .Return.IsVoid}}{{else}}uintptr{{end}} {
+		{{- if not .Return.IsVoid}}
+		// TODO: unmarshal args, call impl.{{.Name}}(...), marshal return
+		return 0
+		{{- else}}
+		// TODO: unmarshal args, call impl.{{.Name}}(...)
+		{{- end}}
+	}))
+	{{- end}}
+{{end}}
+
+	return unsafe.Pointer(raw)
+}
+{{end}}

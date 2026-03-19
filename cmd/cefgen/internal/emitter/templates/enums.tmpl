@@ -1,0 +1,10 @@
+{{define "enums.tmpl"}}
+{{- if .Doc}}// {{.Name}} {{.Doc}}{{else}}// {{.Name}} is a CEF enum type.{{end}}
+type {{.Name}} int32
+
+const (
+{{- range .Values}}
+	{{$.Name}}{{.Name}} {{$.Name}} = {{.Value}}
+{{- end}}
+)
+{{end}}
