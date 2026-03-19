@@ -5,7 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
+	"syscall"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/cef/internal/raw"
@@ -284,15 +286,51 @@ func DoMessageLoopWork() {
 	raw.CEFDoMessageLoopWork()
 }
 
+// isSubprocess returns true if os.Args contains a --type= flag, indicating
+// this process was spawned by CEF as a renderer, GPU, or utility subprocess.
+func isSubprocess() bool {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "--type=") {
+			return true
+		}
+	}
+	return false
+}
+
+// closeGoRuntimeFDs closes all file descriptors above stderr (fd > 2) that
+// the Go runtime opened before main(). CEF subprocess FD tracking expects a
+// clean process; Go's epoll fd, netpoller pipes, and signal fds trigger a
+// fatal "FD ownership violation" in the GPU and renderer processes.
+func closeGoRuntimeFDs() {
+	entries, err := os.ReadDir("/proc/self/fd")
+	if err != nil {
+		return
+	}
+	for _, e := range entries {
+		fd, err := strconv.Atoi(e.Name())
+		if err != nil || fd <= 2 {
+			continue
+		}
+		syscall.Close(fd)
+	}
+}
+
 // MaybeExitSubprocess calls cef_execute_process and exits the current process
 // if it was launched as a CEF sub-process. For the browser process this is a
 // no-op (returns without exiting).
+//
+// When running as a subprocess (--type= in args), all file descriptors above
+// stderr are closed before calling CEF to avoid FD ownership violations from
+// Go runtime descriptors (epoll, signal pipes, netpoller).
 func MaybeExitSubprocess() {
 	if err := loadLibrary(""); err != nil {
 		// If the library cannot be loaded there is nothing useful we can do
 		// in a sub-process, so bail out with a diagnostic.
 		fmt.Fprintf(os.Stderr, "cef: MaybeExitSubprocess: %v\n", err)
 		os.Exit(1)
+	}
+	if isSubprocess() {
+		closeGoRuntimeFDs()
 	}
 	args := NewMainArgs(os.Args)
 	code := raw.CEFExecuteProcess(args.Ptr(), nil, nil)
