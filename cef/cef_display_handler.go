@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"math"
 	"unsafe"
 
 	"github.com/ebitengine/purego"
@@ -100,7 +101,7 @@ func NewDisplayHandler(impl DisplayHandler) unsafe.Pointer {
 
 	r.OverrideOnLoadingProgressChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		progress := float64(arg1)
+		progress := math.Float64frombits(uint64(arg1))
 		impl.OnLoadingProgressChange(browser, progress)
 	}))
 

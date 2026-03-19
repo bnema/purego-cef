@@ -102,6 +102,15 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			case "dataStruct":
 				// PublicType is "*WindowInfo" etc, we need "(*WindowInfo)(unsafe.Pointer(...))"
 				return "(" + p.PublicType + ")(unsafe.Pointer(" + rawName + "))"
+			case "numeric":
+				switch p.PublicType {
+				case "float64":
+					return "math.Float64frombits(uint64(" + rawName + "))"
+				case "float32":
+					return "math.Float32frombits(uint32(" + rawName + "))"
+				default:
+					return p.PublicType + "(" + rawName + ")"
+				}
 			default:
 				return p.PublicType + "(" + rawName + ")"
 			}

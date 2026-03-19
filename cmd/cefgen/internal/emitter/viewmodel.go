@@ -42,12 +42,10 @@ func usesUnsafe(typ string) bool {
 	return strings.Contains(typ, "unsafe.Pointer")
 }
 
-// NeedsMath returns true if any object method parameter requires math.Float64bits or math.Float32bits.
+// NeedsMath returns true if any method parameter requires math.Float64bits/Float32bits
+// (object call-side marshalling) or math.Float64frombits/Float32frombits (handler callback unmarshalling).
 func (d *PublicFileData) NeedsMath() bool {
 	for _, iface := range d.Interfaces {
-		if iface.Kind != "object" {
-			continue
-		}
 		for _, m := range iface.Methods {
 			for _, p := range m.Params {
 				if p.MarshalKind == "numeric" && (p.PublicType == "float64" || p.PublicType == "float32") {
