@@ -378,15 +378,15 @@ type BrowserHost interface {
 	// SendExternalBeginFrame Issue a BeginFrame request to Chromium.  Only valid when cef_window_tInfo::external_begin_frame_enabled is set to true (1).
 	SendExternalBeginFrame()
 	// SendKeyEvent Send a key event to the browser.
-	SendKeyEvent(event uintptr)
+	SendKeyEvent(event *KeyEvent)
 	// SendMouseClickEvent Send a mouse click event to the browser. The |x| and |y| coordinates are relative to the upper-left corner of the view.
-	SendMouseClickEvent(event uintptr, type_ MouseButtonType, mouseup int32, clickcount int32)
+	SendMouseClickEvent(event *MouseEvent, type_ MouseButtonType, mouseup int32, clickcount int32)
 	// SendMouseMoveEvent Send a mouse move event to the browser. The |x| and |y| coordinates are relative to the upper-left corner of the view.
-	SendMouseMoveEvent(event uintptr, mouseleave int32)
+	SendMouseMoveEvent(event *MouseEvent, mouseleave int32)
 	// SendMouseWheelEvent Send a mouse wheel event to the browser. The |x| and |y| coordinates are relative to the upper-left corner of the view. The |deltaX| and |deltaY| values represent the movement delta in the X and Y directions respectively. In order to scroll inside select popups with window rendering disabled cef_render_handler_t::GetScreenPoint should be implemented properly.
-	SendMouseWheelEvent(event uintptr, deltax int32, deltay int32)
+	SendMouseWheelEvent(event *MouseEvent, deltax int32, deltay int32)
 	// SendTouchEvent Send a touch event to the browser for a windowless browser.
-	SendTouchEvent(event uintptr)
+	SendTouchEvent(event *TouchEvent)
 	// SendCaptureLostEvent Send a capture lost event to the browser.
 	SendCaptureLostEvent()
 	// NotifyMoveOrResizeStarted Notify the browser that the window hosting it is about to be moved or resized. This function is only used on Windows and Linux.
@@ -613,24 +613,24 @@ func (obj *browserHostImpl) SendExternalBeginFrame() {
 	obj.rawPtr.CallSendExternalBeginFrame()
 }
 
-func (obj *browserHostImpl) SendKeyEvent(event uintptr) {
-	obj.rawPtr.CallSendKeyEvent(uintptr(event))
+func (obj *browserHostImpl) SendKeyEvent(event *KeyEvent) {
+	obj.rawPtr.CallSendKeyEvent(uintptr(unsafe.Pointer(event)))
 }
 
-func (obj *browserHostImpl) SendMouseClickEvent(event uintptr, type_ MouseButtonType, mouseup int32, clickcount int32) {
-	obj.rawPtr.CallSendMouseClickEvent(uintptr(event), uintptr(type_), uintptr(mouseup), uintptr(clickcount))
+func (obj *browserHostImpl) SendMouseClickEvent(event *MouseEvent, type_ MouseButtonType, mouseup int32, clickcount int32) {
+	obj.rawPtr.CallSendMouseClickEvent(uintptr(unsafe.Pointer(event)), uintptr(type_), uintptr(mouseup), uintptr(clickcount))
 }
 
-func (obj *browserHostImpl) SendMouseMoveEvent(event uintptr, mouseleave int32) {
-	obj.rawPtr.CallSendMouseMoveEvent(uintptr(event), uintptr(mouseleave))
+func (obj *browserHostImpl) SendMouseMoveEvent(event *MouseEvent, mouseleave int32) {
+	obj.rawPtr.CallSendMouseMoveEvent(uintptr(unsafe.Pointer(event)), uintptr(mouseleave))
 }
 
-func (obj *browserHostImpl) SendMouseWheelEvent(event uintptr, deltax int32, deltay int32) {
-	obj.rawPtr.CallSendMouseWheelEvent(uintptr(event), uintptr(deltax), uintptr(deltay))
+func (obj *browserHostImpl) SendMouseWheelEvent(event *MouseEvent, deltax int32, deltay int32) {
+	obj.rawPtr.CallSendMouseWheelEvent(uintptr(unsafe.Pointer(event)), uintptr(deltax), uintptr(deltay))
 }
 
-func (obj *browserHostImpl) SendTouchEvent(event uintptr) {
-	obj.rawPtr.CallSendTouchEvent(uintptr(event))
+func (obj *browserHostImpl) SendTouchEvent(event *TouchEvent) {
+	obj.rawPtr.CallSendTouchEvent(uintptr(unsafe.Pointer(event)))
 }
 
 func (obj *browserHostImpl) SendCaptureLostEvent() {
