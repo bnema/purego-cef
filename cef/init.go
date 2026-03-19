@@ -166,9 +166,27 @@ func openLib(dir string) (uintptr, error) {
 var (
 	libHandle   uintptr
 	initialized bool
+	libOnce     sync.Once
+	libErr      error
 	initOnce    sync.Once
 	initErr     error
 )
+
+// loadLibrary opens the CEF shared library and registers all raw symbols.
+// It is idempotent — safe to call from both MaybeExitSubprocess and Init.
+func loadLibrary(cefDir string) error {
+	libOnce.Do(func() {
+		handle, err := openLib(cefDir)
+		if err != nil {
+			libErr = fmt.Errorf("cef: open library: %w", err)
+			return
+		}
+		libHandle = handle
+		bindStringFuncs(handle)
+		raw.Register(handle)
+	})
+	return libErr
+}
 
 // Init loads the CEF shared library, binds string and raw symbol functions,
 // and calls cef_initialize. It is safe to call multiple times; only the first
@@ -181,17 +199,9 @@ func Init(settings Settings) error {
 }
 
 func doInit(settings Settings) error {
-	handle, err := openLib(settings.CEFDir)
-	if err != nil {
-		return fmt.Errorf("cef: open library: %w", err)
+	if err := loadLibrary(settings.CEFDir); err != nil {
+		return err
 	}
-	libHandle = handle
-
-	// Bind string helper functions.
-	bindStringFuncs(handle)
-
-	// Register all raw CEF function symbols.
-	raw.Register(handle)
 
 	// Build main args from os.Args.
 	args := NewMainArgs(os.Args)
@@ -228,6 +238,12 @@ func DoMessageLoopWork() {
 // if it was launched as a CEF sub-process. For the browser process this is a
 // no-op (returns without exiting).
 func MaybeExitSubprocess() {
+	if err := loadLibrary(""); err != nil {
+		// If the library cannot be loaded there is nothing useful we can do
+		// in a sub-process, so bail out with a diagnostic.
+		fmt.Fprintf(os.Stderr, "cef: MaybeExitSubprocess: %v\n", err)
+		os.Exit(1)
+	}
 	args := NewMainArgs(os.Args)
 	code := raw.CEFExecuteProcess(args.Ptr(), nil, nil)
 	if code >= 0 {
