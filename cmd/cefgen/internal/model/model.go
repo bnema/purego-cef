@@ -1,5 +1,7 @@
 package model
 
+import "strings"
+
 type File struct {
 	PackageName string
 	Headers     []string
@@ -9,28 +11,35 @@ type File struct {
 }
 
 type Struct struct {
-	CName    string
-	GoName   string
-	Fields   []Field
-	Comments []string
+	CName         string
+	GoName        string
+	Kind          string // "handler", "object", or "data"
+	InterfaceName string // public Go name (e.g., "Browser")
+	Doc           string // extracted doc comment
+	Fields        []Field
+	Comments      []string
 }
 
 type Field struct {
-	CName        string
-	GoName       string
-	CType        string
-	GoType       string
-	IsFunction   bool
-	IsPointer    bool
-	Params       []Param
-	ReturnCType  string
-	ReturnGoType string
-	Comments     []string
+	CName                 string
+	GoName                string
+	CType                 string
+	GoType                string
+	Doc                   string // extracted doc comment
+	GoInterfaceType       string // resolved public type for params
+	ReturnGoInterfaceType string // resolved public type for returns
+	IsFunction            bool
+	IsPointer             bool
+	Params                []Param
+	ReturnCType           string
+	ReturnGoType          string
+	Comments              []string
 }
 
 type Function struct {
 	CName        string
 	GoName       string
+	Doc          string // extracted doc comment
 	Params       []Param
 	ReturnCType  string
 	ReturnGoType string
@@ -38,12 +47,13 @@ type Function struct {
 }
 
 type Param struct {
-	CName   string
-	GoName  string
-	CType   string
-	GoType  string
-	IsConst bool
-	Pointer int
+	CName           string
+	GoName          string
+	CType           string
+	GoType          string
+	GoInterfaceType string // resolved public type for params
+	IsConst         bool
+	Pointer         int
 }
 
 type Enum struct {
@@ -126,4 +136,41 @@ func (h *Header) NeedsPurego() bool {
 		}
 	}
 	return false
+}
+
+// acronyms maps lowercase words to their uppercase Go equivalents.
+var acronyms = map[string]string{
+	"id":  "ID",
+	"url": "URL",
+	"ui":  "UI",
+}
+
+// PublicName converts a C type name to a clean public Go name.
+// It strips leading underscores, the "cef_" prefix, and the "_t" suffix,
+// then PascalCases the remaining underscore-separated segments.
+//
+// Examples:
+//
+//	cef_browser_t        → Browser
+//	cef_life_span_handler_t → LifeSpanHandler
+//	_cef_browser_t       → Browser
+//	cef_request_context_t → RequestContext
+func PublicName(cName string) string {
+	s := strings.TrimLeft(cName, "_")
+	s = strings.TrimPrefix(s, "cef_")
+	s = strings.TrimSuffix(s, "_t")
+
+	parts := strings.Split(s, "_")
+	var b strings.Builder
+	for _, p := range parts {
+		if p == "" {
+			continue
+		}
+		if upper, ok := acronyms[strings.ToLower(p)]; ok {
+			b.WriteString(upper)
+		} else {
+			b.WriteString(strings.ToUpper(p[:1]) + p[1:])
+		}
+	}
+	return b.String()
 }
