@@ -8,35 +8,6 @@ import (
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/parser"
 )
 
-func TestEmitStructIncludesHostLayout(t *testing.T) {
-	header := &model.Header{
-		RegisterName: "RegisterClient",
-		Structs: []model.Struct{{
-			CName:  "cef_client_t",
-			GoName: "CEFClientT",
-			Fields: []model.Field{{GoName: "Base", GoType: "CEFBaseRefCountedT"}},
-		}},
-	}
-	code, err := Emit(header)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(code, "structs.HostLayout") {
-		t.Fatal("missing HostLayout")
-	}
-}
-
-func TestEmitRegisterFunction(t *testing.T) {
-	header := &model.Header{RegisterName: "RegisterApp", Functions: []model.Function{{CName: "cef_initialize", GoName: "CEFInitialize"}}}
-	code, err := Emit(header)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(code, `purego.RegisterLibFunc(&CEFInitialize, handle, "cef_initialize")`) {
-		t.Fatal("missing RegisterLibFunc")
-	}
-}
-
 func TestEmitRaw(t *testing.T) {
 	header := &model.Header{
 		Path:         "cef_app_capi.h",
@@ -136,7 +107,7 @@ func TestEmitRaw_EmptyFunctions(t *testing.T) {
 	}
 }
 
-func TestEmitFromParsedHeader(t *testing.T) {
+func TestEmitRawFromParsedHeader(t *testing.T) {
 	input := `typedef struct _cef_client_t {
   cef_base_ref_counted_t base;
   struct _cef_render_handler_t*(CEF_CALLBACK* get_render_handler)(struct _cef_client_t* self);
@@ -149,7 +120,7 @@ CEF_EXPORT int cef_execute_process(const cef_main_args_t* args, cef_app_t* appli
 		t.Fatal(err)
 	}
 	header.RegisterName = "RegisterTest"
-	code, err := Emit(header)
+	code, err := EmitRaw(header)
 	if err != nil {
 		t.Fatal(err)
 	}
