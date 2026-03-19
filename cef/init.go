@@ -297,10 +297,9 @@ func isSubprocess() bool {
 	return false
 }
 
-// closeGoRuntimeFDs closes all file descriptors above stderr (fd > 2) that
-// the Go runtime opened before main(). CEF subprocess FD tracking expects a
-// clean process; Go's epoll fd, netpoller pipes, and signal fds trigger a
-// fatal "FD ownership violation" in the GPU and renderer processes.
+// closeGoRuntimeFDs closes only Go runtime file descriptors (epoll, eventfd,
+// pipes) that were opened before main(). CEF subprocess IPC channels (sockets,
+// shared memory, regular files) are preserved.
 func closeGoRuntimeFDs() {
 	entries, err := os.ReadDir("/proc/self/fd")
 	if err != nil {
@@ -311,7 +310,17 @@ func closeGoRuntimeFDs() {
 		if err != nil || fd <= 2 {
 			continue
 		}
-		syscall.Close(fd)
+		link, err := os.Readlink(fmt.Sprintf("/proc/self/fd/%d", fd))
+		if err != nil {
+			continue
+		}
+		// Only close Go runtime FDs: epoll, eventfd, and pipes.
+		// Preserve CEF IPC FDs (sockets, /dev/shm, regular files).
+		if strings.HasPrefix(link, "anon_inode:[eventpoll]") ||
+			strings.HasPrefix(link, "anon_inode:[eventfd]") ||
+			strings.HasPrefix(link, "pipe:") {
+			syscall.Close(fd)
+		}
 	}
 }
 
