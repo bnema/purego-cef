@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"fmt"
 	"math"
 	"runtime"
 	"unsafe"
@@ -832,9 +833,17 @@ func wrapBrowserHost(ptr unsafe.Pointer) BrowserHost {
 
 // BrowserHostCreateBrowser Create a new browser using the window parameters specified by |windowInfo|. All values will be copied internally and the actual window (if any) will be created on the UI thread. If |request_context| is NULL the global request context will be used. This function can be called on any browser process thread and will not block. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
 func BrowserHostCreateBrowser(windowinfo *WindowInfo, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) int32 {
+	clientPtr := extractRawPointer(client)
+	fmt.Printf("DEBUG BrowserHostCreateBrowser: client ptr=%p\n", clientPtr)
+	if clientPtr != nil {
+		size := *(*uintptr)(clientPtr)
+		fmt.Printf("DEBUG client.Base.Size=%d (expected ~192)\n", size)
+	}
+	fmt.Printf("DEBUG windowinfo=%p windowinfo.Size=%d\n", windowinfo, windowinfo.Size)
+	fmt.Printf("DEBUG settings=%p settings.Size=%d\n", settings, settings.Size)
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	return int32(raw.CEFBrowserHostCreateBrowser(unsafe.Pointer(windowinfo), extractRawPointer(client), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext)))
+	return int32(raw.CEFBrowserHostCreateBrowser(unsafe.Pointer(windowinfo), clientPtr, unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext)))
 }
 
 // BrowserHostCreateBrowserSync Create a new browser using the window parameters specified by |windowInfo|. If |request_context| is NULL the global request context will be used. This function can only be called on the browser process UI thread. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
