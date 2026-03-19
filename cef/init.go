@@ -33,6 +33,11 @@ type Settings struct {
 
 	// NoSandbox disables the CEF sandbox.
 	NoSandbox bool
+
+	// BrowserSubprocessPath is the path to a separate executable for CEF
+	// subprocesses (renderer, GPU, utility). If empty, CEF re-executes the
+	// current binary which requires MaybeExitSubprocess at the top of main.
+	BrowserSubprocessPath string
 }
 
 // DefaultSettings returns Settings suitable for off-screen rendering with
@@ -79,7 +84,13 @@ func (s Settings) toRaw() (raw.CEFSettingsT, func()) {
 	}
 	c.LogSeverity = raw.CEFLogSeverityT(s.LogSeverity)
 
-	return c, func() {} // cleanup placeholder; strings would be freed here
+	cleanup := func() {}
+	if s.BrowserSubprocessPath != "" {
+		c.BrowserSubprocessPath = cefString(s.BrowserSubprocessPath)
+		cleanup = func() { freeCefString(&c.BrowserSubprocessPath) }
+	}
+
+	return c, cleanup
 }
 
 // ---------------------------------------------------------------------------
