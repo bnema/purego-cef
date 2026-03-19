@@ -214,6 +214,22 @@ func extractRawPointer(v any) unsafe.Pointer {
 	return nil
 }
 
+// extractOrWrapRawPointer returns the raw CEF pointer for v. If v is already a
+// wrapped CEF object we reuse its raw pointer directly. Otherwise wrap is
+// called to construct the corresponding wrapper on demand.
+func extractOrWrapRawPointer(v any, wrap func() any) unsafe.Pointer {
+	if v == nil {
+		return nil
+	}
+	if ptr := extractRawPointer(v); ptr != nil {
+		return ptr
+	}
+	if wrap == nil {
+		return nil
+	}
+	return extractRawPointer(wrap())
+}
+
 // decodeSlice converts a raw pointer and count into a Go slice of T.
 // The returned slice directly aliases native memory owned by CEF. It is only
 // valid for the duration of the callback and must not be retained after the

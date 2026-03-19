@@ -58,7 +58,9 @@ func NewApp(impl App) App {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetResourceBundleHandlerPtr unsafe.Pointer
 	if h := impl.GetResourceBundleHandler(); h != nil {
-		cachedGetResourceBundleHandlerPtr = extractRawPointer(NewResourceBundleHandler(h))
+		cachedGetResourceBundleHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewResourceBundleHandler(h)
+		})
 	}
 	r.OverrideGetResourceBundleHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetResourceBundleHandlerPtr != nil {
@@ -70,7 +72,9 @@ func NewApp(impl App) App {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetBrowserProcessHandlerPtr unsafe.Pointer
 	if h := impl.GetBrowserProcessHandler(); h != nil {
-		cachedGetBrowserProcessHandlerPtr = extractRawPointer(NewBrowserProcessHandler(h))
+		cachedGetBrowserProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewBrowserProcessHandler(h)
+		})
 	}
 	r.OverrideGetBrowserProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetBrowserProcessHandlerPtr != nil {
@@ -82,7 +86,9 @@ func NewApp(impl App) App {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetRenderProcessHandlerPtr unsafe.Pointer
 	if h := impl.GetRenderProcessHandler(); h != nil {
-		cachedGetRenderProcessHandlerPtr = extractRawPointer(NewRenderProcessHandler(h))
+		cachedGetRenderProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewRenderProcessHandler(h)
+		})
 	}
 	r.OverrideGetRenderProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetRenderProcessHandlerPtr != nil {
