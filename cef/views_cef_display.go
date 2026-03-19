@@ -39,11 +39,11 @@ func (obj *displayImpl) GetDeviceScaleFactor() float32 {
 }
 
 func (obj *displayImpl) ConvertPointToPixels(point uintptr) {
-	obj.rawPtr.CallConvertPointToPixels(uintptr(0) /* point */)
+	obj.rawPtr.CallConvertPointToPixels(uintptr(point))
 }
 
 func (obj *displayImpl) ConvertPointFromPixels(point uintptr) {
-	obj.rawPtr.CallConvertPointFromPixels(uintptr(0) /* point */)
+	obj.rawPtr.CallConvertPointFromPixels(uintptr(point))
 }
 
 func (obj *displayImpl) GetBounds() uintptr {

@@ -34,7 +34,7 @@ func (obj *buttonImpl) AsLabelButton() LabelButton {
 }
 
 func (obj *buttonImpl) SetState(state ButtonState) {
-	obj.rawPtr.CallSetState(uintptr(0) /* state */)
+	obj.rawPtr.CallSetState(uintptr(state))
 }
 
 func (obj *buttonImpl) GetState() ButtonState {
@@ -42,15 +42,19 @@ func (obj *buttonImpl) GetState() ButtonState {
 }
 
 func (obj *buttonImpl) SetInkDropEnabled(enabled int32) {
-	obj.rawPtr.CallSetInkDropEnabled(uintptr(0) /* enabled */)
+	obj.rawPtr.CallSetInkDropEnabled(uintptr(enabled))
 }
 
 func (obj *buttonImpl) SetTooltipText(tooltipText string) {
-	obj.rawPtr.CallSetTooltipText(uintptr(0) /* tooltipText */)
+	tooltipTextStr := cefString(tooltipText)
+	defer freeCefString(&tooltipTextStr)
+	obj.rawPtr.CallSetTooltipText(uintptr(unsafe.Pointer(&tooltipTextStr)))
 }
 
 func (obj *buttonImpl) SetAccessibleName(name string) {
-	obj.rawPtr.CallSetAccessibleName(uintptr(0) /* name */)
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	obj.rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *buttonImpl) rawPointer() unsafe.Pointer {

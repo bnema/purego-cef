@@ -60,7 +60,7 @@ func (obj *responseImpl) GetError() Errorcode {
 }
 
 func (obj *responseImpl) SetError(error Errorcode) {
-	obj.rawPtr.CallSetError(uintptr(0) /* error */)
+	obj.rawPtr.CallSetError(uintptr(error))
 }
 
 func (obj *responseImpl) GetStatus() int32 {
@@ -68,7 +68,7 @@ func (obj *responseImpl) GetStatus() int32 {
 }
 
 func (obj *responseImpl) SetStatus(status int32) {
-	obj.rawPtr.CallSetStatus(uintptr(0) /* status */)
+	obj.rawPtr.CallSetStatus(uintptr(status))
 }
 
 func (obj *responseImpl) GetStatusText() string {
@@ -76,7 +76,9 @@ func (obj *responseImpl) GetStatusText() string {
 }
 
 func (obj *responseImpl) SetStatusText(statustext string) {
-	obj.rawPtr.CallSetStatusText(uintptr(0) /* statustext */)
+	statustextStr := cefString(statustext)
+	defer freeCefString(&statustextStr)
+	obj.rawPtr.CallSetStatusText(uintptr(unsafe.Pointer(&statustextStr)))
 }
 
 func (obj *responseImpl) GetMimeType() string {
@@ -84,7 +86,9 @@ func (obj *responseImpl) GetMimeType() string {
 }
 
 func (obj *responseImpl) SetMimeType(mimetype string) {
-	obj.rawPtr.CallSetMimeType(uintptr(0) /* mimetype */)
+	mimetypeStr := cefString(mimetype)
+	defer freeCefString(&mimetypeStr)
+	obj.rawPtr.CallSetMimeType(uintptr(unsafe.Pointer(&mimetypeStr)))
 }
 
 func (obj *responseImpl) GetCharset() string {
@@ -92,23 +96,31 @@ func (obj *responseImpl) GetCharset() string {
 }
 
 func (obj *responseImpl) SetCharset(charset string) {
-	obj.rawPtr.CallSetCharset(uintptr(0) /* charset */)
+	charsetStr := cefString(charset)
+	defer freeCefString(&charsetStr)
+	obj.rawPtr.CallSetCharset(uintptr(unsafe.Pointer(&charsetStr)))
 }
 
 func (obj *responseImpl) GetHeaderByName(name string) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetHeaderByName(uintptr(0) /* name */)))
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetHeaderByName(uintptr(unsafe.Pointer(&nameStr)))))
 }
 
 func (obj *responseImpl) SetHeaderByName(name string, value string, overwrite int32) {
-	obj.rawPtr.CallSetHeaderByName(uintptr(0) /* name */, uintptr(0) /* value */, uintptr(0) /* overwrite */)
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	valueStr := cefString(value)
+	defer freeCefString(&valueStr)
+	obj.rawPtr.CallSetHeaderByName(uintptr(unsafe.Pointer(&nameStr)), uintptr(unsafe.Pointer(&valueStr)), uintptr(overwrite))
 }
 
 func (obj *responseImpl) GetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallGetHeaderMap(uintptr(0) /* headermap */)
+	obj.rawPtr.CallGetHeaderMap(uintptr(headermap))
 }
 
 func (obj *responseImpl) SetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallSetHeaderMap(uintptr(0) /* headermap */)
+	obj.rawPtr.CallSetHeaderMap(uintptr(headermap))
 }
 
 func (obj *responseImpl) GetURL() string {
@@ -116,7 +128,9 @@ func (obj *responseImpl) GetURL() string {
 }
 
 func (obj *responseImpl) SetURL(uRL string) {
-	obj.rawPtr.CallSetURL(uintptr(0) /* uRL */)
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	obj.rawPtr.CallSetURL(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *responseImpl) rawPointer() unsafe.Pointer {

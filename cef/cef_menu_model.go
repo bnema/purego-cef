@@ -146,211 +146,235 @@ func (obj *menuModelImpl) AddSeparator() int32 {
 }
 
 func (obj *menuModelImpl) AddItem(commandID int32, label string) int32 {
-	return int32(obj.rawPtr.CallAddItem(uintptr(0) /* commandID */, uintptr(0) /* label */))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return int32(obj.rawPtr.CallAddItem(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr))))
 }
 
 func (obj *menuModelImpl) AddCheckItem(commandID int32, label string) int32 {
-	return int32(obj.rawPtr.CallAddCheckItem(uintptr(0) /* commandID */, uintptr(0) /* label */))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return int32(obj.rawPtr.CallAddCheckItem(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr))))
 }
 
 func (obj *menuModelImpl) AddRadioItem(commandID int32, label string, groupID int32) int32 {
-	return int32(obj.rawPtr.CallAddRadioItem(uintptr(0) /* commandID */, uintptr(0) /* label */, uintptr(0) /* groupID */))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return int32(obj.rawPtr.CallAddRadioItem(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)), uintptr(groupID)))
 }
 
 func (obj *menuModelImpl) AddSubMenu(commandID int32, label string) MenuModel {
-	return wrapMenuModel(unsafe.Pointer(obj.rawPtr.CallAddSubMenu(uintptr(0) /* commandID */, uintptr(0) /* label */)))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return wrapMenuModel(unsafe.Pointer(obj.rawPtr.CallAddSubMenu(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)))))
 }
 
 func (obj *menuModelImpl) InsertSeparatorAt(index int) int32 {
-	return int32(obj.rawPtr.CallInsertSeparatorAt(uintptr(0) /* index */))
+	return int32(obj.rawPtr.CallInsertSeparatorAt(uintptr(index)))
 }
 
 func (obj *menuModelImpl) InsertItemAt(index int, commandID int32, label string) int32 {
-	return int32(obj.rawPtr.CallInsertItemAt(uintptr(0) /* index */, uintptr(0) /* commandID */, uintptr(0) /* label */))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return int32(obj.rawPtr.CallInsertItemAt(uintptr(index), uintptr(commandID), uintptr(unsafe.Pointer(&labelStr))))
 }
 
 func (obj *menuModelImpl) InsertCheckItemAt(index int, commandID int32, label string) int32 {
-	return int32(obj.rawPtr.CallInsertCheckItemAt(uintptr(0) /* index */, uintptr(0) /* commandID */, uintptr(0) /* label */))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return int32(obj.rawPtr.CallInsertCheckItemAt(uintptr(index), uintptr(commandID), uintptr(unsafe.Pointer(&labelStr))))
 }
 
 func (obj *menuModelImpl) InsertRadioItemAt(index int, commandID int32, label string, groupID int32) int32 {
-	return int32(obj.rawPtr.CallInsertRadioItemAt(uintptr(0) /* index */, uintptr(0) /* commandID */, uintptr(0) /* label */, uintptr(0) /* groupID */))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return int32(obj.rawPtr.CallInsertRadioItemAt(uintptr(index), uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)), uintptr(groupID)))
 }
 
 func (obj *menuModelImpl) InsertSubMenuAt(index int, commandID int32, label string) MenuModel {
-	return wrapMenuModel(unsafe.Pointer(obj.rawPtr.CallInsertSubMenuAt(uintptr(0) /* index */, uintptr(0) /* commandID */, uintptr(0) /* label */)))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return wrapMenuModel(unsafe.Pointer(obj.rawPtr.CallInsertSubMenuAt(uintptr(index), uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)))))
 }
 
 func (obj *menuModelImpl) Remove(commandID int32) int32 {
-	return int32(obj.rawPtr.CallRemove(uintptr(0) /* commandID */))
+	return int32(obj.rawPtr.CallRemove(uintptr(commandID)))
 }
 
 func (obj *menuModelImpl) RemoveAt(index int) int32 {
-	return int32(obj.rawPtr.CallRemoveAt(uintptr(0) /* index */))
+	return int32(obj.rawPtr.CallRemoveAt(uintptr(index)))
 }
 
 func (obj *menuModelImpl) GetIndexOf(commandID int32) int32 {
-	return int32(obj.rawPtr.CallGetIndexOf(uintptr(0) /* commandID */))
+	return int32(obj.rawPtr.CallGetIndexOf(uintptr(commandID)))
 }
 
 func (obj *menuModelImpl) GetCommandIDAt(index int) int32 {
-	return int32(obj.rawPtr.CallGetCommandIDAt(uintptr(0) /* index */))
+	return int32(obj.rawPtr.CallGetCommandIDAt(uintptr(index)))
 }
 
 func (obj *menuModelImpl) SetCommandIDAt(index int, commandID int32) int32 {
-	return int32(obj.rawPtr.CallSetCommandIDAt(uintptr(0) /* index */, uintptr(0) /* commandID */))
+	return int32(obj.rawPtr.CallSetCommandIDAt(uintptr(index), uintptr(commandID)))
 }
 
 func (obj *menuModelImpl) GetLabel(commandID int32) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLabel(uintptr(0) /* commandID */)))
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLabel(uintptr(commandID))))
 }
 
 func (obj *menuModelImpl) GetLabelAt(index int) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLabelAt(uintptr(0) /* index */)))
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLabelAt(uintptr(index))))
 }
 
 func (obj *menuModelImpl) SetLabel(commandID int32, label string) int32 {
-	return int32(obj.rawPtr.CallSetLabel(uintptr(0) /* commandID */, uintptr(0) /* label */))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return int32(obj.rawPtr.CallSetLabel(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr))))
 }
 
 func (obj *menuModelImpl) SetLabelAt(index int, label string) int32 {
-	return int32(obj.rawPtr.CallSetLabelAt(uintptr(0) /* index */, uintptr(0) /* label */))
+	labelStr := cefString(label)
+	defer freeCefString(&labelStr)
+	return int32(obj.rawPtr.CallSetLabelAt(uintptr(index), uintptr(unsafe.Pointer(&labelStr))))
 }
 
 func (obj *menuModelImpl) GetType(commandID int32) MenuItemType {
-	return MenuItemType(obj.rawPtr.CallGetType(uintptr(0) /* commandID */))
+	return MenuItemType(obj.rawPtr.CallGetType(uintptr(commandID)))
 }
 
 func (obj *menuModelImpl) GetTypeAt(index int) MenuItemType {
-	return MenuItemType(obj.rawPtr.CallGetTypeAt(uintptr(0) /* index */))
+	return MenuItemType(obj.rawPtr.CallGetTypeAt(uintptr(index)))
 }
 
 func (obj *menuModelImpl) GetGroupID(commandID int32) int32 {
-	return int32(obj.rawPtr.CallGetGroupID(uintptr(0) /* commandID */))
+	return int32(obj.rawPtr.CallGetGroupID(uintptr(commandID)))
 }
 
 func (obj *menuModelImpl) GetGroupIDAt(index int) int32 {
-	return int32(obj.rawPtr.CallGetGroupIDAt(uintptr(0) /* index */))
+	return int32(obj.rawPtr.CallGetGroupIDAt(uintptr(index)))
 }
 
 func (obj *menuModelImpl) SetGroupID(commandID int32, groupID int32) int32 {
-	return int32(obj.rawPtr.CallSetGroupID(uintptr(0) /* commandID */, uintptr(0) /* groupID */))
+	return int32(obj.rawPtr.CallSetGroupID(uintptr(commandID), uintptr(groupID)))
 }
 
 func (obj *menuModelImpl) SetGroupIDAt(index int, groupID int32) int32 {
-	return int32(obj.rawPtr.CallSetGroupIDAt(uintptr(0) /* index */, uintptr(0) /* groupID */))
+	return int32(obj.rawPtr.CallSetGroupIDAt(uintptr(index), uintptr(groupID)))
 }
 
 func (obj *menuModelImpl) GetSubMenu(commandID int32) MenuModel {
-	return wrapMenuModel(unsafe.Pointer(obj.rawPtr.CallGetSubMenu(uintptr(0) /* commandID */)))
+	return wrapMenuModel(unsafe.Pointer(obj.rawPtr.CallGetSubMenu(uintptr(commandID))))
 }
 
 func (obj *menuModelImpl) GetSubMenuAt(index int) MenuModel {
-	return wrapMenuModel(unsafe.Pointer(obj.rawPtr.CallGetSubMenuAt(uintptr(0) /* index */)))
+	return wrapMenuModel(unsafe.Pointer(obj.rawPtr.CallGetSubMenuAt(uintptr(index))))
 }
 
 func (obj *menuModelImpl) IsVisible(commandID int32) bool {
-	return obj.rawPtr.CallIsVisible(uintptr(0) /* commandID */) != 0
+	return obj.rawPtr.CallIsVisible(uintptr(commandID)) != 0
 }
 
 func (obj *menuModelImpl) IsVisibleAt(index int) bool {
-	return obj.rawPtr.CallIsVisibleAt(uintptr(0) /* index */) != 0
+	return obj.rawPtr.CallIsVisibleAt(uintptr(index)) != 0
 }
 
 func (obj *menuModelImpl) SetVisible(commandID int32, visible int32) int32 {
-	return int32(obj.rawPtr.CallSetVisible(uintptr(0) /* commandID */, uintptr(0) /* visible */))
+	return int32(obj.rawPtr.CallSetVisible(uintptr(commandID), uintptr(visible)))
 }
 
 func (obj *menuModelImpl) SetVisibleAt(index int, visible int32) int32 {
-	return int32(obj.rawPtr.CallSetVisibleAt(uintptr(0) /* index */, uintptr(0) /* visible */))
+	return int32(obj.rawPtr.CallSetVisibleAt(uintptr(index), uintptr(visible)))
 }
 
 func (obj *menuModelImpl) IsEnabled(commandID int32) bool {
-	return obj.rawPtr.CallIsEnabled(uintptr(0) /* commandID */) != 0
+	return obj.rawPtr.CallIsEnabled(uintptr(commandID)) != 0
 }
 
 func (obj *menuModelImpl) IsEnabledAt(index int) bool {
-	return obj.rawPtr.CallIsEnabledAt(uintptr(0) /* index */) != 0
+	return obj.rawPtr.CallIsEnabledAt(uintptr(index)) != 0
 }
 
 func (obj *menuModelImpl) SetEnabled(commandID int32, enabled int32) int32 {
-	return int32(obj.rawPtr.CallSetEnabled(uintptr(0) /* commandID */, uintptr(0) /* enabled */))
+	return int32(obj.rawPtr.CallSetEnabled(uintptr(commandID), uintptr(enabled)))
 }
 
 func (obj *menuModelImpl) SetEnabledAt(index int, enabled int32) int32 {
-	return int32(obj.rawPtr.CallSetEnabledAt(uintptr(0) /* index */, uintptr(0) /* enabled */))
+	return int32(obj.rawPtr.CallSetEnabledAt(uintptr(index), uintptr(enabled)))
 }
 
 func (obj *menuModelImpl) IsChecked(commandID int32) bool {
-	return obj.rawPtr.CallIsChecked(uintptr(0) /* commandID */) != 0
+	return obj.rawPtr.CallIsChecked(uintptr(commandID)) != 0
 }
 
 func (obj *menuModelImpl) IsCheckedAt(index int) bool {
-	return obj.rawPtr.CallIsCheckedAt(uintptr(0) /* index */) != 0
+	return obj.rawPtr.CallIsCheckedAt(uintptr(index)) != 0
 }
 
 func (obj *menuModelImpl) SetChecked(commandID int32, checked int32) int32 {
-	return int32(obj.rawPtr.CallSetChecked(uintptr(0) /* commandID */, uintptr(0) /* checked */))
+	return int32(obj.rawPtr.CallSetChecked(uintptr(commandID), uintptr(checked)))
 }
 
 func (obj *menuModelImpl) SetCheckedAt(index int, checked int32) int32 {
-	return int32(obj.rawPtr.CallSetCheckedAt(uintptr(0) /* index */, uintptr(0) /* checked */))
+	return int32(obj.rawPtr.CallSetCheckedAt(uintptr(index), uintptr(checked)))
 }
 
 func (obj *menuModelImpl) HasAccelerator(commandID int32) bool {
-	return obj.rawPtr.CallHasAccelerator(uintptr(0) /* commandID */) != 0
+	return obj.rawPtr.CallHasAccelerator(uintptr(commandID)) != 0
 }
 
 func (obj *menuModelImpl) HasAcceleratorAt(index int) bool {
-	return obj.rawPtr.CallHasAcceleratorAt(uintptr(0) /* index */) != 0
+	return obj.rawPtr.CallHasAcceleratorAt(uintptr(index)) != 0
 }
 
 func (obj *menuModelImpl) SetAccelerator(commandID int32, keyCode int32, shiftPressed int32, ctrlPressed int32, altPressed int32) int32 {
-	return int32(obj.rawPtr.CallSetAccelerator(uintptr(0) /* commandID */, uintptr(0) /* keyCode */, uintptr(0) /* shiftPressed */, uintptr(0) /* ctrlPressed */, uintptr(0) /* altPressed */))
+	return int32(obj.rawPtr.CallSetAccelerator(uintptr(commandID), uintptr(keyCode), uintptr(shiftPressed), uintptr(ctrlPressed), uintptr(altPressed)))
 }
 
 func (obj *menuModelImpl) SetAcceleratorAt(index int, keyCode int32, shiftPressed int32, ctrlPressed int32, altPressed int32) int32 {
-	return int32(obj.rawPtr.CallSetAcceleratorAt(uintptr(0) /* index */, uintptr(0) /* keyCode */, uintptr(0) /* shiftPressed */, uintptr(0) /* ctrlPressed */, uintptr(0) /* altPressed */))
+	return int32(obj.rawPtr.CallSetAcceleratorAt(uintptr(index), uintptr(keyCode), uintptr(shiftPressed), uintptr(ctrlPressed), uintptr(altPressed)))
 }
 
 func (obj *menuModelImpl) RemoveAccelerator(commandID int32) int32 {
-	return int32(obj.rawPtr.CallRemoveAccelerator(uintptr(0) /* commandID */))
+	return int32(obj.rawPtr.CallRemoveAccelerator(uintptr(commandID)))
 }
 
 func (obj *menuModelImpl) RemoveAcceleratorAt(index int) int32 {
-	return int32(obj.rawPtr.CallRemoveAcceleratorAt(uintptr(0) /* index */))
+	return int32(obj.rawPtr.CallRemoveAcceleratorAt(uintptr(index)))
 }
 
 func (obj *menuModelImpl) GetAccelerator(commandID int32, keyCode unsafe.Pointer, shiftPressed unsafe.Pointer, ctrlPressed unsafe.Pointer, altPressed unsafe.Pointer) int32 {
-	return int32(obj.rawPtr.CallGetAccelerator(uintptr(0) /* commandID */, uintptr(0) /* keyCode */, uintptr(0) /* shiftPressed */, uintptr(0) /* ctrlPressed */, uintptr(0) /* altPressed */))
+	return int32(obj.rawPtr.CallGetAccelerator(uintptr(commandID), uintptr(keyCode), uintptr(shiftPressed), uintptr(ctrlPressed), uintptr(altPressed)))
 }
 
 func (obj *menuModelImpl) GetAcceleratorAt(index int, keyCode unsafe.Pointer, shiftPressed unsafe.Pointer, ctrlPressed unsafe.Pointer, altPressed unsafe.Pointer) int32 {
-	return int32(obj.rawPtr.CallGetAcceleratorAt(uintptr(0) /* index */, uintptr(0) /* keyCode */, uintptr(0) /* shiftPressed */, uintptr(0) /* ctrlPressed */, uintptr(0) /* altPressed */))
+	return int32(obj.rawPtr.CallGetAcceleratorAt(uintptr(index), uintptr(keyCode), uintptr(shiftPressed), uintptr(ctrlPressed), uintptr(altPressed)))
 }
 
 func (obj *menuModelImpl) SetColor(commandID int32, colorType MenuColorType, color uintptr) int32 {
-	return int32(obj.rawPtr.CallSetColor(uintptr(0) /* commandID */, uintptr(0) /* colorType */, uintptr(0) /* color */))
+	return int32(obj.rawPtr.CallSetColor(uintptr(commandID), uintptr(colorType), uintptr(color)))
 }
 
 func (obj *menuModelImpl) SetColorAt(index int32, colorType MenuColorType, color uintptr) int32 {
-	return int32(obj.rawPtr.CallSetColorAt(uintptr(0) /* index */, uintptr(0) /* colorType */, uintptr(0) /* color */))
+	return int32(obj.rawPtr.CallSetColorAt(uintptr(index), uintptr(colorType), uintptr(color)))
 }
 
 func (obj *menuModelImpl) GetColor(commandID int32, colorType MenuColorType, color uintptr) int32 {
-	return int32(obj.rawPtr.CallGetColor(uintptr(0) /* commandID */, uintptr(0) /* colorType */, uintptr(0) /* color */))
+	return int32(obj.rawPtr.CallGetColor(uintptr(commandID), uintptr(colorType), uintptr(color)))
 }
 
 func (obj *menuModelImpl) GetColorAt(index int32, colorType MenuColorType, color uintptr) int32 {
-	return int32(obj.rawPtr.CallGetColorAt(uintptr(0) /* index */, uintptr(0) /* colorType */, uintptr(0) /* color */))
+	return int32(obj.rawPtr.CallGetColorAt(uintptr(index), uintptr(colorType), uintptr(color)))
 }
 
 func (obj *menuModelImpl) SetFontList(commandID int32, fontList string) int32 {
-	return int32(obj.rawPtr.CallSetFontList(uintptr(0) /* commandID */, uintptr(0) /* fontList */))
+	fontListStr := cefString(fontList)
+	defer freeCefString(&fontListStr)
+	return int32(obj.rawPtr.CallSetFontList(uintptr(commandID), uintptr(unsafe.Pointer(&fontListStr))))
 }
 
 func (obj *menuModelImpl) SetFontListAt(index int32, fontList string) int32 {
-	return int32(obj.rawPtr.CallSetFontListAt(uintptr(0) /* index */, uintptr(0) /* fontList */))
+	fontListStr := cefString(fontList)
+	defer freeCefString(&fontListStr)
+	return int32(obj.rawPtr.CallSetFontListAt(uintptr(index), uintptr(unsafe.Pointer(&fontListStr))))
 }
 
 func (obj *menuModelImpl) rawPointer() unsafe.Pointer {

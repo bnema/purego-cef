@@ -42,7 +42,7 @@ func (obj *waitableEventImpl) Wait() {
 }
 
 func (obj *waitableEventImpl) TimedWait(maxMs int64) int32 {
-	return int32(obj.rawPtr.CallTimedWait(uintptr(0) /* maxMs */))
+	return int32(obj.rawPtr.CallTimedWait(uintptr(maxMs)))
 }
 
 func (obj *waitableEventImpl) rawPointer() unsafe.Pointer {

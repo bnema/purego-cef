@@ -59,7 +59,7 @@ type taskRunnerImpl struct {
 }
 
 func (obj *taskRunnerImpl) IsSame(that TaskRunner) bool {
-	return obj.rawPtr.CallIsSame(uintptr(0) /* that */) != 0
+	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
 }
 
 func (obj *taskRunnerImpl) BelongsToCurrentThread() int32 {
@@ -67,15 +67,15 @@ func (obj *taskRunnerImpl) BelongsToCurrentThread() int32 {
 }
 
 func (obj *taskRunnerImpl) BelongsToThread(threadid ThreadID) int32 {
-	return int32(obj.rawPtr.CallBelongsToThread(uintptr(0) /* threadid */))
+	return int32(obj.rawPtr.CallBelongsToThread(uintptr(threadid)))
 }
 
 func (obj *taskRunnerImpl) PostTask(task Task) int32 {
-	return int32(obj.rawPtr.CallPostTask(uintptr(0) /* task */))
+	return int32(obj.rawPtr.CallPostTask(uintptr(extractRawPointer(task))))
 }
 
 func (obj *taskRunnerImpl) PostDelayedTask(task Task, delayMs int64) int32 {
-	return int32(obj.rawPtr.CallPostDelayedTask(uintptr(0) /* task */, uintptr(0) /* delayMs */))
+	return int32(obj.rawPtr.CallPostDelayedTask(uintptr(extractRawPointer(task)), uintptr(delayMs)))
 }
 
 func (obj *taskRunnerImpl) rawPointer() unsafe.Pointer {

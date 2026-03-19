@@ -30,11 +30,13 @@ type mediaRouterImpl struct {
 }
 
 func (obj *mediaRouterImpl) AddObserver(observer MediaObserver) Registration {
-	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddObserver(uintptr(0) /* observer */)))
+	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddObserver(uintptr(extractRawPointer(observer)))))
 }
 
 func (obj *mediaRouterImpl) GetSource(urn string) MediaSource {
-	return wrapMediaSource(unsafe.Pointer(obj.rawPtr.CallGetSource(uintptr(0) /* urn */)))
+	urnStr := cefString(urn)
+	defer freeCefString(&urnStr)
+	return wrapMediaSource(unsafe.Pointer(obj.rawPtr.CallGetSource(uintptr(unsafe.Pointer(&urnStr)))))
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentSinks() {
@@ -42,7 +44,7 @@ func (obj *mediaRouterImpl) NotifyCurrentSinks() {
 }
 
 func (obj *mediaRouterImpl) CreateRoute(source MediaSource, sink MediaSink, callback MediaRouteCreateCallback) {
-	obj.rawPtr.CallCreateRoute(uintptr(0) /* source */, uintptr(0) /* sink */, uintptr(0) /* callback */)
+	obj.rawPtr.CallCreateRoute(uintptr(extractRawPointer(source)), uintptr(extractRawPointer(sink)), uintptr(extractRawPointer(callback)))
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
@@ -162,7 +164,7 @@ func (obj *mediaRouteImpl) GetSink() MediaSink {
 }
 
 func (obj *mediaRouteImpl) SendRouteMessage(message unsafe.Pointer, messageSize int) {
-	obj.rawPtr.CallSendRouteMessage(uintptr(0) /* message */, uintptr(0) /* messageSize */)
+	obj.rawPtr.CallSendRouteMessage(uintptr(message), uintptr(messageSize))
 }
 
 func (obj *mediaRouteImpl) Terminate() {
@@ -262,7 +264,7 @@ func (obj *mediaSinkImpl) GetIconType() MediaSinkIconType {
 }
 
 func (obj *mediaSinkImpl) GetDeviceInfo(callback MediaSinkDeviceInfoCallback) {
-	obj.rawPtr.CallGetDeviceInfo(uintptr(0) /* callback */)
+	obj.rawPtr.CallGetDeviceInfo(uintptr(extractRawPointer(callback)))
 }
 
 func (obj *mediaSinkImpl) IsCastSink() bool {
@@ -274,7 +276,7 @@ func (obj *mediaSinkImpl) IsDialSink() bool {
 }
 
 func (obj *mediaSinkImpl) IsCompatibleWith(source MediaSource) bool {
-	return obj.rawPtr.CallIsCompatibleWith(uintptr(0) /* source */) != 0
+	return obj.rawPtr.CallIsCompatibleWith(uintptr(extractRawPointer(source))) != 0
 }
 
 func (obj *mediaSinkImpl) rawPointer() unsafe.Pointer {

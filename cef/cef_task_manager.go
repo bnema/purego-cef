@@ -32,19 +32,19 @@ func (obj *taskManagerImpl) GetTasksCount() int {
 }
 
 func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds unsafe.Pointer) int32 {
-	return int32(obj.rawPtr.CallGetTaskIdsList(uintptr(0) /* taskIdscount */, uintptr(0) /* taskIds */))
+	return int32(obj.rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(taskIdscount)), uintptr(taskIds)))
 }
 
 func (obj *taskManagerImpl) GetTaskInfo(taskID int64, info *TaskInfo) int32 {
-	return int32(obj.rawPtr.CallGetTaskInfo(uintptr(0) /* taskID */, uintptr(0) /* info */))
+	return int32(obj.rawPtr.CallGetTaskInfo(uintptr(taskID), uintptr(unsafe.Pointer(info))))
 }
 
 func (obj *taskManagerImpl) KillTask(taskID int64) int32 {
-	return int32(obj.rawPtr.CallKillTask(uintptr(0) /* taskID */))
+	return int32(obj.rawPtr.CallKillTask(uintptr(taskID)))
 }
 
 func (obj *taskManagerImpl) GetTaskIDForBrowserID(browserID int32) int64 {
-	return int64(obj.rawPtr.CallGetTaskIDForBrowserID(uintptr(0) /* browserID */))
+	return int64(obj.rawPtr.CallGetTaskIDForBrowserID(uintptr(browserID)))
 }
 
 func (obj *taskManagerImpl) rawPointer() unsafe.Pointer {

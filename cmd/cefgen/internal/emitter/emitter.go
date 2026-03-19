@@ -50,6 +50,42 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		"cbParamName": func(p ParamData, idx int) string {
 			return fmt.Sprintf("arg%d", idx)
 		},
+		// marshalPreamble returns pre-call statements needed before the Call (e.g., string setup).
+		// Returns empty string if no preamble is needed.
+		"marshalPreamble": func(p ParamData) string {
+			switch p.MarshalKind {
+			case "string", "userfreeString":
+				return p.Name + "Str := cefString(" + p.Name + ")\n\tdefer freeCefString(&" + p.Name + "Str)"
+			default:
+				return ""
+			}
+		},
+		// marshalParam generates the Go expression to convert a public Go param to uintptr.
+		"marshalParam": func(p ParamData) string {
+			switch p.MarshalKind {
+			case "interface":
+				return "uintptr(extractRawPointer(" + p.Name + "))"
+			case "string", "userfreeString":
+				return "uintptr(unsafe.Pointer(&" + p.Name + "Str))"
+			case "enum":
+				return "uintptr(" + p.Name + ")"
+			case "pointer":
+				return "uintptr(" + p.Name + ")"
+			case "dataStruct":
+				return "uintptr(unsafe.Pointer(" + p.Name + "))"
+			case "numeric":
+				switch p.PublicType {
+				case "float64":
+					return "uintptr(math.Float64bits(" + p.Name + "))"
+				case "float32":
+					return "uintptr(math.Float32bits(" + p.Name + "))"
+				default:
+					return "uintptr(" + p.Name + ")"
+				}
+			default:
+				return "uintptr(" + p.Name + ")"
+			}
+		},
 		// unmarshalParam generates the Go expression to convert a uintptr to the public type.
 		"unmarshalParam": func(p ParamData, rawName string) string {
 			switch p.MarshalKind {

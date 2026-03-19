@@ -144,15 +144,21 @@ func (obj *xmlReaderImpl) GetAttributeCount() int {
 }
 
 func (obj *xmlReaderImpl) GetAttributeByindex(index int32) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetAttributeByindex(uintptr(0) /* index */)))
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetAttributeByindex(uintptr(index))))
 }
 
 func (obj *xmlReaderImpl) GetAttributeByqname(qualifiedname string) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetAttributeByqname(uintptr(0) /* qualifiedname */)))
+	qualifiednameStr := cefString(qualifiedname)
+	defer freeCefString(&qualifiednameStr)
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr)))))
 }
 
 func (obj *xmlReaderImpl) GetAttributeBylname(localname string, namespaceuri string) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetAttributeBylname(uintptr(0) /* localname */, uintptr(0) /* namespaceuri */)))
+	localnameStr := cefString(localname)
+	defer freeCefString(&localnameStr)
+	namespaceuriStr := cefString(namespaceuri)
+	defer freeCefString(&namespaceuriStr)
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr)))))
 }
 
 func (obj *xmlReaderImpl) GetInnerXml() string {
@@ -168,15 +174,21 @@ func (obj *xmlReaderImpl) GetLineNumber() int32 {
 }
 
 func (obj *xmlReaderImpl) MoveToAttributeByindex(index int32) int32 {
-	return int32(obj.rawPtr.CallMoveToAttributeByindex(uintptr(0) /* index */))
+	return int32(obj.rawPtr.CallMoveToAttributeByindex(uintptr(index)))
 }
 
 func (obj *xmlReaderImpl) MoveToAttributeByqname(qualifiedname string) int32 {
-	return int32(obj.rawPtr.CallMoveToAttributeByqname(uintptr(0) /* qualifiedname */))
+	qualifiednameStr := cefString(qualifiedname)
+	defer freeCefString(&qualifiednameStr)
+	return int32(obj.rawPtr.CallMoveToAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr))))
 }
 
 func (obj *xmlReaderImpl) MoveToAttributeBylname(localname string, namespaceuri string) int32 {
-	return int32(obj.rawPtr.CallMoveToAttributeBylname(uintptr(0) /* localname */, uintptr(0) /* namespaceuri */))
+	localnameStr := cefString(localname)
+	defer freeCefString(&localnameStr)
+	namespaceuriStr := cefString(namespaceuri)
+	defer freeCefString(&namespaceuriStr)
+	return int32(obj.rawPtr.CallMoveToAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr))))
 }
 
 func (obj *xmlReaderImpl) MoveToFirstAttribute() int32 {

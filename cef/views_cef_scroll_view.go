@@ -32,7 +32,7 @@ type scrollViewImpl struct {
 }
 
 func (obj *scrollViewImpl) SetContentView(view View) {
-	obj.rawPtr.CallSetContentView(uintptr(0) /* view */)
+	obj.rawPtr.CallSetContentView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *scrollViewImpl) GetContentView() View {

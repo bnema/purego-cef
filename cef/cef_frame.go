@@ -104,23 +104,29 @@ func (obj *frameImpl) ViewSource() {
 }
 
 func (obj *frameImpl) GetSource(visitor StringVisitor) {
-	obj.rawPtr.CallGetSource(uintptr(0) /* visitor */)
+	obj.rawPtr.CallGetSource(uintptr(extractRawPointer(visitor)))
 }
 
 func (obj *frameImpl) GetText(visitor StringVisitor) {
-	obj.rawPtr.CallGetText(uintptr(0) /* visitor */)
+	obj.rawPtr.CallGetText(uintptr(extractRawPointer(visitor)))
 }
 
 func (obj *frameImpl) LoadRequest(request Request) {
-	obj.rawPtr.CallLoadRequest(uintptr(0) /* request */)
+	obj.rawPtr.CallLoadRequest(uintptr(extractRawPointer(request)))
 }
 
 func (obj *frameImpl) LoadURL(uRL string) {
-	obj.rawPtr.CallLoadURL(uintptr(0) /* uRL */)
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	obj.rawPtr.CallLoadURL(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *frameImpl) ExecuteJavaScript(code string, scriptURL string, startLine int32) {
-	obj.rawPtr.CallExecuteJavaScript(uintptr(0) /* code */, uintptr(0) /* scriptURL */, uintptr(0) /* startLine */)
+	codeStr := cefString(code)
+	defer freeCefString(&codeStr)
+	scriptURLStr := cefString(scriptURL)
+	defer freeCefString(&scriptURLStr)
+	obj.rawPtr.CallExecuteJavaScript(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine))
 }
 
 func (obj *frameImpl) IsMain() bool {
@@ -156,15 +162,15 @@ func (obj *frameImpl) GetV8Context() V8Context {
 }
 
 func (obj *frameImpl) VisitDom(visitor Domvisitor) {
-	obj.rawPtr.CallVisitDom(uintptr(0) /* visitor */)
+	obj.rawPtr.CallVisitDom(uintptr(extractRawPointer(visitor)))
 }
 
 func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient) Urlrequest {
-	return wrapUrlrequest(unsafe.Pointer(obj.rawPtr.CallCreateUrlrequest(uintptr(0) /* request */, uintptr(0) /* client */)))
+	return wrapUrlrequest(unsafe.Pointer(obj.rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractRawPointer(client)))))
 }
 
 func (obj *frameImpl) SendProcessMessage(targetProcess ProcessID, message ProcessMessage) {
-	obj.rawPtr.CallSendProcessMessage(uintptr(0) /* targetProcess */, uintptr(0) /* message */)
+	obj.rawPtr.CallSendProcessMessage(uintptr(targetProcess), uintptr(extractRawPointer(message)))
 }
 
 func (obj *frameImpl) rawPointer() unsafe.Pointer {

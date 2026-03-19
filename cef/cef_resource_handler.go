@@ -21,7 +21,7 @@ type resourceSkipCallbackImpl struct {
 }
 
 func (obj *resourceSkipCallbackImpl) Cont(bytesSkipped int64) {
-	obj.rawPtr.CallCont(uintptr(0) /* bytesSkipped */)
+	obj.rawPtr.CallCont(uintptr(bytesSkipped))
 }
 
 func (obj *resourceSkipCallbackImpl) rawPointer() unsafe.Pointer {
@@ -59,7 +59,7 @@ type resourceReadCallbackImpl struct {
 }
 
 func (obj *resourceReadCallbackImpl) Cont(bytesRead int32) {
-	obj.rawPtr.CallCont(uintptr(0) /* bytesRead */)
+	obj.rawPtr.CallCont(uintptr(bytesRead))
 }
 
 func (obj *resourceReadCallbackImpl) rawPointer() unsafe.Pointer {

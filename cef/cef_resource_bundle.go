@@ -24,15 +24,15 @@ type resourceBundleImpl struct {
 }
 
 func (obj *resourceBundleImpl) GetLocalizedString(stringID int32) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLocalizedString(uintptr(0) /* stringID */)))
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLocalizedString(uintptr(stringID))))
 }
 
 func (obj *resourceBundleImpl) GetDataResource(resourceID int32) BinaryValue {
-	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDataResource(uintptr(0) /* resourceID */)))
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDataResource(uintptr(resourceID))))
 }
 
 func (obj *resourceBundleImpl) GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor) BinaryValue {
-	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDataResourceForScale(uintptr(0) /* resourceID */, uintptr(0) /* scaleFactor */)))
+	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor))))
 }
 
 func (obj *resourceBundleImpl) rawPointer() unsafe.Pointer {

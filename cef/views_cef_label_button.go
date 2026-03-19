@@ -44,7 +44,9 @@ func (obj *labelButtonImpl) AsMenuButton() MenuButton {
 }
 
 func (obj *labelButtonImpl) SetText(text string) {
-	obj.rawPtr.CallSetText(uintptr(0) /* text */)
+	textStr := cefString(text)
+	defer freeCefString(&textStr)
+	obj.rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *labelButtonImpl) GetText() string {
@@ -52,35 +54,37 @@ func (obj *labelButtonImpl) GetText() string {
 }
 
 func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
-	obj.rawPtr.CallSetImage(uintptr(0) /* buttonState */, uintptr(0) /* image */)
+	obj.rawPtr.CallSetImage(uintptr(buttonState), uintptr(extractRawPointer(image)))
 }
 
 func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
-	return wrapImage(unsafe.Pointer(obj.rawPtr.CallGetImage(uintptr(0) /* buttonState */)))
+	return wrapImage(unsafe.Pointer(obj.rawPtr.CallGetImage(uintptr(buttonState))))
 }
 
 func (obj *labelButtonImpl) SetTextColor(forState ButtonState, color uintptr) {
-	obj.rawPtr.CallSetTextColor(uintptr(0) /* forState */, uintptr(0) /* color */)
+	obj.rawPtr.CallSetTextColor(uintptr(forState), uintptr(color))
 }
 
 func (obj *labelButtonImpl) SetEnabledTextColors(color uintptr) {
-	obj.rawPtr.CallSetEnabledTextColors(uintptr(0) /* color */)
+	obj.rawPtr.CallSetEnabledTextColors(uintptr(color))
 }
 
 func (obj *labelButtonImpl) SetFontList(fontList string) {
-	obj.rawPtr.CallSetFontList(uintptr(0) /* fontList */)
+	fontListStr := cefString(fontList)
+	defer freeCefString(&fontListStr)
+	obj.rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
 }
 
 func (obj *labelButtonImpl) SetHorizontalAlignment(alignment HorizontalAlignment) {
-	obj.rawPtr.CallSetHorizontalAlignment(uintptr(0) /* alignment */)
+	obj.rawPtr.CallSetHorizontalAlignment(uintptr(alignment))
 }
 
 func (obj *labelButtonImpl) SetMinimumSize(size uintptr) {
-	obj.rawPtr.CallSetMinimumSize(uintptr(0) /* size */)
+	obj.rawPtr.CallSetMinimumSize(uintptr(size))
 }
 
 func (obj *labelButtonImpl) SetMaximumSize(size uintptr) {
-	obj.rawPtr.CallSetMaximumSize(uintptr(0) /* size */)
+	obj.rawPtr.CallSetMaximumSize(uintptr(size))
 }
 
 func (obj *labelButtonImpl) rawPointer() unsafe.Pointer {

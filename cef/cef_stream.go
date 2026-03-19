@@ -87,11 +87,11 @@ type streamReaderImpl struct {
 }
 
 func (obj *streamReaderImpl) Read(ptr unsafe.Pointer, size int, n int) int {
-	return int(obj.rawPtr.CallRead(uintptr(0) /* ptr */, uintptr(0) /* size */, uintptr(0) /* n */))
+	return int(obj.rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n)))
 }
 
 func (obj *streamReaderImpl) SeekOffset(offset int64, whence int32) int32 {
-	return int32(obj.rawPtr.CallSeek(uintptr(0) /* offset */, uintptr(0) /* whence */))
+	return int32(obj.rawPtr.CallSeek(uintptr(offset), uintptr(whence)))
 }
 
 func (obj *streamReaderImpl) Tell() int64 {
@@ -207,11 +207,11 @@ type streamWriterImpl struct {
 }
 
 func (obj *streamWriterImpl) Write(ptr unsafe.Pointer, size int, n int) int {
-	return int(obj.rawPtr.CallWrite(uintptr(0) /* ptr */, uintptr(0) /* size */, uintptr(0) /* n */))
+	return int(obj.rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n)))
 }
 
 func (obj *streamWriterImpl) SeekOffset(offset int64, whence int32) int32 {
-	return int32(obj.rawPtr.CallSeek(uintptr(0) /* offset */, uintptr(0) /* whence */))
+	return int32(obj.rawPtr.CallSeek(uintptr(offset), uintptr(whence)))
 }
 
 func (obj *streamWriterImpl) Tell() int64 {

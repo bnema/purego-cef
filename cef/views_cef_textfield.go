@@ -79,7 +79,7 @@ type textfieldImpl struct {
 }
 
 func (obj *textfieldImpl) SetPasswordInput(passwordInput int32) {
-	obj.rawPtr.CallSetPasswordInput(uintptr(0) /* passwordInput */)
+	obj.rawPtr.CallSetPasswordInput(uintptr(passwordInput))
 }
 
 func (obj *textfieldImpl) IsPasswordInput() bool {
@@ -87,7 +87,7 @@ func (obj *textfieldImpl) IsPasswordInput() bool {
 }
 
 func (obj *textfieldImpl) SetReadOnly(readOnly int32) {
-	obj.rawPtr.CallSetReadOnly(uintptr(0) /* readOnly */)
+	obj.rawPtr.CallSetReadOnly(uintptr(readOnly))
 }
 
 func (obj *textfieldImpl) IsReadOnly() bool {
@@ -99,15 +99,21 @@ func (obj *textfieldImpl) GetText() string {
 }
 
 func (obj *textfieldImpl) SetText(text string) {
-	obj.rawPtr.CallSetText(uintptr(0) /* text */)
+	textStr := cefString(text)
+	defer freeCefString(&textStr)
+	obj.rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *textfieldImpl) AppendText(text string) {
-	obj.rawPtr.CallAppendText(uintptr(0) /* text */)
+	textStr := cefString(text)
+	defer freeCefString(&textStr)
+	obj.rawPtr.CallAppendText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *textfieldImpl) InsertOrReplaceText(text string) {
-	obj.rawPtr.CallInsertOrReplaceText(uintptr(0) /* text */)
+	textStr := cefString(text)
+	defer freeCefString(&textStr)
+	obj.rawPtr.CallInsertOrReplaceText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *textfieldImpl) HasSelection() bool {
@@ -119,7 +125,7 @@ func (obj *textfieldImpl) GetSelectedText() string {
 }
 
 func (obj *textfieldImpl) SelectAll(reversed int32) {
-	obj.rawPtr.CallSelectAll(uintptr(0) /* reversed */)
+	obj.rawPtr.CallSelectAll(uintptr(reversed))
 }
 
 func (obj *textfieldImpl) ClearSelection() {
@@ -131,7 +137,7 @@ func (obj *textfieldImpl) GetSelectedRange() uintptr {
 }
 
 func (obj *textfieldImpl) SelectRange(range_ uintptr) {
-	obj.rawPtr.CallSelectRange(uintptr(0) /* range_ */)
+	obj.rawPtr.CallSelectRange(uintptr(range_))
 }
 
 func (obj *textfieldImpl) GetCursorPosition() int {
@@ -139,7 +145,7 @@ func (obj *textfieldImpl) GetCursorPosition() int {
 }
 
 func (obj *textfieldImpl) SetTextColor(color uintptr) {
-	obj.rawPtr.CallSetTextColor(uintptr(0) /* color */)
+	obj.rawPtr.CallSetTextColor(uintptr(color))
 }
 
 func (obj *textfieldImpl) GetTextColor() uintptr {
@@ -147,7 +153,7 @@ func (obj *textfieldImpl) GetTextColor() uintptr {
 }
 
 func (obj *textfieldImpl) SetSelectionTextColor(color uintptr) {
-	obj.rawPtr.CallSetSelectionTextColor(uintptr(0) /* color */)
+	obj.rawPtr.CallSetSelectionTextColor(uintptr(color))
 }
 
 func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
@@ -155,7 +161,7 @@ func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
 }
 
 func (obj *textfieldImpl) SetSelectionBackgroundColor(color uintptr) {
-	obj.rawPtr.CallSetSelectionBackgroundColor(uintptr(0) /* color */)
+	obj.rawPtr.CallSetSelectionBackgroundColor(uintptr(color))
 }
 
 func (obj *textfieldImpl) GetSelectionBackgroundColor() uintptr {
@@ -163,23 +169,25 @@ func (obj *textfieldImpl) GetSelectionBackgroundColor() uintptr {
 }
 
 func (obj *textfieldImpl) SetFontList(fontList string) {
-	obj.rawPtr.CallSetFontList(uintptr(0) /* fontList */)
+	fontListStr := cefString(fontList)
+	defer freeCefString(&fontListStr)
+	obj.rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
 }
 
 func (obj *textfieldImpl) ApplyTextColor(color uintptr, range_ uintptr) {
-	obj.rawPtr.CallApplyTextColor(uintptr(0) /* color */, uintptr(0) /* range_ */)
+	obj.rawPtr.CallApplyTextColor(uintptr(color), uintptr(range_))
 }
 
 func (obj *textfieldImpl) ApplyTextStyle(style TextStyle, add int32, range_ uintptr) {
-	obj.rawPtr.CallApplyTextStyle(uintptr(0) /* style */, uintptr(0) /* add */, uintptr(0) /* range_ */)
+	obj.rawPtr.CallApplyTextStyle(uintptr(style), uintptr(add), uintptr(range_))
 }
 
 func (obj *textfieldImpl) IsCommandEnabled(commandID TextFieldCommands) bool {
-	return obj.rawPtr.CallIsCommandEnabled(uintptr(0) /* commandID */) != 0
+	return obj.rawPtr.CallIsCommandEnabled(uintptr(commandID)) != 0
 }
 
 func (obj *textfieldImpl) ExecuteCommand(commandID TextFieldCommands) {
-	obj.rawPtr.CallExecuteCommand(uintptr(0) /* commandID */)
+	obj.rawPtr.CallExecuteCommand(uintptr(commandID))
 }
 
 func (obj *textfieldImpl) ClearEditHistory() {
@@ -187,7 +195,9 @@ func (obj *textfieldImpl) ClearEditHistory() {
 }
 
 func (obj *textfieldImpl) SetPlaceholderText(text string) {
-	obj.rawPtr.CallSetPlaceholderText(uintptr(0) /* text */)
+	textStr := cefString(text)
+	defer freeCefString(&textStr)
+	obj.rawPtr.CallSetPlaceholderText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *textfieldImpl) GetPlaceholderText() string {
@@ -195,11 +205,13 @@ func (obj *textfieldImpl) GetPlaceholderText() string {
 }
 
 func (obj *textfieldImpl) SetPlaceholderTextColor(color uintptr) {
-	obj.rawPtr.CallSetPlaceholderTextColor(uintptr(0) /* color */)
+	obj.rawPtr.CallSetPlaceholderTextColor(uintptr(color))
 }
 
 func (obj *textfieldImpl) SetAccessibleName(name string) {
-	obj.rawPtr.CallSetAccessibleName(uintptr(0) /* name */)
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	obj.rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *textfieldImpl) rawPointer() unsafe.Pointer {

@@ -71,11 +71,13 @@ func (obj *commandLineImpl) Copy() CommandLine {
 }
 
 func (obj *commandLineImpl) InitFromArgv(argc int32, argv uintptr) {
-	obj.rawPtr.CallInitFromArgv(uintptr(0) /* argc */, uintptr(0) /* argv */)
+	obj.rawPtr.CallInitFromArgv(uintptr(argc), uintptr(argv))
 }
 
 func (obj *commandLineImpl) InitFromString(commandLine string) {
-	obj.rawPtr.CallInitFromString(uintptr(0) /* commandLine */)
+	commandLineStr := cefString(commandLine)
+	defer freeCefString(&commandLineStr)
+	obj.rawPtr.CallInitFromString(uintptr(unsafe.Pointer(&commandLineStr)))
 }
 
 func (obj *commandLineImpl) Reset() {
@@ -83,7 +85,7 @@ func (obj *commandLineImpl) Reset() {
 }
 
 func (obj *commandLineImpl) GetArgv(argv uintptr) {
-	obj.rawPtr.CallGetArgv(uintptr(0) /* argv */)
+	obj.rawPtr.CallGetArgv(uintptr(argv))
 }
 
 func (obj *commandLineImpl) GetCommandLineString() string {
@@ -95,7 +97,9 @@ func (obj *commandLineImpl) GetProgram() string {
 }
 
 func (obj *commandLineImpl) SetProgram(program string) {
-	obj.rawPtr.CallSetProgram(uintptr(0) /* program */)
+	programStr := cefString(program)
+	defer freeCefString(&programStr)
+	obj.rawPtr.CallSetProgram(uintptr(unsafe.Pointer(&programStr)))
 }
 
 func (obj *commandLineImpl) HasSwitches() bool {
@@ -103,23 +107,33 @@ func (obj *commandLineImpl) HasSwitches() bool {
 }
 
 func (obj *commandLineImpl) HasSwitch(name string) bool {
-	return obj.rawPtr.CallHasSwitch(uintptr(0) /* name */) != 0
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	return obj.rawPtr.CallHasSwitch(uintptr(unsafe.Pointer(&nameStr))) != 0
 }
 
 func (obj *commandLineImpl) GetSwitchValue(name string) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSwitchValue(uintptr(0) /* name */)))
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSwitchValue(uintptr(unsafe.Pointer(&nameStr)))))
 }
 
 func (obj *commandLineImpl) GetSwitches(switches uintptr) {
-	obj.rawPtr.CallGetSwitches(uintptr(0) /* switches */)
+	obj.rawPtr.CallGetSwitches(uintptr(switches))
 }
 
 func (obj *commandLineImpl) AppendSwitch(name string) {
-	obj.rawPtr.CallAppendSwitch(uintptr(0) /* name */)
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	obj.rawPtr.CallAppendSwitch(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *commandLineImpl) AppendSwitchWithValue(name string, value string) {
-	obj.rawPtr.CallAppendSwitchWithValue(uintptr(0) /* name */, uintptr(0) /* value */)
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	valueStr := cefString(value)
+	defer freeCefString(&valueStr)
+	obj.rawPtr.CallAppendSwitchWithValue(uintptr(unsafe.Pointer(&nameStr)), uintptr(unsafe.Pointer(&valueStr)))
 }
 
 func (obj *commandLineImpl) HasArguments() bool {
@@ -127,19 +141,25 @@ func (obj *commandLineImpl) HasArguments() bool {
 }
 
 func (obj *commandLineImpl) GetArguments(arguments uintptr) {
-	obj.rawPtr.CallGetArguments(uintptr(0) /* arguments */)
+	obj.rawPtr.CallGetArguments(uintptr(arguments))
 }
 
 func (obj *commandLineImpl) AppendArgument(argument string) {
-	obj.rawPtr.CallAppendArgument(uintptr(0) /* argument */)
+	argumentStr := cefString(argument)
+	defer freeCefString(&argumentStr)
+	obj.rawPtr.CallAppendArgument(uintptr(unsafe.Pointer(&argumentStr)))
 }
 
 func (obj *commandLineImpl) PrependWrapper(wrapper string) {
-	obj.rawPtr.CallPrependWrapper(uintptr(0) /* wrapper */)
+	wrapperStr := cefString(wrapper)
+	defer freeCefString(&wrapperStr)
+	obj.rawPtr.CallPrependWrapper(uintptr(unsafe.Pointer(&wrapperStr)))
 }
 
 func (obj *commandLineImpl) RemoveSwitch(name string) {
-	obj.rawPtr.CallRemoveSwitch(uintptr(0) /* name */)
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	obj.rawPtr.CallRemoveSwitch(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *commandLineImpl) rawPointer() unsafe.Pointer {

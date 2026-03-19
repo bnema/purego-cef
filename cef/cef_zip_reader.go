@@ -50,7 +50,9 @@ func (obj *zipReaderImpl) MoveToNextFile() int32 {
 }
 
 func (obj *zipReaderImpl) MoveToFile(filename string, casesensitive int32) int32 {
-	return int32(obj.rawPtr.CallMoveToFile(uintptr(0) /* filename */, uintptr(0) /* casesensitive */))
+	filenameStr := cefString(filename)
+	defer freeCefString(&filenameStr)
+	return int32(obj.rawPtr.CallMoveToFile(uintptr(unsafe.Pointer(&filenameStr)), uintptr(casesensitive)))
 }
 
 func (obj *zipReaderImpl) Close() int32 {
@@ -70,7 +72,9 @@ func (obj *zipReaderImpl) GetFileLastModified() uintptr {
 }
 
 func (obj *zipReaderImpl) OpenFile(password string) int32 {
-	return int32(obj.rawPtr.CallOpenFile(uintptr(0) /* password */))
+	passwordStr := cefString(password)
+	defer freeCefString(&passwordStr)
+	return int32(obj.rawPtr.CallOpenFile(uintptr(unsafe.Pointer(&passwordStr))))
 }
 
 func (obj *zipReaderImpl) CloseFile() int32 {
@@ -78,7 +82,7 @@ func (obj *zipReaderImpl) CloseFile() int32 {
 }
 
 func (obj *zipReaderImpl) ReadFile(buffer unsafe.Pointer, buffersize int) int32 {
-	return int32(obj.rawPtr.CallReadFile(uintptr(0) /* buffer */, uintptr(0) /* buffersize */))
+	return int32(obj.rawPtr.CallReadFile(uintptr(buffer), uintptr(buffersize)))
 }
 
 func (obj *zipReaderImpl) Tell() int64 {

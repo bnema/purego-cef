@@ -30,23 +30,31 @@ type cookieManagerImpl struct {
 }
 
 func (obj *cookieManagerImpl) VisitAllCookies(visitor CookieVisitor) int32 {
-	return int32(obj.rawPtr.CallVisitAllCookies(uintptr(0) /* visitor */))
+	return int32(obj.rawPtr.CallVisitAllCookies(uintptr(extractRawPointer(visitor))))
 }
 
 func (obj *cookieManagerImpl) VisitURLCookies(uRL string, includehttponly int32, visitor CookieVisitor) int32 {
-	return int32(obj.rawPtr.CallVisitURLCookies(uintptr(0) /* uRL */, uintptr(0) /* includehttponly */, uintptr(0) /* visitor */))
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	return int32(obj.rawPtr.CallVisitURLCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(includehttponly), uintptr(extractRawPointer(visitor))))
 }
 
 func (obj *cookieManagerImpl) SetCookie(uRL string, cookie *Cookie, callback SetCookieCallback) int32 {
-	return int32(obj.rawPtr.CallSetCookie(uintptr(0) /* uRL */, uintptr(0) /* cookie */, uintptr(0) /* callback */))
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	return int32(obj.rawPtr.CallSetCookie(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(cookie)), uintptr(extractRawPointer(callback))))
 }
 
 func (obj *cookieManagerImpl) DeleteCookies(uRL string, cookieName string, callback DeleteCookiesCallback) int32 {
-	return int32(obj.rawPtr.CallDeleteCookies(uintptr(0) /* uRL */, uintptr(0) /* cookieName */, uintptr(0) /* callback */))
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	cookieNameStr := cefString(cookieName)
+	defer freeCefString(&cookieNameStr)
+	return int32(obj.rawPtr.CallDeleteCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&cookieNameStr)), uintptr(extractRawPointer(callback))))
 }
 
 func (obj *cookieManagerImpl) FlushStore(callback CompletionCallback) int32 {
-	return int32(obj.rawPtr.CallFlushStore(uintptr(0) /* callback */))
+	return int32(obj.rawPtr.CallFlushStore(uintptr(extractRawPointer(callback))))
 }
 
 func (obj *cookieManagerImpl) rawPointer() unsafe.Pointer {

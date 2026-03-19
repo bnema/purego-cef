@@ -22,7 +22,9 @@ type jsdialogCallbackImpl struct {
 }
 
 func (obj *jsdialogCallbackImpl) Cont(success int32, userInput string) {
-	obj.rawPtr.CallCont(uintptr(0) /* success */, uintptr(0) /* userInput */)
+	userInputStr := cefString(userInput)
+	defer freeCefString(&userInputStr)
+	obj.rawPtr.CallCont(uintptr(success), uintptr(unsafe.Pointer(&userInputStr)))
 }
 
 func (obj *jsdialogCallbackImpl) rawPointer() unsafe.Pointer {

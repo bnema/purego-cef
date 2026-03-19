@@ -57,7 +57,7 @@ func (obj *overlayControllerImpl) IsValid() bool {
 }
 
 func (obj *overlayControllerImpl) IsSame(that OverlayController) bool {
-	return obj.rawPtr.CallIsSame(uintptr(0) /* that */) != 0
+	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
 }
 
 func (obj *overlayControllerImpl) GetContentsView() View {
@@ -77,7 +77,7 @@ func (obj *overlayControllerImpl) Destroy() {
 }
 
 func (obj *overlayControllerImpl) SetBounds(bounds uintptr) {
-	obj.rawPtr.CallSetBounds(uintptr(0) /* bounds */)
+	obj.rawPtr.CallSetBounds(uintptr(bounds))
 }
 
 func (obj *overlayControllerImpl) GetBounds() uintptr {
@@ -89,7 +89,7 @@ func (obj *overlayControllerImpl) GetBoundsInScreen() uintptr {
 }
 
 func (obj *overlayControllerImpl) SetSize(size uintptr) {
-	obj.rawPtr.CallSetSize(uintptr(0) /* size */)
+	obj.rawPtr.CallSetSize(uintptr(size))
 }
 
 func (obj *overlayControllerImpl) GetSize() uintptr {
@@ -97,7 +97,7 @@ func (obj *overlayControllerImpl) GetSize() uintptr {
 }
 
 func (obj *overlayControllerImpl) SetPosition(position uintptr) {
-	obj.rawPtr.CallSetPosition(uintptr(0) /* position */)
+	obj.rawPtr.CallSetPosition(uintptr(position))
 }
 
 func (obj *overlayControllerImpl) GetPosition() uintptr {
@@ -105,7 +105,7 @@ func (obj *overlayControllerImpl) GetPosition() uintptr {
 }
 
 func (obj *overlayControllerImpl) SetInsets(insets uintptr) {
-	obj.rawPtr.CallSetInsets(uintptr(0) /* insets */)
+	obj.rawPtr.CallSetInsets(uintptr(insets))
 }
 
 func (obj *overlayControllerImpl) GetInsets() uintptr {
@@ -117,7 +117,7 @@ func (obj *overlayControllerImpl) SizeToPreferredSize() {
 }
 
 func (obj *overlayControllerImpl) SetVisible(visible int32) {
-	obj.rawPtr.CallSetVisible(uintptr(0) /* visible */)
+	obj.rawPtr.CallSetVisible(uintptr(visible))
 }
 
 func (obj *overlayControllerImpl) IsVisible() bool {

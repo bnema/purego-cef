@@ -106,7 +106,9 @@ type testServerConnectionImpl struct {
 }
 
 func (obj *testServerConnectionImpl) SendHttp200Response(contentType string, data unsafe.Pointer, dataSize int) {
-	obj.rawPtr.CallSendHttp200Response(uintptr(0) /* contentType */, uintptr(0) /* data */, uintptr(0) /* dataSize */)
+	contentTypeStr := cefString(contentType)
+	defer freeCefString(&contentTypeStr)
+	obj.rawPtr.CallSendHttp200Response(uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *testServerConnectionImpl) SendHttp404Response() {
@@ -114,11 +116,15 @@ func (obj *testServerConnectionImpl) SendHttp404Response() {
 }
 
 func (obj *testServerConnectionImpl) SendHttp500Response(errorMessage string) {
-	obj.rawPtr.CallSendHttp500Response(uintptr(0) /* errorMessage */)
+	errorMessageStr := cefString(errorMessage)
+	defer freeCefString(&errorMessageStr)
+	obj.rawPtr.CallSendHttp500Response(uintptr(unsafe.Pointer(&errorMessageStr)))
 }
 
 func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders uintptr) {
-	obj.rawPtr.CallSendHttpResponse(uintptr(0) /* responseCode */, uintptr(0) /* contentType */, uintptr(0) /* data */, uintptr(0) /* dataSize */, uintptr(0) /* extraHeaders */)
+	contentTypeStr := cefString(contentType)
+	defer freeCefString(&contentTypeStr)
+	obj.rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), uintptr(extraHeaders))
 }
 
 func (obj *testServerConnectionImpl) rawPointer() unsafe.Pointer {

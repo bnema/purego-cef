@@ -33,7 +33,7 @@ func (obj *browserViewImpl) GetChromeToolbar() View {
 }
 
 func (obj *browserViewImpl) SetPreferAccelerators(preferAccelerators int32) {
-	obj.rawPtr.CallSetPreferAccelerators(uintptr(0) /* preferAccelerators */)
+	obj.rawPtr.CallSetPreferAccelerators(uintptr(preferAccelerators))
 }
 
 func (obj *browserViewImpl) GetRuntimeStyle() RuntimeStyle {

@@ -5,24 +5,30 @@ type {{lower .Name}}Impl struct {
 
 {{range .Methods}}
 func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+	{{- range .Params}}
+	{{- $pre := marshalPreamble .}}
+	{{- if $pre}}
+	{{$pre}}
+	{{- end}}
+	{{- end}}
 	{{- if .Return.IsVoid}}
-	obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})
+	obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}})
 	{{- else if .Return.IsBool}}
-	return obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}) != 0
+	return obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}) != 0
 	{{- else if .Return.IsEnum}}
-	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}))
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}))
 	{{- else if .Return.IsString}}
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})))
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}})))
 	{{- else if .Return.IsInterface}}
-	return wrap{{.Return.PublicType}}(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})))
+	return wrap{{.Return.PublicType}}(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}})))
 	{{- else if .Return.IsDataStruct}}
-	return ({{.Return.PublicType}})(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}})))
+	return ({{.Return.PublicType}})(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}})))
 	{{- else if .Return.IsPointer}}
-	return unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}))
+	return unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}))
 	{{- else if .Return.IsNumeric}}
-	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}))
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}))
 	{{- else}}
-	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}uintptr(0) /* {{$p.Name}} */{{end}}))
+	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParam $p}}{{end}}))
 	{{- end}}
 }
 {{end}}

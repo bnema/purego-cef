@@ -66,35 +66,41 @@ func (obj *serverImpl) HasConnection() bool {
 }
 
 func (obj *serverImpl) IsValidConnection(connectionID int32) bool {
-	return obj.rawPtr.CallIsValidConnection(uintptr(0) /* connectionID */) != 0
+	return obj.rawPtr.CallIsValidConnection(uintptr(connectionID)) != 0
 }
 
 func (obj *serverImpl) SendHttp200Response(connectionID int32, contentType string, data unsafe.Pointer, dataSize int) {
-	obj.rawPtr.CallSendHttp200Response(uintptr(0) /* connectionID */, uintptr(0) /* contentType */, uintptr(0) /* data */, uintptr(0) /* dataSize */)
+	contentTypeStr := cefString(contentType)
+	defer freeCefString(&contentTypeStr)
+	obj.rawPtr.CallSendHttp200Response(uintptr(connectionID), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *serverImpl) SendHttp404Response(connectionID int32) {
-	obj.rawPtr.CallSendHttp404Response(uintptr(0) /* connectionID */)
+	obj.rawPtr.CallSendHttp404Response(uintptr(connectionID))
 }
 
 func (obj *serverImpl) SendHttp500Response(connectionID int32, errorMessage string) {
-	obj.rawPtr.CallSendHttp500Response(uintptr(0) /* connectionID */, uintptr(0) /* errorMessage */)
+	errorMessageStr := cefString(errorMessage)
+	defer freeCefString(&errorMessageStr)
+	obj.rawPtr.CallSendHttp500Response(uintptr(connectionID), uintptr(unsafe.Pointer(&errorMessageStr)))
 }
 
 func (obj *serverImpl) SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders uintptr) {
-	obj.rawPtr.CallSendHttpResponse(uintptr(0) /* connectionID */, uintptr(0) /* responseCode */, uintptr(0) /* contentType */, uintptr(0) /* contentLength */, uintptr(0) /* extraHeaders */)
+	contentTypeStr := cefString(contentType)
+	defer freeCefString(&contentTypeStr)
+	obj.rawPtr.CallSendHttpResponse(uintptr(connectionID), uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(contentLength), uintptr(extraHeaders))
 }
 
 func (obj *serverImpl) SendRawData(connectionID int32, data unsafe.Pointer, dataSize int) {
-	obj.rawPtr.CallSendRawData(uintptr(0) /* connectionID */, uintptr(0) /* data */, uintptr(0) /* dataSize */)
+	obj.rawPtr.CallSendRawData(uintptr(connectionID), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *serverImpl) CloseConnection(connectionID int32) {
-	obj.rawPtr.CallCloseConnection(uintptr(0) /* connectionID */)
+	obj.rawPtr.CallCloseConnection(uintptr(connectionID))
 }
 
 func (obj *serverImpl) SendWebSocketMessage(connectionID int32, data unsafe.Pointer, dataSize int) {
-	obj.rawPtr.CallSendWebSocketMessage(uintptr(0) /* connectionID */, uintptr(0) /* data */, uintptr(0) /* dataSize */)
+	obj.rawPtr.CallSendWebSocketMessage(uintptr(connectionID), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *serverImpl) rawPointer() unsafe.Pointer {

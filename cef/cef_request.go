@@ -70,7 +70,9 @@ func (obj *requestImpl) GetURL() string {
 }
 
 func (obj *requestImpl) SetURL(uRL string) {
-	obj.rawPtr.CallSetURL(uintptr(0) /* uRL */)
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	obj.rawPtr.CallSetURL(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *requestImpl) GetMethod() string {
@@ -78,11 +80,15 @@ func (obj *requestImpl) GetMethod() string {
 }
 
 func (obj *requestImpl) SetMethod(method string) {
-	obj.rawPtr.CallSetMethod(uintptr(0) /* method */)
+	methodStr := cefString(method)
+	defer freeCefString(&methodStr)
+	obj.rawPtr.CallSetMethod(uintptr(unsafe.Pointer(&methodStr)))
 }
 
 func (obj *requestImpl) SetReferrer(referrerURL string, policy ReferrerPolicy) {
-	obj.rawPtr.CallSetReferrer(uintptr(0) /* referrerURL */, uintptr(0) /* policy */)
+	referrerURLStr := cefString(referrerURL)
+	defer freeCefString(&referrerURLStr)
+	obj.rawPtr.CallSetReferrer(uintptr(unsafe.Pointer(&referrerURLStr)), uintptr(policy))
 }
 
 func (obj *requestImpl) GetReferrerURL() string {
@@ -98,27 +104,37 @@ func (obj *requestImpl) GetPostData() PostData {
 }
 
 func (obj *requestImpl) SetPostData(postdata PostData) {
-	obj.rawPtr.CallSetPostData(uintptr(0) /* postdata */)
+	obj.rawPtr.CallSetPostData(uintptr(extractRawPointer(postdata)))
 }
 
 func (obj *requestImpl) GetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallGetHeaderMap(uintptr(0) /* headermap */)
+	obj.rawPtr.CallGetHeaderMap(uintptr(headermap))
 }
 
 func (obj *requestImpl) SetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallSetHeaderMap(uintptr(0) /* headermap */)
+	obj.rawPtr.CallSetHeaderMap(uintptr(headermap))
 }
 
 func (obj *requestImpl) GetHeaderByName(name string) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetHeaderByName(uintptr(0) /* name */)))
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetHeaderByName(uintptr(unsafe.Pointer(&nameStr)))))
 }
 
 func (obj *requestImpl) SetHeaderByName(name string, value string, overwrite int32) {
-	obj.rawPtr.CallSetHeaderByName(uintptr(0) /* name */, uintptr(0) /* value */, uintptr(0) /* overwrite */)
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	valueStr := cefString(value)
+	defer freeCefString(&valueStr)
+	obj.rawPtr.CallSetHeaderByName(uintptr(unsafe.Pointer(&nameStr)), uintptr(unsafe.Pointer(&valueStr)), uintptr(overwrite))
 }
 
 func (obj *requestImpl) Set(uRL string, method string, postdata PostData, headermap uintptr) {
-	obj.rawPtr.CallSet(uintptr(0) /* uRL */, uintptr(0) /* method */, uintptr(0) /* postdata */, uintptr(0) /* headermap */)
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	methodStr := cefString(method)
+	defer freeCefString(&methodStr)
+	obj.rawPtr.CallSet(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(postdata)), uintptr(headermap))
 }
 
 func (obj *requestImpl) GetFlags() int32 {
@@ -126,7 +142,7 @@ func (obj *requestImpl) GetFlags() int32 {
 }
 
 func (obj *requestImpl) SetFlags(flags int32) {
-	obj.rawPtr.CallSetFlags(uintptr(0) /* flags */)
+	obj.rawPtr.CallSetFlags(uintptr(flags))
 }
 
 func (obj *requestImpl) GetFirstPartyForCookies() string {
@@ -134,7 +150,9 @@ func (obj *requestImpl) GetFirstPartyForCookies() string {
 }
 
 func (obj *requestImpl) SetFirstPartyForCookies(uRL string) {
-	obj.rawPtr.CallSetFirstPartyForCookies(uintptr(0) /* uRL */)
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	obj.rawPtr.CallSetFirstPartyForCookies(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *requestImpl) GetResourceType() ResourceType {
@@ -209,15 +227,15 @@ func (obj *postDataImpl) GetElementCount() int {
 }
 
 func (obj *postDataImpl) GetElements(elementscount *int, elements unsafe.Pointer) {
-	obj.rawPtr.CallGetElements(uintptr(0) /* elementscount */, uintptr(0) /* elements */)
+	obj.rawPtr.CallGetElements(uintptr(unsafe.Pointer(elementscount)), uintptr(elements))
 }
 
 func (obj *postDataImpl) RemoveElement(element PostDataElement) int32 {
-	return int32(obj.rawPtr.CallRemoveElement(uintptr(0) /* element */))
+	return int32(obj.rawPtr.CallRemoveElement(uintptr(extractRawPointer(element))))
 }
 
 func (obj *postDataImpl) AddElement(element PostDataElement) int32 {
-	return int32(obj.rawPtr.CallAddElement(uintptr(0) /* element */))
+	return int32(obj.rawPtr.CallAddElement(uintptr(extractRawPointer(element))))
 }
 
 func (obj *postDataImpl) RemoveElements() {
@@ -282,11 +300,13 @@ func (obj *postDataElementImpl) SetToEmpty() {
 }
 
 func (obj *postDataElementImpl) SetToFile(filename string) {
-	obj.rawPtr.CallSetToFile(uintptr(0) /* filename */)
+	filenameStr := cefString(filename)
+	defer freeCefString(&filenameStr)
+	obj.rawPtr.CallSetToFile(uintptr(unsafe.Pointer(&filenameStr)))
 }
 
 func (obj *postDataElementImpl) SetToBytes(size int, bytes unsafe.Pointer) {
-	obj.rawPtr.CallSetToBytes(uintptr(0) /* size */, uintptr(0) /* bytes */)
+	obj.rawPtr.CallSetToBytes(uintptr(size), uintptr(bytes))
 }
 
 func (obj *postDataElementImpl) GetType() PostdataelementType {
@@ -302,7 +322,7 @@ func (obj *postDataElementImpl) GetBytesCount() int {
 }
 
 func (obj *postDataElementImpl) GetBytes(size int, bytes unsafe.Pointer) int {
-	return int(obj.rawPtr.CallGetBytes(uintptr(0) /* size */, uintptr(0) /* bytes */))
+	return int(obj.rawPtr.CallGetBytes(uintptr(size), uintptr(bytes)))
 }
 
 func (obj *postDataElementImpl) rawPointer() unsafe.Pointer {

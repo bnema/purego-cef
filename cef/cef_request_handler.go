@@ -21,7 +21,7 @@ type selectClientCertificateCallbackImpl struct {
 }
 
 func (obj *selectClientCertificateCallbackImpl) Select(cert X509Certificate) {
-	obj.rawPtr.CallSelect(uintptr(0) /* cert */)
+	obj.rawPtr.CallSelect(uintptr(extractRawPointer(cert)))
 }
 
 func (obj *selectClientCertificateCallbackImpl) rawPointer() unsafe.Pointer {

@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"math"
 	"runtime"
 	"unsafe"
 
@@ -106,7 +107,7 @@ func (obj *browserImpl) GetIdentifier() int32 {
 }
 
 func (obj *browserImpl) IsSame(that Browser) bool {
-	return obj.rawPtr.CallIsSame(uintptr(0) /* that */) != 0
+	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
 }
 
 func (obj *browserImpl) IsPopup() bool {
@@ -126,11 +127,15 @@ func (obj *browserImpl) GetFocusedFrame() Frame {
 }
 
 func (obj *browserImpl) GetFrameByIdentifier(identifier string) Frame {
-	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrameByIdentifier(uintptr(0) /* identifier */)))
+	identifierStr := cefString(identifier)
+	defer freeCefString(&identifierStr)
+	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrameByIdentifier(uintptr(unsafe.Pointer(&identifierStr)))))
 }
 
 func (obj *browserImpl) GetFrameByName(name string) Frame {
-	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrameByName(uintptr(0) /* name */)))
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrameByName(uintptr(unsafe.Pointer(&nameStr)))))
 }
 
 func (obj *browserImpl) GetFrameCount() int {
@@ -138,11 +143,11 @@ func (obj *browserImpl) GetFrameCount() int {
 }
 
 func (obj *browserImpl) GetFrameIdentifiers(identifiers uintptr) {
-	obj.rawPtr.CallGetFrameIdentifiers(uintptr(0) /* identifiers */)
+	obj.rawPtr.CallGetFrameIdentifiers(uintptr(identifiers))
 }
 
 func (obj *browserImpl) GetFrameNames(names uintptr) {
-	obj.rawPtr.CallGetFrameNames(uintptr(0) /* names */)
+	obj.rawPtr.CallGetFrameNames(uintptr(names))
 }
 
 func (obj *browserImpl) rawPointer() unsafe.Pointer {
@@ -443,7 +448,7 @@ func (obj *browserHostImpl) GetBrowser() Browser {
 }
 
 func (obj *browserHostImpl) CloseBrowser(forceClose int32) {
-	obj.rawPtr.CallCloseBrowser(uintptr(0) /* forceClose */)
+	obj.rawPtr.CallCloseBrowser(uintptr(forceClose))
 }
 
 func (obj *browserHostImpl) TryCloseBrowser() int32 {
@@ -455,7 +460,7 @@ func (obj *browserHostImpl) IsReadyToBeClosed() bool {
 }
 
 func (obj *browserHostImpl) SetFocus(focus int32) {
-	obj.rawPtr.CallSetFocus(uintptr(0) /* focus */)
+	obj.rawPtr.CallSetFocus(uintptr(focus))
 }
 
 func (obj *browserHostImpl) GetWindowHandle() uintptr {
@@ -483,11 +488,11 @@ func (obj *browserHostImpl) GetRequestContext() RequestContext {
 }
 
 func (obj *browserHostImpl) CanZoom(command ZoomCommand) bool {
-	return obj.rawPtr.CallCanZoom(uintptr(0) /* command */) != 0
+	return obj.rawPtr.CallCanZoom(uintptr(command)) != 0
 }
 
 func (obj *browserHostImpl) Zoom(command ZoomCommand) {
-	obj.rawPtr.CallZoom(uintptr(0) /* command */)
+	obj.rawPtr.CallZoom(uintptr(command))
 }
 
 func (obj *browserHostImpl) GetDefaultZoomLevel() float64 {
@@ -499,19 +504,27 @@ func (obj *browserHostImpl) GetZoomLevel() float64 {
 }
 
 func (obj *browserHostImpl) SetZoomLevel(zoomlevel float64) {
-	obj.rawPtr.CallSetZoomLevel(uintptr(0) /* zoomlevel */)
+	obj.rawPtr.CallSetZoomLevel(uintptr(math.Float64bits(zoomlevel)))
 }
 
 func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, callback RunFileDialogCallback) {
-	obj.rawPtr.CallRunFileDialog(uintptr(0) /* mode */, uintptr(0) /* title */, uintptr(0) /* defaultFilePath */, uintptr(0) /* acceptFilters */, uintptr(0) /* callback */)
+	titleStr := cefString(title)
+	defer freeCefString(&titleStr)
+	defaultFilePathStr := cefString(defaultFilePath)
+	defer freeCefString(&defaultFilePathStr)
+	obj.rawPtr.CallRunFileDialog(uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), uintptr(acceptFilters), uintptr(extractRawPointer(callback)))
 }
 
 func (obj *browserHostImpl) StartDownload(uRL string) {
-	obj.rawPtr.CallStartDownload(uintptr(0) /* uRL */)
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	obj.rawPtr.CallStartDownload(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *browserHostImpl) DownloadImage(imageURL string, isFavicon int32, maxImageSize uint32, bypassCache int32, callback DownloadImageCallback) {
-	obj.rawPtr.CallDownloadImage(uintptr(0) /* imageURL */, uintptr(0) /* isFavicon */, uintptr(0) /* maxImageSize */, uintptr(0) /* bypassCache */, uintptr(0) /* callback */)
+	imageURLStr := cefString(imageURL)
+	defer freeCefString(&imageURLStr)
+	obj.rawPtr.CallDownloadImage(uintptr(unsafe.Pointer(&imageURLStr)), uintptr(isFavicon), uintptr(maxImageSize), uintptr(bypassCache), uintptr(extractRawPointer(callback)))
 }
 
 func (obj *browserHostImpl) Print() {
@@ -519,19 +532,23 @@ func (obj *browserHostImpl) Print() {
 }
 
 func (obj *browserHostImpl) PrintToPdf(path string, settings *PdfPrintSettings, callback PdfPrintCallback) {
-	obj.rawPtr.CallPrintToPdf(uintptr(0) /* path */, uintptr(0) /* settings */, uintptr(0) /* callback */)
+	pathStr := cefString(path)
+	defer freeCefString(&pathStr)
+	obj.rawPtr.CallPrintToPdf(uintptr(unsafe.Pointer(&pathStr)), uintptr(unsafe.Pointer(settings)), uintptr(extractRawPointer(callback)))
 }
 
 func (obj *browserHostImpl) Find(searchtext string, forward int32, matchcase int32, findnext int32) {
-	obj.rawPtr.CallFind(uintptr(0) /* searchtext */, uintptr(0) /* forward */, uintptr(0) /* matchcase */, uintptr(0) /* findnext */)
+	searchtextStr := cefString(searchtext)
+	defer freeCefString(&searchtextStr)
+	obj.rawPtr.CallFind(uintptr(unsafe.Pointer(&searchtextStr)), uintptr(forward), uintptr(matchcase), uintptr(findnext))
 }
 
 func (obj *browserHostImpl) StopFinding(clearselection int32) {
-	obj.rawPtr.CallStopFinding(uintptr(0) /* clearselection */)
+	obj.rawPtr.CallStopFinding(uintptr(clearselection))
 }
 
 func (obj *browserHostImpl) ShowDevTools(windowinfo *WindowInfo, client Client, settings *BrowserSettings, inspectElementAt uintptr) {
-	obj.rawPtr.CallShowDevTools(uintptr(0) /* windowinfo */, uintptr(0) /* client */, uintptr(0) /* settings */, uintptr(0) /* inspectElementAt */)
+	obj.rawPtr.CallShowDevTools(uintptr(unsafe.Pointer(windowinfo)), uintptr(extractRawPointer(client)), uintptr(unsafe.Pointer(settings)), uintptr(inspectElementAt))
 }
 
 func (obj *browserHostImpl) CloseDevTools() {
@@ -543,27 +560,33 @@ func (obj *browserHostImpl) HasDevTools() bool {
 }
 
 func (obj *browserHostImpl) SendDevToolsMessage(message unsafe.Pointer, messageSize int) int32 {
-	return int32(obj.rawPtr.CallSendDevToolsMessage(uintptr(0) /* message */, uintptr(0) /* messageSize */))
+	return int32(obj.rawPtr.CallSendDevToolsMessage(uintptr(message), uintptr(messageSize)))
 }
 
 func (obj *browserHostImpl) ExecuteDevToolsMethod(messageID int32, method string, params DictionaryValue) int32 {
-	return int32(obj.rawPtr.CallExecuteDevToolsMethod(uintptr(0) /* messageID */, uintptr(0) /* method */, uintptr(0) /* params */))
+	methodStr := cefString(method)
+	defer freeCefString(&methodStr)
+	return int32(obj.rawPtr.CallExecuteDevToolsMethod(uintptr(messageID), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(params))))
 }
 
 func (obj *browserHostImpl) AddDevToolsMessageObserver(observer DevToolsMessageObserver) Registration {
-	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddDevToolsMessageObserver(uintptr(0) /* observer */)))
+	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddDevToolsMessageObserver(uintptr(extractRawPointer(observer)))))
 }
 
 func (obj *browserHostImpl) GetNavigationEntries(visitor NavigationEntryVisitor, currentOnly int32) {
-	obj.rawPtr.CallGetNavigationEntries(uintptr(0) /* visitor */, uintptr(0) /* currentOnly */)
+	obj.rawPtr.CallGetNavigationEntries(uintptr(extractRawPointer(visitor)), uintptr(currentOnly))
 }
 
 func (obj *browserHostImpl) ReplaceMisspelling(word string) {
-	obj.rawPtr.CallReplaceMisspelling(uintptr(0) /* word */)
+	wordStr := cefString(word)
+	defer freeCefString(&wordStr)
+	obj.rawPtr.CallReplaceMisspelling(uintptr(unsafe.Pointer(&wordStr)))
 }
 
 func (obj *browserHostImpl) AddWordToDictionary(word string) {
-	obj.rawPtr.CallAddWordToDictionary(uintptr(0) /* word */)
+	wordStr := cefString(word)
+	defer freeCefString(&wordStr)
+	obj.rawPtr.CallAddWordToDictionary(uintptr(unsafe.Pointer(&wordStr)))
 }
 
 func (obj *browserHostImpl) IsWindowRenderingDisabled() bool {
@@ -575,7 +598,7 @@ func (obj *browserHostImpl) WasResized() {
 }
 
 func (obj *browserHostImpl) WasHidden(hidden int32) {
-	obj.rawPtr.CallWasHidden(uintptr(0) /* hidden */)
+	obj.rawPtr.CallWasHidden(uintptr(hidden))
 }
 
 func (obj *browserHostImpl) NotifyScreenInfoChanged() {
@@ -583,7 +606,7 @@ func (obj *browserHostImpl) NotifyScreenInfoChanged() {
 }
 
 func (obj *browserHostImpl) Invalidate(type_ PaintElementType) {
-	obj.rawPtr.CallInvalidate(uintptr(0) /* type_ */)
+	obj.rawPtr.CallInvalidate(uintptr(type_))
 }
 
 func (obj *browserHostImpl) SendExternalBeginFrame() {
@@ -591,23 +614,23 @@ func (obj *browserHostImpl) SendExternalBeginFrame() {
 }
 
 func (obj *browserHostImpl) SendKeyEvent(event uintptr) {
-	obj.rawPtr.CallSendKeyEvent(uintptr(0) /* event */)
+	obj.rawPtr.CallSendKeyEvent(uintptr(event))
 }
 
 func (obj *browserHostImpl) SendMouseClickEvent(event uintptr, type_ MouseButtonType, mouseup int32, clickcount int32) {
-	obj.rawPtr.CallSendMouseClickEvent(uintptr(0) /* event */, uintptr(0) /* type_ */, uintptr(0) /* mouseup */, uintptr(0) /* clickcount */)
+	obj.rawPtr.CallSendMouseClickEvent(uintptr(event), uintptr(type_), uintptr(mouseup), uintptr(clickcount))
 }
 
 func (obj *browserHostImpl) SendMouseMoveEvent(event uintptr, mouseleave int32) {
-	obj.rawPtr.CallSendMouseMoveEvent(uintptr(0) /* event */, uintptr(0) /* mouseleave */)
+	obj.rawPtr.CallSendMouseMoveEvent(uintptr(event), uintptr(mouseleave))
 }
 
 func (obj *browserHostImpl) SendMouseWheelEvent(event uintptr, deltax int32, deltay int32) {
-	obj.rawPtr.CallSendMouseWheelEvent(uintptr(0) /* event */, uintptr(0) /* deltax */, uintptr(0) /* deltay */)
+	obj.rawPtr.CallSendMouseWheelEvent(uintptr(event), uintptr(deltax), uintptr(deltay))
 }
 
 func (obj *browserHostImpl) SendTouchEvent(event uintptr) {
-	obj.rawPtr.CallSendTouchEvent(uintptr(0) /* event */)
+	obj.rawPtr.CallSendTouchEvent(uintptr(event))
 }
 
 func (obj *browserHostImpl) SendCaptureLostEvent() {
@@ -623,19 +646,23 @@ func (obj *browserHostImpl) GetWindowlessFrameRate() int32 {
 }
 
 func (obj *browserHostImpl) SetWindowlessFrameRate(frameRate int32) {
-	obj.rawPtr.CallSetWindowlessFrameRate(uintptr(0) /* frameRate */)
+	obj.rawPtr.CallSetWindowlessFrameRate(uintptr(frameRate))
 }
 
 func (obj *browserHostImpl) ImeSetComposition(text string, underlinescount int, underlines uintptr, replacementRange uintptr, selectionRange uintptr) {
-	obj.rawPtr.CallImeSetComposition(uintptr(0) /* text */, uintptr(0) /* underlinescount */, uintptr(0) /* underlines */, uintptr(0) /* replacementRange */, uintptr(0) /* selectionRange */)
+	textStr := cefString(text)
+	defer freeCefString(&textStr)
+	obj.rawPtr.CallImeSetComposition(uintptr(unsafe.Pointer(&textStr)), uintptr(underlinescount), uintptr(underlines), uintptr(replacementRange), uintptr(selectionRange))
 }
 
 func (obj *browserHostImpl) ImeCommitText(text string, replacementRange uintptr, relativeCursorPos int32) {
-	obj.rawPtr.CallImeCommitText(uintptr(0) /* text */, uintptr(0) /* replacementRange */, uintptr(0) /* relativeCursorPos */)
+	textStr := cefString(text)
+	defer freeCefString(&textStr)
+	obj.rawPtr.CallImeCommitText(uintptr(unsafe.Pointer(&textStr)), uintptr(replacementRange), uintptr(relativeCursorPos))
 }
 
 func (obj *browserHostImpl) ImeFinishComposingText(keepSelection int32) {
-	obj.rawPtr.CallImeFinishComposingText(uintptr(0) /* keepSelection */)
+	obj.rawPtr.CallImeFinishComposingText(uintptr(keepSelection))
 }
 
 func (obj *browserHostImpl) ImeCancelComposition() {
@@ -643,11 +670,11 @@ func (obj *browserHostImpl) ImeCancelComposition() {
 }
 
 func (obj *browserHostImpl) DragTargetDragEnter(dragData DragData, event uintptr, allowedOps DragOperationsMask) {
-	obj.rawPtr.CallDragTargetDragEnter(uintptr(0) /* dragData */, uintptr(0) /* event */, uintptr(0) /* allowedOps */)
+	obj.rawPtr.CallDragTargetDragEnter(uintptr(extractRawPointer(dragData)), uintptr(event), uintptr(allowedOps))
 }
 
 func (obj *browserHostImpl) DragTargetDragOver(event uintptr, allowedOps DragOperationsMask) {
-	obj.rawPtr.CallDragTargetDragOver(uintptr(0) /* event */, uintptr(0) /* allowedOps */)
+	obj.rawPtr.CallDragTargetDragOver(uintptr(event), uintptr(allowedOps))
 }
 
 func (obj *browserHostImpl) DragTargetDragLeave() {
@@ -655,11 +682,11 @@ func (obj *browserHostImpl) DragTargetDragLeave() {
 }
 
 func (obj *browserHostImpl) DragTargetDrop(event uintptr) {
-	obj.rawPtr.CallDragTargetDrop(uintptr(0) /* event */)
+	obj.rawPtr.CallDragTargetDrop(uintptr(event))
 }
 
 func (obj *browserHostImpl) DragSourceEndedAt(x int32, y int32, op DragOperationsMask) {
-	obj.rawPtr.CallDragSourceEndedAt(uintptr(0) /* x */, uintptr(0) /* y */, uintptr(0) /* op */)
+	obj.rawPtr.CallDragSourceEndedAt(uintptr(x), uintptr(y), uintptr(op))
 }
 
 func (obj *browserHostImpl) DragSourceSystemDragEnded() {
@@ -671,15 +698,15 @@ func (obj *browserHostImpl) GetVisibleNavigationEntry() NavigationEntry {
 }
 
 func (obj *browserHostImpl) SetAccessibilityState(accessibilityState State) {
-	obj.rawPtr.CallSetAccessibilityState(uintptr(0) /* accessibilityState */)
+	obj.rawPtr.CallSetAccessibilityState(uintptr(accessibilityState))
 }
 
 func (obj *browserHostImpl) SetAutoResizeEnabled(enabled int32, minSize uintptr, maxSize uintptr) {
-	obj.rawPtr.CallSetAutoResizeEnabled(uintptr(0) /* enabled */, uintptr(0) /* minSize */, uintptr(0) /* maxSize */)
+	obj.rawPtr.CallSetAutoResizeEnabled(uintptr(enabled), uintptr(minSize), uintptr(maxSize))
 }
 
 func (obj *browserHostImpl) SetAudioMuted(mute int32) {
-	obj.rawPtr.CallSetAudioMuted(uintptr(0) /* mute */)
+	obj.rawPtr.CallSetAudioMuted(uintptr(mute))
 }
 
 func (obj *browserHostImpl) IsAudioMuted() bool {
@@ -691,15 +718,15 @@ func (obj *browserHostImpl) IsFullscreen() bool {
 }
 
 func (obj *browserHostImpl) ExitFullscreen(willCauseResize int32) {
-	obj.rawPtr.CallExitFullscreen(uintptr(0) /* willCauseResize */)
+	obj.rawPtr.CallExitFullscreen(uintptr(willCauseResize))
 }
 
 func (obj *browserHostImpl) CanExecuteChromeCommand(commandID int32) bool {
-	return obj.rawPtr.CallCanExecuteChromeCommand(uintptr(0) /* commandID */) != 0
+	return obj.rawPtr.CallCanExecuteChromeCommand(uintptr(commandID)) != 0
 }
 
 func (obj *browserHostImpl) ExecuteChromeCommand(commandID int32, disposition WindowOpenDisposition) {
-	obj.rawPtr.CallExecuteChromeCommand(uintptr(0) /* commandID */, uintptr(0) /* disposition */)
+	obj.rawPtr.CallExecuteChromeCommand(uintptr(commandID), uintptr(disposition))
 }
 
 func (obj *browserHostImpl) IsRenderProcessUnresponsive() bool {

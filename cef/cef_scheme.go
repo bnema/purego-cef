@@ -21,7 +21,9 @@ type schemeRegistrarImpl struct {
 }
 
 func (obj *schemeRegistrarImpl) AddCustomScheme(schemeName string, options int32) int32 {
-	return int32(obj.rawPtr.CallAddCustomScheme(uintptr(0) /* schemeName */, uintptr(0) /* options */))
+	schemeNameStr := cefString(schemeName)
+	defer freeCefString(&schemeNameStr)
+	return int32(obj.rawPtr.CallAddCustomScheme(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(options)))
 }
 
 func (obj *schemeRegistrarImpl) rawPointer() unsafe.Pointer {

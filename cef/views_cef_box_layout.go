@@ -22,11 +22,11 @@ type boxLayoutImpl struct {
 }
 
 func (obj *boxLayoutImpl) SetFlexForView(view View, flex int32) {
-	obj.rawPtr.CallSetFlexForView(uintptr(0) /* view */, uintptr(0) /* flex */)
+	obj.rawPtr.CallSetFlexForView(uintptr(extractRawPointer(view)), uintptr(flex))
 }
 
 func (obj *boxLayoutImpl) ClearFlexForView(view View) {
-	obj.rawPtr.CallClearFlexForView(uintptr(0) /* view */)
+	obj.rawPtr.CallClearFlexForView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *boxLayoutImpl) rawPointer() unsafe.Pointer {

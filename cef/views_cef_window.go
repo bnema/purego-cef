@@ -105,7 +105,7 @@ func (obj *windowImpl) Show() {
 }
 
 func (obj *windowImpl) ShowAsBrowserModalDialog(browserView BrowserView) {
-	obj.rawPtr.CallShowAsBrowserModalDialog(uintptr(0) /* browserView */)
+	obj.rawPtr.CallShowAsBrowserModalDialog(uintptr(extractRawPointer(browserView)))
 }
 
 func (obj *windowImpl) Hide() {
@@ -113,7 +113,7 @@ func (obj *windowImpl) Hide() {
 }
 
 func (obj *windowImpl) CenterWindow(size uintptr) {
-	obj.rawPtr.CallCenterWindow(uintptr(0) /* size */)
+	obj.rawPtr.CallCenterWindow(uintptr(size))
 }
 
 func (obj *windowImpl) Close() {
@@ -141,7 +141,7 @@ func (obj *windowImpl) BringToTop() {
 }
 
 func (obj *windowImpl) SetAlwaysOnTop(onTop int32) {
-	obj.rawPtr.CallSetAlwaysOnTop(uintptr(0) /* onTop */)
+	obj.rawPtr.CallSetAlwaysOnTop(uintptr(onTop))
 }
 
 func (obj *windowImpl) IsAlwaysOnTop() bool {
@@ -161,7 +161,7 @@ func (obj *windowImpl) Restore() {
 }
 
 func (obj *windowImpl) SetFullscreen(fullscreen int32) {
-	obj.rawPtr.CallSetFullscreen(uintptr(0) /* fullscreen */)
+	obj.rawPtr.CallSetFullscreen(uintptr(fullscreen))
 }
 
 func (obj *windowImpl) IsMaximized() bool {
@@ -181,7 +181,9 @@ func (obj *windowImpl) GetFocusedView() View {
 }
 
 func (obj *windowImpl) SetTitle(title string) {
-	obj.rawPtr.CallSetTitle(uintptr(0) /* title */)
+	titleStr := cefString(title)
+	defer freeCefString(&titleStr)
+	obj.rawPtr.CallSetTitle(uintptr(unsafe.Pointer(&titleStr)))
 }
 
 func (obj *windowImpl) GetTitle() string {
@@ -189,7 +191,7 @@ func (obj *windowImpl) GetTitle() string {
 }
 
 func (obj *windowImpl) SetWindowIcon(image Image) {
-	obj.rawPtr.CallSetWindowIcon(uintptr(0) /* image */)
+	obj.rawPtr.CallSetWindowIcon(uintptr(extractRawPointer(image)))
 }
 
 func (obj *windowImpl) GetWindowIcon() Image {
@@ -197,7 +199,7 @@ func (obj *windowImpl) GetWindowIcon() Image {
 }
 
 func (obj *windowImpl) SetWindowAppIcon(image Image) {
-	obj.rawPtr.CallSetWindowAppIcon(uintptr(0) /* image */)
+	obj.rawPtr.CallSetWindowAppIcon(uintptr(extractRawPointer(image)))
 }
 
 func (obj *windowImpl) GetWindowAppIcon() Image {
@@ -205,11 +207,11 @@ func (obj *windowImpl) GetWindowAppIcon() Image {
 }
 
 func (obj *windowImpl) AddOverlayView(view View, dockingMode DockingMode, canActivate int32) OverlayController {
-	return wrapOverlayController(unsafe.Pointer(obj.rawPtr.CallAddOverlayView(uintptr(0) /* view */, uintptr(0) /* dockingMode */, uintptr(0) /* canActivate */)))
+	return wrapOverlayController(unsafe.Pointer(obj.rawPtr.CallAddOverlayView(uintptr(extractRawPointer(view)), uintptr(dockingMode), uintptr(canActivate))))
 }
 
 func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint uintptr, anchorPosition MenuAnchorPosition) {
-	obj.rawPtr.CallShowMenu(uintptr(0) /* menuModel */, uintptr(0) /* screenPoint */, uintptr(0) /* anchorPosition */)
+	obj.rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(screenPoint), uintptr(anchorPosition))
 }
 
 func (obj *windowImpl) CancelMenu() {
@@ -225,7 +227,7 @@ func (obj *windowImpl) GetClientAreaBoundsInScreen() uintptr {
 }
 
 func (obj *windowImpl) SetDraggableRegions(regionscount int, regions uintptr) {
-	obj.rawPtr.CallSetDraggableRegions(uintptr(0) /* regionscount */, uintptr(0) /* regions */)
+	obj.rawPtr.CallSetDraggableRegions(uintptr(regionscount), uintptr(regions))
 }
 
 func (obj *windowImpl) GetWindowHandle() uintptr {
@@ -233,23 +235,23 @@ func (obj *windowImpl) GetWindowHandle() uintptr {
 }
 
 func (obj *windowImpl) SendKeyPress(keyCode int32, eventFlags uint32) {
-	obj.rawPtr.CallSendKeyPress(uintptr(0) /* keyCode */, uintptr(0) /* eventFlags */)
+	obj.rawPtr.CallSendKeyPress(uintptr(keyCode), uintptr(eventFlags))
 }
 
 func (obj *windowImpl) SendMouseMove(screenX int32, screenY int32) {
-	obj.rawPtr.CallSendMouseMove(uintptr(0) /* screenX */, uintptr(0) /* screenY */)
+	obj.rawPtr.CallSendMouseMove(uintptr(screenX), uintptr(screenY))
 }
 
 func (obj *windowImpl) SendMouseEvents(button MouseButtonType, mouseDown int32, mouseUp int32) {
-	obj.rawPtr.CallSendMouseEvents(uintptr(0) /* button */, uintptr(0) /* mouseDown */, uintptr(0) /* mouseUp */)
+	obj.rawPtr.CallSendMouseEvents(uintptr(button), uintptr(mouseDown), uintptr(mouseUp))
 }
 
 func (obj *windowImpl) SetAccelerator(commandID int32, keyCode int32, shiftPressed int32, ctrlPressed int32, altPressed int32, highPriority int32) {
-	obj.rawPtr.CallSetAccelerator(uintptr(0) /* commandID */, uintptr(0) /* keyCode */, uintptr(0) /* shiftPressed */, uintptr(0) /* ctrlPressed */, uintptr(0) /* altPressed */, uintptr(0) /* highPriority */)
+	obj.rawPtr.CallSetAccelerator(uintptr(commandID), uintptr(keyCode), uintptr(shiftPressed), uintptr(ctrlPressed), uintptr(altPressed), uintptr(highPriority))
 }
 
 func (obj *windowImpl) RemoveAccelerator(commandID int32) {
-	obj.rawPtr.CallRemoveAccelerator(uintptr(0) /* commandID */)
+	obj.rawPtr.CallRemoveAccelerator(uintptr(commandID))
 }
 
 func (obj *windowImpl) RemoveAllAccelerators() {
@@ -257,7 +259,7 @@ func (obj *windowImpl) RemoveAllAccelerators() {
 }
 
 func (obj *windowImpl) SetThemeColor(colorID int32, color uintptr) {
-	obj.rawPtr.CallSetThemeColor(uintptr(0) /* colorID */, uintptr(0) /* color */)
+	obj.rawPtr.CallSetThemeColor(uintptr(colorID), uintptr(color))
 }
 
 func (obj *windowImpl) ThemeChanged() {

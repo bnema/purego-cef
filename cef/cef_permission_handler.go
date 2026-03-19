@@ -24,7 +24,7 @@ type mediaAccessCallbackImpl struct {
 }
 
 func (obj *mediaAccessCallbackImpl) Cont(allowedPermissions uint32) {
-	obj.rawPtr.CallCont(uintptr(0) /* allowedPermissions */)
+	obj.rawPtr.CallCont(uintptr(allowedPermissions))
 }
 
 func (obj *mediaAccessCallbackImpl) Cancel() {
@@ -67,7 +67,7 @@ type permissionPromptCallbackImpl struct {
 }
 
 func (obj *permissionPromptCallbackImpl) Cont(result PermissionRequestResult) {
-	obj.rawPtr.CallCont(uintptr(0) /* result */)
+	obj.rawPtr.CallCont(uintptr(result))
 }
 
 func (obj *permissionPromptCallbackImpl) rawPointer() unsafe.Pointer {

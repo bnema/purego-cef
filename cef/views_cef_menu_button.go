@@ -22,7 +22,7 @@ type menuButtonImpl struct {
 }
 
 func (obj *menuButtonImpl) ShowMenu(menuModel MenuModel, screenPoint uintptr, anchorPosition MenuAnchorPosition) {
-	obj.rawPtr.CallShowMenu(uintptr(0) /* menuModel */, uintptr(0) /* screenPoint */, uintptr(0) /* anchorPosition */)
+	obj.rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(screenPoint), uintptr(anchorPosition))
 }
 
 func (obj *menuButtonImpl) TriggerMenu() {

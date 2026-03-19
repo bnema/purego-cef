@@ -23,7 +23,7 @@ type fileDialogCallbackImpl struct {
 }
 
 func (obj *fileDialogCallbackImpl) Cont(filePaths uintptr) {
-	obj.rawPtr.CallCont(uintptr(0) /* filePaths */)
+	obj.rawPtr.CallCont(uintptr(filePaths))
 }
 
 func (obj *fileDialogCallbackImpl) Cancel() {

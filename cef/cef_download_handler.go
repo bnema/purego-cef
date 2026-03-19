@@ -21,7 +21,9 @@ type beforeDownloadCallbackImpl struct {
 }
 
 func (obj *beforeDownloadCallbackImpl) Cont(downloadPath string, showDialog int32) {
-	obj.rawPtr.CallCont(uintptr(0) /* downloadPath */, uintptr(0) /* showDialog */)
+	downloadPathStr := cefString(downloadPath)
+	defer freeCefString(&downloadPathStr)
+	obj.rawPtr.CallCont(uintptr(unsafe.Pointer(&downloadPathStr)), uintptr(showDialog))
 }
 
 func (obj *beforeDownloadCallbackImpl) rawPointer() unsafe.Pointer {

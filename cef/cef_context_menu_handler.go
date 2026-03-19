@@ -23,7 +23,7 @@ type runContextMenuCallbackImpl struct {
 }
 
 func (obj *runContextMenuCallbackImpl) Cont(commandID int32, eventFlags EventFlags) {
-	obj.rawPtr.CallCont(uintptr(0) /* commandID */, uintptr(0) /* eventFlags */)
+	obj.rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
 }
 
 func (obj *runContextMenuCallbackImpl) Cancel() {
@@ -68,7 +68,7 @@ type runQuickMenuCallbackImpl struct {
 }
 
 func (obj *runQuickMenuCallbackImpl) Cont(commandID int32, eventFlags EventFlags) {
-	obj.rawPtr.CallCont(uintptr(0) /* commandID */, uintptr(0) /* eventFlags */)
+	obj.rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
 }
 
 func (obj *runQuickMenuCallbackImpl) Cancel() {
@@ -303,7 +303,7 @@ func (obj *contextMenuParamsImpl) GetMisspelledWord() string {
 }
 
 func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions uintptr) int32 {
-	return int32(obj.rawPtr.CallGetDictionarySuggestions(uintptr(0) /* suggestions */))
+	return int32(obj.rawPtr.CallGetDictionarySuggestions(uintptr(suggestions)))
 }
 
 func (obj *contextMenuParamsImpl) IsEditable() bool {

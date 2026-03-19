@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"math"
 	"runtime"
 	"unsafe"
 
@@ -168,31 +169,31 @@ func (obj *translatorTestImpl) SetVoid() int32 {
 }
 
 func (obj *translatorTestImpl) SetBool(val int32) int32 {
-	return int32(obj.rawPtr.CallSetBool(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetBool(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) SetInt(val int32) int32 {
-	return int32(obj.rawPtr.CallSetInt(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetInt(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) SetDouble(val float64) int32 {
-	return int32(obj.rawPtr.CallSetDouble(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetDouble(uintptr(math.Float64bits(val))))
 }
 
 func (obj *translatorTestImpl) SetLong(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetLong(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetLong(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) SetSizet(val int) int32 {
-	return int32(obj.rawPtr.CallSetSizet(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetSizet(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) SetIntList(valcount int, val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetIntList(uintptr(0) /* valcount */, uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetIntList(uintptr(valcount), uintptr(val)))
 }
 
 func (obj *translatorTestImpl) GetIntListByRef(valcount *int, val unsafe.Pointer) int32 {
-	return int32(obj.rawPtr.CallGetIntListByRef(uintptr(0) /* valcount */, uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallGetIntListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val)))
 }
 
 func (obj *translatorTestImpl) GetIntListSize() int {
@@ -204,35 +205,37 @@ func (obj *translatorTestImpl) GetString() string {
 }
 
 func (obj *translatorTestImpl) SetString(val string) int32 {
-	return int32(obj.rawPtr.CallSetString(uintptr(0) /* val */))
+	valStr := cefString(val)
+	defer freeCefString(&valStr)
+	return int32(obj.rawPtr.CallSetString(uintptr(unsafe.Pointer(&valStr))))
 }
 
 func (obj *translatorTestImpl) GetStringByRef(val uintptr) {
-	obj.rawPtr.CallGetStringByRef(uintptr(0) /* val */)
+	obj.rawPtr.CallGetStringByRef(uintptr(val))
 }
 
 func (obj *translatorTestImpl) SetStringList(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetStringList(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetStringList(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) GetStringListByRef(val uintptr) int32 {
-	return int32(obj.rawPtr.CallGetStringListByRef(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallGetStringListByRef(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) SetStringMap(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetStringMap(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetStringMap(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) GetStringMapByRef(val uintptr) int32 {
-	return int32(obj.rawPtr.CallGetStringMapByRef(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallGetStringMapByRef(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) SetStringMultimap(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetStringMultimap(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetStringMultimap(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) GetStringMultimapByRef(val uintptr) int32 {
-	return int32(obj.rawPtr.CallGetStringMultimapByRef(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallGetStringMultimapByRef(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) GetPoint() uintptr {
@@ -240,19 +243,19 @@ func (obj *translatorTestImpl) GetPoint() uintptr {
 }
 
 func (obj *translatorTestImpl) SetPoint(val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetPoint(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetPoint(uintptr(val)))
 }
 
 func (obj *translatorTestImpl) GetPointByRef(val uintptr) {
-	obj.rawPtr.CallGetPointByRef(uintptr(0) /* val */)
+	obj.rawPtr.CallGetPointByRef(uintptr(val))
 }
 
 func (obj *translatorTestImpl) SetPointList(valcount int, val uintptr) int32 {
-	return int32(obj.rawPtr.CallSetPointList(uintptr(0) /* valcount */, uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetPointList(uintptr(valcount), uintptr(val)))
 }
 
 func (obj *translatorTestImpl) GetPointListByRef(valcount *int, val uintptr) int32 {
-	return int32(obj.rawPtr.CallGetPointListByRef(uintptr(0) /* valcount */, uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallGetPointListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val)))
 }
 
 func (obj *translatorTestImpl) GetPointListSize() int {
@@ -260,31 +263,31 @@ func (obj *translatorTestImpl) GetPointListSize() int {
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibrary(val int32) TranslatorTestRefPtrLibrary {
-	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallGetRefPtrLibrary(uintptr(0) /* val */)))
+	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallGetRefPtrLibrary(uintptr(val))))
 }
 
 func (obj *translatorTestImpl) SetRefPtrLibrary(val TranslatorTestRefPtrLibrary) int32 {
-	return int32(obj.rawPtr.CallSetRefPtrLibrary(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetRefPtrLibrary(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetRefPtrLibraryAndReturn(val TranslatorTestRefPtrLibrary) TranslatorTestRefPtrLibrary {
-	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallSetRefPtrLibraryAndReturn(uintptr(0) /* val */)))
+	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallSetRefPtrLibraryAndReturn(uintptr(extractRawPointer(val)))))
 }
 
 func (obj *translatorTestImpl) SetChildRefPtrLibrary(val TranslatorTestRefPtrLibraryChild) int32 {
-	return int32(obj.rawPtr.CallSetChildRefPtrLibrary(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetChildRefPtrLibrary(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetChildRefPtrLibraryAndReturnParent(val TranslatorTestRefPtrLibraryChild) TranslatorTestRefPtrLibrary {
-	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(0) /* val */)))
+	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))))
 }
 
 func (obj *translatorTestImpl) SetRefPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallSetRefPtrLibraryList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
+	return int32(obj.rawPtr.CallSetRefPtrLibraryList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
+	return int32(obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibraryListSize() int {
@@ -292,27 +295,27 @@ func (obj *translatorTestImpl) GetRefPtrLibraryListSize() int {
 }
 
 func (obj *translatorTestImpl) SetRefPtrClient(val TranslatorTestRefPtrClient) int32 {
-	return int32(obj.rawPtr.CallSetRefPtrClient(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetRefPtrClient(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetRefPtrClientAndReturn(val TranslatorTestRefPtrClient) TranslatorTestRefPtrClient {
-	return wrapTranslatorTestRefPtrClient(unsafe.Pointer(obj.rawPtr.CallSetRefPtrClientAndReturn(uintptr(0) /* val */)))
+	return wrapTranslatorTestRefPtrClient(unsafe.Pointer(obj.rawPtr.CallSetRefPtrClientAndReturn(uintptr(extractRawPointer(val)))))
 }
 
 func (obj *translatorTestImpl) SetChildRefPtrClient(val TranslatorTestRefPtrClientChild) int32 {
-	return int32(obj.rawPtr.CallSetChildRefPtrClient(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetChildRefPtrClient(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetChildRefPtrClientAndReturnParent(val TranslatorTestRefPtrClientChild) TranslatorTestRefPtrClient {
-	return wrapTranslatorTestRefPtrClient(unsafe.Pointer(obj.rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(0) /* val */)))
+	return wrapTranslatorTestRefPtrClient(unsafe.Pointer(obj.rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(extractRawPointer(val)))))
 }
 
 func (obj *translatorTestImpl) SetRefPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallSetRefPtrClientList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
+	return int32(obj.rawPtr.CallSetRefPtrClientList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *translatorTestImpl) GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 TranslatorTestRefPtrClient, val2 TranslatorTestRefPtrClient) int32 {
-	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
+	return int32(obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valcount)), uintptr(val), uintptr(extractRawPointer(val1)), uintptr(extractRawPointer(val2))))
 }
 
 func (obj *translatorTestImpl) GetRefPtrClientListSize() int {
@@ -320,63 +323,63 @@ func (obj *translatorTestImpl) GetRefPtrClientListSize() int {
 }
 
 func (obj *translatorTestImpl) GetOwnPtrLibrary(val int32) TranslatorTestScopedLibrary {
-	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(obj.rawPtr.CallGetOwnPtrLibrary(uintptr(0) /* val */)))
+	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(obj.rawPtr.CallGetOwnPtrLibrary(uintptr(val))))
 }
 
 func (obj *translatorTestImpl) SetOwnPtrLibrary(val TranslatorTestScopedLibrary) int32 {
-	return int32(obj.rawPtr.CallSetOwnPtrLibrary(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetOwnPtrLibrary(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetOwnPtrLibraryAndReturn(val TranslatorTestScopedLibrary) TranslatorTestScopedLibrary {
-	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(obj.rawPtr.CallSetOwnPtrLibraryAndReturn(uintptr(0) /* val */)))
+	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(obj.rawPtr.CallSetOwnPtrLibraryAndReturn(uintptr(extractRawPointer(val)))))
 }
 
 func (obj *translatorTestImpl) SetChildOwnPtrLibrary(val TranslatorTestScopedLibraryChild) int32 {
-	return int32(obj.rawPtr.CallSetChildOwnPtrLibrary(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetChildOwnPtrLibrary(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetChildOwnPtrLibraryAndReturnParent(val TranslatorTestScopedLibraryChild) TranslatorTestScopedLibrary {
-	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(obj.rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(uintptr(0) /* val */)))
+	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(obj.rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))))
 }
 
 func (obj *translatorTestImpl) SetOwnPtrClient(val TranslatorTestScopedClient) int32 {
-	return int32(obj.rawPtr.CallSetOwnPtrClient(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetOwnPtrClient(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetOwnPtrClientAndReturn(val TranslatorTestScopedClient) TranslatorTestScopedClient {
-	return wrapTranslatorTestScopedClient(unsafe.Pointer(obj.rawPtr.CallSetOwnPtrClientAndReturn(uintptr(0) /* val */)))
+	return wrapTranslatorTestScopedClient(unsafe.Pointer(obj.rawPtr.CallSetOwnPtrClientAndReturn(uintptr(extractRawPointer(val)))))
 }
 
 func (obj *translatorTestImpl) SetChildOwnPtrClient(val TranslatorTestScopedClientChild) int32 {
-	return int32(obj.rawPtr.CallSetChildOwnPtrClient(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetChildOwnPtrClient(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetChildOwnPtrClientAndReturnParent(val TranslatorTestScopedClientChild) TranslatorTestScopedClient {
-	return wrapTranslatorTestScopedClient(unsafe.Pointer(obj.rawPtr.CallSetChildOwnPtrClientAndReturnParent(uintptr(0) /* val */)))
+	return wrapTranslatorTestScopedClient(unsafe.Pointer(obj.rawPtr.CallSetChildOwnPtrClientAndReturnParent(uintptr(extractRawPointer(val)))))
 }
 
 func (obj *translatorTestImpl) SetRawPtrLibrary(val TranslatorTestScopedLibrary) int32 {
-	return int32(obj.rawPtr.CallSetRawPtrLibrary(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetRawPtrLibrary(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetChildRawPtrLibrary(val TranslatorTestScopedLibraryChild) int32 {
-	return int32(obj.rawPtr.CallSetChildRawPtrLibrary(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetChildRawPtrLibrary(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetRawPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallSetRawPtrLibraryList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
+	return int32(obj.rawPtr.CallSetRawPtrLibraryList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *translatorTestImpl) SetRawPtrClient(val TranslatorTestScopedClient) int32 {
-	return int32(obj.rawPtr.CallSetRawPtrClient(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetRawPtrClient(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetChildRawPtrClient(val TranslatorTestScopedClientChild) int32 {
-	return int32(obj.rawPtr.CallSetChildRawPtrClient(uintptr(0) /* val */))
+	return int32(obj.rawPtr.CallSetChildRawPtrClient(uintptr(extractRawPointer(val))))
 }
 
 func (obj *translatorTestImpl) SetRawPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallSetRawPtrClientList(uintptr(0) /* valcount */, uintptr(0) /* val */, uintptr(0) /* val1 */, uintptr(0) /* val2 */))
+	return int32(obj.rawPtr.CallSetRawPtrClientList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *translatorTestImpl) rawPointer() unsafe.Pointer {
@@ -421,7 +424,7 @@ func (obj *translatorTestRefPtrLibraryImpl) GetValue() int32 {
 }
 
 func (obj *translatorTestRefPtrLibraryImpl) SetValue(value int32) {
-	obj.rawPtr.CallSetValue(uintptr(0) /* value */)
+	obj.rawPtr.CallSetValue(uintptr(value))
 }
 
 func (obj *translatorTestRefPtrLibraryImpl) rawPointer() unsafe.Pointer {
@@ -466,7 +469,7 @@ func (obj *translatorTestRefPtrLibraryChildImpl) GetOtherValue() int32 {
 }
 
 func (obj *translatorTestRefPtrLibraryChildImpl) SetOtherValue(value int32) {
-	obj.rawPtr.CallSetOtherValue(uintptr(0) /* value */)
+	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
 func (obj *translatorTestRefPtrLibraryChildImpl) rawPointer() unsafe.Pointer {
@@ -511,7 +514,7 @@ func (obj *translatorTestRefPtrLibraryChildChildImpl) GetOtherOtherValue() int32
 }
 
 func (obj *translatorTestRefPtrLibraryChildChildImpl) SetOtherOtherValue(value int32) {
-	obj.rawPtr.CallSetOtherOtherValue(uintptr(0) /* value */)
+	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *translatorTestRefPtrLibraryChildChildImpl) rawPointer() unsafe.Pointer {
@@ -616,7 +619,7 @@ func (obj *translatorTestScopedLibraryImpl) GetValue() int32 {
 }
 
 func (obj *translatorTestScopedLibraryImpl) SetValue(value int32) {
-	obj.rawPtr.CallSetValue(uintptr(0) /* value */)
+	obj.rawPtr.CallSetValue(uintptr(value))
 }
 
 func (obj *translatorTestScopedLibraryImpl) rawPointer() unsafe.Pointer {
@@ -648,7 +651,7 @@ func (obj *translatorTestScopedLibraryChildImpl) GetOtherValue() int32 {
 }
 
 func (obj *translatorTestScopedLibraryChildImpl) SetOtherValue(value int32) {
-	obj.rawPtr.CallSetOtherValue(uintptr(0) /* value */)
+	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
 func (obj *translatorTestScopedLibraryChildImpl) rawPointer() unsafe.Pointer {
@@ -693,7 +696,7 @@ func (obj *translatorTestScopedLibraryChildChildImpl) GetOtherOtherValue() int32
 }
 
 func (obj *translatorTestScopedLibraryChildChildImpl) SetOtherOtherValue(value int32) {
-	obj.rawPtr.CallSetOtherOtherValue(uintptr(0) /* value */)
+	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *translatorTestScopedLibraryChildChildImpl) rawPointer() unsafe.Pointer {

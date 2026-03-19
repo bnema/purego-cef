@@ -70,7 +70,7 @@ func (obj *printSettingsImpl) IsReadOnly() bool {
 }
 
 func (obj *printSettingsImpl) SetOrientation(landscape int32) {
-	obj.rawPtr.CallSetOrientation(uintptr(0) /* landscape */)
+	obj.rawPtr.CallSetOrientation(uintptr(landscape))
 }
 
 func (obj *printSettingsImpl) IsLandscape() bool {
@@ -78,11 +78,13 @@ func (obj *printSettingsImpl) IsLandscape() bool {
 }
 
 func (obj *printSettingsImpl) SetPrinterPrintableArea(physicalSizeDeviceUnits uintptr, printableAreaDeviceUnits uintptr, landscapeNeedsFlip int32) {
-	obj.rawPtr.CallSetPrinterPrintableArea(uintptr(0) /* physicalSizeDeviceUnits */, uintptr(0) /* printableAreaDeviceUnits */, uintptr(0) /* landscapeNeedsFlip */)
+	obj.rawPtr.CallSetPrinterPrintableArea(uintptr(physicalSizeDeviceUnits), uintptr(printableAreaDeviceUnits), uintptr(landscapeNeedsFlip))
 }
 
 func (obj *printSettingsImpl) SetDeviceName(name string) {
-	obj.rawPtr.CallSetDeviceName(uintptr(0) /* name */)
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	obj.rawPtr.CallSetDeviceName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *printSettingsImpl) GetDeviceName() string {
@@ -90,7 +92,7 @@ func (obj *printSettingsImpl) GetDeviceName() string {
 }
 
 func (obj *printSettingsImpl) SetDpi(dpi int32) {
-	obj.rawPtr.CallSetDpi(uintptr(0) /* dpi */)
+	obj.rawPtr.CallSetDpi(uintptr(dpi))
 }
 
 func (obj *printSettingsImpl) GetDpi() int32 {
@@ -98,7 +100,7 @@ func (obj *printSettingsImpl) GetDpi() int32 {
 }
 
 func (obj *printSettingsImpl) SetPageRanges(rangescount int, ranges uintptr) {
-	obj.rawPtr.CallSetPageRanges(uintptr(0) /* rangescount */, uintptr(0) /* ranges */)
+	obj.rawPtr.CallSetPageRanges(uintptr(rangescount), uintptr(ranges))
 }
 
 func (obj *printSettingsImpl) GetPageRangesCount() int {
@@ -106,11 +108,11 @@ func (obj *printSettingsImpl) GetPageRangesCount() int {
 }
 
 func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges uintptr) {
-	obj.rawPtr.CallGetPageRanges(uintptr(0) /* rangescount */, uintptr(0) /* ranges */)
+	obj.rawPtr.CallGetPageRanges(uintptr(unsafe.Pointer(rangescount)), uintptr(ranges))
 }
 
 func (obj *printSettingsImpl) SetSelectionOnly(selectionOnly int32) {
-	obj.rawPtr.CallSetSelectionOnly(uintptr(0) /* selectionOnly */)
+	obj.rawPtr.CallSetSelectionOnly(uintptr(selectionOnly))
 }
 
 func (obj *printSettingsImpl) IsSelectionOnly() bool {
@@ -118,7 +120,7 @@ func (obj *printSettingsImpl) IsSelectionOnly() bool {
 }
 
 func (obj *printSettingsImpl) SetCollate(collate int32) {
-	obj.rawPtr.CallSetCollate(uintptr(0) /* collate */)
+	obj.rawPtr.CallSetCollate(uintptr(collate))
 }
 
 func (obj *printSettingsImpl) WillCollate() int32 {
@@ -126,7 +128,7 @@ func (obj *printSettingsImpl) WillCollate() int32 {
 }
 
 func (obj *printSettingsImpl) SetColorModel(model ColorModel) {
-	obj.rawPtr.CallSetColorModel(uintptr(0) /* model */)
+	obj.rawPtr.CallSetColorModel(uintptr(model))
 }
 
 func (obj *printSettingsImpl) GetColorModel() ColorModel {
@@ -134,7 +136,7 @@ func (obj *printSettingsImpl) GetColorModel() ColorModel {
 }
 
 func (obj *printSettingsImpl) SetCopies(copies int32) {
-	obj.rawPtr.CallSetCopies(uintptr(0) /* copies */)
+	obj.rawPtr.CallSetCopies(uintptr(copies))
 }
 
 func (obj *printSettingsImpl) GetCopies() int32 {
@@ -142,7 +144,7 @@ func (obj *printSettingsImpl) GetCopies() int32 {
 }
 
 func (obj *printSettingsImpl) SetDuplexMode(mode DuplexMode) {
-	obj.rawPtr.CallSetDuplexMode(uintptr(0) /* mode */)
+	obj.rawPtr.CallSetDuplexMode(uintptr(mode))
 }
 
 func (obj *printSettingsImpl) GetDuplexMode() DuplexMode {

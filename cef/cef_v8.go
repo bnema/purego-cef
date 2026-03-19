@@ -64,11 +64,15 @@ func (obj *v8ContextImpl) Exit() int32 {
 }
 
 func (obj *v8ContextImpl) IsSame(that V8Context) bool {
-	return obj.rawPtr.CallIsSame(uintptr(0) /* that */) != 0
+	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
 }
 
 func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, retval unsafe.Pointer, exception unsafe.Pointer) int32 {
-	return int32(obj.rawPtr.CallEval(uintptr(0) /* code */, uintptr(0) /* scriptURL */, uintptr(0) /* startLine */, uintptr(0) /* retval */, uintptr(0) /* exception */))
+	codeStr := cefString(code)
+	defer freeCefString(&codeStr)
+	scriptURLStr := cefString(scriptURL)
+	defer freeCefString(&scriptURLStr)
+	return int32(obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception)))
 }
 
 func (obj *v8ContextImpl) rawPointer() unsafe.Pointer {
@@ -520,7 +524,7 @@ func (obj *v8ValueImpl) IsPromise() bool {
 }
 
 func (obj *v8ValueImpl) IsSame(that V8Value) bool {
-	return obj.rawPtr.CallIsSame(uintptr(0) /* that */) != 0
+	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
 }
 
 func (obj *v8ValueImpl) GetBoolValue() int32 {
@@ -568,51 +572,61 @@ func (obj *v8ValueImpl) WillRethrowExceptions() int32 {
 }
 
 func (obj *v8ValueImpl) SetRethrowExceptions(rethrow int32) int32 {
-	return int32(obj.rawPtr.CallSetRethrowExceptions(uintptr(0) /* rethrow */))
+	return int32(obj.rawPtr.CallSetRethrowExceptions(uintptr(rethrow)))
 }
 
 func (obj *v8ValueImpl) HasValueBykey(key string) bool {
-	return obj.rawPtr.CallHasValueBykey(uintptr(0) /* key */) != 0
+	keyStr := cefString(key)
+	defer freeCefString(&keyStr)
+	return obj.rawPtr.CallHasValueBykey(uintptr(unsafe.Pointer(&keyStr))) != 0
 }
 
 func (obj *v8ValueImpl) HasValueByindex(index int32) bool {
-	return obj.rawPtr.CallHasValueByindex(uintptr(0) /* index */) != 0
+	return obj.rawPtr.CallHasValueByindex(uintptr(index)) != 0
 }
 
 func (obj *v8ValueImpl) DeleteValueBykey(key string) int32 {
-	return int32(obj.rawPtr.CallDeleteValueBykey(uintptr(0) /* key */))
+	keyStr := cefString(key)
+	defer freeCefString(&keyStr)
+	return int32(obj.rawPtr.CallDeleteValueBykey(uintptr(unsafe.Pointer(&keyStr))))
 }
 
 func (obj *v8ValueImpl) DeleteValueByindex(index int32) int32 {
-	return int32(obj.rawPtr.CallDeleteValueByindex(uintptr(0) /* index */))
+	return int32(obj.rawPtr.CallDeleteValueByindex(uintptr(index)))
 }
 
 func (obj *v8ValueImpl) GetValueBykey(key string) V8Value {
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetValueBykey(uintptr(0) /* key */)))
+	keyStr := cefString(key)
+	defer freeCefString(&keyStr)
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetValueBykey(uintptr(unsafe.Pointer(&keyStr)))))
 }
 
 func (obj *v8ValueImpl) GetValueByindex(index int32) V8Value {
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetValueByindex(uintptr(0) /* index */)))
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetValueByindex(uintptr(index))))
 }
 
 func (obj *v8ValueImpl) SetValueBykey(key string, value V8Value, attribute V8Propertyattribute) int32 {
-	return int32(obj.rawPtr.CallSetValueBykey(uintptr(0) /* key */, uintptr(0) /* value */, uintptr(0) /* attribute */))
+	keyStr := cefString(key)
+	defer freeCefString(&keyStr)
+	return int32(obj.rawPtr.CallSetValueBykey(uintptr(unsafe.Pointer(&keyStr)), uintptr(extractRawPointer(value)), uintptr(attribute)))
 }
 
 func (obj *v8ValueImpl) SetValueByindex(index int32, value V8Value) int32 {
-	return int32(obj.rawPtr.CallSetValueByindex(uintptr(0) /* index */, uintptr(0) /* value */))
+	return int32(obj.rawPtr.CallSetValueByindex(uintptr(index), uintptr(extractRawPointer(value))))
 }
 
 func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattribute) int32 {
-	return int32(obj.rawPtr.CallSetValueByaccessor(uintptr(0) /* key */, uintptr(0) /* attribute */))
+	keyStr := cefString(key)
+	defer freeCefString(&keyStr)
+	return int32(obj.rawPtr.CallSetValueByaccessor(uintptr(unsafe.Pointer(&keyStr)), uintptr(attribute)))
 }
 
 func (obj *v8ValueImpl) GetKeys(keys uintptr) int32 {
-	return int32(obj.rawPtr.CallGetKeys(uintptr(0) /* keys */))
+	return int32(obj.rawPtr.CallGetKeys(uintptr(keys)))
 }
 
 func (obj *v8ValueImpl) SetUserData(userData *BaseRefCounted) int32 {
-	return int32(obj.rawPtr.CallSetUserData(uintptr(0) /* userData */))
+	return int32(obj.rawPtr.CallSetUserData(uintptr(unsafe.Pointer(userData))))
 }
 
 func (obj *v8ValueImpl) GetUserData() *BaseRefCounted {
@@ -624,7 +638,7 @@ func (obj *v8ValueImpl) GetExternallyAllocatedMemory() int32 {
 }
 
 func (obj *v8ValueImpl) AdjustExternallyAllocatedMemory(changeInBytes int32) int32 {
-	return int32(obj.rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(0) /* changeInBytes */))
+	return int32(obj.rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(changeInBytes)))
 }
 
 func (obj *v8ValueImpl) GetArrayLength() int32 {
@@ -656,19 +670,21 @@ func (obj *v8ValueImpl) GetFunctionHandler() V8Handler {
 }
 
 func (obj *v8ValueImpl) ExecuteFunction(object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value {
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunction(uintptr(0) /* object */, uintptr(0) /* argumentscount */, uintptr(0) /* arguments */)))
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(argumentscount), uintptr(arguments))))
 }
 
 func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value {
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunctionWithContext(uintptr(0) /* context */, uintptr(0) /* object */, uintptr(0) /* argumentscount */, uintptr(0) /* arguments */)))
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(argumentscount), uintptr(arguments))))
 }
 
 func (obj *v8ValueImpl) ResolvePromise(arg V8Value) int32 {
-	return int32(obj.rawPtr.CallResolvePromise(uintptr(0) /* arg */))
+	return int32(obj.rawPtr.CallResolvePromise(uintptr(extractRawPointer(arg))))
 }
 
 func (obj *v8ValueImpl) RejectPromise(errormsg string) int32 {
-	return int32(obj.rawPtr.CallRejectPromise(uintptr(0) /* errormsg */))
+	errormsgStr := cefString(errormsg)
+	defer freeCefString(&errormsgStr)
+	return int32(obj.rawPtr.CallRejectPromise(uintptr(unsafe.Pointer(&errormsgStr))))
 }
 
 func (obj *v8ValueImpl) rawPointer() unsafe.Pointer {
@@ -719,7 +735,7 @@ func (obj *v8StackTraceImpl) GetFrameCount() int32 {
 }
 
 func (obj *v8StackTraceImpl) GetFrame(index int32) V8StackFrame {
-	return wrapV8StackFrame(unsafe.Pointer(obj.rawPtr.CallGetFrame(uintptr(0) /* index */)))
+	return wrapV8StackFrame(unsafe.Pointer(obj.rawPtr.CallGetFrame(uintptr(index))))
 }
 
 func (obj *v8StackTraceImpl) rawPointer() unsafe.Pointer {

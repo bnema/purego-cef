@@ -22,7 +22,11 @@ type authCallbackImpl struct {
 }
 
 func (obj *authCallbackImpl) Cont(username string, password string) {
-	obj.rawPtr.CallCont(uintptr(0) /* username */, uintptr(0) /* password */)
+	usernameStr := cefString(username)
+	defer freeCefString(&usernameStr)
+	passwordStr := cefString(password)
+	defer freeCefString(&passwordStr)
+	obj.rawPtr.CallCont(uintptr(unsafe.Pointer(&usernameStr)), uintptr(unsafe.Pointer(&passwordStr)))
 }
 
 func (obj *authCallbackImpl) Cancel() {

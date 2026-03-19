@@ -3,8 +3,11 @@
 
 package {{.PackageName}}
 
-{{if or .NeedsRaw .NeedsUnsafe .HasObjects .HasHandlers .Enums}}
+{{if or .NeedsRaw .NeedsUnsafe .HasObjects .HasHandlers .Enums .NeedsMath}}
 import (
+{{- if .NeedsMath}}
+	"math"
+{{- end}}
 {{- if .HasObjects}}
 	"runtime"
 {{- end}}

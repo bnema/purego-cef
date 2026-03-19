@@ -24,7 +24,7 @@ type printDialogCallbackImpl struct {
 }
 
 func (obj *printDialogCallbackImpl) Cont(settings PrintSettings) {
-	obj.rawPtr.CallCont(uintptr(0) /* settings */)
+	obj.rawPtr.CallCont(uintptr(extractRawPointer(settings)))
 }
 
 func (obj *printDialogCallbackImpl) Cancel() {
