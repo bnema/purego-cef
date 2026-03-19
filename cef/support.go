@@ -190,6 +190,14 @@ func extractRawPointer(v any) unsafe.Pointer {
 	return nil
 }
 
+// decodeDirtyRects converts a raw pointer and count into a Go slice of Rect.
+func decodeDirtyRects(ptr uintptr, count int) []Rect {
+	if count == 0 || ptr == 0 {
+		return nil
+	}
+	return unsafe.Slice((*Rect)(unsafe.Pointer(ptr)), count)
+}
+
 func loadRefState(base unsafe.Pointer) (*refState, bool) {
 	v, ok := refStates.Load(uintptr(base))
 	if !ok {
