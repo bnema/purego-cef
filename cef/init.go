@@ -231,6 +231,20 @@ func Init(settings Settings) error {
 }
 
 func doInit(settings Settings) error {
+	return doInitWithApp(settings, nil)
+}
+
+// InitWithApp is like Init but passes a cef_app_t to cef_initialize,
+// enabling callbacks such as OnScheduleMessagePumpWork on the
+// BrowserProcessHandler. The app must have been created via NewApp.
+func InitWithApp(settings Settings, app App) error {
+	initOnce.Do(func() {
+		initErr = doInitWithApp(settings, app)
+	})
+	return initErr
+}
+
+func doInitWithApp(settings Settings, app App) error {
 	if err := loadLibrary(settings.CEFDir); err != nil {
 		return err
 	}
@@ -242,7 +256,12 @@ func doInit(settings Settings) error {
 	cs, cleanup := settings.toRaw()
 	defer cleanup()
 
-	ok := raw.CEFInitialize(args.Ptr(), unsafe.Pointer(&cs), nil, nil)
+	var appPtr unsafe.Pointer
+	if app != nil {
+		appPtr = extractRawPointer(app)
+	}
+
+	ok := raw.CEFInitialize(args.Ptr(), unsafe.Pointer(&cs), appPtr, nil)
 	if ok != 1 {
 		return fmt.Errorf("cef: cef_initialize returned %d", ok)
 	}
@@ -265,7 +284,6 @@ func Shutdown() {
 func DoMessageLoopWork() {
 	raw.CEFDoMessageLoopWork()
 }
-
 
 // MaybeExitSubprocess calls cef_execute_process and exits the current process
 // if it was launched as a CEF sub-process. For the browser process this is a
