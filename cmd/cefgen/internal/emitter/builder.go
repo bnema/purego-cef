@@ -1,6 +1,7 @@
 package emitter
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -22,6 +23,37 @@ var skipPublicTypes = map[string]bool{
 	"DisplayConvertScreenPointFromPixels": true,
 	"DisplayConvertScreenRectToPixels":    true,
 	"DisplayConvertScreenRectFromPixels":  true,
+}
+
+// ParamOverride specifies the public type and marshal kind for a specific
+// handler callback parameter, overriding the default type resolution.
+type ParamOverride struct {
+	PublicType    string
+	MarshalKind   string
+	UnmarshalExpr string
+}
+
+// paramOverrides maps "structCName.fieldCName.paramCName" keys to overrides
+// for specific handler callback params that need safe public types instead of
+// unsafe.Pointer.
+var paramOverrides = map[string]ParamOverride{
+	// Problem 5: GetScreenPoint out-params
+	"cef_render_handler_t.get_screen_point.screenX": {PublicType: "*int32", MarshalKind: "dataStruct"},
+	"cef_render_handler_t.get_screen_point.screenY": {PublicType: "*int32", MarshalKind: "dataStruct"},
+	// Problem 3: OnBeforePopup bool flag
+	"cef_life_span_handler_t.on_before_popup.no_javascript_access": {PublicType: "*int32", MarshalKind: "dataStruct"},
+	// Problem 4: OnBeforeDevToolsPopup bool flag
+	"cef_life_span_handler_t.on_before_dev_tools_popup.use_default_window": {PublicType: "*int32", MarshalKind: "dataStruct"},
+	// Problem 6: OnPaint pixel buffer
+	"cef_render_handler_t.on_paint.buffer": {
+		PublicType:    "[]byte",
+		MarshalKind:   "pixelBuffer",
+		UnmarshalExpr: "int({{width}})*int({{height}})*4",
+	},
+	// Problem 8: GetResourceRequestHandler bool flag
+	"cef_request_handler_t.get_resource_request_handler.disable_default_handling": {PublicType: "*int32", MarshalKind: "dataStruct"},
+	// Problem 9: OnSelectClientCertificate object array
+	"cef_request_handler_t.on_select_client_certificate.certificates": {PublicType: "[]X509Certificate", MarshalKind: "objectSlice"},
 }
 
 // BuildPublicFileData converts a parsed header and type registry into the
@@ -87,14 +119,14 @@ func buildInterface(s *model.Struct, registry *TypeRegistry) InterfaceData {
 			continue
 		}
 
-		m := buildMethod(f, registry)
+		m := buildMethod(s.CName, f, registry)
 		iface.Methods = append(iface.Methods, m)
 	}
 
 	return iface
 }
 
-func buildMethod(f model.Field, registry *TypeRegistry) MethodData {
+func buildMethod(structCName string, f model.Field, registry *TypeRegistry) MethodData {
 	name := model.PublicName(f.CName)
 	if renamed, ok := methodRenames[name]; ok {
 		name = renamed
@@ -117,6 +149,29 @@ func buildMethod(f model.Field, registry *TypeRegistry) MethodData {
 			MarshalKind: classifyParamType(p.CType, registry),
 		}
 		m.Params = append(m.Params, pd)
+	}
+
+	// Apply param overrides before copying to RawParams and merging.
+	for i := range m.Params {
+		key := structCName + "." + f.CName + "." + f.Params[i+1].CName // +1 to skip self
+		if ov, ok := paramOverrides[key]; ok {
+			m.Params[i].PublicType = ov.PublicType
+			m.Params[i].MarshalKind = ov.MarshalKind
+		}
+	}
+
+	// Resolve UnmarshalExpr placeholders to raw arg names.
+	for i := range m.Params {
+		key := structCName + "." + f.CName + "." + f.Params[i+1].CName
+		if ov, ok := paramOverrides[key]; ok && ov.UnmarshalExpr != "" {
+			expr := ov.UnmarshalExpr
+			for j, rp := range m.Params {
+				placeholder := "{{" + rp.Name + "}}"
+				argName := fmt.Sprintf("arg%d", j)
+				expr = strings.ReplaceAll(expr, placeholder, argName)
+			}
+			m.Params[i].UnmarshalExtra = expr
+		}
 	}
 
 	// Save original params for raw callback signatures, then merge count+pointer pairs.
