@@ -197,6 +197,29 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return "uintptr(" + p.Name + ")"
 			}
 		},
+		// unmarshalObjectSlice generates multi-line code to unmarshal an objectSlice param.
+		"unmarshalObjectSlice": func(p ParamData, rawParams []ParamData) string {
+			countArg := "0"
+			ptrArg := "0"
+			ptrName := strings.ToLower(p.Name)
+			for i, rp := range rawParams {
+				rpName := strings.ToLower(rp.Name)
+				if rpName == ptrName+"count" {
+					countArg = fmt.Sprintf("arg%d", i)
+				}
+				if rpName == ptrName {
+					ptrArg = fmt.Sprintf("arg%d", i)
+				}
+			}
+			elemType := p.SliceElemType
+			var b strings.Builder
+			fmt.Fprintf(&b, "%sPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(%s)), int(%s))\n", p.Name, ptrArg, countArg)
+			fmt.Fprintf(&b, "\t\t%s := make([]%s, int(%s))\n", p.Name, elemType, countArg)
+			fmt.Fprintf(&b, "\t\tfor i, ptr := range %sPtrs {\n", p.Name)
+			fmt.Fprintf(&b, "\t\t\t%s[i] = wrap%s(unsafe.Pointer(ptr))\n", p.Name, elemType)
+			fmt.Fprintf(&b, "\t\t}")
+			return b.String()
+		},
 		// unmarshalParam generates the Go expression to convert a uintptr to the public type.
 		"unmarshalParam": func(p ParamData, rawName string) string {
 			switch p.MarshalKind {
@@ -213,6 +236,8 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return p.PublicType + "(" + rawName + ")"
 			case "pointer":
 				return "unsafe.Pointer(" + rawName + ")"
+			case "pixelBuffer":
+				return "unsafe.Slice((*byte)(unsafe.Pointer(" + rawName + ")), " + p.UnmarshalExtra + ")"
 			case "dataStruct":
 				// PublicType is "*WindowInfo" etc, we need "(*WindowInfo)(unsafe.Pointer(...))"
 				return "(" + p.PublicType + ")(unsafe.Pointer(" + rawName + "))"

@@ -262,3 +262,128 @@ func TestBuildPublicFileData(t *testing.T) {
 		t.Errorf("expected func name GetMimeType, got %s", data.FreeFunctions[0].Name)
 	}
 }
+
+func TestEmitPixelBufferOverride(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "cef_render_handler_t",
+			GoName:        "CEFRenderHandlerT",
+			Kind:          "handler",
+			InterfaceName: "RenderHandler",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "on_paint",
+					GoName:      "OnPaint",
+					IsFunction:  true,
+					ReturnCType: "void",
+					Params: []model.Param{
+						{CName: "self", GoName: "self", CType: "struct _cef_render_handler_t*"},
+						{CName: "browser", GoName: "browser", CType: "struct _cef_browser_t*"},
+						{CName: "type", GoName: "type_", CType: "cef_paint_element_type_t"},
+						{CName: "dirtyRectsCount", GoName: "dirtyRectsCount", CType: "size_t"},
+						{CName: "dirtyRects", GoName: "dirtyRects", CType: "cef_rect_t const*"},
+						{CName: "buffer", GoName: "buffer", CType: "const void*"},
+						{CName: "width", GoName: "width", CType: "int"},
+						{CName: "height", GoName: "height", CType: "int"},
+					},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	t.Log(code)
+
+	checks := []struct {
+		desc string
+		want string
+	}{
+		{"buffer param is []byte", "buffer []byte"},
+		{"unsafe.Slice in unmarshal", "unsafe.Slice"},
+	}
+
+	for _, c := range checks {
+		if !strings.Contains(code, c.want) {
+			t.Errorf("missing %s: want %q in output", c.desc, c.want)
+		}
+	}
+}
+
+func TestEmitObjectSliceOverride(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "_cef_x509certificate_t",
+				GoName:        "CEFX509CertificateT",
+				Kind:          "object",
+				InterfaceName: "X509Certificate",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				},
+			},
+			{
+				CName:         "cef_request_handler_t",
+				GoName:        "CEFRequestHandlerT",
+				Kind:          "handler",
+				InterfaceName: "RequestHandler",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "on_select_client_certificate",
+						GoName:      "OnSelectClientCertificate",
+						IsFunction:  true,
+						ReturnCType: "int",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_request_handler_t*"},
+							{CName: "browser", GoName: "browser", CType: "struct _cef_browser_t*"},
+							{CName: "isProxy", GoName: "isProxy", CType: "int"},
+							{CName: "host", GoName: "host", CType: "const cef_string_t*"},
+							{CName: "port", GoName: "port", CType: "int"},
+							{CName: "certificatesCount", GoName: "certificatesCount", CType: "size_t"},
+							{CName: "certificates", GoName: "certificates", CType: "struct _cef_x509certificate_t* const*"},
+							{CName: "callback", GoName: "callback", CType: "struct _cef_select_client_certificate_callback_t*"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	t.Log(code)
+
+	checks := []struct {
+		desc     string
+		want     string
+		mustHave bool
+	}{
+		{"certificates param is []X509Certificate", "certificates []X509Certificate", true},
+		{"wrapX509Certificate in unmarshal", "wrapX509Certificate", true},
+	}
+
+	for _, c := range checks {
+		if c.mustHave && !strings.Contains(code, c.want) {
+			t.Errorf("missing %s: want %q in output", c.desc, c.want)
+		}
+	}
+
+	// Must NOT contain the count param in the interface signature.
+	if strings.Contains(code, "certificatescount") || strings.Contains(code, "certificatesCount") {
+		t.Error("count param should be merged away, but found certificatesCount in output")
+	}
+}

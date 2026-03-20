@@ -40,6 +40,8 @@ func New{{.Name}}(impl {{.Name}}) {{.Name}} {
 		{{- range $i, $p := .Params}}
 		{{- if eq $p.MarshalKind "slice"}}
 		{{$p.Name}} := decodeSlice[{{$p.SliceElemType}}]({{slicePtrArg $p $rawPs}}, int({{sliceCountArg $p $rawPs}}))
+		{{- else if eq $p.MarshalKind "objectSlice"}}
+		{{unmarshalObjectSlice $p $rawPs}}
 		{{- else}}
 		{{$p.Name}} := {{unmarshalParam $p (rawArgForParam $p $rawPs)}}
 		{{- end}}
