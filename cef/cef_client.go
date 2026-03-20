@@ -75,7 +75,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetAudioHandlerPtr unsafe.Pointer
 	if h := impl.GetAudioHandler(); h != nil {
-		cachedGetAudioHandlerPtr = extractRawPointer(NewAudioHandler(h))
+		cachedGetAudioHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewAudioHandler(h)
+		})
 	}
 	r.OverrideGetAudioHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetAudioHandlerPtr != nil {
@@ -87,7 +89,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetCommandHandlerPtr unsafe.Pointer
 	if h := impl.GetCommandHandler(); h != nil {
-		cachedGetCommandHandlerPtr = extractRawPointer(NewCommandHandler(h))
+		cachedGetCommandHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewCommandHandler(h)
+		})
 	}
 	r.OverrideGetCommandHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetCommandHandlerPtr != nil {
@@ -99,7 +103,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetContextMenuHandlerPtr unsafe.Pointer
 	if h := impl.GetContextMenuHandler(); h != nil {
-		cachedGetContextMenuHandlerPtr = extractRawPointer(NewContextMenuHandler(h))
+		cachedGetContextMenuHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewContextMenuHandler(h)
+		})
 	}
 	r.OverrideGetContextMenuHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetContextMenuHandlerPtr != nil {
@@ -111,7 +117,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDialogHandlerPtr unsafe.Pointer
 	if h := impl.GetDialogHandler(); h != nil {
-		cachedGetDialogHandlerPtr = extractRawPointer(NewDialogHandler(h))
+		cachedGetDialogHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewDialogHandler(h)
+		})
 	}
 	r.OverrideGetDialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetDialogHandlerPtr != nil {
@@ -123,7 +131,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDisplayHandlerPtr unsafe.Pointer
 	if h := impl.GetDisplayHandler(); h != nil {
-		cachedGetDisplayHandlerPtr = extractRawPointer(NewDisplayHandler(h))
+		cachedGetDisplayHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewDisplayHandler(h)
+		})
 	}
 	r.OverrideGetDisplayHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetDisplayHandlerPtr != nil {
@@ -135,7 +145,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDownloadHandlerPtr unsafe.Pointer
 	if h := impl.GetDownloadHandler(); h != nil {
-		cachedGetDownloadHandlerPtr = extractRawPointer(NewDownloadHandler(h))
+		cachedGetDownloadHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewDownloadHandler(h)
+		})
 	}
 	r.OverrideGetDownloadHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetDownloadHandlerPtr != nil {
@@ -147,7 +159,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDragHandlerPtr unsafe.Pointer
 	if h := impl.GetDragHandler(); h != nil {
-		cachedGetDragHandlerPtr = extractRawPointer(NewDragHandler(h))
+		cachedGetDragHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewDragHandler(h)
+		})
 	}
 	r.OverrideGetDragHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetDragHandlerPtr != nil {
@@ -159,7 +173,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetFindHandlerPtr unsafe.Pointer
 	if h := impl.GetFindHandler(); h != nil {
-		cachedGetFindHandlerPtr = extractRawPointer(NewFindHandler(h))
+		cachedGetFindHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewFindHandler(h)
+		})
 	}
 	r.OverrideGetFindHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetFindHandlerPtr != nil {
@@ -171,7 +187,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetFocusHandlerPtr unsafe.Pointer
 	if h := impl.GetFocusHandler(); h != nil {
-		cachedGetFocusHandlerPtr = extractRawPointer(NewFocusHandler(h))
+		cachedGetFocusHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewFocusHandler(h)
+		})
 	}
 	r.OverrideGetFocusHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetFocusHandlerPtr != nil {
@@ -183,7 +201,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetFrameHandlerPtr unsafe.Pointer
 	if h := impl.GetFrameHandler(); h != nil {
-		cachedGetFrameHandlerPtr = extractRawPointer(NewFrameHandler(h))
+		cachedGetFrameHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewFrameHandler(h)
+		})
 	}
 	r.OverrideGetFrameHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetFrameHandlerPtr != nil {
@@ -195,7 +215,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetPermissionHandlerPtr unsafe.Pointer
 	if h := impl.GetPermissionHandler(); h != nil {
-		cachedGetPermissionHandlerPtr = extractRawPointer(NewPermissionHandler(h))
+		cachedGetPermissionHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewPermissionHandler(h)
+		})
 	}
 	r.OverrideGetPermissionHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetPermissionHandlerPtr != nil {
@@ -207,7 +229,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetJsdialogHandlerPtr unsafe.Pointer
 	if h := impl.GetJsdialogHandler(); h != nil {
-		cachedGetJsdialogHandlerPtr = extractRawPointer(NewJsdialogHandler(h))
+		cachedGetJsdialogHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewJsdialogHandler(h)
+		})
 	}
 	r.OverrideGetJsdialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetJsdialogHandlerPtr != nil {
@@ -219,7 +243,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetKeyboardHandlerPtr unsafe.Pointer
 	if h := impl.GetKeyboardHandler(); h != nil {
-		cachedGetKeyboardHandlerPtr = extractRawPointer(NewKeyboardHandler(h))
+		cachedGetKeyboardHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewKeyboardHandler(h)
+		})
 	}
 	r.OverrideGetKeyboardHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetKeyboardHandlerPtr != nil {
@@ -231,7 +257,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetLifeSpanHandlerPtr unsafe.Pointer
 	if h := impl.GetLifeSpanHandler(); h != nil {
-		cachedGetLifeSpanHandlerPtr = extractRawPointer(NewLifeSpanHandler(h))
+		cachedGetLifeSpanHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewLifeSpanHandler(h)
+		})
 	}
 	r.OverrideGetLifeSpanHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetLifeSpanHandlerPtr != nil {
@@ -243,7 +271,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetLoadHandlerPtr unsafe.Pointer
 	if h := impl.GetLoadHandler(); h != nil {
-		cachedGetLoadHandlerPtr = extractRawPointer(NewLoadHandler(h))
+		cachedGetLoadHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewLoadHandler(h)
+		})
 	}
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetLoadHandlerPtr != nil {
@@ -255,7 +285,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetPrintHandlerPtr unsafe.Pointer
 	if h := impl.GetPrintHandler(); h != nil {
-		cachedGetPrintHandlerPtr = extractRawPointer(NewPrintHandler(h))
+		cachedGetPrintHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewPrintHandler(h)
+		})
 	}
 	r.OverrideGetPrintHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetPrintHandlerPtr != nil {
@@ -267,7 +299,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetRenderHandlerPtr unsafe.Pointer
 	if h := impl.GetRenderHandler(); h != nil {
-		cachedGetRenderHandlerPtr = extractRawPointer(NewRenderHandler(h))
+		cachedGetRenderHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewRenderHandler(h)
+		})
 	}
 	r.OverrideGetRenderHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetRenderHandlerPtr != nil {
@@ -279,7 +313,9 @@ func NewClient(impl Client) Client {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetRequestHandlerPtr unsafe.Pointer
 	if h := impl.GetRequestHandler(); h != nil {
-		cachedGetRequestHandlerPtr = extractRawPointer(NewRequestHandler(h))
+		cachedGetRequestHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewRequestHandler(h)
+		})
 	}
 	r.OverrideGetRequestHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetRequestHandlerPtr != nil {

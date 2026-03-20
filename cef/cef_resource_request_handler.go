@@ -58,7 +58,9 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		if result == nil {
 			return 0
 		}
-		return uintptr(extractRawPointer(NewCookieAccessFilter(result)))
+		return uintptr(extractOrWrapRawPointer(result, func() any {
+			return NewCookieAccessFilter(result)
+		}))
 	}))
 
 	r.OverrideOnBeforeResourceLoad(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
@@ -77,7 +79,9 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		if result == nil {
 			return 0
 		}
-		return uintptr(extractRawPointer(NewResourceHandler(result)))
+		return uintptr(extractOrWrapRawPointer(result, func() any {
+			return NewResourceHandler(result)
+		}))
 	}))
 
 	r.OverrideOnResourceRedirect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
@@ -106,7 +110,9 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		if result == nil {
 			return 0
 		}
-		return uintptr(extractRawPointer(NewResponseFilter(result)))
+		return uintptr(extractOrWrapRawPointer(result, func() any {
+			return NewResponseFilter(result)
+		}))
 	}))
 
 	r.OverrideOnResourceLoadComplete(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {

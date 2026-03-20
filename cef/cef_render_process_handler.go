@@ -70,7 +70,9 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetLoadHandlerPtr unsafe.Pointer
 	if h := impl.GetLoadHandler(); h != nil {
-		cachedGetLoadHandlerPtr = extractRawPointer(NewLoadHandler(h))
+		cachedGetLoadHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewLoadHandler(h)
+		})
 	}
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetLoadHandlerPtr != nil {

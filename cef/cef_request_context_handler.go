@@ -55,7 +55,9 @@ func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler 
 		if result == nil {
 			return 0
 		}
-		return uintptr(extractRawPointer(NewResourceRequestHandler(result)))
+		return uintptr(extractOrWrapRawPointer(result, func() any {
+			return NewResourceRequestHandler(result)
+		}))
 	}))
 
 	w := &requestContextHandlerWrapper{rawPtr: r}

@@ -20,7 +20,7 @@ type RenderHandler interface {
 	// GetViewRect Called to retrieve the view rectangle in screen DIP coordinates. This function must always provide a non-NULL rectangle.
 	GetViewRect(browser Browser, rect *Rect)
 	// GetScreenPoint Called to retrieve the translation from view DIP coordinates to screen coordinates. Windows/Linux should provide screen device (pixel) coordinates and MacOS should provide screen DIP coordinates. Return true (1) if the requested coordinates were provided.
-	GetScreenPoint(browser Browser, viewx int32, viewy int32, screenx unsafe.Pointer, screeny unsafe.Pointer) int32
+	GetScreenPoint(browser Browser, viewx int32, viewy int32, screenx *int32, screeny *int32) int32
 	// GetScreenInfo Called to allow the client to fill in the CefScreenInfo object with appropriate values. Return true (1) if the |screen_info| structure has been modified. If the screen info rectangle is left NULL the rectangle from GetViewRect will be used. If the rectangle is still NULL or invalid popups may not be drawn correctly.
 	GetScreenInfo(browser Browser, screenInfo *ScreenInfo) int32
 	// OnPopupShow Called when the browser wants to show or hide the popup widget. The popup should be shown if |show| is true (1) and hidden if |show| is false (0).
@@ -28,7 +28,7 @@ type RenderHandler interface {
 	// OnPopupSize Called when the browser wants to move or resize the popup widget. |rect| contains the new location and size in view coordinates.
 	OnPopupSize(browser Browser, rect *Rect)
 	// OnPaint Called when an element should be painted. Pixel values passed to this function are scaled relative to view coordinates based on the value of CefScreenInfo.device_scale_factor returned from GetScreenInfo. |type| indicates whether the element is the view or the popup widget. |buffer| contains the pixel data for the whole image. |dirtyRects| contains the set of rectangles in pixel coordinates that need to be repainted. |buffer| will be |width|*|height|*4 bytes in size and represents a BGRA image with an upper-left origin. This function is only called when cef_window_tInfo::shared_texture_enabled is set to false (0).
-	OnPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, buffer unsafe.Pointer, width int32, height int32)
+	OnPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, buffer []byte, width int32, height int32)
 	// OnAcceleratedPaint Called when an element has been rendered to the shared texture handle. |type| indicates whether the element is the view or the popup widget. |dirtyRects| contains the set of rectangles in pixel coordinates that need to be repainted. |info| contains the shared handle; on Windows it is a HANDLE to a texture that can be opened with D3D11 OpenSharedResource1 or D3D12 OpenSharedHandle, on macOS it is an IOSurface pointer that can be opened with Metal or OpenGL, and on Linux it contains several planes, each with an fd to the underlying system native buffer. The underlying implementation uses a pool to deliver frames. As a result, the handle may differ every frame depending on how many frames are in- progress. The handle's resource cannot be cached and cannot be accessed outside of this callback. It should be reopened each time this callback is executed and the contents should be copied to a texture owned by the client application. The contents of |info| will be released back to the pool after this callback returns.
 	OnAcceleratedPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, info *AcceleratedPaintInfo)
 	// GetTouchHandleSize Called to retrieve the size of the touch handle for the specified |orientation|.
@@ -72,7 +72,9 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetAccessibilityHandlerPtr unsafe.Pointer
 	if h := impl.GetAccessibilityHandler(); h != nil {
-		cachedGetAccessibilityHandlerPtr = extractRawPointer(NewAccessibilityHandler(h))
+		cachedGetAccessibilityHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewAccessibilityHandler(h)
+		})
 	}
 	r.OverrideGetAccessibilityHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetAccessibilityHandlerPtr != nil {
@@ -97,8 +99,8 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		viewx := int32(arg1)
 		viewy := int32(arg2)
-		screenx := unsafe.Pointer(arg3)
-		screeny := unsafe.Pointer(arg4)
+		screenx := (*int32)(unsafe.Pointer(arg3))
+		screeny := (*int32)(unsafe.Pointer(arg4))
 		return uintptr(impl.GetScreenPoint(browser, viewx, viewy, screenx, screeny))
 	}))
 
@@ -124,7 +126,7 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		type_ := PaintElementType(arg1)
 		dirtyrects := decodeSlice[Rect](arg3, int(arg2))
-		buffer := unsafe.Pointer(arg4)
+		buffer := unsafe.Slice((*byte)(unsafe.Pointer(arg4)), int(arg5)*int(arg6)*4)
 		width := int32(arg5)
 		height := int32(arg6)
 		impl.OnPaint(browser, type_, dirtyrects, buffer, width, height)

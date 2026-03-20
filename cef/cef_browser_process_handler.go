@@ -77,7 +77,9 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDefaultClientPtr unsafe.Pointer
 	if h := impl.GetDefaultClient(); h != nil {
-		cachedGetDefaultClientPtr = extractRawPointer(NewClient(h))
+		cachedGetDefaultClientPtr = extractOrWrapRawPointer(h, func() any {
+			return NewClient(h)
+		})
 	}
 	r.OverrideGetDefaultClient(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetDefaultClientPtr != nil {
@@ -89,7 +91,9 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDefaultRequestContextHandlerPtr unsafe.Pointer
 	if h := impl.GetDefaultRequestContextHandler(); h != nil {
-		cachedGetDefaultRequestContextHandlerPtr = extractRawPointer(NewRequestContextHandler(h))
+		cachedGetDefaultRequestContextHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewRequestContextHandler(h)
+		})
 	}
 	r.OverrideGetDefaultRequestContextHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetDefaultRequestContextHandlerPtr != nil {

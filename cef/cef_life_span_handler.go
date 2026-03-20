@@ -13,11 +13,11 @@ import (
 // LifeSpanHandler Implement this structure to handle events related to browser life span. The functions of this structure will be called on the UI thread unless otherwise indicated.
 type LifeSpanHandler interface {
 	// OnBeforePopup Called on the UI thread before a new popup browser is created. The |browser| and |frame| values represent the source of the popup request (opener browser and frame). The |popup_id| value uniquely identifies the popup in the context of the opener browser. The |target_url| and |target_frame_name| values indicate where the popup browser should navigate and may be NULL if not specified with the request. The |target_disposition| value indicates where the user intended to open the popup (e.g. current tab, new tab, etc). The |user_gesture| value will be true (1) if the popup was opened via explicit user gesture (e.g. clicking a link) or false (0) if the popup opened automatically (e.g. via the DomContentLoaded event). The |popupFeatures| structure contains additional information about the requested popup window. To allow creation of the popup browser optionally modify |windowInfo|, |client|, |settings| and |no_javascript_access| and return false (0). To cancel creation of the popup browser return true (1). The |client| and |settings| values will default to the source browser's values. If the |no_javascript_access| value is set to false (0) the new browser will not be scriptable and may not be hosted in the same renderer process as the source browser. Any modifications to |windowInfo| will be ignored if the parent browser is wrapped in a cef_browser_view_t. The |extra_info| parameter provides an opportunity to specify extra information specific to the created popup browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process. If popup browser creation succeeds then OnAfterCreated will be called for the new popup browser. If popup browser creation fails, and if the opener browser has not yet been destroyed, then OnBeforePopupAborted will be called for the opener browser. See OnBeforePopupAborted documentation for additional details.
-	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition WindowOpenDisposition, userGesture int32, popupfeatures *PopupFeatures, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess unsafe.Pointer) bool
+	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition WindowOpenDisposition, userGesture int32, popupfeatures *PopupFeatures, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess *int32) bool
 	// OnBeforePopupAborted Called on the UI thread if a new popup browser is aborted. This only occurs if the popup is allowed in OnBeforePopup and creation fails before OnAfterCreated is called for the new popup browser. The |browser| value is the source of the popup request (opener browser). The |popup_id| value uniquely identifies the popup in the context of the opener browser, and is the same value that was passed to OnBeforePopup. Any client state associated with pending popups should be cleared in OnBeforePopupAborted, OnAfterCreated of the popup browser, or OnBeforeClose of the opener browser. OnBeforeClose of the opener browser may be called before this function in cases where the opener is closing during popup creation, in which case cef_browser_host_t::IsValid will return false (0) in this function.
 	OnBeforePopupAborted(browser Browser, popupID int32)
 	// OnBeforeDevToolsPopup Called on the UI thread before a new DevTools popup browser is created. The |browser| value represents the source of the popup request. Optionally modify |windowInfo|, |client|, |settings| and |extra_info| values. The |client|, |settings| and |extra_info| values will default to the source browser's values. Any modifications to |windowInfo| will be ignored if the parent browser is Views-hosted (wrapped in a cef_browser_view_t). The |extra_info| parameter provides an opportunity to specify extra information specific to the created popup browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process. The existing |extra_info| object, if any, will be read-only but may be replaced with a new object. Views-hosted source browsers will create Views-hosted DevTools popups unless |use_default_window| is set to to true (1). DevTools popups can be blocked by returning true (1) from cef_command_handler_t::OnChromeCommand for IDC_DEV_TOOLS. Only used with Chrome style.
-	OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow unsafe.Pointer)
+	OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow *int32)
 	// OnAfterCreated Called after a new browser is created. It is now safe to begin performing actions with |browser|. cef_frame_handler_t callbacks related to initial main frame creation will arrive before this callback. See cef_frame_handler_t documentation for additional usage information.
 	OnAfterCreated(browser Browser)
 	DoClose(browser Browser) bool
@@ -57,7 +57,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 		client := unsafe.Pointer(arg9)
 		settings := (*BrowserSettings)(unsafe.Pointer(arg10))
 		extraInfo := unsafe.Pointer(arg11)
-		noJavascriptAccess := unsafe.Pointer(arg12)
+		noJavascriptAccess := (*int32)(unsafe.Pointer(arg12))
 		if impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupfeatures, windowinfo, client, settings, extraInfo, noJavascriptAccess) {
 			return 1
 		}
@@ -76,7 +76,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 		client := unsafe.Pointer(arg2)
 		settings := (*BrowserSettings)(unsafe.Pointer(arg3))
 		extraInfo := unsafe.Pointer(arg4)
-		useDefaultWindow := unsafe.Pointer(arg5)
+		useDefaultWindow := (*int32)(unsafe.Pointer(arg5))
 		impl.OnBeforeDevToolsPopup(browser, windowinfo, client, settings, extraInfo, useDefaultWindow)
 	}))
 

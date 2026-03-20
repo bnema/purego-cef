@@ -73,7 +73,9 @@ func NewSchemeHandlerFactory(impl SchemeHandlerFactory) SchemeHandlerFactory {
 		if result == nil {
 			return 0
 		}
-		return uintptr(extractRawPointer(NewResourceHandler(result)))
+		return uintptr(extractOrWrapRawPointer(result, func() any {
+			return NewResourceHandler(result)
+		}))
 	}))
 
 	w := &schemeHandlerFactoryWrapper{rawPtr: r}

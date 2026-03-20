@@ -74,7 +74,9 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
 		if result == nil {
 			return 0
 		}
-		return uintptr(extractRawPointer(NewBrowserViewDelegate(result)))
+		return uintptr(extractOrWrapRawPointer(result, func() any {
+			return NewBrowserViewDelegate(result)
+		}))
 	}))
 
 	r.OverrideOnPopupBrowserViewCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
