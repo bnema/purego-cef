@@ -127,6 +127,10 @@ type ParamData struct {
 	SliceCountArg string // raw arg name for the count (e.g., "arg2")
 	SlicePtrArg   string // raw arg name for the pointer (e.g., "arg3")
 	SliceElemType string // element type (e.g., "Rect")
+
+	// UnmarshalExtra holds a resolved Go expression used by special marshal kinds
+	// (pixelBuffer, objectSlice) that need more context than a single param cast.
+	UnmarshalExtra string
 }
 
 // ReturnData represents a method return type.
