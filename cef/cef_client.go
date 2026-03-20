@@ -78,6 +78,9 @@ func NewClient(impl Client) Client {
 		cachedGetAudioHandlerPtr = extractRawPointer(NewAudioHandler(h))
 	}
 	r.OverrideGetAudioHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetAudioHandlerPtr != nil {
+			addRef(cachedGetAudioHandlerPtr)
+		}
 		return uintptr(cachedGetAudioHandlerPtr)
 	}))
 
@@ -87,6 +90,9 @@ func NewClient(impl Client) Client {
 		cachedGetCommandHandlerPtr = extractRawPointer(NewCommandHandler(h))
 	}
 	r.OverrideGetCommandHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetCommandHandlerPtr != nil {
+			addRef(cachedGetCommandHandlerPtr)
+		}
 		return uintptr(cachedGetCommandHandlerPtr)
 	}))
 
@@ -96,6 +102,9 @@ func NewClient(impl Client) Client {
 		cachedGetContextMenuHandlerPtr = extractRawPointer(NewContextMenuHandler(h))
 	}
 	r.OverrideGetContextMenuHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetContextMenuHandlerPtr != nil {
+			addRef(cachedGetContextMenuHandlerPtr)
+		}
 		return uintptr(cachedGetContextMenuHandlerPtr)
 	}))
 
@@ -105,6 +114,9 @@ func NewClient(impl Client) Client {
 		cachedGetDialogHandlerPtr = extractRawPointer(NewDialogHandler(h))
 	}
 	r.OverrideGetDialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetDialogHandlerPtr != nil {
+			addRef(cachedGetDialogHandlerPtr)
+		}
 		return uintptr(cachedGetDialogHandlerPtr)
 	}))
 
@@ -114,6 +126,9 @@ func NewClient(impl Client) Client {
 		cachedGetDisplayHandlerPtr = extractRawPointer(NewDisplayHandler(h))
 	}
 	r.OverrideGetDisplayHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetDisplayHandlerPtr != nil {
+			addRef(cachedGetDisplayHandlerPtr)
+		}
 		return uintptr(cachedGetDisplayHandlerPtr)
 	}))
 
@@ -123,6 +138,9 @@ func NewClient(impl Client) Client {
 		cachedGetDownloadHandlerPtr = extractRawPointer(NewDownloadHandler(h))
 	}
 	r.OverrideGetDownloadHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetDownloadHandlerPtr != nil {
+			addRef(cachedGetDownloadHandlerPtr)
+		}
 		return uintptr(cachedGetDownloadHandlerPtr)
 	}))
 
@@ -132,6 +150,9 @@ func NewClient(impl Client) Client {
 		cachedGetDragHandlerPtr = extractRawPointer(NewDragHandler(h))
 	}
 	r.OverrideGetDragHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetDragHandlerPtr != nil {
+			addRef(cachedGetDragHandlerPtr)
+		}
 		return uintptr(cachedGetDragHandlerPtr)
 	}))
 
@@ -141,6 +162,9 @@ func NewClient(impl Client) Client {
 		cachedGetFindHandlerPtr = extractRawPointer(NewFindHandler(h))
 	}
 	r.OverrideGetFindHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetFindHandlerPtr != nil {
+			addRef(cachedGetFindHandlerPtr)
+		}
 		return uintptr(cachedGetFindHandlerPtr)
 	}))
 
@@ -150,6 +174,9 @@ func NewClient(impl Client) Client {
 		cachedGetFocusHandlerPtr = extractRawPointer(NewFocusHandler(h))
 	}
 	r.OverrideGetFocusHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetFocusHandlerPtr != nil {
+			addRef(cachedGetFocusHandlerPtr)
+		}
 		return uintptr(cachedGetFocusHandlerPtr)
 	}))
 
@@ -159,6 +186,9 @@ func NewClient(impl Client) Client {
 		cachedGetFrameHandlerPtr = extractRawPointer(NewFrameHandler(h))
 	}
 	r.OverrideGetFrameHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetFrameHandlerPtr != nil {
+			addRef(cachedGetFrameHandlerPtr)
+		}
 		return uintptr(cachedGetFrameHandlerPtr)
 	}))
 
@@ -168,6 +198,9 @@ func NewClient(impl Client) Client {
 		cachedGetPermissionHandlerPtr = extractRawPointer(NewPermissionHandler(h))
 	}
 	r.OverrideGetPermissionHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetPermissionHandlerPtr != nil {
+			addRef(cachedGetPermissionHandlerPtr)
+		}
 		return uintptr(cachedGetPermissionHandlerPtr)
 	}))
 
@@ -177,6 +210,9 @@ func NewClient(impl Client) Client {
 		cachedGetJsdialogHandlerPtr = extractRawPointer(NewJsdialogHandler(h))
 	}
 	r.OverrideGetJsdialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetJsdialogHandlerPtr != nil {
+			addRef(cachedGetJsdialogHandlerPtr)
+		}
 		return uintptr(cachedGetJsdialogHandlerPtr)
 	}))
 
@@ -186,6 +222,9 @@ func NewClient(impl Client) Client {
 		cachedGetKeyboardHandlerPtr = extractRawPointer(NewKeyboardHandler(h))
 	}
 	r.OverrideGetKeyboardHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetKeyboardHandlerPtr != nil {
+			addRef(cachedGetKeyboardHandlerPtr)
+		}
 		return uintptr(cachedGetKeyboardHandlerPtr)
 	}))
 
@@ -195,6 +234,9 @@ func NewClient(impl Client) Client {
 		cachedGetLifeSpanHandlerPtr = extractRawPointer(NewLifeSpanHandler(h))
 	}
 	r.OverrideGetLifeSpanHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetLifeSpanHandlerPtr != nil {
+			addRef(cachedGetLifeSpanHandlerPtr)
+		}
 		return uintptr(cachedGetLifeSpanHandlerPtr)
 	}))
 
@@ -204,6 +246,9 @@ func NewClient(impl Client) Client {
 		cachedGetLoadHandlerPtr = extractRawPointer(NewLoadHandler(h))
 	}
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetLoadHandlerPtr != nil {
+			addRef(cachedGetLoadHandlerPtr)
+		}
 		return uintptr(cachedGetLoadHandlerPtr)
 	}))
 
@@ -213,6 +258,9 @@ func NewClient(impl Client) Client {
 		cachedGetPrintHandlerPtr = extractRawPointer(NewPrintHandler(h))
 	}
 	r.OverrideGetPrintHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetPrintHandlerPtr != nil {
+			addRef(cachedGetPrintHandlerPtr)
+		}
 		return uintptr(cachedGetPrintHandlerPtr)
 	}))
 
@@ -222,6 +270,9 @@ func NewClient(impl Client) Client {
 		cachedGetRenderHandlerPtr = extractRawPointer(NewRenderHandler(h))
 	}
 	r.OverrideGetRenderHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetRenderHandlerPtr != nil {
+			addRef(cachedGetRenderHandlerPtr)
+		}
 		return uintptr(cachedGetRenderHandlerPtr)
 	}))
 
@@ -231,6 +282,9 @@ func NewClient(impl Client) Client {
 		cachedGetRequestHandlerPtr = extractRawPointer(NewRequestHandler(h))
 	}
 	r.OverrideGetRequestHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetRequestHandlerPtr != nil {
+			addRef(cachedGetRequestHandlerPtr)
+		}
 		return uintptr(cachedGetRequestHandlerPtr)
 	}))
 

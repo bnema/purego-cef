@@ -73,6 +73,9 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 		cachedGetLoadHandlerPtr = extractRawPointer(NewLoadHandler(h))
 	}
 	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetLoadHandlerPtr != nil {
+			addRef(cachedGetLoadHandlerPtr)
+		}
 		return uintptr(cachedGetLoadHandlerPtr)
 	}))
 

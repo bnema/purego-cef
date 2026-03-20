@@ -61,6 +61,9 @@ func NewApp(impl App) App {
 		cachedGetResourceBundleHandlerPtr = extractRawPointer(NewResourceBundleHandler(h))
 	}
 	r.OverrideGetResourceBundleHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetResourceBundleHandlerPtr != nil {
+			addRef(cachedGetResourceBundleHandlerPtr)
+		}
 		return uintptr(cachedGetResourceBundleHandlerPtr)
 	}))
 
@@ -70,6 +73,9 @@ func NewApp(impl App) App {
 		cachedGetBrowserProcessHandlerPtr = extractRawPointer(NewBrowserProcessHandler(h))
 	}
 	r.OverrideGetBrowserProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetBrowserProcessHandlerPtr != nil {
+			addRef(cachedGetBrowserProcessHandlerPtr)
+		}
 		return uintptr(cachedGetBrowserProcessHandlerPtr)
 	}))
 
@@ -79,6 +85,9 @@ func NewApp(impl App) App {
 		cachedGetRenderProcessHandlerPtr = extractRawPointer(NewRenderProcessHandler(h))
 	}
 	r.OverrideGetRenderProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetRenderProcessHandlerPtr != nil {
+			addRef(cachedGetRenderProcessHandlerPtr)
+		}
 		return uintptr(cachedGetRenderProcessHandlerPtr)
 	}))
 

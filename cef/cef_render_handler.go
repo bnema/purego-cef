@@ -75,6 +75,9 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		cachedGetAccessibilityHandlerPtr = extractRawPointer(NewAccessibilityHandler(h))
 	}
 	r.OverrideGetAccessibilityHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetAccessibilityHandlerPtr != nil {
+			addRef(cachedGetAccessibilityHandlerPtr)
+		}
 		return uintptr(cachedGetAccessibilityHandlerPtr)
 	}))
 

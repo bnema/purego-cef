@@ -80,6 +80,9 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 		cachedGetDefaultClientPtr = extractRawPointer(NewClient(h))
 	}
 	r.OverrideGetDefaultClient(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetDefaultClientPtr != nil {
+			addRef(cachedGetDefaultClientPtr)
+		}
 		return uintptr(cachedGetDefaultClientPtr)
 	}))
 
@@ -89,6 +92,9 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 		cachedGetDefaultRequestContextHandlerPtr = extractRawPointer(NewRequestContextHandler(h))
 	}
 	r.OverrideGetDefaultRequestContextHandler(purego.NewCallback(func(_ uintptr) uintptr {
+		if cachedGetDefaultRequestContextHandlerPtr != nil {
+			addRef(cachedGetDefaultRequestContextHandlerPtr)
+		}
 		return uintptr(cachedGetDefaultRequestContextHandlerPtr)
 	}))
 

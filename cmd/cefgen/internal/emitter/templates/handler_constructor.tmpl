@@ -27,6 +27,9 @@ func New{{.Name}}(impl {{.Name}}) {{.Name}} {
 		cached{{.Name}}Ptr = extractRawPointer(New{{.GetterInterface}}(h))
 	}
 	r.Override{{.RawFieldName}}(purego.NewCallback(func(_ uintptr) uintptr {
+		if cached{{.Name}}Ptr != nil {
+			addRef(cached{{.Name}}Ptr)
+		}
 		return uintptr(cached{{.Name}}Ptr)
 	}))
 	{{- else}}
