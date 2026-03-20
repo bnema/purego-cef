@@ -124,3 +124,61 @@ func TestPixelBufferOverrideResolvesExpression(t *testing.T) {
 		t.Errorf("expected UnmarshalExtra %q, got %q", want, bufParam.UnmarshalExtra)
 	}
 }
+
+func TestObjectSliceMerge(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "cef_request_handler_t",
+			GoName:        "CEFRequestHandlerT",
+			Kind:          "handler",
+			InterfaceName: "RequestHandler",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "on_select_client_certificate",
+					GoName:      "OnSelectClientCertificate",
+					IsFunction:  true,
+					ReturnCType: "int",
+					Params: []model.Param{
+						{CName: "self", GoName: "self", CType: "struct _cef_request_handler_t*"},
+						{CName: "browser", GoName: "browser", CType: "struct _cef_browser_t*"},
+						{CName: "isProxy", GoName: "isProxy", CType: "int"},
+						{CName: "host", GoName: "host", CType: "const cef_string_t*"},
+						{CName: "port", GoName: "port", CType: "int"},
+						{CName: "certificatesCount", GoName: "certificatesCount", CType: "size_t"},
+						{CName: "certificates", GoName: "certificates", CType: "struct _cef_x509certificate_t* const*"},
+						{CName: "callback", GoName: "callback", CType: "struct _cef_select_client_certificate_callback_t*"},
+					},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	if len(data.Interfaces) != 1 {
+		t.Fatalf("expected 1 interface, got %d", len(data.Interfaces))
+	}
+	m := data.Interfaces[0].Methods[0]
+
+	// certificates param should have been merged with certificatesCount.
+	var certParam *ParamData
+	for i := range m.Params {
+		if m.Params[i].Name == "certificates" {
+			certParam = &m.Params[i]
+		}
+		if m.Params[i].Name == "certificatesCount" {
+			t.Error("certificatesCount param should have been merged away, but is still present")
+		}
+	}
+	if certParam == nil {
+		t.Fatal("certificates param not found")
+	}
+	if certParam.PublicType != "[]X509Certificate" {
+		t.Errorf("expected PublicType []X509Certificate, got %s", certParam.PublicType)
+	}
+	if certParam.MarshalKind != "objectSlice" {
+		t.Errorf("expected MarshalKind objectSlice, got %s", certParam.MarshalKind)
+	}
+}

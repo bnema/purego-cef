@@ -471,16 +471,23 @@ func mergeCountPointerParams(params []ParamData, registry *TypeRegistry) []Param
 			if strings.HasSuffix(countName, "count") &&
 				isIntLikeType(countP.PublicType) &&
 				strings.HasPrefix(countName, ptrName) &&
-				ptrP.MarshalKind == "dataStruct" {
+				(ptrP.MarshalKind == "dataStruct" || ptrP.MarshalKind == "objectSlice") {
 
-				// Extract element type: "*Rect" → "Rect"
+				// Extract element type: "*Rect" → "Rect", "[]X509Certificate" → "X509Certificate"
 				elemType := strings.TrimPrefix(ptrP.PublicType, "*")
+				elemType = strings.TrimPrefix(elemType, "[]")
+
+				// Preserve objectSlice kind; default to slice for dataStruct.
+				marshalKind := "slice"
+				if ptrP.MarshalKind == "objectSlice" {
+					marshalKind = "objectSlice"
+				}
 
 				sliceParam := ParamData{
 					Name:          ptrP.Name,
 					PublicType:    "[]" + elemType,
 					CType:         ptrP.CType,
-					MarshalKind:   "slice",
+					MarshalKind:   marshalKind,
 					SliceElemType: elemType,
 					// SliceCountArg/SlicePtrArg set by template using RawParams indices
 				}
