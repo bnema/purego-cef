@@ -2,8 +2,6 @@
 
 package cef
 
-import ()
-
 // ComponentUpdateError is a CEF enum type.
 type ComponentUpdateError int32
 

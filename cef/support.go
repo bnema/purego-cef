@@ -207,7 +207,7 @@ func traceTrackedRefCount(action string, base unsafe.Pointer, refs int32) {
 		return
 	}
 	switch owner.(type) {
-	case *clientWrapper, *audioHandlerWrapper, *contextMenuHandlerWrapper:
+	case *clientWrapper, *audioHandlerWrapper, *contextMenuHandlerWrapper, *lifeSpanHandlerWrapper:
 		traceHandlerf("refcount.%s owner=%T base=%p refs=%d", action, owner, base, refs)
 	}
 }

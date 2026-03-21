@@ -157,11 +157,6 @@ func TestDiscoverRegisterNamesFromRawDir(t *testing.T) {
 	}
 }
 
-func mustWriteFile(t *testing.T, path string) {
-	t.Helper()
-	mustWriteFileContent(t, path, "// test\n")
-}
-
 func mustWriteFileContent(t *testing.T, path, content string) {
 	t.Helper()
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {

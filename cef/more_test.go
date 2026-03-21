@@ -96,6 +96,8 @@ func TestDecodeAudioPacketZeroFrames(t *testing.T) {
 
 // --- LifeSpanHandler tests ---
 
+// Hand-written stubs — mockery cannot be used here because these test internal callback wiring and purego.NewCallback marshalling.
+
 type testLifeSpan struct {
 	blocked    bool
 	noJS       bool

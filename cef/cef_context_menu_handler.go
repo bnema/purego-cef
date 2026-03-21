@@ -136,7 +136,8 @@ func (w *contextMenuHandlerWrapper) rawPointer() unsafe.Pointer {
 // this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	r := new(raw.CEFContextMenuHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+	w := &contextMenuHandlerWrapper{rawPtr: r}
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 	traceHandlerf("context_menu.NewContextMenuHandler impl=%T raw=%p", impl, r)
 
 	r.OverrideOnBeforeContextMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
@@ -202,7 +203,6 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 		impl.OnQuickMenuDismissed(browser, frame)
 	}))
 
-	w := &contextMenuHandlerWrapper{rawPtr: r}
 	w.ContextMenuHandler = impl
 	return w
 }

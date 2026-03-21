@@ -270,12 +270,12 @@ func discoverRegisterNamesFromRawDir(dir string) ([]string, error) {
 			return nil, err
 		}
 		for _, match := range re.FindAllStringSubmatch(string(data), -1) {
-			registerName := match[1]
-			if _, ok := seen[registerName]; ok {
+			fnName := match[1]
+			if _, ok := seen[fnName]; ok {
 				continue
 			}
-			seen[registerName] = struct{}{}
-			names = append(names, registerName)
+			seen[fnName] = struct{}{}
+			names = append(names, fnName)
 		}
 	}
 

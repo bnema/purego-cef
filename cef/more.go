@@ -123,7 +123,8 @@ func (w *lifeSpanHandlerWrapper) rawPointer() unsafe.Pointer {
 // NewLifeSpanHandler creates a CEF handler backed by the given implementation.
 func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 	r := new(raw.CEFLifeSpanHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+	w := &lifeSpanHandlerWrapper{rawPtr: r}
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
 	r.OverrideOnBeforePopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
@@ -212,11 +213,11 @@ func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 		impl.OnBeforeClose(wrapBrowser(unsafe.Pointer(arg0)))
 	}))
 
-	w := &lifeSpanHandlerWrapper{rawPtr: r}
 	w.LifeSpanHandler = impl
 	return w
 }
 
+// TODO: implement wrapping when CEF returns LifeSpanHandler pointers via callbacks.
 func wrapLifeSpanHandler(ptr unsafe.Pointer) LifeSpanHandler {
 	return nil
 }
@@ -251,9 +252,8 @@ func (w *audioHandlerWrapper) rawPointer() unsafe.Pointer {
 // audio data to [][]float32 in OnAudioStreamPacket.
 func NewAudioHandler(impl AudioHandler) AudioHandler {
 	r := new(raw.CEFAudioHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
 	w := &audioHandlerWrapper{rawPtr: r}
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 	w.AudioHandler = impl
 	traceHandlerf("audio.NewAudioHandler impl=%T wrapper=%p raw=%p", impl, w, r)
 
@@ -302,6 +302,7 @@ func NewAudioHandler(impl AudioHandler) AudioHandler {
 	return w
 }
 
+// TODO: implement wrapping when CEF returns AudioHandler pointers via callbacks.
 func wrapAudioHandler(ptr unsafe.Pointer) AudioHandler {
 	return nil
 }
