@@ -42,6 +42,15 @@ type Settings struct {
 	// subprocesses (renderer, GPU, utility). If empty, CEF re-executes the
 	// current binary which requires MaybeExitSubprocess at the top of main.
 	BrowserSubprocessPath string
+
+	// LogFile is the path for the CEF runtime debug log. Maps to
+	// cef_settings_t.log_file. An empty string uses the default location.
+	LogFile string
+
+	// InitTraceFile is an optional path for a bootstrap/init diagnostics log.
+	// This is NOT a CEF setting — it is used by the consumer to record
+	// purego-cef initialization steps for debugging startup failures.
+	InitTraceFile string
 }
 
 // DefaultSettings returns Settings suitable for off-screen rendering with
@@ -91,12 +100,21 @@ func (s Settings) toRaw() (raw.CEFSettingsT, func()) {
 	}
 	c.LogSeverity = raw.CEFLogSeverityT(s.LogSeverity)
 
-	cleanup := func() {}
+	var cleanups []func()
 	if s.BrowserSubprocessPath != "" {
 		c.BrowserSubprocessPath = cefString(s.BrowserSubprocessPath)
-		cleanup = func() { freeCefString(&c.BrowserSubprocessPath) }
+		cleanups = append(cleanups, func() { freeCefString(&c.BrowserSubprocessPath) })
+	}
+	if s.LogFile != "" {
+		c.LogFile = cefString(s.LogFile)
+		cleanups = append(cleanups, func() { freeCefString(&c.LogFile) })
 	}
 
+	cleanup := func() {
+		for _, fn := range cleanups {
+			fn()
+		}
+	}
 	return c, cleanup
 }
 
