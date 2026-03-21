@@ -159,10 +159,13 @@ func NewRequestHandler(impl RequestHandler) RequestHandler {
 		isproxy := int32(arg1)
 		host := goString(unsafe.Pointer(arg2))
 		port := int32(arg3)
-		certificatesPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg5)), int(arg4))
-		certificates := make([]X509Certificate, int(arg4))
-		for i, ptr := range certificatesPtrs {
-			certificates[i] = wrapX509Certificate(unsafe.Pointer(ptr))
+		var certificates []X509Certificate
+		if arg5 != 0 && arg4 > 0 {
+			certificatesPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg5)), int(arg4))
+			certificates = make([]X509Certificate, int(arg4))
+			for i, ptr := range certificatesPtrs {
+				certificates[i] = wrapX509Certificate(unsafe.Pointer(ptr))
+			}
 		}
 		callback := wrapSelectClientCertificateCallback(unsafe.Pointer(arg6))
 		return uintptr(impl.OnSelectClientCertificate(browser, isproxy, host, port, certificates, callback))

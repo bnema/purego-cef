@@ -213,10 +213,13 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			}
 			elemType := p.SliceElemType
 			var b strings.Builder
-			fmt.Fprintf(&b, "%sPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(%s)), int(%s))\n", p.Name, ptrArg, countArg)
-			fmt.Fprintf(&b, "\t\t%s := make([]%s, int(%s))\n", p.Name, elemType, countArg)
-			fmt.Fprintf(&b, "\t\tfor i, ptr := range %sPtrs {\n", p.Name)
-			fmt.Fprintf(&b, "\t\t\t%s[i] = wrap%s(unsafe.Pointer(ptr))\n", p.Name, elemType)
+			fmt.Fprintf(&b, "var %s []%s\n", p.Name, elemType)
+			fmt.Fprintf(&b, "\t\tif %s != 0 && %s > 0 {\n", ptrArg, countArg)
+			fmt.Fprintf(&b, "\t\t\t%sPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(%s)), int(%s))\n", p.Name, ptrArg, countArg)
+			fmt.Fprintf(&b, "\t\t\t%s = make([]%s, int(%s))\n", p.Name, elemType, countArg)
+			fmt.Fprintf(&b, "\t\t\tfor i, ptr := range %sPtrs {\n", p.Name)
+			fmt.Fprintf(&b, "\t\t\t\t%s[i] = wrap%s(unsafe.Pointer(ptr))\n", p.Name, elemType)
+			fmt.Fprintf(&b, "\t\t\t}\n")
 			fmt.Fprintf(&b, "\t\t}")
 			return b.String()
 		},

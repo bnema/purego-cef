@@ -68,3 +68,28 @@ func TestDecodeAudioPacket(t *testing.T) {
 		t.Errorf("channel 1: got %v, want [0.4 0.5 0.6]", result[1])
 	}
 }
+
+func TestDecodeAudioPacketNilData(t *testing.T) {
+	result := DecodeAudioPacket(nil, 2, 3)
+	if result != nil {
+		t.Errorf("expected nil for nil data, got %v", result)
+	}
+}
+
+func TestDecodeAudioPacketZeroChannels(t *testing.T) {
+	ch0 := [3]float32{0.1, 0.2, 0.3}
+	channels := [1]*float32{&ch0[0]}
+	result := DecodeAudioPacket(unsafe.Pointer(&channels[0]), 0, 3)
+	if result != nil {
+		t.Errorf("expected nil for zero channels, got %v", result)
+	}
+}
+
+func TestDecodeAudioPacketZeroFrames(t *testing.T) {
+	ch0 := [3]float32{0.1, 0.2, 0.3}
+	channels := [1]*float32{&ch0[0]}
+	result := DecodeAudioPacket(unsafe.Pointer(&channels[0]), 1, 0)
+	if result != nil {
+		t.Errorf("expected nil for zero frames, got %v", result)
+	}
+}
