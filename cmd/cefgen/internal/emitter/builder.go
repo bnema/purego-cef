@@ -23,6 +23,9 @@ var skipPublicTypes = map[string]bool{
 	"DisplayConvertScreenPointFromPixels": true,
 	"DisplayConvertScreenRectToPixels":    true,
 	"DisplayConvertScreenRectFromPixels":  true,
+	// Handlers with unsafe out-params that need hand-written safe signatures.
+	"LifeSpanHandler": true,
+	"AudioHandler":    true,
 }
 
 // ParamOverride specifies the public type and marshal kind for a specific
@@ -40,10 +43,6 @@ var paramOverrides = map[string]ParamOverride{
 	// Problem 5: GetScreenPoint out-params
 	"cef_render_handler_t.get_screen_point.screenX": {PublicType: "*int32", MarshalKind: "dataStruct"},
 	"cef_render_handler_t.get_screen_point.screenY": {PublicType: "*int32", MarshalKind: "dataStruct"},
-	// Problem 3: OnBeforePopup bool flag
-	"cef_life_span_handler_t.on_before_popup.no_javascript_access": {PublicType: "*int32", MarshalKind: "dataStruct"},
-	// Problem 4: OnBeforeDevToolsPopup bool flag
-	"cef_life_span_handler_t.on_before_dev_tools_popup.use_default_window": {PublicType: "*int32", MarshalKind: "dataStruct"},
 	// Problem 6: OnPaint pixel buffer
 	"cef_render_handler_t.on_paint.buffer": {
 		PublicType:    "[]byte",

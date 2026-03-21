@@ -3,6 +3,10 @@ package cef
 import (
 	"sync"
 	"unsafe"
+
+	"github.com/ebitengine/purego"
+
+	"github.com/bnema/purego-cef/cef/internal/raw"
 )
 
 // NewKeyEvent creates a KeyEvent with Size pre-filled and the given parameters set.
@@ -88,123 +92,142 @@ func DecodeAudioPacket(data unsafe.Pointer, channels, frames int32) [][]float32 
 }
 
 // ---------------------------------------------------------------------------
-// SafeLifeSpanHandler — popup callbacks without unsafe.Pointer
+// LifeSpanHandler — hand-written with safe signatures (skipped by cefgen)
 // ---------------------------------------------------------------------------
 
-// PopupAction is the return value from SafeLifeSpanHandler.OnBeforePopup.
-// Set Block to true to prevent the popup from opening.
-// When Block is false, the remaining fields configure the popup.
-type PopupAction struct {
-	Block              bool
-	Client             Client          // nil keeps the default client
-	ExtraInfo          DictionaryValue // nil keeps the default extra info
-	NoJavascriptAccess bool
-}
-
-// DevToolsPopupAction is the return value from SafeLifeSpanHandler.OnBeforeDevToolsPopup.
-type DevToolsPopupAction struct {
-	Client           Client          // nil keeps the default client
-	ExtraInfo        DictionaryValue // nil keeps the default extra info
-	UseDefaultWindow bool
-}
-
-// SafeLifeSpanHandler is a consumer-friendly alternative to LifeSpanHandler
-// that replaces unsafe.Pointer params with typed fields.
-type SafeLifeSpanHandler interface {
+// LifeSpanHandler handles events related to browser life span.
+type LifeSpanHandler interface {
 	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string,
 		targetFrameName string, targetDisposition WindowOpenDisposition,
 		userGesture int32, popupFeatures *PopupFeatures, windowInfo *WindowInfo,
-		settings *BrowserSettings) PopupAction
+		client *Client, settings *BrowserSettings, extraInfo *DictionaryValue,
+		noJavascriptAccess *bool) bool
 	OnBeforePopupAborted(browser Browser, popupID int32)
 	OnBeforeDevToolsPopup(browser Browser, windowInfo *WindowInfo,
-		settings *BrowserSettings) DevToolsPopupAction
+		client *Client, settings *BrowserSettings, extraInfo *DictionaryValue,
+		useDefaultWindow *bool)
 	OnAfterCreated(browser Browser)
 	DoClose(browser Browser) bool
 	OnBeforeClose(browser Browser)
 }
 
-// safeLifeSpanAdapter adapts SafeLifeSpanHandler to LifeSpanHandler.
-type safeLifeSpanAdapter struct {
-	impl SafeLifeSpanHandler
+type lifeSpanHandlerWrapper struct {
+	LifeSpanHandler
+	rawPtr *raw.CEFLifeSpanHandlerT
 }
 
-func (a *safeLifeSpanAdapter) OnBeforePopup(browser Browser, frame Frame, popupID int32,
-	targetURL string, targetFrameName string, targetDisposition WindowOpenDisposition,
-	userGesture int32, popupFeatures *PopupFeatures, windowInfo *WindowInfo,
-	client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer,
-	noJavascriptAccess *int32) bool {
+func (w *lifeSpanHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
 
-	action := a.impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName,
-		targetDisposition, userGesture, popupFeatures, windowInfo, settings)
+// NewLifeSpanHandler creates a CEF handler backed by the given implementation.
+func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
+	r := new(raw.CEFLifeSpanHandlerT)
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	if action.Block {
-		return true
-	}
-	if action.Client != nil && client != nil {
-		*(*uintptr)(client) = uintptr(extractRawPointer(action.Client))
-	}
-	if action.ExtraInfo != nil && extraInfo != nil {
-		*(*uintptr)(extraInfo) = uintptr(extractRawPointer(action.ExtraInfo))
-	}
-	if noJavascriptAccess != nil {
-		if action.NoJavascriptAccess {
-			*noJavascriptAccess = 1
-		} else {
-			*noJavascriptAccess = 0
+	r.OverrideOnBeforePopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		popupID := int32(arg2)
+		targetURL := goString(unsafe.Pointer(arg3))
+		targetFrameName := goString(unsafe.Pointer(arg4))
+		targetDisposition := WindowOpenDisposition(arg5)
+		userGesture := int32(arg6)
+		popupFeatures := (*PopupFeatures)(unsafe.Pointer(arg7))
+		windowInfo := (*WindowInfo)(unsafe.Pointer(arg8))
+		settings := (*BrowserSettings)(unsafe.Pointer(arg10))
+
+		// Typed out-params for consumer.
+		var clientVal Client
+		var extraInfoVal DictionaryValue
+		var noJSVal bool
+
+		blocked := impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName,
+			targetDisposition, userGesture, popupFeatures, windowInfo,
+			&clientVal, settings, &extraInfoVal, &noJSVal)
+
+		if !blocked {
+			// Write back out-params to C double pointers.
+			if clientVal != nil && arg9 != 0 {
+				*(*uintptr)(unsafe.Pointer(arg9)) = uintptr(extractOrWrapRawPointer(clientVal, func() any {
+					return NewClient(clientVal)
+				}))
+			}
+			if extraInfoVal != nil && arg11 != 0 {
+				*(*uintptr)(unsafe.Pointer(arg11)) = uintptr(extractRawPointer(extraInfoVal))
+			}
+			if noJSVal && arg12 != 0 {
+				*(*int32)(unsafe.Pointer(arg12)) = 1
+			}
 		}
-	}
-	return false
-}
 
-func (a *safeLifeSpanAdapter) OnBeforePopupAborted(browser Browser, popupID int32) {
-	a.impl.OnBeforePopupAborted(browser, popupID)
-}
-
-func (a *safeLifeSpanAdapter) OnBeforeDevToolsPopup(browser Browser,
-	windowInfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings,
-	extraInfo unsafe.Pointer, useDefaultWindow *int32) {
-
-	action := a.impl.OnBeforeDevToolsPopup(browser, windowInfo, settings)
-
-	if action.Client != nil && client != nil {
-		*(*uintptr)(client) = uintptr(extractRawPointer(action.Client))
-	}
-	if action.ExtraInfo != nil && extraInfo != nil {
-		*(*uintptr)(extraInfo) = uintptr(extractRawPointer(action.ExtraInfo))
-	}
-	if useDefaultWindow != nil {
-		if action.UseDefaultWindow {
-			*useDefaultWindow = 1
-		} else {
-			*useDefaultWindow = 0
+		if blocked {
+			return 1
 		}
-	}
+		return 0
+	}))
+
+	r.OverrideOnBeforePopupAborted(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		popupID := int32(arg1)
+		impl.OnBeforePopupAborted(browser, popupID)
+	}))
+
+	r.OverrideOnBeforeDevToolsPopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		windowInfo := (*WindowInfo)(unsafe.Pointer(arg1))
+		settings := (*BrowserSettings)(unsafe.Pointer(arg3))
+
+		var clientVal Client
+		var extraInfoVal DictionaryValue
+		var useDefaultVal bool
+
+		impl.OnBeforeDevToolsPopup(browser, windowInfo, &clientVal, settings, &extraInfoVal, &useDefaultVal)
+
+		if clientVal != nil && arg2 != 0 {
+			*(*uintptr)(unsafe.Pointer(arg2)) = uintptr(extractOrWrapRawPointer(clientVal, func() any {
+				return NewClient(clientVal)
+			}))
+		}
+		if extraInfoVal != nil && arg4 != 0 {
+			*(*uintptr)(unsafe.Pointer(arg4)) = uintptr(extractRawPointer(extraInfoVal))
+		}
+		if useDefaultVal && arg5 != 0 {
+			*(*int32)(unsafe.Pointer(arg5)) = 1
+		}
+	}))
+
+	r.OverrideOnAfterCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		impl.OnAfterCreated(wrapBrowser(unsafe.Pointer(arg0)))
+	}))
+
+	r.OverrideDoClose(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		if impl.DoClose(wrapBrowser(unsafe.Pointer(arg0))) {
+			return 1
+		}
+		return 0
+	}))
+
+	r.OverrideOnBeforeClose(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		impl.OnBeforeClose(wrapBrowser(unsafe.Pointer(arg0)))
+	}))
+
+	w := &lifeSpanHandlerWrapper{rawPtr: r}
+	w.LifeSpanHandler = impl
+	return w
 }
 
-func (a *safeLifeSpanAdapter) OnAfterCreated(browser Browser) {
-	a.impl.OnAfterCreated(browser)
-}
-
-func (a *safeLifeSpanAdapter) DoClose(browser Browser) bool {
-	return a.impl.DoClose(browser)
-}
-
-func (a *safeLifeSpanAdapter) OnBeforeClose(browser Browser) {
-	a.impl.OnBeforeClose(browser)
-}
-
-// NewSafeLifeSpanHandler creates a CEF LifeSpanHandler from a SafeLifeSpanHandler.
-func NewSafeLifeSpanHandler(impl SafeLifeSpanHandler) LifeSpanHandler {
-	return NewLifeSpanHandler(&safeLifeSpanAdapter{impl: impl})
+func wrapLifeSpanHandler(ptr unsafe.Pointer) LifeSpanHandler {
+	return nil
 }
 
 // ---------------------------------------------------------------------------
-// SafeAudioHandler — audio callbacks without unsafe.Pointer
+// AudioHandler — hand-written with safe signatures (skipped by cefgen)
 // ---------------------------------------------------------------------------
 
-// SafeAudioHandler is a consumer-friendly alternative to AudioHandler
-// that passes decoded [][]float32 audio data instead of unsafe.Pointer.
-type SafeAudioHandler interface {
+// AudioHandler handles audio events. OnAudioStreamPacket receives decoded
+// [][]float32 data instead of an unsafe.Pointer.
+type AudioHandler interface {
 	GetAudioParameters(browser Browser, params *AudioParameters) int32
 	OnAudioStreamStarted(browser Browser, params *AudioParameters, channels int32)
 	OnAudioStreamPacket(browser Browser, data [][]float32, frames int32, pts int64)
@@ -212,43 +235,67 @@ type SafeAudioHandler interface {
 	OnAudioStreamError(browser Browser, message string)
 }
 
-// safeAudioAdapter adapts SafeAudioHandler to AudioHandler.
-// It captures the channel count from OnAudioStreamStarted and uses it
-// to decode the float** data in OnAudioStreamPacket.
-type safeAudioAdapter struct {
-	impl     SafeAudioHandler
+type audioHandlerWrapper struct {
+	AudioHandler
+	rawPtr   *raw.CEFAudioHandlerT
 	mu       sync.Mutex
 	channels int32
 }
 
-func (a *safeAudioAdapter) GetAudioParameters(browser Browser, params *AudioParameters) int32 {
-	return a.impl.GetAudioParameters(browser, params)
+func (w *audioHandlerWrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
 }
 
-func (a *safeAudioAdapter) OnAudioStreamStarted(browser Browser, params *AudioParameters, channels int32) {
-	a.mu.Lock()
-	a.channels = channels
-	a.mu.Unlock()
-	a.impl.OnAudioStreamStarted(browser, params, channels)
+// NewAudioHandler creates a CEF handler backed by the given implementation.
+// It tracks channel count from OnAudioStreamStarted and decodes the raw
+// audio data to [][]float32 in OnAudioStreamPacket.
+func NewAudioHandler(impl AudioHandler) AudioHandler {
+	r := new(raw.CEFAudioHandlerT)
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+
+	w := &audioHandlerWrapper{rawPtr: r}
+	w.AudioHandler = impl
+
+	r.OverrideGetAudioParameters(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		params := (*AudioParameters)(unsafe.Pointer(arg1))
+		return uintptr(impl.GetAudioParameters(browser, params))
+	}))
+
+	r.OverrideOnAudioStreamStarted(purego.NewCallback(func(self uintptr, arg0, arg1, arg2 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		params := (*AudioParameters)(unsafe.Pointer(arg1))
+		channels := int32(arg2)
+		w.mu.Lock()
+		w.channels = channels
+		w.mu.Unlock()
+		impl.OnAudioStreamStarted(browser, params, channels)
+	}))
+
+	r.OverrideOnAudioStreamPacket(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frames := int32(arg2)
+		pts := int64(arg3)
+		w.mu.Lock()
+		ch := w.channels
+		w.mu.Unlock()
+		decoded := DecodeAudioPacket(unsafe.Pointer(arg1), ch, frames)
+		impl.OnAudioStreamPacket(browser, decoded, frames, pts)
+	}))
+
+	r.OverrideOnAudioStreamStopped(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		impl.OnAudioStreamStopped(wrapBrowser(unsafe.Pointer(arg0)))
+	}))
+
+	r.OverrideOnAudioStreamError(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		message := goString(unsafe.Pointer(arg1))
+		impl.OnAudioStreamError(browser, message)
+	}))
+
+	return w
 }
 
-func (a *safeAudioAdapter) OnAudioStreamPacket(browser Browser, data unsafe.Pointer, frames int32, pts int64) {
-	a.mu.Lock()
-	ch := a.channels
-	a.mu.Unlock()
-	decoded := DecodeAudioPacket(data, ch, frames)
-	a.impl.OnAudioStreamPacket(browser, decoded, frames, pts)
-}
-
-func (a *safeAudioAdapter) OnAudioStreamStopped(browser Browser) {
-	a.impl.OnAudioStreamStopped(browser)
-}
-
-func (a *safeAudioAdapter) OnAudioStreamError(browser Browser, message string) {
-	a.impl.OnAudioStreamError(browser, message)
-}
-
-// NewSafeAudioHandler creates a CEF AudioHandler from a SafeAudioHandler.
-func NewSafeAudioHandler(impl SafeAudioHandler) AudioHandler {
-	return NewAudioHandler(&safeAudioAdapter{impl: impl})
+func wrapAudioHandler(ptr unsafe.Pointer) AudioHandler {
+	return nil
 }

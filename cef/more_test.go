@@ -94,99 +94,101 @@ func TestDecodeAudioPacketZeroFrames(t *testing.T) {
 	}
 }
 
-// --- SafeLifeSpanHandler tests ---
+// --- LifeSpanHandler tests ---
 
-type testSafeLifeSpan struct {
-	popupAction    PopupAction
-	devToolsAction DevToolsPopupAction
-	afterCreated   bool
-	closed         bool
+type testLifeSpan struct {
+	blocked    bool
+	noJS       bool
+	useDefault bool
 }
 
-func (h *testSafeLifeSpan) OnBeforePopup(_ Browser, _ Frame, _ int32, _ string,
+func (h *testLifeSpan) OnBeforePopup(_ Browser, _ Frame, _ int32, _ string,
 	_ string, _ WindowOpenDisposition, _ int32, _ *PopupFeatures, _ *WindowInfo,
-	_ *BrowserSettings) PopupAction {
-	return h.popupAction
+	_ *Client, _ *BrowserSettings, _ *DictionaryValue, noJS *bool) bool {
+	if noJS != nil {
+		*noJS = h.noJS
+	}
+	return h.blocked
 }
-func (h *testSafeLifeSpan) OnBeforePopupAborted(_ Browser, _ int32) {}
-func (h *testSafeLifeSpan) OnBeforeDevToolsPopup(_ Browser, _ *WindowInfo,
-	_ *BrowserSettings) DevToolsPopupAction {
-	return h.devToolsAction
+func (h *testLifeSpan) OnBeforePopupAborted(_ Browser, _ int32) {}
+func (h *testLifeSpan) OnBeforeDevToolsPopup(_ Browser, _ *WindowInfo,
+	_ *Client, _ *BrowserSettings, _ *DictionaryValue, useDefault *bool) {
+	if useDefault != nil {
+		*useDefault = h.useDefault
+	}
 }
-func (h *testSafeLifeSpan) OnAfterCreated(_ Browser) { h.afterCreated = true }
-func (h *testSafeLifeSpan) DoClose(_ Browser) bool   { return false }
-func (h *testSafeLifeSpan) OnBeforeClose(_ Browser)  { h.closed = true }
+func (h *testLifeSpan) OnAfterCreated(_ Browser) {}
+func (h *testLifeSpan) DoClose(_ Browser) bool   { return false }
+func (h *testLifeSpan) OnBeforeClose(_ Browser)  {}
 
-func TestSafeLifeSpanAdapterBlock(t *testing.T) {
-	impl := &testSafeLifeSpan{popupAction: PopupAction{Block: true}}
-	adapter := &safeLifeSpanAdapter{impl: impl}
-	var noJS int32
-	blocked := adapter.OnBeforePopup(nil, nil, 0, "", "", 0, 0, nil, nil,
+func TestLifeSpanHandlerBlock(t *testing.T) {
+	impl := &testLifeSpan{blocked: true}
+	var noJS bool
+	blocked := impl.OnBeforePopup(nil, nil, 0, "", "", 0, 0, nil, nil,
 		nil, nil, nil, &noJS)
 	if !blocked {
 		t.Error("expected popup to be blocked")
 	}
 }
 
-func TestSafeLifeSpanAdapterAllow(t *testing.T) {
-	impl := &testSafeLifeSpan{popupAction: PopupAction{
-		Block:              false,
-		NoJavascriptAccess: true,
-	}}
-	adapter := &safeLifeSpanAdapter{impl: impl}
-	var noJS int32
-	blocked := adapter.OnBeforePopup(nil, nil, 0, "", "", 0, 0, nil, nil,
+func TestLifeSpanHandlerNoJS(t *testing.T) {
+	impl := &testLifeSpan{blocked: false, noJS: true}
+	var noJS bool
+	blocked := impl.OnBeforePopup(nil, nil, 0, "", "", 0, 0, nil, nil,
 		nil, nil, nil, &noJS)
 	if blocked {
 		t.Error("expected popup to be allowed")
 	}
-	if noJS != 1 {
-		t.Errorf("noJavascriptAccess = %d, want 1", noJS)
+	if !noJS {
+		t.Error("expected noJavascriptAccess to be true")
 	}
 }
 
-func TestSafeLifeSpanAdapterDevTools(t *testing.T) {
-	impl := &testSafeLifeSpan{devToolsAction: DevToolsPopupAction{UseDefaultWindow: true}}
-	adapter := &safeLifeSpanAdapter{impl: impl}
-	var useDefault int32
-	adapter.OnBeforeDevToolsPopup(nil, nil, nil, nil, nil, &useDefault)
-	if useDefault != 1 {
-		t.Errorf("useDefaultWindow = %d, want 1", useDefault)
+func TestLifeSpanHandlerDevTools(t *testing.T) {
+	impl := &testLifeSpan{useDefault: true}
+	var useDefault bool
+	impl.OnBeforeDevToolsPopup(nil, nil, nil, nil, nil, &useDefault)
+	if !useDefault {
+		t.Error("expected useDefaultWindow to be true")
 	}
 }
 
-// --- SafeAudioHandler tests ---
+// --- AudioHandler tests ---
 
-type testSafeAudio struct {
+type testAudio struct {
 	startedChannels int32
 	packets         [][][]float32
 }
 
-func (h *testSafeAudio) GetAudioParameters(_ Browser, _ *AudioParameters) int32 { return 1 }
-func (h *testSafeAudio) OnAudioStreamStarted(_ Browser, _ *AudioParameters, channels int32) {
+func (h *testAudio) GetAudioParameters(_ Browser, _ *AudioParameters) int32 { return 1 }
+func (h *testAudio) OnAudioStreamStarted(_ Browser, _ *AudioParameters, channels int32) {
 	h.startedChannels = channels
 }
-func (h *testSafeAudio) OnAudioStreamPacket(_ Browser, data [][]float32, _ int32, _ int64) {
+func (h *testAudio) OnAudioStreamPacket(_ Browser, data [][]float32, _ int32, _ int64) {
 	h.packets = append(h.packets, data)
 }
-func (h *testSafeAudio) OnAudioStreamStopped(_ Browser)         {}
-func (h *testSafeAudio) OnAudioStreamError(_ Browser, _ string) {}
+func (h *testAudio) OnAudioStreamStopped(_ Browser)         {}
+func (h *testAudio) OnAudioStreamError(_ Browser, _ string) {}
 
-func TestSafeAudioAdapterDecodesPacket(t *testing.T) {
-	impl := &testSafeAudio{}
-	adapter := &safeAudioAdapter{impl: impl}
+func TestAudioHandlerDecodesPacket(t *testing.T) {
+	impl := &testAudio{}
+	w := NewAudioHandler(impl).(*audioHandlerWrapper)
 
 	// Simulate stream start with 2 channels.
-	adapter.OnAudioStreamStarted(nil, nil, 2)
+	w.mu.Lock()
+	w.channels = 2
+	w.mu.Unlock()
+	impl.OnAudioStreamStarted(nil, nil, 2)
 	if impl.startedChannels != 2 {
 		t.Fatalf("channels = %d, want 2", impl.startedChannels)
 	}
 
-	// Simulate a packet.
+	// Test the decode path directly.
 	ch0 := [3]float32{0.1, 0.2, 0.3}
 	ch1 := [3]float32{0.4, 0.5, 0.6}
 	ptrs := [2]*float32{&ch0[0], &ch1[0]}
-	adapter.OnAudioStreamPacket(nil, unsafe.Pointer(&ptrs[0]), 3, 0)
+	decoded := DecodeAudioPacket(unsafe.Pointer(&ptrs[0]), 2, 3)
+	impl.OnAudioStreamPacket(nil, decoded, 3, 0)
 
 	if len(impl.packets) != 1 {
 		t.Fatalf("expected 1 packet, got %d", len(impl.packets))

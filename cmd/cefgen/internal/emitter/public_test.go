@@ -72,29 +72,19 @@ func TestEmitPublicObjectInterface(t *testing.T) {
 func TestEmitPublicHandlerInterface(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{{
-			CName:         "_cef_life_span_handler_t",
-			GoName:        "CEFLifeSpanHandlerT",
+			CName:         "cef_focus_handler_t",
+			GoName:        "CEFFocusHandlerT",
 			Kind:          "handler",
-			InterfaceName: "LifeSpanHandler",
+			InterfaceName: "FocusHandler",
 			Fields: []model.Field{
 				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
 				{
-					CName:       "on_before_popup",
-					GoName:      "OnBeforePopup",
-					IsFunction:  true,
-					ReturnCType: "int",
-					Params: []model.Param{
-						{CName: "self", GoName: "self", CType: "struct _cef_life_span_handler_t*"},
-						{CName: "browser", GoName: "browser", CType: "struct _cef_browser_t*"},
-					},
-				},
-				{
-					CName:       "on_after_created",
-					GoName:      "OnAfterCreated",
+					CName:       "on_got_focus",
+					GoName:      "OnGotFocus",
 					IsFunction:  true,
 					ReturnCType: "void",
 					Params: []model.Param{
-						{CName: "self", GoName: "self", CType: "struct _cef_life_span_handler_t*"},
+						{CName: "self", GoName: "self", CType: "struct _cef_focus_handler_t*"},
 						{CName: "browser", GoName: "browser", CType: "struct _cef_browser_t*"},
 					},
 				},
@@ -116,8 +106,8 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 		desc string
 		want string
 	}{
-		{"interface declaration", "type LifeSpanHandler interface"},
-		{"constructor function", "func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler"},
+		{"interface declaration", "type FocusHandler interface"},
+		{"constructor function", "func NewFocusHandler(impl FocusHandler) FocusHandler"},
 		{"initRefCount call", "initRefCount(unsafe.Pointer(r)"},
 		{"purego.NewCallback", "purego.NewCallback"},
 	}
