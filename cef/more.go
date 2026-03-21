@@ -255,10 +255,12 @@ func NewAudioHandler(impl AudioHandler) AudioHandler {
 
 	w := &audioHandlerWrapper{rawPtr: r}
 	w.AudioHandler = impl
+	traceHandlerf("audio.NewAudioHandler impl=%T wrapper=%p raw=%p", impl, w, r)
 
 	r.OverrideGetAudioParameters(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		params := (*AudioParameters)(unsafe.Pointer(arg1))
+		traceHandlerf("audio.GetAudioParameters self=%#x browser=%#x params=%p", self, arg0, params)
 		return uintptr(impl.GetAudioParameters(browser, params))
 	}))
 
@@ -266,6 +268,7 @@ func NewAudioHandler(impl AudioHandler) AudioHandler {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		params := (*AudioParameters)(unsafe.Pointer(arg1))
 		channels := int32(arg2)
+		traceHandlerf("audio.OnAudioStreamStarted self=%#x browser=%#x params=%p channels=%d", self, arg0, params, channels)
 		w.mu.Lock()
 		w.channels = channels
 		w.mu.Unlock()
@@ -279,17 +282,20 @@ func NewAudioHandler(impl AudioHandler) AudioHandler {
 		w.mu.Lock()
 		ch := w.channels
 		w.mu.Unlock()
+		traceHandlerf("audio.OnAudioStreamPacket self=%#x browser=%#x data=%#x channels=%d frames=%d pts=%d", self, arg0, arg1, ch, frames, pts)
 		decoded := DecodeAudioPacket(unsafe.Pointer(arg1), ch, frames)
 		impl.OnAudioStreamPacket(browser, decoded, frames, pts)
 	}))
 
 	r.OverrideOnAudioStreamStopped(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		traceHandlerf("audio.OnAudioStreamStopped self=%#x browser=%#x", self, arg0)
 		impl.OnAudioStreamStopped(wrapBrowser(unsafe.Pointer(arg0)))
 	}))
 
 	r.OverrideOnAudioStreamError(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		message := goString(unsafe.Pointer(arg1))
+		traceHandlerf("audio.OnAudioStreamError self=%#x browser=%#x message=%q", self, arg0, message)
 		impl.OnAudioStreamError(browser, message)
 	}))
 

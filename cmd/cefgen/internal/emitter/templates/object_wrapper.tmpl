@@ -11,7 +11,33 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	{{$pre}}
 	{{- end}}
 	{{- end}}
+	{{- if needsTypedObjectCall .}}
+	var fn {{typedObjectFuncSig $.RawGoName .}}
+	purego.RegisterFunc(&fn, obj.rawPtr.{{.RawFieldName}})
 	{{- if .Return.IsVoid}}
+	fn({{typedObjectCallArgs .}})
+	{{- else if .Return.IsBool}}
+	return fn({{typedObjectCallArgs .}}) != 0
+	{{- else if .Return.IsEnum}}
+	return {{.Return.PublicType}}(fn({{typedObjectCallArgs .}}))
+	{{- else if .Return.IsString}}
+	return goStringUserfree(unsafe.Pointer(fn({{typedObjectCallArgs .}})))
+	{{- else if .Return.IsInterface}}
+	return wrap{{.Return.PublicType}}(unsafe.Pointer(fn({{typedObjectCallArgs .}})))
+	{{- else if .Return.IsDataStruct}}
+	return ({{.Return.PublicType}})(unsafe.Pointer(fn({{typedObjectCallArgs .}})))
+	{{- else if .Return.IsPointer}}
+	return unsafe.Pointer(fn({{typedObjectCallArgs .}}))
+	{{- else if .Return.IsNumeric}}
+		{{- if isFloatPublicType .Return.PublicType}}
+	return fn({{typedObjectCallArgs .}})
+		{{- else}}
+	return {{.Return.PublicType}}(fn({{typedObjectCallArgs .}}))
+		{{- end}}
+	{{- else}}
+	return {{.Return.PublicType}}(fn({{typedObjectCallArgs .}}))
+	{{- end}}
+	{{- else if .Return.IsVoid}}
 	obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
 	{{- else if .Return.IsBool}}
 	return obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}) != 0

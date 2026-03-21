@@ -51,10 +51,13 @@ func usesUnsafe(typ string) bool {
 	return strings.Contains(typ, "unsafe.Pointer")
 }
 
-// NeedsMath returns true if any method parameter requires math.Float64bits/Float32bits
-// (object call-side marshalling) or math.Float64frombits/Float32frombits (handler callback unmarshalling).
+// NeedsMath returns true if any generated callback unmarshalling requires
+// math.Float64frombits/Float32frombits.
 func (d *PublicFileData) NeedsMath() bool {
 	for _, iface := range d.Interfaces {
+		if iface.Kind != "handler" {
+			continue
+		}
 		for _, m := range iface.Methods {
 			for _, p := range m.Params {
 				if p.MarshalKind == "numeric" && (p.PublicType == "float64" || p.PublicType == "float32") {
@@ -63,7 +66,6 @@ func (d *PublicFileData) NeedsMath() bool {
 			}
 		}
 	}
-	// Free functions pass typed values directly to raw funcs — no math.Float64bits needed.
 	return false
 }
 
@@ -88,9 +90,38 @@ func (d *PublicFileData) HasHandlers() bool {
 	return false
 }
 
+// NeedsPuregoObjectCalls returns true if any object method needs a typed
+// purego.RegisterFunc binding to preserve float ABI semantics.
+func (d *PublicFileData) NeedsPuregoObjectCalls() bool {
+	for _, iface := range d.Interfaces {
+		if iface.Kind != "object" {
+			continue
+		}
+		for _, m := range iface.Methods {
+			if methodNeedsTypedObjectCall(m) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // NeedsRaw returns true if the file references the raw package.
 func (d *PublicFileData) NeedsRaw() bool {
 	return len(d.Interfaces) > 0 || len(d.DataStructs) > 0 || len(d.FreeFunctions) > 0
+}
+
+func isFloatPublicType(typ string) bool {
+	return typ == "float32" || typ == "float64"
+}
+
+func methodNeedsTypedObjectCall(m MethodData) bool {
+	for _, p := range m.Params {
+		if p.MarshalKind == "numeric" && isFloatPublicType(p.PublicType) {
+			return true
+		}
+	}
+	return m.Return.IsNumeric && isFloatPublicType(m.Return.PublicType)
 }
 
 // InterfaceData represents a handler or object interface.

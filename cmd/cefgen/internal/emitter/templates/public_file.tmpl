@@ -14,7 +14,7 @@ import (
 {{- if or .Interfaces .NeedsUnsafe}}
 	"unsafe"
 {{- end}}
-{{- if .HasHandlers}}
+{{- if or .HasHandlers .NeedsPuregoObjectCalls}}
 
 	"github.com/ebitengine/purego"
 {{- end}}

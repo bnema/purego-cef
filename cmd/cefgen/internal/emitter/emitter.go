@@ -17,6 +17,34 @@ var templateFS embed.FS
 // EmitPublic takes a PublicFileData view model and returns formatted Go source
 // for the public API layer.
 func EmitPublic(data *PublicFileData) (string, error) {
+	isFloatPublicType := func(typ string) bool {
+		return typ == "float32" || typ == "float64"
+	}
+	marshalNonFloatAsUintptr := func(p ParamData) string {
+		switch p.MarshalKind {
+		case "interface":
+			if p.PublicType == "unsafe.Pointer" {
+				return "uintptr(" + p.Name + ")"
+			}
+			return "uintptr(extractRawPointer(" + p.Name + "))"
+		case "string", "userfreeString":
+			return "uintptr(unsafe.Pointer(&" + p.Name + "Str))"
+		case "enum":
+			return "uintptr(" + p.Name + ")"
+		case "pointer":
+			return "uintptr(" + p.Name + ")"
+		case "dataStruct":
+			return "uintptr(unsafe.Pointer(" + p.Name + "))"
+		case "numeric":
+			if p.PublicType == "uintptr" {
+				return p.Name
+			}
+			return "uintptr(" + p.Name + ")"
+		default:
+			return "uintptr(" + p.Name + ")"
+		}
+	}
+
 	funcMap := template.FuncMap{
 		"lower": func(s string) string {
 			if s == "" {
@@ -45,6 +73,47 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		},
 		"isEnumReturn": func(ret ReturnData) bool {
 			return ret.IsEnum
+		},
+		"isFloatPublicType": isFloatPublicType,
+		"needsTypedObjectCall": func(m MethodData) bool {
+			return methodNeedsTypedObjectCall(m)
+		},
+		"typedObjectFuncSig": func(rawGoName string, m MethodData) string {
+			parts := []string{"*raw." + rawGoName}
+			for _, p := range m.Params {
+				switch {
+				case p.MarshalKind == "slice":
+					parts = append(parts, "uintptr", "uintptr")
+				case p.MarshalKind == "numeric" && isFloatPublicType(p.PublicType):
+					parts = append(parts, p.PublicType)
+				default:
+					parts = append(parts, "uintptr")
+				}
+			}
+			sig := "func(" + strings.Join(parts, ", ") + ")"
+			if !m.Return.IsVoid {
+				if m.Return.IsNumeric && isFloatPublicType(m.Return.PublicType) {
+					sig += " " + m.Return.PublicType
+				} else {
+					sig += " uintptr"
+				}
+			}
+			return sig
+		},
+		"typedObjectCallArgs": func(m MethodData) string {
+			args := []string{"obj.rawPtr"}
+			for _, p := range m.Params {
+				if p.MarshalKind == "slice" {
+					args = append(args, "uintptr(len("+p.Name+"))", "uintptr("+p.Name+"Ptr)")
+					continue
+				}
+				if p.MarshalKind == "numeric" && isFloatPublicType(p.PublicType) {
+					args = append(args, p.Name)
+					continue
+				}
+				args = append(args, marshalNonFloatAsUintptr(p))
+			}
+			return strings.Join(args, ", ")
 		},
 		// cbParamName generates a raw parameter name for callbacks (e.g., "arg0", "arg1").
 		"cbParamName": func(p ParamData, idx int) string {

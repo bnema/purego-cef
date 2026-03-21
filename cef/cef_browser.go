@@ -3,7 +3,6 @@
 package cef
 
 import (
-	"math"
 	"runtime"
 	"unsafe"
 
@@ -560,15 +559,21 @@ func (obj *browserHostImpl) Zoom(command ZoomCommand) {
 }
 
 func (obj *browserHostImpl) GetDefaultZoomLevel() float64 {
-	return float64(obj.rawPtr.CallGetDefaultZoomLevel())
+	var fn func(*raw.CEFBrowserHostT) float64
+	purego.RegisterFunc(&fn, obj.rawPtr.GetDefaultZoomLevel)
+	return fn(obj.rawPtr)
 }
 
 func (obj *browserHostImpl) GetZoomLevel() float64 {
-	return float64(obj.rawPtr.CallGetZoomLevel())
+	var fn func(*raw.CEFBrowserHostT) float64
+	purego.RegisterFunc(&fn, obj.rawPtr.GetZoomLevel)
+	return fn(obj.rawPtr)
 }
 
 func (obj *browserHostImpl) SetZoomLevel(zoomlevel float64) {
-	obj.rawPtr.CallSetZoomLevel(uintptr(math.Float64bits(zoomlevel)))
+	var fn func(*raw.CEFBrowserHostT, float64)
+	purego.RegisterFunc(&fn, obj.rawPtr.SetZoomLevel)
+	fn(obj.rawPtr, zoomlevel)
 }
 
 func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, callback RunFileDialogCallback) {

@@ -69,6 +69,65 @@ func TestEmitPublicObjectInterface(t *testing.T) {
 	}
 }
 
+func TestEmitPublicObjectInterface_UsesTypedPuregoForFloatMethods(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "_cef_browser_host_t",
+			GoName:        "CEFBrowserHostT",
+			Kind:          "object",
+			InterfaceName: "BrowserHost",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "get_zoom_level",
+					GoName:      "GetZoomLevel",
+					IsFunction:  true,
+					ReturnCType: "double",
+					Params: []model.Param{
+						{CName: "self", GoName: "self", CType: "struct _cef_browser_host_t*"},
+					},
+				},
+				{
+					CName:       "set_zoom_level",
+					GoName:      "SetZoomLevel",
+					IsFunction:  true,
+					ReturnCType: "void",
+					Params: []model.Param{
+						{CName: "self", GoName: "self", CType: "struct _cef_browser_host_t*"},
+						{CName: "zoomLevel", GoName: "zoomlevel", CType: "double"},
+					},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []string{
+		`"github.com/ebitengine/purego"`,
+		`var fn func(*raw.CEFBrowserHostT) float64`,
+		`purego.RegisterFunc(&fn, obj.rawPtr.GetZoomLevel)`,
+		`var fn func(*raw.CEFBrowserHostT, float64)`,
+		`purego.RegisterFunc(&fn, obj.rawPtr.SetZoomLevel)`,
+	}
+
+	for _, want := range checks {
+		if !strings.Contains(code, want) {
+			t.Errorf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
+	}
+
+	if strings.Contains(code, "math.Float64bits(zoomlevel)") {
+		t.Fatalf("generated code still marshals float64 through math.Float64bits:\n%s", code)
+	}
+}
+
 func TestEmitPublicHandlerInterface(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{{

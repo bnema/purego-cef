@@ -78,9 +78,11 @@ func NewClient(impl Client) Client {
 		cachedGetAudioHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewAudioHandler(h)
 		})
+		traceHandlerf("client.NewClient audio handler impl=%T ptr=%p", h, cachedGetAudioHandlerPtr)
 	}
 	r.OverrideGetAudioHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetAudioHandlerPtr != nil {
+			traceHandlerf("client.GetAudioHandler returning ptr=%p", cachedGetAudioHandlerPtr)
 			addRef(cachedGetAudioHandlerPtr)
 		}
 		return uintptr(cachedGetAudioHandlerPtr)
@@ -106,9 +108,11 @@ func NewClient(impl Client) Client {
 		cachedGetContextMenuHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewContextMenuHandler(h)
 		})
+		traceHandlerf("client.NewClient context_menu handler impl=%T ptr=%p", h, cachedGetContextMenuHandlerPtr)
 	}
 	r.OverrideGetContextMenuHandler(purego.NewCallback(func(_ uintptr) uintptr {
 		if cachedGetContextMenuHandlerPtr != nil {
+			traceHandlerf("client.GetContextMenuHandler returning ptr=%p", cachedGetContextMenuHandlerPtr)
 			addRef(cachedGetContextMenuHandlerPtr)
 		}
 		return uintptr(cachedGetContextMenuHandlerPtr)

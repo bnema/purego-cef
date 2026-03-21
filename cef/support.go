@@ -157,7 +157,8 @@ func initRefCount(base unsafe.Pointer, size uintptr, owner any) {
 
 func addRef(base unsafe.Pointer) {
 	if st, ok := loadRefState(base); ok {
-		st.refs.Add(1)
+		refs := st.refs.Add(1)
+		traceTrackedRefCount("addref", base, refs)
 	}
 }
 
@@ -166,7 +167,9 @@ func release(base unsafe.Pointer) int32 {
 	if !ok {
 		return 1
 	}
-	if st.refs.Add(-1) == 0 {
+	refs := st.refs.Add(-1)
+	traceTrackedRefCount("release", base, refs)
+	if refs == 0 {
 		key := uintptr(base)
 		refStates.Delete(key)
 		refPins.Delete(key)
@@ -193,6 +196,20 @@ func hasAtLeastOneRef(base unsafe.Pointer) int32 {
 // loadRefOwner retrieves the Go owner struct stored for the given base pointer.
 func loadRefOwner(base unsafe.Pointer) (any, bool) {
 	return refPins.Load(uintptr(base))
+}
+
+func traceTrackedRefCount(action string, base unsafe.Pointer, refs int32) {
+	if !HandlerTraceEnabled() || base == nil {
+		return
+	}
+	owner, ok := loadRefOwner(base)
+	if !ok {
+		return
+	}
+	switch owner.(type) {
+	case *clientWrapper, *audioHandlerWrapper, *contextMenuHandlerWrapper:
+		traceHandlerf("refcount.%s owner=%T base=%p refs=%d", action, owner, base, refs)
+	}
 }
 
 // rawPointerHolder is implemented by all generated xxxImpl types that wrap

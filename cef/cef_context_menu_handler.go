@@ -137,8 +137,10 @@ func (w *contextMenuHandlerWrapper) rawPointer() unsafe.Pointer {
 func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	r := new(raw.CEFContextMenuHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+	traceHandlerf("context_menu.NewContextMenuHandler impl=%T raw=%p", impl, r)
 
 	r.OverrideOnBeforeContextMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		traceHandlerf("context_menu.OnBeforeContextMenu self=%#x browser=%#x frame=%#x params=%#x model=%#x", self, arg0, arg1, arg2, arg3)
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		params := wrapContextMenuParams(unsafe.Pointer(arg2))
@@ -147,6 +149,7 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	}))
 
 	r.OverrideRunContextMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		traceHandlerf("context_menu.RunContextMenu self=%#x browser=%#x frame=%#x params=%#x model=%#x callback=%#x", self, arg0, arg1, arg2, arg3, arg4)
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		params := wrapContextMenuParams(unsafe.Pointer(arg2))
@@ -156,6 +159,7 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	}))
 
 	r.OverrideOnContextMenuCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		traceHandlerf("context_menu.OnContextMenuCommand self=%#x browser=%#x frame=%#x params=%#x command_id=%d event_flags=%#x", self, arg0, arg1, arg2, int32(arg3), arg4)
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		params := wrapContextMenuParams(unsafe.Pointer(arg2))
@@ -165,12 +169,14 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	}))
 
 	r.OverrideOnContextMenuDismissed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		traceHandlerf("context_menu.OnContextMenuDismissed self=%#x browser=%#x frame=%#x", self, arg0, arg1)
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		impl.OnContextMenuDismissed(browser, frame)
 	}))
 
 	r.OverrideRunQuickMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+		traceHandlerf("context_menu.RunQuickMenu self=%#x browser=%#x frame=%#x location=%#x size=%#x flags=%#x callback=%#x", self, arg0, arg1, arg2, arg3, arg4, arg5)
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		location := (*Point)(unsafe.Pointer(arg2))
@@ -181,6 +187,7 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	}))
 
 	r.OverrideOnQuickMenuCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		traceHandlerf("context_menu.OnQuickMenuCommand self=%#x browser=%#x frame=%#x command_id=%d event_flags=%#x", self, arg0, arg1, int32(arg2), arg3)
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		commandID := int32(arg2)
@@ -189,6 +196,7 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	}))
 
 	r.OverrideOnQuickMenuDismissed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		traceHandlerf("context_menu.OnQuickMenuDismissed self=%#x browser=%#x frame=%#x", self, arg0, arg1)
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		impl.OnQuickMenuDismissed(browser, frame)

@@ -270,10 +270,54 @@ func doInitWithApp(settings Settings, app App) error {
 
 	ok := raw.CEFInitialize(args.Ptr(), unsafe.Pointer(&cs), appPtr, nil)
 	if ok != 1 {
-		return fmt.Errorf("cef: cef_initialize returned %d", ok)
+		exitCode := GetExitCode()
+		return fmt.Errorf("cef: cef_initialize returned %d (exit_code=%d, %s)", ok, exitCode, resultCodeString(exitCode))
 	}
 	initialized = true
 	return nil
+}
+
+func resultCodeString(code int32) string {
+	switch Resultcode(code) {
+	case ResultcodeResultCodeNormalExit:
+		return "normal_exit"
+	case ResultcodeResultCodeKilled:
+		return "killed"
+	case ResultcodeResultCodeHung:
+		return "hung"
+	case ResultcodeResultCodeKilledBadMessage:
+		return "killed_bad_message"
+	case ResultcodeResultCodeGpuDeadOnArrival:
+		return "gpu_dead_on_arrival"
+	case ResultcodeResultCodeBadProcessType:
+		return "bad_process_type"
+	case ResultcodeResultCodeMissingData:
+		return "missing_data"
+	case ResultcodeResultCodeUnsupportedParam:
+		return "unsupported_param"
+	case ResultcodeResultCodeProfileInUse:
+		return "profile_in_use"
+	case ResultcodeResultCodePackExtensionError:
+		return "pack_extension_error"
+	case ResultcodeResultCodeNormalExitProcessNotified:
+		return "normal_exit_process_notified"
+	case ResultcodeResultCodeInvalidSandboxState:
+		return "invalid_sandbox_state"
+	case ResultcodeResultCodeCloudPolicyEnrollmentFailed:
+		return "cloud_policy_enrollment_failed"
+	case ResultcodeResultCodeGpuExitOnContextLost:
+		return "gpu_exit_on_context_lost"
+	case ResultcodeResultCodeNormalExitPackExtensionSuccess:
+		return "normal_exit_pack_extension_success"
+	case ResultcodeResultCodeSystemResourceExhausted:
+		return "system_resource_exhausted"
+	case ResultcodeResultCodeNormalExitAutoDeElevated:
+		return "normal_exit_auto_de_elevated"
+	case ResultcodeResultCodeTerminatedByOtherProcessOnCommitFailure:
+		return "terminated_by_other_process_on_commit_failure"
+	default:
+		return "unknown"
+	}
 }
 
 // Shutdown releases all CEF resources. The library handle is intentionally
