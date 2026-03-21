@@ -4,6 +4,10 @@ Go bindings for the [Chromium Embedded Framework](https://bitbucket.org/chromium
 
 Linux only. `CGO_ENABLED=0`.
 
+
+> [!WARNING]
+> This is early stage and very unstable, API change daily as I iterate to make it work for [Dumber](https://github.com/bnema/dumber), I strongly do not recommend using it yet.
+
 ## Architecture
 
 The entire public API is **generated** from CEF C headers. The generator parses all 114 CEF headers and produces:
