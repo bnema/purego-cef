@@ -126,10 +126,16 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		type_ := PaintElementType(arg1)
 		dirtyrects := decodeSlice[Rect](arg3, int(arg2))
+		dirtyrectCopy := make([]Rect, len(dirtyrects))
+		copy(dirtyrectCopy, dirtyrects)
+
 		buffer := unsafe.Slice((*byte)(unsafe.Pointer(arg4)), int(arg5)*int(arg6)*4)
+		bufferCopy := make([]byte, len(buffer))
+		copy(bufferCopy, buffer)
+
 		width := int32(arg5)
 		height := int32(arg6)
-		impl.OnPaint(browser, type_, dirtyrects, buffer, width, height)
+		impl.OnPaint(browser, type_, dirtyrectCopy, bufferCopy, width, height)
 	}))
 
 	r.OverrideOnAcceleratedPaint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
