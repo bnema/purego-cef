@@ -129,13 +129,14 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		dirtyrectCopy := make([]Rect, len(dirtyrects))
 		copy(dirtyrectCopy, dirtyrects)
 
+		// IMPORTANT: buffer is only valid for the duration of this callback.
+		// Do not retain or access it after the callback returns.
+		// The consumer must copy the data if it needs to outlive this call.
 		buffer := unsafe.Slice((*byte)(unsafe.Pointer(arg4)), int(arg5)*int(arg6)*4)
-		bufferCopy := make([]byte, len(buffer))
-		copy(bufferCopy, buffer)
 
 		width := int32(arg5)
 		height := int32(arg6)
-		impl.OnPaint(browser, type_, dirtyrectCopy, bufferCopy, width, height)
+		impl.OnPaint(browser, type_, dirtyrectCopy, buffer, width, height)
 	}))
 
 	r.OverrideOnAcceleratedPaint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
