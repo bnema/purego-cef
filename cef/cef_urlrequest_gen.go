@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Urlrequest Structure used to make a URL request. URL requests are not associated with a browser instance so no cef_client_t callbacks will be executed. URL requests can be created on any valid CEF thread in either the browser or render process. Once created the functions of the URL request object must be accessed on the same thread that created it.
-type Urlrequest = in.Urlrequest
+type Urlrequest = portin.Urlrequest
 
 type urlrequestImpl struct {
 	rawPtr *capi.CEFUrlrequestT
@@ -74,7 +74,7 @@ func wrapUrlrequest(ptr unsafe.Pointer) Urlrequest {
 }
 
 // UrlrequestClient Structure that should be implemented by the cef_urlrequest_t client. The functions of this structure will be called on the same thread that created the request unless otherwise documented.
-type UrlrequestClient = in.UrlrequestClient
+type UrlrequestClient = portin.UrlrequestClient
 
 // urlrequestClientWrapper wraps a user-provided UrlrequestClient implementation together
 // with the raw CEF struct pointer allocated by NewUrlrequestClient.  It satisfies the

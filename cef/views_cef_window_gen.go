@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Window A Window is a top-level Window/widget in the Views hierarchy. By default it will have a non-client area with title bar, icon and buttons that supports moving and resizing. All size and position values are in density independent pixels (DIP) unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
-type Window = in.Window
+type Window = portin.Window
 
 type windowImpl struct {
 	rawPtr *capi.CEFWindowT

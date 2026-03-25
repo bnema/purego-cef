@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // BrowserViewDelegate Implement this structure to handle BrowserView events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type BrowserViewDelegate = in.BrowserViewDelegate
+type BrowserViewDelegate = portin.BrowserViewDelegate
 
 // browserViewDelegateWrapper wraps a user-provided BrowserViewDelegate implementation together
 // with the raw CEF struct pointer allocated by NewBrowserViewDelegate.  It satisfies the

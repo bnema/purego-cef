@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // TaskManager Structure that facilitates managing the browser-related tasks. The functions of this structure may only be called on the UI thread.
-type TaskManager = in.TaskManager
+type TaskManager = portin.TaskManager
 
 type taskManagerImpl struct {
 	rawPtr *capi.CEFTaskManagerT

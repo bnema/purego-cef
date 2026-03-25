@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // DisplayHandler Implement this structure to handle events related to browser display state. The functions of this structure will be called on the UI thread.
-type DisplayHandler = in.DisplayHandler
+type DisplayHandler = portin.DisplayHandler
 
 // displayHandlerWrapper wraps a user-provided DisplayHandler implementation together
 // with the raw CEF struct pointer allocated by NewDisplayHandler.  It satisfies the

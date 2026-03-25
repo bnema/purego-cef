@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // FindHandler Implement this structure to handle events related to find results. The functions of this structure will be called on the UI thread.
-type FindHandler = in.FindHandler
+type FindHandler = portin.FindHandler
 
 // findHandlerWrapper wraps a user-provided FindHandler implementation together
 // with the raw CEF struct pointer allocated by NewFindHandler.  It satisfies the

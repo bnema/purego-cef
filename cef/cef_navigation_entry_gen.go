@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // NavigationEntry Structure used to represent an entry in navigation history.
-type NavigationEntry = in.NavigationEntry
+type NavigationEntry = portin.NavigationEntry
 
 type navigationEntryImpl struct {
 	rawPtr *capi.CEFNavigationEntryT

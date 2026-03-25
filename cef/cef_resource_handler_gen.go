@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ResourceSkipCallback Callback for asynchronous continuation of cef_resource_handler_t::skip().
-type ResourceSkipCallback = in.ResourceSkipCallback
+type ResourceSkipCallback = portin.ResourceSkipCallback
 
 type resourceSkipCallbackImpl struct {
 	rawPtr *capi.CEFResourceSkipCallbackT
@@ -50,7 +50,7 @@ func wrapResourceSkipCallback(ptr unsafe.Pointer) ResourceSkipCallback {
 }
 
 // ResourceReadCallback Callback for asynchronous continuation of cef_resource_handler_t::read().
-type ResourceReadCallback = in.ResourceReadCallback
+type ResourceReadCallback = portin.ResourceReadCallback
 
 type resourceReadCallbackImpl struct {
 	rawPtr *capi.CEFResourceReadCallbackT
@@ -86,7 +86,7 @@ func wrapResourceReadCallback(ptr unsafe.Pointer) ResourceReadCallback {
 }
 
 // ResourceHandler Structure used to implement a custom request handler structure. The functions of this structure will be called on the IO thread unless otherwise indicated.
-type ResourceHandler = in.ResourceHandler
+type ResourceHandler = portin.ResourceHandler
 
 // resourceHandlerWrapper wraps a user-provided ResourceHandler implementation together
 // with the raw CEF struct pointer allocated by NewResourceHandler.  It satisfies the

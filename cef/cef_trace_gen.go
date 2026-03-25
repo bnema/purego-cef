@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // EndTracingCallback Implement this structure to receive notification when tracing has completed. The functions of this structure will be called on the browser process UI thread.
-type EndTracingCallback = in.EndTracingCallback
+type EndTracingCallback = portin.EndTracingCallback
 
 // endTracingCallbackWrapper wraps a user-provided EndTracingCallback implementation together
 // with the raw CEF struct pointer allocated by NewEndTracingCallback.  It satisfies the

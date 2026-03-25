@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // JsdialogCallback Callback structure used for asynchronous continuation of JavaScript dialog requests.
-type JsdialogCallback = in.JsdialogCallback
+type JsdialogCallback = portin.JsdialogCallback
 
 type jsdialogCallbackImpl struct {
 	rawPtr *capi.CEFJsdialogCallbackT
@@ -52,7 +52,7 @@ func wrapJsdialogCallback(ptr unsafe.Pointer) JsdialogCallback {
 }
 
 // JsdialogHandler Implement this structure to handle events related to JavaScript dialogs. The functions of this structure will be called on the UI thread.
-type JsdialogHandler = in.JsdialogHandler
+type JsdialogHandler = portin.JsdialogHandler
 
 // jsdialogHandlerWrapper wraps a user-provided JsdialogHandler implementation together
 // with the raw CEF struct pointer allocated by NewJsdialogHandler.  It satisfies the

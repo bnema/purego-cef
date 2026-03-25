@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Panel A Panel is a container in the views hierarchy that can contain other Views as children. Methods must be called on the browser process UI thread unless otherwise indicated.
-type Panel = in.Panel
+type Panel = portin.Panel
 
 type panelImpl struct {
 	rawPtr *capi.CEFPanelT

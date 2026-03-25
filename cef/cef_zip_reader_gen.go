@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ZipReader Structure that supports the reading of zip archives via the zlib unzip API. The functions of this structure should only be called on the thread that creates the object.
-type ZipReader = in.ZipReader
+type ZipReader = portin.ZipReader
 
 type zipReaderImpl struct {
 	rawPtr *capi.CEFZipReaderT

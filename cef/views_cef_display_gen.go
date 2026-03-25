@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Display This structure typically, but not always, corresponds to a physical display connected to the system. A fake Display may exist on a headless system, or a Display may correspond to a remote, virtual display. All size and position values are in density independent pixel (DIP) coordinates unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated. For details on coordinate systems and usage see https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown- header-coordinate-systems
-type Display = in.Display
+type Display = portin.Display
 
 type displayImpl struct {
 	rawPtr *capi.CEFDisplayT

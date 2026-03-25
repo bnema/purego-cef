@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // PreferenceRegistrar Structure that manages custom preference registrations.
-type PreferenceRegistrar = in.PreferenceRegistrar
+type PreferenceRegistrar = portin.PreferenceRegistrar
 
 type preferenceRegistrarImpl struct {
 	rawPtr *capi.CEFPreferenceRegistrarT
@@ -39,7 +39,7 @@ func wrapPreferenceRegistrar(ptr unsafe.Pointer) PreferenceRegistrar {
 }
 
 // PreferenceObserver Implemented by the client to observe preference changes and registered via cef_preference_manager_t::AddPreferenceObserver. The functions of this structure will be called on the browser process UI thread.
-type PreferenceObserver = in.PreferenceObserver
+type PreferenceObserver = portin.PreferenceObserver
 
 // preferenceObserverWrapper wraps a user-provided PreferenceObserver implementation together
 // with the raw CEF struct pointer allocated by NewPreferenceObserver.  It satisfies the
@@ -83,7 +83,7 @@ func wrapPreferenceObserver(ptr unsafe.Pointer) PreferenceObserver {
 }
 
 // PreferenceManager Manage access to preferences. Many built-in preferences are registered by Chromium. Custom preferences can be registered in cef_browser_process_handler_t::OnRegisterCustomPreferences.
-type PreferenceManager = in.PreferenceManager
+type PreferenceManager = portin.PreferenceManager
 
 type preferenceManagerImpl struct {
 	rawPtr *capi.CEFPreferenceManagerT

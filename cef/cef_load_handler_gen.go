@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // LoadHandler Implement this structure to handle events related to browser load status. The functions of this structure will be called on the browser process UI thread or render process main thread (TID_RENDERER).
-type LoadHandler = in.LoadHandler
+type LoadHandler = portin.LoadHandler
 
 // loadHandlerWrapper wraps a user-provided LoadHandler implementation together
 // with the raw CEF struct pointer allocated by NewLoadHandler.  It satisfies the

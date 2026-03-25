@@ -12,15 +12,15 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 	"github.com/bnema/purego-cef/internal/core"
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 	"github.com/ebitengine/purego"
 )
 
 // Type alias for LifeSpanHandler — uses generated interface (out-params are unsafe.Pointer).
-type LifeSpanHandler = in.LifeSpanHandler
+type LifeSpanHandler = portin.LifeSpanHandler
 
 // AudioHandler handles audio events with a safe [][]float32 data signature.
-// This is NOT an alias of the generated in.AudioHandler (which uses unsafe.Pointer
+// This is NOT an alias of the generated portin.AudioHandler (which uses unsafe.Pointer
 // for the data param). The constructor decodes the raw float** to [][]float32.
 type AudioHandler interface {
 	GetAudioParameters(browser Browser, params *AudioParameters) int32
@@ -116,7 +116,7 @@ func (w *audioHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// Satisfy the generated in.AudioHandler interface for extractRawPointer.
+// Satisfy the generated portin.AudioHandler interface for extractRawPointer.
 func (w *audioHandlerWrapper) GetAudioParameters(browser Browser, params *AudioParameters) int32 {
 	return w.impl.GetAudioParameters(browser, params)
 }
@@ -136,7 +136,7 @@ func (w *audioHandlerWrapper) OnAudioStreamError(browser Browser, message string
 
 // NewSafeAudioHandler creates a CEF handler with safe [][]float32 audio data decoding.
 // Use this instead of NewAudioHandler when you want decoded audio packets.
-func NewSafeAudioHandler(impl AudioHandler) in.AudioHandler {
+func NewSafeAudioHandler(impl AudioHandler) portin.AudioHandler {
 	r := new(capi.CEFAudioHandlerT)
 	w := &audioHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -179,9 +179,9 @@ func NewSafeAudioHandler(impl AudioHandler) in.AudioHandler {
 	return w
 }
 
-// NewAudioHandler creates a CEF handler from the generated in.AudioHandler interface.
+// NewAudioHandler creates a CEF handler from the generated portin.AudioHandler interface.
 // For decoded [][]float32 audio data, use NewSafeAudioHandler instead.
-func NewAudioHandler(impl in.AudioHandler) in.AudioHandler {
+func NewAudioHandler(impl portin.AudioHandler) portin.AudioHandler {
 	r := new(capi.CEFAudioHandlerT)
 	w := &rawAudioHandlerWrapper{impl: impl, rawPtr: r}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -206,7 +206,7 @@ func NewAudioHandler(impl in.AudioHandler) in.AudioHandler {
 }
 
 type rawAudioHandlerWrapper struct {
-	impl   in.AudioHandler
+	impl   portin.AudioHandler
 	rawPtr *capi.CEFAudioHandlerT
 }
 
@@ -225,7 +225,7 @@ func (w *rawAudioHandlerWrapper) OnAudioStreamError(b Browser, m string) {
 	w.impl.OnAudioStreamError(b, m)
 }
 
-func wrapAudioHandler(_ unsafe.Pointer) in.AudioHandler { return nil }
+func wrapAudioHandler(_ unsafe.Pointer) portin.AudioHandler { return nil }
 
 // ---------------------------------------------------------------------------
 // Engine access — atomic for thread safety (#8)

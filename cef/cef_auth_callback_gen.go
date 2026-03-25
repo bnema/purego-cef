@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // AuthCallback Callback structure used for asynchronous continuation of authentication requests.
-type AuthCallback = in.AuthCallback
+type AuthCallback = portin.AuthCallback
 
 type authCallbackImpl struct {
 	rawPtr *capi.CEFAuthCallbackT

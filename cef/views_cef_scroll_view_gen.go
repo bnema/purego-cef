@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ScrollView A ScrollView will show horizontal and/or vertical scrollbars when necessary based on the size of the attached content view. Methods must be called on the browser process UI thread unless otherwise indicated.
-type ScrollView = in.ScrollView
+type ScrollView = portin.ScrollView
 
 type scrollViewImpl struct {
 	rawPtr *capi.CEFScrollViewT

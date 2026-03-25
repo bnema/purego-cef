@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Response Structure used to represent a web response. The functions of this structure may be called on any thread.
-type Response = in.Response
+type Response = portin.Response
 
 type responseImpl struct {
 	rawPtr *capi.CEFResponseT

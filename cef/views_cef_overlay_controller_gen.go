@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // OverlayController Controller for an overlay that contains a contents View added via cef_window_t::AddOverlayView. Methods exposed by this controller should be called in preference to functions of the same name exposed by the contents View unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
-type OverlayController = in.OverlayController
+type OverlayController = portin.OverlayController
 
 type overlayControllerImpl struct {
 	rawPtr *capi.CEFOverlayControllerT

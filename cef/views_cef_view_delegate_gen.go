@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ViewDelegate Implement this structure to handle view events. All size and position values are in density independent pixels (DIP) unless otherwise indicated. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type ViewDelegate = in.ViewDelegate
+type ViewDelegate = portin.ViewDelegate
 
 // viewDelegateWrapper wraps a user-provided ViewDelegate implementation together
 // with the raw CEF struct pointer allocated by NewViewDelegate.  It satisfies the

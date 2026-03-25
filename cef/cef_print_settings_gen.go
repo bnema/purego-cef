@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // PrintSettings Structure representing print settings.
-type PrintSettings = in.PrintSettings
+type PrintSettings = portin.PrintSettings
 
 type printSettingsImpl struct {
 	rawPtr *capi.CEFPrintSettingsT

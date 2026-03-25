@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // TranslatorTest Structure for testing all of the possible data transfer types.
-type TranslatorTest = in.TranslatorTest
+type TranslatorTest = portin.TranslatorTest
 
 type translatorTestImpl struct {
 	rawPtr *capi.CEFTranslatorTestT
@@ -296,7 +296,7 @@ func wrapTranslatorTest(ptr unsafe.Pointer) TranslatorTest {
 }
 
 // TranslatorTestRefPtrLibrary Library-side test object for RefPtr.
-type TranslatorTestRefPtrLibrary = in.TranslatorTestRefPtrLibrary
+type TranslatorTestRefPtrLibrary = portin.TranslatorTestRefPtrLibrary
 
 type translatorTestRefPtrLibraryImpl struct {
 	rawPtr *capi.CEFTranslatorTestRefPtrLibraryT
@@ -336,7 +336,7 @@ func wrapTranslatorTestRefPtrLibrary(ptr unsafe.Pointer) TranslatorTestRefPtrLib
 }
 
 // TranslatorTestRefPtrLibraryChild Library-side child test object for RefPtr.
-type TranslatorTestRefPtrLibraryChild = in.TranslatorTestRefPtrLibraryChild
+type TranslatorTestRefPtrLibraryChild = portin.TranslatorTestRefPtrLibraryChild
 
 type translatorTestRefPtrLibraryChildImpl struct {
 	rawPtr *capi.CEFTranslatorTestRefPtrLibraryChildT
@@ -376,7 +376,7 @@ func wrapTranslatorTestRefPtrLibraryChild(ptr unsafe.Pointer) TranslatorTestRefP
 }
 
 // TranslatorTestRefPtrLibraryChildChild Another library-side child test object for RefPtr.
-type TranslatorTestRefPtrLibraryChildChild = in.TranslatorTestRefPtrLibraryChildChild
+type TranslatorTestRefPtrLibraryChildChild = portin.TranslatorTestRefPtrLibraryChildChild
 
 type translatorTestRefPtrLibraryChildChildImpl struct {
 	rawPtr *capi.CEFTranslatorTestRefPtrLibraryChildChildT
@@ -416,7 +416,7 @@ func wrapTranslatorTestRefPtrLibraryChildChild(ptr unsafe.Pointer) TranslatorTes
 }
 
 // TranslatorTestRefPtrClient Client-side test object for RefPtr.
-type TranslatorTestRefPtrClient = in.TranslatorTestRefPtrClient
+type TranslatorTestRefPtrClient = portin.TranslatorTestRefPtrClient
 
 // translatorTestRefPtrClientWrapper wraps a user-provided TranslatorTestRefPtrClient implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestRefPtrClient.  It satisfies the
@@ -459,7 +459,7 @@ func wrapTranslatorTestRefPtrClient(ptr unsafe.Pointer) TranslatorTestRefPtrClie
 }
 
 // TranslatorTestRefPtrClientChild Client-side child test object for RefPtr.
-type TranslatorTestRefPtrClientChild = in.TranslatorTestRefPtrClientChild
+type TranslatorTestRefPtrClientChild = portin.TranslatorTestRefPtrClientChild
 
 // translatorTestRefPtrClientChildWrapper wraps a user-provided TranslatorTestRefPtrClientChild implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestRefPtrClientChild.  It satisfies the
@@ -502,7 +502,7 @@ func wrapTranslatorTestRefPtrClientChild(ptr unsafe.Pointer) TranslatorTestRefPt
 }
 
 // TranslatorTestScopedLibrary Library-side test object for OwnPtr/RawPtr.
-type TranslatorTestScopedLibrary = in.TranslatorTestScopedLibrary
+type TranslatorTestScopedLibrary = portin.TranslatorTestScopedLibrary
 
 type translatorTestScopedLibraryImpl struct {
 	rawPtr *capi.CEFTranslatorTestScopedLibraryT
@@ -529,7 +529,7 @@ func wrapTranslatorTestScopedLibrary(ptr unsafe.Pointer) TranslatorTestScopedLib
 }
 
 // TranslatorTestScopedLibraryChild Library-side child test object for OwnPtr/RawPtr.
-type TranslatorTestScopedLibraryChild = in.TranslatorTestScopedLibraryChild
+type TranslatorTestScopedLibraryChild = portin.TranslatorTestScopedLibraryChild
 
 type translatorTestScopedLibraryChildImpl struct {
 	rawPtr *capi.CEFTranslatorTestScopedLibraryChildT
@@ -569,7 +569,7 @@ func wrapTranslatorTestScopedLibraryChild(ptr unsafe.Pointer) TranslatorTestScop
 }
 
 // TranslatorTestScopedLibraryChildChild Another library-side child test object for OwnPtr/RawPtr.
-type TranslatorTestScopedLibraryChildChild = in.TranslatorTestScopedLibraryChildChild
+type TranslatorTestScopedLibraryChildChild = portin.TranslatorTestScopedLibraryChildChild
 
 type translatorTestScopedLibraryChildChildImpl struct {
 	rawPtr *capi.CEFTranslatorTestScopedLibraryChildChildT
@@ -609,7 +609,7 @@ func wrapTranslatorTestScopedLibraryChildChild(ptr unsafe.Pointer) TranslatorTes
 }
 
 // TranslatorTestScopedClient Client-side test object for OwnPtr/RawPtr.
-type TranslatorTestScopedClient = in.TranslatorTestScopedClient
+type TranslatorTestScopedClient = portin.TranslatorTestScopedClient
 
 // translatorTestScopedClientWrapper wraps a user-provided TranslatorTestScopedClient implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestScopedClient.  It satisfies the
@@ -652,7 +652,7 @@ func wrapTranslatorTestScopedClient(ptr unsafe.Pointer) TranslatorTestScopedClie
 }
 
 // TranslatorTestScopedClientChild Client-side child test object for OwnPtr/RawPtr.
-type TranslatorTestScopedClientChild = in.TranslatorTestScopedClientChild
+type TranslatorTestScopedClientChild = portin.TranslatorTestScopedClientChild
 
 // translatorTestScopedClientChildWrapper wraps a user-provided TranslatorTestScopedClientChild implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestScopedClientChild.  It satisfies the

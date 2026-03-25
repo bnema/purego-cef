@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // SharedMemoryRegion Structure that wraps platform-dependent share memory region mapping.
-type SharedMemoryRegion = in.SharedMemoryRegion
+type SharedMemoryRegion = portin.SharedMemoryRegion
 
 type sharedMemoryRegionImpl struct {
 	rawPtr *capi.CEFSharedMemoryRegionT

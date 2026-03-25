@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // RunContextMenuCallback Callback structure used for continuation of custom context menu display.
-type RunContextMenuCallback = in.RunContextMenuCallback
+type RunContextMenuCallback = portin.RunContextMenuCallback
 
 type runContextMenuCallbackImpl struct {
 	rawPtr *capi.CEFRunContextMenuCallbackT
@@ -54,7 +54,7 @@ func wrapRunContextMenuCallback(ptr unsafe.Pointer) RunContextMenuCallback {
 }
 
 // RunQuickMenuCallback Callback structure used for continuation of custom quick menu display.
-type RunQuickMenuCallback = in.RunQuickMenuCallback
+type RunQuickMenuCallback = portin.RunQuickMenuCallback
 
 type runQuickMenuCallbackImpl struct {
 	rawPtr *capi.CEFRunQuickMenuCallbackT
@@ -94,7 +94,7 @@ func wrapRunQuickMenuCallback(ptr unsafe.Pointer) RunQuickMenuCallback {
 }
 
 // ContextMenuHandler Implement this structure to handle context menu events. The functions of this structure will be called on the UI thread.
-type ContextMenuHandler = in.ContextMenuHandler
+type ContextMenuHandler = portin.ContextMenuHandler
 
 // contextMenuHandlerWrapper wraps a user-provided ContextMenuHandler implementation together
 // with the raw CEF struct pointer allocated by NewContextMenuHandler.  It satisfies the
@@ -189,7 +189,7 @@ func wrapContextMenuHandler(ptr unsafe.Pointer) ContextMenuHandler {
 }
 
 // ContextMenuParams Provides information about the context menu state. The functions of this structure can only be accessed on browser process the UI thread.
-type ContextMenuParams = in.ContextMenuParams
+type ContextMenuParams = portin.ContextMenuParams
 
 type contextMenuParamsImpl struct {
 	rawPtr *capi.CEFContextMenuParamsT

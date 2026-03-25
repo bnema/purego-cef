@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // FileDialogCallback Callback structure for asynchronous continuation of file dialog requests.
-type FileDialogCallback = in.FileDialogCallback
+type FileDialogCallback = portin.FileDialogCallback
 
 type fileDialogCallbackImpl struct {
 	rawPtr *capi.CEFFileDialogCallbackT
@@ -54,7 +54,7 @@ func wrapFileDialogCallback(ptr unsafe.Pointer) FileDialogCallback {
 }
 
 // DialogHandler Implement this structure to handle dialog events. The functions of this structure will be called on the browser process UI thread.
-type DialogHandler = in.DialogHandler
+type DialogHandler = portin.DialogHandler
 
 // dialogHandlerWrapper wraps a user-provided DialogHandler implementation together
 // with the raw CEF struct pointer allocated by NewDialogHandler.  It satisfies the

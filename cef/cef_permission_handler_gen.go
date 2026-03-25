@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MediaAccessCallback Callback structure used for asynchronous continuation of media access permission requests.
-type MediaAccessCallback = in.MediaAccessCallback
+type MediaAccessCallback = portin.MediaAccessCallback
 
 type mediaAccessCallbackImpl struct {
 	rawPtr *capi.CEFMediaAccessCallbackT
@@ -54,7 +54,7 @@ func wrapMediaAccessCallback(ptr unsafe.Pointer) MediaAccessCallback {
 }
 
 // PermissionPromptCallback Callback structure used for asynchronous continuation of permission prompts.
-type PermissionPromptCallback = in.PermissionPromptCallback
+type PermissionPromptCallback = portin.PermissionPromptCallback
 
 type permissionPromptCallbackImpl struct {
 	rawPtr *capi.CEFPermissionPromptCallbackT
@@ -90,7 +90,7 @@ func wrapPermissionPromptCallback(ptr unsafe.Pointer) PermissionPromptCallback {
 }
 
 // PermissionHandler Implement this structure to handle events related to permission requests. The functions of this structure will be called on the browser process UI thread.
-type PermissionHandler = in.PermissionHandler
+type PermissionHandler = portin.PermissionHandler
 
 // permissionHandlerWrapper wraps a user-provided PermissionHandler implementation together
 // with the raw CEF struct pointer allocated by NewPermissionHandler.  It satisfies the

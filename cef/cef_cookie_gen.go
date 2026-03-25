@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // CookieManager Structure used for managing cookies. The functions of this structure may be called on any thread unless otherwise indicated.
-type CookieManager = in.CookieManager
+type CookieManager = portin.CookieManager
 
 type cookieManagerImpl struct {
 	rawPtr *capi.CEFCookieManagerT
@@ -74,7 +74,7 @@ func wrapCookieManager(ptr unsafe.Pointer) CookieManager {
 }
 
 // CookieVisitor Structure to implement for visiting cookie values. The functions of this structure will always be called on the UI thread.
-type CookieVisitor = in.CookieVisitor
+type CookieVisitor = portin.CookieVisitor
 
 // cookieVisitorWrapper wraps a user-provided CookieVisitor implementation together
 // with the raw CEF struct pointer allocated by NewCookieVisitor.  It satisfies the
@@ -121,7 +121,7 @@ func wrapCookieVisitor(ptr unsafe.Pointer) CookieVisitor {
 }
 
 // SetCookieCallback Structure to implement to be notified of asynchronous completion via cef_cookie_manager_t::set_cookie().
-type SetCookieCallback = in.SetCookieCallback
+type SetCookieCallback = portin.SetCookieCallback
 
 // setCookieCallbackWrapper wraps a user-provided SetCookieCallback implementation together
 // with the raw CEF struct pointer allocated by NewSetCookieCallback.  It satisfies the
@@ -165,7 +165,7 @@ func wrapSetCookieCallback(ptr unsafe.Pointer) SetCookieCallback {
 }
 
 // DeleteCookiesCallback Structure to implement to be notified of asynchronous completion via cef_cookie_manager_t::delete_cookies().
-type DeleteCookiesCallback = in.DeleteCookiesCallback
+type DeleteCookiesCallback = portin.DeleteCookiesCallback
 
 // deleteCookiesCallbackWrapper wraps a user-provided DeleteCookiesCallback implementation together
 // with the raw CEF struct pointer allocated by NewDeleteCookiesCallback.  It satisfies the

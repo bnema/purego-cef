@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // XmlReader Structure that supports the reading of XML data via the libxml streaming API. The functions of this structure should only be called on the thread that creates the object.
-type XmlReader = in.XmlReader
+type XmlReader = portin.XmlReader
 
 type xmlReaderImpl struct {
 	rawPtr *capi.CEFXmlReaderT

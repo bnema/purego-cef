@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // DragHandler Implement this structure to handle events related to dragging. The functions of this structure will be called on the UI thread.
-type DragHandler = in.DragHandler
+type DragHandler = portin.DragHandler
 
 // dragHandlerWrapper wraps a user-provided DragHandler implementation together
 // with the raw CEF struct pointer allocated by NewDragHandler.  It satisfies the

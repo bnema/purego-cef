@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MediaRouter Supports discovery of and communication with media devices on the local network via the Cast and DIAL protocols. The functions of this structure may be called on any browser process thread unless otherwise indicated.
-type MediaRouter = in.MediaRouter
+type MediaRouter = portin.MediaRouter
 
 type mediaRouterImpl struct {
 	rawPtr *capi.CEFMediaRouterT
@@ -68,7 +68,7 @@ func wrapMediaRouter(ptr unsafe.Pointer) MediaRouter {
 }
 
 // MediaObserver Implemented by the client to observe MediaRouter events and registered via cef_media_router_t::AddObserver. The functions of this structure will be called on the browser process UI thread.
-type MediaObserver = in.MediaObserver
+type MediaObserver = portin.MediaObserver
 
 // mediaObserverWrapper wraps a user-provided MediaObserver implementation together
 // with the raw CEF struct pointer allocated by NewMediaObserver.  It satisfies the
@@ -132,7 +132,7 @@ func wrapMediaObserver(ptr unsafe.Pointer) MediaObserver {
 }
 
 // MediaRoute Represents the route between a media source and sink. Instances of this object are created via cef_media_router_t::CreateRoute and retrieved via cef_media_observer_t::OnRoutes. Contains the status and metadata of a routing operation. The functions of this structure may be called on any browser process thread unless otherwise indicated.
-type MediaRoute = in.MediaRoute
+type MediaRoute = portin.MediaRoute
 
 type mediaRouteImpl struct {
 	rawPtr *capi.CEFMediaRouteT
@@ -184,7 +184,7 @@ func wrapMediaRoute(ptr unsafe.Pointer) MediaRoute {
 }
 
 // MediaRouteCreateCallback Callback structure for cef_media_router_t::CreateRoute. The functions of this structure will be called on the browser process UI thread.
-type MediaRouteCreateCallback = in.MediaRouteCreateCallback
+type MediaRouteCreateCallback = portin.MediaRouteCreateCallback
 
 // mediaRouteCreateCallbackWrapper wraps a user-provided MediaRouteCreateCallback implementation together
 // with the raw CEF struct pointer allocated by NewMediaRouteCreateCallback.  It satisfies the
@@ -230,7 +230,7 @@ func wrapMediaRouteCreateCallback(ptr unsafe.Pointer) MediaRouteCreateCallback {
 }
 
 // MediaSink Represents a sink to which media can be routed. Instances of this object are retrieved via cef_media_observer_t::OnSinks. The functions of this structure may be called on any browser process thread unless otherwise indicated.
-type MediaSink = in.MediaSink
+type MediaSink = portin.MediaSink
 
 type mediaSinkImpl struct {
 	rawPtr *capi.CEFMediaSinkT
@@ -290,7 +290,7 @@ func wrapMediaSink(ptr unsafe.Pointer) MediaSink {
 }
 
 // MediaSinkDeviceInfoCallback Callback structure for cef_media_sink_t::GetDeviceInfo. The functions of this structure will be called on the browser process UI thread.
-type MediaSinkDeviceInfoCallback = in.MediaSinkDeviceInfoCallback
+type MediaSinkDeviceInfoCallback = portin.MediaSinkDeviceInfoCallback
 
 // mediaSinkDeviceInfoCallbackWrapper wraps a user-provided MediaSinkDeviceInfoCallback implementation together
 // with the raw CEF struct pointer allocated by NewMediaSinkDeviceInfoCallback.  It satisfies the
@@ -334,7 +334,7 @@ func wrapMediaSinkDeviceInfoCallback(ptr unsafe.Pointer) MediaSinkDeviceInfoCall
 }
 
 // MediaSource Represents a source from which media can be routed. Instances of this object are retrieved via cef_media_router_t::GetSource. The functions of this structure may be called on any browser process thread unless otherwise indicated.
-type MediaSource = in.MediaSource
+type MediaSource = portin.MediaSource
 
 type mediaSourceImpl struct {
 	rawPtr *capi.CEFMediaSourceT

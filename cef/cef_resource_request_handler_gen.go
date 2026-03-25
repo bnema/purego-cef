@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ResourceRequestHandler Implement this structure to handle events related to browser requests. The functions of this structure will be called on the IO thread unless otherwise indicated.
-type ResourceRequestHandler = in.ResourceRequestHandler
+type ResourceRequestHandler = portin.ResourceRequestHandler
 
 // resourceRequestHandlerWrapper wraps a user-provided ResourceRequestHandler implementation together
 // with the raw CEF struct pointer allocated by NewResourceRequestHandler.  It satisfies the
@@ -135,7 +135,7 @@ func wrapResourceRequestHandler(ptr unsafe.Pointer) ResourceRequestHandler {
 }
 
 // CookieAccessFilter Implement this structure to filter cookies that may be sent or received from resource requests. The functions of this structure will be called on the IO thread unless otherwise indicated.
-type CookieAccessFilter = in.CookieAccessFilter
+type CookieAccessFilter = portin.CookieAccessFilter
 
 // cookieAccessFilterWrapper wraps a user-provided CookieAccessFilter implementation together
 // with the raw CEF struct pointer allocated by NewCookieAccessFilter.  It satisfies the

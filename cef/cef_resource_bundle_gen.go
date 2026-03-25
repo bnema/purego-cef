@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ResourceBundle Structure used for retrieving resources from the resource bundle (*.pak) files loaded by CEF during startup or via the cef_resource_bundle_handler_t returned from cef_app_t::GetResourceBundleHandler. See CefSettings for additional options related to resource bundle loading. The functions of this structure may be called on any thread unless otherwise indicated.
-type ResourceBundle = in.ResourceBundle
+type ResourceBundle = portin.ResourceBundle
 
 type resourceBundleImpl struct {
 	rawPtr *capi.CEFResourceBundleT

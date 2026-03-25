@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ReadHandler Structure the client can implement to provide a custom stream reader. The functions of this structure may be called on any thread.
-type ReadHandler = in.ReadHandler
+type ReadHandler = portin.ReadHandler
 
 // readHandlerWrapper wraps a user-provided ReadHandler implementation together
 // with the raw CEF struct pointer allocated by NewReadHandler.  It satisfies the
@@ -78,7 +78,7 @@ func wrapReadHandler(ptr unsafe.Pointer) ReadHandler {
 }
 
 // StreamReader Structure used to read data from a stream. The functions of this structure may be called on any thread.
-type StreamReader = in.StreamReader
+type StreamReader = portin.StreamReader
 
 type streamReaderImpl struct {
 	rawPtr *capi.CEFStreamReaderT
@@ -130,7 +130,7 @@ func wrapStreamReader(ptr unsafe.Pointer) StreamReader {
 }
 
 // WriteHandler Structure the client can implement to provide a custom stream writer. The functions of this structure may be called on any thread.
-type WriteHandler = in.WriteHandler
+type WriteHandler = portin.WriteHandler
 
 // writeHandlerWrapper wraps a user-provided WriteHandler implementation together
 // with the raw CEF struct pointer allocated by NewWriteHandler.  It satisfies the
@@ -194,7 +194,7 @@ func wrapWriteHandler(ptr unsafe.Pointer) WriteHandler {
 }
 
 // StreamWriter Structure used to write data to a stream. The functions of this structure may be called on any thread.
-type StreamWriter = in.StreamWriter
+type StreamWriter = portin.StreamWriter
 
 type streamWriterImpl struct {
 	rawPtr *capi.CEFStreamWriterT

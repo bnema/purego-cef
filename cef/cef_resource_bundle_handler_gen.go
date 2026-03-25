@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ResourceBundleHandler Structure used to implement a custom resource bundle structure. See CefSettings for additional options related to resource bundle loading. The functions of this structure may be called on multiple threads.
-type ResourceBundleHandler = in.ResourceBundleHandler
+type ResourceBundleHandler = portin.ResourceBundleHandler
 
 // resourceBundleHandlerWrapper wraps a user-provided ResourceBundleHandler implementation together
 // with the raw CEF struct pointer allocated by NewResourceBundleHandler.  It satisfies the

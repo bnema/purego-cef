@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Layout A Layout handles the sizing of the children of a Panel according to implementation-specific heuristics. Methods must be called on the browser process UI thread unless otherwise indicated.
-type Layout = in.Layout
+type Layout = portin.Layout
 
 type layoutImpl struct {
 	rawPtr *capi.CEFLayoutT

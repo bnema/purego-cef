@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // V8Context Structure representing a V8 context handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
-type V8Context = in.V8Context
+type V8Context = portin.V8Context
 
 type v8ContextImpl struct {
 	rawPtr *capi.CEFV8ContextT
@@ -86,7 +86,7 @@ func wrapV8Context(ptr unsafe.Pointer) V8Context {
 }
 
 // V8Handler Structure that should be implemented to handle V8 function calls. The functions of this structure will be called on the thread associated with the V8 function.
-type V8Handler = in.V8Handler
+type V8Handler = portin.V8Handler
 
 // v8HandlerWrapper wraps a user-provided V8Handler implementation together
 // with the raw CEF struct pointer allocated by NewV8Handler.  It satisfies the
@@ -135,7 +135,7 @@ func wrapV8Handler(ptr unsafe.Pointer) V8Handler {
 }
 
 // V8Accessor Structure that should be implemented to handle V8 accessor calls. Accessor identifiers are registered by calling cef_v8_value_t::set_value(). The functions of this structure will be called on the thread associated with the V8 accessor.
-type V8Accessor = in.V8Accessor
+type V8Accessor = portin.V8Accessor
 
 // v8AccessorWrapper wraps a user-provided V8Accessor implementation together
 // with the raw CEF struct pointer allocated by NewV8Accessor.  It satisfies the
@@ -190,7 +190,7 @@ func wrapV8Accessor(ptr unsafe.Pointer) V8Accessor {
 }
 
 // V8Interceptor Structure that should be implemented to handle V8 interceptor calls. The functions of this structure will be called on the thread associated with the V8 interceptor. Interceptor's named property handlers (with first argument of type CefString) are called when object is indexed by string. Indexed property handlers (with first argument of type int) are called when object is indexed by integer.
-type V8Interceptor = in.V8Interceptor
+type V8Interceptor = portin.V8Interceptor
 
 // v8InterceptorWrapper wraps a user-provided V8Interceptor implementation together
 // with the raw CEF struct pointer allocated by NewV8Interceptor.  It satisfies the
@@ -261,7 +261,7 @@ func wrapV8Interceptor(ptr unsafe.Pointer) V8Interceptor {
 }
 
 // V8Exception Structure representing a V8 exception. The functions of this structure may be called on any render process thread.
-type V8Exception = in.V8Exception
+type V8Exception = portin.V8Exception
 
 type v8ExceptionImpl struct {
 	rawPtr *capi.CEFV8ExceptionT
@@ -325,7 +325,7 @@ func wrapV8Exception(ptr unsafe.Pointer) V8Exception {
 }
 
 // V8ArrayBufferReleaseCallback Callback structure that is passed to cef_v8_value_t::CreateArrayBuffer.
-type V8ArrayBufferReleaseCallback = in.V8ArrayBufferReleaseCallback
+type V8ArrayBufferReleaseCallback = portin.V8ArrayBufferReleaseCallback
 
 // v8ArrayBufferReleaseCallbackWrapper wraps a user-provided V8ArrayBufferReleaseCallback implementation together
 // with the raw CEF struct pointer allocated by NewV8ArrayBufferReleaseCallback.  It satisfies the
@@ -369,7 +369,7 @@ func wrapV8ArrayBufferReleaseCallback(ptr unsafe.Pointer) V8ArrayBufferReleaseCa
 }
 
 // V8Value Structure representing a V8 value handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
-type V8Value = in.V8Value
+type V8Value = portin.V8Value
 
 type v8ValueImpl struct {
 	rawPtr *capi.CEFV8ValueT
@@ -623,7 +623,7 @@ func wrapV8Value(ptr unsafe.Pointer) V8Value {
 }
 
 // V8StackTrace Structure representing a V8 stack trace handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
-type V8StackTrace = in.V8StackTrace
+type V8StackTrace = portin.V8StackTrace
 
 type v8StackTraceImpl struct {
 	rawPtr *capi.CEFV8StackTraceT
@@ -667,7 +667,7 @@ func wrapV8StackTrace(ptr unsafe.Pointer) V8StackTrace {
 }
 
 // V8StackFrame Structure representing a V8 stack frame handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
-type V8StackFrame = in.V8StackFrame
+type V8StackFrame = portin.V8StackFrame
 
 type v8StackFrameImpl struct {
 	rawPtr *capi.CEFV8StackFrameT

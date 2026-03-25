@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Domvisitor Structure to implement for visiting the DOM. The functions of this structure will be called on the render process main thread.
-type Domvisitor = in.Domvisitor
+type Domvisitor = portin.Domvisitor
 
 // domvisitorWrapper wraps a user-provided Domvisitor implementation together
 // with the raw CEF struct pointer allocated by NewDomvisitor.  It satisfies the
@@ -58,7 +58,7 @@ func wrapDomvisitor(ptr unsafe.Pointer) Domvisitor {
 }
 
 // Domdocument Structure used to represent a DOM document. The functions of this structure should only be called on the render process main thread thread.
-type Domdocument = in.Domdocument
+type Domdocument = portin.Domdocument
 
 type domdocumentImpl struct {
 	rawPtr *capi.CEFDomdocumentT
@@ -150,7 +150,7 @@ func wrapDomdocument(ptr unsafe.Pointer) Domdocument {
 }
 
 // Domnode Structure used to represent a DOM node. The functions of this structure should only be called on the render process main thread.
-type Domnode = in.Domnode
+type Domnode = portin.Domnode
 
 type domnodeImpl struct {
 	rawPtr *capi.CEFDomnodeT

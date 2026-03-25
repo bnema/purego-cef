@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // AccessibilityHandler Implement this structure to receive accessibility notification when accessibility events have been registered. The functions of this structure will be called on the UI thread.
-type AccessibilityHandler = in.AccessibilityHandler
+type AccessibilityHandler = portin.AccessibilityHandler
 
 // accessibilityHandlerWrapper wraps a user-provided AccessibilityHandler implementation together
 // with the raw CEF struct pointer allocated by NewAccessibilityHandler.  It satisfies the

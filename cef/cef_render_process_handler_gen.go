@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // RenderProcessHandler Structure used to implement render process callbacks. The functions of this structure will be called on the render process main thread (TID_RENDERER) unless otherwise indicated.
-type RenderProcessHandler = in.RenderProcessHandler
+type RenderProcessHandler = portin.RenderProcessHandler
 
 // renderProcessHandlerWrapper wraps a user-provided RenderProcessHandler implementation together
 // with the raw CEF struct pointer allocated by NewRenderProcessHandler.  It satisfies the

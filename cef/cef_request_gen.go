@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Request Structure used to represent a web request. The functions of this structure may be called on any thread.
-type Request = in.Request
+type Request = portin.Request
 
 type requestImpl struct {
 	rawPtr *capi.CEFRequestT
@@ -150,7 +150,7 @@ func wrapRequest(ptr unsafe.Pointer) Request {
 }
 
 // PostData Structure used to represent post data for a web request. The functions of this structure may be called on any thread.
-type PostData = in.PostData
+type PostData = portin.PostData
 
 type postDataImpl struct {
 	rawPtr *capi.CEFPostDataT
@@ -210,7 +210,7 @@ func wrapPostData(ptr unsafe.Pointer) PostData {
 }
 
 // PostDataElement Structure used to represent a single element in the request post data. The functions of this structure may be called on any thread.
-type PostDataElement = in.PostDataElement
+type PostDataElement = portin.PostDataElement
 
 type postDataElementImpl struct {
 	rawPtr *capi.CEFPostDataElementT

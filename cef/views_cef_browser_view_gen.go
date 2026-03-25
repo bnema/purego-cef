@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // BrowserView A View hosting a cef_browser_t instance. Methods must be called on the browser process UI thread unless otherwise indicated.
-type BrowserView = in.BrowserView
+type BrowserView = portin.BrowserView
 
 type browserViewImpl struct {
 	rawPtr *capi.CEFBrowserViewT

@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // View A View is a rectangle within the views View hierarchy. It is the base structure for all Views. All size and position values are in density independent pixels (DIP) unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
-type View = in.View
+type View = portin.View
 
 type viewImpl struct {
 	rawPtr *capi.CEFViewT

@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // SelectClientCertificateCallback Callback structure used to select a client certificate for authentication.
-type SelectClientCertificateCallback = in.SelectClientCertificateCallback
+type SelectClientCertificateCallback = portin.SelectClientCertificateCallback
 
 type selectClientCertificateCallbackImpl struct {
 	rawPtr *capi.CEFSelectClientCertificateCallbackT
@@ -50,7 +50,7 @@ func wrapSelectClientCertificateCallback(ptr unsafe.Pointer) SelectClientCertifi
 }
 
 // RequestHandler Implement this structure to handle events related to browser requests. The functions of this structure will be called on the thread indicated.
-type RequestHandler = in.RequestHandler
+type RequestHandler = portin.RequestHandler
 
 // requestHandlerWrapper wraps a user-provided RequestHandler implementation together
 // with the raw CEF struct pointer allocated by NewRequestHandler.  It satisfies the

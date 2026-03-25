@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Sslinfo Structure representing SSL information.
-type Sslinfo = in.Sslinfo
+type Sslinfo = portin.Sslinfo
 
 type sslinfoImpl struct {
 	rawPtr *capi.CEFSslinfoT

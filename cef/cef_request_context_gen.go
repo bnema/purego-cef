@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ResolveCallback Callback structure for cef_request_context_t::ResolveHost.
-type ResolveCallback = in.ResolveCallback
+type ResolveCallback = portin.ResolveCallback
 
 // resolveCallbackWrapper wraps a user-provided ResolveCallback implementation together
 // with the raw CEF struct pointer allocated by NewResolveCallback.  It satisfies the
@@ -59,7 +59,7 @@ func wrapResolveCallback(ptr unsafe.Pointer) ResolveCallback {
 }
 
 // SettingObserver Implemented by the client to observe content and website setting changes and registered via cef_request_context_t::AddSettingObserver. The functions of this structure will be called on the browser process UI thread.
-type SettingObserver = in.SettingObserver
+type SettingObserver = portin.SettingObserver
 
 // settingObserverWrapper wraps a user-provided SettingObserver implementation together
 // with the raw CEF struct pointer allocated by NewSettingObserver.  It satisfies the
@@ -105,7 +105,7 @@ func wrapSettingObserver(ptr unsafe.Pointer) SettingObserver {
 }
 
 // RequestContext A request context provides request handling for a set of related browser or URL request objects. A request context can be specified when creating a new browser via the cef_browser_host_t static factory functions or when creating a new URL request via the cef_urlrequest_t static factory functions. Browser objects with different request contexts will never be hosted in the same render process. Browser objects with the same request context may or may not be hosted in the same render process depending on the process model. Browser objects created indirectly via the JavaScript window.open function or targeted links will share the same render process and the same request context as the source browser. When running in single-process mode there is only a single render process (the main process) and so all browsers created in single-process mode will share the same request context. This will be the first request context passed into a cef_browser_host_t static factory function and all other request context objects will be ignored.
-type RequestContext = in.RequestContext
+type RequestContext = portin.RequestContext
 
 type requestContextImpl struct {
 	rawPtr *capi.CEFRequestContextT

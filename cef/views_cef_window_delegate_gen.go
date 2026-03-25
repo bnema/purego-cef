@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // WindowDelegate Implement this structure to handle window events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type WindowDelegate = in.WindowDelegate
+type WindowDelegate = portin.WindowDelegate
 
 // windowDelegateWrapper wraps a user-provided WindowDelegate implementation together
 // with the raw CEF struct pointer allocated by NewWindowDelegate.  It satisfies the

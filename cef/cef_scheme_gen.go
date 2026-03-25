@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // SchemeRegistrar Structure that manages custom scheme registrations.
-type SchemeRegistrar = in.SchemeRegistrar
+type SchemeRegistrar = portin.SchemeRegistrar
 
 type schemeRegistrarImpl struct {
 	rawPtr *capi.CEFSchemeRegistrarT
@@ -38,7 +38,7 @@ func wrapSchemeRegistrar(ptr unsafe.Pointer) SchemeRegistrar {
 }
 
 // SchemeHandlerFactory Structure that creates cef_resource_handler_t instances for handling scheme requests. The functions of this structure will always be called on the IO thread.
-type SchemeHandlerFactory = in.SchemeHandlerFactory
+type SchemeHandlerFactory = portin.SchemeHandlerFactory
 
 // schemeHandlerFactoryWrapper wraps a user-provided SchemeHandlerFactory implementation together
 // with the raw CEF struct pointer allocated by NewSchemeHandlerFactory.  It satisfies the

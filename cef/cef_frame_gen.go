@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Frame Structure used to represent a frame in the browser window. When used in the browser process the functions of this structure may be called on any thread unless otherwise indicated in the comments. When used in the render process the functions of this structure may only be called on the main thread.
-type Frame = in.Frame
+type Frame = portin.Frame
 
 type frameImpl struct {
 	rawPtr *capi.CEFFrameT

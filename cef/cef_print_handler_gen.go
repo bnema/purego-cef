@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // PrintDialogCallback Callback structure for asynchronous continuation of print dialog requests.
-type PrintDialogCallback = in.PrintDialogCallback
+type PrintDialogCallback = portin.PrintDialogCallback
 
 type printDialogCallbackImpl struct {
 	rawPtr *capi.CEFPrintDialogCallbackT
@@ -54,7 +54,7 @@ func wrapPrintDialogCallback(ptr unsafe.Pointer) PrintDialogCallback {
 }
 
 // PrintJobCallback Callback structure for asynchronous continuation of print job requests.
-type PrintJobCallback = in.PrintJobCallback
+type PrintJobCallback = portin.PrintJobCallback
 
 type printJobCallbackImpl struct {
 	rawPtr *capi.CEFPrintJobCallbackT
@@ -90,7 +90,7 @@ func wrapPrintJobCallback(ptr unsafe.Pointer) PrintJobCallback {
 }
 
 // PrintHandler Implement this structure to handle printing on Linux. Each browser will have only one print job in progress at a time. The functions of this structure will be called on the browser process UI thread.
-type PrintHandler = in.PrintHandler
+type PrintHandler = portin.PrintHandler
 
 // printHandlerWrapper wraps a user-provided PrintHandler implementation together
 // with the raw CEF struct pointer allocated by NewPrintHandler.  It satisfies the

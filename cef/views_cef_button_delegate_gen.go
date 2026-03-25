@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ButtonDelegate Implement this structure to handle Button events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type ButtonDelegate = in.ButtonDelegate
+type ButtonDelegate = portin.ButtonDelegate
 
 // buttonDelegateWrapper wraps a user-provided ButtonDelegate implementation together
 // with the raw CEF struct pointer allocated by NewButtonDelegate.  It satisfies the

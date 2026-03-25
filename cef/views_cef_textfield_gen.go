@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Textfield A Textfield supports editing of text. This control is custom rendered with no platform-specific code. Methods must be called on the browser process UI thread unless otherwise indicated.
-type Textfield = in.Textfield
+type Textfield = portin.Textfield
 
 type textfieldImpl struct {
 	rawPtr *capi.CEFTextfieldT

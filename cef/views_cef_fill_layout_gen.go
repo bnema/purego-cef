@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // FillLayout A simple Layout that causes the associated Panel's one child to be sized to match the bounds of its parent. Methods must be called on the browser process UI thread unless otherwise indicated.
-type FillLayout = in.FillLayout
+type FillLayout = portin.FillLayout
 
 type fillLayoutImpl struct {
 	rawPtr *capi.CEFFillLayoutT

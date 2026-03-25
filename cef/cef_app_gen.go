@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // App Implement this structure to provide handler implementations. Methods will be called by the process and/or thread indicated.
-type App = in.App
+type App = portin.App
 
 // appWrapper wraps a user-provided App implementation together
 // with the raw CEF struct pointer allocated by NewApp.  It satisfies the

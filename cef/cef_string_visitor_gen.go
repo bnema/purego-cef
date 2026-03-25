@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // StringVisitor Implement this structure to receive string values asynchronously.
-type StringVisitor = in.StringVisitor
+type StringVisitor = portin.StringVisitor
 
 // stringVisitorWrapper wraps a user-provided StringVisitor implementation together
 // with the raw CEF struct pointer allocated by NewStringVisitor.  It satisfies the

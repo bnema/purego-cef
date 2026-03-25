@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Task Implement this structure for asynchronous task execution. If the task is posted successfully and if the associated message loop is still running then the execute() function will be called on the target thread. If the task fails to post then the task object may be destroyed on the source thread instead of the target thread. For this reason be cautious when performing work in the task object destructor.
-type Task = in.Task
+type Task = portin.Task
 
 // taskWrapper wraps a user-provided Task implementation together
 // with the raw CEF struct pointer allocated by NewTask.  It satisfies the
@@ -57,7 +57,7 @@ func wrapTask(ptr unsafe.Pointer) Task {
 }
 
 // TaskRunner Structure that asynchronously executes tasks on the associated thread. It is safe to call the functions of this structure on any thread. CEF maintains multiple internal threads that are used for handling different types of tasks in different processes. The cef_thread_id_t definitions in cef_types.h list the common CEF threads. Task runners are also available for other CEF threads as appropriate (for example, V8 WebWorker threads).
-type TaskRunner = in.TaskRunner
+type TaskRunner = portin.TaskRunner
 
 type taskRunnerImpl struct {
 	rawPtr *capi.CEFTaskRunnerT

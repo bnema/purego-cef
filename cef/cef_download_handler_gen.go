@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // BeforeDownloadCallback Callback structure used to asynchronously continue a download.
-type BeforeDownloadCallback = in.BeforeDownloadCallback
+type BeforeDownloadCallback = portin.BeforeDownloadCallback
 
 type beforeDownloadCallbackImpl struct {
 	rawPtr *capi.CEFBeforeDownloadCallbackT
@@ -52,7 +52,7 @@ func wrapBeforeDownloadCallback(ptr unsafe.Pointer) BeforeDownloadCallback {
 }
 
 // DownloadItemCallback Callback structure used to asynchronously cancel a download.
-type DownloadItemCallback = in.DownloadItemCallback
+type DownloadItemCallback = portin.DownloadItemCallback
 
 type downloadItemCallbackImpl struct {
 	rawPtr *capi.CEFDownloadItemCallbackT
@@ -96,7 +96,7 @@ func wrapDownloadItemCallback(ptr unsafe.Pointer) DownloadItemCallback {
 }
 
 // DownloadHandler Structure used to handle file downloads. The functions of this structure will called on the browser process UI thread.
-type DownloadHandler = in.DownloadHandler
+type DownloadHandler = portin.DownloadHandler
 
 // downloadHandlerWrapper wraps a user-provided DownloadHandler implementation together
 // with the raw CEF struct pointer allocated by NewDownloadHandler.  It satisfies the

@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ResponseFilter Implement this structure to filter resource response content. The functions of this structure will be called on the browser process IO thread.
-type ResponseFilter = in.ResponseFilter
+type ResponseFilter = portin.ResponseFilter
 
 // responseFilterWrapper wraps a user-provided ResponseFilter implementation together
 // with the raw CEF struct pointer allocated by NewResponseFilter.  It satisfies the

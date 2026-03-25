@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Browser Structure used to represent a browser. When used in the browser process the functions of this structure may be called on any thread unless otherwise indicated in the comments. When used in the render process the functions of this structure may only be called on the main thread.
-type Browser = in.Browser
+type Browser = portin.Browser
 
 type browserImpl struct {
 	rawPtr *capi.CEFBrowserT
@@ -134,7 +134,7 @@ func wrapBrowser(ptr unsafe.Pointer) Browser {
 }
 
 // RunFileDialogCallback Callback structure for cef_browser_host_t::RunFileDialog. The functions of this structure will be called on the browser process UI thread.
-type RunFileDialogCallback = in.RunFileDialogCallback
+type RunFileDialogCallback = portin.RunFileDialogCallback
 
 // runFileDialogCallbackWrapper wraps a user-provided RunFileDialogCallback implementation together
 // with the raw CEF struct pointer allocated by NewRunFileDialogCallback.  It satisfies the
@@ -178,7 +178,7 @@ func wrapRunFileDialogCallback(ptr unsafe.Pointer) RunFileDialogCallback {
 }
 
 // NavigationEntryVisitor Callback structure for cef_browser_host_t::GetNavigationEntries. The functions of this structure will be called on the browser process UI thread.
-type NavigationEntryVisitor = in.NavigationEntryVisitor
+type NavigationEntryVisitor = portin.NavigationEntryVisitor
 
 // navigationEntryVisitorWrapper wraps a user-provided NavigationEntryVisitor implementation together
 // with the raw CEF struct pointer allocated by NewNavigationEntryVisitor.  It satisfies the
@@ -225,7 +225,7 @@ func wrapNavigationEntryVisitor(ptr unsafe.Pointer) NavigationEntryVisitor {
 }
 
 // PdfPrintCallback Callback structure for cef_browser_host_t::PrintToPDF. The functions of this structure will be called on the browser process UI thread.
-type PdfPrintCallback = in.PdfPrintCallback
+type PdfPrintCallback = portin.PdfPrintCallback
 
 // pdfPrintCallbackWrapper wraps a user-provided PdfPrintCallback implementation together
 // with the raw CEF struct pointer allocated by NewPdfPrintCallback.  It satisfies the
@@ -270,7 +270,7 @@ func wrapPdfPrintCallback(ptr unsafe.Pointer) PdfPrintCallback {
 }
 
 // DownloadImageCallback Callback structure for cef_browser_host_t::DownloadImage. The functions of this structure will be called on the browser process UI thread.
-type DownloadImageCallback = in.DownloadImageCallback
+type DownloadImageCallback = portin.DownloadImageCallback
 
 // downloadImageCallbackWrapper wraps a user-provided DownloadImageCallback implementation together
 // with the raw CEF struct pointer allocated by NewDownloadImageCallback.  It satisfies the
@@ -316,7 +316,7 @@ func wrapDownloadImageCallback(ptr unsafe.Pointer) DownloadImageCallback {
 }
 
 // BrowserHost Structure used to represent the browser process aspects of a browser. The functions of this structure can only be called in the browser process. They may be called on any thread in that process unless otherwise indicated in the comments.
-type BrowserHost = in.BrowserHost
+type BrowserHost = portin.BrowserHost
 
 type browserHostImpl struct {
 	rawPtr *capi.CEFBrowserHostT

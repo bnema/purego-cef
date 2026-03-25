@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Server Structure representing a server that supports HTTP and WebSocket requests. Server capacity is limited and is intended to handle only a small number of simultaneous connections (e.g. for communicating between applications on localhost). The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.
-type Server = in.Server
+type Server = portin.Server
 
 type serverImpl struct {
 	rawPtr *capi.CEFServerT
@@ -104,7 +104,7 @@ func wrapServer(ptr unsafe.Pointer) Server {
 }
 
 // ServerHandler Implement this structure to handle HTTP server requests. A new thread will be created for each cef_server_t::CreateServer call (the "dedicated server thread"), and the functions of this structure will be called on that thread. It is therefore recommended to use a different cef_server_handler_t instance for each cef_server_t::CreateServer call to avoid thread safety issues in the cef_server_handler_t implementation.
-type ServerHandler = in.ServerHandler
+type ServerHandler = portin.ServerHandler
 
 // serverHandlerWrapper wraps a user-provided ServerHandler implementation together
 // with the raw CEF struct pointer allocated by NewServerHandler.  It satisfies the

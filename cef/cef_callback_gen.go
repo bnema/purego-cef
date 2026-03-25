@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Callback Generic callback structure used for asynchronous continuation.
-type Callback = in.Callback
+type Callback = portin.Callback
 
 type callbackImpl struct {
 	rawPtr *capi.CEFCallbackT
@@ -54,7 +54,7 @@ func wrapCallback(ptr unsafe.Pointer) Callback {
 }
 
 // CompletionCallback Generic callback structure used for asynchronous completion.
-type CompletionCallback = in.CompletionCallback
+type CompletionCallback = portin.CompletionCallback
 
 // completionCallbackWrapper wraps a user-provided CompletionCallback implementation together
 // with the raw CEF struct pointer allocated by NewCompletionCallback.  It satisfies the

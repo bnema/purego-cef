@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // X509CertPrincipal Structure representing the issuer or subject field of an X.509 certificate.
-type X509CertPrincipal = in.X509CertPrincipal
+type X509CertPrincipal = portin.X509CertPrincipal
 
 type x509CertPrincipalImpl struct {
 	rawPtr *capi.CEFX509CertPrincipalT
@@ -72,7 +72,7 @@ func wrapX509CertPrincipal(ptr unsafe.Pointer) X509CertPrincipal {
 }
 
 // X509Certificate Structure representing a X.509 certificate.
-type X509Certificate = in.X509Certificate
+type X509Certificate = portin.X509Certificate
 
 type x509CertificateImpl struct {
 	rawPtr *capi.CEFX509CertificateT

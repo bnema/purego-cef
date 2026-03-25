@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MenuModelDelegate Implement this structure to handle menu model events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type MenuModelDelegate = in.MenuModelDelegate
+type MenuModelDelegate = portin.MenuModelDelegate
 
 // menuModelDelegateWrapper wraps a user-provided MenuModelDelegate implementation together
 // with the raw CEF struct pointer allocated by NewMenuModelDelegate.  It satisfies the

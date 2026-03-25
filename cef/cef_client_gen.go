@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Client Implement this structure to provide handler implementations.
-type Client = in.Client
+type Client = portin.Client
 
 // clientWrapper wraps a user-provided Client implementation together
 // with the raw CEF struct pointer allocated by NewClient.  It satisfies the

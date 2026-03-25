@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // CommandHandler Implement this structure to handle events related to commands. The functions of this structure will be called on the UI thread.
-type CommandHandler = in.CommandHandler
+type CommandHandler = portin.CommandHandler
 
 // commandHandlerWrapper wraps a user-provided CommandHandler implementation together
 // with the raw CEF struct pointer allocated by NewCommandHandler.  It satisfies the

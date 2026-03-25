@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // WaitableEvent WaitableEvent is a thread synchronization tool that allows one thread to wait for another thread to finish some work. This is equivalent to using a Lock+ConditionVariable to protect a simple boolean value. However, using WaitableEvent in conjunction with a Lock to wait for a more complex state change (e.g., for an item to be added to a queue) is not recommended. In that case consider using a ConditionVariable instead of a WaitableEvent. It is safe to create and/or signal a WaitableEvent from any thread. Blocking on a WaitableEvent by calling the *wait() functions is not allowed on the browser process UI or IO threads.
-type WaitableEvent = in.WaitableEvent
+type WaitableEvent = portin.WaitableEvent
 
 type waitableEventImpl struct {
 	rawPtr *capi.CEFWaitableEventT

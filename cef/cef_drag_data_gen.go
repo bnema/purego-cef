@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // DragData Structure used to represent drag data. The functions of this structure may be called on any thread.
-type DragData = in.DragData
+type DragData = portin.DragData
 
 type dragDataImpl struct {
 	rawPtr *capi.CEFDragDataT

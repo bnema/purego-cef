@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // DevToolsMessageObserver Callback structure for cef_browser_host_t::AddDevToolsMessageObserver. The functions of this structure will be called on the browser process UI thread.
-type DevToolsMessageObserver = in.DevToolsMessageObserver
+type DevToolsMessageObserver = portin.DevToolsMessageObserver
 
 // devToolsMessageObserverWrapper wraps a user-provided DevToolsMessageObserver implementation together
 // with the raw CEF struct pointer allocated by NewDevToolsMessageObserver.  It satisfies the

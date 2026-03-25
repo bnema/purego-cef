@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MenuButton MenuButton is a button with optional text, icon and/or menu marker that shows a menu when clicked with the left mouse button. All size and position values are in density independent pixels (DIP) unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
-type MenuButton = in.MenuButton
+type MenuButton = portin.MenuButton
 
 type menuButtonImpl struct {
 	rawPtr *capi.CEFMenuButtonT

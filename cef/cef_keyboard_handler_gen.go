@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // KeyboardHandler Implement this structure to handle events related to keyboard input. The functions of this structure will be called on the UI thread.
-type KeyboardHandler = in.KeyboardHandler
+type KeyboardHandler = portin.KeyboardHandler
 
 // keyboardHandlerWrapper wraps a user-provided KeyboardHandler implementation together
 // with the raw CEF struct pointer allocated by NewKeyboardHandler.  It satisfies the

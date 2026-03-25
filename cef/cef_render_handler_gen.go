@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // RenderHandler Implement this structure to handle events when window rendering is disabled. The functions of this structure will be called on the UI thread.
-type RenderHandler = in.RenderHandler
+type RenderHandler = portin.RenderHandler
 
 // renderHandlerWrapper wraps a user-provided RenderHandler implementation together
 // with the raw CEF struct pointer allocated by NewRenderHandler.  It satisfies the

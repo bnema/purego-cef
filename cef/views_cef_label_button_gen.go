@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // LabelButton LabelButton is a button with optional text and/or icon. Methods must be called on the browser process UI thread unless otherwise indicated.
-type LabelButton = in.LabelButton
+type LabelButton = portin.LabelButton
 
 type labelButtonImpl struct {
 	rawPtr *capi.CEFLabelButtonT

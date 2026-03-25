@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // UnresponsiveProcessCallback Callback structure for asynchronous handling of an unresponsive process.
-type UnresponsiveProcessCallback = in.UnresponsiveProcessCallback
+type UnresponsiveProcessCallback = portin.UnresponsiveProcessCallback
 
 type unresponsiveProcessCallbackImpl struct {
 	rawPtr *capi.CEFUnresponsiveProcessCallbackT

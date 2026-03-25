@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // BrowserProcessHandler Structure used to implement browser process callbacks. The functions of this structure will be called on the browser process main thread unless otherwise indicated.
-type BrowserProcessHandler = in.BrowserProcessHandler
+type BrowserProcessHandler = portin.BrowserProcessHandler
 
 // browserProcessHandlerWrapper wraps a user-provided BrowserProcessHandler implementation together
 // with the raw CEF struct pointer allocated by NewBrowserProcessHandler.  It satisfies the

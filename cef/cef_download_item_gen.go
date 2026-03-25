@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // DownloadItem Structure used to represent a download item.
-type DownloadItem = in.DownloadItem
+type DownloadItem = portin.DownloadItem
 
 type downloadItemImpl struct {
 	rawPtr *capi.CEFDownloadItemT

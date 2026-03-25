@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Thread A simple thread abstraction that establishes a message loop on a new thread. The consumer uses cef_task_runner_t to execute code on the thread's message loop. The thread is terminated when the cef_thread_t object is destroyed or stop() is called. All pending tasks queued on the thread's message loop will run to completion before the thread is terminated. cef_thread_create() can be called on any valid CEF thread in either the browser or render process. This structure should only be used for tasks that require a dedicated thread. In most cases you can post tasks to an existing CEF thread instead of creating a new one; see cef_task.h for details.
-type Thread = in.Thread
+type Thread = portin.Thread
 
 type threadImpl struct {
 	rawPtr *capi.CEFThreadT

@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Sslstatus Structure representing the SSL information for a navigation entry.
-type Sslstatus = in.Sslstatus
+type Sslstatus = portin.Sslstatus
 
 type sslstatusImpl struct {
 	rawPtr *capi.CEFSslstatusT

@@ -8,11 +8,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ProcessMessage Structure representing a message. Can be used on any process and thread.
-type ProcessMessage = in.ProcessMessage
+type ProcessMessage = portin.ProcessMessage
 
 type processMessageImpl struct {
 	rawPtr *capi.CEFProcessMessageT

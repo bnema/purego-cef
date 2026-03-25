@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Image Container for a single image represented at different scale factors. All image representations should be the same size in density independent pixel (DIP) units. For example, if the image at scale factor 1.0 is 100x100 pixels then the image at scale factor 2.0 should be 200x200 pixels -- both images will display with a DIP size of 100x100 units. The functions of this structure can be called on any browser process thread.
-type Image = in.Image
+type Image = portin.Image
 
 type imageImpl struct {
 	rawPtr *capi.CEFImageT

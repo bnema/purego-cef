@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // TextfieldDelegate Implement this structure to handle Textfield events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type TextfieldDelegate = in.TextfieldDelegate
+type TextfieldDelegate = portin.TextfieldDelegate
 
 // textfieldDelegateWrapper wraps a user-provided TextfieldDelegate implementation together
 // with the raw CEF struct pointer allocated by NewTextfieldDelegate.  It satisfies the

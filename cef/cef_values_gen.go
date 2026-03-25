@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Value Structure that wraps other data value types. Complex types (binary, dictionary and list) will be referenced but not owned by this object. Can be used on any process and thread.
-type Value = in.Value
+type Value = portin.Value
 
 type valueImpl struct {
 	rawPtr *capi.CEFValueT
@@ -140,7 +140,7 @@ func wrapValue(ptr unsafe.Pointer) Value {
 }
 
 // BinaryValue Structure representing a binary value. Can be used on any process and thread.
-type BinaryValue = in.BinaryValue
+type BinaryValue = portin.BinaryValue
 
 type binaryValueImpl struct {
 	rawPtr *capi.CEFBinaryValueT
@@ -204,7 +204,7 @@ func wrapBinaryValue(ptr unsafe.Pointer) BinaryValue {
 }
 
 // DictionaryValue Structure representing a dictionary value. Can be used on any process and thread.
-type DictionaryValue = in.DictionaryValue
+type DictionaryValue = portin.DictionaryValue
 
 type dictionaryValueImpl struct {
 	rawPtr *capi.CEFDictionaryValueT
@@ -398,7 +398,7 @@ func wrapDictionaryValue(ptr unsafe.Pointer) DictionaryValue {
 }
 
 // ListValue Structure representing a list value. Can be used on any process and thread.
-type ListValue = in.ListValue
+type ListValue = portin.ListValue
 
 type listValueImpl struct {
 	rawPtr *capi.CEFListValueT

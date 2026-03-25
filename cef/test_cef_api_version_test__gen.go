@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ApiVersionTest Structure for testing versioned object transfer.
-type ApiVersionTest = in.ApiVersionTest
+type ApiVersionTest = portin.ApiVersionTest
 
 type apiVersionTestImpl struct {
 	rawPtr *capi.CEFApiVersionTestT
@@ -186,7 +186,7 @@ func wrapApiVersionTest(ptr unsafe.Pointer) ApiVersionTest {
 }
 
 // ApiVersionTestRefPtrLibrary Library-side test object for RefPtr.
-type ApiVersionTestRefPtrLibrary = in.ApiVersionTestRefPtrLibrary
+type ApiVersionTestRefPtrLibrary = portin.ApiVersionTestRefPtrLibrary
 
 type apiVersionTestRefPtrLibraryImpl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryT
@@ -258,7 +258,7 @@ func wrapApiVersionTestRefPtrLibrary(ptr unsafe.Pointer) ApiVersionTestRefPtrLib
 }
 
 // ApiVersionTestRefPtrLibraryChild Library-side child test object for RefPtr.
-type ApiVersionTestRefPtrLibraryChild = in.ApiVersionTestRefPtrLibraryChild
+type ApiVersionTestRefPtrLibraryChild = portin.ApiVersionTestRefPtrLibraryChild
 
 type apiVersionTestRefPtrLibraryChildImpl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildT
@@ -298,7 +298,7 @@ func wrapApiVersionTestRefPtrLibraryChild(ptr unsafe.Pointer) ApiVersionTestRefP
 }
 
 // ApiVersionTestRefPtrLibraryChildChild Another library-side child test object for RefPtr. This is replaced by cef_api_version_test_ref_ptr_library_child_child_v1_t in version 13301.
-type ApiVersionTestRefPtrLibraryChildChild = in.ApiVersionTestRefPtrLibraryChildChild
+type ApiVersionTestRefPtrLibraryChildChild = portin.ApiVersionTestRefPtrLibraryChildChild
 
 type apiVersionTestRefPtrLibraryChildChildImpl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildChildT
@@ -338,7 +338,7 @@ func wrapApiVersionTestRefPtrLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV1 Another library-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_library_child_child_t in version 13301 and is replaced by cef_api_version_test_ref_ptr_library_child_child_v2_t in version 13302.
-type ApiVersionTestRefPtrLibraryChildChildV1 = in.ApiVersionTestRefPtrLibraryChildChildV1
+type ApiVersionTestRefPtrLibraryChildChildV1 = portin.ApiVersionTestRefPtrLibraryChildChildV1
 
 type apiVersionTestRefPtrLibraryChildChildV1Impl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildChildV1T
@@ -378,7 +378,7 @@ func wrapApiVersionTestRefPtrLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV2 Another library-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_library_child_child_v1_t in version 13302.
-type ApiVersionTestRefPtrLibraryChildChildV2 = in.ApiVersionTestRefPtrLibraryChildChildV2
+type ApiVersionTestRefPtrLibraryChildChildV2 = portin.ApiVersionTestRefPtrLibraryChildChildV2
 
 type apiVersionTestRefPtrLibraryChildChildV2Impl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildChildV2T
@@ -418,7 +418,7 @@ func wrapApiVersionTestRefPtrLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionT
 }
 
 // ApiVersionTestRefPtrClient Client-side test object for RefPtr.
-type ApiVersionTestRefPtrClient = in.ApiVersionTestRefPtrClient
+type ApiVersionTestRefPtrClient = portin.ApiVersionTestRefPtrClient
 
 // apiVersionTestRefPtrClientWrapper wraps a user-provided ApiVersionTestRefPtrClient implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClient.  It satisfies the
@@ -477,7 +477,7 @@ func wrapApiVersionTestRefPtrClient(ptr unsafe.Pointer) ApiVersionTestRefPtrClie
 }
 
 // ApiVersionTestRefPtrClientChild Client-side child test object for RefPtr. This is replaced with cef_api_version_test_ref_ptr_client_child_v2_t in version 13302.
-type ApiVersionTestRefPtrClientChild = in.ApiVersionTestRefPtrClientChild
+type ApiVersionTestRefPtrClientChild = portin.ApiVersionTestRefPtrClientChild
 
 // apiVersionTestRefPtrClientChildWrapper wraps a user-provided ApiVersionTestRefPtrClientChild implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClientChild.  It satisfies the
@@ -524,7 +524,7 @@ func wrapApiVersionTestRefPtrClientChild(ptr unsafe.Pointer) ApiVersionTestRefPt
 }
 
 // ApiVersionTestRefPtrClientChildV2 Client-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_client_child_t in version 13302.
-type ApiVersionTestRefPtrClientChildV2 = in.ApiVersionTestRefPtrClientChildV2
+type ApiVersionTestRefPtrClientChildV2 = portin.ApiVersionTestRefPtrClientChildV2
 
 // apiVersionTestRefPtrClientChildV2Wrapper wraps a user-provided ApiVersionTestRefPtrClientChildV2 implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClientChildV2.  It satisfies the
@@ -571,7 +571,7 @@ func wrapApiVersionTestRefPtrClientChildV2(ptr unsafe.Pointer) ApiVersionTestRef
 }
 
 // ApiVersionTestScopedLibrary Library-side test object for OwnPtr/RawPtr.
-type ApiVersionTestScopedLibrary = in.ApiVersionTestScopedLibrary
+type ApiVersionTestScopedLibrary = portin.ApiVersionTestScopedLibrary
 
 type apiVersionTestScopedLibraryImpl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryT
@@ -630,7 +630,7 @@ func wrapApiVersionTestScopedLibrary(ptr unsafe.Pointer) ApiVersionTestScopedLib
 }
 
 // ApiVersionTestScopedLibraryChild Library-side child test object for OwnPtr/RawPtr.
-type ApiVersionTestScopedLibraryChild = in.ApiVersionTestScopedLibraryChild
+type ApiVersionTestScopedLibraryChild = portin.ApiVersionTestScopedLibraryChild
 
 type apiVersionTestScopedLibraryChildImpl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryChildT
@@ -670,7 +670,7 @@ func wrapApiVersionTestScopedLibraryChild(ptr unsafe.Pointer) ApiVersionTestScop
 }
 
 // ApiVersionTestScopedLibraryChildChild Another library-side child test object for OwnPtr/RawPtr. This is replaced by cef_api_version_test_scoped_library_child_child_v1_t in version 13301.
-type ApiVersionTestScopedLibraryChildChild = in.ApiVersionTestScopedLibraryChildChild
+type ApiVersionTestScopedLibraryChildChild = portin.ApiVersionTestScopedLibraryChildChild
 
 type apiVersionTestScopedLibraryChildChildImpl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryChildChildT
@@ -710,7 +710,7 @@ func wrapApiVersionTestScopedLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 }
 
 // ApiVersionTestScopedLibraryChildChildV1 Another library-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_library_child_child_t in version 13301 and is replaced by cef_api_version_test_scoped_library_child_child_v2_t in version 13302.
-type ApiVersionTestScopedLibraryChildChildV1 = in.ApiVersionTestScopedLibraryChildChildV1
+type ApiVersionTestScopedLibraryChildChildV1 = portin.ApiVersionTestScopedLibraryChildChildV1
 
 type apiVersionTestScopedLibraryChildChildV1Impl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryChildChildV1T
@@ -750,7 +750,7 @@ func wrapApiVersionTestScopedLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 }
 
 // ApiVersionTestScopedLibraryChildChildV2 Another library-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_library_child_child_v1_t in version 13302.
-type ApiVersionTestScopedLibraryChildChildV2 = in.ApiVersionTestScopedLibraryChildChildV2
+type ApiVersionTestScopedLibraryChildChildV2 = portin.ApiVersionTestScopedLibraryChildChildV2
 
 type apiVersionTestScopedLibraryChildChildV2Impl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryChildChildV2T
@@ -790,7 +790,7 @@ func wrapApiVersionTestScopedLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionT
 }
 
 // ApiVersionTestScopedClient Client-side test object for OwnPtr/RawPtr.
-type ApiVersionTestScopedClient = in.ApiVersionTestScopedClient
+type ApiVersionTestScopedClient = portin.ApiVersionTestScopedClient
 
 // apiVersionTestScopedClientWrapper wraps a user-provided ApiVersionTestScopedClient implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestScopedClient.  It satisfies the
@@ -849,7 +849,7 @@ func wrapApiVersionTestScopedClient(ptr unsafe.Pointer) ApiVersionTestScopedClie
 }
 
 // ApiVersionTestScopedClientChild Client-side child test object for OwnPtr/RawPtr. This is replaced with cef_api_version_test_scoped_client_child_v2_t in version 13302.
-type ApiVersionTestScopedClientChild = in.ApiVersionTestScopedClientChild
+type ApiVersionTestScopedClientChild = portin.ApiVersionTestScopedClientChild
 
 // apiVersionTestScopedClientChildWrapper wraps a user-provided ApiVersionTestScopedClientChild implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestScopedClientChild.  It satisfies the
@@ -896,7 +896,7 @@ func wrapApiVersionTestScopedClientChild(ptr unsafe.Pointer) ApiVersionTestScope
 }
 
 // ApiVersionTestScopedClientChildV2 Client-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_client_child_t in version 13302.
-type ApiVersionTestScopedClientChildV2 = in.ApiVersionTestScopedClientChildV2
+type ApiVersionTestScopedClientChildV2 = portin.ApiVersionTestScopedClientChildV2
 
 // apiVersionTestScopedClientChildV2Wrapper wraps a user-provided ApiVersionTestScopedClientChildV2 implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestScopedClientChildV2.  It satisfies the

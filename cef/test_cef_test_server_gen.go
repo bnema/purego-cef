@@ -10,11 +10,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // TestServer Structure representing an embedded test server that supports HTTP/HTTPS requests. This is a basic server providing only an essential subset of the HTTP/1.1 protocol. Especially, it assumes that the request syntax is correct. It *does not* support a Chunked Transfer Encoding. Server capacity is limited and is intended to handle only a small number of simultaneous connections (e.g. for communicating between applications on localhost). The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.
-type TestServer = in.TestServer
+type TestServer = portin.TestServer
 
 type testServerImpl struct {
 	rawPtr *capi.CEFTestServerT
@@ -54,7 +54,7 @@ func wrapTestServer(ptr unsafe.Pointer) TestServer {
 }
 
 // TestServerHandler Implement this structure to handle test server requests. A new thread will be created for each cef_test_server_t::CreateAndStart call (the "dedicated server thread"), and the functions of this structure will be called on that thread. See related documentation on cef_test_server_t::CreateAndStart.
-type TestServerHandler = in.TestServerHandler
+type TestServerHandler = portin.TestServerHandler
 
 // testServerHandlerWrapper wraps a user-provided TestServerHandler implementation together
 // with the raw CEF struct pointer allocated by NewTestServerHandler.  It satisfies the
@@ -100,7 +100,7 @@ func wrapTestServerHandler(ptr unsafe.Pointer) TestServerHandler {
 }
 
 // TestServerConnection Structure representing a test server connection. The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.
-type TestServerConnection = in.TestServerConnection
+type TestServerConnection = portin.TestServerConnection
 
 type testServerConnectionImpl struct {
 	rawPtr *capi.CEFTestServerConnectionT

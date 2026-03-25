@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // RequestContextHandler Implement this structure to provide handler implementations. The handler instance will not be released until all objects related to the context have been destroyed.
-type RequestContextHandler = in.RequestContextHandler
+type RequestContextHandler = portin.RequestContextHandler
 
 // requestContextHandlerWrapper wraps a user-provided RequestContextHandler implementation together
 // with the raw CEF struct pointer allocated by NewRequestContextHandler.  It satisfies the

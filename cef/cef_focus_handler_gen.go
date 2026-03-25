@@ -9,11 +9,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // FocusHandler Implement this structure to handle events related to focus. The functions of this structure will be called on the UI thread.
-type FocusHandler = in.FocusHandler
+type FocusHandler = portin.FocusHandler
 
 // focusHandlerWrapper wraps a user-provided FocusHandler implementation together
 // with the raw CEF struct pointer allocated by NewFocusHandler.  It satisfies the

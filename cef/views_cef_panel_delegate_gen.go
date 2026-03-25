@@ -7,11 +7,11 @@ import (
 
 	"github.com/bnema/purego-cef/internal/capi"
 
-	in "github.com/bnema/purego-cef/internal/ports/in"
+	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // PanelDelegate Implement this structure to handle Panel events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type PanelDelegate = in.PanelDelegate
+type PanelDelegate = portin.PanelDelegate
 
 // panelDelegateWrapper wraps a user-provided PanelDelegate implementation together
 // with the raw CEF struct pointer allocated by NewPanelDelegate.  It satisfies the
