@@ -1,5 +1,5 @@
 // init.go is the composition root for the cef package. It wires
-// the loader, CAPI adapter, and core Engine together.
+// the loader, CAPI bridge, and core Engine together.
 //
 // This file is handwritten — the rest of cef/ is generated.
 package cef
@@ -30,8 +30,8 @@ func Init(settings Settings) error {
 	if err != nil {
 		return err
 	}
-	adapter := capi.New(handle)
-	e := core.New(adapter)
+	bridge := capi.NewBridge(handle)
+	e := core.New(bridge)
 	engPtr.Store(e)
 	return e.Init(settings)
 }
