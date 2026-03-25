@@ -52,14 +52,14 @@ func TestEmitPublicObjectInterface(t *testing.T) {
 		desc string
 		want string
 	}{
-		{"interface declaration", "type Browser = in.Browser"},
+		{"interface declaration", "type Browser = portin.Browser"},
 		{"method GetHost", "GetHost()"},
 		{"method CanGoBack", "CanGoBack() bool"},
 		{"impl struct", "type browserImpl struct"},
 		{"wrap function", "func wrapBrowser(ptr unsafe.Pointer) Browser"},
 		{"Release method", "func (obj *browserImpl) Release()"},
 		{"runtime import", `"runtime"`},
-		{"raw import", `raw`},
+		{"capi import", `capi`},
 	}
 
 	for _, c := range checks {
@@ -165,7 +165,7 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 		desc string
 		want string
 	}{
-		{"interface declaration", "type FocusHandler = in.FocusHandler"},
+		{"interface declaration", "type FocusHandler = portin.FocusHandler"},
 		{"constructor function", "func NewFocusHandler(impl FocusHandler) FocusHandler"},
 		{"initRefCount call", "initRefCount(unsafe.Pointer(r)"},
 		{"purego.NewCallback", "purego.NewCallback"},

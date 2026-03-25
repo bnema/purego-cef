@@ -84,17 +84,17 @@ func (e *Engine) InitWithApp(settings Settings, appPtr unsafe.Pointer) error {
 	if ok != 1 {
 		return fmt.Errorf("cef: cef_initialize returned %d", ok)
 	}
-	e.initialized = true
+	e.initialized.Store(true)
 	return nil
 }
 
 // Shutdown releases all CEF resources.
 func (e *Engine) Shutdown() {
-	if !e.initialized {
+	if !e.initialized.Load() {
 		return
 	}
 	e.capi.Shutdown()
-	e.initialized = false
+	e.initialized.Store(false)
 }
 
 // DoMessageLoopWork pumps the CEF message loop for one iteration.

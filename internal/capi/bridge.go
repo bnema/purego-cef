@@ -1,5 +1,5 @@
 // bridge.go implements portout.CAPI using purego bindings.
-// This is the only handwritten file in the capi package.
+// This is one of the handwritten files in the capi package (see also register.go and doc.go).
 package capi
 
 import (
@@ -40,6 +40,8 @@ func NewBridge(handle uintptr) *Bridge {
 	return b
 }
 
+// bindStringFuncs uses purego.RegisterLibFunc (which panics on missing symbols)
+// intentionally — these string functions are mandatory in every CEF build.
 func (b *Bridge) bindStringFuncs(handle uintptr) {
 	purego.RegisterLibFunc(&b.stringSet, handle, "cef_string_utf16_set")
 	purego.RegisterLibFunc(&b.stringClear, handle, "cef_string_utf16_clear")
@@ -48,6 +50,8 @@ func (b *Bridge) bindStringFuncs(handle uintptr) {
 	purego.RegisterLibFunc(&b.stringListVal, handle, "cef_string_list_value")
 }
 
+// bindCoreFuncs uses purego.RegisterLibFunc (which panics on missing symbols)
+// intentionally — these core lifecycle functions are mandatory in every CEF build.
 func (b *Bridge) bindCoreFuncs(handle uintptr) {
 	purego.RegisterLibFunc(&b.initialize, handle, "cef_initialize")
 	purego.RegisterLibFunc(&b.shutdown, handle, "cef_shutdown")

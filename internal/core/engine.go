@@ -2,6 +2,8 @@
 package core
 
 import (
+	"sync/atomic"
+
 	portout "github.com/bnema/purego-cef/internal/ports/out"
 )
 
@@ -11,7 +13,7 @@ import (
 type Engine struct {
 	capi        portout.CAPI
 	refs        *RefManager
-	initialized bool
+	initialized atomic.Bool
 }
 
 // New creates an Engine with the given CAPI adapter.

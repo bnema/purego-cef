@@ -7,7 +7,9 @@ import (
 	"unsafe"
 )
 
-// CEFStringT mirrors the cef_string_t layout (UTF-16).
+// CEFStringT mirrors cef_string_utf16_t. This layout MUST match
+// internal/capi/doc.go:CEFStringT exactly — both are 24 bytes on
+// 64-bit systems (pointer + uintptr + uintptr).
 // Intentionally duplicated from capi.CEFStringT to avoid a circular import
 // (core defines the CAPI interface that capi implements). Both definitions
 // MUST stay in sync — they share the same memory layout.

@@ -7,8 +7,9 @@ import "github.com/ebitengine/purego"
 // shared library, which is essential because optional CEF APIs may vary across
 // builds and versions.
 func tryRegisterLibFunc(fptr any, handle uintptr, name string) {
-	if _, err := purego.Dlsym(handle, name); err != nil {
+	sym, err := purego.Dlsym(handle, name)
+	if err != nil {
 		return // symbol not available in this build
 	}
-	purego.RegisterLibFunc(fptr, handle, name)
+	purego.RegisterFunc(fptr, sym)
 }

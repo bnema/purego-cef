@@ -61,7 +61,7 @@ func TestEmitRaw(t *testing.T) {
 		"OverrideGetBrowserProcessHandler",
 		"purego.SyscallN",
 		"func RegisterApp(handle uintptr)",
-		`purego.RegisterLibFunc(&CEFExecuteProcess, handle, "cef_execute_process")`,
+		`tryRegisterLibFunc(&CEFExecuteProcess, handle, "cef_execute_process")`,
 		"var CEFExecuteProcess func(Args unsafe.Pointer) int32",
 	}
 

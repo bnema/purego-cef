@@ -2,6 +2,12 @@
 // the loader, CAPI bridge, and core Engine together.
 //
 // This file is handwritten — the rest of cef/ is generated.
+//
+// The hexagonal refactor removed the following hand-written APIs that are
+// now provided (or intentionally dropped) by the generated public layer:
+//   - NewKeyEvent, KeyEventSetType → use generated KeyEvent struct directly
+//   - DefaultWindowInfo, DefaultBrowserSettings → use generated zero-value structs
+//   - SetHandlerTraceEnabled, HandlerTraceEnabled → handler tracing removed
 package cef
 
 import (
@@ -25,6 +31,9 @@ func DefaultSettings() Settings {
 }
 
 // Init loads the CEF library, registers all symbols, and initializes the runtime.
+// It runs once via sync.Once — if initialization fails, subsequent calls return
+// the cached error without retrying. This is by design: a failed CEF init leaves
+// the process in an indeterminate state, so retrying would be unsafe.
 func Init(settings Settings) error {
 	initOnce.Do(func() {
 		handle, err := loader.Open(settings.CEFDir)
@@ -54,8 +63,10 @@ func DoMessageLoopWork() {
 	}
 }
 
-// MaybeExitSubprocess calls cef_execute_process and exits if this is a subprocess.
-// Uses a lightweight path that only binds cef_execute_process.
+// MaybeExitSubprocess uses a lightweight path that binds only
+// cef_execute_process, bypassing the full Bridge initialization.
+// This is intentional — subprocess detection must happen before
+// the full CEF runtime is initialized.
 func MaybeExitSubprocess() {
 	handle, err := loader.Open("")
 	if err != nil {
