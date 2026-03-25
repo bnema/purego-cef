@@ -7,7 +7,6 @@ package cef
 
 import (
 	"sync"
-	"sync/atomic"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -228,19 +227,20 @@ func (w *rawAudioHandlerWrapper) OnAudioStreamError(b Browser, m string) {
 func wrapAudioHandler(_ unsafe.Pointer) portin.AudioHandler { return nil }
 
 // ---------------------------------------------------------------------------
-// Engine access — atomic for thread safety (#8)
+// Engine access — initialised once via sync.Once in Init()
 // ---------------------------------------------------------------------------
 
-// engPtr is the core Engine instance, wired at Init() time.
-// Accessed atomically so bridge helpers are safe from any goroutine.
-var engPtr atomic.Pointer[core.Engine]
+var (
+	eng      *core.Engine
+	initOnce sync.Once
+	initErr  error
+)
 
 func mustEng() *core.Engine {
-	e := engPtr.Load()
-	if e == nil {
+	if eng == nil {
 		panic("cef: engine not initialized; call cef.Init() first")
 	}
-	return e
+	return eng
 }
 
 // cefString converts a Go string to a CEF UTF-16 string.

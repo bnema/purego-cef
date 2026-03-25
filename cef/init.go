@@ -26,27 +26,31 @@ func DefaultSettings() Settings {
 
 // Init loads the CEF library, registers all symbols, and initializes the runtime.
 func Init(settings Settings) error {
-	handle, err := loader.Open(settings.CEFDir)
-	if err != nil {
-		return err
-	}
-	bridge := capi.NewBridge(handle)
-	e := core.New(bridge)
-	engPtr.Store(e)
-	return e.Init(settings)
+	initOnce.Do(func() {
+		handle, err := loader.Open(settings.CEFDir)
+		if err != nil {
+			initErr = err
+			return
+		}
+		bridge := capi.NewBridge(handle)
+		e := core.New(bridge)
+		eng = e
+		initErr = e.Init(settings)
+	})
+	return initErr
 }
 
 // Shutdown releases all CEF resources.
 func Shutdown() {
-	if e := engPtr.Load(); e != nil {
-		e.Shutdown()
+	if eng != nil {
+		eng.Shutdown()
 	}
 }
 
 // DoMessageLoopWork pumps the CEF message loop for one iteration.
 func DoMessageLoopWork() {
-	if e := engPtr.Load(); e != nil {
-		e.DoMessageLoopWork()
+	if eng != nil {
+		eng.DoMessageLoopWork()
 	}
 }
 
