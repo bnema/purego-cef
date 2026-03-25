@@ -7,6 +7,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"unsafe"
+
+	portout "github.com/bnema/purego-cef/internal/ports/out"
 )
 
 // refState tracks the atomic reference count for a single Go-owned CEF object.
@@ -38,7 +40,7 @@ type RefManager struct {
 }
 
 // NewRefManager creates a RefManager, registering callbacks via the CAPI adapter.
-func NewRefManager(capi CAPI) *RefManager {
+func NewRefManager(capi portout.CAPI) *RefManager {
 	rm := &RefManager{}
 	rm.addRefCb = capi.NewCallback(func(self unsafe.Pointer) { rm.addRef(self) })
 	rm.releaseCb = capi.NewCallback(func(self unsafe.Pointer) int32 { return rm.release(self) })

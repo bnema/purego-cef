@@ -1,15 +1,15 @@
-// adapter.go implements core.CAPI using purego bindings.
+// adapter.go implements portout.CAPI using purego bindings.
 // This is the only handwritten file in the capi package.
 package capi
 
 import (
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/core"
+	portout "github.com/bnema/purego-cef/internal/ports/out"
 	"github.com/ebitengine/purego"
 )
 
-// Adapter implements core.CAPI using purego bindings.
+// Adapter implements portout.CAPI using purego bindings.
 type Adapter struct {
 	handle uintptr
 
@@ -118,5 +118,5 @@ func (a *Adapter) StringListValue(list uintptr, index uintptr, value unsafe.Poin
 	return a.stringListVal(list, index, value)
 }
 
-// Ensure Adapter implements core.CAPI at compile time.
-var _ core.CAPI = (*Adapter)(nil)
+// Ensure Adapter implements portout.CAPI at compile time.
+var _ portout.CAPI = (*Adapter)(nil)
