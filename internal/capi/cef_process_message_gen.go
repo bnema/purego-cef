@@ -83,5 +83,5 @@ func (v *CEFProcessMessageT) CallGetSharedMemoryRegion(args ...uintptr) uintptr 
 var CEFProcessMessageCreate func(Name unsafe.Pointer) unsafe.Pointer
 
 func RegisterProcessMessage(handle uintptr) {
-	purego.RegisterLibFunc(&CEFProcessMessageCreate, handle, "cef_process_message_create")
+	tryRegisterLibFunc(&CEFProcessMessageCreate, handle, "cef_process_message_create")
 }

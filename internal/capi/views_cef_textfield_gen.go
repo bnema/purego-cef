@@ -362,5 +362,5 @@ func (v *CEFTextfieldT) CallSetAccessibleName(args ...uintptr) uintptr {
 var CEFTextfieldCreate func(Delegate unsafe.Pointer) unsafe.Pointer
 
 func RegisterTextfield(handle uintptr) {
-	purego.RegisterLibFunc(&CEFTextfieldCreate, handle, "cef_textfield_create")
+	tryRegisterLibFunc(&CEFTextfieldCreate, handle, "cef_textfield_create")
 }

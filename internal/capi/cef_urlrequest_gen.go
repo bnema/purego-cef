@@ -154,5 +154,5 @@ func (v *CEFUrlrequestClientT) CallGetAuthCredentials(args ...uintptr) uintptr {
 var CEFUrlrequestCreate func(Request unsafe.Pointer, Client unsafe.Pointer, RequestContext unsafe.Pointer) unsafe.Pointer
 
 func RegisterUrlrequest(handle uintptr) {
-	purego.RegisterLibFunc(&CEFUrlrequestCreate, handle, "cef_urlrequest_create")
+	tryRegisterLibFunc(&CEFUrlrequestCreate, handle, "cef_urlrequest_create")
 }

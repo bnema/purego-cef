@@ -633,5 +633,5 @@ func (v *CEFMenuModelT) CallSetFontListAt(args ...uintptr) uintptr {
 var CEFMenuModelCreate func(Delegate unsafe.Pointer) unsafe.Pointer
 
 func RegisterMenuModel(handle uintptr) {
-	purego.RegisterLibFunc(&CEFMenuModelCreate, handle, "cef_menu_model_create")
+	tryRegisterLibFunc(&CEFMenuModelCreate, handle, "cef_menu_model_create")
 }

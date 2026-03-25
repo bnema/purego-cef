@@ -149,5 +149,5 @@ func (v *CEFPanelT) CallGetChildViewAt(args ...uintptr) uintptr {
 var CEFPanelCreate func(Delegate unsafe.Pointer) unsafe.Pointer
 
 func RegisterPanel(handle uintptr) {
-	purego.RegisterLibFunc(&CEFPanelCreate, handle, "cef_panel_create")
+	tryRegisterLibFunc(&CEFPanelCreate, handle, "cef_panel_create")
 }

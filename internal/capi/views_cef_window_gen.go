@@ -481,5 +481,5 @@ func (v *CEFWindowT) CallGetRuntimeStyle(args ...uintptr) uintptr {
 var CEFWindowCreateTopLevel func(Delegate unsafe.Pointer) unsafe.Pointer
 
 func RegisterWindow(handle uintptr) {
-	purego.RegisterLibFunc(&CEFWindowCreateTopLevel, handle, "cef_window_create_top_level")
+	tryRegisterLibFunc(&CEFWindowCreateTopLevel, handle, "cef_window_create_top_level")
 }

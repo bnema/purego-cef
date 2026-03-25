@@ -52,5 +52,5 @@ func (v *CEFResourceBundleT) CallGetDataResourceForScale(args ...uintptr) uintpt
 var CEFResourceBundleGetGlobal func() unsafe.Pointer
 
 func RegisterResourceBundle(handle uintptr) {
-	purego.RegisterLibFunc(&CEFResourceBundleGetGlobal, handle, "cef_resource_bundle_get_global")
+	tryRegisterLibFunc(&CEFResourceBundleGetGlobal, handle, "cef_resource_bundle_get_global")
 }

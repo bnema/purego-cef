@@ -2,7 +2,7 @@
 {{- if .Functions}}
 func {{.RegisterName}}(handle uintptr) {
 {{- range .Functions}}
-	purego.RegisterLibFunc(&{{.GoName}}, handle, "{{.CName}}")
+	tryRegisterLibFunc(&{{.GoName}}, handle, "{{.CName}}")
 {{- end}}
 }
 {{- else}}

@@ -4,8 +4,6 @@ package capi
 
 import (
 	"unsafe"
-
-	"github.com/ebitengine/purego"
 )
 
 var CEFResolveURL func(BaseURL unsafe.Pointer, RelativeURL unsafe.Pointer, ResolvedURL unsafe.Pointer) int32
@@ -37,18 +35,18 @@ var CEFParseJsonandReturnError func(JsonString unsafe.Pointer, Options CEFJsonPa
 var CEFWriteJson func(Node unsafe.Pointer, Options CEFJsonWriterOptionsT) uintptr
 
 func RegisterParser(handle uintptr) {
-	purego.RegisterLibFunc(&CEFResolveURL, handle, "cef_resolve_url")
-	purego.RegisterLibFunc(&CEFParseURL, handle, "cef_parse_url")
-	purego.RegisterLibFunc(&CEFCreateURL, handle, "cef_create_url")
-	purego.RegisterLibFunc(&CEFFormatURLForSecurityDisplay, handle, "cef_format_url_for_security_display")
-	purego.RegisterLibFunc(&CEFGetMimeType, handle, "cef_get_mime_type")
-	purego.RegisterLibFunc(&CEFGetExtensionsForMimeType, handle, "cef_get_extensions_for_mime_type")
-	purego.RegisterLibFunc(&CEFBase64Encode, handle, "cef_base64_encode")
-	purego.RegisterLibFunc(&CEFBase64Decode, handle, "cef_base64_decode")
-	purego.RegisterLibFunc(&CEFUriencode, handle, "cef_uriencode")
-	purego.RegisterLibFunc(&CEFUridecode, handle, "cef_uridecode")
-	purego.RegisterLibFunc(&CEFParseJson, handle, "cef_parse_json")
-	purego.RegisterLibFunc(&CEFParseJsonBuffer, handle, "cef_parse_json_buffer")
-	purego.RegisterLibFunc(&CEFParseJsonandReturnError, handle, "cef_parse_jsonand_return_error")
-	purego.RegisterLibFunc(&CEFWriteJson, handle, "cef_write_json")
+	tryRegisterLibFunc(&CEFResolveURL, handle, "cef_resolve_url")
+	tryRegisterLibFunc(&CEFParseURL, handle, "cef_parse_url")
+	tryRegisterLibFunc(&CEFCreateURL, handle, "cef_create_url")
+	tryRegisterLibFunc(&CEFFormatURLForSecurityDisplay, handle, "cef_format_url_for_security_display")
+	tryRegisterLibFunc(&CEFGetMimeType, handle, "cef_get_mime_type")
+	tryRegisterLibFunc(&CEFGetExtensionsForMimeType, handle, "cef_get_extensions_for_mime_type")
+	tryRegisterLibFunc(&CEFBase64Encode, handle, "cef_base64_encode")
+	tryRegisterLibFunc(&CEFBase64Decode, handle, "cef_base64_decode")
+	tryRegisterLibFunc(&CEFUriencode, handle, "cef_uriencode")
+	tryRegisterLibFunc(&CEFUridecode, handle, "cef_uridecode")
+	tryRegisterLibFunc(&CEFParseJson, handle, "cef_parse_json")
+	tryRegisterLibFunc(&CEFParseJsonBuffer, handle, "cef_parse_json_buffer")
+	tryRegisterLibFunc(&CEFParseJsonandReturnError, handle, "cef_parse_jsonand_return_error")
+	tryRegisterLibFunc(&CEFWriteJson, handle, "cef_write_json")
 }

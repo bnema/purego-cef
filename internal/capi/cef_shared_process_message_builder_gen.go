@@ -61,5 +61,5 @@ func (v *CEFSharedProcessMessageBuilderT) CallBuild(args ...uintptr) uintptr {
 var CEFSharedProcessMessageBuilderCreate func(Name unsafe.Pointer, ByteSize uintptr) unsafe.Pointer
 
 func RegisterSharedProcessMessageBuilder(handle uintptr) {
-	purego.RegisterLibFunc(&CEFSharedProcessMessageBuilderCreate, handle, "cef_shared_process_message_builder_create")
+	tryRegisterLibFunc(&CEFSharedProcessMessageBuilderCreate, handle, "cef_shared_process_message_builder_create")
 }

@@ -39,5 +39,5 @@ func (v *CEFSslinfoT) CallGetX509Certificate(args ...uintptr) uintptr {
 var CEFIsCertStatusError func(Status CEFCertStatusT) int32
 
 func RegisterSslInfo(handle uintptr) {
-	purego.RegisterLibFunc(&CEFIsCertStatusError, handle, "cef_is_cert_status_error")
+	tryRegisterLibFunc(&CEFIsCertStatusError, handle, "cef_is_cert_status_error")
 }

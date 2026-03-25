@@ -98,5 +98,5 @@ func (v *CEFScrollViewT) CallGetVerticalScrollbarWidth(args ...uintptr) uintptr 
 var CEFScrollViewCreate func(Delegate unsafe.Pointer) unsafe.Pointer
 
 func RegisterScrollView(handle uintptr) {
-	purego.RegisterLibFunc(&CEFScrollViewCreate, handle, "cef_scroll_view_create")
+	tryRegisterLibFunc(&CEFScrollViewCreate, handle, "cef_scroll_view_create")
 }

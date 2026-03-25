@@ -160,5 +160,5 @@ func (v *CEFImageT) CallGetAsJpeg(args ...uintptr) uintptr {
 var CEFImageCreate func() unsafe.Pointer
 
 func RegisterImage(handle uintptr) {
-	purego.RegisterLibFunc(&CEFImageCreate, handle, "cef_image_create")
+	tryRegisterLibFunc(&CEFImageCreate, handle, "cef_image_create")
 }

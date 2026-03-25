@@ -72,5 +72,5 @@ func (v *CEFTaskManagerT) CallGetTaskIDForBrowserID(args ...uintptr) uintptr {
 var CEFTaskManagerGet func() unsafe.Pointer
 
 func RegisterTaskManager(handle uintptr) {
-	purego.RegisterLibFunc(&CEFTaskManagerGet, handle, "cef_task_manager_get")
+	tryRegisterLibFunc(&CEFTaskManagerGet, handle, "cef_task_manager_get")
 }

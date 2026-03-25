@@ -61,5 +61,5 @@ func (v *CEFThreadT) CallIsRunning(args ...uintptr) uintptr {
 var CEFThreadCreate func(DisplayName unsafe.Pointer, Priority CEFThreadPriorityT, MessageLoopType CEFMessageLoopTypeT, Stoppable int32, ComInitMode CEFComInitModeT) unsafe.Pointer
 
 func RegisterThread(handle uintptr) {
-	purego.RegisterLibFunc(&CEFThreadCreate, handle, "cef_thread_create")
+	tryRegisterLibFunc(&CEFThreadCreate, handle, "cef_thread_create")
 }

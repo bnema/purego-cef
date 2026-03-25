@@ -4,8 +4,6 @@ package capi
 
 import (
 	"unsafe"
-
-	"github.com/ebitengine/purego"
 )
 
 var CEFCrashReportingEnabled func() int32
@@ -13,6 +11,6 @@ var CEFCrashReportingEnabled func() int32
 var CEFSetCrashKeyValue func(Key unsafe.Pointer, Value unsafe.Pointer)
 
 func RegisterCrashUtil(handle uintptr) {
-	purego.RegisterLibFunc(&CEFCrashReportingEnabled, handle, "cef_crash_reporting_enabled")
-	purego.RegisterLibFunc(&CEFSetCrashKeyValue, handle, "cef_set_crash_key_value")
+	tryRegisterLibFunc(&CEFCrashReportingEnabled, handle, "cef_crash_reporting_enabled")
+	tryRegisterLibFunc(&CEFSetCrashKeyValue, handle, "cef_set_crash_key_value")
 }

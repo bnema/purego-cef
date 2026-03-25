@@ -204,5 +204,5 @@ func (v *CEFResponseT) CallSetURL(args ...uintptr) uintptr {
 var CEFResponseCreate func() unsafe.Pointer
 
 func RegisterResponse(handle uintptr) {
-	purego.RegisterLibFunc(&CEFResponseCreate, handle, "cef_response_create")
+	tryRegisterLibFunc(&CEFResponseCreate, handle, "cef_response_create")
 }

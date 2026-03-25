@@ -96,9 +96,9 @@ var CEFPostTask func(Threadid CEFThreadIDT, Task unsafe.Pointer) int32
 var CEFPostDelayedTask func(Threadid CEFThreadIDT, Task unsafe.Pointer, DelayMs int64) int32
 
 func RegisterTask(handle uintptr) {
-	purego.RegisterLibFunc(&CEFTaskRunnerGetForCurrentThread, handle, "cef_task_runner_get_for_current_thread")
-	purego.RegisterLibFunc(&CEFTaskRunnerGetForThread, handle, "cef_task_runner_get_for_thread")
-	purego.RegisterLibFunc(&CEFCurrentlyOn, handle, "cef_currently_on")
-	purego.RegisterLibFunc(&CEFPostTask, handle, "cef_post_task")
-	purego.RegisterLibFunc(&CEFPostDelayedTask, handle, "cef_post_delayed_task")
+	tryRegisterLibFunc(&CEFTaskRunnerGetForCurrentThread, handle, "cef_task_runner_get_for_current_thread")
+	tryRegisterLibFunc(&CEFTaskRunnerGetForThread, handle, "cef_task_runner_get_for_thread")
+	tryRegisterLibFunc(&CEFCurrentlyOn, handle, "cef_currently_on")
+	tryRegisterLibFunc(&CEFPostTask, handle, "cef_post_task")
+	tryRegisterLibFunc(&CEFPostDelayedTask, handle, "cef_post_delayed_task")
 }

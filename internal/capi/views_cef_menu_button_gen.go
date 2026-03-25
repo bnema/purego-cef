@@ -39,5 +39,5 @@ func (v *CEFMenuButtonT) CallTriggerMenu(args ...uintptr) uintptr {
 var CEFMenuButtonCreate func(Delegate unsafe.Pointer, Text unsafe.Pointer) unsafe.Pointer
 
 func RegisterMenuButton(handle uintptr) {
-	purego.RegisterLibFunc(&CEFMenuButtonCreate, handle, "cef_menu_button_create")
+	tryRegisterLibFunc(&CEFMenuButtonCreate, handle, "cef_menu_button_create")
 }

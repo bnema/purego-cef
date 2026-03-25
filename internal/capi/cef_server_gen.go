@@ -253,5 +253,5 @@ func (v *CEFServerHandlerT) CallOnWebSocketMessage(args ...uintptr) uintptr {
 var CEFServerCreate func(Address unsafe.Pointer, Port uint16, Backlog int32, Handler unsafe.Pointer)
 
 func RegisterServer(handle uintptr) {
-	purego.RegisterLibFunc(&CEFServerCreate, handle, "cef_server_create")
+	tryRegisterLibFunc(&CEFServerCreate, handle, "cef_server_create")
 }

@@ -34,7 +34,7 @@ var CEFEndTracing func(TracingFile unsafe.Pointer, Callback unsafe.Pointer) int3
 var CEFNowFromSystemTraceTime func() int64
 
 func RegisterTrace(handle uintptr) {
-	purego.RegisterLibFunc(&CEFBeginTracing, handle, "cef_begin_tracing")
-	purego.RegisterLibFunc(&CEFEndTracing, handle, "cef_end_tracing")
-	purego.RegisterLibFunc(&CEFNowFromSystemTraceTime, handle, "cef_now_from_system_trace_time")
+	tryRegisterLibFunc(&CEFBeginTracing, handle, "cef_begin_tracing")
+	tryRegisterLibFunc(&CEFEndTracing, handle, "cef_end_tracing")
+	tryRegisterLibFunc(&CEFNowFromSystemTraceTime, handle, "cef_now_from_system_trace_time")
 }

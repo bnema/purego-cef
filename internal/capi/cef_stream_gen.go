@@ -260,9 +260,9 @@ var CEFStreamWriterCreateForFile func(Filename unsafe.Pointer) unsafe.Pointer
 var CEFStreamWriterCreateForHandler func(Handler unsafe.Pointer) unsafe.Pointer
 
 func RegisterStream(handle uintptr) {
-	purego.RegisterLibFunc(&CEFStreamReaderCreateForFile, handle, "cef_stream_reader_create_for_file")
-	purego.RegisterLibFunc(&CEFStreamReaderCreateForData, handle, "cef_stream_reader_create_for_data")
-	purego.RegisterLibFunc(&CEFStreamReaderCreateForHandler, handle, "cef_stream_reader_create_for_handler")
-	purego.RegisterLibFunc(&CEFStreamWriterCreateForFile, handle, "cef_stream_writer_create_for_file")
-	purego.RegisterLibFunc(&CEFStreamWriterCreateForHandler, handle, "cef_stream_writer_create_for_handler")
+	tryRegisterLibFunc(&CEFStreamReaderCreateForFile, handle, "cef_stream_reader_create_for_file")
+	tryRegisterLibFunc(&CEFStreamReaderCreateForData, handle, "cef_stream_reader_create_for_data")
+	tryRegisterLibFunc(&CEFStreamReaderCreateForHandler, handle, "cef_stream_reader_create_for_handler")
+	tryRegisterLibFunc(&CEFStreamWriterCreateForFile, handle, "cef_stream_writer_create_for_file")
+	tryRegisterLibFunc(&CEFStreamWriterCreateForHandler, handle, "cef_stream_writer_create_for_handler")
 }

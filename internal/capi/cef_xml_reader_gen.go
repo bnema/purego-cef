@@ -336,5 +336,5 @@ func (v *CEFXmlReaderT) CallMoveToCarryingElement(args ...uintptr) uintptr {
 var CEFXmlReaderCreate func(Stream unsafe.Pointer, Encodingtype CEFXmlEncodingTypeT, Uri unsafe.Pointer) unsafe.Pointer
 
 func RegisterXmlReader(handle uintptr) {
-	purego.RegisterLibFunc(&CEFXmlReaderCreate, handle, "cef_xml_reader_create")
+	tryRegisterLibFunc(&CEFXmlReaderCreate, handle, "cef_xml_reader_create")
 }

@@ -957,11 +957,11 @@ var CEFTranslatorTestScopedLibraryChildCreate func(Value int32, OtherValue int32
 var CEFTranslatorTestScopedLibraryChildChildCreate func(Value int32, OtherValue int32, OtherOtherValue int32) unsafe.Pointer
 
 func RegisterTranslatorTest(handle uintptr) {
-	purego.RegisterLibFunc(&CEFTranslatorTestCreate, handle, "cef_translator_test_create")
-	purego.RegisterLibFunc(&CEFTranslatorTestRefPtrLibraryCreate, handle, "cef_translator_test_ref_ptr_library_create")
-	purego.RegisterLibFunc(&CEFTranslatorTestRefPtrLibraryChildCreate, handle, "cef_translator_test_ref_ptr_library_child_create")
-	purego.RegisterLibFunc(&CEFTranslatorTestRefPtrLibraryChildChildCreate, handle, "cef_translator_test_ref_ptr_library_child_child_create")
-	purego.RegisterLibFunc(&CEFTranslatorTestScopedLibraryCreate, handle, "cef_translator_test_scoped_library_create")
-	purego.RegisterLibFunc(&CEFTranslatorTestScopedLibraryChildCreate, handle, "cef_translator_test_scoped_library_child_create")
-	purego.RegisterLibFunc(&CEFTranslatorTestScopedLibraryChildChildCreate, handle, "cef_translator_test_scoped_library_child_child_create")
+	tryRegisterLibFunc(&CEFTranslatorTestCreate, handle, "cef_translator_test_create")
+	tryRegisterLibFunc(&CEFTranslatorTestRefPtrLibraryCreate, handle, "cef_translator_test_ref_ptr_library_create")
+	tryRegisterLibFunc(&CEFTranslatorTestRefPtrLibraryChildCreate, handle, "cef_translator_test_ref_ptr_library_child_create")
+	tryRegisterLibFunc(&CEFTranslatorTestRefPtrLibraryChildChildCreate, handle, "cef_translator_test_ref_ptr_library_child_child_create")
+	tryRegisterLibFunc(&CEFTranslatorTestScopedLibraryCreate, handle, "cef_translator_test_scoped_library_create")
+	tryRegisterLibFunc(&CEFTranslatorTestScopedLibraryChildCreate, handle, "cef_translator_test_scoped_library_child_create")
+	tryRegisterLibFunc(&CEFTranslatorTestScopedLibraryChildChildCreate, handle, "cef_translator_test_scoped_library_child_child_create")
 }

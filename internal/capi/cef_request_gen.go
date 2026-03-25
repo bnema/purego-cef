@@ -438,7 +438,7 @@ var CEFPostDataCreate func() unsafe.Pointer
 var CEFPostDataElementCreate func() unsafe.Pointer
 
 func RegisterRequest(handle uintptr) {
-	purego.RegisterLibFunc(&CEFRequestCreate, handle, "cef_request_create")
-	purego.RegisterLibFunc(&CEFPostDataCreate, handle, "cef_post_data_create")
-	purego.RegisterLibFunc(&CEFPostDataElementCreate, handle, "cef_post_data_element_create")
+	tryRegisterLibFunc(&CEFRequestCreate, handle, "cef_request_create")
+	tryRegisterLibFunc(&CEFPostDataCreate, handle, "cef_post_data_create")
+	tryRegisterLibFunc(&CEFPostDataElementCreate, handle, "cef_post_data_element_create")
 }

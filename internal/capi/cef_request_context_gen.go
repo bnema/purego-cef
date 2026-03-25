@@ -320,7 +320,7 @@ var CEFRequestContextCreateContext func(Settings unsafe.Pointer, Handler unsafe.
 var CEFRequestContextCEFCreateContextShared func(Other unsafe.Pointer, Handler unsafe.Pointer) unsafe.Pointer
 
 func RegisterRequestContext(handle uintptr) {
-	purego.RegisterLibFunc(&CEFRequestContextGetGlobalContext, handle, "cef_request_context_get_global_context")
-	purego.RegisterLibFunc(&CEFRequestContextCreateContext, handle, "cef_request_context_create_context")
-	purego.RegisterLibFunc(&CEFRequestContextCEFCreateContextShared, handle, "cef_request_context_cef_create_context_shared")
+	tryRegisterLibFunc(&CEFRequestContextGetGlobalContext, handle, "cef_request_context_get_global_context")
+	tryRegisterLibFunc(&CEFRequestContextCreateContext, handle, "cef_request_context_create_context")
+	tryRegisterLibFunc(&CEFRequestContextCEFCreateContextShared, handle, "cef_request_context_cef_create_context_shared")
 }

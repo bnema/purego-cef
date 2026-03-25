@@ -72,5 +72,5 @@ func (v *CEFWaitableEventT) CallTimedWait(args ...uintptr) uintptr {
 var CEFWaitableEventCreate func(AutomaticReset int32, InitiallySignaled int32) unsafe.Pointer
 
 func RegisterWaitableEvent(handle uintptr) {
-	purego.RegisterLibFunc(&CEFWaitableEventCreate, handle, "cef_waitable_event_create")
+	tryRegisterLibFunc(&CEFWaitableEventCreate, handle, "cef_waitable_event_create")
 }

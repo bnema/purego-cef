@@ -46,6 +46,6 @@ var CEFRegisterSchemeHandlerFactory func(SchemeName unsafe.Pointer, DomainName u
 var CEFClearSchemeHandlerFactories func() int32
 
 func RegisterScheme(handle uintptr) {
-	purego.RegisterLibFunc(&CEFRegisterSchemeHandlerFactory, handle, "cef_register_scheme_handler_factory")
-	purego.RegisterLibFunc(&CEFClearSchemeHandlerFactories, handle, "cef_clear_scheme_handler_factories")
+	tryRegisterLibFunc(&CEFRegisterSchemeHandlerFactory, handle, "cef_register_scheme_handler_factory")
+	tryRegisterLibFunc(&CEFClearSchemeHandlerFactories, handle, "cef_clear_scheme_handler_factories")
 }

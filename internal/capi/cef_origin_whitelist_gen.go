@@ -4,8 +4,6 @@ package capi
 
 import (
 	"unsafe"
-
-	"github.com/ebitengine/purego"
 )
 
 var CEFAddCrossOriginWhitelistEntry func(SourceOrigin unsafe.Pointer, TargetProtocol unsafe.Pointer, TargetDomain unsafe.Pointer, AllowTargetSubdomains int32) int32
@@ -15,7 +13,7 @@ var CEFRemoveCrossOriginWhitelistEntry func(SourceOrigin unsafe.Pointer, TargetP
 var CEFClearCrossOriginWhitelist func() int32
 
 func RegisterOriginWhitelist(handle uintptr) {
-	purego.RegisterLibFunc(&CEFAddCrossOriginWhitelistEntry, handle, "cef_add_cross_origin_whitelist_entry")
-	purego.RegisterLibFunc(&CEFRemoveCrossOriginWhitelistEntry, handle, "cef_remove_cross_origin_whitelist_entry")
-	purego.RegisterLibFunc(&CEFClearCrossOriginWhitelist, handle, "cef_clear_cross_origin_whitelist")
+	tryRegisterLibFunc(&CEFAddCrossOriginWhitelistEntry, handle, "cef_add_cross_origin_whitelist_entry")
+	tryRegisterLibFunc(&CEFRemoveCrossOriginWhitelistEntry, handle, "cef_remove_cross_origin_whitelist_entry")
+	tryRegisterLibFunc(&CEFClearCrossOriginWhitelist, handle, "cef_clear_cross_origin_whitelist")
 }

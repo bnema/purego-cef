@@ -337,5 +337,5 @@ func (v *CEFMediaSourceT) CallIsDialSource(args ...uintptr) uintptr {
 var CEFMediaRouterGetGlobal func(Callback unsafe.Pointer) unsafe.Pointer
 
 func RegisterMediaRouter(handle uintptr) {
-	purego.RegisterLibFunc(&CEFMediaRouterGetGlobal, handle, "cef_media_router_get_global")
+	tryRegisterLibFunc(&CEFMediaRouterGetGlobal, handle, "cef_media_router_get_global")
 }

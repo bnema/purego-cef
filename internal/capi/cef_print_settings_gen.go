@@ -261,5 +261,5 @@ func (v *CEFPrintSettingsT) CallGetDuplexMode(args ...uintptr) uintptr {
 var CEFPrintSettingsCreate func() unsafe.Pointer
 
 func RegisterPrintSettings(handle uintptr) {
-	purego.RegisterLibFunc(&CEFPrintSettingsCreate, handle, "cef_print_settings_create")
+	tryRegisterLibFunc(&CEFPrintSettingsCreate, handle, "cef_print_settings_create")
 }

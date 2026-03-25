@@ -250,6 +250,6 @@ var CEFCommandLineCreate func() unsafe.Pointer
 var CEFCommandLineGetGlobal func() unsafe.Pointer
 
 func RegisterCommandLine(handle uintptr) {
-	purego.RegisterLibFunc(&CEFCommandLineCreate, handle, "cef_command_line_create")
-	purego.RegisterLibFunc(&CEFCommandLineGetGlobal, handle, "cef_command_line_get_global")
+	tryRegisterLibFunc(&CEFCommandLineCreate, handle, "cef_command_line_create")
+	tryRegisterLibFunc(&CEFCommandLineGetGlobal, handle, "cef_command_line_get_global")
 }

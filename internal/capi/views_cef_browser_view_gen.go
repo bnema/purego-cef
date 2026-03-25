@@ -63,6 +63,6 @@ var CEFBrowserViewCreate func(Client unsafe.Pointer, URL unsafe.Pointer, Setting
 var CEFBrowserViewGetForBrowser func(Browser unsafe.Pointer) unsafe.Pointer
 
 func RegisterBrowserView(handle uintptr) {
-	purego.RegisterLibFunc(&CEFBrowserViewCreate, handle, "cef_browser_view_create")
-	purego.RegisterLibFunc(&CEFBrowserViewGetForBrowser, handle, "cef_browser_view_get_for_browser")
+	tryRegisterLibFunc(&CEFBrowserViewCreate, handle, "cef_browser_view_create")
+	tryRegisterLibFunc(&CEFBrowserViewGetForBrowser, handle, "cef_browser_view_get_for_browser")
 }

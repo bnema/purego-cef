@@ -1085,7 +1085,7 @@ var CEFBrowserHostCreateBrowserSync func(Windowinfo unsafe.Pointer, Client unsaf
 var CEFBrowserHostGetBrowserByIdentifier func(BrowserID int32) unsafe.Pointer
 
 func RegisterBrowser(handle uintptr) {
-	purego.RegisterLibFunc(&CEFBrowserHostCreateBrowser, handle, "cef_browser_host_create_browser")
-	purego.RegisterLibFunc(&CEFBrowserHostCreateBrowserSync, handle, "cef_browser_host_create_browser_sync")
-	purego.RegisterLibFunc(&CEFBrowserHostGetBrowserByIdentifier, handle, "cef_browser_host_get_browser_by_identifier")
+	tryRegisterLibFunc(&CEFBrowserHostCreateBrowser, handle, "cef_browser_host_create_browser")
+	tryRegisterLibFunc(&CEFBrowserHostCreateBrowserSync, handle, "cef_browser_host_create_browser_sync")
+	tryRegisterLibFunc(&CEFBrowserHostGetBrowserByIdentifier, handle, "cef_browser_host_get_browser_by_identifier")
 }

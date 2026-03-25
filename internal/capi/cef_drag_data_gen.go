@@ -314,5 +314,5 @@ func (v *CEFDragDataT) CallHasImage(args ...uintptr) uintptr {
 var CEFDragDataCreate func() unsafe.Pointer
 
 func RegisterDragData(handle uintptr) {
-	purego.RegisterLibFunc(&CEFDragDataCreate, handle, "cef_drag_data_create")
+	tryRegisterLibFunc(&CEFDragDataCreate, handle, "cef_drag_data_create")
 }

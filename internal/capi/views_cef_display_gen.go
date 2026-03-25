@@ -110,13 +110,13 @@ var CEFDisplayConvertScreenRectToPixels func(Rect unsafe.Pointer) CEFRectT
 var CEFDisplayConvertScreenRectFromPixels func(Rect unsafe.Pointer) CEFRectT
 
 func RegisterDisplay(handle uintptr) {
-	purego.RegisterLibFunc(&CEFDisplayGetPrimary, handle, "cef_display_get_primary")
-	purego.RegisterLibFunc(&CEFDisplayGetNearestPoint, handle, "cef_display_get_nearest_point")
-	purego.RegisterLibFunc(&CEFDisplayGetMatchingBounds, handle, "cef_display_get_matching_bounds")
-	purego.RegisterLibFunc(&CEFDisplayGetCount, handle, "cef_display_get_count")
-	purego.RegisterLibFunc(&CEFDisplayGetAlls, handle, "cef_display_get_alls")
-	purego.RegisterLibFunc(&CEFDisplayConvertScreenPointToPixels, handle, "cef_display_convert_screen_point_to_pixels")
-	purego.RegisterLibFunc(&CEFDisplayConvertScreenPointFromPixels, handle, "cef_display_convert_screen_point_from_pixels")
-	purego.RegisterLibFunc(&CEFDisplayConvertScreenRectToPixels, handle, "cef_display_convert_screen_rect_to_pixels")
-	purego.RegisterLibFunc(&CEFDisplayConvertScreenRectFromPixels, handle, "cef_display_convert_screen_rect_from_pixels")
+	tryRegisterLibFunc(&CEFDisplayGetPrimary, handle, "cef_display_get_primary")
+	tryRegisterLibFunc(&CEFDisplayGetNearestPoint, handle, "cef_display_get_nearest_point")
+	tryRegisterLibFunc(&CEFDisplayGetMatchingBounds, handle, "cef_display_get_matching_bounds")
+	tryRegisterLibFunc(&CEFDisplayGetCount, handle, "cef_display_get_count")
+	tryRegisterLibFunc(&CEFDisplayGetAlls, handle, "cef_display_get_alls")
+	tryRegisterLibFunc(&CEFDisplayConvertScreenPointToPixels, handle, "cef_display_convert_screen_point_to_pixels")
+	tryRegisterLibFunc(&CEFDisplayConvertScreenPointFromPixels, handle, "cef_display_convert_screen_point_from_pixels")
+	tryRegisterLibFunc(&CEFDisplayConvertScreenRectToPixels, handle, "cef_display_convert_screen_rect_to_pixels")
+	tryRegisterLibFunc(&CEFDisplayConvertScreenRectFromPixels, handle, "cef_display_convert_screen_rect_from_pixels")
 }

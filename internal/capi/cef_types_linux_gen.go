@@ -5,8 +5,6 @@ package capi
 import (
 	"structs"
 	"unsafe"
-
-	"github.com/ebitengine/purego"
 )
 
 type CEFMainArgsT struct {
@@ -49,5 +47,5 @@ type CEFAcceleratedPaintInfoT struct {
 var CEFGetXdisplay func() unsafe.Pointer
 
 func RegisterTypesLinux(handle uintptr) {
-	purego.RegisterLibFunc(&CEFGetXdisplay, handle, "cef_get_xdisplay")
+	tryRegisterLibFunc(&CEFGetXdisplay, handle, "cef_get_xdisplay")
 }

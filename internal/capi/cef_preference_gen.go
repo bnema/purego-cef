@@ -121,7 +121,7 @@ var CEFPreferenceManagerGetChromeVariationsAsStrings func(Strings uintptr)
 var CEFPreferenceManagerGetGlobal func() unsafe.Pointer
 
 func RegisterPreference(handle uintptr) {
-	purego.RegisterLibFunc(&CEFPreferenceManagerGetChromeVariationsAsSwitches, handle, "cef_preference_manager_get_chrome_variations_as_switches")
-	purego.RegisterLibFunc(&CEFPreferenceManagerGetChromeVariationsAsStrings, handle, "cef_preference_manager_get_chrome_variations_as_strings")
-	purego.RegisterLibFunc(&CEFPreferenceManagerGetGlobal, handle, "cef_preference_manager_get_global")
+	tryRegisterLibFunc(&CEFPreferenceManagerGetChromeVariationsAsSwitches, handle, "cef_preference_manager_get_chrome_variations_as_switches")
+	tryRegisterLibFunc(&CEFPreferenceManagerGetChromeVariationsAsStrings, handle, "cef_preference_manager_get_chrome_variations_as_strings")
+	tryRegisterLibFunc(&CEFPreferenceManagerGetGlobal, handle, "cef_preference_manager_get_global")
 }

@@ -110,5 +110,5 @@ func (v *CEFTestServerConnectionT) CallSendHttpResponse(args ...uintptr) uintptr
 var CEFTestServerCreateAndStart func(Port uint16, HttpsServer int32, HttpsCertType CEFTestCertTypeT, Handler unsafe.Pointer) unsafe.Pointer
 
 func RegisterTestServer(handle uintptr) {
-	purego.RegisterLibFunc(&CEFTestServerCreateAndStart, handle, "cef_test_server_create_and_start")
+	tryRegisterLibFunc(&CEFTestServerCreateAndStart, handle, "cef_test_server_create_and_start")
 }

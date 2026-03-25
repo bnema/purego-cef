@@ -995,8 +995,8 @@ var CEFDictionaryValueCreate func() unsafe.Pointer
 var CEFListValueCreate func() unsafe.Pointer
 
 func RegisterValues(handle uintptr) {
-	purego.RegisterLibFunc(&CEFValueCreate, handle, "cef_value_create")
-	purego.RegisterLibFunc(&CEFBinaryValueCreate, handle, "cef_binary_value_create")
-	purego.RegisterLibFunc(&CEFDictionaryValueCreate, handle, "cef_dictionary_value_create")
-	purego.RegisterLibFunc(&CEFListValueCreate, handle, "cef_list_value_create")
+	tryRegisterLibFunc(&CEFValueCreate, handle, "cef_value_create")
+	tryRegisterLibFunc(&CEFBinaryValueCreate, handle, "cef_binary_value_create")
+	tryRegisterLibFunc(&CEFDictionaryValueCreate, handle, "cef_dictionary_value_create")
+	tryRegisterLibFunc(&CEFListValueCreate, handle, "cef_list_value_create")
 }

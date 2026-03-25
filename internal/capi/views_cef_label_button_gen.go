@@ -138,5 +138,5 @@ func (v *CEFLabelButtonT) CallSetMaximumSize(args ...uintptr) uintptr {
 var CEFLabelButtonCreate func(Delegate unsafe.Pointer, Text unsafe.Pointer) unsafe.Pointer
 
 func RegisterLabelButton(handle uintptr) {
-	purego.RegisterLibFunc(&CEFLabelButtonCreate, handle, "cef_label_button_create")
+	tryRegisterLibFunc(&CEFLabelButtonCreate, handle, "cef_label_button_create")
 }

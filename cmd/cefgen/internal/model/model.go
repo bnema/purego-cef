@@ -122,12 +122,11 @@ func (h *Header) NeedsUnsafe() bool {
 	return false
 }
 
-// NeedsPurego returns true if the header has any free functions to register
-// or any struct with function pointer fields (which generate Call methods using purego.SyscallN).
+// NeedsPurego returns true if any struct has function pointer fields
+// (which generate Call methods using purego.SyscallN). Free-function
+// registration uses tryRegisterLibFunc (same package) and no longer
+// needs the purego import.
 func (h *Header) NeedsPurego() bool {
-	if len(h.Functions) > 0 {
-		return true
-	}
 	for _, s := range h.Structs {
 		for _, f := range s.Fields {
 			if f.IsFunction {

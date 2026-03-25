@@ -149,5 +149,5 @@ func (v *CEFZipReaderT) CallEof(args ...uintptr) uintptr {
 var CEFZipReaderCreate func(Stream unsafe.Pointer) unsafe.Pointer
 
 func RegisterZipReader(handle uintptr) {
-	purego.RegisterLibFunc(&CEFZipReaderCreate, handle, "cef_zip_reader_create")
+	tryRegisterLibFunc(&CEFZipReaderCreate, handle, "cef_zip_reader_create")
 }
