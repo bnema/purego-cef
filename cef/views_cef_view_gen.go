@@ -226,7 +226,7 @@ func (obj *viewImpl) ConvertPointFromView(view View, point *Point) int32 {
 	return int32(obj.rawPtr.CallConvertPointFromView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point))))
 }
 
-func (obj *viewImpl) rawPointer() unsafe.Pointer {
+func (obj *viewImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

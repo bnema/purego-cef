@@ -17,14 +17,14 @@ type TextfieldDelegate = in.TextfieldDelegate
 
 // textfieldDelegateWrapper wraps a user-provided TextfieldDelegate implementation together
 // with the raw CEF struct pointer allocated by NewTextfieldDelegate.  It satisfies the
-// TextfieldDelegate interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// TextfieldDelegate interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type textfieldDelegateWrapper struct {
 	TextfieldDelegate // embed user impl for interface delegation
 	rawPtr            *capi.CEFTextfieldDelegateT
 }
 
-func (w *textfieldDelegateWrapper) rawPointer() unsafe.Pointer {
+func (w *textfieldDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

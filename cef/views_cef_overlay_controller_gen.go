@@ -94,7 +94,7 @@ func (obj *overlayControllerImpl) IsDrawn() bool {
 	return obj.rawPtr.CallIsDrawn() != 0
 }
 
-func (obj *overlayControllerImpl) rawPointer() unsafe.Pointer {
+func (obj *overlayControllerImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

@@ -66,7 +66,7 @@ func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
 	obj.rawPtr.CallSetMaximumSize(uintptr(unsafe.Pointer(size)))
 }
 
-func (obj *labelButtonImpl) rawPointer() unsafe.Pointer {
+func (obj *labelButtonImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

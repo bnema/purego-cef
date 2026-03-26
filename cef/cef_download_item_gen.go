@@ -98,7 +98,7 @@ func (obj *downloadItemImpl) IsPaused() bool {
 	return obj.rawPtr.CallIsPaused() != 0
 }
 
-func (obj *downloadItemImpl) rawPointer() unsafe.Pointer {
+func (obj *downloadItemImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

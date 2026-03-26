@@ -70,7 +70,7 @@ func (obj *zipReaderImpl) Eof() int32 {
 	return int32(obj.rawPtr.CallEof())
 }
 
-func (obj *zipReaderImpl) rawPointer() unsafe.Pointer {
+func (obj *zipReaderImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

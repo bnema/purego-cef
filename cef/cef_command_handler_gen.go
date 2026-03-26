@@ -17,14 +17,14 @@ type CommandHandler = in.CommandHandler
 
 // commandHandlerWrapper wraps a user-provided CommandHandler implementation together
 // with the raw CEF struct pointer allocated by NewCommandHandler.  It satisfies the
-// CommandHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// CommandHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type commandHandlerWrapper struct {
 	CommandHandler // embed user impl for interface delegation
 	rawPtr         *capi.CEFCommandHandlerT
 }
 
-func (w *commandHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *commandHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

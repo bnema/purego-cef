@@ -108,7 +108,7 @@ func (obj *browserImpl) GetFrameNames(names uintptr) {
 	obj.rawPtr.CallGetFrameNames(names)
 }
 
-func (obj *browserImpl) rawPointer() unsafe.Pointer {
+func (obj *browserImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -138,14 +138,14 @@ type RunFileDialogCallback = in.RunFileDialogCallback
 
 // runFileDialogCallbackWrapper wraps a user-provided RunFileDialogCallback implementation together
 // with the raw CEF struct pointer allocated by NewRunFileDialogCallback.  It satisfies the
-// RunFileDialogCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// RunFileDialogCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type runFileDialogCallbackWrapper struct {
 	RunFileDialogCallback // embed user impl for interface delegation
 	rawPtr                *capi.CEFRunFileDialogCallbackT
 }
 
-func (w *runFileDialogCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *runFileDialogCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -182,14 +182,14 @@ type NavigationEntryVisitor = in.NavigationEntryVisitor
 
 // navigationEntryVisitorWrapper wraps a user-provided NavigationEntryVisitor implementation together
 // with the raw CEF struct pointer allocated by NewNavigationEntryVisitor.  It satisfies the
-// NavigationEntryVisitor interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// NavigationEntryVisitor interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type navigationEntryVisitorWrapper struct {
 	NavigationEntryVisitor // embed user impl for interface delegation
 	rawPtr                 *capi.CEFNavigationEntryVisitorT
 }
 
-func (w *navigationEntryVisitorWrapper) rawPointer() unsafe.Pointer {
+func (w *navigationEntryVisitorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -229,14 +229,14 @@ type PdfPrintCallback = in.PdfPrintCallback
 
 // pdfPrintCallbackWrapper wraps a user-provided PdfPrintCallback implementation together
 // with the raw CEF struct pointer allocated by NewPdfPrintCallback.  It satisfies the
-// PdfPrintCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// PdfPrintCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type pdfPrintCallbackWrapper struct {
 	PdfPrintCallback // embed user impl for interface delegation
 	rawPtr           *capi.CEFPdfPrintCallbackT
 }
 
-func (w *pdfPrintCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *pdfPrintCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -274,14 +274,14 @@ type DownloadImageCallback = in.DownloadImageCallback
 
 // downloadImageCallbackWrapper wraps a user-provided DownloadImageCallback implementation together
 // with the raw CEF struct pointer allocated by NewDownloadImageCallback.  It satisfies the
-// DownloadImageCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// DownloadImageCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type downloadImageCallbackWrapper struct {
 	DownloadImageCallback // embed user impl for interface delegation
 	rawPtr                *capi.CEFDownloadImageCallbackT
 }
 
-func (w *downloadImageCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *downloadImageCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -626,7 +626,7 @@ func (obj *browserHostImpl) GetRuntimeStyle() RuntimeStyle {
 	return RuntimeStyle(obj.rawPtr.CallGetRuntimeStyle())
 }
 
-func (obj *browserHostImpl) rawPointer() unsafe.Pointer {
+func (obj *browserHostImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

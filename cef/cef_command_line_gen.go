@@ -122,7 +122,7 @@ func (obj *commandLineImpl) RemoveSwitch(name string) {
 	obj.rawPtr.CallRemoveSwitch(uintptr(unsafe.Pointer(&nameStr)))
 }
 
-func (obj *commandLineImpl) rawPointer() unsafe.Pointer {
+func (obj *commandLineImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

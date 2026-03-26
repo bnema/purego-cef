@@ -28,7 +28,7 @@ func (obj *testServerImpl) GetOrigin() string {
 	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetOrigin()))
 }
 
-func (obj *testServerImpl) rawPointer() unsafe.Pointer {
+func (obj *testServerImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -58,14 +58,14 @@ type TestServerHandler = in.TestServerHandler
 
 // testServerHandlerWrapper wraps a user-provided TestServerHandler implementation together
 // with the raw CEF struct pointer allocated by NewTestServerHandler.  It satisfies the
-// TestServerHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// TestServerHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type testServerHandlerWrapper struct {
 	TestServerHandler // embed user impl for interface delegation
 	rawPtr            *capi.CEFTestServerHandlerT
 }
 
-func (w *testServerHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *testServerHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -128,7 +128,7 @@ func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, conten
 	obj.rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), extraHeaders)
 }
 
-func (obj *testServerConnectionImpl) rawPointer() unsafe.Pointer {
+func (obj *testServerConnectionImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

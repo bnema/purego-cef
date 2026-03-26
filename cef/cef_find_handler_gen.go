@@ -17,14 +17,14 @@ type FindHandler = in.FindHandler
 
 // findHandlerWrapper wraps a user-provided FindHandler implementation together
 // with the raw CEF struct pointer allocated by NewFindHandler.  It satisfies the
-// FindHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// FindHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type findHandlerWrapper struct {
 	FindHandler // embed user impl for interface delegation
 	rawPtr      *capi.CEFFindHandlerT
 }
 
-func (w *findHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *findHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

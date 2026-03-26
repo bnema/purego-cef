@@ -17,14 +17,14 @@ type DragHandler = in.DragHandler
 
 // dragHandlerWrapper wraps a user-provided DragHandler implementation together
 // with the raw CEF struct pointer allocated by NewDragHandler.  It satisfies the
-// DragHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// DragHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type dragHandlerWrapper struct {
 	DragHandler // embed user impl for interface delegation
 	rawPtr      *capi.CEFDragHandlerT
 }
 
-func (w *dragHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *dragHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

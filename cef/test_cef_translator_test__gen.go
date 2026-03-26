@@ -270,7 +270,7 @@ func (obj *translatorTestImpl) SetRawPtrClientList(valcount int, val unsafe.Poin
 	return int32(obj.rawPtr.CallSetRawPtrClientList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2)))
 }
 
-func (obj *translatorTestImpl) rawPointer() unsafe.Pointer {
+func (obj *translatorTestImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -310,7 +310,7 @@ func (obj *translatorTestRefPtrLibraryImpl) SetValue(value int32) {
 	obj.rawPtr.CallSetValue(uintptr(value))
 }
 
-func (obj *translatorTestRefPtrLibraryImpl) rawPointer() unsafe.Pointer {
+func (obj *translatorTestRefPtrLibraryImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -350,7 +350,7 @@ func (obj *translatorTestRefPtrLibraryChildImpl) SetOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
-func (obj *translatorTestRefPtrLibraryChildImpl) rawPointer() unsafe.Pointer {
+func (obj *translatorTestRefPtrLibraryChildImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -390,7 +390,7 @@ func (obj *translatorTestRefPtrLibraryChildChildImpl) SetOtherOtherValue(value i
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
-func (obj *translatorTestRefPtrLibraryChildChildImpl) rawPointer() unsafe.Pointer {
+func (obj *translatorTestRefPtrLibraryChildChildImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -420,14 +420,14 @@ type TranslatorTestRefPtrClient = in.TranslatorTestRefPtrClient
 
 // translatorTestRefPtrClientWrapper wraps a user-provided TranslatorTestRefPtrClient implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestRefPtrClient.  It satisfies the
-// TranslatorTestRefPtrClient interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// TranslatorTestRefPtrClient interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type translatorTestRefPtrClientWrapper struct {
 	TranslatorTestRefPtrClient // embed user impl for interface delegation
 	rawPtr                     *capi.CEFTranslatorTestRefPtrClientT
 }
 
-func (w *translatorTestRefPtrClientWrapper) rawPointer() unsafe.Pointer {
+func (w *translatorTestRefPtrClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -463,14 +463,14 @@ type TranslatorTestRefPtrClientChild = in.TranslatorTestRefPtrClientChild
 
 // translatorTestRefPtrClientChildWrapper wraps a user-provided TranslatorTestRefPtrClientChild implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestRefPtrClientChild.  It satisfies the
-// TranslatorTestRefPtrClientChild interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// TranslatorTestRefPtrClientChild interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type translatorTestRefPtrClientChildWrapper struct {
 	TranslatorTestRefPtrClientChild // embed user impl for interface delegation
 	rawPtr                          *capi.CEFTranslatorTestRefPtrClientChildT
 }
 
-func (w *translatorTestRefPtrClientChildWrapper) rawPointer() unsafe.Pointer {
+func (w *translatorTestRefPtrClientChildWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -516,7 +516,7 @@ func (obj *translatorTestScopedLibraryImpl) SetValue(value int32) {
 	obj.rawPtr.CallSetValue(uintptr(value))
 }
 
-func (obj *translatorTestScopedLibraryImpl) rawPointer() unsafe.Pointer {
+func (obj *translatorTestScopedLibraryImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -543,7 +543,7 @@ func (obj *translatorTestScopedLibraryChildImpl) SetOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
-func (obj *translatorTestScopedLibraryChildImpl) rawPointer() unsafe.Pointer {
+func (obj *translatorTestScopedLibraryChildImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -583,7 +583,7 @@ func (obj *translatorTestScopedLibraryChildChildImpl) SetOtherOtherValue(value i
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
-func (obj *translatorTestScopedLibraryChildChildImpl) rawPointer() unsafe.Pointer {
+func (obj *translatorTestScopedLibraryChildChildImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -613,14 +613,14 @@ type TranslatorTestScopedClient = in.TranslatorTestScopedClient
 
 // translatorTestScopedClientWrapper wraps a user-provided TranslatorTestScopedClient implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestScopedClient.  It satisfies the
-// TranslatorTestScopedClient interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// TranslatorTestScopedClient interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type translatorTestScopedClientWrapper struct {
 	TranslatorTestScopedClient // embed user impl for interface delegation
 	rawPtr                     *capi.CEFTranslatorTestScopedClientT
 }
 
-func (w *translatorTestScopedClientWrapper) rawPointer() unsafe.Pointer {
+func (w *translatorTestScopedClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -656,14 +656,14 @@ type TranslatorTestScopedClientChild = in.TranslatorTestScopedClientChild
 
 // translatorTestScopedClientChildWrapper wraps a user-provided TranslatorTestScopedClientChild implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestScopedClientChild.  It satisfies the
-// TranslatorTestScopedClientChild interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// TranslatorTestScopedClientChild interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type translatorTestScopedClientChildWrapper struct {
 	TranslatorTestScopedClientChild // embed user impl for interface delegation
 	rawPtr                          *capi.CEFTranslatorTestScopedClientChildT
 }
 
-func (w *translatorTestScopedClientChildWrapper) rawPointer() unsafe.Pointer {
+func (w *translatorTestScopedClientChildWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

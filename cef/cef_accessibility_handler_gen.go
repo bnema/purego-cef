@@ -17,14 +17,14 @@ type AccessibilityHandler = in.AccessibilityHandler
 
 // accessibilityHandlerWrapper wraps a user-provided AccessibilityHandler implementation together
 // with the raw CEF struct pointer allocated by NewAccessibilityHandler.  It satisfies the
-// AccessibilityHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// AccessibilityHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type accessibilityHandlerWrapper struct {
 	AccessibilityHandler // embed user impl for interface delegation
 	rawPtr               *capi.CEFAccessibilityHandlerT
 }
 
-func (w *accessibilityHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *accessibilityHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

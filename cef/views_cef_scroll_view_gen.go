@@ -46,7 +46,7 @@ func (obj *scrollViewImpl) GetVerticalScrollbarWidth() int32 {
 	return int32(obj.rawPtr.CallGetVerticalScrollbarWidth())
 }
 
-func (obj *scrollViewImpl) rawPointer() unsafe.Pointer {
+func (obj *scrollViewImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

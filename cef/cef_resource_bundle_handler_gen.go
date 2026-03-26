@@ -17,14 +17,14 @@ type ResourceBundleHandler = in.ResourceBundleHandler
 
 // resourceBundleHandlerWrapper wraps a user-provided ResourceBundleHandler implementation together
 // with the raw CEF struct pointer allocated by NewResourceBundleHandler.  It satisfies the
-// ResourceBundleHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ResourceBundleHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type resourceBundleHandlerWrapper struct {
 	ResourceBundleHandler // embed user impl for interface delegation
 	rawPtr                *capi.CEFResourceBundleHandlerT
 }
 
-func (w *resourceBundleHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *resourceBundleHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -18,7 +18,7 @@ type fillLayoutImpl struct {
 	rawPtr *capi.CEFFillLayoutT
 }
 
-func (obj *fillLayoutImpl) rawPointer() unsafe.Pointer {
+func (obj *fillLayoutImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

@@ -30,7 +30,7 @@ func (obj *authCallbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
-func (obj *authCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *authCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

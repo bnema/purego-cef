@@ -26,7 +26,7 @@ func (obj *jsdialogCallbackImpl) Cont(success int32, userInput string) {
 	obj.rawPtr.CallCont(uintptr(success), uintptr(unsafe.Pointer(&userInputStr)))
 }
 
-func (obj *jsdialogCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *jsdialogCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -56,14 +56,14 @@ type JsdialogHandler = in.JsdialogHandler
 
 // jsdialogHandlerWrapper wraps a user-provided JsdialogHandler implementation together
 // with the raw CEF struct pointer allocated by NewJsdialogHandler.  It satisfies the
-// JsdialogHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// JsdialogHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type jsdialogHandlerWrapper struct {
 	JsdialogHandler // embed user impl for interface delegation
 	rawPtr          *capi.CEFJsdialogHandlerT
 }
 
-func (w *jsdialogHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *jsdialogHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -146,7 +146,7 @@ func (obj *xmlReaderImpl) MoveToCarryingElement() int32 {
 	return int32(obj.rawPtr.CallMoveToCarryingElement())
 }
 
-func (obj *xmlReaderImpl) rawPointer() unsafe.Pointer {
+func (obj *xmlReaderImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

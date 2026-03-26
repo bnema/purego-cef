@@ -15,14 +15,14 @@ type PanelDelegate = in.PanelDelegate
 
 // panelDelegateWrapper wraps a user-provided PanelDelegate implementation together
 // with the raw CEF struct pointer allocated by NewPanelDelegate.  It satisfies the
-// PanelDelegate interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// PanelDelegate interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type panelDelegateWrapper struct {
 	PanelDelegate // embed user impl for interface delegation
 	rawPtr        *capi.CEFPanelDelegateT
 }
 
-func (w *panelDelegateWrapper) rawPointer() unsafe.Pointer {
+func (w *panelDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -66,7 +66,7 @@ func (obj *panelImpl) GetChildViewAt(index int32) View {
 	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetChildViewAt(uintptr(index))))
 }
 
-func (obj *panelImpl) rawPointer() unsafe.Pointer {
+func (obj *panelImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

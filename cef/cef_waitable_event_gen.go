@@ -38,7 +38,7 @@ func (obj *waitableEventImpl) TimedWait(maxMs int64) int32 {
 	return int32(obj.rawPtr.CallTimedWait(uintptr(maxMs)))
 }
 
-func (obj *waitableEventImpl) rawPointer() unsafe.Pointer {
+func (obj *waitableEventImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

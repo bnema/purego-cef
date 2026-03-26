@@ -60,7 +60,7 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 	return int32(obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception)))
 }
 
-func (obj *v8ContextImpl) rawPointer() unsafe.Pointer {
+func (obj *v8ContextImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -90,14 +90,14 @@ type V8Handler = in.V8Handler
 
 // v8HandlerWrapper wraps a user-provided V8Handler implementation together
 // with the raw CEF struct pointer allocated by NewV8Handler.  It satisfies the
-// V8Handler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// V8Handler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type v8HandlerWrapper struct {
 	V8Handler // embed user impl for interface delegation
 	rawPtr    *capi.CEFV8HandlerT
 }
 
-func (w *v8HandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *v8HandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -139,14 +139,14 @@ type V8Accessor = in.V8Accessor
 
 // v8AccessorWrapper wraps a user-provided V8Accessor implementation together
 // with the raw CEF struct pointer allocated by NewV8Accessor.  It satisfies the
-// V8Accessor interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// V8Accessor interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type v8AccessorWrapper struct {
 	V8Accessor // embed user impl for interface delegation
 	rawPtr     *capi.CEFV8AccessorT
 }
 
-func (w *v8AccessorWrapper) rawPointer() unsafe.Pointer {
+func (w *v8AccessorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -194,14 +194,14 @@ type V8Interceptor = in.V8Interceptor
 
 // v8InterceptorWrapper wraps a user-provided V8Interceptor implementation together
 // with the raw CEF struct pointer allocated by NewV8Interceptor.  It satisfies the
-// V8Interceptor interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// V8Interceptor interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type v8InterceptorWrapper struct {
 	V8Interceptor // embed user impl for interface delegation
 	rawPtr        *capi.CEFV8InterceptorT
 }
 
-func (w *v8InterceptorWrapper) rawPointer() unsafe.Pointer {
+func (w *v8InterceptorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -299,7 +299,7 @@ func (obj *v8ExceptionImpl) GetEndColumn() int32 {
 	return int32(obj.rawPtr.CallGetEndColumn())
 }
 
-func (obj *v8ExceptionImpl) rawPointer() unsafe.Pointer {
+func (obj *v8ExceptionImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -329,14 +329,14 @@ type V8ArrayBufferReleaseCallback = in.V8ArrayBufferReleaseCallback
 
 // v8ArrayBufferReleaseCallbackWrapper wraps a user-provided V8ArrayBufferReleaseCallback implementation together
 // with the raw CEF struct pointer allocated by NewV8ArrayBufferReleaseCallback.  It satisfies the
-// V8ArrayBufferReleaseCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// V8ArrayBufferReleaseCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type v8ArrayBufferReleaseCallbackWrapper struct {
 	V8ArrayBufferReleaseCallback // embed user impl for interface delegation
 	rawPtr                       *capi.CEFV8ArrayBufferReleaseCallbackT
 }
 
-func (w *v8ArrayBufferReleaseCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *v8ArrayBufferReleaseCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -597,7 +597,7 @@ func (obj *v8ValueImpl) RejectPromise(errormsg string) int32 {
 	return int32(obj.rawPtr.CallRejectPromise(uintptr(unsafe.Pointer(&errormsgStr))))
 }
 
-func (obj *v8ValueImpl) rawPointer() unsafe.Pointer {
+func (obj *v8ValueImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -641,7 +641,7 @@ func (obj *v8StackTraceImpl) GetFrame(index int32) V8StackFrame {
 	return wrapV8StackFrame(unsafe.Pointer(obj.rawPtr.CallGetFrame(uintptr(index))))
 }
 
-func (obj *v8StackTraceImpl) rawPointer() unsafe.Pointer {
+func (obj *v8StackTraceImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -705,7 +705,7 @@ func (obj *v8StackFrameImpl) IsConstructor() bool {
 	return obj.rawPtr.CallIsConstructor() != 0
 }
 
-func (obj *v8StackFrameImpl) rawPointer() unsafe.Pointer {
+func (obj *v8StackFrameImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

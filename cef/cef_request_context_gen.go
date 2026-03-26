@@ -18,14 +18,14 @@ type ResolveCallback = in.ResolveCallback
 
 // resolveCallbackWrapper wraps a user-provided ResolveCallback implementation together
 // with the raw CEF struct pointer allocated by NewResolveCallback.  It satisfies the
-// ResolveCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ResolveCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type resolveCallbackWrapper struct {
 	ResolveCallback // embed user impl for interface delegation
 	rawPtr          *capi.CEFResolveCallbackT
 }
 
-func (w *resolveCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *resolveCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -63,14 +63,14 @@ type SettingObserver = in.SettingObserver
 
 // settingObserverWrapper wraps a user-provided SettingObserver implementation together
 // with the raw CEF struct pointer allocated by NewSettingObserver.  It satisfies the
-// SettingObserver interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// SettingObserver interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type settingObserverWrapper struct {
 	SettingObserver // embed user impl for interface delegation
 	rawPtr          *capi.CEFSettingObserverT
 }
 
-func (w *settingObserverWrapper) rawPointer() unsafe.Pointer {
+func (w *settingObserverWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -225,7 +225,7 @@ func (obj *requestContextImpl) ClearHttpCache(callback CompletionCallback) {
 	obj.rawPtr.CallClearHttpCache(uintptr(extractRawPointer(callback)))
 }
 
-func (obj *requestContextImpl) rawPointer() unsafe.Pointer {
+func (obj *requestContextImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

@@ -28,7 +28,7 @@ func (obj *runContextMenuCallbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
-func (obj *runContextMenuCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *runContextMenuCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -68,7 +68,7 @@ func (obj *runQuickMenuCallbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
-func (obj *runQuickMenuCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *runQuickMenuCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -98,14 +98,14 @@ type ContextMenuHandler = in.ContextMenuHandler
 
 // contextMenuHandlerWrapper wraps a user-provided ContextMenuHandler implementation together
 // with the raw CEF struct pointer allocated by NewContextMenuHandler.  It satisfies the
-// ContextMenuHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ContextMenuHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type contextMenuHandlerWrapper struct {
 	ContextMenuHandler // embed user impl for interface delegation
 	rawPtr             *capi.CEFContextMenuHandlerT
 }
 
-func (w *contextMenuHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *contextMenuHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -275,7 +275,7 @@ func (obj *contextMenuParamsImpl) IsCustomMenu() bool {
 	return obj.rawPtr.CallIsCustomMenu() != 0
 }
 
-func (obj *contextMenuParamsImpl) rawPointer() unsafe.Pointer {
+func (obj *contextMenuParamsImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

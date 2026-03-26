@@ -17,14 +17,14 @@ type LoadHandler = in.LoadHandler
 
 // loadHandlerWrapper wraps a user-provided LoadHandler implementation together
 // with the raw CEF struct pointer allocated by NewLoadHandler.  It satisfies the
-// LoadHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// LoadHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type loadHandlerWrapper struct {
 	LoadHandler // embed user impl for interface delegation
 	rawPtr      *capi.CEFLoadHandlerT
 }
 
-func (w *loadHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *loadHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

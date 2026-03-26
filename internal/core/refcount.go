@@ -108,11 +108,6 @@ func (rm *RefManager) AddRef(base unsafe.Pointer) {
 	rm.addRef(base)
 }
 
-// LoadOwner retrieves the Go owner struct stored for the given base pointer.
-func (rm *RefManager) LoadOwner(base unsafe.Pointer) (any, bool) {
-	return rm.pins.Load(uintptr(base))
-}
-
 func (rm *RefManager) loadState(base unsafe.Pointer) (*refState, bool) {
 	v, ok := rm.states.Load(uintptr(base))
 	if !ok {

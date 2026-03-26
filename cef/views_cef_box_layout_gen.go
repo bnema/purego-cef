@@ -26,7 +26,7 @@ func (obj *boxLayoutImpl) ClearFlexForView(view View) {
 	obj.rawPtr.CallClearFlexForView(uintptr(extractRawPointer(view)))
 }
 
-func (obj *boxLayoutImpl) rawPointer() unsafe.Pointer {
+func (obj *boxLayoutImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

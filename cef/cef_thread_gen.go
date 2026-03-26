@@ -34,7 +34,7 @@ func (obj *threadImpl) IsRunning() bool {
 	return obj.rawPtr.CallIsRunning() != 0
 }
 
-func (obj *threadImpl) rawPointer() unsafe.Pointer {
+func (obj *threadImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

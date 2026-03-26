@@ -26,7 +26,7 @@ func (obj *preferenceRegistrarImpl) AddPreference(name string, defaultValue Valu
 	return int32(obj.rawPtr.CallAddPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(defaultValue))))
 }
 
-func (obj *preferenceRegistrarImpl) rawPointer() unsafe.Pointer {
+func (obj *preferenceRegistrarImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -43,14 +43,14 @@ type PreferenceObserver = in.PreferenceObserver
 
 // preferenceObserverWrapper wraps a user-provided PreferenceObserver implementation together
 // with the raw CEF struct pointer allocated by NewPreferenceObserver.  It satisfies the
-// PreferenceObserver interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// PreferenceObserver interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type preferenceObserverWrapper struct {
 	PreferenceObserver // embed user impl for interface delegation
 	rawPtr             *capi.CEFPreferenceObserverT
 }
 
-func (w *preferenceObserverWrapper) rawPointer() unsafe.Pointer {
+func (w *preferenceObserverWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -123,7 +123,7 @@ func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer Pr
 	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(observer)))))
 }
 
-func (obj *preferenceManagerImpl) rawPointer() unsafe.Pointer {
+func (obj *preferenceManagerImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

@@ -17,14 +17,14 @@ type ViewDelegate = in.ViewDelegate
 
 // viewDelegateWrapper wraps a user-provided ViewDelegate implementation together
 // with the raw CEF struct pointer allocated by NewViewDelegate.  It satisfies the
-// ViewDelegate interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ViewDelegate interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type viewDelegateWrapper struct {
 	ViewDelegate // embed user impl for interface delegation
 	rawPtr       *capi.CEFViewDelegateT
 }
 
-func (w *viewDelegateWrapper) rawPointer() unsafe.Pointer {
+func (w *viewDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

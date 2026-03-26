@@ -28,7 +28,7 @@ func (obj *fileDialogCallbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
-func (obj *fileDialogCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *fileDialogCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -58,14 +58,14 @@ type DialogHandler = in.DialogHandler
 
 // dialogHandlerWrapper wraps a user-provided DialogHandler implementation together
 // with the raw CEF struct pointer allocated by NewDialogHandler.  It satisfies the
-// DialogHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// DialogHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type dialogHandlerWrapper struct {
 	DialogHandler // embed user impl for interface delegation
 	rawPtr        *capi.CEFDialogHandlerT
 }
 
-func (w *dialogHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *dialogHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -34,7 +34,7 @@ func (obj *sharedProcessMessageBuilderImpl) Build() ProcessMessage {
 	return wrapProcessMessage(unsafe.Pointer(obj.rawPtr.CallBuild()))
 }
 
-func (obj *sharedProcessMessageBuilderImpl) rawPointer() unsafe.Pointer {
+func (obj *sharedProcessMessageBuilderImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

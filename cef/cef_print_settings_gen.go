@@ -112,7 +112,7 @@ func (obj *printSettingsImpl) GetDuplexMode() DuplexMode {
 	return DuplexMode(obj.rawPtr.CallGetDuplexMode())
 }
 
-func (obj *printSettingsImpl) rawPointer() unsafe.Pointer {
+func (obj *printSettingsImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

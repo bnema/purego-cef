@@ -124,7 +124,7 @@ func (obj *requestImpl) GetIdentifier() uint64 {
 	return uint64(obj.rawPtr.CallGetIdentifier())
 }
 
-func (obj *requestImpl) rawPointer() unsafe.Pointer {
+func (obj *requestImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -184,7 +184,7 @@ func (obj *postDataImpl) RemoveElements() {
 	obj.rawPtr.CallRemoveElements()
 }
 
-func (obj *postDataImpl) rawPointer() unsafe.Pointer {
+func (obj *postDataImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -250,7 +250,7 @@ func (obj *postDataElementImpl) GetBytes(size int, bytes unsafe.Pointer) int {
 	return int(obj.rawPtr.CallGetBytes(uintptr(size), uintptr(bytes)))
 }
 
-func (obj *postDataElementImpl) rawPointer() unsafe.Pointer {
+func (obj *postDataElementImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

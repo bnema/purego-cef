@@ -90,7 +90,7 @@ func (obj *imageImpl) GetAsJpeg(scaleFactor float32, quality int32, pixelWidth u
 	return wrapBinaryValue(unsafe.Pointer(fn(obj.rawPtr, scaleFactor, uintptr(quality), uintptr(pixelWidth), uintptr(pixelHeight))))
 }
 
-func (obj *imageImpl) rawPointer() unsafe.Pointer {
+func (obj *imageImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

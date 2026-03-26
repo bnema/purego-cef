@@ -15,7 +15,6 @@ type CAPI interface {
 	Shutdown()
 	DoMessageLoopWork()
 	ExecuteProcess(args, app, sandboxInfo unsafe.Pointer) int32
-	SetAPIVersion(handle uintptr) error
 
 	// Callbacks — wraps purego.NewCallback
 	NewCallback(fn any) uintptr

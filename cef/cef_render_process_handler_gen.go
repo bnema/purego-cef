@@ -17,14 +17,14 @@ type RenderProcessHandler = in.RenderProcessHandler
 
 // renderProcessHandlerWrapper wraps a user-provided RenderProcessHandler implementation together
 // with the raw CEF struct pointer allocated by NewRenderProcessHandler.  It satisfies the
-// RenderProcessHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// RenderProcessHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type renderProcessHandlerWrapper struct {
 	RenderProcessHandler // embed user impl for interface delegation
 	rawPtr               *capi.CEFRenderProcessHandlerT
 }
 
-func (w *renderProcessHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *renderProcessHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

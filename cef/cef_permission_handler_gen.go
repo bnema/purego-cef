@@ -28,7 +28,7 @@ func (obj *mediaAccessCallbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
-func (obj *mediaAccessCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *mediaAccessCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -64,7 +64,7 @@ func (obj *permissionPromptCallbackImpl) Cont(result PermissionRequestResult) {
 	obj.rawPtr.CallCont(uintptr(result))
 }
 
-func (obj *permissionPromptCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *permissionPromptCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -94,14 +94,14 @@ type PermissionHandler = in.PermissionHandler
 
 // permissionHandlerWrapper wraps a user-provided PermissionHandler implementation together
 // with the raw CEF struct pointer allocated by NewPermissionHandler.  It satisfies the
-// PermissionHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// PermissionHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type permissionHandlerWrapper struct {
 	PermissionHandler // embed user impl for interface delegation
 	rawPtr            *capi.CEFPermissionHandlerT
 }
 
-func (w *permissionHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *permissionHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

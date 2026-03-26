@@ -17,14 +17,14 @@ type KeyboardHandler = in.KeyboardHandler
 
 // keyboardHandlerWrapper wraps a user-provided KeyboardHandler implementation together
 // with the raw CEF struct pointer allocated by NewKeyboardHandler.  It satisfies the
-// KeyboardHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// KeyboardHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type keyboardHandlerWrapper struct {
 	KeyboardHandler // embed user impl for interface delegation
 	rawPtr          *capi.CEFKeyboardHandlerT
 }
 
-func (w *keyboardHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *keyboardHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

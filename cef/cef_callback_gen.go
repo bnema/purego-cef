@@ -28,7 +28,7 @@ func (obj *callbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
-func (obj *callbackImpl) rawPointer() unsafe.Pointer {
+func (obj *callbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -58,14 +58,14 @@ type CompletionCallback = in.CompletionCallback
 
 // completionCallbackWrapper wraps a user-provided CompletionCallback implementation together
 // with the raw CEF struct pointer allocated by NewCompletionCallback.  It satisfies the
-// CompletionCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// CompletionCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type completionCallbackWrapper struct {
 	CompletionCallback // embed user impl for interface delegation
 	rawPtr             *capi.CEFCompletionCallbackT
 }
 
-func (w *completionCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *completionCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
