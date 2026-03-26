@@ -368,3 +368,34 @@ func EmitRaw(header *model.Header) (string, error) {
 	}
 	return string(formatted), nil
 }
+
+// EmitPortOut generates outbound port interfaces for a header.
+func EmitPortOut(data *PublicFileData) (string, error) {
+	if data == nil {
+		return "", nil
+	}
+	// Check if there are any object interfaces to generate
+	hasObjects := false
+	for _, iface := range data.Interfaces {
+		if iface.Kind == "object" {
+			hasObjects = true
+			break
+		}
+	}
+	if !hasObjects {
+		return "", nil
+	}
+	tmpl, err := template.New("port_out").ParseFS(templateFS, "templates/port_out.tmpl")
+	if err != nil {
+		return "", err
+	}
+	var buf bytes.Buffer
+	if err := tmpl.ExecuteTemplate(&buf, "port_out.tmpl", data); err != nil {
+		return "", fmt.Errorf("execute port_out template: %w", err)
+	}
+	formatted, err := format.Source(buf.Bytes())
+	if err != nil {
+		return "", fmt.Errorf("format port_out source: %w\n%s", err, buf.String())
+	}
+	return string(formatted), nil
+}
