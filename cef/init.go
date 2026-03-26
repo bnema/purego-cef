@@ -7,6 +7,7 @@ package cef
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -61,6 +62,7 @@ func MaybeExitSubprocess() {
 	purego.RegisterLibFunc(&executeProcess, handle, "cef_execute_process")
 	args := core.NewMainArgs(os.Args)
 	code := executeProcess(args.Ptr(), nil, nil)
+	runtime.KeepAlive(args)
 	if code >= 0 {
 		os.Exit(int(code))
 	}
