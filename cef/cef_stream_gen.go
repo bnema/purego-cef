@@ -18,14 +18,14 @@ type ReadHandler = in.ReadHandler
 
 // readHandlerWrapper wraps a user-provided ReadHandler implementation together
 // with the raw CEF struct pointer allocated by NewReadHandler.  It satisfies the
-// ReadHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ReadHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type readHandlerWrapper struct {
 	ReadHandler // embed user impl for interface delegation
 	rawPtr      *capi.CEFReadHandlerT
 }
 
-func (w *readHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *readHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -104,7 +104,7 @@ func (obj *streamReaderImpl) MayBlock() int32 {
 	return int32(obj.rawPtr.CallMayBlock())
 }
 
-func (obj *streamReaderImpl) rawPointer() unsafe.Pointer {
+func (obj *streamReaderImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -134,14 +134,14 @@ type WriteHandler = in.WriteHandler
 
 // writeHandlerWrapper wraps a user-provided WriteHandler implementation together
 // with the raw CEF struct pointer allocated by NewWriteHandler.  It satisfies the
-// WriteHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// WriteHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type writeHandlerWrapper struct {
 	WriteHandler // embed user impl for interface delegation
 	rawPtr       *capi.CEFWriteHandlerT
 }
 
-func (w *writeHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *writeHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -220,7 +220,7 @@ func (obj *streamWriterImpl) MayBlock() int32 {
 	return int32(obj.rawPtr.CallMayBlock())
 }
 
-func (obj *streamWriterImpl) rawPointer() unsafe.Pointer {
+func (obj *streamWriterImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

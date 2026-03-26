@@ -18,14 +18,14 @@ type DisplayHandler = in.DisplayHandler
 
 // displayHandlerWrapper wraps a user-provided DisplayHandler implementation together
 // with the raw CEF struct pointer allocated by NewDisplayHandler.  It satisfies the
-// DisplayHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// DisplayHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type displayHandlerWrapper struct {
 	DisplayHandler // embed user impl for interface delegation
 	rawPtr         *capi.CEFDisplayHandlerT
 }
 
-func (w *displayHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *displayHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

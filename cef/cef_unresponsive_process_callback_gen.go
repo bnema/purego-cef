@@ -26,7 +26,7 @@ func (obj *unresponsiveProcessCallbackImpl) Terminate() {
 	obj.rawPtr.CallTerminate()
 }
 
-func (obj *unresponsiveProcessCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *unresponsiveProcessCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

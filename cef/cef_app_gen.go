@@ -17,14 +17,14 @@ type App = in.App
 
 // appWrapper wraps a user-provided App implementation together
 // with the raw CEF struct pointer allocated by NewApp.  It satisfies the
-// App interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// App interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type appWrapper struct {
 	App    // embed user impl for interface delegation
 	rawPtr *capi.CEFAppT
 }
 
-func (w *appWrapper) rawPointer() unsafe.Pointer {
+func (w *appWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

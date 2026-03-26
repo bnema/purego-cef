@@ -78,7 +78,7 @@ func (obj *serverImpl) SendWebSocketMessage(connectionID int32, data unsafe.Poin
 	obj.rawPtr.CallSendWebSocketMessage(uintptr(connectionID), uintptr(data), uintptr(dataSize))
 }
 
-func (obj *serverImpl) rawPointer() unsafe.Pointer {
+func (obj *serverImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -108,14 +108,14 @@ type ServerHandler = in.ServerHandler
 
 // serverHandlerWrapper wraps a user-provided ServerHandler implementation together
 // with the raw CEF struct pointer allocated by NewServerHandler.  It satisfies the
-// ServerHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ServerHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type serverHandlerWrapper struct {
 	ServerHandler // embed user impl for interface delegation
 	rawPtr        *capi.CEFServerHandlerT
 }
 
-func (w *serverHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *serverHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

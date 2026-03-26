@@ -17,14 +17,14 @@ type FocusHandler = in.FocusHandler
 
 // focusHandlerWrapper wraps a user-provided FocusHandler implementation together
 // with the raw CEF struct pointer allocated by NewFocusHandler.  It satisfies the
-// FocusHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// FocusHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type focusHandlerWrapper struct {
 	FocusHandler // embed user impl for interface delegation
 	rawPtr       *capi.CEFFocusHandlerT
 }
 
-func (w *focusHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *focusHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

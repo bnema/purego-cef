@@ -17,14 +17,14 @@ type ButtonDelegate = in.ButtonDelegate
 
 // buttonDelegateWrapper wraps a user-provided ButtonDelegate implementation together
 // with the raw CEF struct pointer allocated by NewButtonDelegate.  It satisfies the
-// ButtonDelegate interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ButtonDelegate interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type buttonDelegateWrapper struct {
 	ButtonDelegate // embed user impl for interface delegation
 	rawPtr         *capi.CEFButtonDelegateT
 }
 
-func (w *buttonDelegateWrapper) rawPointer() unsafe.Pointer {
+func (w *buttonDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

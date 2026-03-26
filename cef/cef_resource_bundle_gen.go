@@ -30,7 +30,7 @@ func (obj *resourceBundleImpl) GetDataResourceForScale(resourceID int32, scaleFa
 	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor))))
 }
 
-func (obj *resourceBundleImpl) rawPointer() unsafe.Pointer {
+func (obj *resourceBundleImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

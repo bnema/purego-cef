@@ -17,14 +17,14 @@ type ResourceRequestHandler = in.ResourceRequestHandler
 
 // resourceRequestHandlerWrapper wraps a user-provided ResourceRequestHandler implementation together
 // with the raw CEF struct pointer allocated by NewResourceRequestHandler.  It satisfies the
-// ResourceRequestHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ResourceRequestHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type resourceRequestHandlerWrapper struct {
 	ResourceRequestHandler // embed user impl for interface delegation
 	rawPtr                 *capi.CEFResourceRequestHandlerT
 }
 
-func (w *resourceRequestHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *resourceRequestHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -139,14 +139,14 @@ type CookieAccessFilter = in.CookieAccessFilter
 
 // cookieAccessFilterWrapper wraps a user-provided CookieAccessFilter implementation together
 // with the raw CEF struct pointer allocated by NewCookieAccessFilter.  It satisfies the
-// CookieAccessFilter interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// CookieAccessFilter interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type cookieAccessFilterWrapper struct {
 	CookieAccessFilter // embed user impl for interface delegation
 	rawPtr             *capi.CEFCookieAccessFilterT
 }
 
-func (w *cookieAccessFilterWrapper) rawPointer() unsafe.Pointer {
+func (w *cookieAccessFilterWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

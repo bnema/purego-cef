@@ -20,7 +20,7 @@ type menuButtonPressedLockImpl struct {
 	rawPtr *capi.CEFMenuButtonPressedLockT
 }
 
-func (obj *menuButtonPressedLockImpl) rawPointer() unsafe.Pointer {
+func (obj *menuButtonPressedLockImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -50,14 +50,14 @@ type MenuButtonDelegate = in.MenuButtonDelegate
 
 // menuButtonDelegateWrapper wraps a user-provided MenuButtonDelegate implementation together
 // with the raw CEF struct pointer allocated by NewMenuButtonDelegate.  It satisfies the
-// MenuButtonDelegate interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// MenuButtonDelegate interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type menuButtonDelegateWrapper struct {
 	MenuButtonDelegate // embed user impl for interface delegation
 	rawPtr             *capi.CEFMenuButtonDelegateT
 }
 
-func (w *menuButtonDelegateWrapper) rawPointer() unsafe.Pointer {
+func (w *menuButtonDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

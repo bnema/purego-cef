@@ -17,14 +17,14 @@ type RequestContextHandler = in.RequestContextHandler
 
 // requestContextHandlerWrapper wraps a user-provided RequestContextHandler implementation together
 // with the raw CEF struct pointer allocated by NewRequestContextHandler.  It satisfies the
-// RequestContextHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// RequestContextHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type requestContextHandlerWrapper struct {
 	RequestContextHandler // embed user impl for interface delegation
 	rawPtr                *capi.CEFRequestContextHandlerT
 }
 
-func (w *requestContextHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *requestContextHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

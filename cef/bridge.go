@@ -155,14 +155,21 @@ func wrapAudioHandler(_ unsafe.Pointer) AudioHandler { return nil }
 // eng is the core Engine instance, wired at Init() time.
 var eng *core.Engine
 
+func mustEng() *core.Engine {
+	if eng == nil {
+		panic("cef: engine not initialized; call cef.Init() first")
+	}
+	return eng
+}
+
 // cefString converts a Go string to a CEF UTF-16 string.
 func cefString(s string) core.CEFStringT {
-	return eng.CefString(s)
+	return mustEng().CefString(s)
 }
 
 // freeCefString releases a CEF string's backing memory.
 func freeCefString(cs *core.CEFStringT) {
-	eng.FreeCefString(cs)
+	mustEng().FreeCefString(cs)
 }
 
 // goString converts a pointer to a CEF string to a Go string.
@@ -172,17 +179,17 @@ func goString(cs unsafe.Pointer) string {
 
 // goStringUserfree converts a cef_string_userfree_t to a Go string and frees it.
 func goStringUserfree(ptr unsafe.Pointer) string {
-	return eng.GoStringUserfree(ptr)
+	return mustEng().GoStringUserfree(ptr)
 }
 
 // initRefCount wires refcount callbacks into a CEF base struct header.
 func initRefCount(base unsafe.Pointer, size uintptr, owner any) {
-	eng.Refs().InitRefCount(base, size, owner)
+	mustEng().Refs().InitRefCount(base, size, owner)
 }
 
 // addRef increments the refcount for the object at base.
 func addRef(base unsafe.Pointer) {
-	eng.Refs().AddRef(base)
+	mustEng().Refs().AddRef(base)
 }
 
 // extractRawPointer returns the underlying raw CEF pointer from an interface.

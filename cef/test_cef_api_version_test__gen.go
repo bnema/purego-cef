@@ -160,7 +160,7 @@ func (obj *apiVersionTestImpl) SetChildRawPtrClientV2(val ApiVersionTestScopedCl
 	return int32(obj.rawPtr.CallSetChildRawPtrClientV2(uintptr(extractRawPointer(val))))
 }
 
-func (obj *apiVersionTestImpl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -232,7 +232,7 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueExp(value int32) {
 	obj.rawPtr.CallSetValueExp(uintptr(value))
 }
 
-func (obj *apiVersionTestRefPtrLibraryImpl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestRefPtrLibraryImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -272,7 +272,7 @@ func (obj *apiVersionTestRefPtrLibraryChildImpl) SetOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
-func (obj *apiVersionTestRefPtrLibraryChildImpl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestRefPtrLibraryChildImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -312,7 +312,7 @@ func (obj *apiVersionTestRefPtrLibraryChildChildImpl) SetOtherOtherValue(value i
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
-func (obj *apiVersionTestRefPtrLibraryChildChildImpl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestRefPtrLibraryChildChildImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -352,7 +352,7 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) SetOtherOtherValue(value
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
-func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -392,7 +392,7 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) SetOtherOtherValue(value
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
-func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -422,14 +422,14 @@ type ApiVersionTestRefPtrClient = in.ApiVersionTestRefPtrClient
 
 // apiVersionTestRefPtrClientWrapper wraps a user-provided ApiVersionTestRefPtrClient implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClient.  It satisfies the
-// ApiVersionTestRefPtrClient interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ApiVersionTestRefPtrClient interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type apiVersionTestRefPtrClientWrapper struct {
 	ApiVersionTestRefPtrClient // embed user impl for interface delegation
 	rawPtr                     *capi.CEFApiVersionTestRefPtrClientT
 }
 
-func (w *apiVersionTestRefPtrClientWrapper) rawPointer() unsafe.Pointer {
+func (w *apiVersionTestRefPtrClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -481,14 +481,14 @@ type ApiVersionTestRefPtrClientChild = in.ApiVersionTestRefPtrClientChild
 
 // apiVersionTestRefPtrClientChildWrapper wraps a user-provided ApiVersionTestRefPtrClientChild implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClientChild.  It satisfies the
-// ApiVersionTestRefPtrClientChild interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ApiVersionTestRefPtrClientChild interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type apiVersionTestRefPtrClientChildWrapper struct {
 	ApiVersionTestRefPtrClientChild // embed user impl for interface delegation
 	rawPtr                          *capi.CEFApiVersionTestRefPtrClientChildT
 }
 
-func (w *apiVersionTestRefPtrClientChildWrapper) rawPointer() unsafe.Pointer {
+func (w *apiVersionTestRefPtrClientChildWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -528,14 +528,14 @@ type ApiVersionTestRefPtrClientChildV2 = in.ApiVersionTestRefPtrClientChildV2
 
 // apiVersionTestRefPtrClientChildV2Wrapper wraps a user-provided ApiVersionTestRefPtrClientChildV2 implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClientChildV2.  It satisfies the
-// ApiVersionTestRefPtrClientChildV2 interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ApiVersionTestRefPtrClientChildV2 interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type apiVersionTestRefPtrClientChildV2Wrapper struct {
 	ApiVersionTestRefPtrClientChildV2 // embed user impl for interface delegation
 	rawPtr                            *capi.CEFApiVersionTestRefPtrClientChildV2T
 }
 
-func (w *apiVersionTestRefPtrClientChildV2Wrapper) rawPointer() unsafe.Pointer {
+func (w *apiVersionTestRefPtrClientChildV2Wrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -617,7 +617,7 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValueExp(value int32) {
 	obj.rawPtr.CallSetValueExp(uintptr(value))
 }
 
-func (obj *apiVersionTestScopedLibraryImpl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestScopedLibraryImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -644,7 +644,7 @@ func (obj *apiVersionTestScopedLibraryChildImpl) SetOtherValue(value int32) {
 	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
-func (obj *apiVersionTestScopedLibraryChildImpl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestScopedLibraryChildImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -684,7 +684,7 @@ func (obj *apiVersionTestScopedLibraryChildChildImpl) SetOtherOtherValue(value i
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
-func (obj *apiVersionTestScopedLibraryChildChildImpl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestScopedLibraryChildChildImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -724,7 +724,7 @@ func (obj *apiVersionTestScopedLibraryChildChildV1Impl) SetOtherOtherValue(value
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
-func (obj *apiVersionTestScopedLibraryChildChildV1Impl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestScopedLibraryChildChildV1Impl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -764,7 +764,7 @@ func (obj *apiVersionTestScopedLibraryChildChildV2Impl) SetOtherOtherValue(value
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
-func (obj *apiVersionTestScopedLibraryChildChildV2Impl) rawPointer() unsafe.Pointer {
+func (obj *apiVersionTestScopedLibraryChildChildV2Impl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -794,14 +794,14 @@ type ApiVersionTestScopedClient = in.ApiVersionTestScopedClient
 
 // apiVersionTestScopedClientWrapper wraps a user-provided ApiVersionTestScopedClient implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestScopedClient.  It satisfies the
-// ApiVersionTestScopedClient interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ApiVersionTestScopedClient interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type apiVersionTestScopedClientWrapper struct {
 	ApiVersionTestScopedClient // embed user impl for interface delegation
 	rawPtr                     *capi.CEFApiVersionTestScopedClientT
 }
 
-func (w *apiVersionTestScopedClientWrapper) rawPointer() unsafe.Pointer {
+func (w *apiVersionTestScopedClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -853,14 +853,14 @@ type ApiVersionTestScopedClientChild = in.ApiVersionTestScopedClientChild
 
 // apiVersionTestScopedClientChildWrapper wraps a user-provided ApiVersionTestScopedClientChild implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestScopedClientChild.  It satisfies the
-// ApiVersionTestScopedClientChild interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ApiVersionTestScopedClientChild interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type apiVersionTestScopedClientChildWrapper struct {
 	ApiVersionTestScopedClientChild // embed user impl for interface delegation
 	rawPtr                          *capi.CEFApiVersionTestScopedClientChildT
 }
 
-func (w *apiVersionTestScopedClientChildWrapper) rawPointer() unsafe.Pointer {
+func (w *apiVersionTestScopedClientChildWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -900,14 +900,14 @@ type ApiVersionTestScopedClientChildV2 = in.ApiVersionTestScopedClientChildV2
 
 // apiVersionTestScopedClientChildV2Wrapper wraps a user-provided ApiVersionTestScopedClientChildV2 implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestScopedClientChildV2.  It satisfies the
-// ApiVersionTestScopedClientChildV2 interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ApiVersionTestScopedClientChildV2 interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type apiVersionTestScopedClientChildV2Wrapper struct {
 	ApiVersionTestScopedClientChildV2 // embed user impl for interface delegation
 	rawPtr                            *capi.CEFApiVersionTestScopedClientChildV2T
 }
 
-func (w *apiVersionTestScopedClientChildV2Wrapper) rawPointer() unsafe.Pointer {
+func (w *apiVersionTestScopedClientChildV2Wrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

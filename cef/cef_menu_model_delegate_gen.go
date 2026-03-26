@@ -17,14 +17,14 @@ type MenuModelDelegate = in.MenuModelDelegate
 
 // menuModelDelegateWrapper wraps a user-provided MenuModelDelegate implementation together
 // with the raw CEF struct pointer allocated by NewMenuModelDelegate.  It satisfies the
-// MenuModelDelegate interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// MenuModelDelegate interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type menuModelDelegateWrapper struct {
 	MenuModelDelegate // embed user impl for interface delegation
 	rawPtr            *capi.CEFMenuModelDelegateT
 }
 
-func (w *menuModelDelegateWrapper) rawPointer() unsafe.Pointer {
+func (w *menuModelDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

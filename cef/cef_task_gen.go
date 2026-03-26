@@ -18,14 +18,14 @@ type Task = in.Task
 
 // taskWrapper wraps a user-provided Task implementation together
 // with the raw CEF struct pointer allocated by NewTask.  It satisfies the
-// Task interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// Task interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type taskWrapper struct {
 	Task   // embed user impl for interface delegation
 	rawPtr *capi.CEFTaskT
 }
 
-func (w *taskWrapper) rawPointer() unsafe.Pointer {
+func (w *taskWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -83,7 +83,7 @@ func (obj *taskRunnerImpl) PostDelayedTask(task Task, delayMs int64) int32 {
 	return int32(obj.rawPtr.CallPostDelayedTask(uintptr(extractRawPointer(task)), uintptr(delayMs)))
 }
 
-func (obj *taskRunnerImpl) rawPointer() unsafe.Pointer {
+func (obj *taskRunnerImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

@@ -266,7 +266,7 @@ func (obj *menuModelImpl) SetFontListAt(index int32, fontList string) int32 {
 	return int32(obj.rawPtr.CallSetFontListAt(uintptr(index), uintptr(unsafe.Pointer(&fontListStr))))
 }
 
-func (obj *menuModelImpl) rawPointer() unsafe.Pointer {
+func (obj *menuModelImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

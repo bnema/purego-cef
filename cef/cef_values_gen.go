@@ -114,7 +114,7 @@ func (obj *valueImpl) SetList(value ListValue) int32 {
 	return int32(obj.rawPtr.CallSetList(uintptr(extractRawPointer(value))))
 }
 
-func (obj *valueImpl) rawPointer() unsafe.Pointer {
+func (obj *valueImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -178,7 +178,7 @@ func (obj *binaryValueImpl) GetData(buffer unsafe.Pointer, bufferSize int, dataO
 	return int(obj.rawPtr.CallGetData(uintptr(buffer), uintptr(bufferSize), uintptr(dataOffset)))
 }
 
-func (obj *binaryValueImpl) rawPointer() unsafe.Pointer {
+func (obj *binaryValueImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -372,7 +372,7 @@ func (obj *dictionaryValueImpl) SetList(key string, value ListValue) int32 {
 	return int32(obj.rawPtr.CallSetList(uintptr(unsafe.Pointer(&keyStr)), uintptr(extractRawPointer(value))))
 }
 
-func (obj *dictionaryValueImpl) rawPointer() unsafe.Pointer {
+func (obj *dictionaryValueImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -522,7 +522,7 @@ func (obj *listValueImpl) SetList(index int, value ListValue) int32 {
 	return int32(obj.rawPtr.CallSetList(uintptr(index), uintptr(extractRawPointer(value))))
 }
 
-func (obj *listValueImpl) rawPointer() unsafe.Pointer {
+func (obj *listValueImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

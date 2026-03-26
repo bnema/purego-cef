@@ -17,14 +17,14 @@ type EndTracingCallback = in.EndTracingCallback
 
 // endTracingCallbackWrapper wraps a user-provided EndTracingCallback implementation together
 // with the raw CEF struct pointer allocated by NewEndTracingCallback.  It satisfies the
-// EndTracingCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// EndTracingCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type endTracingCallbackWrapper struct {
 	EndTracingCallback // embed user impl for interface delegation
 	rawPtr             *capi.CEFEndTracingCallbackT
 }
 
-func (w *endTracingCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *endTracingCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

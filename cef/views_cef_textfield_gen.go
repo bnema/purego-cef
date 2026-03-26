@@ -154,7 +154,7 @@ func (obj *textfieldImpl) SetAccessibleName(name string) {
 	obj.rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
-func (obj *textfieldImpl) rawPointer() unsafe.Pointer {
+func (obj *textfieldImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

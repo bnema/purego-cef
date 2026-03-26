@@ -128,7 +128,7 @@ func (obj *frameImpl) SendProcessMessage(targetProcess ProcessID, message Proces
 	obj.rawPtr.CallSendProcessMessage(uintptr(targetProcess), uintptr(extractRawPointer(message)))
 }
 
-func (obj *frameImpl) rawPointer() unsafe.Pointer {
+func (obj *frameImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

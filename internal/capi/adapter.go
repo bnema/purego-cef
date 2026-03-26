@@ -71,10 +71,6 @@ func (a *Adapter) NewCallback(fn any) uintptr {
 	return purego.NewCallback(fn)
 }
 
-func (a *Adapter) SetAPIVersion(_ uintptr) error {
-	return nil
-}
-
 func (a *Adapter) Register(handle uintptr) {
 	Register(handle)
 }

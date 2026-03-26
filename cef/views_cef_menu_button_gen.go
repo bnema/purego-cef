@@ -26,7 +26,7 @@ func (obj *menuButtonImpl) TriggerMenu() {
 	obj.rawPtr.CallTriggerMenu()
 }
 
-func (obj *menuButtonImpl) rawPointer() unsafe.Pointer {
+func (obj *menuButtonImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

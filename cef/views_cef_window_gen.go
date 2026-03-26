@@ -192,7 +192,7 @@ func (obj *windowImpl) GetRuntimeStyle() RuntimeStyle {
 	return RuntimeStyle(obj.rawPtr.CallGetRuntimeStyle())
 }
 
-func (obj *windowImpl) rawPointer() unsafe.Pointer {
+func (obj *windowImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

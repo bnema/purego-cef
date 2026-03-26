@@ -17,14 +17,14 @@ type DevToolsMessageObserver = in.DevToolsMessageObserver
 
 // devToolsMessageObserverWrapper wraps a user-provided DevToolsMessageObserver implementation together
 // with the raw CEF struct pointer allocated by NewDevToolsMessageObserver.  It satisfies the
-// DevToolsMessageObserver interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// DevToolsMessageObserver interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type devToolsMessageObserverWrapper struct {
 	DevToolsMessageObserver // embed user impl for interface delegation
 	rawPtr                  *capi.CEFDevToolsMessageObserverT
 }
 
-func (w *devToolsMessageObserverWrapper) rawPointer() unsafe.Pointer {
+func (w *devToolsMessageObserverWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

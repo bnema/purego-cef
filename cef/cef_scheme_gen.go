@@ -25,7 +25,7 @@ func (obj *schemeRegistrarImpl) AddCustomScheme(schemeName string, options int32
 	return int32(obj.rawPtr.CallAddCustomScheme(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(options)))
 }
 
-func (obj *schemeRegistrarImpl) rawPointer() unsafe.Pointer {
+func (obj *schemeRegistrarImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -42,14 +42,14 @@ type SchemeHandlerFactory = in.SchemeHandlerFactory
 
 // schemeHandlerFactoryWrapper wraps a user-provided SchemeHandlerFactory implementation together
 // with the raw CEF struct pointer allocated by NewSchemeHandlerFactory.  It satisfies the
-// SchemeHandlerFactory interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// SchemeHandlerFactory interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type schemeHandlerFactoryWrapper struct {
 	SchemeHandlerFactory // embed user impl for interface delegation
 	rawPtr               *capi.CEFSchemeHandlerFactoryT
 }
 
-func (w *schemeHandlerFactoryWrapper) rawPointer() unsafe.Pointer {
+func (w *schemeHandlerFactoryWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

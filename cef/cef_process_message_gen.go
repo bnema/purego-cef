@@ -42,7 +42,7 @@ func (obj *processMessageImpl) GetSharedMemoryRegion() SharedMemoryRegion {
 	return wrapSharedMemoryRegion(unsafe.Pointer(obj.rawPtr.CallGetSharedMemoryRegion()))
 }
 
-func (obj *processMessageImpl) rawPointer() unsafe.Pointer {
+func (obj *processMessageImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

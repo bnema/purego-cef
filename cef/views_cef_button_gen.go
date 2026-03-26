@@ -46,7 +46,7 @@ func (obj *buttonImpl) SetAccessibleName(name string) {
 	obj.rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
-func (obj *buttonImpl) rawPointer() unsafe.Pointer {
+func (obj *buttonImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

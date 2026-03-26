@@ -24,7 +24,7 @@ func (obj *resourceSkipCallbackImpl) Cont(bytesSkipped int64) {
 	obj.rawPtr.CallCont(uintptr(bytesSkipped))
 }
 
-func (obj *resourceSkipCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *resourceSkipCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -60,7 +60,7 @@ func (obj *resourceReadCallbackImpl) Cont(bytesRead int32) {
 	obj.rawPtr.CallCont(uintptr(bytesRead))
 }
 
-func (obj *resourceReadCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *resourceReadCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -90,14 +90,14 @@ type ResourceHandler = in.ResourceHandler
 
 // resourceHandlerWrapper wraps a user-provided ResourceHandler implementation together
 // with the raw CEF struct pointer allocated by NewResourceHandler.  It satisfies the
-// ResourceHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ResourceHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type resourceHandlerWrapper struct {
 	ResourceHandler // embed user impl for interface delegation
 	rawPtr          *capi.CEFResourceHandlerT
 }
 
-func (w *resourceHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *resourceHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -18,14 +18,14 @@ type Domvisitor = in.Domvisitor
 
 // domvisitorWrapper wraps a user-provided Domvisitor implementation together
 // with the raw CEF struct pointer allocated by NewDomvisitor.  It satisfies the
-// Domvisitor interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// Domvisitor interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type domvisitorWrapper struct {
 	Domvisitor // embed user impl for interface delegation
 	rawPtr     *capi.CEFDomvisitorT
 }
 
-func (w *domvisitorWrapper) rawPointer() unsafe.Pointer {
+func (w *domvisitorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -124,7 +124,7 @@ func (obj *domdocumentImpl) GetCompleteURL(partialurl string) string {
 	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetCompleteURL(uintptr(unsafe.Pointer(&partialurlStr)))))
 }
 
-func (obj *domdocumentImpl) rawPointer() unsafe.Pointer {
+func (obj *domdocumentImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -270,7 +270,7 @@ func (obj *domnodeImpl) GetElementBounds() uintptr {
 	return uintptr(obj.rawPtr.CallGetElementBounds())
 }
 
-func (obj *domnodeImpl) rawPointer() unsafe.Pointer {
+func (obj *domnodeImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

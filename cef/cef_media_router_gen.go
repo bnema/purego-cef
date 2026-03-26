@@ -42,7 +42,7 @@ func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
 	obj.rawPtr.CallNotifyCurrentRoutes()
 }
 
-func (obj *mediaRouterImpl) rawPointer() unsafe.Pointer {
+func (obj *mediaRouterImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -72,14 +72,14 @@ type MediaObserver = in.MediaObserver
 
 // mediaObserverWrapper wraps a user-provided MediaObserver implementation together
 // with the raw CEF struct pointer allocated by NewMediaObserver.  It satisfies the
-// MediaObserver interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// MediaObserver interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type mediaObserverWrapper struct {
 	MediaObserver // embed user impl for interface delegation
 	rawPtr        *capi.CEFMediaObserverT
 }
 
-func (w *mediaObserverWrapper) rawPointer() unsafe.Pointer {
+func (w *mediaObserverWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -158,7 +158,7 @@ func (obj *mediaRouteImpl) Terminate() {
 	obj.rawPtr.CallTerminate()
 }
 
-func (obj *mediaRouteImpl) rawPointer() unsafe.Pointer {
+func (obj *mediaRouteImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -188,14 +188,14 @@ type MediaRouteCreateCallback = in.MediaRouteCreateCallback
 
 // mediaRouteCreateCallbackWrapper wraps a user-provided MediaRouteCreateCallback implementation together
 // with the raw CEF struct pointer allocated by NewMediaRouteCreateCallback.  It satisfies the
-// MediaRouteCreateCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// MediaRouteCreateCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type mediaRouteCreateCallbackWrapper struct {
 	MediaRouteCreateCallback // embed user impl for interface delegation
 	rawPtr                   *capi.CEFMediaRouteCreateCallbackT
 }
 
-func (w *mediaRouteCreateCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *mediaRouteCreateCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -264,7 +264,7 @@ func (obj *mediaSinkImpl) IsCompatibleWith(source MediaSource) bool {
 	return obj.rawPtr.CallIsCompatibleWith(uintptr(extractRawPointer(source))) != 0
 }
 
-func (obj *mediaSinkImpl) rawPointer() unsafe.Pointer {
+func (obj *mediaSinkImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -294,14 +294,14 @@ type MediaSinkDeviceInfoCallback = in.MediaSinkDeviceInfoCallback
 
 // mediaSinkDeviceInfoCallbackWrapper wraps a user-provided MediaSinkDeviceInfoCallback implementation together
 // with the raw CEF struct pointer allocated by NewMediaSinkDeviceInfoCallback.  It satisfies the
-// MediaSinkDeviceInfoCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// MediaSinkDeviceInfoCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type mediaSinkDeviceInfoCallbackWrapper struct {
 	MediaSinkDeviceInfoCallback // embed user impl for interface delegation
 	rawPtr                      *capi.CEFMediaSinkDeviceInfoCallbackT
 }
 
-func (w *mediaSinkDeviceInfoCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *mediaSinkDeviceInfoCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -352,7 +352,7 @@ func (obj *mediaSourceImpl) IsDialSource() bool {
 	return obj.rawPtr.CallIsDialSource() != 0
 }
 
-func (obj *mediaSourceImpl) rawPointer() unsafe.Pointer {
+func (obj *mediaSourceImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

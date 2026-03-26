@@ -30,7 +30,7 @@ func (obj *sharedMemoryRegionImpl) Memory() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr.CallMemory())
 }
 
-func (obj *sharedMemoryRegionImpl) rawPointer() unsafe.Pointer {
+func (obj *sharedMemoryRegionImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

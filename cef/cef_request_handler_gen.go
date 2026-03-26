@@ -24,7 +24,7 @@ func (obj *selectClientCertificateCallbackImpl) Select(cert X509Certificate) {
 	obj.rawPtr.CallSelect(uintptr(extractRawPointer(cert)))
 }
 
-func (obj *selectClientCertificateCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *selectClientCertificateCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -54,14 +54,14 @@ type RequestHandler = in.RequestHandler
 
 // requestHandlerWrapper wraps a user-provided RequestHandler implementation together
 // with the raw CEF struct pointer allocated by NewRequestHandler.  It satisfies the
-// RequestHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// RequestHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type requestHandlerWrapper struct {
 	RequestHandler // embed user impl for interface delegation
 	rawPtr         *capi.CEFRequestHandlerT
 }
 
-func (w *requestHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *requestHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -17,14 +17,14 @@ type Client = in.Client
 
 // clientWrapper wraps a user-provided Client implementation together
 // with the raw CEF struct pointer allocated by NewClient.  It satisfies the
-// Client interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// Client interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type clientWrapper struct {
 	Client // embed user impl for interface delegation
 	rawPtr *capi.CEFClientT
 }
 
-func (w *clientWrapper) rawPointer() unsafe.Pointer {
+func (w *clientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

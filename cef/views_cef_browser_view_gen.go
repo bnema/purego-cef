@@ -34,7 +34,7 @@ func (obj *browserViewImpl) GetRuntimeStyle() RuntimeStyle {
 	return RuntimeStyle(obj.rawPtr.CallGetRuntimeStyle())
 }
 
-func (obj *browserViewImpl) rawPointer() unsafe.Pointer {
+func (obj *browserViewImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

@@ -17,14 +17,14 @@ type WindowDelegate = in.WindowDelegate
 
 // windowDelegateWrapper wraps a user-provided WindowDelegate implementation together
 // with the raw CEF struct pointer allocated by NewWindowDelegate.  It satisfies the
-// WindowDelegate interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// WindowDelegate interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type windowDelegateWrapper struct {
 	WindowDelegate // embed user impl for interface delegation
 	rawPtr         *capi.CEFWindowDelegateT
 }
 
-func (w *windowDelegateWrapper) rawPointer() unsafe.Pointer {
+func (w *windowDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

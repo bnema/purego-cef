@@ -18,7 +18,7 @@ type registrationImpl struct {
 	rawPtr *capi.CEFRegistrationT
 }
 
-func (obj *registrationImpl) rawPointer() unsafe.Pointer {
+func (obj *registrationImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

@@ -28,7 +28,7 @@ func (obj *printDialogCallbackImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
-func (obj *printDialogCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *printDialogCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -64,7 +64,7 @@ func (obj *printJobCallbackImpl) Cont() {
 	obj.rawPtr.CallCont()
 }
 
-func (obj *printJobCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *printJobCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -94,14 +94,14 @@ type PrintHandler = in.PrintHandler
 
 // printHandlerWrapper wraps a user-provided PrintHandler implementation together
 // with the raw CEF struct pointer allocated by NewPrintHandler.  It satisfies the
-// PrintHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// PrintHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type printHandlerWrapper struct {
 	PrintHandler // embed user impl for interface delegation
 	rawPtr       *capi.CEFPrintHandlerT
 }
 
-func (w *printHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *printHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

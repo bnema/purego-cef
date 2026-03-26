@@ -30,7 +30,7 @@ func (obj *layoutImpl) IsValid() bool {
 	return obj.rawPtr.CallIsValid() != 0
 }
 
-func (obj *layoutImpl) rawPointer() unsafe.Pointer {
+func (obj *layoutImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

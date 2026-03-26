@@ -38,7 +38,7 @@ func (obj *taskManagerImpl) GetTaskIDForBrowserID(browserID int32) int64 {
 	return int64(obj.rawPtr.CallGetTaskIDForBrowserID(uintptr(browserID)))
 }
 
-func (obj *taskManagerImpl) rawPointer() unsafe.Pointer {
+func (obj *taskManagerImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

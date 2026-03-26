@@ -17,14 +17,14 @@ type ResponseFilter = in.ResponseFilter
 
 // responseFilterWrapper wraps a user-provided ResponseFilter implementation together
 // with the raw CEF struct pointer allocated by NewResponseFilter.  It satisfies the
-// ResponseFilter interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// ResponseFilter interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type responseFilterWrapper struct {
 	ResponseFilter // embed user impl for interface delegation
 	rawPtr         *capi.CEFResponseFilterT
 }
 
-func (w *responseFilterWrapper) rawPointer() unsafe.Pointer {
+func (w *responseFilterWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -18,14 +18,14 @@ type RenderHandler = in.RenderHandler
 
 // renderHandlerWrapper wraps a user-provided RenderHandler implementation together
 // with the raw CEF struct pointer allocated by NewRenderHandler.  It satisfies the
-// RenderHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// RenderHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type renderHandlerWrapper struct {
 	RenderHandler // embed user impl for interface delegation
 	rawPtr        *capi.CEFRenderHandlerT
 }
 
-func (w *renderHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *renderHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -17,14 +17,14 @@ type BrowserViewDelegate = in.BrowserViewDelegate
 
 // browserViewDelegateWrapper wraps a user-provided BrowserViewDelegate implementation together
 // with the raw CEF struct pointer allocated by NewBrowserViewDelegate.  It satisfies the
-// BrowserViewDelegate interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// BrowserViewDelegate interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type browserViewDelegateWrapper struct {
 	BrowserViewDelegate // embed user impl for interface delegation
 	rawPtr              *capi.CEFBrowserViewDelegateT
 }
 
-func (w *browserViewDelegateWrapper) rawPointer() unsafe.Pointer {
+func (w *browserViewDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

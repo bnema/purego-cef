@@ -142,7 +142,7 @@ func (obj *dragDataImpl) HasImage() bool {
 	return obj.rawPtr.CallHasImage() != 0
 }
 
-func (obj *dragDataImpl) rawPointer() unsafe.Pointer {
+func (obj *dragDataImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

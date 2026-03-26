@@ -17,14 +17,14 @@ type BrowserProcessHandler = in.BrowserProcessHandler
 
 // browserProcessHandlerWrapper wraps a user-provided BrowserProcessHandler implementation together
 // with the raw CEF struct pointer allocated by NewBrowserProcessHandler.  It satisfies the
-// BrowserProcessHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// BrowserProcessHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type browserProcessHandlerWrapper struct {
 	BrowserProcessHandler // embed user impl for interface delegation
 	rawPtr                *capi.CEFBrowserProcessHandlerT
 }
 
-func (w *browserProcessHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *browserProcessHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

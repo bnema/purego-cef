@@ -59,7 +59,7 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 }
 {{end}}
 
-func (obj *{{lower .Name}}Impl) rawPointer() unsafe.Pointer {
+func (obj *{{lower .Name}}Impl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

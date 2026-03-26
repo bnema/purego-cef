@@ -17,14 +17,14 @@ type FrameHandler = in.FrameHandler
 
 // frameHandlerWrapper wraps a user-provided FrameHandler implementation together
 // with the raw CEF struct pointer allocated by NewFrameHandler.  It satisfies the
-// FrameHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// FrameHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type frameHandlerWrapper struct {
 	FrameHandler // embed user impl for interface delegation
 	rawPtr       *capi.CEFFrameHandlerT
 }
 
-func (w *frameHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *frameHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

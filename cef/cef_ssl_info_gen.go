@@ -26,7 +26,7 @@ func (obj *sslinfoImpl) GetX509Certificate() X509Certificate {
 	return wrapX509Certificate(unsafe.Pointer(obj.rawPtr.CallGetX509Certificate()))
 }
 
-func (obj *sslinfoImpl) rawPointer() unsafe.Pointer {
+func (obj *sslinfoImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

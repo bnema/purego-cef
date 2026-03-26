@@ -52,7 +52,6 @@ type Settings struct {
 	NoSandbox                  bool
 	BrowserSubprocessPath      string
 	LogFile                    string
-	InitTraceFile              string
 }
 
 // DefaultSettings returns Settings suitable for off-screen rendering.

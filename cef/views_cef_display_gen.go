@@ -50,7 +50,7 @@ func (obj *displayImpl) GetRotation() int32 {
 	return int32(obj.rawPtr.CallGetRotation())
 }
 
-func (obj *displayImpl) rawPointer() unsafe.Pointer {
+func (obj *displayImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

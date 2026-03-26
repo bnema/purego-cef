@@ -38,7 +38,7 @@ func (obj *sslstatusImpl) GetX509Certificate() X509Certificate {
 	return wrapX509Certificate(unsafe.Pointer(obj.rawPtr.CallGetX509Certificate()))
 }
 
-func (obj *sslstatusImpl) rawPointer() unsafe.Pointer {
+func (obj *sslstatusImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

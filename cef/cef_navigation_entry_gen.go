@@ -58,7 +58,7 @@ func (obj *navigationEntryImpl) GetSslstatus() Sslstatus {
 	return wrapSslstatus(unsafe.Pointer(obj.rawPtr.CallGetSslstatus()))
 }
 
-func (obj *navigationEntryImpl) rawPointer() unsafe.Pointer {
+func (obj *navigationEntryImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

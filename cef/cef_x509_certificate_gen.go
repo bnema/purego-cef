@@ -46,7 +46,7 @@ func (obj *x509CertPrincipalImpl) GetOrganizationUnitNames(names uintptr) {
 	obj.rawPtr.CallGetOrganizationUnitNames(names)
 }
 
-func (obj *x509CertPrincipalImpl) rawPointer() unsafe.Pointer {
+func (obj *x509CertPrincipalImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -118,7 +118,7 @@ func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain 
 	obj.rawPtr.CallGetPemencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(chain))
 }
 
-func (obj *x509CertificateImpl) rawPointer() unsafe.Pointer {
+func (obj *x509CertificateImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 

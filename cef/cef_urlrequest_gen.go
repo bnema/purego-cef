@@ -48,7 +48,7 @@ func (obj *urlrequestImpl) Cancel() {
 	obj.rawPtr.CallCancel()
 }
 
-func (obj *urlrequestImpl) rawPointer() unsafe.Pointer {
+func (obj *urlrequestImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -78,14 +78,14 @@ type UrlrequestClient = in.UrlrequestClient
 
 // urlrequestClientWrapper wraps a user-provided UrlrequestClient implementation together
 // with the raw CEF struct pointer allocated by NewUrlrequestClient.  It satisfies the
-// UrlrequestClient interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// UrlrequestClient interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type urlrequestClientWrapper struct {
 	UrlrequestClient // embed user impl for interface delegation
 	rawPtr           *capi.CEFUrlrequestClientT
 }
 
-func (w *urlrequestClientWrapper) rawPointer() unsafe.Pointer {
+func (w *urlrequestClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

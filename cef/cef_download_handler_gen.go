@@ -26,7 +26,7 @@ func (obj *beforeDownloadCallbackImpl) Cont(downloadPath string, showDialog int3
 	obj.rawPtr.CallCont(uintptr(unsafe.Pointer(&downloadPathStr)), uintptr(showDialog))
 }
 
-func (obj *beforeDownloadCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *beforeDownloadCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -70,7 +70,7 @@ func (obj *downloadItemCallbackImpl) Resume() {
 	obj.rawPtr.CallResume()
 }
 
-func (obj *downloadItemCallbackImpl) rawPointer() unsafe.Pointer {
+func (obj *downloadItemCallbackImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -100,14 +100,14 @@ type DownloadHandler = in.DownloadHandler
 
 // downloadHandlerWrapper wraps a user-provided DownloadHandler implementation together
 // with the raw CEF struct pointer allocated by NewDownloadHandler.  It satisfies the
-// DownloadHandler interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// DownloadHandler interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type downloadHandlerWrapper struct {
 	DownloadHandler // embed user impl for interface delegation
 	rawPtr          *capi.CEFDownloadHandlerT
 }
 
-func (w *downloadHandlerWrapper) rawPointer() unsafe.Pointer {
+func (w *downloadHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

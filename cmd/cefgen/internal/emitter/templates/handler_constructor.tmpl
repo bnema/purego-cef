@@ -1,14 +1,14 @@
 {{define "handler_constructor.tmpl"}}
 // {{lower .Name}}Wrapper wraps a user-provided {{.Name}} implementation together
 // with the raw CEF struct pointer allocated by New{{.Name}}.  It satisfies the
-// {{.Name}} interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// {{.Name}} interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type {{lower .Name}}Wrapper struct {
 	{{.Name}}                           // embed user impl for interface delegation
 	rawPtr *capi.{{.RawGoName}}
 }
 
-func (w *{{lower .Name}}Wrapper) rawPointer() unsafe.Pointer {
+func (w *{{lower .Name}}Wrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

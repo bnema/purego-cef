@@ -17,14 +17,14 @@ type StringVisitor = in.StringVisitor
 
 // stringVisitorWrapper wraps a user-provided StringVisitor implementation together
 // with the raw CEF struct pointer allocated by NewStringVisitor.  It satisfies the
-// StringVisitor interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// StringVisitor interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type stringVisitorWrapper struct {
 	StringVisitor // embed user impl for interface delegation
 	rawPtr        *capi.CEFStringVisitorT
 }
 
-func (w *stringVisitorWrapper) rawPointer() unsafe.Pointer {
+func (w *stringVisitorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -48,7 +48,7 @@ func (obj *cookieManagerImpl) FlushStore(callback CompletionCallback) int32 {
 	return int32(obj.rawPtr.CallFlushStore(uintptr(extractRawPointer(callback))))
 }
 
-func (obj *cookieManagerImpl) rawPointer() unsafe.Pointer {
+func (obj *cookieManagerImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -78,14 +78,14 @@ type CookieVisitor = in.CookieVisitor
 
 // cookieVisitorWrapper wraps a user-provided CookieVisitor implementation together
 // with the raw CEF struct pointer allocated by NewCookieVisitor.  It satisfies the
-// CookieVisitor interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// CookieVisitor interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type cookieVisitorWrapper struct {
 	CookieVisitor // embed user impl for interface delegation
 	rawPtr        *capi.CEFCookieVisitorT
 }
 
-func (w *cookieVisitorWrapper) rawPointer() unsafe.Pointer {
+func (w *cookieVisitorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -125,14 +125,14 @@ type SetCookieCallback = in.SetCookieCallback
 
 // setCookieCallbackWrapper wraps a user-provided SetCookieCallback implementation together
 // with the raw CEF struct pointer allocated by NewSetCookieCallback.  It satisfies the
-// SetCookieCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// SetCookieCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type setCookieCallbackWrapper struct {
 	SetCookieCallback // embed user impl for interface delegation
 	rawPtr            *capi.CEFSetCookieCallbackT
 }
 
-func (w *setCookieCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *setCookieCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
@@ -169,14 +169,14 @@ type DeleteCookiesCallback = in.DeleteCookiesCallback
 
 // deleteCookiesCallbackWrapper wraps a user-provided DeleteCookiesCallback implementation together
 // with the raw CEF struct pointer allocated by NewDeleteCookiesCallback.  It satisfies the
-// DeleteCookiesCallback interface (by embedding the user impl) and rawPointerHolder (so
-// extractRawPointer can recover the raw pointer).
+// DeleteCookiesCallback interface (by embedding the user impl) and core.RawPointerHolder
+// (so extractRawPointer can recover the raw pointer).
 type deleteCookiesCallbackWrapper struct {
 	DeleteCookiesCallback // embed user impl for interface delegation
 	rawPtr                *capi.CEFDeleteCookiesCallbackT
 }
 
-func (w *deleteCookiesCallbackWrapper) rawPointer() unsafe.Pointer {
+func (w *deleteCookiesCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 

@@ -100,7 +100,7 @@ func (obj *responseImpl) SetURL(uRL string) {
 	obj.rawPtr.CallSetURL(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
-func (obj *responseImpl) rawPointer() unsafe.Pointer {
+func (obj *responseImpl) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(obj.rawPtr)
 }
 
