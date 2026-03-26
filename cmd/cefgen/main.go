@@ -16,14 +16,16 @@ import (
 
 type config struct {
 	headersDir string
-	rawDir     string // cef/internal/raw/
+	capiDir    string // internal/capi/
+	portInDir  string // internal/ports/in/
+	portOutDir string // internal/ports/out/
 	publicDir  string // cef/
 	version    string
 }
 
 func (c config) validate() error {
-	if c.headersDir == "" || c.rawDir == "" || c.publicDir == "" {
-		return fmt.Errorf("--headers-dir, --raw-dir, and --public-dir are required")
+	if c.headersDir == "" || c.capiDir == "" || c.portInDir == "" || c.portOutDir == "" || c.publicDir == "" {
+		return fmt.Errorf("--headers-dir, --capi-dir, --port-in-dir, --port-out-dir, and --public-dir are required")
 	}
 	return nil
 }
@@ -31,8 +33,10 @@ func (c config) validate() error {
 func main() {
 	var cfg config
 	flag.StringVar(&cfg.headersDir, "headers-dir", "", "CEF include root")
-	flag.StringVar(&cfg.rawDir, "raw-dir", "", "raw struct output directory")
-	flag.StringVar(&cfg.publicDir, "public-dir", "", "public API output directory")
+	flag.StringVar(&cfg.capiDir, "capi-dir", "", "internal/capi/ output directory")
+	flag.StringVar(&cfg.portInDir, "port-in-dir", "", "internal/ports/in/ output directory")
+	flag.StringVar(&cfg.portOutDir, "port-out-dir", "", "internal/ports/out/ output directory")
+	flag.StringVar(&cfg.publicDir, "public-dir", "", "cef/ output directory")
 	flag.StringVar(&cfg.version, "version", "145", "target major version")
 	flag.Parse()
 	if err := run(cfg); err != nil {
@@ -53,11 +57,10 @@ func run(cfg config) error {
 	}
 
 	// Ensure output directories exist.
-	if err := os.MkdirAll(cfg.rawDir, 0o755); err != nil {
-		return fmt.Errorf("create raw dir: %w", err)
-	}
-	if err := os.MkdirAll(cfg.publicDir, 0o755); err != nil {
-		return fmt.Errorf("create public dir: %w", err)
+	for _, dir := range []string{cfg.capiDir, cfg.portInDir, cfg.portOutDir, cfg.publicDir} {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return fmt.Errorf("create dir %s: %w", dir, err)
+		}
 	}
 
 	var allHeaders []*model.Header
@@ -115,19 +118,43 @@ func run(cfg config) error {
 	// Build type registry from all parsed headers.
 	registry := emitter.NewTypeRegistry(allHeaders)
 
-	// Emit both raw and public output for each header.
+	// Emit capi, port-out, port-in, and public output for each header.
 	for _, e := range entries {
-		// Raw output
+		// CAPI output (was "raw")
 		rawCode, err := emitter.EmitRaw(e.header)
 		if err != nil {
-			return fmt.Errorf("emit raw %s: %w", e.outName, err)
+			return fmt.Errorf("emit capi %s: %w", e.outName, err)
 		}
-		if err := os.WriteFile(filepath.Join(cfg.rawDir, e.outName), []byte(rawCode), 0o644); err != nil {
-			return fmt.Errorf("write raw %s: %w", e.outName, err)
+		if err := os.WriteFile(filepath.Join(cfg.capiDir, e.outName), []byte(rawCode), 0o644); err != nil {
+			return fmt.Errorf("write capi %s: %w", e.outName, err)
 		}
 
-		// Public output
+		// Build public data (used by port-out, port-in, and public)
 		pubData := emitter.BuildPublicFileData(e.header, registry)
+
+		// Port out output
+		portOutCode, err := emitter.EmitPortOut(pubData)
+		if err != nil {
+			return fmt.Errorf("emit port-out %s: %w", e.outName, err)
+		}
+		if portOutCode != "" {
+			if err := os.WriteFile(filepath.Join(cfg.portOutDir, e.outName), []byte(portOutCode), 0o644); err != nil {
+				return fmt.Errorf("write port-out %s: %w", e.outName, err)
+			}
+		}
+
+		// Port in output
+		portInCode, err := emitter.EmitPortIn(pubData)
+		if err != nil {
+			return fmt.Errorf("emit port-in %s: %w", e.outName, err)
+		}
+		if portInCode != "" {
+			if err := os.WriteFile(filepath.Join(cfg.portInDir, e.outName), []byte(portInCode), 0o644); err != nil {
+				return fmt.Errorf("write port-in %s: %w", e.outName, err)
+			}
+		}
+
+		// Public facade output
 		pubCode, err := emitter.EmitPublic(pubData)
 		if err != nil {
 			return fmt.Errorf("emit public %s: %w", e.outName, err)
@@ -137,8 +164,8 @@ func run(cfg config) error {
 		}
 	}
 
-	// Generate register.go aggregator for raw directory.
-	return writeRawRegisterAggregator(cfg.rawDir, registerNames)
+	// Generate register.go aggregator for capi directory.
+	return writeRawRegisterAggregator(cfg.capiDir, registerNames)
 }
 
 // registerName derives a unique Go register function name from a header
@@ -215,7 +242,7 @@ func filterOut(paths []string, suffix string) []string {
 // writeRawRegisterAggregator generates register.go for the raw package that
 // calls all per-header register functions.
 func writeRawRegisterAggregator(dir string, names []string) error {
-	discoveredNames, err := discoverRegisterNamesFromRawDir(dir)
+	discoveredNames, err := discoverRegisterNamesFromDir(dir)
 	if err != nil {
 		return err
 	}
@@ -247,7 +274,7 @@ func writeRawRegisterAggregator(dir string, names []string) error {
 	return writePlatformRegisterDefault(dir)
 }
 
-func discoverRegisterNamesFromRawDir(dir string) ([]string, error) {
+func discoverRegisterNamesFromDir(dir string) ([]string, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
