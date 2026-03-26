@@ -5,21 +5,21 @@ func {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.Pub
 	{{.}}
 	{{- end}}{{end}}
 	{{- if .Return.IsVoid}}
-	raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}})
+	capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}})
 	{{- else if .Return.IsBool}}
-	return raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}) != 0
+	return capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}) != 0
 	{{- else if .Return.IsEnum}}
-	return {{.Return.PublicType}}(raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}))
+	return {{.Return.PublicType}}(capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}))
 	{{- else if .Return.IsString}}
-	return goStringUserfree(unsafe.Pointer(raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}})))
+	return goStringUserfree(unsafe.Pointer(capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}})))
 	{{- else if .Return.IsInterface}}
-	return wrap{{.Return.PublicType}}(raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}))
+	return wrap{{.Return.PublicType}}(capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}))
 	{{- else if .Return.IsNumeric}}
-	return {{.Return.PublicType}}(raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}))
+	return {{.Return.PublicType}}(capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}))
 	{{- else if .Return.IsPointer}}
-	return raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}})
+	return capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}})
 	{{- else}}
-	return {{.Return.PublicType}}(raw.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}))
+	return {{.Return.PublicType}}(capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}}))
 	{{- end}}
 }
 {{end}}

@@ -5,7 +5,7 @@
 // extractRawPointer can recover the raw pointer).
 type {{lower .Name}}Wrapper struct {
 	{{.Name}}                           // embed user impl for interface delegation
-	rawPtr *raw.{{.RawGoName}}
+	rawPtr *capi.{{.RawGoName}}
 }
 
 func (w *{{lower .Name}}Wrapper) rawPointer() unsafe.Pointer {
@@ -16,7 +16,7 @@ func (w *{{lower .Name}}Wrapper) rawPointer() unsafe.Pointer {
 // The returned value can be passed directly to CEF functions that expect
 // this handler type (e.g. BrowserHostCreateBrowser for Client).
 func New{{.Name}}(impl {{.Name}}) {{.Name}} {
-	r := new(raw.{{.RawGoName}})
+	r := new(capi.{{.RawGoName}})
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
 {{range .Methods}}

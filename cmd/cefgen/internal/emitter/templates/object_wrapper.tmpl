@@ -1,6 +1,6 @@
 {{define "object_wrapper.tmpl"}}
 type {{lower .Name}}Impl struct {
-	rawPtr *raw.{{.RawGoName}}
+	rawPtr *capi.{{.RawGoName}}
 }
 
 {{range .Methods}}
@@ -68,13 +68,13 @@ func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
 	if ptr == nil {
 		return nil
 	}
-	r := (*raw.{{.RawGoName}})(ptr)
+	r := (*capi.{{.RawGoName}})(ptr)
 	return &{{lower .Name}}Impl{rawPtr: r}
 }
 {{else}}
 // Release releases the underlying CEF object.
 func (obj *{{lower .Name}}Impl) Release() {
-	base := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
 	base.CallRelease()
 }
 
@@ -82,12 +82,12 @@ func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
 	if ptr == nil {
 		return nil
 	}
-	r := (*raw.{{.RawGoName}})(ptr)
-	base := (*raw.CEFBaseRefCountedT)(ptr)
+	r := (*capi.{{.RawGoName}})(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &{{lower .Name}}Impl{rawPtr: r}
 	runtime.SetFinalizer(impl, func(o *{{lower .Name}}Impl) {
-		b := (*raw.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
 		b.CallRelease()
 	})
 	return impl

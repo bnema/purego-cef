@@ -129,11 +129,11 @@ func run(cfg config) error {
 			return fmt.Errorf("write capi %s: %w", e.outName, err)
 		}
 
-		// Build public data (used by port-out, port-in, and public)
-		pubData := emitter.BuildPublicFileData(e.header, registry)
+		// Build port data (no skip list — ports need the full surface)
+		portData := emitter.BuildPortFileData(e.header, registry)
 
 		// Port out output
-		portOutCode, err := emitter.EmitPortOut(pubData)
+		portOutCode, err := emitter.EmitPortOut(portData)
 		if err != nil {
 			return fmt.Errorf("emit port-out %s: %w", e.outName, err)
 		}
@@ -144,7 +144,7 @@ func run(cfg config) error {
 		}
 
 		// Port in output
-		portInCode, err := emitter.EmitPortIn(pubData)
+		portInCode, err := emitter.EmitPortIn(portData)
 		if err != nil {
 			return fmt.Errorf("emit port-in %s: %w", e.outName, err)
 		}
@@ -154,7 +154,8 @@ func run(cfg config) error {
 			}
 		}
 
-		// Public facade output
+		// Public facade output (uses filtered data — skips handwritten types)
+		pubData := emitter.BuildPublicFileData(e.header, registry)
 		pubCode, err := emitter.EmitPublic(pubData)
 		if err != nil {
 			return fmt.Errorf("emit public %s: %w", e.outName, err)

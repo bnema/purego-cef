@@ -132,9 +132,9 @@ func TestDiscoverRegisterNamesFromRawDir(t *testing.T) {
 	mustWriteFileContent(t, filepath.Join(dir, "register.go"), "package raw\nfunc Register(_ uintptr) {}\n")
 	mustWriteFileContent(t, filepath.Join(dir, "doc.go"), "package raw\n")
 
-	got, err := discoverRegisterNamesFromRawDir(dir)
+	got, err := discoverRegisterNamesFromDir(dir)
 	if err != nil {
-		t.Fatalf("discoverRegisterNamesFromRawDir failed: %v", err)
+		t.Fatalf("discoverRegisterNamesFromDir failed: %v", err)
 	}
 
 	want := map[string]bool{
