@@ -8,15 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // DragHandler Implement this structure to handle events related to dragging. The functions of this structure will be called on the UI thread.
-type DragHandler interface {
-	// OnDragEnter Called when an external drag event enters the browser window. |dragData| contains the drag event data and |mask| represents the type of drag operation. Return false (0) for default drag handling behavior or true (1) to cancel the drag event.
-	OnDragEnter(browser Browser, dragdata DragData, mask DragOperationsMask) int32
-	// OnDraggableRegionsChanged Called whenever draggable regions for the browser window change. These can be specified using the '-webkit-app-region: drag/no-drag' CSS-property. If draggable regions are never defined in a document this function will also never be called. If the last draggable region is removed from a document this function will be called with an NULL vector.
-	OnDraggableRegionsChanged(browser Browser, frame Frame, regions []DraggableRegion)
-}
+type DragHandler = in.DragHandler
 
 // dragHandlerWrapper wraps a user-provided DragHandler implementation together
 // with the raw CEF struct pointer allocated by NewDragHandler.  It satisfies the

@@ -8,15 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // RequestContextHandler Implement this structure to provide handler implementations. The handler instance will not be released until all objects related to the context have been destroyed.
-type RequestContextHandler interface {
-	// OnRequestContextInitialized Called on the browser process UI thread immediately after the request context has been initialized.
-	OnRequestContextInitialized(requestContext RequestContext)
-	// GetResourceRequestHandler Called on the browser process IO thread before a resource request is initiated. The |browser| and |frame| values represent the source of the request, and may be NULL for requests originating from service workers or cef_urlrequest_t. |request| represents the request contents and cannot be modified in this callback. |is_navigation| will be true (1) if the resource request is a navigation. |is_download| will be true (1) if the resource request is a download. |request_initiator| is the origin (scheme + domain) of the page that initiated the request. Set |disable_default_handling| to true (1) to disable default handling of the request, in which case it will need to be handled via cef_resource_request_handler_t::GetResourceHandler or it will be canceled. To allow the resource load to proceed with default handling return NULL. To specify a handler for the resource return a cef_resource_request_handler_t object. This function will not be called if the client associated with |browser| returns a non-NULL value from cef_request_handler_t::GetResourceRequestHandler for the same request (identified by cef_request_t::GetIdentifier).
-	GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling unsafe.Pointer) ResourceRequestHandler
-}
+type RequestContextHandler = in.RequestContextHandler
 
 // requestContextHandlerWrapper wraps a user-provided RequestContextHandler implementation together
 // with the raw CEF struct pointer allocated by NewRequestContextHandler.  It satisfies the

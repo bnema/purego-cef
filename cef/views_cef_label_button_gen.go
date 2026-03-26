@@ -7,33 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // LabelButton LabelButton is a button with optional text and/or icon. Methods must be called on the browser process UI thread unless otherwise indicated.
-type LabelButton interface {
-	// AsMenuButton Returns this LabelButton as a MenuButton or NULL if this is not a MenuButton.
-	AsMenuButton() MenuButton
-	// SetText Sets the text shown on the LabelButton. By default |text| will also be used as the accessible name.
-	SetText(text string)
-	// GetText Returns the text shown on the LabelButton.
-	GetText() string
-	// SetImage Sets the image shown for |button_state|. When this Button is drawn if no image exists for the current state then the image for CEF_BUTTON_STATE_NORMAL, if any, will be shown.
-	SetImage(buttonState ButtonState, image Image)
-	// GetImage Returns the image shown for |button_state|. If no image exists for that state then the image for CEF_BUTTON_STATE_NORMAL will be returned.
-	GetImage(buttonState ButtonState) Image
-	// SetTextColor Sets the text color shown for the specified button |for_state| to |color|.
-	SetTextColor(forState ButtonState, color uintptr)
-	// SetEnabledTextColors Sets the text colors shown for the non-disabled states to |color|.
-	SetEnabledTextColors(color uintptr)
-	// SetFontList Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>", where: - FONT_FAMILY_LIST is a comma-separated list of font family names, - STYLES is an optional space-separated list of style names (case-   sensitive "Bold" and "Italic" are supported), and - SIZE is an integer font size in pixels with the suffix "px". Here are examples of valid font description strings: - "Arial, Helvetica, Bold Italic 14px" - "Arial, 14px"
-	SetFontList(fontList string)
-	// SetHorizontalAlignment Sets the horizontal alignment; reversed in RTL. Default is CEF_HORIZONTAL_ALIGNMENT_CENTER.
-	SetHorizontalAlignment(alignment HorizontalAlignment)
-	// SetMinimumSize Reset the minimum size of this LabelButton to |size|.
-	SetMinimumSize(size *Size)
-	// SetMaximumSize Reset the maximum size of this LabelButton to |size|.
-	SetMaximumSize(size *Size)
-}
+type LabelButton = in.LabelButton
 
 type labelButtonImpl struct {
 	rawPtr *capi.CEFLabelButtonT

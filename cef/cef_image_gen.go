@@ -9,37 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Image Container for a single image represented at different scale factors. All image representations should be the same size in density independent pixel (DIP) units. For example, if the image at scale factor 1.0 is 100x100 pixels then the image at scale factor 2.0 should be 200x200 pixels -- both images will display with a DIP size of 100x100 units. The functions of this structure can be called on any browser process thread.
-type Image interface {
-	// IsEmpty Returns true (1) if this Image is NULL.
-	IsEmpty() bool
-	// IsSame Returns true (1) if this Image and |that| Image share the same underlying storage. Will also return true (1) if both images are NULL.
-	IsSame(that Image) bool
-	// AddBitmap Add a bitmap image representation for |scale_factor|. Only 32-bit RGBA/BGRA formats are supported. |pixel_width| and |pixel_height| are the bitmap representation size in pixel coordinates. |pixel_data| is the array of pixel data and should be |pixel_width| x |pixel_height| x 4 bytes in size. |color_type| and |alpha_type| values specify the pixel format.
-	AddBitmap(scaleFactor float32, pixelWidth int32, pixelHeight int32, colorType ColorType, alphaType AlphaType, pixelData unsafe.Pointer, pixelDataSize int) int32
-	// AddPng Add a PNG image representation for |scale_factor|. |png_data| is the image data of size |png_data_size|. Any alpha transparency in the PNG data will be maintained.
-	AddPng(scaleFactor float32, pngData unsafe.Pointer, pngDataSize int) int32
-	// AddJpeg Create a JPEG image representation for |scale_factor|. |jpeg_data| is the image data of size |jpeg_data_size|. The JPEG format does not support transparency so the alpha byte will be set to 0xFF for all pixels.
-	AddJpeg(scaleFactor float32, jpegData unsafe.Pointer, jpegDataSize int) int32
-	// GetWidth Returns the image width in density independent pixel (DIP) units.
-	GetWidth() int
-	// GetHeight Returns the image height in density independent pixel (DIP) units.
-	GetHeight() int
-	// HasRepresentation Returns true (1) if this image contains a representation for |scale_factor|.
-	HasRepresentation(scaleFactor float32) bool
-	// RemoveRepresentation Removes the representation for |scale_factor|. Returns true (1) on success.
-	RemoveRepresentation(scaleFactor float32) int32
-	// GetRepresentationInfo Returns information for the representation that most closely matches |scale_factor|. |actual_scale_factor| is the actual scale factor for the representation. |pixel_width| and |pixel_height| are the representation size in pixel coordinates. Returns true (1) on success.
-	GetRepresentationInfo(scaleFactor float32, actualScaleFactor unsafe.Pointer, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) int32
-	// GetAsBitmap Returns the bitmap representation that most closely matches |scale_factor|. Only 32-bit RGBA/BGRA formats are supported. |color_type| and |alpha_type| values specify the desired output pixel format. |pixel_width| and |pixel_height| are the output representation size in pixel coordinates. Returns a cef_binary_value_t containing the pixel data on success or NULL on failure.
-	GetAsBitmap(scaleFactor float32, colorType ColorType, alphaType AlphaType, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue
-	// GetAsPng Returns the PNG representation that most closely matches |scale_factor|. If |with_transparency| is true (1) any alpha transparency in the image will be represented in the resulting PNG data. |pixel_width| and |pixel_height| are the output representation size in pixel coordinates. Returns a cef_binary_value_t containing the PNG image data on success or NULL on failure.
-	GetAsPng(scaleFactor float32, withTransparency int32, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue
-	// GetAsJpeg Returns the JPEG representation that most closely matches |scale_factor|. |quality| determines the compression level with 0 == lowest and 100 == highest. The JPEG format does not support alpha transparency and the alpha channel, if any, will be discarded. |pixel_width| and |pixel_height| are the output representation size in pixel coordinates. Returns a cef_binary_value_t containing the JPEG image data on success or NULL on failure.
-	GetAsJpeg(scaleFactor float32, quality int32, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue
-}
+type Image = in.Image
 
 type imageImpl struct {
 	rawPtr *capi.CEFImageT

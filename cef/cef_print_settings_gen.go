@@ -7,55 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // PrintSettings Structure representing print settings.
-type PrintSettings interface {
-	// IsValid Returns true (1) if this object is valid. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// IsReadOnly Returns true (1) if the values of this object are read-only. Some APIs may expose read-only objects.
-	IsReadOnly() bool
-	// SetOrientation Set the page orientation.
-	SetOrientation(landscape int32)
-	// IsLandscape Returns true (1) if the orientation is landscape.
-	IsLandscape() bool
-	// SetPrinterPrintableArea Set the printer printable area in device units. Some platforms already provide flipped area. Set |landscape_needs_flip| to false (0) on those platforms to avoid double flipping.
-	SetPrinterPrintableArea(physicalSizeDeviceUnits *Size, printableAreaDeviceUnits *Rect, landscapeNeedsFlip int32)
-	// SetDeviceName Set the device name.
-	SetDeviceName(name string)
-	// GetDeviceName Get the device name.
-	GetDeviceName() string
-	// SetDpi Set the DPI (dots per inch).
-	SetDpi(dpi int32)
-	// GetDpi Get the DPI (dots per inch).
-	GetDpi() int32
-	// SetPageRanges Set the page ranges.
-	SetPageRanges(ranges []Range)
-	// GetPageRangesCount Returns the number of page ranges that currently exist.
-	GetPageRangesCount() int
-	// GetPageRanges Returns the number of page ranges that currently exist.
-	GetPageRanges(rangescount *int, ranges *Range)
-	// SetSelectionOnly Set whether only the selection will be printed.
-	SetSelectionOnly(selectionOnly int32)
-	// IsSelectionOnly Returns true (1) if only the selection will be printed.
-	IsSelectionOnly() bool
-	// SetCollate Set whether pages will be collated.
-	SetCollate(collate int32)
-	// WillCollate Returns true (1) if pages will be collated.
-	WillCollate() int32
-	// SetColorModel Set the color model.
-	SetColorModel(model ColorModel)
-	// GetColorModel Get the color model.
-	GetColorModel() ColorModel
-	// SetCopies Set the number of copies.
-	SetCopies(copies int32)
-	// GetCopies Get the number of copies.
-	GetCopies() int32
-	// SetDuplexMode Set the duplex mode.
-	SetDuplexMode(mode DuplexMode)
-	// GetDuplexMode Get the duplex mode.
-	GetDuplexMode() DuplexMode
-}
+type PrintSettings = in.PrintSettings
 
 type printSettingsImpl struct {
 	rawPtr *capi.CEFPrintSettingsT

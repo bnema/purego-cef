@@ -9,21 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MediaRouter Supports discovery of and communication with media devices on the local network via the Cast and DIAL protocols. The functions of this structure may be called on any browser process thread unless otherwise indicated.
-type MediaRouter interface {
-	// AddObserver Add an observer for MediaRouter events. The observer will remain registered until the returned Registration object is destroyed.
-	AddObserver(observer MediaObserver) Registration
-	// GetSource Returns a MediaSource object for the specified media source URN. Supported URN schemes include "cast:" and "dial:", and will be already known by the client application (e.g. "cast:<appId>?clientId=<clientId>").
-	GetSource(urn string) MediaSource
-	// NotifyCurrentSinks Trigger an asynchronous call to cef_media_observer_t::OnSinks on all registered observers.
-	NotifyCurrentSinks()
-	// CreateRoute Create a new route between |source| and |sink|. Source and sink must be valid, compatible (as reported by cef_media_sink_t::IsCompatibleWith), and a route between them must not already exist. |callback| will be executed on success or failure. If route creation succeeds it will also trigger an asynchronous call to cef_media_observer_t::OnRoutes on all registered observers.
-	CreateRoute(source MediaSource, sink MediaSink, callback MediaRouteCreateCallback)
-	// NotifyCurrentRoutes Trigger an asynchronous call to cef_media_observer_t::OnRoutes on all registered observers.
-	NotifyCurrentRoutes()
-}
+type MediaRouter = in.MediaRouter
 
 type mediaRouterImpl struct {
 	rawPtr *capi.CEFMediaRouterT
@@ -77,16 +68,7 @@ func wrapMediaRouter(ptr unsafe.Pointer) MediaRouter {
 }
 
 // MediaObserver Implemented by the client to observe MediaRouter events and registered via cef_media_router_t::AddObserver. The functions of this structure will be called on the browser process UI thread.
-type MediaObserver interface {
-	// OnSinks The list of available media sinks has changed or cef_media_router_t::NotifyCurrentSinks was called.
-	OnSinks(sinkscount int, sinks unsafe.Pointer)
-	// OnRoutes The list of available media routes has changed or cef_media_router_t::NotifyCurrentRoutes was called.
-	OnRoutes(routescount int, routes unsafe.Pointer)
-	// OnRouteStateChanged The connection state of |route| has changed.
-	OnRouteStateChanged(route MediaRoute, state MediaRouteConnectionState)
-	// OnRouteMessageReceived A message was received over |route|. |message| is only valid for the scope of this callback and should be copied if necessary.
-	OnRouteMessageReceived(route MediaRoute, message unsafe.Pointer, messageSize int)
-}
+type MediaObserver = in.MediaObserver
 
 // mediaObserverWrapper wraps a user-provided MediaObserver implementation together
 // with the raw CEF struct pointer allocated by NewMediaObserver.  It satisfies the
@@ -150,18 +132,7 @@ func wrapMediaObserver(ptr unsafe.Pointer) MediaObserver {
 }
 
 // MediaRoute Represents the route between a media source and sink. Instances of this object are created via cef_media_router_t::CreateRoute and retrieved via cef_media_observer_t::OnRoutes. Contains the status and metadata of a routing operation. The functions of this structure may be called on any browser process thread unless otherwise indicated.
-type MediaRoute interface {
-	// GetID Returns the ID for this route.
-	GetID() string
-	// GetSource Returns the source associated with this route.
-	GetSource() MediaSource
-	// GetSink Returns the sink associated with this route.
-	GetSink() MediaSink
-	// SendRouteMessage Send a message over this route. |message| will be copied if necessary.
-	SendRouteMessage(message unsafe.Pointer, messageSize int)
-	// Terminate Terminate this route. Will result in an asynchronous call to cef_media_observer_t::OnRoutes on all registered observers.
-	Terminate()
-}
+type MediaRoute = in.MediaRoute
 
 type mediaRouteImpl struct {
 	rawPtr *capi.CEFMediaRouteT
@@ -213,10 +184,7 @@ func wrapMediaRoute(ptr unsafe.Pointer) MediaRoute {
 }
 
 // MediaRouteCreateCallback Callback structure for cef_media_router_t::CreateRoute. The functions of this structure will be called on the browser process UI thread.
-type MediaRouteCreateCallback interface {
-	// OnMediaRouteCreateFinished Method that will be executed when the route creation has finished. |result| will be CEF_MRCR_OK if the route creation succeeded. |error| will be a description of the error if the route creation failed. |route| is the resulting route, or NULL if the route creation failed.
-	OnMediaRouteCreateFinished(result MediaRouteCreateResult, error string, route MediaRoute)
-}
+type MediaRouteCreateCallback = in.MediaRouteCreateCallback
 
 // mediaRouteCreateCallbackWrapper wraps a user-provided MediaRouteCreateCallback implementation together
 // with the raw CEF struct pointer allocated by NewMediaRouteCreateCallback.  It satisfies the
@@ -262,22 +230,7 @@ func wrapMediaRouteCreateCallback(ptr unsafe.Pointer) MediaRouteCreateCallback {
 }
 
 // MediaSink Represents a sink to which media can be routed. Instances of this object are retrieved via cef_media_observer_t::OnSinks. The functions of this structure may be called on any browser process thread unless otherwise indicated.
-type MediaSink interface {
-	// GetID Returns the ID for this sink.
-	GetID() string
-	// GetName Returns the name of this sink.
-	GetName() string
-	// GetIconType Returns the icon type for this sink.
-	GetIconType() MediaSinkIconType
-	// GetDeviceInfo Asynchronously retrieves device info.
-	GetDeviceInfo(callback MediaSinkDeviceInfoCallback)
-	// IsCastSink Returns true (1) if this sink accepts content via Cast.
-	IsCastSink() bool
-	// IsDialSink Returns true (1) if this sink accepts content via DIAL.
-	IsDialSink() bool
-	// IsCompatibleWith Returns true (1) if this sink is compatible with |source|.
-	IsCompatibleWith(source MediaSource) bool
-}
+type MediaSink = in.MediaSink
 
 type mediaSinkImpl struct {
 	rawPtr *capi.CEFMediaSinkT
@@ -337,10 +290,7 @@ func wrapMediaSink(ptr unsafe.Pointer) MediaSink {
 }
 
 // MediaSinkDeviceInfoCallback Callback structure for cef_media_sink_t::GetDeviceInfo. The functions of this structure will be called on the browser process UI thread.
-type MediaSinkDeviceInfoCallback interface {
-	// OnMediaSinkDeviceInfo Method that will be executed asyncronously once device information has been retrieved.
-	OnMediaSinkDeviceInfo(deviceInfo *MediaSinkDeviceInfo)
-}
+type MediaSinkDeviceInfoCallback = in.MediaSinkDeviceInfoCallback
 
 // mediaSinkDeviceInfoCallbackWrapper wraps a user-provided MediaSinkDeviceInfoCallback implementation together
 // with the raw CEF struct pointer allocated by NewMediaSinkDeviceInfoCallback.  It satisfies the
@@ -384,14 +334,7 @@ func wrapMediaSinkDeviceInfoCallback(ptr unsafe.Pointer) MediaSinkDeviceInfoCall
 }
 
 // MediaSource Represents a source from which media can be routed. Instances of this object are retrieved via cef_media_router_t::GetSource. The functions of this structure may be called on any browser process thread unless otherwise indicated.
-type MediaSource interface {
-	// GetID Returns the ID (media source URN or URL) for this source.
-	GetID() string
-	// IsCastSource Returns true (1) if this source outputs its content via Cast.
-	IsCastSource() bool
-	// IsDialSource Returns true (1) if this source outputs its content via DIAL.
-	IsDialSource() bool
-}
+type MediaSource = in.MediaSource
 
 type mediaSourceImpl struct {
 	rawPtr *capi.CEFMediaSourceT

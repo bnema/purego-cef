@@ -9,15 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Callback Generic callback structure used for asynchronous continuation.
-type Callback interface {
-	// Cont Continue processing.
-	Cont()
-	// Cancel Cancel processing.
-	Cancel()
-}
+type Callback = in.Callback
 
 type callbackImpl struct {
 	rawPtr *capi.CEFCallbackT
@@ -57,10 +54,7 @@ func wrapCallback(ptr unsafe.Pointer) Callback {
 }
 
 // CompletionCallback Generic callback structure used for asynchronous completion.
-type CompletionCallback interface {
-	// OnComplete Method that will be called once the task is complete.
-	OnComplete()
-}
+type CompletionCallback = in.CompletionCallback
 
 // completionCallbackWrapper wraps a user-provided CompletionCallback implementation together
 // with the raw CEF struct pointer allocated by NewCompletionCallback.  It satisfies the

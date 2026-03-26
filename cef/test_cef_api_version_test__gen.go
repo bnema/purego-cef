@@ -9,81 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ApiVersionTest Structure for testing versioned object transfer.
-type ApiVersionTest interface {
-	// GetRefPtrLibrary Return an new library-side object.
-	GetRefPtrLibrary(val int32) ApiVersionTestRefPtrLibrary
-	// SetRefPtrLibrary Set an object. Returns the value from cef_api_version_test_ref_ptr_library_t::get_value(). This tests input and execution of a library-side object type.
-	SetRefPtrLibrary(val ApiVersionTestRefPtrLibrary) int32
-	// SetRefPtrLibraryAndReturn Set an object. Returns the object passed in. This tests input and output of a library-side object type.
-	SetRefPtrLibraryAndReturn(val ApiVersionTestRefPtrLibrary) ApiVersionTestRefPtrLibrary
-	// SetChildRefPtrLibrary Set a child object. Returns the value from cef_api_version_test_ref_ptr_library_t::get_value(). This tests input of a library- side child object type and execution as the parent type.
-	SetChildRefPtrLibrary(val ApiVersionTestRefPtrLibraryChild) int32
-	// SetChildRefPtrLibraryAndReturnParent Set a child object. Returns the object as the parent type. This tests input of a library-side child object type and return as the parent type.
-	SetChildRefPtrLibraryAndReturnParent(val ApiVersionTestRefPtrLibraryChild) ApiVersionTestRefPtrLibrary
-	// SetRefPtrLibraryList Set an object list vlaue.
-	SetRefPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
-	// GetRefPtrLibraryListByRef Return an object list value by out-param.
-	GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32
-	// GetRefPtrLibraryListSize Return the number of object that will be output above.
-	GetRefPtrLibraryListSize() int
-	// SetRefPtrClient Set an object. Returns the value from cef_api_version_test_ref_ptr_client_t::get_value(). This tests input and execution of a client-side object type.
-	SetRefPtrClient(val ApiVersionTestRefPtrClient) int32
-	// SetRefPtrClientAndReturn Set an object. Returns the handler passed in. This tests input and output of a client-side object type.
-	SetRefPtrClientAndReturn(val ApiVersionTestRefPtrClient) ApiVersionTestRefPtrClient
-	// SetChildRefPtrClient Set a child object. Returns the value from cef_api_version_test_ref_ptr_client_t::get_value(). This tests input of a client- side child object type and execution as the parent type.
-	SetChildRefPtrClient(val ApiVersionTestRefPtrClientChild) int32
-	// SetChildRefPtrClientAndReturnParent Set a child object. Returns the object as the parent type. This tests input of a client-side child object type and return as the parent type.
-	SetChildRefPtrClientAndReturnParent(val ApiVersionTestRefPtrClientChild) ApiVersionTestRefPtrClient
-	// SetRefPtrClientList Set an object list vlaue.
-	SetRefPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
-	// GetRefPtrClientListByRef Return an object list value by out-param.
-	GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 ApiVersionTestRefPtrClient, val2 ApiVersionTestRefPtrClient) int32
-	// GetRefPtrClientListSize Return the number of object that will be output above.
-	GetRefPtrClientListSize() int
-	// GetOwnPtrLibrary Return an new library-side object.
-	GetOwnPtrLibrary(val int32) ApiVersionTestScopedLibrary
-	// SetOwnPtrLibrary Set an object. Returns the value from cef_api_version_test_scoped_library_t::get_value(). This tests input and execution of a library-side object type.
-	SetOwnPtrLibrary(val ApiVersionTestScopedLibrary) int32
-	// SetOwnPtrLibraryAndReturn Set an object. Returns the object passed in. This tests input and output of a library-side object type.
-	SetOwnPtrLibraryAndReturn(val ApiVersionTestScopedLibrary) ApiVersionTestScopedLibrary
-	// SetChildOwnPtrLibrary Set a child object. Returns the value from cef_api_version_test_scoped_library_t::get_value(). This tests input of a library- side child object type and execution as the parent type.
-	SetChildOwnPtrLibrary(val ApiVersionTestScopedLibraryChild) int32
-	// SetChildOwnPtrLibraryAndReturnParent Set a child object. Returns the object as the parent type. This tests input of a library-side child object type and return as the parent type.
-	SetChildOwnPtrLibraryAndReturnParent(val ApiVersionTestScopedLibraryChild) ApiVersionTestScopedLibrary
-	// SetOwnPtrClient Set an object. Returns the value from cef_api_version_test_scoped_client_t::get_value(). This tests input and execution of a client-side object type.
-	SetOwnPtrClient(val ApiVersionTestScopedClient) int32
-	// SetOwnPtrClientAndReturn Set an object. Returns the handler passed in. This tests input and output of a client-side object type.
-	SetOwnPtrClientAndReturn(val ApiVersionTestScopedClient) ApiVersionTestScopedClient
-	// SetChildOwnPtrClient Set a child object. Returns the value from cef_api_version_test_scoped_client_t::get_value(). This tests input of a client- side child object type and execution as the parent type.
-	SetChildOwnPtrClient(val ApiVersionTestScopedClientChild) int32
-	// SetChildOwnPtrClientAndReturnParent Set a child object. Returns the object as the parent type. This tests input of a client-side child object type and return as the parent type.
-	SetChildOwnPtrClientAndReturnParent(val ApiVersionTestScopedClientChild) ApiVersionTestScopedClient
-	// SetRawPtrLibrary Set an object. Returns the value from cef_api_version_test_scoped_library_t::get_value(). This tests input and execution of a library-side object type.
-	SetRawPtrLibrary(val ApiVersionTestScopedLibrary) int32
-	// SetChildRawPtrLibrary Set a child object. Returns the value from cef_api_version_test_scoped_library_t::get_value(). This tests input of a library- side child object type and execution as the parent type.
-	SetChildRawPtrLibrary(val ApiVersionTestScopedLibraryChild) int32
-	// SetRawPtrLibraryList Set an object list vlaue.
-	SetRawPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
-	// SetRawPtrClient Set an object. Returns the value from cef_api_version_test_scoped_client_t::get_value(). This tests input and execution of a client-side object type.
-	SetRawPtrClient(val ApiVersionTestScopedClient) int32
-	// SetChildRawPtrClient Set a child object. Returns the value from cef_api_version_test_scoped_client_t::get_value(). This tests input of a client- side child object type and execution as the parent type.
-	SetChildRawPtrClient(val ApiVersionTestScopedClientChild) int32
-	// SetRawPtrClientList Set an object list vlaue.
-	SetRawPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
-	// SetChildRefPtrClientV2 Set a child object. Returns the value from cef_api_version_test_ref_ptr_client_t::get_value(). This tests input of a client- side child object type and execution as the parent type.
-	SetChildRefPtrClientV2(val ApiVersionTestRefPtrClientChildV2) int32
-	// SetChildRefPtrClientAndReturnParentV2 Set a child object. Returns the object as the parent type. This tests input of a client-side child object type and return as the parent type.
-	SetChildRefPtrClientAndReturnParentV2(val ApiVersionTestRefPtrClientChildV2) ApiVersionTestRefPtrClient
-	// SetChildOwnPtrClientV2 Set a child object. Returns the value from cef_api_version_test_scoped_client_t::get_value(). This tests input of a client- side child object type and execution as the parent type.
-	SetChildOwnPtrClientV2(val ApiVersionTestScopedClientChildV2) int32
-	// SetChildOwnPtrClientAndReturnParentV2 Set a child object. Returns the object as the parent type. This tests input of a client-side child object type and return as the parent type.
-	SetChildOwnPtrClientAndReturnParentV2(val ApiVersionTestScopedClientChildV2) ApiVersionTestScopedClient
-	// SetChildRawPtrClientV2 Set a child object. Returns the value from cef_api_version_test_scoped_client_t::get_value(). This tests input of a client- side child object type and execution as the parent type.
-	SetChildRawPtrClientV2(val ApiVersionTestScopedClientChildV2) int32
-}
+type ApiVersionTest = in.ApiVersionTest
 
 type apiVersionTestImpl struct {
 	rawPtr *capi.CEFApiVersionTestT
@@ -255,28 +186,7 @@ func wrapApiVersionTest(ptr unsafe.Pointer) ApiVersionTest {
 }
 
 // ApiVersionTestRefPtrLibrary Library-side test object for RefPtr.
-type ApiVersionTestRefPtrLibrary interface {
-	// GetValueLegacy Return a legacy value.
-	GetValueLegacy() int32
-	// SetValueLegacy Set a legacy value.
-	SetValueLegacy(value int32)
-	// GetValue Return a legacy value.
-	GetValue() int32
-	// SetValue Set a legacy value.
-	SetValue(value int32)
-	// GetValueV1 Return a value (V1). This replaces GetValue in version 13301 and is replaced by cef_value_tV2 in version 13302.
-	GetValueV1() int32
-	// SetValueV1 Set a value (V1). This replaces SetValue in version 13301 and is replaced by SefValueV2 in version 13302.
-	SetValueV1(value int32)
-	// GetValueV2 Return a value (V2). This replaces GetValueV1 in version 13302.
-	GetValueV2() int32
-	// SetValueV2 Set a value (V2). This replaces SetValueV1 in version 13302.
-	SetValueV2(value int32)
-	// GetValueExp Return an experimental value.
-	GetValueExp() int32
-	// SetValueExp Set an experimental value.
-	SetValueExp(value int32)
-}
+type ApiVersionTestRefPtrLibrary = in.ApiVersionTestRefPtrLibrary
 
 type apiVersionTestRefPtrLibraryImpl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryT
@@ -348,12 +258,7 @@ func wrapApiVersionTestRefPtrLibrary(ptr unsafe.Pointer) ApiVersionTestRefPtrLib
 }
 
 // ApiVersionTestRefPtrLibraryChild Library-side child test object for RefPtr.
-type ApiVersionTestRefPtrLibraryChild interface {
-	// GetOtherValue Return a value.
-	GetOtherValue() int32
-	// SetOtherValue Set a value.
-	SetOtherValue(value int32)
-}
+type ApiVersionTestRefPtrLibraryChild = in.ApiVersionTestRefPtrLibraryChild
 
 type apiVersionTestRefPtrLibraryChildImpl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildT
@@ -393,12 +298,7 @@ func wrapApiVersionTestRefPtrLibraryChild(ptr unsafe.Pointer) ApiVersionTestRefP
 }
 
 // ApiVersionTestRefPtrLibraryChildChild Another library-side child test object for RefPtr. This is replaced by cef_api_version_test_ref_ptr_library_child_child_v1_t in version 13301.
-type ApiVersionTestRefPtrLibraryChildChild interface {
-	// GetOtherOtherValue Return a value.
-	GetOtherOtherValue() int32
-	// SetOtherOtherValue Set a value.
-	SetOtherOtherValue(value int32)
-}
+type ApiVersionTestRefPtrLibraryChildChild = in.ApiVersionTestRefPtrLibraryChildChild
 
 type apiVersionTestRefPtrLibraryChildChildImpl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildChildT
@@ -438,12 +338,7 @@ func wrapApiVersionTestRefPtrLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV1 Another library-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_library_child_child_t in version 13301 and is replaced by cef_api_version_test_ref_ptr_library_child_child_v2_t in version 13302.
-type ApiVersionTestRefPtrLibraryChildChildV1 interface {
-	// GetOtherOtherValue Return a value.
-	GetOtherOtherValue() int32
-	// SetOtherOtherValue Set a value.
-	SetOtherOtherValue(value int32)
-}
+type ApiVersionTestRefPtrLibraryChildChildV1 = in.ApiVersionTestRefPtrLibraryChildChildV1
 
 type apiVersionTestRefPtrLibraryChildChildV1Impl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildChildV1T
@@ -483,12 +378,7 @@ func wrapApiVersionTestRefPtrLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV2 Another library-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_library_child_child_v1_t in version 13302.
-type ApiVersionTestRefPtrLibraryChildChildV2 interface {
-	// GetOtherOtherValue Return a value.
-	GetOtherOtherValue() int32
-	// SetOtherOtherValue Set a value (v3).
-	SetOtherOtherValue(value int32)
-}
+type ApiVersionTestRefPtrLibraryChildChildV2 = in.ApiVersionTestRefPtrLibraryChildChildV2
 
 type apiVersionTestRefPtrLibraryChildChildV2Impl struct {
 	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildChildV2T
@@ -528,18 +418,7 @@ func wrapApiVersionTestRefPtrLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionT
 }
 
 // ApiVersionTestRefPtrClient Client-side test object for RefPtr.
-type ApiVersionTestRefPtrClient interface {
-	// GetValueLegacy Return a legacy value.
-	GetValueLegacy() int32
-	// GetValue Return a legacy value.
-	GetValue() int32
-	// GetValueV1 Return a value (V1). This replaces GetValue in version 13301 and is replaced with GetValueV2 in version 13302.
-	GetValueV1() int32
-	// GetValueV2 Return a value (V2). This replaces GetValueV1 in version 13302.
-	GetValueV2() int32
-	// GetValueExp Return an experimental value.
-	GetValueExp() int32
-}
+type ApiVersionTestRefPtrClient = in.ApiVersionTestRefPtrClient
 
 // apiVersionTestRefPtrClientWrapper wraps a user-provided ApiVersionTestRefPtrClient implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClient.  It satisfies the
@@ -598,12 +477,7 @@ func wrapApiVersionTestRefPtrClient(ptr unsafe.Pointer) ApiVersionTestRefPtrClie
 }
 
 // ApiVersionTestRefPtrClientChild Client-side child test object for RefPtr. This is replaced with cef_api_version_test_ref_ptr_client_child_v2_t in version 13302.
-type ApiVersionTestRefPtrClientChild interface {
-	// GetOtherValue Return a value. This is replaced with GetOtherValueV1 in version 13301.
-	GetOtherValue() int32
-	// GetOtherValueV1 Return a value (V1). This replaces GetOtherValue in version 13301.
-	GetOtherValueV1() int32
-}
+type ApiVersionTestRefPtrClientChild = in.ApiVersionTestRefPtrClientChild
 
 // apiVersionTestRefPtrClientChildWrapper wraps a user-provided ApiVersionTestRefPtrClientChild implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClientChild.  It satisfies the
@@ -650,12 +524,7 @@ func wrapApiVersionTestRefPtrClientChild(ptr unsafe.Pointer) ApiVersionTestRefPt
 }
 
 // ApiVersionTestRefPtrClientChildV2 Client-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_client_child_t in version 13302.
-type ApiVersionTestRefPtrClientChildV2 interface {
-	// GetOtherValue Return a value.
-	GetOtherValue() int32
-	// GetAnotherValue Return another value.
-	GetAnotherValue() int32
-}
+type ApiVersionTestRefPtrClientChildV2 = in.ApiVersionTestRefPtrClientChildV2
 
 // apiVersionTestRefPtrClientChildV2Wrapper wraps a user-provided ApiVersionTestRefPtrClientChildV2 implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestRefPtrClientChildV2.  It satisfies the
@@ -702,28 +571,7 @@ func wrapApiVersionTestRefPtrClientChildV2(ptr unsafe.Pointer) ApiVersionTestRef
 }
 
 // ApiVersionTestScopedLibrary Library-side test object for OwnPtr/RawPtr.
-type ApiVersionTestScopedLibrary interface {
-	// GetValueLegacy Return a legacy value.
-	GetValueLegacy() int32
-	// SetValueLegacy Set a legacy value.
-	SetValueLegacy(value int32)
-	// GetValue Return a legacy value.
-	GetValue() int32
-	// SetValue Set a legacy value.
-	SetValue(value int32)
-	// GetValueV1 Return a value (V1). This replaces GetValue in version 13301 and is replaced by cef_value_tV2 in version 13302.
-	GetValueV1() int32
-	// SetValueV1 Set a value (V1). This replaces SetValue in version 13301 and is replaced by SefValueV2 in version 13302.
-	SetValueV1(value int32)
-	// GetValueV2 Return a value (V2). This replaces GetValueV1 in version 13302.
-	GetValueV2() int32
-	// SetValueV2 Set a value (V2). This replaces SetValueV1 in version 13302.
-	SetValueV2(value int32)
-	// GetValueExp Return an experimental value.
-	GetValueExp() int32
-	// SetValueExp Set an experimental value.
-	SetValueExp(value int32)
-}
+type ApiVersionTestScopedLibrary = in.ApiVersionTestScopedLibrary
 
 type apiVersionTestScopedLibraryImpl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryT
@@ -782,12 +630,7 @@ func wrapApiVersionTestScopedLibrary(ptr unsafe.Pointer) ApiVersionTestScopedLib
 }
 
 // ApiVersionTestScopedLibraryChild Library-side child test object for OwnPtr/RawPtr.
-type ApiVersionTestScopedLibraryChild interface {
-	// GetOtherValue Return a value.
-	GetOtherValue() int32
-	// SetOtherValue Set a value.
-	SetOtherValue(value int32)
-}
+type ApiVersionTestScopedLibraryChild = in.ApiVersionTestScopedLibraryChild
 
 type apiVersionTestScopedLibraryChildImpl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryChildT
@@ -827,12 +670,7 @@ func wrapApiVersionTestScopedLibraryChild(ptr unsafe.Pointer) ApiVersionTestScop
 }
 
 // ApiVersionTestScopedLibraryChildChild Another library-side child test object for OwnPtr/RawPtr. This is replaced by cef_api_version_test_scoped_library_child_child_v1_t in version 13301.
-type ApiVersionTestScopedLibraryChildChild interface {
-	// GetOtherOtherValue Return a value.
-	GetOtherOtherValue() int32
-	// SetOtherOtherValue Set a value.
-	SetOtherOtherValue(value int32)
-}
+type ApiVersionTestScopedLibraryChildChild = in.ApiVersionTestScopedLibraryChildChild
 
 type apiVersionTestScopedLibraryChildChildImpl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryChildChildT
@@ -872,12 +710,7 @@ func wrapApiVersionTestScopedLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 }
 
 // ApiVersionTestScopedLibraryChildChildV1 Another library-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_library_child_child_t in version 13301 and is replaced by cef_api_version_test_scoped_library_child_child_v2_t in version 13302.
-type ApiVersionTestScopedLibraryChildChildV1 interface {
-	// GetOtherOtherValue Return a value.
-	GetOtherOtherValue() int32
-	// SetOtherOtherValue Set a value.
-	SetOtherOtherValue(value int32)
-}
+type ApiVersionTestScopedLibraryChildChildV1 = in.ApiVersionTestScopedLibraryChildChildV1
 
 type apiVersionTestScopedLibraryChildChildV1Impl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryChildChildV1T
@@ -917,12 +750,7 @@ func wrapApiVersionTestScopedLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 }
 
 // ApiVersionTestScopedLibraryChildChildV2 Another library-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_library_child_child_v1_t in version 13302.
-type ApiVersionTestScopedLibraryChildChildV2 interface {
-	// GetOtherOtherValue Return a value.
-	GetOtherOtherValue() int32
-	// SetOtherOtherValue Set a value (v3).
-	SetOtherOtherValue(value int32)
-}
+type ApiVersionTestScopedLibraryChildChildV2 = in.ApiVersionTestScopedLibraryChildChildV2
 
 type apiVersionTestScopedLibraryChildChildV2Impl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryChildChildV2T
@@ -962,18 +790,7 @@ func wrapApiVersionTestScopedLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionT
 }
 
 // ApiVersionTestScopedClient Client-side test object for OwnPtr/RawPtr.
-type ApiVersionTestScopedClient interface {
-	// GetValueLegacy Return a legacy value.
-	GetValueLegacy() int32
-	// GetValue Return a legacy value.
-	GetValue() int32
-	// GetValueV1 Return a value (V1). This replaces GetValue in version 13301 and is replaced with GetValueV2 in version 13302.
-	GetValueV1() int32
-	// GetValueV2 Return a value (V2). This replaces GetValueV1 in version 13302.
-	GetValueV2() int32
-	// GetValueExp Return an experimental value.
-	GetValueExp() int32
-}
+type ApiVersionTestScopedClient = in.ApiVersionTestScopedClient
 
 // apiVersionTestScopedClientWrapper wraps a user-provided ApiVersionTestScopedClient implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestScopedClient.  It satisfies the
@@ -1032,12 +849,7 @@ func wrapApiVersionTestScopedClient(ptr unsafe.Pointer) ApiVersionTestScopedClie
 }
 
 // ApiVersionTestScopedClientChild Client-side child test object for OwnPtr/RawPtr. This is replaced with cef_api_version_test_scoped_client_child_v2_t in version 13302.
-type ApiVersionTestScopedClientChild interface {
-	// GetOtherValue Return a value. This is replaced with GetOtherValueV1 in version 13301.
-	GetOtherValue() int32
-	// GetOtherValueV1 Return a value (V1). This replaces GetOtherValue in version 13301.
-	GetOtherValueV1() int32
-}
+type ApiVersionTestScopedClientChild = in.ApiVersionTestScopedClientChild
 
 // apiVersionTestScopedClientChildWrapper wraps a user-provided ApiVersionTestScopedClientChild implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestScopedClientChild.  It satisfies the
@@ -1084,12 +896,7 @@ func wrapApiVersionTestScopedClientChild(ptr unsafe.Pointer) ApiVersionTestScope
 }
 
 // ApiVersionTestScopedClientChildV2 Client-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_client_child_t in version 13302.
-type ApiVersionTestScopedClientChildV2 interface {
-	// GetOtherValue Return a value.
-	GetOtherValue() int32
-	// GetAnotherValue Return another value.
-	GetAnotherValue() int32
-}
+type ApiVersionTestScopedClientChildV2 = in.ApiVersionTestScopedClientChildV2
 
 // apiVersionTestScopedClientChildV2Wrapper wraps a user-provided ApiVersionTestScopedClientChildV2 implementation together
 // with the raw CEF struct pointer allocated by NewApiVersionTestScopedClientChildV2.  It satisfies the

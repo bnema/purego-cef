@@ -1,11 +1,4 @@
 {{define "interface.tmpl"}}
 {{- if .Doc}}// {{.Name}} {{.Doc}}{{else}}// {{.Name}} wraps the CEF {{lower .Name}} type.{{end}}
-type {{.Name}} interface {
-{{- range .Methods}}
-	{{- if .Doc}}
-	// {{.Name}} {{.Doc}}
-	{{- end}}
-	{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}}
-{{- end}}
-}
+type {{.Name}} = in.{{.Name}}
 {{end}}

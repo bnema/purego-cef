@@ -32,7 +32,7 @@ type Resultcode = int32
 
 type WindowOpenDisposition = int32
 
-type DragOperationsMask = int32
+type DragOperationsMask = uint32
 
 type TextInputMode = int32
 
@@ -42,7 +42,7 @@ type PostdataelementType = int32
 
 type ResourceType = int32
 
-type TransitionType = int32
+type TransitionType = uint32
 
 type UrlrequestFlags = int32
 

@@ -7,18 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // BrowserView A View hosting a cef_browser_t instance. Methods must be called on the browser process UI thread unless otherwise indicated.
-type BrowserView interface {
-	// GetBrowser Returns the cef_browser_t hosted by this BrowserView. Will return NULL if the browser has not yet been created or has already been destroyed.
-	GetBrowser() Browser
-	GetChromeToolbar() View
-	// SetPreferAccelerators Sets whether normal priority accelerators are first forwarded to the web content (`keydown` event handler) or cef_keyboard_handler_t. Normal priority accelerators can be registered via cef_window_t::SetAccelerator (with |high_priority|=false (0)) or internally for standard accelerators supported by Chrome style. If |prefer_accelerators| is true (1) then the matching accelerator will be triggered immediately (calling cef_window_delegate_t::OnAccelerator or cef_command_handler_t::OnChromeCommand respectively) and the event will not be forwarded to the web content or cef_keyboard_handler_t first. If |prefer_accelerators| is false (0) then the matching accelerator will only be triggered if the event is not handled by web content (`keydown` event handler that calls `event.preventDefault()`) or by cef_keyboard_handler_t. The default value is false (0).
-	SetPreferAccelerators(preferAccelerators int32)
-	// GetRuntimeStyle Returns the runtime style for this BrowserView (ALLOY or CHROME). See cef_runtime_style_t documentation for details.
-	GetRuntimeStyle() RuntimeStyle
-}
+type BrowserView = in.BrowserView
 
 type browserViewImpl struct {
 	rawPtr *capi.CEFBrowserViewT

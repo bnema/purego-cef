@@ -9,27 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // V8Context Structure representing a V8 context handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
-type V8Context interface {
-	// GetTaskRunner Returns the task runner associated with this context. V8 handles can only be accessed from the thread on which they are created. This function can be called on any render process thread.
-	GetTaskRunner() TaskRunner
-	// IsValid Returns true (1) if the underlying handle is valid and it can be accessed on the current thread. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// GetBrowser Returns the browser for this context. This function will return an NULL reference for WebWorker contexts.
-	GetBrowser() Browser
-	// GetFrame Returns the frame for this context. This function will return an NULL reference for WebWorker contexts.
-	GetFrame() Frame
-	// GetGlobal Returns the global object for this context. The context must be entered before calling this function.
-	GetGlobal() V8Value
-	Enter() int32
-	Exit() int32
-	// IsSame Returns true (1) if this object is pointing to the same handle as |that| object.
-	IsSame(that V8Context) bool
-	// Eval Execute a string of JavaScript code in this V8 context. The |script_url| parameter is the URL where the script in question can be found, if any. The |start_line| parameter is the base line number to use for error reporting. On success |retval| will be set to the return value, if any, and the function will return true (1). On failure |exception| will be set to the exception, if any, and the function will return false (0).
-	Eval(code string, scriptURL string, startLine int32, retval unsafe.Pointer, exception unsafe.Pointer) int32
-}
+type V8Context = in.V8Context
 
 type v8ContextImpl struct {
 	rawPtr *capi.CEFV8ContextT
@@ -101,10 +86,7 @@ func wrapV8Context(ptr unsafe.Pointer) V8Context {
 }
 
 // V8Handler Structure that should be implemented to handle V8 function calls. The functions of this structure will be called on the thread associated with the V8 function.
-type V8Handler interface {
-	// Execute Handle execution of the function identified by |name|. |object| is the receiver ('this' object) of the function. |arguments| is the list of arguments passed to the function. If execution succeeds set |retval| to the function return value. If execution fails set |exception| to the exception that will be thrown. Return true (1) if execution was handled.
-	Execute(name string, object V8Value, argumentscount int, arguments unsafe.Pointer, retval unsafe.Pointer, exception uintptr) int32
-}
+type V8Handler = in.V8Handler
 
 // v8HandlerWrapper wraps a user-provided V8Handler implementation together
 // with the raw CEF struct pointer allocated by NewV8Handler.  It satisfies the
@@ -153,11 +135,7 @@ func wrapV8Handler(ptr unsafe.Pointer) V8Handler {
 }
 
 // V8Accessor Structure that should be implemented to handle V8 accessor calls. Accessor identifiers are registered by calling cef_v8_value_t::set_value(). The functions of this structure will be called on the thread associated with the V8 accessor.
-type V8Accessor interface {
-	// Get Handle retrieval the accessor value identified by |name|. |object| is the receiver ('this' object) of the accessor. If retrieval succeeds set |retval| to the return value. If retrieval fails set |exception| to the exception that will be thrown. Return true (1) if accessor retrieval was handled.
-	Get(name string, object V8Value, retval unsafe.Pointer, exception uintptr) int32
-	Set(name string, object V8Value, value V8Value, exception uintptr) int32
-}
+type V8Accessor = in.V8Accessor
 
 // v8AccessorWrapper wraps a user-provided V8Accessor implementation together
 // with the raw CEF struct pointer allocated by NewV8Accessor.  It satisfies the
@@ -212,16 +190,7 @@ func wrapV8Accessor(ptr unsafe.Pointer) V8Accessor {
 }
 
 // V8Interceptor Structure that should be implemented to handle V8 interceptor calls. The functions of this structure will be called on the thread associated with the V8 interceptor. Interceptor's named property handlers (with first argument of type CefString) are called when object is indexed by string. Indexed property handlers (with first argument of type int) are called when object is indexed by integer.
-type V8Interceptor interface {
-	// GetByname Handle retrieval of the interceptor value identified by |name|. |object| is the receiver ('this' object) of the interceptor. If retrieval succeeds, set |retval| to the return value. If the requested value does not exist, don't set either |retval| or |exception|. If retrieval fails, set |exception| to the exception that will be thrown. If the property has an associated accessor, it will be called only if you don't set |retval|. Return true (1) if interceptor retrieval was handled, false (0) otherwise.
-	GetByname(name string, object V8Value, retval unsafe.Pointer, exception uintptr) int32
-	// GetByindex Handle retrieval of the interceptor value identified by |index|. |object| is the receiver ('this' object) of the interceptor. If retrieval succeeds, set |retval| to the return value. If the requested value does not exist, don't set either |retval| or |exception|. If retrieval fails, set |exception| to the exception that will be thrown. Return true (1) if interceptor retrieval was handled, false (0) otherwise.
-	GetByindex(index int32, object V8Value, retval unsafe.Pointer, exception uintptr) int32
-	// SetByname Handle assignment of the interceptor value identified by |name|. |object| is the receiver ('this' object) of the interceptor. |value| is the new value being assigned to the interceptor. If assignment fails, set |exception| to the exception that will be thrown. This setter will always be called, even when the property has an associated accessor. Return true (1) if interceptor assignment was handled, false (0) otherwise.
-	SetByname(name string, object V8Value, value V8Value, exception uintptr) int32
-	// SetByindex Handle assignment of the interceptor value identified by |index|. |object| is the receiver ('this' object) of the interceptor. |value| is the new value being assigned to the interceptor. If assignment fails, set |exception| to the exception that will be thrown. Return true (1) if interceptor assignment was handled, false (0) otherwise.
-	SetByindex(index int32, object V8Value, value V8Value, exception uintptr) int32
-}
+type V8Interceptor = in.V8Interceptor
 
 // v8InterceptorWrapper wraps a user-provided V8Interceptor implementation together
 // with the raw CEF struct pointer allocated by NewV8Interceptor.  It satisfies the
@@ -292,24 +261,7 @@ func wrapV8Interceptor(ptr unsafe.Pointer) V8Interceptor {
 }
 
 // V8Exception Structure representing a V8 exception. The functions of this structure may be called on any render process thread.
-type V8Exception interface {
-	// GetMessage Returns the exception message.
-	GetMessage() string
-	// GetSourceLine Returns the line of source code that the exception occurred within.
-	GetSourceLine() string
-	// GetScriptResourceName Returns the resource name for the script from where the function causing the error originates.
-	GetScriptResourceName() string
-	// GetLineNumber Returns the 1-based number of the line where the error occurred or 0 if the line number is unknown.
-	GetLineNumber() int32
-	// GetStartPosition Returns the index within the script of the first character where the error occurred.
-	GetStartPosition() int32
-	// GetEndPosition Returns the index within the script of the last character where the error occurred.
-	GetEndPosition() int32
-	// GetStartColumn Returns the index within the line of the first character where the error occurred.
-	GetStartColumn() int32
-	// GetEndColumn Returns the index within the line of the last character where the error occurred.
-	GetEndColumn() int32
-}
+type V8Exception = in.V8Exception
 
 type v8ExceptionImpl struct {
 	rawPtr *capi.CEFV8ExceptionT
@@ -373,10 +325,7 @@ func wrapV8Exception(ptr unsafe.Pointer) V8Exception {
 }
 
 // V8ArrayBufferReleaseCallback Callback structure that is passed to cef_v8_value_t::CreateArrayBuffer.
-type V8ArrayBufferReleaseCallback interface {
-	// ReleaseBuffer Called to release |buffer| when the ArrayBuffer JS object is garbage collected. |buffer| is the value that was passed to CreateArrayBuffer along with this object.
-	ReleaseBuffer(buffer unsafe.Pointer)
-}
+type V8ArrayBufferReleaseCallback = in.V8ArrayBufferReleaseCallback
 
 // v8ArrayBufferReleaseCallbackWrapper wraps a user-provided V8ArrayBufferReleaseCallback implementation together
 // with the raw CEF struct pointer allocated by NewV8ArrayBufferReleaseCallback.  It satisfies the
@@ -420,112 +369,7 @@ func wrapV8ArrayBufferReleaseCallback(ptr unsafe.Pointer) V8ArrayBufferReleaseCa
 }
 
 // V8Value Structure representing a V8 value handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
-type V8Value interface {
-	// IsValid Returns true (1) if the underlying handle is valid and it can be accessed on the current thread. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// IsUndefined True if the value type is undefined.
-	IsUndefined() bool
-	// IsNull True if the value type is null.
-	IsNull() bool
-	// IsBool True if the value type is bool.
-	IsBool() bool
-	// IsInt True if the value type is int.
-	IsInt() bool
-	// IsUint True if the value type is unsigned int.
-	IsUint() bool
-	// IsDouble True if the value type is double.
-	IsDouble() bool
-	// IsDate True if the value type is Date.
-	IsDate() bool
-	// IsString True if the value type is string.
-	IsString() bool
-	// IsObject True if the value type is object.
-	IsObject() bool
-	// IsArray True if the value type is array.
-	IsArray() bool
-	// IsArrayBuffer True if the value type is an ArrayBuffer.
-	IsArrayBuffer() bool
-	// IsFunction True if the value type is function.
-	IsFunction() bool
-	// IsPromise True if the value type is a Promise.
-	IsPromise() bool
-	// IsSame Returns true (1) if this object is pointing to the same handle as |that| object.
-	IsSame(that V8Value) bool
-	// GetBoolValue Return a bool value.
-	GetBoolValue() int32
-	// GetIntValue Return an int value.
-	GetIntValue() int32
-	// GetUintValue Return an unsigned int value.
-	GetUintValue() uint32
-	// GetDoubleValue Return a double value.
-	GetDoubleValue() float64
-	// GetDateValue Return a Date value.
-	GetDateValue() uintptr
-	// GetStringValue Return a string value.
-	GetStringValue() string
-	// IsUserCreated Returns true (1) if this is a user created object.
-	IsUserCreated() bool
-	// HasException Returns true (1) if the last function call resulted in an exception. This attribute exists only in the scope of the current CEF value object.
-	HasException() bool
-	// GetException Returns the exception resulting from the last function call. This attribute exists only in the scope of the current CEF value object.
-	GetException() V8Exception
-	// ClearException Clears the last exception and returns true (1) on success.
-	ClearException() int32
-	// WillRethrowExceptions Returns true (1) if this object will re-throw future exceptions. This attribute exists only in the scope of the current CEF value object.
-	WillRethrowExceptions() int32
-	// SetRethrowExceptions Set whether this object will re-throw future exceptions. By default exceptions are not re-thrown. If a exception is re-thrown the current context should not be accessed again until after the exception has been caught and not re-thrown. Returns true (1) on success. This attribute exists only in the scope of the current CEF value object.
-	SetRethrowExceptions(rethrow int32) int32
-	// HasValueBykey Returns true (1) if the object has a value with the specified identifier.
-	HasValueBykey(key string) bool
-	// HasValueByindex Returns true (1) if the object has a value with the specified identifier.
-	HasValueByindex(index int32) bool
-	// DeleteValueBykey Deletes the value with the specified identifier and returns true (1) on success. Returns false (0) if this function is called incorrectly or an exception is thrown. For read-only and don't-delete values this function will return true (1) even though deletion failed.
-	DeleteValueBykey(key string) int32
-	// DeleteValueByindex Deletes the value with the specified identifier and returns true (1) on success. Returns false (0) if this function is called incorrectly, deletion fails or an exception is thrown. For read-only and don't-delete values this function will return true (1) even though deletion failed.
-	DeleteValueByindex(index int32) int32
-	// GetValueBykey Returns the value with the specified identifier on success. Returns NULL if this function is called incorrectly or an exception is thrown.
-	GetValueBykey(key string) V8Value
-	// GetValueByindex Returns the value with the specified identifier on success. Returns NULL if this function is called incorrectly or an exception is thrown.
-	GetValueByindex(index int32) V8Value
-	// SetValueBykey Associates a value with the specified identifier and returns true (1) on success. Returns false (0) if this function is called incorrectly or an exception is thrown. For read-only values this function will return true (1) even though assignment failed.
-	SetValueBykey(key string, value V8Value, attribute V8Propertyattribute) int32
-	// SetValueByindex Associates a value with the specified identifier and returns true (1) on success. Returns false (0) if this function is called incorrectly or an exception is thrown. For read-only values this function will return true (1) even though assignment failed.
-	SetValueByindex(index int32, value V8Value) int32
-	// SetValueByaccessor Registers an identifier and returns true (1) on success. Access to the identifier will be forwarded to the cef_v8_accessor_t instance passed to cef_v8_value_t::cef_v8_value_create_object(). Returns false (0) if this function is called incorrectly or an exception is thrown. For read-only values this function will return true (1) even though assignment failed.
-	SetValueByaccessor(key string, attribute V8Propertyattribute) int32
-	// GetKeys Read the keys for the object's values into the specified vector. Integer- based keys will also be returned as strings.
-	GetKeys(keys uintptr) int32
-	// SetUserData Sets the user data for this object and returns true (1) on success. Returns false (0) if this function is called incorrectly. This function can only be called on user created objects.
-	SetUserData(userData *BaseRefCounted) int32
-	// GetUserData Returns the user data, if any, assigned to this object.
-	GetUserData() *BaseRefCounted
-	// GetExternallyAllocatedMemory Returns the amount of externally allocated memory registered for the object.
-	GetExternallyAllocatedMemory() int32
-	// AdjustExternallyAllocatedMemory Adjusts the amount of registered external memory for the object. Used to give V8 an indication of the amount of externally allocated memory that is kept alive by JavaScript objects. V8 uses this information to decide when to perform global garbage collection. Each cef_v8_value_t tracks the amount of external memory associated with it and automatically decreases the global total by the appropriate amount on its destruction. |change_in_bytes| specifies the number of bytes to adjust by. This function returns the number of bytes associated with the object after the adjustment. This function can only be called on user created objects.
-	AdjustExternallyAllocatedMemory(changeInBytes int32) int32
-	// GetArrayLength Returns the number of elements in the array.
-	GetArrayLength() int32
-	// GetArrayBufferReleaseCallback Returns the ReleaseCallback object associated with the ArrayBuffer or NULL if the ArrayBuffer was not created with CreateArrayBuffer.
-	GetArrayBufferReleaseCallback() V8ArrayBufferReleaseCallback
-	// NeuterArrayBuffer Prevent the ArrayBuffer from using it's memory block by setting the length to zero. This operation cannot be undone. If the ArrayBuffer was created with CreateArrayBuffer then cef_v8_array_buffer_release_callback_t::ReleaseBuffer will be called to release the underlying buffer.
-	NeuterArrayBuffer() int32
-	// GetArrayBufferByteLength Returns the length (in bytes) of the ArrayBuffer.
-	GetArrayBufferByteLength() int
-	// GetArrayBufferData Returns a pointer to the beginning of the memory block for this ArrayBuffer backing store. The returned pointer is valid as long as the cef_v8_value_t is alive.
-	GetArrayBufferData() unsafe.Pointer
-	// GetFunctionName Returns the function name.
-	GetFunctionName() string
-	// GetFunctionHandler Returns the function handler or NULL if not a CEF-created function.
-	GetFunctionHandler() V8Handler
-	// ExecuteFunction Execute the function using the current V8 context. This function should only be called from within the scope of a cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference. |object| is the receiver ('this' object) of the function. If |object| is NULL the current context's global object will be used. |arguments| is the list of arguments that will be passed to the function. Returns the function return value on success. Returns NULL if this function is called incorrectly or an exception is thrown.
-	ExecuteFunction(object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value
-	// ExecuteFunctionWithContext Execute the function using the specified V8 context. |object| is the receiver ('this' object) of the function. If |object| is NULL the specified context's global object will be used. |arguments| is the list of arguments that will be passed to the function. Returns the function return value on success. Returns NULL if this function is called incorrectly or an exception is thrown.
-	ExecuteFunctionWithContext(context V8Context, object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value
-	// ResolvePromise Resolve the Promise using the current V8 context. This function should only be called from within the scope of a cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference. |arg| is the argument passed to the resolved promise. Returns true (1) on success. Returns false (0) if this function is called incorrectly or an exception is thrown.
-	ResolvePromise(arg V8Value) int32
-	// RejectPromise Reject the Promise using the current V8 context. This function should only be called from within the scope of a cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference. Returns true (1) on success. Returns false (0) if this function is called incorrectly or an exception is thrown.
-	RejectPromise(errormsg string) int32
-}
+type V8Value = in.V8Value
 
 type v8ValueImpl struct {
 	rawPtr *capi.CEFV8ValueT
@@ -779,14 +623,7 @@ func wrapV8Value(ptr unsafe.Pointer) V8Value {
 }
 
 // V8StackTrace Structure representing a V8 stack trace handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
-type V8StackTrace interface {
-	// IsValid Returns true (1) if the underlying handle is valid and it can be accessed on the current thread. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// GetFrameCount Returns the number of stack frames.
-	GetFrameCount() int32
-	// GetFrame Returns the number of stack frames.
-	GetFrame(index int32) V8StackFrame
-}
+type V8StackTrace = in.V8StackTrace
 
 type v8StackTraceImpl struct {
 	rawPtr *capi.CEFV8StackTraceT
@@ -830,24 +667,7 @@ func wrapV8StackTrace(ptr unsafe.Pointer) V8StackTrace {
 }
 
 // V8StackFrame Structure representing a V8 stack frame handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
-type V8StackFrame interface {
-	// IsValid Returns true (1) if the underlying handle is valid and it can be accessed on the current thread. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// GetScriptName Returns the name of the resource script that contains the function.
-	GetScriptName() string
-	// GetScriptNameOrSourceURL Returns the name of the resource script that contains the function or the sourceURL value if the script name is undefined and its source ends with a "//@ sourceURL=..." string.
-	GetScriptNameOrSourceURL() string
-	// GetFunctionName Returns the name of the function.
-	GetFunctionName() string
-	// GetLineNumber Returns the 1-based line number for the function call or 0 if unknown.
-	GetLineNumber() int32
-	// GetColumn Returns the 1-based column offset on the line for the function call or 0 if unknown.
-	GetColumn() int32
-	// IsEval Returns true (1) if the function was compiled using eval().
-	IsEval() bool
-	// IsConstructor Returns true (1) if the function was called as a constructor via "new".
-	IsConstructor() bool
-}
+type V8StackFrame = in.V8StackFrame
 
 type v8StackFrameImpl struct {
 	rawPtr *capi.CEFV8StackFrameT

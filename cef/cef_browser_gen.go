@@ -9,53 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Browser Structure used to represent a browser. When used in the browser process the functions of this structure may be called on any thread unless otherwise indicated in the comments. When used in the render process the functions of this structure may only be called on the main thread.
-type Browser interface {
-	// IsValid True if this object is currently valid. This will return false (0) after cef_life_span_handler_t::OnBeforeClose is called.
-	IsValid() bool
-	// GetHost Returns the browser host object. This function can only be called in the browser process.
-	GetHost() BrowserHost
-	// CanGoBack Returns true (1) if the browser can navigate backwards.
-	CanGoBack() bool
-	// GoBack Returns true (1) if the browser can navigate backwards.
-	GoBack()
-	// CanGoForward Returns true (1) if the browser can navigate forwards.
-	CanGoForward() bool
-	// GoForward Returns true (1) if the browser can navigate forwards.
-	GoForward()
-	// IsLoading Returns true (1) if the browser is currently loading.
-	IsLoading() bool
-	// Reload Reload the current page.
-	Reload()
-	// ReloadIgnoreCache Reload the current page ignoring any cached data.
-	ReloadIgnoreCache()
-	// StopLoad Stop loading the page.
-	StopLoad()
-	// GetIdentifier Returns the globally unique identifier for this browser. This value is also used as the tabId for extension APIs.
-	GetIdentifier() int32
-	// IsSame Returns true (1) if this object is pointing to the same handle as |that| object.
-	IsSame(that Browser) bool
-	// IsPopup Returns true (1) if the browser is a popup.
-	IsPopup() bool
-	// HasDocument Returns true (1) if a document has been loaded in the browser.
-	HasDocument() bool
-	// GetMainFrame Returns the main (top-level) frame for the browser. In the browser process this will return a valid object until after cef_life_span_handler_t::OnBeforeClose is called. In the renderer process this will return NULL if the main frame is hosted in a different renderer process (e.g. for cross-origin sub-frames). The main frame object will change during cross-origin navigation or re-navigation after renderer process termination (due to crashes, etc).
-	GetMainFrame() Frame
-	// GetFocusedFrame Returns the focused frame for the browser.
-	GetFocusedFrame() Frame
-	// GetFrameByIdentifier Returns the frame with the specified identifier, or NULL if not found.
-	GetFrameByIdentifier(identifier string) Frame
-	// GetFrameByName Returns the frame with the specified name, or NULL if not found.
-	GetFrameByName(name string) Frame
-	// GetFrameCount Returns the number of frames that currently exist.
-	GetFrameCount() int
-	// GetFrameIdentifiers Returns the identifiers of all existing frames.
-	GetFrameIdentifiers(identifiers uintptr)
-	// GetFrameNames Returns the names of all existing frames.
-	GetFrameNames(names uintptr)
-}
+type Browser = in.Browser
 
 type browserImpl struct {
 	rawPtr *capi.CEFBrowserT
@@ -175,10 +134,7 @@ func wrapBrowser(ptr unsafe.Pointer) Browser {
 }
 
 // RunFileDialogCallback Callback structure for cef_browser_host_t::RunFileDialog. The functions of this structure will be called on the browser process UI thread.
-type RunFileDialogCallback interface {
-	// OnFileDialogDismissed Called asynchronously after the file dialog is dismissed. |file_paths| will be a single value or a list of values depending on the dialog mode. If the selection was cancelled |file_paths| will be NULL.
-	OnFileDialogDismissed(filePaths uintptr)
-}
+type RunFileDialogCallback = in.RunFileDialogCallback
 
 // runFileDialogCallbackWrapper wraps a user-provided RunFileDialogCallback implementation together
 // with the raw CEF struct pointer allocated by NewRunFileDialogCallback.  It satisfies the
@@ -222,9 +178,7 @@ func wrapRunFileDialogCallback(ptr unsafe.Pointer) RunFileDialogCallback {
 }
 
 // NavigationEntryVisitor Callback structure for cef_browser_host_t::GetNavigationEntries. The functions of this structure will be called on the browser process UI thread.
-type NavigationEntryVisitor interface {
-	Visit(entry NavigationEntry, current int32, index int32, total int32) int32
-}
+type NavigationEntryVisitor = in.NavigationEntryVisitor
 
 // navigationEntryVisitorWrapper wraps a user-provided NavigationEntryVisitor implementation together
 // with the raw CEF struct pointer allocated by NewNavigationEntryVisitor.  It satisfies the
@@ -271,10 +225,7 @@ func wrapNavigationEntryVisitor(ptr unsafe.Pointer) NavigationEntryVisitor {
 }
 
 // PdfPrintCallback Callback structure for cef_browser_host_t::PrintToPDF. The functions of this structure will be called on the browser process UI thread.
-type PdfPrintCallback interface {
-	// OnPdfPrintFinished Method that will be executed when the PDF printing has completed. |path| is the output path. |ok| will be true (1) if the printing completed successfully or false (0) otherwise.
-	OnPdfPrintFinished(path string, ok int32)
-}
+type PdfPrintCallback = in.PdfPrintCallback
 
 // pdfPrintCallbackWrapper wraps a user-provided PdfPrintCallback implementation together
 // with the raw CEF struct pointer allocated by NewPdfPrintCallback.  It satisfies the
@@ -319,10 +270,7 @@ func wrapPdfPrintCallback(ptr unsafe.Pointer) PdfPrintCallback {
 }
 
 // DownloadImageCallback Callback structure for cef_browser_host_t::DownloadImage. The functions of this structure will be called on the browser process UI thread.
-type DownloadImageCallback interface {
-	// OnDownloadImageFinished Method that will be executed when the image download has completed. |image_url| is the URL that was downloaded and |http_status_code| is the resulting HTTP status code. |image| is the resulting image, possibly at multiple scale factors, or NULL if the download failed.
-	OnDownloadImageFinished(imageURL string, httpStatusCode int32, image Image)
-}
+type DownloadImageCallback = in.DownloadImageCallback
 
 // downloadImageCallbackWrapper wraps a user-provided DownloadImageCallback implementation together
 // with the raw CEF struct pointer allocated by NewDownloadImageCallback.  It satisfies the
@@ -368,139 +316,7 @@ func wrapDownloadImageCallback(ptr unsafe.Pointer) DownloadImageCallback {
 }
 
 // BrowserHost Structure used to represent the browser process aspects of a browser. The functions of this structure can only be called in the browser process. They may be called on any thread in that process unless otherwise indicated in the comments.
-type BrowserHost interface {
-	// GetBrowser Returns the hosted browser object.
-	GetBrowser() Browser
-	CloseBrowser(forceClose int32)
-	TryCloseBrowser() int32
-	IsReadyToBeClosed() bool
-	// SetFocus Set whether the browser is focused.
-	SetFocus(focus int32)
-	// GetWindowHandle Retrieve the window handle (if any) for this browser. If this browser is wrapped in a cef_browser_view_t this function should be called on the browser process UI thread and it will return the handle for the top-level native window.
-	GetWindowHandle() uintptr
-	// GetOpenerWindowHandle Retrieve the window handle (if any) of the browser that opened this browser. Will return NULL for non-popup browsers or if this browser is wrapped in a cef_browser_view_t. This function can be used in combination with custom handling of modal windows.
-	GetOpenerWindowHandle() uintptr
-	// GetOpenerIdentifier Retrieve the unique identifier of the browser that opened this browser. Will return 0 for non-popup browsers.
-	GetOpenerIdentifier() int32
-	// HasView Returns true (1) if this browser is wrapped in a cef_browser_view_t.
-	HasView() bool
-	// GetClient Returns the client for this browser.
-	GetClient() Client
-	// GetRequestContext Returns the request context for this browser.
-	GetRequestContext() RequestContext
-	// CanZoom Returns true (1) if this browser can execute the specified zoom command. This function can only be called on the UI thread.
-	CanZoom(command ZoomCommand) bool
-	Zoom(command ZoomCommand)
-	// GetDefaultZoomLevel Get the default zoom level. This value will be 0.0 by default but can be configured. This function can only be called on the UI thread.
-	GetDefaultZoomLevel() float64
-	// GetZoomLevel Get the current zoom level. This function can only be called on the UI thread.
-	GetZoomLevel() float64
-	// SetZoomLevel Change the zoom level to the specified value. Specify 0.0 to reset the zoom level to the default. If called on the UI thread the change will be applied immediately. Otherwise, the change will be applied asynchronously on the UI thread.
-	SetZoomLevel(zoomlevel float64)
-	// RunFileDialog Call to run a file chooser dialog. Only a single file chooser dialog may be pending at any given time. |mode| represents the type of dialog to display. |title| to the title to be used for the dialog and may be NULL to show the default title ("Open" or "Save" depending on the mode). |default_file_path| is the path with optional directory and/or file name component that will be initially selected in the dialog. |accept_filters| are used to restrict the selectable file types and may any combination of (a) valid lower-cased MIME types (e.g. "text/*" or "image/*"), (b) individual file extensions (e.g. ".txt" or ".png"), or (c) combined description and file extension delimited using "|" and ";" (e.g. "Image Types|.png;.gif;.jpg"). |callback| will be executed after the dialog is dismissed or immediately if another dialog is already pending. The dialog will be initiated asynchronously on the UI thread.
-	RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, callback RunFileDialogCallback)
-	// StartDownload Download the file at |url| using cef_download_handler_t.
-	StartDownload(uRL string)
-	// DownloadImage Download |image_url| and execute |callback| on completion with the images received from the renderer. If |is_favicon| is true (1) then cookies are not sent and not accepted during download. Images with density independent pixel (DIP) sizes larger than |max_image_size| are filtered out from the image results. Versions of the image at different scale factors may be downloaded up to the maximum scale factor supported by the system. If there are no image results <= |max_image_size| then the smallest image is resized to |max_image_size| and is the only result. A |max_image_size| of 0 means unlimited. If |bypass_cache| is true (1) then |image_url| is requested from the server even if it is present in the browser cache.
-	DownloadImage(imageURL string, isFavicon int32, maxImageSize uint32, bypassCache int32, callback DownloadImageCallback)
-	// Print Print the current browser contents.
-	Print()
-	// PrintToPdf Print the current browser contents to the PDF file specified by |path| and execute |callback| on completion. The caller is responsible for deleting |path| when done. For PDF printing to work on Linux you must implement the cef_print_handler_t::GetPdfPaperSize function.
-	PrintToPdf(path string, settings *PdfPrintSettings, callback PdfPrintCallback)
-	Find(searchtext string, forward int32, matchcase int32, findnext int32)
-	// StopFinding Cancel all searches that are currently going on.
-	StopFinding(clearselection int32)
-	// ShowDevTools Open developer tools (DevTools) in its own browser. The DevTools browser will remain associated with this browser. If the DevTools browser is already open then it will be focused, in which case the |windowInfo|, |client| and |settings| parameters will be ignored. If |inspect_element_at| is non-NULL then the element at the specified (x,y) location will be inspected. The |windowInfo| parameter will be ignored if this browser is wrapped in a cef_browser_view_t.
-	ShowDevTools(windowinfo *WindowInfo, client Client, settings *BrowserSettings, inspectElementAt *Point)
-	// CloseDevTools Explicitly close the associated DevTools browser, if any.
-	CloseDevTools()
-	// HasDevTools Returns true (1) if this browser currently has an associated DevTools browser. Must be called on the browser process UI thread.
-	HasDevTools() bool
-	// SendDevToolsMessage Send a function call message over the DevTools protocol. |message| must be a UTF8-encoded JSON dictionary that contains "id" (int), "function" (string) and "params" (dictionary, optional) values. See the DevTools protocol documentation at https://chromedevtools.github.io/devtools- protocol/ for details of supported functions and the expected "params" dictionary contents. |message| will be copied if necessary. This function will return true (1) if called on the UI thread and the message was successfully submitted for validation, otherwise false (0). Validation will be applied asynchronously and any messages that fail due to formatting errors or missing parameters may be discarded without notification. Prefer ExecuteDevToolsMethod if a more structured approach to message formatting is desired. Every valid function call will result in an asynchronous function result or error message that references the sent message "id". Event messages are received while notifications are enabled (for example, between function calls for "Page.enable" and "Page.disable"). All received messages will be delivered to the observer(s) registered with AddDevToolsMessageObserver. See cef_dev_tools_message_observer_t::OnDevToolsMessage documentation for details of received message contents. Usage of the SendDevToolsMessage, ExecuteDevToolsMethod and AddDevToolsMessageObserver functions does not require an active DevTools front-end or remote-debugging session. Other active DevTools sessions will continue to function independently. However, any modification of global browser state by one session may not be reflected in the UI of other sessions. Communication with the DevTools front-end (when displayed) can be logged for development purposes by passing the `--devtools-protocol-log- file=<path>` command-line flag.
-	SendDevToolsMessage(message unsafe.Pointer, messageSize int) int32
-	// ExecuteDevToolsMethod Execute a function call over the DevTools protocol. This is a more structured version of SendDevToolsMessage. |message_id| is an incremental number that uniquely identifies the message (pass 0 to have the next number assigned automatically based on previous values). |function| is the function name. |params| are the function parameters, which may be NULL. See the DevTools protocol documentation (linked above) for details of supported functions and the expected |params| dictionary contents. This function will return the assigned message ID if called on the UI thread and the message was successfully submitted for validation, otherwise 0. See the SendDevToolsMessage documentation for additional usage information.
-	ExecuteDevToolsMethod(messageID int32, method string, params DictionaryValue) int32
-	// AddDevToolsMessageObserver Add an observer for DevTools protocol messages (function results and events). The observer will remain registered until the returned Registration object is destroyed. See the SendDevToolsMessage documentation for additional usage information.
-	AddDevToolsMessageObserver(observer DevToolsMessageObserver) Registration
-	// GetNavigationEntries Retrieve a snapshot of current navigation entries as values sent to the specified visitor. If |current_only| is true (1) only the current navigation entry will be sent, otherwise all navigation entries will be sent.
-	GetNavigationEntries(visitor NavigationEntryVisitor, currentOnly int32)
-	// ReplaceMisspelling If a misspelled word is currently selected in an editable node calling this function will replace it with the specified |word|.
-	ReplaceMisspelling(word string)
-	// AddWordToDictionary Add the specified |word| to the spelling dictionary.
-	AddWordToDictionary(word string)
-	// IsWindowRenderingDisabled Returns true (1) if window rendering is disabled.
-	IsWindowRenderingDisabled() bool
-	// WasResized Notify the browser that the widget has been resized. The browser will first call cef_render_handler_t::GetViewRect to get the new size and then call cef_render_handler_t::OnPaint asynchronously with the updated regions. This function is only used when window rendering is disabled.
-	WasResized()
-	// WasHidden Notify the browser that it has been hidden or shown. Layouting and cef_render_handler_t::OnPaint notification will stop when the browser is hidden. This function is only used when window rendering is disabled.
-	WasHidden(hidden int32)
-	// NotifyScreenInfoChanged Notify the browser that screen information has changed. Updated information will be sent to the renderer process to configure screen size and position values used by CSS and JavaScript (window.deviceScaleFactor, window.screenX/Y, window.outerWidth/Height, etc.). For background see https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage.md#markdown- header-coordinate-systems This function is used with (a) windowless rendering and (b) windowed rendering with external (client-provided) root window. With windowless rendering the browser will call cef_render_handler_t::GetScreenInfo, cef_render_handler_t::GetRootScreenRect and cef_render_handler_t::GetViewRect. This simulates moving or resizing the root window in the current display, moving the root window from one display to another, or changing the properties of the current display. With windowed rendering the browser will call cef_display_handler_t::GetRootWindowScreenRect and use the associated display properties.
-	NotifyScreenInfoChanged()
-	// Invalidate Invalidate the view. The browser will call cef_render_handler_t::OnPaint asynchronously. This function is only used when window rendering is disabled.
-	Invalidate(type_ PaintElementType)
-	// SendExternalBeginFrame Issue a BeginFrame request to Chromium.  Only valid when cef_window_tInfo::external_begin_frame_enabled is set to true (1).
-	SendExternalBeginFrame()
-	// SendKeyEvent Send a key event to the browser.
-	SendKeyEvent(event *KeyEvent)
-	// SendMouseClickEvent Send a mouse click event to the browser. The |x| and |y| coordinates are relative to the upper-left corner of the view.
-	SendMouseClickEvent(event *MouseEvent, type_ MouseButtonType, mouseup int32, clickcount int32)
-	// SendMouseMoveEvent Send a mouse move event to the browser. The |x| and |y| coordinates are relative to the upper-left corner of the view.
-	SendMouseMoveEvent(event *MouseEvent, mouseleave int32)
-	// SendMouseWheelEvent Send a mouse wheel event to the browser. The |x| and |y| coordinates are relative to the upper-left corner of the view. The |deltaX| and |deltaY| values represent the movement delta in the X and Y directions respectively. In order to scroll inside select popups with window rendering disabled cef_render_handler_t::GetScreenPoint should be implemented properly.
-	SendMouseWheelEvent(event *MouseEvent, deltax int32, deltay int32)
-	// SendTouchEvent Send a touch event to the browser for a windowless browser.
-	SendTouchEvent(event *TouchEvent)
-	// SendCaptureLostEvent Send a capture lost event to the browser.
-	SendCaptureLostEvent()
-	// NotifyMoveOrResizeStarted Notify the browser that the window hosting it is about to be moved or resized. This function is only used on Windows and Linux.
-	NotifyMoveOrResizeStarted()
-	// GetWindowlessFrameRate Returns the maximum rate in frames per second (fps) that cef_render_handler_t::OnPaint will be called for a windowless browser. The actual fps may be lower if the browser cannot generate frames at the requested rate. The minimum value is 1 and the default value is 30. This function can only be called on the UI thread.
-	GetWindowlessFrameRate() int32
-	// SetWindowlessFrameRate Set the maximum rate in frames per second (fps) that cef_render_handler_t:: OnPaint will be called for a windowless browser. The actual fps may be lower if the browser cannot generate frames at the requested rate. The minimum value is 1 and the default value is 30. Can also be set at browser creation via cef_browser_tSettings.windowless_frame_rate.
-	SetWindowlessFrameRate(frameRate int32)
-	// ImeSetComposition Begins a new composition or updates the existing composition. Blink has a special node (a composition node) that allows the input function to change text without affecting other DOM nodes. |text| is the optional text that will be inserted into the composition node. |underlines| is an optional set of ranges that will be underlined in the resulting text. |replacement_range| is an optional range of the existing text that will be replaced. |selection_range| is an optional range of the resulting text that will be selected after insertion or replacement. The |replacement_range| value is only used on OS X. This function may be called multiple times as the composition changes. When the client is done making changes the composition should either be canceled or completed. To cancel the composition call ImeCancelComposition. To complete the composition call either ImeCommitText or ImeFinishComposingText. Completion is usually signaled when: 1. The client receives a WM_IME_COMPOSITION message with a GCS_RESULTSTR    flag (on Windows), or; 2. The client receives a "commit" signal of GtkIMContext (on Linux), or; 3. insertText of NSTextInput is called (on Mac). This function is only used when window rendering is disabled.
-	ImeSetComposition(text string, underlines []CompositionUnderline, replacementRange *Range, selectionRange *Range)
-	// ImeCommitText Completes the existing composition by optionally inserting the specified |text| into the composition node. |replacement_range| is an optional range of the existing text that will be replaced. |relative_cursor_pos| is where the cursor will be positioned relative to the current cursor position. See comments on ImeSetComposition for usage. The |replacement_range| and |relative_cursor_pos| values are only used on OS X. This function is only used when window rendering is disabled.
-	ImeCommitText(text string, replacementRange *Range, relativeCursorPos int32)
-	// ImeFinishComposingText Completes the existing composition by applying the current composition node contents. If |keep_selection| is false (0) the current selection, if any, will be discarded. See comments on ImeSetComposition for usage. This function is only used when window rendering is disabled.
-	ImeFinishComposingText(keepSelection int32)
-	// ImeCancelComposition Cancels the existing composition and discards the composition node contents without applying them. See comments on ImeSetComposition for usage. This function is only used when window rendering is disabled.
-	ImeCancelComposition()
-	// DragTargetDragEnter Call this function when the user drags the mouse into the web view (before calling DragTargetDragOver/DragTargetLeave/DragTargetDrop). |drag_data| should not contain file contents as this type of data is not allowed to be dragged into the web view. File contents can be removed using cef_drag_data_t::ResetFileContents (for example, if |drag_data| comes from cef_render_handler_t::StartDragging). This function is only used when window rendering is disabled.
-	DragTargetDragEnter(dragData DragData, event *MouseEvent, allowedOps DragOperationsMask)
-	// DragTargetDragOver Call this function each time the mouse is moved across the web view during a drag operation (after calling DragTargetDragEnter and before calling DragTargetDragLeave/DragTargetDrop). This function is only used when window rendering is disabled.
-	DragTargetDragOver(event *MouseEvent, allowedOps DragOperationsMask)
-	// DragTargetDragLeave Call this function when the user drags the mouse out of the web view (after calling DragTargetDragEnter). This function is only used when window rendering is disabled.
-	DragTargetDragLeave()
-	// DragTargetDrop Call this function when the user completes the drag operation by dropping the object onto the web view (after calling DragTargetDragEnter). The object being dropped is |drag_data|, given as an argument to the previous DragTargetDragEnter call. This function is only used when window rendering is disabled.
-	DragTargetDrop(event *MouseEvent)
-	// DragSourceEndedAt Call this function when the drag operation started by a cef_render_handler_t::StartDragging call has ended either in a drop or by being cancelled. |x| and |y| are mouse coordinates relative to the upper- left corner of the view. If the web view is both the drag source and the drag target then all DragTarget* functions should be called before DragSource* mthods. This function is only used when window rendering is disabled.
-	DragSourceEndedAt(x int32, y int32, op DragOperationsMask)
-	// DragSourceSystemDragEnded Call this function when the drag operation started by a cef_render_handler_t::StartDragging call has completed. This function may be called immediately without first calling DragSourceEndedAt to cancel a drag operation. If the web view is both the drag source and the drag target then all DragTarget* functions should be called before DragSource* mthods. This function is only used when window rendering is disabled.
-	DragSourceSystemDragEnded()
-	// GetVisibleNavigationEntry Returns the current visible navigation entry for this browser. This function can only be called on the UI thread.
-	GetVisibleNavigationEntry() NavigationEntry
-	// SetAccessibilityState Set accessibility state for all frames. |accessibility_state| may be default, enabled or disabled. If |accessibility_state| is STATE_DEFAULT then accessibility will be disabled by default and the state may be further controlled with the "force-renderer-accessibility" and "disable- renderer-accessibility" command-line switches. If |accessibility_state| is STATE_ENABLED then accessibility will be enabled. If |accessibility_state| is STATE_DISABLED then accessibility will be completely disabled. For windowed browsers accessibility will be enabled in Complete mode (which corresponds to kAccessibilityModeComplete in Chromium). In this mode all platform accessibility objects will be created and managed by Chromium's internal implementation. The client needs only to detect the screen reader and call this function appropriately. For example, on macOS the client can handle the @"AXEnhancedUserStructure" accessibility attribute to detect VoiceOver state changes and on Windows the client can handle WM_GETOBJECT with OBJID_CLIENT to detect accessibility readers. For windowless browsers accessibility will be enabled in TreeOnly mode (which corresponds to kAccessibilityModeWebContentsOnly in Chromium). In this mode renderer accessibility is enabled, the full tree is computed, and events are passed to CefAccessibiltyHandler, but platform accessibility objects are not created. The client may implement platform accessibility objects using CefAccessibiltyHandler callbacks if desired.
-	SetAccessibilityState(accessibilityState State)
-	// SetAutoResizeEnabled Enable notifications of auto resize via cef_display_handler_t::OnAutoResize. Notifications are disabled by default. |min_size| and |max_size| define the range of allowed sizes.
-	SetAutoResizeEnabled(enabled int32, minSize *Size, maxSize *Size)
-	// SetAudioMuted Set whether the browser's audio is muted.
-	SetAudioMuted(mute int32)
-	// IsAudioMuted Returns true (1) if the browser's audio is muted.  This function can only be called on the UI thread.
-	IsAudioMuted() bool
-	// IsFullscreen Returns true (1) if the renderer is currently in browser fullscreen. This differs from window fullscreen in that browser fullscreen is entered using the JavaScript Fullscreen API and modifies CSS attributes such as the ::backdrop pseudo-element and :fullscreen pseudo-structure. This function can only be called on the UI thread.
-	IsFullscreen() bool
-	// ExitFullscreen Requests the renderer to exit browser fullscreen. In most cases exiting window fullscreen should also exit browser fullscreen. With Alloy style this function should be called in response to a user action such as clicking the green traffic light button on MacOS (cef_window_delegate_t::OnWindowFullscreenTransition callback) or pressing the "ESC" key (cef_keyboard_handler_t::OnPreKeyEvent callback). With Chrome style these standard exit actions are handled internally but new/additional user actions can use this function. Set |will_cause_resize| to true (1) if exiting browser fullscreen will cause a view resize.
-	ExitFullscreen(willCauseResize int32)
-	// CanExecuteChromeCommand Returns true (1) if a Chrome command is supported and enabled. Use the cef_id_for_command_id_name() function for version-safe mapping of command IDC names from cef_command_ids.h to version-specific numerical |command_id| values. This function can only be called on the UI thread. Only used with Chrome style.
-	CanExecuteChromeCommand(commandID int32) bool
-	// ExecuteChromeCommand Returns true (1) if a Chrome command is supported and enabled. Use the cef_id_for_command_id_name() function for version-safe mapping of command IDC names from cef_command_ids.h to version-specific numerical |command_id| values. This function can only be called on the UI thread. Only used with Chrome style.
-	ExecuteChromeCommand(commandID int32, disposition WindowOpenDisposition)
-	// IsRenderProcessUnresponsive Returns true (1) if the render process associated with this browser is currently unresponsive as indicated by a lack of input event processing for at least 15 seconds. To receive associated state change notifications and optionally handle an unresponsive render process implement cef_request_handler_t::OnRenderProcessUnresponsive. This function can only be called on the UI thread.
-	IsRenderProcessUnresponsive() bool
-	// GetRuntimeStyle Returns the runtime style for this browser (ALLOY or CHROME). See cef_runtime_style_t documentation for details.
-	GetRuntimeStyle() RuntimeStyle
-}
+type BrowserHost = in.BrowserHost
 
 type browserHostImpl struct {
 	rawPtr *capi.CEFBrowserHostT

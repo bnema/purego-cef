@@ -7,15 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // SharedMemoryRegion Structure that wraps platform-dependent share memory region mapping.
-type SharedMemoryRegion interface {
-	// IsValid Returns true (1) if the mapping is valid.
-	IsValid() bool
-	Size() int
-	Memory() unsafe.Pointer
-}
+type SharedMemoryRegion = in.SharedMemoryRegion
 
 type sharedMemoryRegionImpl struct {
 	rawPtr *capi.CEFSharedMemoryRegionT

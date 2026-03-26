@@ -7,19 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // WaitableEvent WaitableEvent is a thread synchronization tool that allows one thread to wait for another thread to finish some work. This is equivalent to using a Lock+ConditionVariable to protect a simple boolean value. However, using WaitableEvent in conjunction with a Lock to wait for a more complex state change (e.g., for an item to be added to a queue) is not recommended. In that case consider using a ConditionVariable instead of a WaitableEvent. It is safe to create and/or signal a WaitableEvent from any thread. Blocking on a WaitableEvent by calling the *wait() functions is not allowed on the browser process UI or IO threads.
-type WaitableEvent interface {
-	// Reset Put the event in the un-signaled state.
-	Reset()
-	Signal()
-	// IsSignaled Returns true (1) if the event is in the signaled state, else false (0). If the event was created with |automatic_reset| set to true (1) then calling this function will also cause a reset.
-	IsSignaled() bool
-	Wait()
-	// TimedWait Wait up to |max_ms| milliseconds for the event to be signaled. Returns true (1) if the event was signaled. A return value of false (0) does not necessarily mean that |max_ms| was exceeded. This function will not return until after the call to signal() has completed. This function cannot be called on the browser process UI or IO threads.
-	TimedWait(maxMs int64) int32
-}
+type WaitableEvent = in.WaitableEvent
 
 type waitableEventImpl struct {
 	rawPtr *capi.CEFWaitableEventT

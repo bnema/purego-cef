@@ -9,24 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Display This structure typically, but not always, corresponds to a physical display connected to the system. A fake Display may exist on a headless system, or a Display may correspond to a remote, virtual display. All size and position values are in density independent pixel (DIP) coordinates unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated. For details on coordinate systems and usage see https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown- header-coordinate-systems
-type Display interface {
-	// GetID Returns the unique identifier for this Display.
-	GetID() int64
-	GetDeviceScaleFactor() float32
-	// ConvertPointToPixels Convert |point| from DIP coordinates to pixel coordinates using this Display's device scale factor.
-	ConvertPointToPixels(point *Point)
-	// ConvertPointFromPixels Convert |point| from pixel coordinates to DIP coordinates using this Display's device scale factor.
-	ConvertPointFromPixels(point *Point)
-	// GetBounds Returns this Display's bounds in DIP screen coordinates. This is the full size of the display.
-	GetBounds() uintptr
-	// GetWorkArea Returns this Display's work area in DIP screen coordinates. This excludes areas of the display that are occupied with window manager toolbars, etc.
-	GetWorkArea() uintptr
-	// GetRotation Returns this Display's rotation in degrees.
-	GetRotation() int32
-}
+type Display = in.Display
 
 type displayImpl struct {
 	rawPtr *capi.CEFDisplayT

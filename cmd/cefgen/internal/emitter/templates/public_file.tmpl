@@ -3,7 +3,7 @@
 
 package {{.PackageName}}
 
-{{if or .NeedsRaw .NeedsUnsafe .HasObjects .HasHandlers .Enums .NeedsMath}}
+{{if or .NeedsRaw .NeedsUnsafe .HasObjects .HasHandlers .Enums .NeedsMath .Interfaces}}
 import (
 {{- if .NeedsMath}}
 	"math"
@@ -21,6 +21,10 @@ import (
 {{- if .NeedsRaw}}
 
 	"github.com/bnema/purego-cef/internal/capi"
+{{- end}}
+{{- if .Interfaces}}
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 {{- end}}
 )
 {{end}}

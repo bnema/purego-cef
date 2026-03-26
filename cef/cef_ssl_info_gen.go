@@ -7,15 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Sslinfo Structure representing SSL information.
-type Sslinfo interface {
-	// GetCertStatus Returns a bitmask containing any and all problems verifying the server certificate.
-	GetCertStatus() CertStatus
-	// GetX509Certificate Returns the X.509 certificate.
-	GetX509Certificate() X509Certificate
-}
+type Sslinfo = in.Sslinfo
 
 type sslinfoImpl struct {
 	rawPtr *capi.CEFSslinfoT

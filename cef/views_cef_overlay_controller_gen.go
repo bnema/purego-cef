@@ -7,46 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // OverlayController Controller for an overlay that contains a contents View added via cef_window_t::AddOverlayView. Methods exposed by this controller should be called in preference to functions of the same name exposed by the contents View unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
-type OverlayController interface {
-	// IsValid Returns true (1) if this object is valid.
-	IsValid() bool
-	// IsSame Returns true (1) if this object is the same as |that| object.
-	IsSame(that OverlayController) bool
-	// GetContentsView Returns the contents View for this overlay.
-	GetContentsView() View
-	GetWindow() Window
-	// GetDockingMode Returns the docking mode for this overlay.
-	GetDockingMode() DockingMode
-	// Destroy Destroy this overlay.
-	Destroy()
-	// SetBounds Sets the bounds (size and position) of this overlay. This will set the bounds of the contents View to match and trigger a re-layout if necessary. |bounds| is in parent coordinates and any insets configured on this overlay will be ignored. Use this function only for overlays created with a docking mode value of CEF_DOCKING_MODE_CUSTOM. With other docking modes modify the insets of this overlay and/or layout of the contents View and call size_to_preferred_size() instead to calculate the new size and re- position the overlay if necessary.
-	SetBounds(bounds *Rect)
-	// GetBounds Returns the bounds (size and position) of this overlay in parent coordinates.
-	GetBounds() uintptr
-	// GetBoundsInScreen Returns the bounds (size and position) of this overlay in DIP screen coordinates.
-	GetBoundsInScreen() uintptr
-	// SetSize Sets the size of this overlay without changing the position. This will set the size of the contents View to match and trigger a re-layout if necessary. |size| is in parent coordinates and any insets configured on this overlay will be ignored. Use this function only for overlays created with a docking mode value of CEF_DOCKING_MODE_CUSTOM. With other docking modes modify the insets of this overlay and/or layout of the contents View and call size_to_preferred_size() instead to calculate the new size and re-position the overlay if necessary.
-	SetSize(size *Size)
-	// GetSize Returns the size of this overlay in parent coordinates.
-	GetSize() uintptr
-	// SetPosition Sets the position of this overlay without changing the size. |position| is in parent coordinates and any insets configured on this overlay will be ignored. Use this function only for overlays created with a docking mode value of CEF_DOCKING_MODE_CUSTOM. With other docking modes modify the insets of this overlay and/or layout of the contents View and call size_to_preferred_size() instead to calculate the new size and re-position the overlay if necessary.
-	SetPosition(position *Point)
-	// GetPosition Returns the position of this overlay in parent coordinates.
-	GetPosition() uintptr
-	// SetInsets Sets the insets for this overlay. |insets| is in parent coordinates. Use this function only for overlays created with a docking mode value other than CEF_DOCKING_MODE_CUSTOM.
-	SetInsets(insets *Insets)
-	// GetInsets Returns the insets for this overlay in parent coordinates.
-	GetInsets() uintptr
-	SizeToPreferredSize()
-	// SetVisible Sets whether this overlay is visible. Overlays are hidden by default. If this overlay is hidden then it and any child Views will not be drawn and, if any of those Views currently have focus, then focus will also be cleared. Painting is scheduled as needed.
-	SetVisible(visible int32)
-	// IsVisible Returns whether this overlay is visible. A View may be visible but still not drawn in a Window if any parent Views are hidden. Call is_drawn() to determine whether this overlay and all parent Views are visible and will be drawn.
-	IsVisible() bool
-	IsDrawn() bool
-}
+type OverlayController = in.OverlayController
 
 type overlayControllerImpl struct {
 	rawPtr *capi.CEFOverlayControllerT

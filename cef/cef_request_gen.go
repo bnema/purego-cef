@@ -7,55 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Request Structure used to represent a web request. The functions of this structure may be called on any thread.
-type Request interface {
-	// IsReadOnly Returns true (1) if this object is read-only.
-	IsReadOnly() bool
-	// GetURL Get the fully qualified URL.
-	GetURL() string
-	// SetURL Set the fully qualified URL.
-	SetURL(uRL string)
-	// GetMethod Get the request function type. The value will default to POST if post data is provided and GET otherwise.
-	GetMethod() string
-	// SetMethod Set the request function type.
-	SetMethod(method string)
-	// SetReferrer Set the referrer URL and policy. If non-NULL the referrer URL must be fully qualified with an HTTP or HTTPS scheme component. Any username, password or ref component will be removed.
-	SetReferrer(referrerURL string, policy ReferrerPolicy)
-	// GetReferrerURL Get the referrer URL.
-	GetReferrerURL() string
-	// GetReferrerPolicy Get the referrer policy.
-	GetReferrerPolicy() ReferrerPolicy
-	// GetPostData Get the post data.
-	GetPostData() PostData
-	// SetPostData Set the post data.
-	SetPostData(postdata PostData)
-	// GetHeaderMap Get the header values. Will not include the Referer value if any.
-	GetHeaderMap(headermap uintptr)
-	// SetHeaderMap Set the header values. If a Referer value exists in the header map it will be removed and ignored.
-	SetHeaderMap(headermap uintptr)
-	// GetHeaderByName Returns the first header value for |name| or an NULL string if not found. Will not return the Referer value if any. Use GetHeaderMap instead if |name| might have multiple values.
-	GetHeaderByName(name string) string
-	// SetHeaderByName Set the header |name| to |value|. If |overwrite| is true (1) any existing values will be replaced with the new value. If |overwrite| is false (0) any existing values will not be overwritten. The Referer value cannot be set using this function.
-	SetHeaderByName(name string, value string, overwrite int32)
-	// Set Set the fully qualified URL.
-	Set(uRL string, method string, postdata PostData, headermap uintptr)
-	// GetFlags Get the flags used in combination with cef_urlrequest_t. See cef_urlrequest_flags_t for supported values.
-	GetFlags() int32
-	// SetFlags Set the flags used in combination with cef_urlrequest_t.  See cef_urlrequest_flags_t for supported values.
-	SetFlags(flags int32)
-	// GetFirstPartyForCookies Get the URL to the first party for cookies used in combination with cef_urlrequest_t.
-	GetFirstPartyForCookies() string
-	// SetFirstPartyForCookies Set the URL to the first party for cookies used in combination with cef_urlrequest_t.
-	SetFirstPartyForCookies(uRL string)
-	// GetResourceType Get the resource type for this request. Only available in the browser process.
-	GetResourceType() ResourceType
-	// GetTransitionType Get the transition type for this request. Only available in the browser process and only applies to requests that represent a main frame or sub- frame navigation.
-	GetTransitionType() TransitionType
-	// GetIdentifier Returns the globally unique identifier for this request or 0 if not specified. Can be used by cef_resource_request_handler_t implementations in the browser process to track a single request across multiple callbacks.
-	GetIdentifier() uint64
-}
+type Request = in.Request
 
 type requestImpl struct {
 	rawPtr *capi.CEFRequestT
@@ -193,22 +150,7 @@ func wrapRequest(ptr unsafe.Pointer) Request {
 }
 
 // PostData Structure used to represent post data for a web request. The functions of this structure may be called on any thread.
-type PostData interface {
-	// IsReadOnly Returns true (1) if this object is read-only.
-	IsReadOnly() bool
-	// HasExcludedElements Returns true (1) if the underlying POST data includes elements that are not represented by this cef_post_data_t object (for example, multi-part file upload data). Modifying cef_post_data_t objects with excluded elements may result in the request failing.
-	HasExcludedElements() bool
-	// GetElementCount Returns the number of existing post data elements.
-	GetElementCount() int
-	// GetElements Retrieve the post data elements.
-	GetElements(elementscount *int, elements unsafe.Pointer)
-	// RemoveElement Remove the specified post data element.  Returns true (1) if the removal succeeds.
-	RemoveElement(element PostDataElement) int32
-	// AddElement Add the specified post data element.  Returns true (1) if the add succeeds.
-	AddElement(element PostDataElement) int32
-	// RemoveElements Remove all existing post data elements.
-	RemoveElements()
-}
+type PostData = in.PostData
 
 type postDataImpl struct {
 	rawPtr *capi.CEFPostDataT
@@ -268,24 +210,7 @@ func wrapPostData(ptr unsafe.Pointer) PostData {
 }
 
 // PostDataElement Structure used to represent a single element in the request post data. The functions of this structure may be called on any thread.
-type PostDataElement interface {
-	// IsReadOnly Returns true (1) if this object is read-only.
-	IsReadOnly() bool
-	// SetToEmpty Remove all contents from the post data element.
-	SetToEmpty()
-	// SetToFile The post data element will represent a file.
-	SetToFile(filename string)
-	// SetToBytes The post data element will represent bytes.  The bytes passed in will be copied.
-	SetToBytes(size int, bytes unsafe.Pointer)
-	// GetType Return the type of this post data element.
-	GetType() PostdataelementType
-	// GetFile Return the file name.
-	GetFile() string
-	// GetBytesCount Return the number of bytes.
-	GetBytesCount() int
-	// GetBytes Return the number of bytes.
-	GetBytes(size int, bytes unsafe.Pointer) int
-}
+type PostDataElement = in.PostDataElement
 
 type postDataElementImpl struct {
 	rawPtr *capi.CEFPostDataElementT

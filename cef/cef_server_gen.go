@@ -9,37 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Server Structure representing a server that supports HTTP and WebSocket requests. Server capacity is limited and is intended to handle only a small number of simultaneous connections (e.g. for communicating between applications on localhost). The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.
-type Server interface {
-	// GetTaskRunner Returns the task runner for the dedicated server thread.
-	GetTaskRunner() TaskRunner
-	// Shutdown Stop the server and shut down the dedicated server thread. See cef_server_handler_t::OnServerCreated documentation for a description of server lifespan.
-	Shutdown()
-	// IsRunning Returns true (1) if the server is currently running and accepting incoming connections. See cef_server_handler_t::OnServerCreated documentation for a description of server lifespan. This function must be called on the dedicated server thread.
-	IsRunning() bool
-	// GetAddress Returns the server address including the port number.
-	GetAddress() string
-	// HasConnection Returns true (1) if the server currently has a connection. This function must be called on the dedicated server thread.
-	HasConnection() bool
-	// IsValidConnection Returns true (1) if |connection_id| represents a valid connection. This function must be called on the dedicated server thread.
-	IsValidConnection(connectionID int32) bool
-	// SendHttp200Response Send an HTTP 200 "OK" response to the connection identified by |connection_id|. |content_type| is the response content type (e.g. "text/html"), |data| is the response content, and |data_size| is the size of |data| in bytes. The contents of |data| will be copied. The connection will be closed automatically after the response is sent.
-	SendHttp200Response(connectionID int32, contentType string, data unsafe.Pointer, dataSize int)
-	// SendHttp404Response Send an HTTP 404 "Not Found" response to the connection identified by |connection_id|. The connection will be closed automatically after the response is sent.
-	SendHttp404Response(connectionID int32)
-	// SendHttp500Response Send an HTTP 500 "Internal Server Error" response to the connection identified by |connection_id|. |error_message| is the associated error message. The connection will be closed automatically after the response is sent.
-	SendHttp500Response(connectionID int32, errorMessage string)
-	// SendHttpResponse Send a custom HTTP response to the connection identified by |connection_id|. |response_code| is the HTTP response code sent in the status line (e.g. 200), |content_type| is the response content type sent as the "Content-Type" header (e.g. "text/html"), |content_length| is the expected content length, and |extra_headers| is the map of extra response headers. If |content_length| is >= 0 then the "Content-Length" header will be sent. If |content_length| is 0 then no content is expected and the connection will be closed automatically after the response is sent. If |content_length| is < 0 then no "Content-Length" header will be sent and the client will continue reading until the connection is closed. Use the SendRawData function to send the content, if applicable, and call CloseConnection after all content has been sent.
-	SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders uintptr)
-	// SendRawData Send raw data directly to the connection identified by |connection_id|. |data| is the raw data and |data_size| is the size of |data| in bytes. The contents of |data| will be copied. No validation of |data| is performed internally so the client should be careful to send the amount indicated by the "Content-Length" header, if specified. See SendHttpResponse documentation for intended usage.
-	SendRawData(connectionID int32, data unsafe.Pointer, dataSize int)
-	// CloseConnection Close the connection identified by |connection_id|. See SendHttpResponse documentation for intended usage.
-	CloseConnection(connectionID int32)
-	// SendWebSocketMessage Send a WebSocket message to the connection identified by |connection_id|. |data| is the response content and |data_size| is the size of |data| in bytes. The contents of |data| will be copied. See cef_server_handler_t::OnWebSocketRequest documentation for intended usage.
-	SendWebSocketMessage(connectionID int32, data unsafe.Pointer, dataSize int)
-}
+type Server = in.Server
 
 type serverImpl struct {
 	rawPtr *capi.CEFServerT
@@ -129,24 +104,7 @@ func wrapServer(ptr unsafe.Pointer) Server {
 }
 
 // ServerHandler Implement this structure to handle HTTP server requests. A new thread will be created for each cef_server_t::CreateServer call (the "dedicated server thread"), and the functions of this structure will be called on that thread. It is therefore recommended to use a different cef_server_handler_t instance for each cef_server_t::CreateServer call to avoid thread safety issues in the cef_server_handler_t implementation.
-type ServerHandler interface {
-	// OnServerCreated Called when |server| is created. If the server was started successfully then cef_server_t::IsRunning will return true (1). The server will continue running until cef_server_t::Shutdown is called, after which time OnServerDestroyed will be called. If the server failed to start then OnServerDestroyed will be called immediately after this function returns.
-	OnServerCreated(server Server)
-	// OnServerDestroyed Called when |server| is destroyed. The server thread will be stopped after this function returns. The client should release any references to |server| when this function is called. See OnServerCreated documentation for a description of server lifespan.
-	OnServerDestroyed(server Server)
-	// OnClientConnected Called when a client connects to |server|. |connection_id| uniquely identifies the connection. Each call to this function will have a matching call to OnClientDisconnected.
-	OnClientConnected(server Server, connectionID int32)
-	// OnClientDisconnected Called when a client disconnects from |server|. |connection_id| uniquely identifies the connection. The client should release any data associated with |connection_id| when this function is called and |connection_id| should no longer be passed to cef_server_t functions. Disconnects can originate from either the client or the server. For example, the server will disconnect automatically after a cef_server_t::SendHttpXXXResponse function is called.
-	OnClientDisconnected(server Server, connectionID int32)
-	// OnHttpRequest Called when |server| receives an HTTP request. |connection_id| uniquely identifies the connection, |client_address| is the requesting IPv4 or IPv6 client address including port number, and |request| contains the request contents (URL, function, headers and optional POST data). Call cef_server_t functions either synchronously or asynchronusly to send a response.
-	OnHttpRequest(server Server, connectionID int32, clientAddress string, request Request)
-	// OnWebSocketRequest Called when |server| receives a WebSocket request. |connection_id| uniquely identifies the connection, |client_address| is the requesting IPv4 or IPv6 client address including port number, and |request| contains the request contents (URL, function, headers and optional POST data). Execute |callback| either synchronously or asynchronously to accept or decline the WebSocket connection. If the request is accepted then OnWebSocketConnected will be called after the WebSocket has connected and incoming messages will be delivered to the OnWebSocketMessage callback. If the request is declined then the client will be disconnected and OnClientDisconnected will be called. Call the cef_server_t::SendWebSocketMessage function after receiving the OnWebSocketConnected callback to respond with WebSocket messages.
-	OnWebSocketRequest(server Server, connectionID int32, clientAddress string, request Request, callback Callback)
-	// OnWebSocketConnected Called after the client has accepted the WebSocket connection for |server| and |connection_id| via the OnWebSocketRequest callback. See OnWebSocketRequest documentation for intended usage.
-	OnWebSocketConnected(server Server, connectionID int32)
-	// OnWebSocketMessage Called when |server| receives an WebSocket message. |connection_id| uniquely identifies the connection, |data| is the message content and |data_size| is the size of |data| in bytes. Do not keep a reference to |data| outside of this function. See OnWebSocketRequest documentation for intended usage.
-	OnWebSocketMessage(server Server, connectionID int32, data unsafe.Pointer, dataSize int)
-}
+type ServerHandler = in.ServerHandler
 
 // serverHandlerWrapper wraps a user-provided ServerHandler implementation together
 // with the raw CEF struct pointer allocated by NewServerHandler.  It satisfies the

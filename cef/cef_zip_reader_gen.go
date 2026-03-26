@@ -7,35 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ZipReader Structure that supports the reading of zip archives via the zlib unzip API. The functions of this structure should only be called on the thread that creates the object.
-type ZipReader interface {
-	// MoveToFirstFile Moves the cursor to the first file in the archive. Returns true (1) if the cursor position was set successfully.
-	MoveToFirstFile() int32
-	// MoveToNextFile Moves the cursor to the next file in the archive. Returns true (1) if the cursor position was set successfully.
-	MoveToNextFile() int32
-	// MoveToFile Moves the cursor to the specified file in the archive. If |caseSensitive| is true (1) then the search will be case sensitive. Returns true (1) if the cursor position was set successfully.
-	MoveToFile(filename string, casesensitive int32) int32
-	// Close Closes the archive. This should be called directly to ensure that cleanup occurs on the correct thread.
-	Close() int32
-	// GetFileName Returns the name of the file.
-	GetFileName() string
-	// GetFileSize Returns the uncompressed size of the file.
-	GetFileSize() int64
-	// GetFileLastModified Returns the last modified timestamp for the file.
-	GetFileLastModified() uintptr
-	// OpenFile Opens the file for reading of uncompressed data. A read password may optionally be specified.
-	OpenFile(password string) int32
-	// CloseFile Closes the file.
-	CloseFile() int32
-	// ReadFile Read uncompressed file contents into the specified buffer. Returns < 0 if an error occurred, 0 if at the end of file, or the number of bytes read.
-	ReadFile(buffer unsafe.Pointer, buffersize int) int32
-	// Tell Returns the current offset in the uncompressed file contents.
-	Tell() int64
-	// Eof Returns true (1) if at end of the file contents.
-	Eof() int32
-}
+type ZipReader = in.ZipReader
 
 type zipReaderImpl struct {
 	rawPtr *capi.CEFZipReaderT

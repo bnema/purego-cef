@@ -7,123 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MenuModel Supports creation and modification of menus. See cef_menu_id_t for the command ids that have default implementations. All user-defined command ids should be between MENU_ID_USER_FIRST and MENU_ID_USER_LAST. The functions of this structure can only be accessed on the browser process the UI thread.
-type MenuModel interface {
-	// IsSubMenu Returns true (1) if this menu is a submenu.
-	IsSubMenu() bool
-	// Clear Clears the menu. Returns true (1) on success.
-	Clear() int32
-	// GetCount Returns the number of items in this menu.
-	GetCount() int
-	// AddSeparator Add a separator to the menu. Returns true (1) on success.
-	AddSeparator() int32
-	// AddItem Add an item to the menu. Returns true (1) on success.
-	AddItem(commandID int32, label string) int32
-	// AddCheckItem Add a check item to the menu. Returns true (1) on success.
-	AddCheckItem(commandID int32, label string) int32
-	// AddRadioItem Add a radio item to the menu. Only a single item with the specified |group_id| can be checked at a time. Returns true (1) on success.
-	AddRadioItem(commandID int32, label string, groupID int32) int32
-	// AddSubMenu Add a sub-menu to the menu. The new sub-menu is returned.
-	AddSubMenu(commandID int32, label string) MenuModel
-	// InsertSeparatorAt Insert a separator in the menu at the specified |index|. Returns true (1) on success.
-	InsertSeparatorAt(index int) int32
-	// InsertItemAt Insert an item in the menu at the specified |index|. Returns true (1) on success.
-	InsertItemAt(index int, commandID int32, label string) int32
-	// InsertCheckItemAt Insert a check item in the menu at the specified |index|. Returns true (1) on success.
-	InsertCheckItemAt(index int, commandID int32, label string) int32
-	// InsertRadioItemAt Insert a radio item in the menu at the specified |index|. Only a single item with the specified |group_id| can be checked at a time. Returns true (1) on success.
-	InsertRadioItemAt(index int, commandID int32, label string, groupID int32) int32
-	// InsertSubMenuAt Insert a sub-menu in the menu at the specified |index|. The new sub-menu is returned.
-	InsertSubMenuAt(index int, commandID int32, label string) MenuModel
-	// Remove Removes the item with the specified |command_id|. Returns true (1) on success.
-	Remove(commandID int32) int32
-	// RemoveAt Removes the item at the specified |index|. Returns true (1) on success.
-	RemoveAt(index int) int32
-	// GetIndexOf Returns the index associated with the specified |command_id| or -1 if not found due to the command id not existing in the menu.
-	GetIndexOf(commandID int32) int32
-	// GetCommandIDAt Returns the command id at the specified |index| or -1 if not found due to invalid range or the index being a separator.
-	GetCommandIDAt(index int) int32
-	// SetCommandIDAt Sets the command id at the specified |index|. Returns true (1) on success.
-	SetCommandIDAt(index int, commandID int32) int32
-	// GetLabel Returns the label for the specified |command_id| or NULL if not found.
-	GetLabel(commandID int32) string
-	// GetLabelAt Returns the label at the specified |index| or NULL if not found due to invalid range or the index being a separator.
-	GetLabelAt(index int) string
-	// SetLabel Sets the label for the specified |command_id|. Returns true (1) on success.
-	SetLabel(commandID int32, label string) int32
-	// SetLabelAt Set the label at the specified |index|. Returns true (1) on success.
-	SetLabelAt(index int, label string) int32
-	// GetType Returns the item type for the specified |command_id|.
-	GetType(commandID int32) MenuItemType
-	// GetTypeAt Returns the item type at the specified |index|.
-	GetTypeAt(index int) MenuItemType
-	// GetGroupID Returns the group id for the specified |command_id| or -1 if invalid.
-	GetGroupID(commandID int32) int32
-	// GetGroupIDAt Returns the group id at the specified |index| or -1 if invalid.
-	GetGroupIDAt(index int) int32
-	// SetGroupID Sets the group id for the specified |command_id|. Returns true (1) on success.
-	SetGroupID(commandID int32, groupID int32) int32
-	// SetGroupIDAt Sets the group id at the specified |index|. Returns true (1) on success.
-	SetGroupIDAt(index int, groupID int32) int32
-	// GetSubMenu Returns the submenu for the specified |command_id| or NULL if invalid.
-	GetSubMenu(commandID int32) MenuModel
-	// GetSubMenuAt Returns the submenu at the specified |index| or NULL if invalid.
-	GetSubMenuAt(index int) MenuModel
-	// IsVisible Returns true (1) if the specified |command_id| is visible.
-	IsVisible(commandID int32) bool
-	// IsVisibleAt Returns true (1) if the specified |index| is visible.
-	IsVisibleAt(index int) bool
-	// SetVisible Change the visibility of the specified |command_id|. Returns true (1) on success.
-	SetVisible(commandID int32, visible int32) int32
-	// SetVisibleAt Change the visibility at the specified |index|. Returns true (1) on success.
-	SetVisibleAt(index int, visible int32) int32
-	// IsEnabled Returns true (1) if the specified |command_id| is enabled.
-	IsEnabled(commandID int32) bool
-	// IsEnabledAt Returns true (1) if the specified |index| is enabled.
-	IsEnabledAt(index int) bool
-	// SetEnabled Change the enabled status of the specified |command_id|. Returns true (1) on success.
-	SetEnabled(commandID int32, enabled int32) int32
-	// SetEnabledAt Change the enabled status at the specified |index|. Returns true (1) on success.
-	SetEnabledAt(index int, enabled int32) int32
-	// IsChecked Returns true (1) if the specified |command_id| is checked. Only applies to check and radio items.
-	IsChecked(commandID int32) bool
-	// IsCheckedAt Returns true (1) if the specified |index| is checked. Only applies to check and radio items.
-	IsCheckedAt(index int) bool
-	// SetChecked Check the specified |command_id|. Only applies to check and radio items. Returns true (1) on success.
-	SetChecked(commandID int32, checked int32) int32
-	// SetCheckedAt Check the specified |index|. Only applies to check and radio items. Returns true (1) on success.
-	SetCheckedAt(index int, checked int32) int32
-	// HasAccelerator Returns true (1) if the specified |command_id| has a keyboard accelerator assigned.
-	HasAccelerator(commandID int32) bool
-	// HasAcceleratorAt Returns true (1) if the specified |index| has a keyboard accelerator assigned.
-	HasAcceleratorAt(index int) bool
-	// SetAccelerator Set the keyboard accelerator for the specified |command_id|. |key_code| can be any virtual key or character value. Returns true (1) on success.
-	SetAccelerator(commandID int32, keyCode int32, shiftPressed int32, ctrlPressed int32, altPressed int32) int32
-	// SetAcceleratorAt Set the keyboard accelerator at the specified |index|. |key_code| can be any virtual key or character value. Returns true (1) on success.
-	SetAcceleratorAt(index int, keyCode int32, shiftPressed int32, ctrlPressed int32, altPressed int32) int32
-	// RemoveAccelerator Remove the keyboard accelerator for the specified |command_id|. Returns true (1) on success.
-	RemoveAccelerator(commandID int32) int32
-	// RemoveAcceleratorAt Remove the keyboard accelerator at the specified |index|. Returns true (1) on success.
-	RemoveAcceleratorAt(index int) int32
-	// GetAccelerator Retrieves the keyboard accelerator for the specified |command_id|. Returns true (1) on success.
-	GetAccelerator(commandID int32, keyCode unsafe.Pointer, shiftPressed unsafe.Pointer, ctrlPressed unsafe.Pointer, altPressed unsafe.Pointer) int32
-	// GetAcceleratorAt Retrieves the keyboard accelerator for the specified |index|. Returns true (1) on success.
-	GetAcceleratorAt(index int, keyCode unsafe.Pointer, shiftPressed unsafe.Pointer, ctrlPressed unsafe.Pointer, altPressed unsafe.Pointer) int32
-	// SetColor Set the explicit color for |command_id| and |color_type| to |color|. Specify a |color| value of 0 to remove the explicit color. If no explicit color or default color is set for |color_type| then the system color will be used. Returns true (1) on success.
-	SetColor(commandID int32, colorType MenuColorType, color uintptr) int32
-	// SetColorAt Set the explicit color for |command_id| and |index| to |color|. Specify a |color| value of 0 to remove the explicit color. Specify an |index| value of -1 to set the default color for items that do not have an explicit color set. If no explicit color or default color is set for |color_type| then the system color will be used. Returns true (1) on success.
-	SetColorAt(index int32, colorType MenuColorType, color uintptr) int32
-	// GetColor Returns in |color| the color that was explicitly set for |command_id| and |color_type|. If a color was not set then 0 will be returned in |color|. Returns true (1) on success.
-	GetColor(commandID int32, colorType MenuColorType, color uintptr) int32
-	// GetColorAt Returns in |color| the color that was explicitly set for |command_id| and |color_type|. Specify an |index| value of -1 to return the default color in |color|. If a color was not set then 0 will be returned in |color|. Returns true (1) on success.
-	GetColorAt(index int32, colorType MenuColorType, color uintptr) int32
-	// SetFontList Sets the font list for the specified |command_id|. If |font_list| is NULL the system font will be used. Returns true (1) on success. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>", where: - FONT_FAMILY_LIST is a comma-separated list of font family names, - STYLES is an optional space-separated list of style names (case-   sensitive "Bold" and "Italic" are supported), and - SIZE is an integer font size in pixels with the suffix "px". Here are examples of valid font description strings: - "Arial, Helvetica, Bold Italic 14px" - "Arial, 14px"
-	SetFontList(commandID int32, fontList string) int32
-	// SetFontListAt Sets the font list for the specified |index|. Specify an |index| value of - 1 to set the default font. If |font_list| is NULL the system font will - FONT_FAMILY_LIST is a comma-separated list of font family names, - STYLES is an optional space-separated list of style names (case-   sensitive "Bold" and "Italic" are supported), and - SIZE is an integer font size in pixels with the suffix "px". Here are examples of valid font description strings: - "Arial, Helvetica, Bold Italic 14px" - "Arial, 14px"
-	SetFontListAt(index int32, fontList string) int32
-}
+type MenuModel = in.MenuModel
 
 type menuModelImpl struct {
 	rawPtr *capi.CEFMenuModelT

@@ -8,25 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MenuModelDelegate Implement this structure to handle menu model events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type MenuModelDelegate interface {
-	// ExecuteCommand Perform the action associated with the specified |command_id| and optional |event_flags|.
-	ExecuteCommand(menuModel MenuModel, commandID int32, eventFlags EventFlags)
-	// MouseOutsideMenu Called when the user moves the mouse outside the menu and over the owning window.
-	MouseOutsideMenu(menuModel MenuModel, screenPoint *Point)
-	// UnhandledOpenSubmenu Called on unhandled open submenu keyboard commands. |is_rtl| will be true (1) if the menu is displaying a right-to-left language.
-	UnhandledOpenSubmenu(menuModel MenuModel, isRtl int32)
-	// UnhandledCloseSubmenu Called on unhandled close submenu keyboard commands. |is_rtl| will be true (1) if the menu is displaying a right-to-left language.
-	UnhandledCloseSubmenu(menuModel MenuModel, isRtl int32)
-	// MenuWillShow The menu is about to show.
-	MenuWillShow(menuModel MenuModel)
-	// MenuClosed The menu has closed.
-	MenuClosed(menuModel MenuModel)
-	// FormatLabel Optionally modify a menu item label. Return true (1) if |label| was modified.
-	FormatLabel(menuModel MenuModel, label uintptr) int32
-}
+type MenuModelDelegate = in.MenuModelDelegate
 
 // menuModelDelegateWrapper wraps a user-provided MenuModelDelegate implementation together
 // with the raw CEF struct pointer allocated by NewMenuModelDelegate.  It satisfies the

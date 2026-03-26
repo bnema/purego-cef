@@ -9,21 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // CookieManager Structure used for managing cookies. The functions of this structure may be called on any thread unless otherwise indicated.
-type CookieManager interface {
-	// VisitAllCookies Visit all cookies on the UI thread. The returned cookies are ordered by longest path, then by earliest creation date. Returns false (0) if cookies cannot be accessed.
-	VisitAllCookies(visitor CookieVisitor) int32
-	// VisitURLCookies Visit a subset of cookies on the UI thread. The results are filtered by the given url scheme, host, domain and path. If |includeHttpOnly| is true (1) HTTP-only cookies will also be included in the results. The returned cookies are ordered by longest path, then by earliest creation date. Returns false (0) if cookies cannot be accessed.
-	VisitURLCookies(uRL string, includehttponly int32, visitor CookieVisitor) int32
-	// SetCookie Sets a cookie given a valid URL and explicit user-provided cookie attributes. This function expects each attribute to be well-formed. It will check for disallowed characters (e.g. the ';' character is disallowed within the cookie value attribute) and fail without setting the cookie if such characters are found. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the cookie has been set. Returns false (0) if an invalid URL is specified or if cookies cannot be accessed.
-	SetCookie(uRL string, cookie *Cookie, callback SetCookieCallback) int32
-	// DeleteCookies Delete all cookies that match the specified parameters. If both |url| and |cookie_name| values are specified all host and domain cookies matching both will be deleted. If only |url| is specified all host cookies (but not domain cookies) irrespective of path will be deleted. If |url| is NULL all cookies for all hosts and domains will be deleted. If |callback| is non- NULL it will be executed asnychronously on the UI thread after the cookies have been deleted. Returns false (0) if a non-NULL invalid URL is specified or if cookies cannot be accessed. Cookies can alternately be deleted using the Visit*Cookies() functions.
-	DeleteCookies(uRL string, cookieName string, callback DeleteCookiesCallback) int32
-	// FlushStore Flush the backing store (if any) to disk. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the flush is complete. Returns false (0) if cookies cannot be accessed.
-	FlushStore(callback CompletionCallback) int32
-}
+type CookieManager = in.CookieManager
 
 type cookieManagerImpl struct {
 	rawPtr *capi.CEFCookieManagerT
@@ -83,9 +74,7 @@ func wrapCookieManager(ptr unsafe.Pointer) CookieManager {
 }
 
 // CookieVisitor Structure to implement for visiting cookie values. The functions of this structure will always be called on the UI thread.
-type CookieVisitor interface {
-	Visit(cookie *Cookie, count int32, total int32, deletecookie unsafe.Pointer) int32
-}
+type CookieVisitor = in.CookieVisitor
 
 // cookieVisitorWrapper wraps a user-provided CookieVisitor implementation together
 // with the raw CEF struct pointer allocated by NewCookieVisitor.  It satisfies the
@@ -132,10 +121,7 @@ func wrapCookieVisitor(ptr unsafe.Pointer) CookieVisitor {
 }
 
 // SetCookieCallback Structure to implement to be notified of asynchronous completion via cef_cookie_manager_t::set_cookie().
-type SetCookieCallback interface {
-	// OnComplete Method that will be called upon completion. |success| will be true (1) if the cookie was set successfully.
-	OnComplete(success int32)
-}
+type SetCookieCallback = in.SetCookieCallback
 
 // setCookieCallbackWrapper wraps a user-provided SetCookieCallback implementation together
 // with the raw CEF struct pointer allocated by NewSetCookieCallback.  It satisfies the
@@ -179,10 +165,7 @@ func wrapSetCookieCallback(ptr unsafe.Pointer) SetCookieCallback {
 }
 
 // DeleteCookiesCallback Structure to implement to be notified of asynchronous completion via cef_cookie_manager_t::delete_cookies().
-type DeleteCookiesCallback interface {
-	// OnComplete Method that will be called upon completion. |num_deleted| will be the number of cookies that were deleted.
-	OnComplete(numDeleted int32)
-}
+type DeleteCookiesCallback = in.DeleteCookiesCallback
 
 // deleteCookiesCallbackWrapper wraps a user-provided DeleteCookiesCallback implementation together
 // with the raw CEF struct pointer allocated by NewDeleteCookiesCallback.  It satisfies the

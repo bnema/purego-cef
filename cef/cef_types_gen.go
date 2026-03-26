@@ -7,7 +7,7 @@ import (
 )
 
 // LogSeverity is a CEF enum type.
-type LogSeverity int32
+type LogSeverity = int32
 
 const (
 	LogSeverityLogseverityDefault LogSeverity = 0
@@ -21,7 +21,7 @@ const (
 )
 
 // LogItems is a CEF enum type.
-type LogItems int32
+type LogItems = int32
 
 const (
 	LogItemsLogItemsDefault       LogItems = 0
@@ -33,7 +33,7 @@ const (
 )
 
 // State is a CEF enum type.
-type State int32
+type State = int32
 
 const (
 	StateStateDefault  State = 0
@@ -42,7 +42,7 @@ const (
 )
 
 // ReturnValue is a CEF enum type.
-type ReturnValue int32
+type ReturnValue = int32
 
 const (
 	ReturnValueRvCancel        ReturnValue = 0
@@ -51,7 +51,7 @@ const (
 )
 
 // CookiePriority is a CEF enum type.
-type CookiePriority int32
+type CookiePriority = int32
 
 const (
 	CookiePriorityLow    CookiePriority = -1
@@ -60,7 +60,7 @@ const (
 )
 
 // CookieSameSite is a CEF enum type.
-type CookieSameSite int32
+type CookieSameSite = int32
 
 const (
 	CookieSameSiteUnspecified   CookieSameSite = 0
@@ -71,7 +71,7 @@ const (
 )
 
 // TerminationStatus is a CEF enum type.
-type TerminationStatus int32
+type TerminationStatus = int32
 
 const (
 	TerminationStatusTsAbnormalTermination TerminationStatus = 0
@@ -84,7 +84,7 @@ const (
 )
 
 // PathKey is a CEF enum type.
-type PathKey int32
+type PathKey = int32
 
 const (
 	PathKeyPkDirCurrent   PathKey = 0
@@ -100,7 +100,7 @@ const (
 )
 
 // StorageType is a CEF enum type.
-type StorageType int32
+type StorageType = int32
 
 const (
 	StorageTypeStLocalstorage   StorageType = 0
@@ -108,14 +108,14 @@ const (
 )
 
 // Errorcode is a CEF enum type.
-type Errorcode int32
+type Errorcode = int32
 
 const (
 	ErrorcodeErrNone Errorcode = 0
 )
 
 // CertStatus is a CEF enum type.
-type CertStatus int32
+type CertStatus = int32
 
 const (
 	CertStatusCertStatusNone                    CertStatus = 0
@@ -139,7 +139,7 @@ const (
 )
 
 // Resultcode is a CEF enum type.
-type Resultcode int32
+type Resultcode = int32
 
 const (
 	ResultcodeResultCodeNormalExit                              Resultcode = 0
@@ -177,7 +177,7 @@ const (
 )
 
 // WindowOpenDisposition is a CEF enum type.
-type WindowOpenDisposition int32
+type WindowOpenDisposition = int32
 
 const (
 	WindowOpenDispositionWodUnknown             WindowOpenDisposition = 0
@@ -196,7 +196,7 @@ const (
 )
 
 // DragOperationsMask is a CEF enum type.
-type DragOperationsMask uint32
+type DragOperationsMask = uint32
 
 const (
 	DragOperationsMaskDragOperationNone    DragOperationsMask = 0
@@ -210,7 +210,7 @@ const (
 )
 
 // TextInputMode is a CEF enum type.
-type TextInputMode int32
+type TextInputMode = int32
 
 const (
 	TextInputModeDefault   TextInputMode = 0
@@ -226,7 +226,7 @@ const (
 )
 
 // V8Propertyattribute is a CEF enum type.
-type V8Propertyattribute int32
+type V8Propertyattribute = int32
 
 const (
 	V8PropertyattributeV8PropertyAttributeNone       V8Propertyattribute = 0
@@ -236,7 +236,7 @@ const (
 )
 
 // PostdataelementType is a CEF enum type.
-type PostdataelementType int32
+type PostdataelementType = int32
 
 const (
 	PostdataelementTypePdeTypeEmpty     PostdataelementType = 0
@@ -247,7 +247,7 @@ const (
 )
 
 // ResourceType is a CEF enum type.
-type ResourceType int32
+type ResourceType = int32
 
 const (
 	ResourceTypeRtMainFrame                  ResourceType = 0
@@ -274,7 +274,7 @@ const (
 )
 
 // TransitionType is a CEF enum type.
-type TransitionType uint32
+type TransitionType = uint32
 
 const (
 	TransitionTypeTtLink               TransitionType = 0
@@ -304,7 +304,7 @@ const (
 )
 
 // UrlrequestFlags is a CEF enum type.
-type UrlrequestFlags int32
+type UrlrequestFlags = int32
 
 const (
 	UrlrequestFlagsUrFlagNone                   UrlrequestFlags = 0
@@ -319,7 +319,7 @@ const (
 )
 
 // UrlrequestStatus is a CEF enum type.
-type UrlrequestStatus int32
+type UrlrequestStatus = int32
 
 const (
 	UrlrequestStatusUrUnknown   UrlrequestStatus = 0
@@ -331,7 +331,7 @@ const (
 )
 
 // ProcessID is a CEF enum type.
-type ProcessID int32
+type ProcessID = int32
 
 const (
 	ProcessIDPidBrowser  ProcessID = 0
@@ -339,7 +339,7 @@ const (
 )
 
 // ThreadID is a CEF enum type.
-type ThreadID int32
+type ThreadID = int32
 
 const (
 	ThreadIDTidUi               ThreadID = 0
@@ -353,7 +353,7 @@ const (
 )
 
 // ThreadPriority is a CEF enum type.
-type ThreadPriority int32
+type ThreadPriority = int32
 
 const (
 	ThreadPriorityTpBackground    ThreadPriority = 0
@@ -364,7 +364,7 @@ const (
 )
 
 // MessageLoopType is a CEF enum type.
-type MessageLoopType int32
+type MessageLoopType = int32
 
 const (
 	MessageLoopTypeMlTypeDefault MessageLoopType = 0
@@ -374,7 +374,7 @@ const (
 )
 
 // ComInitMode is a CEF enum type.
-type ComInitMode int32
+type ComInitMode = int32
 
 const (
 	ComInitModeComInitModeNone ComInitMode = 0
@@ -383,7 +383,7 @@ const (
 )
 
 // ValueType is a CEF enum type.
-type ValueType int32
+type ValueType = int32
 
 const (
 	ValueTypeVtypeInvalid    ValueType = 0
@@ -399,7 +399,7 @@ const (
 )
 
 // JsdialogType is a CEF enum type.
-type JsdialogType int32
+type JsdialogType = int32
 
 const (
 	JsdialogTypeJsdialogtypeAlert     JsdialogType = 0
@@ -409,7 +409,7 @@ const (
 )
 
 // MenuID is a CEF enum type.
-type MenuID int32
+type MenuID = int32
 
 const (
 	MenuIDMenuIdBack                     MenuID = 100
@@ -443,7 +443,7 @@ const (
 )
 
 // MouseButtonType is a CEF enum type.
-type MouseButtonType int32
+type MouseButtonType = int32
 
 const (
 	MouseButtonTypeMbtLeft   MouseButtonType = 0
@@ -452,7 +452,7 @@ const (
 )
 
 // TouchEventType is a CEF enum type.
-type TouchEventType int32
+type TouchEventType = int32
 
 const (
 	TouchEventTypeTetReleased  TouchEventType = 0
@@ -462,7 +462,7 @@ const (
 )
 
 // PointerType is a CEF enum type.
-type PointerType int32
+type PointerType = int32
 
 const (
 	PointerTypeTouch   PointerType = 0
@@ -473,7 +473,7 @@ const (
 )
 
 // PaintElementType is a CEF enum type.
-type PaintElementType int32
+type PaintElementType = int32
 
 const (
 	PaintElementTypePetView  PaintElementType = 0
@@ -481,7 +481,7 @@ const (
 )
 
 // EventFlags is a CEF enum type.
-type EventFlags int32
+type EventFlags = int32
 
 const (
 	EventFlagsEventflagNone                    EventFlags = 0
@@ -504,7 +504,7 @@ const (
 )
 
 // MenuItemType is a CEF enum type.
-type MenuItemType int32
+type MenuItemType = int32
 
 const (
 	MenuItemTypeMenuitemtypeNone      MenuItemType = 0
@@ -516,7 +516,7 @@ const (
 )
 
 // ContextMenuTypeFlags is a CEF enum type.
-type ContextMenuTypeFlags int32
+type ContextMenuTypeFlags = int32
 
 const (
 	ContextMenuTypeFlagsCmTypeflagNone      ContextMenuTypeFlags = 0
@@ -529,7 +529,7 @@ const (
 )
 
 // ContextMenuMediaType is a CEF enum type.
-type ContextMenuMediaType int32
+type ContextMenuMediaType = int32
 
 const (
 	ContextMenuMediaTypeCmMediatypeNone      ContextMenuMediaType = 0
@@ -543,7 +543,7 @@ const (
 )
 
 // ContextMenuMediaStateFlags is a CEF enum type.
-type ContextMenuMediaStateFlags int32
+type ContextMenuMediaStateFlags = int32
 
 const (
 	ContextMenuMediaStateFlagsCmMediaflagNone                ContextMenuMediaStateFlags = 0
@@ -563,7 +563,7 @@ const (
 )
 
 // ContextMenuEditStateFlags is a CEF enum type.
-type ContextMenuEditStateFlags int32
+type ContextMenuEditStateFlags = int32
 
 const (
 	ContextMenuEditStateFlagsCmEditflagNone          ContextMenuEditStateFlags = 0
@@ -579,7 +579,7 @@ const (
 )
 
 // QuickMenuEditStateFlags is a CEF enum type.
-type QuickMenuEditStateFlags int32
+type QuickMenuEditStateFlags = int32
 
 const (
 	QuickMenuEditStateFlagsQmEditflagNone        QuickMenuEditStateFlags = 0
@@ -590,7 +590,7 @@ const (
 )
 
 // KeyEventType is a CEF enum type.
-type KeyEventType int32
+type KeyEventType = int32
 
 const (
 	KeyEventTypeKeyeventRawkeydown KeyEventType = 0
@@ -600,7 +600,7 @@ const (
 )
 
 // FocusSource is a CEF enum type.
-type FocusSource int32
+type FocusSource = int32
 
 const (
 	FocusSourceFocusSourceNavigation FocusSource = 0
@@ -609,7 +609,7 @@ const (
 )
 
 // NavigationType is a CEF enum type.
-type NavigationType int32
+type NavigationType = int32
 
 const (
 	NavigationTypeNavigationLinkClicked     NavigationType = 0
@@ -622,7 +622,7 @@ const (
 )
 
 // XmlEncodingType is a CEF enum type.
-type XmlEncodingType int32
+type XmlEncodingType = int32
 
 const (
 	XmlEncodingTypeXmlEncodingNone      XmlEncodingType = 0
@@ -634,7 +634,7 @@ const (
 )
 
 // XmlNodeType is a CEF enum type.
-type XmlNodeType int32
+type XmlNodeType = int32
 
 const (
 	XmlNodeTypeXmlNodeUnsupported           XmlNodeType = 0
@@ -652,7 +652,7 @@ const (
 )
 
 // DomDocumentType is a CEF enum type.
-type DomDocumentType int32
+type DomDocumentType = int32
 
 const (
 	DomDocumentTypeDomDocumentTypeUnknown   DomDocumentType = 0
@@ -663,7 +663,7 @@ const (
 )
 
 // DomEventCategory is a CEF enum type.
-type DomEventCategory int32
+type DomEventCategory = int32
 
 const (
 	DomEventCategoryDomEventCategoryUnknown                DomEventCategory = 0x0
@@ -686,7 +686,7 @@ const (
 )
 
 // DomEventPhase is a CEF enum type.
-type DomEventPhase int32
+type DomEventPhase = int32
 
 const (
 	DomEventPhaseDomEventPhaseUnknown   DomEventPhase = 0
@@ -697,7 +697,7 @@ const (
 )
 
 // DomNodeType is a CEF enum type.
-type DomNodeType int32
+type DomNodeType = int32
 
 const (
 	DomNodeTypeDomNodeTypeUnsupported            DomNodeType = 0
@@ -714,7 +714,7 @@ const (
 )
 
 // DomFormControlType is a CEF enum type.
-type DomFormControlType int32
+type DomFormControlType = int32
 
 const (
 	DomFormControlTypeDomFormControlTypeUnsupported        DomFormControlType = 0
@@ -753,7 +753,7 @@ const (
 )
 
 // FileDialogMode is a CEF enum type.
-type FileDialogMode int32
+type FileDialogMode = int32
 
 const (
 	FileDialogModeFileDialogOpen         FileDialogMode = 0
@@ -764,7 +764,7 @@ const (
 )
 
 // ColorModel is a CEF enum type.
-type ColorModel int32
+type ColorModel = int32
 
 const (
 	ColorModelColorModelUnknown                    ColorModel = 0
@@ -792,7 +792,7 @@ const (
 )
 
 // DuplexMode is a CEF enum type.
-type DuplexMode int32
+type DuplexMode = int32
 
 const (
 	DuplexModeDuplexModeUnknown   DuplexMode = -1
@@ -803,7 +803,7 @@ const (
 )
 
 // CursorType is a CEF enum type.
-type CursorType int32
+type CursorType = int32
 
 const (
 	CursorTypeCtPointer                  CursorType = 0
@@ -860,7 +860,7 @@ const (
 )
 
 // UriUnescapeRule is a CEF enum type.
-type UriUnescapeRule int32
+type UriUnescapeRule = int32
 
 const (
 	UriUnescapeRuleUuNone                                UriUnescapeRule = 0
@@ -872,7 +872,7 @@ const (
 )
 
 // JsonParserOptions is a CEF enum type.
-type JsonParserOptions int32
+type JsonParserOptions = int32
 
 const (
 	JsonParserOptionsJsonParserRfc                 JsonParserOptions = 0
@@ -880,7 +880,7 @@ const (
 )
 
 // JsonWriterOptions is a CEF enum type.
-type JsonWriterOptions int32
+type JsonWriterOptions = int32
 
 const (
 	JsonWriterOptionsJsonWriterDefault                    JsonWriterOptions = 0
@@ -890,7 +890,7 @@ const (
 )
 
 // PdfPrintMarginType is a CEF enum type.
-type PdfPrintMarginType int32
+type PdfPrintMarginType = int32
 
 const (
 	PdfPrintMarginTypePdfPrintMarginDefault PdfPrintMarginType = 0
@@ -899,7 +899,7 @@ const (
 )
 
 // ScaleFactor is a CEF enum type.
-type ScaleFactor int32
+type ScaleFactor = int32
 
 const (
 	ScaleFactorScaleFactorNone      ScaleFactor = 0
@@ -916,7 +916,7 @@ const (
 )
 
 // ReferrerPolicy is a CEF enum type.
-type ReferrerPolicy int32
+type ReferrerPolicy = int32
 
 const (
 	ReferrerPolicyReferrerPolicyClearReferrerOnTransitionFromSecureToInsecure    ReferrerPolicy = 0
@@ -932,7 +932,7 @@ const (
 )
 
 // ResponseFilterStatus is a CEF enum type.
-type ResponseFilterStatus int32
+type ResponseFilterStatus = int32
 
 const (
 	ResponseFilterStatusResponseFilterNeedMoreData ResponseFilterStatus = 0
@@ -941,7 +941,7 @@ const (
 )
 
 // AlphaType is a CEF enum type.
-type AlphaType int32
+type AlphaType = int32
 
 const (
 	AlphaTypeOpaque         AlphaType = 0
@@ -950,7 +950,7 @@ const (
 )
 
 // TextStyle is a CEF enum type.
-type TextStyle int32
+type TextStyle = int32
 
 const (
 	TextStyleBold           TextStyle = 0
@@ -962,7 +962,7 @@ const (
 )
 
 // AxisAlignment is a CEF enum type.
-type AxisAlignment int32
+type AxisAlignment = int32
 
 const (
 	AxisAlignmentStart     AxisAlignment = 0
@@ -973,7 +973,7 @@ const (
 )
 
 // ButtonState is a CEF enum type.
-type ButtonState int32
+type ButtonState = int32
 
 const (
 	ButtonStateNormal    ButtonState = 0
@@ -984,7 +984,7 @@ const (
 )
 
 // HorizontalAlignment is a CEF enum type.
-type HorizontalAlignment int32
+type HorizontalAlignment = int32
 
 const (
 	HorizontalAlignmentLeft   HorizontalAlignment = 0
@@ -993,7 +993,7 @@ const (
 )
 
 // MenuAnchorPosition is a CEF enum type.
-type MenuAnchorPosition int32
+type MenuAnchorPosition = int32
 
 const (
 	MenuAnchorPositionMenuAnchorTopleft      MenuAnchorPosition = 0
@@ -1003,7 +1003,7 @@ const (
 )
 
 // MenuColorType is a CEF enum type.
-type MenuColorType int32
+type MenuColorType = int32
 
 const (
 	MenuColorTypeMenuColorText                   MenuColorType = 0
@@ -1016,7 +1016,7 @@ const (
 )
 
 // SslVersion is a CEF enum type.
-type SslVersion int32
+type SslVersion = int32
 
 const (
 	SslVersionSslConnectionVersionUnknown   SslVersion = 0
@@ -1031,7 +1031,7 @@ const (
 )
 
 // SslContentStatus is a CEF enum type.
-type SslContentStatus int32
+type SslContentStatus = int32
 
 const (
 	SslContentStatusSslContentNormalContent            SslContentStatus = 0
@@ -1040,7 +1040,7 @@ const (
 )
 
 // SchemeOptions is a CEF enum type.
-type SchemeOptions int32
+type SchemeOptions = int32
 
 const (
 	SchemeOptionsSchemeOptionNone            SchemeOptions = 0
@@ -1054,7 +1054,7 @@ const (
 )
 
 // CompositionUnderlineStyle is a CEF enum type.
-type CompositionUnderlineStyle int32
+type CompositionUnderlineStyle = int32
 
 const (
 	CompositionUnderlineStyleCusSolid     CompositionUnderlineStyle = 0
@@ -1065,7 +1065,7 @@ const (
 )
 
 // ChannelLayout is a CEF enum type.
-type ChannelLayout int32
+type ChannelLayout = int32
 
 const (
 	ChannelLayoutNone                 ChannelLayout = 0
@@ -1108,7 +1108,7 @@ const (
 )
 
 // MediaRouteCreateResult is a CEF enum type.
-type MediaRouteCreateResult int32
+type MediaRouteCreateResult = int32
 
 const (
 	MediaRouteCreateResultMrcrUnknownError                   MediaRouteCreateResult = 0
@@ -1130,7 +1130,7 @@ const (
 )
 
 // MediaRouteConnectionState is a CEF enum type.
-type MediaRouteConnectionState int32
+type MediaRouteConnectionState = int32
 
 const (
 	MediaRouteConnectionStateMrcsUnknown    MediaRouteConnectionState = -1
@@ -1142,7 +1142,7 @@ const (
 )
 
 // MediaSinkIconType is a CEF enum type.
-type MediaSinkIconType int32
+type MediaSinkIconType = int32
 
 const (
 	MediaSinkIconTypeMsitCast           MediaSinkIconType = 0
@@ -1157,7 +1157,7 @@ const (
 )
 
 // TextFieldCommands is a CEF enum type.
-type TextFieldCommands int32
+type TextFieldCommands = int32
 
 const (
 	TextFieldCommandsTfcUnknown    TextFieldCommands = 0
@@ -1172,7 +1172,7 @@ const (
 )
 
 // ChromeToolbarType is a CEF enum type.
-type ChromeToolbarType int32
+type ChromeToolbarType = int32
 
 const (
 	ChromeToolbarTypeCttUnknown   ChromeToolbarType = 0
@@ -1183,7 +1183,7 @@ const (
 )
 
 // ChromePageActionIconType is a CEF enum type.
-type ChromePageActionIconType int32
+type ChromePageActionIconType = int32
 
 const (
 	ChromePageActionIconTypeCpaitBookmarkStar              ChromePageActionIconType = 0
@@ -1229,7 +1229,7 @@ const (
 )
 
 // ChromeToolbarButtonType is a CEF enum type.
-type ChromeToolbarButtonType int32
+type ChromeToolbarButtonType = int32
 
 const (
 	ChromeToolbarButtonTypeCtbtCastDeprecated          ChromeToolbarButtonType = 0
@@ -1248,7 +1248,7 @@ const (
 )
 
 // DockingMode is a CEF enum type.
-type DockingMode int32
+type DockingMode = int32
 
 const (
 	DockingModeTopLeft     DockingMode = 0
@@ -1260,7 +1260,7 @@ const (
 )
 
 // ShowState is a CEF enum type.
-type ShowState int32
+type ShowState = int32
 
 const (
 	ShowStateNormal     ShowState = 0
@@ -1272,7 +1272,7 @@ const (
 )
 
 // TouchHandleStateFlags is a CEF enum type.
-type TouchHandleStateFlags int32
+type TouchHandleStateFlags = int32
 
 const (
 	TouchHandleStateFlagsThsFlagNone        TouchHandleStateFlags = 0
@@ -1283,7 +1283,7 @@ const (
 )
 
 // MediaAccessPermissionTypes is a CEF enum type.
-type MediaAccessPermissionTypes int32
+type MediaAccessPermissionTypes = int32
 
 const (
 	MediaAccessPermissionTypesMediaPermissionNone                MediaAccessPermissionTypes = 0
@@ -1294,7 +1294,7 @@ const (
 )
 
 // PermissionRequestTypes is a CEF enum type.
-type PermissionRequestTypes int32
+type PermissionRequestTypes = int32
 
 const (
 	PermissionRequestTypesPermissionTypeNone                     PermissionRequestTypes = 0
@@ -1329,7 +1329,7 @@ const (
 )
 
 // PermissionRequestResult is a CEF enum type.
-type PermissionRequestResult int32
+type PermissionRequestResult = int32
 
 const (
 	PermissionRequestResultPermissionResultAccept    PermissionRequestResult = 0
@@ -1340,7 +1340,7 @@ const (
 )
 
 // TestCertType is a CEF enum type.
-type TestCertType int32
+type TestCertType = int32
 
 const (
 	TestCertTypeTestCertOkIp      TestCertType = 0
@@ -1350,7 +1350,7 @@ const (
 )
 
 // PreferencesType is a CEF enum type.
-type PreferencesType int32
+type PreferencesType = int32
 
 const (
 	PreferencesTypeGlobal         PreferencesType = 0
@@ -1359,7 +1359,7 @@ const (
 )
 
 // DownloadInterruptReason is a CEF enum type.
-type DownloadInterruptReason int32
+type DownloadInterruptReason = int32
 
 const (
 	DownloadInterruptReasonNone                        DownloadInterruptReason = 0
@@ -1395,7 +1395,7 @@ const (
 )
 
 // GestureCommand is a CEF enum type.
-type GestureCommand int32
+type GestureCommand = int32
 
 const (
 	GestureCommandBack    GestureCommand = 0
@@ -1403,7 +1403,7 @@ const (
 )
 
 // ZoomCommand is a CEF enum type.
-type ZoomCommand int32
+type ZoomCommand = int32
 
 const (
 	ZoomCommandOut   ZoomCommand = 0
@@ -1412,7 +1412,7 @@ const (
 )
 
 // ColorVariant is a CEF enum type.
-type ColorVariant int32
+type ColorVariant = int32
 
 const (
 	ColorVariantSystem     ColorVariant = 0
@@ -1426,7 +1426,7 @@ const (
 )
 
 // TaskType is a CEF enum type.
-type TaskType int32
+type TaskType = int32
 
 const (
 	TaskTypeUnknown          TaskType = 0

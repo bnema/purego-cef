@@ -7,22 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ProcessMessage Structure representing a message. Can be used on any process and thread.
-type ProcessMessage interface {
-	// IsValid Returns true (1) if this object is valid. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// IsReadOnly Returns true (1) if the values of this object are read-only. Some APIs may expose read-only objects.
-	IsReadOnly() bool
-	Copy() ProcessMessage
-	// GetName Returns the message name.
-	GetName() string
-	// GetArgumentList Returns the list of arguments. Returns nullptr when message contains a shared memory region.
-	GetArgumentList() ListValue
-	// GetSharedMemoryRegion Returns the shared memory region. Returns nullptr when message contains an argument list.
-	GetSharedMemoryRegion() SharedMemoryRegion
-}
+type ProcessMessage = in.ProcessMessage
 
 type processMessageImpl struct {
 	rawPtr *capi.CEFProcessMessageT

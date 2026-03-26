@@ -9,51 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Value Structure that wraps other data value types. Complex types (binary, dictionary and list) will be referenced but not owned by this object. Can be used on any process and thread.
-type Value interface {
-	// IsValid Returns true (1) if the underlying data is valid. This will always be true (1) for simple types. For complex types (binary, dictionary and list) the underlying data may become invalid if owned by another object (e.g. list or dictionary) and that other object is then modified or destroyed. This value object can be re-used by calling Set*() even if the underlying data is invalid.
-	IsValid() bool
-	// IsOwned Returns true (1) if the underlying data is owned by another object.
-	IsOwned() bool
-	// IsReadOnly Returns true (1) if the underlying data is read-only. Some APIs may expose read-only objects.
-	IsReadOnly() bool
-	// IsSame Returns true (1) if this object and |that| object have the same underlying data. If true (1) modifications to this object will also affect |that| object and vice-versa.
-	IsSame(that Value) bool
-	// IsEqual Returns true (1) if this object and |that| object have an equivalent underlying value but are not necessarily the same object.
-	IsEqual(that Value) bool
-	Copy() Value
-	// GetType Returns the underlying value type.
-	GetType() ValueType
-	// GetBool Returns the underlying value as type bool.
-	GetBool() int32
-	// GetInt Returns the underlying value as type int.
-	GetInt() int32
-	// GetDouble Returns the underlying value as type double.
-	GetDouble() float64
-	// GetString Returns the underlying value as type string.
-	GetString() string
-	// GetBinary Returns the underlying value as type binary. The returned reference may become invalid if the value is owned by another object or if ownership is transferred to another object in the future. To maintain a reference to the value after assigning ownership to a dictionary or list pass this object to the set_value() function instead of passing the returned reference to set_binary().
-	GetBinary() BinaryValue
-	// GetDictionary Returns the underlying value as type dictionary. The returned reference may become invalid if the value is owned by another object or if ownership is transferred to another object in the future. To maintain a reference to the value after assigning ownership to a dictionary or list pass this object to the set_value() function instead of passing the returned reference to set_dictionary().
-	GetDictionary() DictionaryValue
-	// GetList Returns the underlying value as type list. The returned reference may become invalid if the value is owned by another object or if ownership is transferred to another object in the future. To maintain a reference to the value after assigning ownership to a dictionary or list pass this object to the set_value() function instead of passing the returned reference to set_list().
-	GetList() ListValue
-	// SetNull Sets the underlying value as type null. Returns true (1) if the value was set successfully.
-	SetNull() int32
-	// SetBool Sets the underlying value as type bool. Returns true (1) if the value was set successfully.
-	SetBool(value int32) int32
-	// SetInt Sets the underlying value as type int. Returns true (1) if the value was set successfully.
-	SetInt(value int32) int32
-	// SetDouble Sets the underlying value as type double. Returns true (1) if the value was set successfully.
-	SetDouble(value float64) int32
-	// SetString Sets the underlying value as type string. Returns true (1) if the value was set successfully.
-	SetString(value string) int32
-	SetBinary(value BinaryValue) int32
-	SetDictionary(value DictionaryValue) int32
-	SetList(value ListValue) int32
-}
+type Value = in.Value
 
 type valueImpl struct {
 	rawPtr *capi.CEFValueT
@@ -179,23 +140,7 @@ func wrapValue(ptr unsafe.Pointer) Value {
 }
 
 // BinaryValue Structure representing a binary value. Can be used on any process and thread.
-type BinaryValue interface {
-	// IsValid Returns true (1) if this object is valid. This object may become invalid if the underlying data is owned by another object (e.g. list or dictionary) and that other object is then modified or destroyed. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// IsOwned Returns true (1) if this object is currently owned by another object.
-	IsOwned() bool
-	// IsSame Returns true (1) if this object and |that| object have the same underlying data.
-	IsSame(that BinaryValue) bool
-	// IsEqual Returns true (1) if this object and |that| object have an equivalent underlying value but are not necessarily the same object.
-	IsEqual(that BinaryValue) bool
-	Copy() BinaryValue
-	// GetRawData Returns a pointer to the beginning of the memory block. The returned pointer is valid as long as the cef_binary_value_t is alive.
-	GetRawData() unsafe.Pointer
-	// GetSize Returns the data size.
-	GetSize() int
-	// GetData Read up to |buffer_size| number of bytes into |buffer|. Reading begins at the specified byte |data_offset|. Returns the number of bytes read.
-	GetData(buffer unsafe.Pointer, bufferSize int, dataOffset int) int
-}
+type BinaryValue = in.BinaryValue
 
 type binaryValueImpl struct {
 	rawPtr *capi.CEFBinaryValueT
@@ -259,64 +204,7 @@ func wrapBinaryValue(ptr unsafe.Pointer) BinaryValue {
 }
 
 // DictionaryValue Structure representing a dictionary value. Can be used on any process and thread.
-type DictionaryValue interface {
-	// IsValid Returns true (1) if this object is valid. This object may become invalid if the underlying data is owned by another object (e.g. list or dictionary) and that other object is then modified or destroyed. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// IsOwned Returns true (1) if this object is currently owned by another object.
-	IsOwned() bool
-	// IsReadOnly Returns true (1) if the values of this object are read-only. Some APIs may expose read-only objects.
-	IsReadOnly() bool
-	// IsSame Returns true (1) if this object and |that| object have the same underlying data. If true (1) modifications to this object will also affect |that| object and vice-versa.
-	IsSame(that DictionaryValue) bool
-	// IsEqual Returns true (1) if this object and |that| object have an equivalent underlying value but are not necessarily the same object.
-	IsEqual(that DictionaryValue) bool
-	Copy(excludeEmptyChildren int32) DictionaryValue
-	// GetSize Returns the number of values.
-	GetSize() int
-	// Clear Removes all values. Returns true (1) on success.
-	Clear() int32
-	// HasKey Returns true (1) if the current dictionary has a value for the given key.
-	HasKey(key string) bool
-	// GetKeys Reads all keys for this dictionary into the specified vector.
-	GetKeys(keys uintptr) int32
-	Remove(key string) int32
-	// GetType Returns the value type for the specified key.
-	GetType(key string) ValueType
-	// GetValue Returns the value at the specified key. For simple types the returned value will copy existing data and modifications to the value will not modify this object. For complex types (binary, dictionary and list) the returned value will reference existing data and modifications to the value will modify this object.
-	GetValue(key string) Value
-	// GetBool Returns the value at the specified key as type bool.
-	GetBool(key string) int32
-	// GetInt Returns the value at the specified key as type int.
-	GetInt(key string) int32
-	// GetDouble Returns the value at the specified key as type double.
-	GetDouble(key string) float64
-	// GetString Returns the value at the specified key as type string.
-	GetString(key string) string
-	// GetBinary Returns the value at the specified key as type binary. The returned value will reference existing data.
-	GetBinary(key string) BinaryValue
-	// GetDictionary Returns the value at the specified key as type dictionary. The returned value will reference existing data and modifications to the value will modify this object.
-	GetDictionary(key string) DictionaryValue
-	// GetList Returns the value at the specified key as type list. The returned value will reference existing data and modifications to the value will modify this object.
-	GetList(key string) ListValue
-	// SetValue Sets the value at the specified key. Returns true (1) if the value was set successfully. If |value| represents simple data then the underlying data will be copied and modifications to |value| will not modify this object. If |value| represents complex data (binary, dictionary or list) then the underlying data will be referenced and modifications to |value| will modify this object.
-	SetValue(key string, value Value) int32
-	// SetNull Sets the value at the specified key as type null. Returns true (1) if the value was set successfully.
-	SetNull(key string) int32
-	// SetBool Sets the value at the specified key as type bool. Returns true (1) if the value was set successfully.
-	SetBool(key string, value int32) int32
-	// SetInt Sets the value at the specified key as type int. Returns true (1) if the value was set successfully.
-	SetInt(key string, value int32) int32
-	// SetDouble Sets the value at the specified key as type double. Returns true (1) if the value was set successfully.
-	SetDouble(key string, value float64) int32
-	// SetString Sets the value at the specified key as type string. Returns true (1) if the value was set successfully.
-	SetString(key string, value string) int32
-	// SetBinary Sets the value at the specified key as type binary. Returns true (1) if the value was set successfully. If |value| is currently owned by another object then the value will be copied and the |value| reference will not change. Otherwise, ownership will be transferred to this object and the |value| reference will be invalidated.
-	SetBinary(key string, value BinaryValue) int32
-	// SetDictionary Sets the value at the specified key as type dict. Returns true (1) if the value was set successfully. If |value| is currently owned by another object then the value will be copied and the |value| reference will not change. Otherwise, ownership will be transferred to this object and the |value| reference will be invalidated.
-	SetDictionary(key string, value DictionaryValue) int32
-	// SetList Sets the value at the specified key as type list. Returns true (1) if the value was set successfully. If |value| is currently owned by another object then the value will be copied and the |value| reference will not change. Otherwise, ownership will be transferred to this object and the |value| reference will be invalidated.
-	SetList(key string, value ListValue) int32
-}
+type DictionaryValue = in.DictionaryValue
 
 type dictionaryValueImpl struct {
 	rawPtr *capi.CEFDictionaryValueT
@@ -510,63 +398,7 @@ func wrapDictionaryValue(ptr unsafe.Pointer) DictionaryValue {
 }
 
 // ListValue Structure representing a list value. Can be used on any process and thread.
-type ListValue interface {
-	// IsValid Returns true (1) if this object is valid. This object may become invalid if the underlying data is owned by another object (e.g. list or dictionary) and that other object is then modified or destroyed. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// IsOwned Returns true (1) if this object is currently owned by another object.
-	IsOwned() bool
-	// IsReadOnly Returns true (1) if the values of this object are read-only. Some APIs may expose read-only objects.
-	IsReadOnly() bool
-	// IsSame Returns true (1) if this object and |that| object have the same underlying data. If true (1) modifications to this object will also affect |that| object and vice-versa.
-	IsSame(that ListValue) bool
-	// IsEqual Returns true (1) if this object and |that| object have an equivalent underlying value but are not necessarily the same object.
-	IsEqual(that ListValue) bool
-	Copy() ListValue
-	// SetSize Sets the number of values. If the number of values is expanded all new value slots will default to type null. Returns true (1) on success.
-	SetSize(size int) int32
-	// GetSize Returns the number of values.
-	GetSize() int
-	// Clear Removes all values. Returns true (1) on success.
-	Clear() int32
-	// Remove Removes the value at the specified index.
-	Remove(index int) int32
-	// GetType Returns the value type at the specified index.
-	GetType(index int) ValueType
-	// GetValue Returns the value at the specified index. For simple types the returned value will copy existing data and modifications to the value will not modify this object. For complex types (binary, dictionary and list) the returned value will reference existing data and modifications to the value will modify this object.
-	GetValue(index int) Value
-	// GetBool Returns the value at the specified index as type bool.
-	GetBool(index int) int32
-	// GetInt Returns the value at the specified index as type int.
-	GetInt(index int) int32
-	// GetDouble Returns the value at the specified index as type double.
-	GetDouble(index int) float64
-	// GetString Returns the value at the specified index as type string.
-	GetString(index int) string
-	// GetBinary Returns the value at the specified index as type binary. The returned value will reference existing data.
-	GetBinary(index int) BinaryValue
-	// GetDictionary Returns the value at the specified index as type dictionary. The returned value will reference existing data and modifications to the value will modify this object.
-	GetDictionary(index int) DictionaryValue
-	// GetList Returns the value at the specified index as type list. The returned value will reference existing data and modifications to the value will modify this object.
-	GetList(index int) ListValue
-	// SetValue Sets the value at the specified index. Returns true (1) if the value was set successfully. If |value| represents simple data then the underlying data will be copied and modifications to |value| will not modify this object. If |value| represents complex data (binary, dictionary or list) then the underlying data will be referenced and modifications to |value| will modify this object.
-	SetValue(index int, value Value) int32
-	// SetNull Sets the value at the specified index as type null. Returns true (1) if the value was set successfully.
-	SetNull(index int) int32
-	// SetBool Sets the value at the specified index as type bool. Returns true (1) if the value was set successfully.
-	SetBool(index int, value int32) int32
-	// SetInt Sets the value at the specified index as type int. Returns true (1) if the value was set successfully.
-	SetInt(index int, value int32) int32
-	// SetDouble Sets the value at the specified index as type double. Returns true (1) if the value was set successfully.
-	SetDouble(index int, value float64) int32
-	// SetString Sets the value at the specified index as type string. Returns true (1) if the value was set successfully.
-	SetString(index int, value string) int32
-	// SetBinary Sets the value at the specified index as type binary. Returns true (1) if the value was set successfully. If |value| is currently owned by another object then the value will be copied and the |value| reference will not change. Otherwise, ownership will be transferred to this object and the |value| reference will be invalidated.
-	SetBinary(index int, value BinaryValue) int32
-	// SetDictionary Sets the value at the specified index as type dict. Returns true (1) if the value was set successfully. If |value| is currently owned by another object then the value will be copied and the |value| reference will not change. Otherwise, ownership will be transferred to this object and the |value| reference will be invalidated.
-	SetDictionary(index int, value DictionaryValue) int32
-	// SetList Sets the value at the specified index as type list. Returns true (1) if the value was set successfully. If |value| is currently owned by another object then the value will be copied and the |value| reference will not change. Otherwise, ownership will be transferred to this object and the |value| reference will be invalidated.
-	SetList(index int, value ListValue) int32
-}
+type ListValue = in.ListValue
 
 type listValueImpl struct {
 	rawPtr *capi.CEFListValueT

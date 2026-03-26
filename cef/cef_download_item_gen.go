@@ -7,51 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // DownloadItem Structure used to represent a download item.
-type DownloadItem interface {
-	// IsValid Returns true (1) if this object is valid. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// IsInProgress Returns true (1) if the download is in progress.
-	IsInProgress() bool
-	// IsComplete Returns true (1) if the download is complete.
-	IsComplete() bool
-	// IsCanceled Returns true (1) if the download has been canceled.
-	IsCanceled() bool
-	// IsInterrupted Returns true (1) if the download has been interrupted.
-	IsInterrupted() bool
-	// GetInterruptReason Returns the most recent interrupt reason.
-	GetInterruptReason() DownloadInterruptReason
-	// GetCurrentSpeed Returns a simple speed estimate in bytes/s.
-	GetCurrentSpeed() int64
-	// GetPercentComplete Returns the rough percent complete or -1 if the receive total size is unknown.
-	GetPercentComplete() int32
-	// GetTotalBytes Returns the total number of bytes.
-	GetTotalBytes() int64
-	// GetReceivedBytes Returns the number of received bytes.
-	GetReceivedBytes() int64
-	// GetStartTime Returns the time that the download started.
-	GetStartTime() uintptr
-	// GetEndTime Returns the time that the download ended.
-	GetEndTime() uintptr
-	// GetFullPath Returns the full path to the downloaded or downloading file.
-	GetFullPath() string
-	// GetID Returns the unique identifier for this download.
-	GetID() uint32
-	// GetURL Returns the URL.
-	GetURL() string
-	// GetOriginalURL Returns the original URL before any redirections.
-	GetOriginalURL() string
-	// GetSuggestedFileName Returns the suggested file name.
-	GetSuggestedFileName() string
-	// GetContentDisposition Returns the content disposition.
-	GetContentDisposition() string
-	// GetMimeType Returns the mime type.
-	GetMimeType() string
-	// IsPaused Returns true (1) if the download has been paused.
-	IsPaused() bool
-}
+type DownloadItem = in.DownloadItem
 
 type downloadItemImpl struct {
 	rawPtr *capi.CEFDownloadItemT

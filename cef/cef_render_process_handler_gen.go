@@ -8,29 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // RenderProcessHandler Structure used to implement render process callbacks. The functions of this structure will be called on the render process main thread (TID_RENDERER) unless otherwise indicated.
-type RenderProcessHandler interface {
-	// OnWebKitInitialized Called after WebKit has been initialized.
-	OnWebKitInitialized()
-	// OnBrowserCreated Called after a browser has been created. When browsing cross-origin a new browser will be created before the old browser with the same identifier is destroyed. |extra_info| is an optional read-only value originating from cef_browser_host_t::cef_browser_host_create_browser(), cef_browser_host_t::cef_browser_host_create_browser_sync(), cef_life_span_handler_t::on_before_popup() or cef_browser_view_t::cef_browser_view_create().
-	OnBrowserCreated(browser Browser, extraInfo DictionaryValue)
-	// OnBrowserDestroyed Called before a browser is destroyed.
-	OnBrowserDestroyed(browser Browser)
-	// GetLoadHandler Return the handler for browser load status events.
-	GetLoadHandler() LoadHandler
-	// OnContextCreated Called immediately after the V8 context for a frame has been created. To retrieve the JavaScript 'window' object use the cef_v8_context_t::get_global() function. V8 handles can only be accessed from the thread on which they are created. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
-	OnContextCreated(browser Browser, frame Frame, context V8Context)
-	// OnContextReleased Called immediately before the V8 context for a frame is released. No references to the context should be kept after this function is called.
-	OnContextReleased(browser Browser, frame Frame, context V8Context)
-	// OnUncaughtException Called for global uncaught exceptions in a frame. Execution of this callback is disabled by default. To enable set cef_settings_t.uncaught_exception_stack_size > 0.
-	OnUncaughtException(browser Browser, frame Frame, context V8Context, exception V8Exception, stacktrace V8StackTrace)
-	// OnFocusedNodeChanged Called when a new node in the the browser gets focus. The |node| value may be NULL if no specific node has gained focus. The node object passed to this function represents a snapshot of the DOM at the time this function is executed. DOM objects are only valid for the scope of this function. Do not keep references to or attempt to access any DOM objects outside the scope of this function.
-	OnFocusedNodeChanged(browser Browser, frame Frame, node Domnode)
-	// OnProcessMessageReceived Called when a new message is received from a different process. Return true (1) if the message was handled or false (0) otherwise. It is safe to keep a reference to |message| outside of this callback.
-	OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32
-}
+type RenderProcessHandler = in.RenderProcessHandler
 
 // renderProcessHandlerWrapper wraps a user-provided RenderProcessHandler implementation together
 // with the raw CEF struct pointer allocated by NewRenderProcessHandler.  It satisfies the

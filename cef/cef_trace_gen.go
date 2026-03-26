@@ -8,13 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // EndTracingCallback Implement this structure to receive notification when tracing has completed. The functions of this structure will be called on the browser process UI thread.
-type EndTracingCallback interface {
-	// OnEndTracingComplete Called after all processes have sent their trace data. |tracing_file| is the path at which tracing data was written. The client is responsible for deleting |tracing_file|.
-	OnEndTracingComplete(tracingFile string)
-}
+type EndTracingCallback = in.EndTracingCallback
 
 // endTracingCallbackWrapper wraps a user-provided EndTracingCallback implementation together
 // with the raw CEF struct pointer allocated by NewEndTracingCallback.  It satisfies the

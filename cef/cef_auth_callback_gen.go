@@ -7,15 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // AuthCallback Callback structure used for asynchronous continuation of authentication requests.
-type AuthCallback interface {
-	// Cont Continue the authentication request.
-	Cont(username string, password string)
-	// Cancel Cancel the authentication request.
-	Cancel()
-}
+type AuthCallback = in.AuthCallback
 
 type authCallbackImpl struct {
 	rawPtr *capi.CEFAuthCallbackT

@@ -8,33 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ViewDelegate Implement this structure to handle view events. All size and position values are in density independent pixels (DIP) unless otherwise indicated. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type ViewDelegate interface {
-	// GetPreferredSize Return the preferred size for |view|. The Layout will use this information to determine the display size.
-	GetPreferredSize(view View) uintptr
-	// GetMinimumSize Return the minimum size for |view|.
-	GetMinimumSize(view View) uintptr
-	// GetMaximumSize Return the maximum size for |view|.
-	GetMaximumSize(view View) uintptr
-	// GetHeightForWidth Return the height necessary to display |view| with the provided |width|. If not specified the result of get_preferred_size().height will be used by default. Override if |view|'s preferred height depends upon the width (for example, with Labels).
-	GetHeightForWidth(view View, width int32) int32
-	// OnParentViewChanged Called when the parent of |view| has changed. If |view| is being added to |parent| then |added| will be true (1). If |view| is being removed from |parent| then |added| will be false (0). If |view| is being reparented the remove notification will be sent before the add notification. Do not modify the view hierarchy in this callback.
-	OnParentViewChanged(view View, added int32, parent View)
-	// OnChildViewChanged Called when a child of |view| has changed. If |child| is being added to |view| then |added| will be true (1). If |child| is being removed from |view| then |added| will be false (0). If |child| is being reparented the remove notification will be sent to the old parent before the add notification is sent to the new parent. Do not modify the view hierarchy in this callback.
-	OnChildViewChanged(view View, added int32, child View)
-	// OnWindowChanged Called when |view| is added or removed from the cef_window_t.
-	OnWindowChanged(view View, added int32)
-	// OnLayoutChanged Called when the layout of |view| has changed.
-	OnLayoutChanged(view View, newBounds *Rect)
-	// OnFocus Called when |view| gains focus.
-	OnFocus(view View)
-	// OnBlur Called when |view| loses focus.
-	OnBlur(view View)
-	// OnThemeChanged Called when the theme for |view| has changed, after the new theme colors have already been applied. Views are notified via the component hierarchy in depth-first reverse order (children before parents). This will be called in the following cases: 1. When |view|, or a parent of |view|, is added to a Window. 2. When the native/OS or Chrome theme changes for the Window that contains    |view|. See CefWindowDelegate::OnThemeColorsChanged documentation. 3. When the client explicitly calls cef_window_t::ThemeChanged on the Window    that contains |view|. Optionally use this callback to override the new per-View theme colors by calling cef_view_t::SetBackgroundColor or the appropriate component- specific function. See cef_window_t::SetThemeColor documentation for how to customize additional Window theme colors.
-	OnThemeChanged(view View)
-}
+type ViewDelegate = in.ViewDelegate
 
 // viewDelegateWrapper wraps a user-provided ViewDelegate implementation together
 // with the raw CEF struct pointer allocated by NewViewDelegate.  It satisfies the

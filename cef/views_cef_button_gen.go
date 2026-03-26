@@ -7,23 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Button A View representing a button. Depending on the specific type, the button could be implemented by a native control or custom rendered. Methods must be called on the browser process UI thread unless otherwise indicated.
-type Button interface {
-	// AsLabelButton Returns this Button as a LabelButton or NULL if this is not a LabelButton.
-	AsLabelButton() LabelButton
-	// SetState Sets the current display state of the Button.
-	SetState(state ButtonState)
-	// GetState Returns the current display state of the Button.
-	GetState() ButtonState
-	// SetInkDropEnabled Sets the Button will use an ink drop effect for displaying state changes.
-	SetInkDropEnabled(enabled int32)
-	// SetTooltipText Sets the tooltip text that will be displayed when the user hovers the mouse cursor over the Button.
-	SetTooltipText(tooltipText string)
-	// SetAccessibleName Sets the accessible name that will be exposed to assistive technology (AT).
-	SetAccessibleName(name string)
-}
+type Button = in.Button
 
 type buttonImpl struct {
 	rawPtr *capi.CEFButtonT

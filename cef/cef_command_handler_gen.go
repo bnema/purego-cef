@@ -8,21 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // CommandHandler Implement this structure to handle events related to commands. The functions of this structure will be called on the UI thread.
-type CommandHandler interface {
-	// OnChromeCommand Called to execute a Chrome command triggered via menu selection or keyboard shortcut. Use the cef_id_for_command_id_name() function for version-safe mapping of command IDC names from cef_command_ids.h to version-specific numerical |command_id| values. |disposition| provides information about the intended command target. Return true (1) if the command was handled or false (0) for the default implementation. For context menu commands this will be called after cef_context_menu_handler_t::OnContextMenuCommand. Only used with Chrome style.
-	OnChromeCommand(browser Browser, commandID int32, disposition WindowOpenDisposition) int32
-	// IsChromeAppMenuItemVisible Called to check if a Chrome app menu item should be visible. Use the cef_id_for_command_id_name() function for version-safe mapping of command IDC names from cef_command_ids.h to version-specific numerical |command_id| values. Only called for menu items that would be visible by default. Only used with Chrome style.
-	IsChromeAppMenuItemVisible(browser Browser, commandID int32) bool
-	// IsChromeAppMenuItemEnabled Called to check if a Chrome app menu item should be enabled. Use the cef_id_for_command_id_name() function for version-safe mapping of command IDC names from cef_command_ids.h to version-specific numerical |command_id| values. Only called for menu items that would be enabled by default. Only used with Chrome style.
-	IsChromeAppMenuItemEnabled(browser Browser, commandID int32) bool
-	// IsChromePageActionIconVisible Called during browser creation to check if a Chrome page action icon should be visible. Only called for icons that would be visible by default. Only used with Chrome style.
-	IsChromePageActionIconVisible(iconType ChromePageActionIconType) bool
-	// IsChromeToolbarButtonVisible Called during browser creation to check if a Chrome toolbar button should be visible. Only called for buttons that would be visible by default. Only used with Chrome style.
-	IsChromeToolbarButtonVisible(buttonType ChromeToolbarButtonType) bool
-}
+type CommandHandler = in.CommandHandler
 
 // commandHandlerWrapper wraps a user-provided CommandHandler implementation together
 // with the raw CEF struct pointer allocated by NewCommandHandler.  It satisfies the

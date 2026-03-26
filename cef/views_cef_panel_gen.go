@@ -7,35 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Panel A Panel is a container in the views hierarchy that can contain other Views as children. Methods must be called on the browser process UI thread unless otherwise indicated.
-type Panel interface {
-	// AsWindow Returns this Panel as a Window or NULL if this is not a Window.
-	AsWindow() Window
-	// SetToFillLayout Set this Panel's Layout to FillLayout and return the FillLayout object.
-	SetToFillLayout() FillLayout
-	// SetToBoxLayout Set this Panel's Layout to BoxLayout and return the BoxLayout object.
-	SetToBoxLayout(settings *BoxLayoutSettings) BoxLayout
-	// GetLayout Get the Layout.
-	GetLayout() Layout
-	// Layout Set this Panel's Layout to FillLayout and return the FillLayout object.
-	Layout()
-	// AddChildView Add a child View.
-	AddChildView(view View)
-	// AddChildViewAt Add a child View at the specified |index|. If |index| matches the result of GetChildCount() then the View will be added at the end.
-	AddChildViewAt(view View, index int32)
-	// ReorderChildView Move the child View to the specified |index|. A negative value for |index| will move the View to the end.
-	ReorderChildView(view View, index int32)
-	// RemoveChildView Remove a child View. The View can then be added to another Panel.
-	RemoveChildView(view View)
-	// RemoveAllChildViews Remove all child Views. The removed Views will be deleted if the client holds no references to them.
-	RemoveAllChildViews()
-	// GetChildViewCount Returns the number of child Views.
-	GetChildViewCount() int
-	// GetChildViewAt Returns the child View at the specified |index|.
-	GetChildViewAt(index int32) View
-}
+type Panel = in.Panel
 
 type panelImpl struct {
 	rawPtr *capi.CEFPanelT

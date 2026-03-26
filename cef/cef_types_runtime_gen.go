@@ -5,7 +5,7 @@ package cef
 import ()
 
 // RuntimeStyle is a CEF enum type.
-type RuntimeStyle int32
+type RuntimeStyle = int32
 
 const (
 	RuntimeStyleDefault RuntimeStyle = 0

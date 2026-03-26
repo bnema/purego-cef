@@ -8,56 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // WindowDelegate Implement this structure to handle window events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type WindowDelegate interface {
-	// OnWindowCreated Called when |window| is created.
-	OnWindowCreated(window Window)
-	// OnWindowClosing Called when |window| is closing.
-	OnWindowClosing(window Window)
-	// OnWindowDestroyed Called when |window| is destroyed. Release all references to |window| and do not attempt to execute any functions on |window| after this callback returns.
-	OnWindowDestroyed(window Window)
-	// OnWindowActivationChanged Called when |window| is activated or deactivated.
-	OnWindowActivationChanged(window Window, active int32)
-	// OnWindowBoundsChanged Called when |window| bounds have changed. |new_bounds| will be in DIP screen coordinates.
-	OnWindowBoundsChanged(window Window, newBounds *Rect)
-	// OnWindowFullscreenTransition Called when |window| is transitioning to or from fullscreen mode. On MacOS the transition occurs asynchronously with |is_competed| set to false (0) when the transition starts and true (1) after the transition completes. On other platforms the transition occurs synchronously with |is_completed| set to true (1) after the transition completes. With Alloy style you must also implement cef_display_handler_t::OnFullscreenModeChange to handle fullscreen transitions initiated by browser content.
-	OnWindowFullscreenTransition(window Window, isCompleted int32)
-	// GetParentWindow Return the parent for |window| or NULL if the |window| does not have a parent. Windows with parents will not get a taskbar button. Set |is_menu| to true (1) if |window| will be displayed as a menu, in which case it will not be clipped to the parent window bounds. Set |can_activate_menu| to false (0) if |is_menu| is true (1) and |window| should not be activated (given keyboard focus) when displayed.
-	GetParentWindow(window Window, isMenu unsafe.Pointer, canActivateMenu unsafe.Pointer) Window
-	// IsWindowModalDialog Return true (1) if |window| should be created as a window modal dialog. Only called when a Window is returned via get_parent_window() with |is_menu| set to false (0). All controls in the parent Window will be disabled while |window| is visible. This functionality is not supported by all Linux window managers. Alternately, use cef_window_t::show_as_browser_modal_dialog() for a browser modal dialog that works on all platforms.
-	IsWindowModalDialog(window Window) bool
-	// GetInitialBounds Return the initial bounds for |window| in density independent pixel (DIP) coordinates. If this function returns an NULL CefRect then get_preferred_size() will be called to retrieve the size, and the window will be placed on the screen with origin (0,0). This function can be used in combination with cef_view_t::get_bounds_in_screen() to restore the previous window bounds.
-	GetInitialBounds(window Window) uintptr
-	// GetInitialShowState Return the initial show state for |window|.
-	GetInitialShowState(window Window) ShowState
-	// IsFrameless Return true (1) if |window| should be created without a frame or title bar. The window will be resizable if can_resize() returns true (1). Use cef_window_t::set_draggable_regions() to specify draggable regions.
-	IsFrameless(window Window) bool
-	// WithStandardWindowButtons Return true (1) if |window| should be created with standard window buttons like close, minimize and zoom. This function is only supported on macOS.
-	WithStandardWindowButtons(window Window) int32
-	// GetTitlebarHeight Return whether the titlebar height should be overridden, and sets the height of the titlebar in |titlebar_height|. On macOS, it can also be used to adjust the vertical position of the traffic light buttons in frameless windows. The buttons will be positioned halfway down the titlebar at a height of |titlebar_height| / 2.
-	GetTitlebarHeight(window Window, titlebarHeight unsafe.Pointer) int32
-	// AcceptsFirstMouse Return whether the view should accept the initial mouse-down event, allowing it to respond to click-through behavior. If STATE_ENABLED is returned, the view will be sent a mouseDown: message for an initial mouse- down event, activating the view with one click, instead of clicking first to make the window active and then clicking the view. This function is only supported on macOS. For more details, refer to the documentation of acceptsFirstMouse.
-	AcceptsFirstMouse(window Window) State
-	CanResize(window Window) bool
-	// CanMaximize Return true (1) if |window| can be maximized.
-	CanMaximize(window Window) bool
-	// CanMinimize Return true (1) if |window| can be minimized.
-	CanMinimize(window Window) bool
-	// CanClose Return true (1) if |window| can be closed. This will be called for user- initiated window close actions and when cef_window_t::close() is called.
-	CanClose(window Window) bool
-	// OnAccelerator Called when a keyboard accelerator registered with cef_window_t::SetAccelerator is triggered. Return true (1) if the accelerator was handled or false (0) otherwise.
-	OnAccelerator(window Window, commandID int32) int32
-	// OnKeyEvent Called after all other controls in the window have had a chance to handle the event. |event| contains information about the keyboard event. Return true (1) if the keyboard event was handled or false (0) otherwise.
-	OnKeyEvent(window Window, event *KeyEvent) int32
-	// OnThemeColorsChanged Called after the native/OS or Chrome theme for |window| has changed. |chrome_theme| will be true (1) if the notification is for a Chrome theme. Native/OS theme colors are configured globally and do not need to be customized for each Window individually. An example of a native/OS theme change that triggers this callback is when the user switches between dark and light mode during application lifespan. Native/OS theme changes can be disabled by passing the `--force-dark-mode` or `--force-light-mode` command-line flag. Chrome theme colors will be applied and this callback will be triggered if/when a BrowserView is added to the Window's component hierarchy. Chrome theme colors can be configured on a per-RequestContext basis using cef_request_context_t::SetChromeColorScheme or (Chrome style only) by visiting chrome://settings/manageProfile. Any theme changes using those mechanisms will also trigger this callback. Chrome theme colors will be persisted and restored from disk cache. This callback is not triggered on Window creation so clients that wish to customize the initial native/OS theme must call cef_window_t::SetThemeColor and cef_window_t::ThemeChanged before showing the first Window. Theme colors will be reset to standard values before this callback is called for the first affected Window. Call cef_window_t::SetThemeColor from inside this callback to override a standard color or add a custom color. cef_view_delegate_t::OnThemeChanged will be called after this callback for the complete |window| component hierarchy.
-	OnThemeColorsChanged(window Window, chromeTheme int32)
-	// GetWindowRuntimeStyle Optionally change the runtime style for this Window. See cef_runtime_style_t documentation for details.
-	GetWindowRuntimeStyle() RuntimeStyle
-	// GetLinuxWindowProperties Return Linux-specific window properties for correctly handling by window managers
-	GetLinuxWindowProperties(window Window, properties *LinuxWindowProperties) int32
-}
+type WindowDelegate = in.WindowDelegate
 
 // windowDelegateWrapper wraps a user-provided WindowDelegate implementation together
 // with the raw CEF struct pointer allocated by NewWindowDelegate.  It satisfies the

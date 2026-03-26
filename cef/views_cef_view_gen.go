@@ -7,114 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // View A View is a rectangle within the views View hierarchy. It is the base structure for all Views. All size and position values are in density independent pixels (DIP) unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
-type View interface {
-	// AsBrowserView Returns this View as a BrowserView or NULL if this is not a BrowserView.
-	AsBrowserView() BrowserView
-	// AsButton Returns this View as a Button or NULL if this is not a Button.
-	AsButton() Button
-	// AsPanel Returns this View as a Panel or NULL if this is not a Panel.
-	AsPanel() Panel
-	// AsScrollView Returns this View as a ScrollView or NULL if this is not a ScrollView.
-	AsScrollView() ScrollView
-	// AsTextfield Returns this View as a Textfield or NULL if this is not a Textfield.
-	AsTextfield() Textfield
-	// GetTypeString Returns the type of this View as a string. Used primarily for testing purposes.
-	GetTypeString() string
-	// ToString Returns a string representation of this View which includes the type and various type-specific identifying attributes. If |include_children| is true (1) any child Views will also be included. Used primarily for testing purposes.
-	ToString(includeChildren int32) string
-	// IsValid Returns true (1) if this View is valid.
-	IsValid() bool
-	// IsAttached Returns true (1) if this View is currently attached to another View. A View can only be attached to one View at a time.
-	IsAttached() bool
-	// IsSame Returns true (1) if this View is the same as |that| View.
-	IsSame(that View) bool
-	// GetDelegate Returns the delegate associated with this View, if any.
-	GetDelegate() ViewDelegate
-	// GetWindow Returns the top-level Window hosting this View, if any.
-	GetWindow() Window
-	// GetID Returns the ID for this View.
-	GetID() int32
-	// SetID Sets the ID for this View. ID should be unique within the subtree that you intend to search for it. 0 is the default ID for views.
-	SetID(iD int32)
-	// GetGroupID Returns the group id of this View, or -1 if not set.
-	GetGroupID() int32
-	// SetGroupID A group id is used to tag Views which are part of the same logical group. Focus can be moved between views with the same group using the arrow keys. The group id is immutable once it's set.
-	SetGroupID(groupID int32)
-	// GetParentView Returns the View that contains this View, if any.
-	GetParentView() View
-	// GetViewForID Recursively descends the view tree starting at this View, and returns the first child that it encounters with the given ID. Returns NULL if no matching child view is found.
-	GetViewForID(iD int32) View
-	// SetBounds Sets the bounds (size and position) of this View. |bounds| is in parent coordinates, or DIP screen coordinates if there is no parent.
-	SetBounds(bounds *Rect)
-	// GetBounds Returns the bounds (size and position) of this View in parent coordinates, or DIP screen coordinates if there is no parent.
-	GetBounds() uintptr
-	// GetBoundsInScreen Returns the bounds (size and position) of this View in DIP screen coordinates.
-	GetBoundsInScreen() uintptr
-	// SetSize Sets the size of this View without changing the position. |size| in parent coordinates, or DIP screen coordinates if there is no parent.
-	SetSize(size *Size)
-	// GetSize Returns the size of this View in parent coordinates, or DIP screen coordinates if there is no parent.
-	GetSize() uintptr
-	// SetPosition Sets the position of this View without changing the size. |position| is in parent coordinates, or DIP screen coordinates if there is no parent.
-	SetPosition(position *Point)
-	// GetPosition Returns the position of this View. Position is in parent coordinates, or DIP screen coordinates if there is no parent.
-	GetPosition() uintptr
-	// SetInsets Sets the insets for this View. |insets| is in parent coordinates, or DIP screen coordinates if there is no parent.
-	SetInsets(insets *Insets)
-	// GetInsets Returns the insets for this View in parent coordinates, or DIP screen coordinates if there is no parent.
-	GetInsets() uintptr
-	// GetPreferredSize Returns the size this View would like to be if enough space is available. Size is in parent coordinates, or DIP screen coordinates if there is no parent.
-	GetPreferredSize() uintptr
-	// SizeToPreferredSize Size this View to its preferred size. Size is in parent coordinates, or DIP screen coordinates if there is no parent.
-	SizeToPreferredSize()
-	// GetMinimumSize Returns the minimum size for this View. Size is in parent coordinates, or DIP screen coordinates if there is no parent.
-	GetMinimumSize() uintptr
-	// GetMaximumSize Returns the maximum size for this View. Size is in parent coordinates, or DIP screen coordinates if there is no parent.
-	GetMaximumSize() uintptr
-	// GetHeightForWidth Returns the height necessary to display this View with the provided width.
-	GetHeightForWidth(width int32) int32
-	// InvalidateLayout Indicate that this View and all parent Views require a re-layout. This ensures the next call to layout() will propagate to this View even if the bounds of parent Views do not change.
-	InvalidateLayout()
-	// SetVisible Sets whether this View is visible. Windows are hidden by default and other views are visible by default. This View and any parent views must be set as visible for this View to be drawn in a Window. If this View is set as hidden then it and any child views will not be drawn and, if any of those views currently have focus, then focus will also be cleared. Painting is scheduled as needed. If this View is a Window then calling this function is equivalent to calling the Window show() and hide() functions.
-	SetVisible(visible int32)
-	// IsVisible Returns whether this View is visible. A view may be visible but still not drawn in a Window if any parent views are hidden. If this View is a Window then a return value of true (1) indicates that this Window is currently visible to the user on-screen. If this View is not a Window then call is_drawn() to determine whether this View and all parent views are visible and will be drawn.
-	IsVisible() bool
-	IsDrawn() bool
-	// SetEnabled Set whether this View is enabled. A disabled View does not receive keyboard or mouse inputs. If |enabled| differs from the current value the View will be repainted. Also, clears focus if the focused View is disabled.
-	SetEnabled(enabled int32)
-	// IsEnabled Returns whether this View is enabled.
-	IsEnabled() bool
-	// SetFocusable Sets whether this View is capable of taking focus. It will clear focus if the focused View is set to be non-focusable. This is false (0) by default so that a View used as a container does not get the focus.
-	SetFocusable(focusable int32)
-	// IsFocusable Returns true (1) if this View is focusable, enabled and drawn.
-	IsFocusable() bool
-	// IsAccessibilityFocusable Return whether this View is focusable when the user requires full keyboard access, even though it may not be normally focusable.
-	IsAccessibilityFocusable() bool
-	// HasFocus Returns true (1) if this View has focus in the context of the containing Window. Check both this function and cef_window_t::IsActive to determine global keyboard focus.
-	HasFocus() bool
-	// RequestFocus Request focus for this View in the context of the containing Window. If this View is focusable it will become the focused View. Any focus changes while a Window is not active may be applied after that Window next becomes active.
-	RequestFocus()
-	// SetBackgroundColor Sets the background color for this View. The background color will be automatically reset when cef_view_delegate_t::OnThemeChanged is called.
-	SetBackgroundColor(color uintptr)
-	// GetBackgroundColor Returns the background color for this View. If the background color is unset then the current `GetThemeColor(CEF_ColorPrimaryBackground)` value will be returned. If this View belongs to an overlay (created with cef_window_t::AddOverlayView), and the background color is unset, then a value of transparent (0) will be returned.
-	GetBackgroundColor() uintptr
-	// GetThemeColor Returns the current theme color associated with |color_id|, or the placeholder color (red) if unset. See cef_color_ids.h for standard ID values. Standard colors can be overridden and custom colors can be added using cef_window_t::SetThemeColor.
-	GetThemeColor(colorID int32) uintptr
-	// ConvertPointToScreen Convert |point| from this View's coordinate system to DIP screen coordinates. This View must belong to a Window when calling this function. Returns true (1) if the conversion is successful or false (0) otherwise. Use cef_display_t::convert_point_to_pixels() after calling this function if further conversion to display-specific pixel coordinates is desired.
-	ConvertPointToScreen(point *Point) int32
-	// ConvertPointFromScreen Convert |point| to this View's coordinate system from DIP screen coordinates. This View must belong to a Window when calling this function. Returns true (1) if the conversion is successful or false (0) otherwise. Use cef_display_t::convert_point_from_pixels() before calling this function if conversion from display-specific pixel coordinates is necessary.
-	ConvertPointFromScreen(point *Point) int32
-	// ConvertPointToWindow Convert |point| from this View's coordinate system to that of the Window. This View must belong to a Window when calling this function. Returns true (1) if the conversion is successful or false (0) otherwise.
-	ConvertPointToWindow(point *Point) int32
-	// ConvertPointFromWindow Convert |point| to this View's coordinate system from that of the Window. This View must belong to a Window when calling this function. Returns true (1) if the conversion is successful or false (0) otherwise.
-	ConvertPointFromWindow(point *Point) int32
-	// ConvertPointToView Convert |point| from this View's coordinate system to that of |view|. |view| needs to be in the same Window but not necessarily the same view hierarchy. Returns true (1) if the conversion is successful or false (0) otherwise.
-	ConvertPointToView(view View, point *Point) int32
-	// ConvertPointFromView Convert |point| to this View's coordinate system from that |view|. |view| needs to be in the same Window but not necessarily the same view hierarchy. Returns true (1) if the conversion is successful or false (0) otherwise.
-	ConvertPointFromView(view View, point *Point) int32
-}
+type View = in.View
 
 type viewImpl struct {
 	rawPtr *capi.CEFViewT

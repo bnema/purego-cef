@@ -9,131 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // TranslatorTest Structure for testing all of the possible data transfer types.
-type TranslatorTest interface {
-	// GetVoid Return a void value.
-	GetVoid()
-	// GetBool Return a bool value.
-	GetBool() int32
-	// GetInt Return an int value.
-	GetInt() int32
-	// GetDouble Return a double value.
-	GetDouble() float64
-	// GetLong Return a long value.
-	GetLong() uintptr
-	// GetSizet Return a size_t value.
-	GetSizet() int
-	// SetVoid Set a void value.
-	SetVoid() int32
-	// SetBool Set a bool value.
-	SetBool(val int32) int32
-	// SetInt Set an int value.
-	SetInt(val int32) int32
-	// SetDouble Set a double value.
-	SetDouble(val float64) int32
-	// SetLong Set a long value.
-	SetLong(val uintptr) int32
-	// SetSizet Set a size_t value.
-	SetSizet(val int) int32
-	// SetIntList Set a int list value.
-	SetIntList(valcount int, val uintptr) int32
-	// GetIntListByRef Return an int list value by out-param.
-	GetIntListByRef(valcount *int, val unsafe.Pointer) int32
-	// GetIntListSize Return the number of points that will be output above.
-	GetIntListSize() int
-	// GetString Return a string value.
-	GetString() string
-	// SetString Set a string value.
-	SetString(val string) int32
-	// GetStringByRef Return a string value by out-param.
-	GetStringByRef(val uintptr)
-	// SetStringList Set a string list value.
-	SetStringList(val uintptr) int32
-	// GetStringListByRef Return a string list value by out-param.
-	GetStringListByRef(val uintptr) int32
-	// SetStringMap Set a string map value.
-	SetStringMap(val uintptr) int32
-	// GetStringMapByRef Return a string map value by out-param.
-	GetStringMapByRef(val uintptr) int32
-	// SetStringMultimap Set a string multimap value.
-	SetStringMultimap(val uintptr) int32
-	// GetStringMultimapByRef Return a string multimap value by out-param.
-	GetStringMultimapByRef(val uintptr) int32
-	// GetPoint Return a point value.
-	GetPoint() uintptr
-	// SetPoint Set a point value.
-	SetPoint(val *Point) int32
-	// GetPointByRef Return a point value by out-param.
-	GetPointByRef(val *Point)
-	// SetPointList Set a point list vlaue.
-	SetPointList(val []Point) int32
-	// GetPointListByRef Return a point list value by out-param.
-	GetPointListByRef(valcount *int, val *Point) int32
-	// GetPointListSize Return the number of points that will be output above.
-	GetPointListSize() int
-	// GetRefPtrLibrary Return an new library-side object.
-	GetRefPtrLibrary(val int32) TranslatorTestRefPtrLibrary
-	// SetRefPtrLibrary Set an object. Returns the value from cef_translator_test_ref_ptr_library_t::get_value(). This tests input and execution of a library-side object type.
-	SetRefPtrLibrary(val TranslatorTestRefPtrLibrary) int32
-	// SetRefPtrLibraryAndReturn Set an object. Returns the object passed in. This tests input and output of a library-side object type.
-	SetRefPtrLibraryAndReturn(val TranslatorTestRefPtrLibrary) TranslatorTestRefPtrLibrary
-	// SetChildRefPtrLibrary Set a child object. Returns the value from cef_translator_test_ref_ptr_library_t::get_value(). This tests input of a library- side child object type and execution as the parent type.
-	SetChildRefPtrLibrary(val TranslatorTestRefPtrLibraryChild) int32
-	// SetChildRefPtrLibraryAndReturnParent Set a child object. Returns the object as the parent type. This tests input of a library-side child object type and return as the parent type.
-	SetChildRefPtrLibraryAndReturnParent(val TranslatorTestRefPtrLibraryChild) TranslatorTestRefPtrLibrary
-	// SetRefPtrLibraryList Set an object list vlaue.
-	SetRefPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
-	// GetRefPtrLibraryListByRef Return an object list value by out-param.
-	GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32
-	// GetRefPtrLibraryListSize Return the number of object that will be output above.
-	GetRefPtrLibraryListSize() int
-	// SetRefPtrClient Set an object. Returns the value from cef_translator_test_ref_ptr_client_t::get_value(). This tests input and execution of a client-side object type.
-	SetRefPtrClient(val TranslatorTestRefPtrClient) int32
-	// SetRefPtrClientAndReturn Set an object. Returns the handler passed in. This tests input and output of a client-side object type.
-	SetRefPtrClientAndReturn(val TranslatorTestRefPtrClient) TranslatorTestRefPtrClient
-	// SetChildRefPtrClient Set a child object. Returns the value from cef_translator_test_ref_ptr_client_t::get_value(). This tests input of a client- side child object type and execution as the parent type.
-	SetChildRefPtrClient(val TranslatorTestRefPtrClientChild) int32
-	// SetChildRefPtrClientAndReturnParent Set a child object. Returns the object as the parent type. This tests input of a client-side child object type and return as the parent type.
-	SetChildRefPtrClientAndReturnParent(val TranslatorTestRefPtrClientChild) TranslatorTestRefPtrClient
-	// SetRefPtrClientList Set an object list vlaue.
-	SetRefPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
-	// GetRefPtrClientListByRef Return an object list value by out-param.
-	GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 TranslatorTestRefPtrClient, val2 TranslatorTestRefPtrClient) int32
-	// GetRefPtrClientListSize Return the number of object that will be output above.
-	GetRefPtrClientListSize() int
-	// GetOwnPtrLibrary Return an new library-side object.
-	GetOwnPtrLibrary(val int32) TranslatorTestScopedLibrary
-	// SetOwnPtrLibrary Set an object. Returns the value from cef_translator_test_scoped_library_t::get_value(). This tests input and execution of a library-side object type.
-	SetOwnPtrLibrary(val TranslatorTestScopedLibrary) int32
-	// SetOwnPtrLibraryAndReturn Set an object. Returns the object passed in. This tests input and output of a library-side object type.
-	SetOwnPtrLibraryAndReturn(val TranslatorTestScopedLibrary) TranslatorTestScopedLibrary
-	// SetChildOwnPtrLibrary Set a child object. Returns the value from cef_translator_test_scoped_library_t::get_value(). This tests input of a library- side child object type and execution as the parent type.
-	SetChildOwnPtrLibrary(val TranslatorTestScopedLibraryChild) int32
-	// SetChildOwnPtrLibraryAndReturnParent Set a child object. Returns the object as the parent type. This tests input of a library-side child object type and return as the parent type.
-	SetChildOwnPtrLibraryAndReturnParent(val TranslatorTestScopedLibraryChild) TranslatorTestScopedLibrary
-	// SetOwnPtrClient Set an object. Returns the value from cef_translator_test_scoped_client_t::get_value(). This tests input and execution of a client-side object type.
-	SetOwnPtrClient(val TranslatorTestScopedClient) int32
-	// SetOwnPtrClientAndReturn Set an object. Returns the handler passed in. This tests input and output of a client-side object type.
-	SetOwnPtrClientAndReturn(val TranslatorTestScopedClient) TranslatorTestScopedClient
-	// SetChildOwnPtrClient Set a child object. Returns the value from cef_translator_test_scoped_client_t::get_value(). This tests input of a client- side child object type and execution as the parent type.
-	SetChildOwnPtrClient(val TranslatorTestScopedClientChild) int32
-	// SetChildOwnPtrClientAndReturnParent Set a child object. Returns the object as the parent type. This tests input of a client-side child object type and return as the parent type.
-	SetChildOwnPtrClientAndReturnParent(val TranslatorTestScopedClientChild) TranslatorTestScopedClient
-	// SetRawPtrLibrary Set an object. Returns the value from cef_translator_test_scoped_library_t::get_value(). This tests input and execution of a library-side object type.
-	SetRawPtrLibrary(val TranslatorTestScopedLibrary) int32
-	// SetChildRawPtrLibrary Set a child object. Returns the value from cef_translator_test_scoped_library_t::get_value(). This tests input of a library- side child object type and execution as the parent type.
-	SetChildRawPtrLibrary(val TranslatorTestScopedLibraryChild) int32
-	// SetRawPtrLibraryList Set an object list vlaue.
-	SetRawPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
-	// SetRawPtrClient Set an object. Returns the value from cef_translator_test_scoped_client_t::get_value(). This tests input and execution of a client-side object type.
-	SetRawPtrClient(val TranslatorTestScopedClient) int32
-	// SetChildRawPtrClient Set a child object. Returns the value from cef_translator_test_scoped_client_t::get_value(). This tests input of a client- side child object type and execution as the parent type.
-	SetChildRawPtrClient(val TranslatorTestScopedClientChild) int32
-	// SetRawPtrClientList Set an object list vlaue.
-	SetRawPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
-}
+type TranslatorTest = in.TranslatorTest
 
 type translatorTestImpl struct {
 	rawPtr *capi.CEFTranslatorTestT
@@ -415,12 +296,7 @@ func wrapTranslatorTest(ptr unsafe.Pointer) TranslatorTest {
 }
 
 // TranslatorTestRefPtrLibrary Library-side test object for RefPtr.
-type TranslatorTestRefPtrLibrary interface {
-	// GetValue Return a value.
-	GetValue() int32
-	// SetValue Set a value.
-	SetValue(value int32)
-}
+type TranslatorTestRefPtrLibrary = in.TranslatorTestRefPtrLibrary
 
 type translatorTestRefPtrLibraryImpl struct {
 	rawPtr *capi.CEFTranslatorTestRefPtrLibraryT
@@ -460,12 +336,7 @@ func wrapTranslatorTestRefPtrLibrary(ptr unsafe.Pointer) TranslatorTestRefPtrLib
 }
 
 // TranslatorTestRefPtrLibraryChild Library-side child test object for RefPtr.
-type TranslatorTestRefPtrLibraryChild interface {
-	// GetOtherValue Return a value.
-	GetOtherValue() int32
-	// SetOtherValue Set a value.
-	SetOtherValue(value int32)
-}
+type TranslatorTestRefPtrLibraryChild = in.TranslatorTestRefPtrLibraryChild
 
 type translatorTestRefPtrLibraryChildImpl struct {
 	rawPtr *capi.CEFTranslatorTestRefPtrLibraryChildT
@@ -505,12 +376,7 @@ func wrapTranslatorTestRefPtrLibraryChild(ptr unsafe.Pointer) TranslatorTestRefP
 }
 
 // TranslatorTestRefPtrLibraryChildChild Another library-side child test object for RefPtr.
-type TranslatorTestRefPtrLibraryChildChild interface {
-	// GetOtherOtherValue Return a value.
-	GetOtherOtherValue() int32
-	// SetOtherOtherValue Set a value.
-	SetOtherOtherValue(value int32)
-}
+type TranslatorTestRefPtrLibraryChildChild = in.TranslatorTestRefPtrLibraryChildChild
 
 type translatorTestRefPtrLibraryChildChildImpl struct {
 	rawPtr *capi.CEFTranslatorTestRefPtrLibraryChildChildT
@@ -550,10 +416,7 @@ func wrapTranslatorTestRefPtrLibraryChildChild(ptr unsafe.Pointer) TranslatorTes
 }
 
 // TranslatorTestRefPtrClient Client-side test object for RefPtr.
-type TranslatorTestRefPtrClient interface {
-	// GetValue Return a value.
-	GetValue() int32
-}
+type TranslatorTestRefPtrClient = in.TranslatorTestRefPtrClient
 
 // translatorTestRefPtrClientWrapper wraps a user-provided TranslatorTestRefPtrClient implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestRefPtrClient.  It satisfies the
@@ -596,10 +459,7 @@ func wrapTranslatorTestRefPtrClient(ptr unsafe.Pointer) TranslatorTestRefPtrClie
 }
 
 // TranslatorTestRefPtrClientChild Client-side child test object for RefPtr.
-type TranslatorTestRefPtrClientChild interface {
-	// GetOtherValue Return a value.
-	GetOtherValue() int32
-}
+type TranslatorTestRefPtrClientChild = in.TranslatorTestRefPtrClientChild
 
 // translatorTestRefPtrClientChildWrapper wraps a user-provided TranslatorTestRefPtrClientChild implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestRefPtrClientChild.  It satisfies the
@@ -642,12 +502,7 @@ func wrapTranslatorTestRefPtrClientChild(ptr unsafe.Pointer) TranslatorTestRefPt
 }
 
 // TranslatorTestScopedLibrary Library-side test object for OwnPtr/RawPtr.
-type TranslatorTestScopedLibrary interface {
-	// GetValue Return a value.
-	GetValue() int32
-	// SetValue Set a value.
-	SetValue(value int32)
-}
+type TranslatorTestScopedLibrary = in.TranslatorTestScopedLibrary
 
 type translatorTestScopedLibraryImpl struct {
 	rawPtr *capi.CEFTranslatorTestScopedLibraryT
@@ -674,12 +529,7 @@ func wrapTranslatorTestScopedLibrary(ptr unsafe.Pointer) TranslatorTestScopedLib
 }
 
 // TranslatorTestScopedLibraryChild Library-side child test object for OwnPtr/RawPtr.
-type TranslatorTestScopedLibraryChild interface {
-	// GetOtherValue Return a value.
-	GetOtherValue() int32
-	// SetOtherValue Set a value.
-	SetOtherValue(value int32)
-}
+type TranslatorTestScopedLibraryChild = in.TranslatorTestScopedLibraryChild
 
 type translatorTestScopedLibraryChildImpl struct {
 	rawPtr *capi.CEFTranslatorTestScopedLibraryChildT
@@ -719,12 +569,7 @@ func wrapTranslatorTestScopedLibraryChild(ptr unsafe.Pointer) TranslatorTestScop
 }
 
 // TranslatorTestScopedLibraryChildChild Another library-side child test object for OwnPtr/RawPtr.
-type TranslatorTestScopedLibraryChildChild interface {
-	// GetOtherOtherValue Return a value.
-	GetOtherOtherValue() int32
-	// SetOtherOtherValue Set a value.
-	SetOtherOtherValue(value int32)
-}
+type TranslatorTestScopedLibraryChildChild = in.TranslatorTestScopedLibraryChildChild
 
 type translatorTestScopedLibraryChildChildImpl struct {
 	rawPtr *capi.CEFTranslatorTestScopedLibraryChildChildT
@@ -764,10 +609,7 @@ func wrapTranslatorTestScopedLibraryChildChild(ptr unsafe.Pointer) TranslatorTes
 }
 
 // TranslatorTestScopedClient Client-side test object for OwnPtr/RawPtr.
-type TranslatorTestScopedClient interface {
-	// GetValue Return a value.
-	GetValue() int32
-}
+type TranslatorTestScopedClient = in.TranslatorTestScopedClient
 
 // translatorTestScopedClientWrapper wraps a user-provided TranslatorTestScopedClient implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestScopedClient.  It satisfies the
@@ -810,10 +652,7 @@ func wrapTranslatorTestScopedClient(ptr unsafe.Pointer) TranslatorTestScopedClie
 }
 
 // TranslatorTestScopedClientChild Client-side child test object for OwnPtr/RawPtr.
-type TranslatorTestScopedClientChild interface {
-	// GetOtherValue Return a value.
-	GetOtherValue() int32
-}
+type TranslatorTestScopedClientChild = in.TranslatorTestScopedClientChild
 
 // translatorTestScopedClientChildWrapper wraps a user-provided TranslatorTestScopedClientChild implementation together
 // with the raw CEF struct pointer allocated by NewTranslatorTestScopedClientChild.  It satisfies the

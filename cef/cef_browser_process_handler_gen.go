@@ -8,25 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // BrowserProcessHandler Structure used to implement browser process callbacks. The functions of this structure will be called on the browser process main thread unless otherwise indicated.
-type BrowserProcessHandler interface {
-	// OnRegisterCustomPreferences Provides an opportunity to register custom preferences prior to global and request context initialization. If |type| is CEF_PREFERENCES_TYPE_GLOBAL the registered preferences can be accessed via cef_preference_manager_t::GetGlobalPreferences after OnContextInitialized is called. Global preferences are registered a single time at application startup. See related cef_settings_t.cache_path configuration. If |type| is CEF_PREFERENCES_TYPE_REQUEST_CONTEXT the preferences can be accessed via the cef_request_context_t after cef_request_context_handler_t::OnRequestContextInitialized is called. Request context preferences are registered each time a new cef_request_context_t is created. It is intended but not required that all request contexts have the same registered preferences. See related cef_request_context_settings_t.cache_path configuration. Do not keep a reference to the |registrar| object. This function is called on the browser process UI thread.
-	OnRegisterCustomPreferences(type_ PreferencesType, registrar PreferenceRegistrar)
-	// OnContextInitialized Called on the browser process UI thread immediately after the CEF context has been initialized.
-	OnContextInitialized()
-	// OnBeforeChildProcessLaunch Called before a child process is launched. Will be called on the browser process UI thread when launching a render process and on the browser process IO thread when launching a GPU process. Provides an opportunity to modify the child process command line. Do not keep a reference to |command_line| outside of this function.
-	OnBeforeChildProcessLaunch(commandLine CommandLine)
-	// OnAlreadyRunningAppRelaunch Implement this function to provide app-specific behavior when an already running app is relaunched with the same CefSettings.root_cache_path value. For example, activate an existing app window or create a new app window. |command_line| will be read-only. Do not keep a reference to |command_line| outside of this function. Return true (1) if the relaunch is handled or false (0) for default relaunch behavior. Default behavior will create a new default styled Chrome window. To avoid cache corruption only a single app instance is allowed to run for a given CefSettings.root_cache_path value. On relaunch the app checks a process singleton lock and then forwards the new launch arguments to the already running app process before exiting early. Client apps should therefore check the cef_initialize() return value for early exit before proceeding. This function will be called on the browser process UI thread.
-	OnAlreadyRunningAppRelaunch(commandLine CommandLine, currentDirectory string) int32
-	// OnScheduleMessagePumpWork Called from any thread when work has been scheduled for the browser process main (UI) thread. This callback is used in combination with cef_settings_t.external_message_pump and cef_do_message_loop_work() in cases where the CEF message loop must be integrated into an existing application message loop (see additional comments and warnings on CefDoMessageLoopWork). This callback should schedule a cef_do_message_loop_work() call to happen on the main (UI) thread. |delay_ms| is the requested delay in milliseconds. If |delay_ms| is <= 0 then the call should happen reasonably soon. If |delay_ms| is > 0 then the call should be scheduled to happen after the specified delay and any currently pending scheduled call should be cancelled.
-	OnScheduleMessagePumpWork(delayMs int64)
-	// GetDefaultClient Return the default client for use with a newly created browser window (cef_browser_t object). If null is returned the cef_browser_t will be unmanaged (no callbacks will be executed for that cef_browser_t) and application shutdown will be blocked until the browser window is closed manually. This function is currently only used with Chrome style when creating new browser windows via Chrome UI.
-	GetDefaultClient() Client
-	// GetDefaultRequestContextHandler Return the default handler for use with a new user or incognito profile (cef_request_context_t object). If null is returned the cef_request_context_t will be unmanaged (no callbacks will be executed for that cef_request_context_t). This function is currently only used with Chrome style when creating new browser windows via Chrome UI.
-	GetDefaultRequestContextHandler() RequestContextHandler
-}
+type BrowserProcessHandler = in.BrowserProcessHandler
 
 // browserProcessHandlerWrapper wraps a user-provided BrowserProcessHandler implementation together
 // with the raw CEF struct pointer allocated by NewBrowserProcessHandler.  It satisfies the

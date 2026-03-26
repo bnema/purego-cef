@@ -9,15 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // TestServer Structure representing an embedded test server that supports HTTP/HTTPS requests. This is a basic server providing only an essential subset of the HTTP/1.1 protocol. Especially, it assumes that the request syntax is correct. It *does not* support a Chunked Transfer Encoding. Server capacity is limited and is intended to handle only a small number of simultaneous connections (e.g. for communicating between applications on localhost). The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.
-type TestServer interface {
-	// Stop Stop the server and shut down the dedicated server thread. This function must be called on the same thread as CreateAndStart. It will block until the dedicated server thread has shut down.
-	Stop()
-	// GetOrigin Returns the server origin including the port number (e.g. "[http|https]://127.0.0.1:<port>".
-	GetOrigin() string
-}
+type TestServer = in.TestServer
 
 type testServerImpl struct {
 	rawPtr *capi.CEFTestServerT
@@ -57,10 +54,7 @@ func wrapTestServer(ptr unsafe.Pointer) TestServer {
 }
 
 // TestServerHandler Implement this structure to handle test server requests. A new thread will be created for each cef_test_server_t::CreateAndStart call (the "dedicated server thread"), and the functions of this structure will be called on that thread. See related documentation on cef_test_server_t::CreateAndStart.
-type TestServerHandler interface {
-	// OnTestServerRequest Called when |server| receives a request. To handle the request return true (1) and use |connection| to send the response either synchronously or asynchronously. Otherwise, return false (0) if the request is unhandled. When returning false (0) do not call any |connection| functions.
-	OnTestServerRequest(server TestServer, request Request, connection TestServerConnection) int32
-}
+type TestServerHandler = in.TestServerHandler
 
 // testServerHandlerWrapper wraps a user-provided TestServerHandler implementation together
 // with the raw CEF struct pointer allocated by NewTestServerHandler.  It satisfies the
@@ -106,16 +100,7 @@ func wrapTestServerHandler(ptr unsafe.Pointer) TestServerHandler {
 }
 
 // TestServerConnection Structure representing a test server connection. The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.
-type TestServerConnection interface {
-	// SendHttp200Response Send an HTTP 200 "OK" response. |content_type| is the response content type (e.g. "text/html"). |data| is the response content and |data_size| is the size of |data| in bytes. The contents of |data| will be copied. The connection will be closed automatically after the response is sent.
-	SendHttp200Response(contentType string, data unsafe.Pointer, dataSize int)
-	// SendHttp404Response Send an HTTP 404 "Not Found" response. The connection will be closed automatically after the response is sent.
-	SendHttp404Response()
-	// SendHttp500Response Send an HTTP 500 "Internal Server Error" response. |error_message| is the associated error message. The connection will be closed automatically after the response is sent.
-	SendHttp500Response(errorMessage string)
-	// SendHttpResponse Send a custom HTTP response. |response_code| is the HTTP response code sent in the status line (e.g. 200). |content_type| is the response content type (e.g. "text/html"). |data| is the response content and |data_size| is the size of |data| in bytes. The contents of |data| will be copied. |extra_headers| is an optional map of additional header key/value pairs. The connection will be closed automatically after the response is sent.
-	SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders uintptr)
-}
+type TestServerConnection = in.TestServerConnection
 
 type testServerConnectionImpl struct {
 	rawPtr *capi.CEFTestServerConnectionT

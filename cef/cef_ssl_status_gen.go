@@ -7,21 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Sslstatus Structure representing the SSL information for a navigation entry.
-type Sslstatus interface {
-	// IsSecureConnection Returns true (1) if the status is related to a secure SSL/TLS connection.
-	IsSecureConnection() bool
-	// GetCertStatus Returns a bitmask containing any and all problems verifying the server certificate.
-	GetCertStatus() CertStatus
-	// GetSslversion Returns the SSL version used for the SSL connection.
-	GetSslversion() SslVersion
-	// GetContentStatus Returns a bitmask containing the page security content status.
-	GetContentStatus() SslContentStatus
-	// GetX509Certificate Returns the X.509 certificate.
-	GetX509Certificate() X509Certificate
-}
+type Sslstatus = in.Sslstatus
 
 type sslstatusImpl struct {
 	rawPtr *capi.CEFSslstatusT
