@@ -5,9 +5,14 @@
 package cef
 
 import (
+	"fmt"
+	"os"
+	"unsafe"
+
 	"github.com/bnema/purego-cef/internal/capi"
 	"github.com/bnema/purego-cef/internal/core"
 	"github.com/bnema/purego-cef/internal/loader"
+	"github.com/ebitengine/purego"
 )
 
 // Settings configures the CEF runtime.
@@ -25,31 +30,38 @@ func Init(settings Settings) error {
 		return err
 	}
 	adapter := capi.New(handle)
-	eng = core.New(adapter)
-	return eng.Init(settings)
+	e := core.New(adapter)
+	engPtr.Store(e)
+	return e.Init(settings)
 }
 
 // Shutdown releases all CEF resources.
 func Shutdown() {
-	if eng != nil {
-		eng.Shutdown()
+	if e := engPtr.Load(); e != nil {
+		e.Shutdown()
 	}
 }
 
 // DoMessageLoopWork pumps the CEF message loop for one iteration.
 func DoMessageLoopWork() {
-	if eng != nil {
-		eng.DoMessageLoopWork()
+	if e := engPtr.Load(); e != nil {
+		e.DoMessageLoopWork()
 	}
 }
 
 // MaybeExitSubprocess calls cef_execute_process and exits if this is a subprocess.
+// Uses a lightweight path that only binds cef_execute_process.
 func MaybeExitSubprocess() {
 	handle, err := loader.Open("")
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "cef: MaybeExitSubprocess: %v\n", err)
 		return
 	}
-	adapter := capi.New(handle)
-	e := core.New(adapter)
-	e.MaybeExitSubprocess()
+	var executeProcess func(unsafe.Pointer, unsafe.Pointer, unsafe.Pointer) int32
+	purego.RegisterLibFunc(&executeProcess, handle, "cef_execute_process")
+	args := core.NewMainArgs(os.Args)
+	code := executeProcess(args.Ptr(), nil, nil)
+	if code >= 0 {
+		os.Exit(int(code))
+	}
 }

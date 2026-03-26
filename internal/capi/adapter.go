@@ -87,16 +87,15 @@ func (a *Adapter) QuitMessageLoop() {
 	a.quitMessageLoop()
 }
 
+// SetNestableTasksAllowed adapts the generated port signature (unsafe.Pointer)
+// to the actual C signature (int). The port-out template uses unsafe.Pointer
+// for all free function params — this is a known limitation.
 func (a *Adapter) SetNestableTasksAllowed(allowed unsafe.Pointer) {
 	a.setNestableTasksAllowed(int32(uintptr(allowed)))
 }
 
 func (a *Adapter) NewCallback(fn any) uintptr {
 	return purego.NewCallback(fn)
-}
-
-func (a *Adapter) Register(handle uintptr) {
-	Register(handle)
 }
 
 func (a *Adapter) StringSet(src *uint16, srcLen uintptr, output unsafe.Pointer, cp int32) int32 {

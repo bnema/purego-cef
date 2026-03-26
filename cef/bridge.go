@@ -7,6 +7,7 @@ package cef
 
 import (
 	"sync"
+	"sync/atomic"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,10 +16,19 @@ import (
 	"github.com/ebitengine/purego"
 )
 
-// Type aliases for interfaces that are excluded from generation (skipPublicTypes)
-// because their handler constructors need handwritten implementations.
-type AudioHandler = in.AudioHandler
+// Type alias for LifeSpanHandler — uses generated interface (out-params are unsafe.Pointer).
 type LifeSpanHandler = in.LifeSpanHandler
+
+// AudioHandler handles audio events with a safe [][]float32 data signature.
+// This is NOT an alias of the generated in.AudioHandler (which uses unsafe.Pointer
+// for the data param). The constructor decodes the raw float** to [][]float32.
+type AudioHandler interface {
+	GetAudioParameters(browser Browser, params *AudioParameters) int32
+	OnAudioStreamStarted(browser Browser, params *AudioParameters, channels int32)
+	OnAudioStreamPacket(browser Browser, data [][]float32, frames int32, pts int64)
+	OnAudioStreamStopped(browser Browser)
+	OnAudioStreamError(browser Browser, message string)
+}
 
 // ---------------------------------------------------------------------------
 // LifeSpanHandler constructor
@@ -92,11 +102,11 @@ func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 func wrapLifeSpanHandler(_ unsafe.Pointer) LifeSpanHandler { return nil }
 
 // ---------------------------------------------------------------------------
-// AudioHandler constructor
+// AudioHandler constructor — decodes float** to [][]float32
 // ---------------------------------------------------------------------------
 
 type audioHandlerWrapper struct {
-	AudioHandler
+	impl     AudioHandler
 	rawPtr   *capi.CEFAudioHandlerT
 	mu       sync.Mutex
 	channels int32
@@ -106,11 +116,30 @@ func (w *audioHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-func NewAudioHandler(impl AudioHandler) AudioHandler {
+// Satisfy the generated in.AudioHandler interface for extractRawPointer.
+func (w *audioHandlerWrapper) GetAudioParameters(browser Browser, params *AudioParameters) int32 {
+	return w.impl.GetAudioParameters(browser, params)
+}
+func (w *audioHandlerWrapper) OnAudioStreamStarted(browser Browser, params *AudioParameters, channels int32) {
+	w.impl.OnAudioStreamStarted(browser, params, channels)
+}
+func (w *audioHandlerWrapper) OnAudioStreamPacket(browser Browser, _ unsafe.Pointer, frames int32, pts int64) {
+	// The actual decoded data is passed through the safe interface by the callback below.
+	// This method exists only for interface compliance; it is never called directly.
+}
+func (w *audioHandlerWrapper) OnAudioStreamStopped(browser Browser) {
+	w.impl.OnAudioStreamStopped(browser)
+}
+func (w *audioHandlerWrapper) OnAudioStreamError(browser Browser, message string) {
+	w.impl.OnAudioStreamError(browser, message)
+}
+
+// NewSafeAudioHandler creates a CEF handler with safe [][]float32 audio data decoding.
+// Use this instead of NewAudioHandler when you want decoded audio packets.
+func NewSafeAudioHandler(impl AudioHandler) in.AudioHandler {
 	r := new(capi.CEFAudioHandlerT)
-	w := &audioHandlerWrapper{rawPtr: r}
+	w := &audioHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
-	w.AudioHandler = impl
 
 	r.OverrideGetAudioParameters(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
@@ -135,8 +164,8 @@ func NewAudioHandler(impl AudioHandler) AudioHandler {
 		w.mu.Lock()
 		ch := w.channels
 		w.mu.Unlock()
-		impl.OnAudioStreamPacket(browser, unsafe.Pointer(arg1), frames, pts)
-		_ = ch // channel count available for future audio decoding helpers
+		decoded := core.DecodeAudioPacket(unsafe.Pointer(arg1), ch, frames)
+		impl.OnAudioStreamPacket(browser, decoded, frames, pts)
 	}))
 
 	r.OverrideOnAudioStreamStopped(purego.NewCallback(func(self uintptr, arg0 uintptr) {
@@ -150,19 +179,72 @@ func NewAudioHandler(impl AudioHandler) AudioHandler {
 	return w
 }
 
-func wrapAudioHandler(_ unsafe.Pointer) AudioHandler { return nil }
+// NewAudioHandler creates a CEF handler from the generated in.AudioHandler interface.
+// For decoded [][]float32 audio data, use NewSafeAudioHandler instead.
+func NewAudioHandler(impl in.AudioHandler) in.AudioHandler {
+	r := new(capi.CEFAudioHandlerT)
+	w := &rawAudioHandlerWrapper{impl: impl, rawPtr: r}
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
-// eng is the core Engine instance, wired at Init() time.
-var eng *core.Engine
+	r.OverrideGetAudioParameters(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) uintptr {
+		return uintptr(impl.GetAudioParameters(wrapBrowser(unsafe.Pointer(arg0)), (*AudioParameters)(unsafe.Pointer(arg1))))
+	}))
+	r.OverrideOnAudioStreamStarted(purego.NewCallback(func(self uintptr, arg0, arg1, arg2 uintptr) {
+		impl.OnAudioStreamStarted(wrapBrowser(unsafe.Pointer(arg0)), (*AudioParameters)(unsafe.Pointer(arg1)), int32(arg2))
+	}))
+	r.OverrideOnAudioStreamPacket(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3 uintptr) {
+		impl.OnAudioStreamPacket(wrapBrowser(unsafe.Pointer(arg0)), unsafe.Pointer(arg1), int32(arg2), int64(arg3))
+	}))
+	r.OverrideOnAudioStreamStopped(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		impl.OnAudioStreamStopped(wrapBrowser(unsafe.Pointer(arg0)))
+	}))
+	r.OverrideOnAudioStreamError(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) {
+		impl.OnAudioStreamError(wrapBrowser(unsafe.Pointer(arg0)), goString(unsafe.Pointer(arg1)))
+	}))
+
+	return w
+}
+
+type rawAudioHandlerWrapper struct {
+	impl   in.AudioHandler
+	rawPtr *capi.CEFAudioHandlerT
+}
+
+func (w *rawAudioHandlerWrapper) RawPointer() unsafe.Pointer { return unsafe.Pointer(w.rawPtr) }
+func (w *rawAudioHandlerWrapper) GetAudioParameters(b Browser, p *AudioParameters) int32 {
+	return w.impl.GetAudioParameters(b, p)
+}
+func (w *rawAudioHandlerWrapper) OnAudioStreamStarted(b Browser, p *AudioParameters, c int32) {
+	w.impl.OnAudioStreamStarted(b, p, c)
+}
+func (w *rawAudioHandlerWrapper) OnAudioStreamPacket(b Browser, d unsafe.Pointer, f int32, p int64) {
+	w.impl.OnAudioStreamPacket(b, d, f, p)
+}
+func (w *rawAudioHandlerWrapper) OnAudioStreamStopped(b Browser) { w.impl.OnAudioStreamStopped(b) }
+func (w *rawAudioHandlerWrapper) OnAudioStreamError(b Browser, m string) {
+	w.impl.OnAudioStreamError(b, m)
+}
+
+func wrapAudioHandler(_ unsafe.Pointer) in.AudioHandler { return nil }
+
+// ---------------------------------------------------------------------------
+// Engine access — atomic for thread safety (#8)
+// ---------------------------------------------------------------------------
+
+// engPtr is the core Engine instance, wired at Init() time.
+// Accessed atomically so bridge helpers are safe from any goroutine.
+var engPtr atomic.Pointer[core.Engine]
 
 func mustEng() *core.Engine {
-	if eng == nil {
+	e := engPtr.Load()
+	if e == nil {
 		panic("cef: engine not initialized; call cef.Init() first")
 	}
-	return eng
+	return e
 }
 
 // cefString converts a Go string to a CEF UTF-16 string.
+// CEFStringT is layout-identical in core and capi packages (both mirror cef_string_t).
 func cefString(s string) core.CEFStringT {
 	return mustEng().CefString(s)
 }

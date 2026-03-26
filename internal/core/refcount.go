@@ -3,6 +3,7 @@ package core
 
 import (
 	"runtime"
+	"structs"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -16,6 +17,7 @@ type refState struct {
 
 // baseRefCounted mirrors the cef_base_ref_counted_t layout.
 type baseRefCounted struct {
+	_                structs.HostLayout
 	Size             uintptr
 	AddRef           uintptr
 	Release          uintptr
