@@ -4,6 +4,8 @@ package core
 import (
 	"fmt"
 	"os"
+	"runtime"
+	"structs"
 	"unsafe"
 )
 
@@ -17,6 +19,7 @@ type MainArgs struct {
 
 // MainArgsT mirrors cef_main_args_t on Linux.
 type MainArgsT struct {
+	_    structs.HostLayout
 	Argc int32
 	Argv uintptr
 }
@@ -52,6 +55,7 @@ type Settings struct {
 	NoSandbox                  bool
 	BrowserSubprocessPath      string
 	LogFile                    string
+	InitTraceFile              string
 }
 
 // DefaultSettings returns Settings suitable for off-screen rendering.
@@ -76,6 +80,7 @@ func (e *Engine) InitWithApp(settings Settings, appPtr unsafe.Pointer) error {
 	defer cleanup()
 
 	ok := e.capi.Initialize(args.Ptr(), unsafe.Pointer(&csettings), appPtr, nil)
+	runtime.KeepAlive(args)
 	if ok != 1 {
 		return fmt.Errorf("cef: cef_initialize returned %d", ok)
 	}
@@ -101,6 +106,7 @@ func (e *Engine) DoMessageLoopWork() {
 func (e *Engine) MaybeExitSubprocess() {
 	args := NewMainArgs(os.Args)
 	code := e.capi.ExecuteProcess(args.Ptr(), nil, nil)
+	runtime.KeepAlive(args)
 	if code >= 0 {
 		os.Exit(int(code))
 	}
@@ -146,36 +152,38 @@ func (e *Engine) settingsToRaw(s Settings) (SettingsRaw, func()) {
 	return c, cleanup
 }
 
-// SettingsRaw mirrors cef_settings_t layout. Fields match the raw C struct.
+// SettingsRaw mirrors cef_settings_t layout exactly.
+// Field names and order MUST match the generated capi.CEFSettingsT.
 type SettingsRaw struct {
-	Size                       uintptr
-	NoSandbox                  int32
-	BrowserSubprocessPath      CEFStringT
-	FrameworkDirPath           CEFStringT
-	MainBundlePath             CEFStringT
-	MultiThreadedMessageLoop   int32
-	ExternalMessagePump        int32
-	WindowlessRenderingEnabled int32
-	CommandLineHandlerDisabled int32
-	CachePath                  CEFStringT
-	RootCachePath              CEFStringT
-	PersistSessionCookies      int32
-	UserAgent                  CEFStringT
-	UserAgentProduct           CEFStringT
-	Locale                     CEFStringT
-	LogFile                    CEFStringT
-	LogSeverity                int32
-	LogItems                   int32
-	JavascriptFlags            CEFStringT
-	ResourcesDirPath           CEFStringT
-	LocalesDirPath             CEFStringT
-	RemoteDebuggingPort        int32
-	UncaughtExceptionStackSize int32
-	BackgroundColor            uint32
-	AcceptLanguageList         CEFStringT
-	CookieableSchemesList      CEFStringT
-	CookieableSchemesExclude   int32
-	ChromeRuntime              int32
-	ChromeAppIconId            int32
-	ChromePolicyId             CEFStringT
+	_                                structs.HostLayout
+	Size                             uintptr
+	NoSandbox                        int32
+	BrowserSubprocessPath            CEFStringT
+	FrameworkDirPath                 CEFStringT
+	MainBundlePath                   CEFStringT
+	MultiThreadedMessageLoop         int32
+	ExternalMessagePump              int32
+	WindowlessRenderingEnabled       int32
+	CommandLineArgsDisabled          int32
+	CachePath                        CEFStringT
+	RootCachePath                    CEFStringT
+	PersistSessionCookies            int32
+	UserAgent                        CEFStringT
+	UserAgentProduct                 CEFStringT
+	Locale                           CEFStringT
+	LogFile                          CEFStringT
+	LogSeverity                      int32
+	LogItems                         int32
+	JavascriptFlags                  CEFStringT
+	ResourcesDirPath                 CEFStringT
+	LocalesDirPath                   CEFStringT
+	RemoteDebuggingPort              int32
+	UncaughtExceptionStackSize       int32
+	BackgroundColor                  uint32
+	AcceptLanguageList               CEFStringT
+	CookieableSchemesList            CEFStringT
+	CookieableSchemesExcludeDefaults int32
+	ChromePolicyID                   CEFStringT
+	ChromeAppIconID                  int32
+	DisableSignalHandlers            int32
 }

@@ -28,8 +28,6 @@ type CAPI interface {
 	StringUserfreeFree(s unsafe.Pointer)
 	StringListSize(list uintptr) uintptr
 	StringListValue(list uintptr, index uintptr, value unsafe.Pointer) int32
-	// Register loads all CEF C API symbols from the shared library handle.
-	Register(handle uintptr)
 }
 
 // Engine is the core domain. It holds no global state — all state

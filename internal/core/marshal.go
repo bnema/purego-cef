@@ -8,6 +8,9 @@ import (
 )
 
 // CEFStringT mirrors the cef_string_t layout (UTF-16).
+// Intentionally duplicated from capi.CEFStringT to avoid a circular import
+// (core defines the CAPI interface that capi implements). Both definitions
+// MUST stay in sync — they share the same memory layout.
 type CEFStringT struct {
 	Str    *uint16
 	Length uintptr
