@@ -198,7 +198,7 @@ func outputName(relPath string) string {
 		name = name + "_"
 	}
 
-	return name + ".go"
+	return name + "_gen.go"
 }
 
 // filterOut removes paths ending with the given suffix.
