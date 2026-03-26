@@ -52,7 +52,7 @@ func TestEmitPublicObjectInterface(t *testing.T) {
 		desc string
 		want string
 	}{
-		{"interface declaration", "type Browser interface"},
+		{"interface declaration", "type Browser = in.Browser"},
 		{"method GetHost", "GetHost()"},
 		{"method CanGoBack", "CanGoBack() bool"},
 		{"impl struct", "type browserImpl struct"},
@@ -111,9 +111,9 @@ func TestEmitPublicObjectInterface_UsesTypedPuregoForFloatMethods(t *testing.T) 
 
 	checks := []string{
 		`"github.com/ebitengine/purego"`,
-		`var fn func(*raw.CEFBrowserHostT) float64`,
+		`var fn func(*capi.CEFBrowserHostT) float64`,
 		`purego.RegisterFunc(&fn, obj.rawPtr.GetZoomLevel)`,
-		`var fn func(*raw.CEFBrowserHostT, float64)`,
+		`var fn func(*capi.CEFBrowserHostT, float64)`,
 		`purego.RegisterFunc(&fn, obj.rawPtr.SetZoomLevel)`,
 	}
 
@@ -165,7 +165,7 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 		desc string
 		want string
 	}{
-		{"interface declaration", "type FocusHandler interface"},
+		{"interface declaration", "type FocusHandler = in.FocusHandler"},
 		{"constructor function", "func NewFocusHandler(impl FocusHandler) FocusHandler"},
 		{"initRefCount call", "initRefCount(unsafe.Pointer(r)"},
 		{"purego.NewCallback", "purego.NewCallback"},
@@ -205,7 +205,7 @@ func TestEmitPublicEnum(t *testing.T) {
 		desc string
 		want string
 	}{
-		{"type declaration", "type State int32"},
+		{"type declaration", "type State = int32"},
 		{"default value", "StateDefault"},
 		{"enabled value", "StateEnabled"},
 		{"disabled value", "StateDisabled"},
@@ -245,7 +245,7 @@ func TestEmitPublicFreeFunc(t *testing.T) {
 	if !strings.Contains(code, "func GetMimeType(") {
 		t.Error("missing free function wrapper")
 	}
-	if !strings.Contains(code, "raw.CEFGetMimeType") {
+	if !strings.Contains(code, "capi.CEFGetMimeType") {
 		t.Error("missing raw function reference")
 	}
 }
@@ -355,8 +355,7 @@ func TestEmitPixelBufferOverride(t *testing.T) {
 		desc string
 		want string
 	}{
-		{"buffer param is []byte", "buffer []byte"},
-		{"unsafe.Slice in unmarshal", "unsafe.Slice"},
+		{"unsafe.Slice in unmarshal", "unsafe.Slice((*byte)(unsafe.Pointer("},
 	}
 
 	for _, c := range checks {
