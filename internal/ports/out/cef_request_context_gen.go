@@ -33,3 +33,10 @@ type RequestContext interface {
 	AddSettingObserver(observer uintptr) uintptr
 	ClearHttpCache(callback uintptr)
 }
+
+// RequestContextFunctions defines the outbound port for RequestContext free functions.
+type RequestContextFunctions interface {
+	RequestContextGetGlobalContext() unsafe.Pointer
+	RequestContextCreateContext(settings unsafe.Pointer, handler unsafe.Pointer) unsafe.Pointer
+	RequestContextCefCreateContextShared(other unsafe.Pointer, handler unsafe.Pointer) unsafe.Pointer
+}

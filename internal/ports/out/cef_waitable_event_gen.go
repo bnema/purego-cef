@@ -15,3 +15,8 @@ type WaitableEvent interface {
 	Wait()
 	TimedWait(maxMs uintptr) uintptr
 }
+
+// WaitableEventFunctions defines the outbound port for WaitableEvent free functions.
+type WaitableEventFunctions interface {
+	WaitableEventCreate(automaticReset unsafe.Pointer, initiallySignaled unsafe.Pointer) unsafe.Pointer
+}

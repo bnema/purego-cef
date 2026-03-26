@@ -22,3 +22,8 @@ type Panel interface {
 	GetChildViewCount() uintptr
 	GetChildViewAt(index uintptr) uintptr
 }
+
+// PanelFunctions defines the outbound port for Panel free functions.
+type PanelFunctions interface {
+	PanelCreate(delegate unsafe.Pointer) unsafe.Pointer
+}

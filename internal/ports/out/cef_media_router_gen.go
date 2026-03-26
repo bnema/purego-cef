@@ -42,3 +42,8 @@ type MediaSource interface {
 	IsCastSource() uintptr
 	IsDialSource() uintptr
 }
+
+// MediaRouterFunctions defines the outbound port for MediaRouter free functions.
+type MediaRouterFunctions interface {
+	MediaRouterGetGlobal(callback unsafe.Pointer) unsafe.Pointer
+}

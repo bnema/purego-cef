@@ -20,3 +20,8 @@ type TestServerConnection interface {
 	SendHttp500Response(errorMessage uintptr)
 	SendHttpResponse(responseCode uintptr, contentType uintptr, data uintptr, dataSize uintptr, extraHeaders uintptr)
 }
+
+// TestServerFunctions defines the outbound port for TestServer free functions.
+type TestServerFunctions interface {
+	TestServerCreateAndStart(port unsafe.Pointer, httpsServer unsafe.Pointer, httpsCertType unsafe.Pointer, handler unsafe.Pointer) unsafe.Pointer
+}

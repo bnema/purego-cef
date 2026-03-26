@@ -17,3 +17,8 @@ type ScrollView interface {
 	HasVerticalScrollbar() uintptr
 	GetVerticalScrollbarWidth() uintptr
 }
+
+// ScrollViewFunctions defines the outbound port for ScrollView free functions.
+type ScrollViewFunctions interface {
+	ScrollViewCreate(delegate unsafe.Pointer) unsafe.Pointer
+}

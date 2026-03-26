@@ -106,3 +106,14 @@ type TranslatorTestScopedLibraryChildChild interface {
 	GetOtherOtherValue() uintptr
 	SetOtherOtherValue(value uintptr)
 }
+
+// TranslatorTestFunctions defines the outbound port for TranslatorTest free functions.
+type TranslatorTestFunctions interface {
+	TranslatorTestCreate() unsafe.Pointer
+	TranslatorTestRefPtrLibraryCreate(value unsafe.Pointer) unsafe.Pointer
+	TranslatorTestRefPtrLibraryChildCreate(value unsafe.Pointer, otherValue unsafe.Pointer) unsafe.Pointer
+	TranslatorTestRefPtrLibraryChildChildCreate(value unsafe.Pointer, otherValue unsafe.Pointer, otherOtherValue unsafe.Pointer) unsafe.Pointer
+	TranslatorTestScopedLibraryCreate(value unsafe.Pointer) unsafe.Pointer
+	TranslatorTestScopedLibraryChildCreate(value unsafe.Pointer, otherValue unsafe.Pointer) unsafe.Pointer
+	TranslatorTestScopedLibraryChildChildCreate(value unsafe.Pointer, otherValue unsafe.Pointer, otherOtherValue unsafe.Pointer) unsafe.Pointer
+}

@@ -21,3 +21,8 @@ type LabelButton interface {
 	SetMinimumSize(size uintptr)
 	SetMaximumSize(size uintptr)
 }
+
+// LabelButtonFunctions defines the outbound port for LabelButton free functions.
+type LabelButtonFunctions interface {
+	LabelButtonCreate(delegate unsafe.Pointer, text unsafe.Pointer) unsafe.Pointer
+}

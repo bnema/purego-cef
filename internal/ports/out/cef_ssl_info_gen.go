@@ -12,3 +12,8 @@ type Sslinfo interface {
 	GetCertStatus() uintptr
 	GetX509Certificate() uintptr
 }
+
+// SslInfoFunctions defines the outbound port for SslInfo free functions.
+type SslInfoFunctions interface {
+	IsCertStatusError(status unsafe.Pointer) int32
+}

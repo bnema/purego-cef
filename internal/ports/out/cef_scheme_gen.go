@@ -11,3 +11,9 @@ var _ unsafe.Pointer
 type SchemeRegistrar interface {
 	AddCustomScheme(schemeName uintptr, options uintptr) uintptr
 }
+
+// SchemeFunctions defines the outbound port for Scheme free functions.
+type SchemeFunctions interface {
+	RegisterSchemeHandlerFactory(schemeName unsafe.Pointer, domainName unsafe.Pointer, factory unsafe.Pointer) int32
+	ClearSchemeHandlerFactories() int32
+}

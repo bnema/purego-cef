@@ -5,6 +5,7 @@ import "strings"
 // PublicFileData holds all data needed to render the public API file for one header.
 type PublicFileData struct {
 	PackageName   string
+	HeaderStem    string // e.g., "App", "Browser" — used for naming generated interfaces
 	Interfaces    []InterfaceData
 	DataStructs   []DataStructData
 	Enums         []EnumData

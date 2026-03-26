@@ -17,3 +17,8 @@ type Urlrequest interface {
 	ResponseWasCached() uintptr
 	Cancel()
 }
+
+// UrlrequestFunctions defines the outbound port for Urlrequest free functions.
+type UrlrequestFunctions interface {
+	UrlrequestCreate(request unsafe.Pointer, client unsafe.Pointer, requestContext unsafe.Pointer) unsafe.Pointer
+}

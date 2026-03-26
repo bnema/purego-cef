@@ -39,3 +39,8 @@ type XmlReader interface {
 	MoveToNextAttribute() uintptr
 	MoveToCarryingElement() uintptr
 }
+
+// XmlReaderFunctions defines the outbound port for XmlReader free functions.
+type XmlReaderFunctions interface {
+	XmlReaderCreate(stream unsafe.Pointer, encodingtype unsafe.Pointer, uri unsafe.Pointer) unsafe.Pointer
+}
