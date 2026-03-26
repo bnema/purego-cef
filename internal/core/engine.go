@@ -1,32 +1,34 @@
 // internal/core/engine.go
 package core
 
-import "unsafe"
+import (
+	"unsafe"
+
+	out "github.com/bnema/purego-cef/internal/ports/out"
+)
 
 // CAPI is the outbound port interface. Core depends on this for all C
 // interactions. The real implementation (internal/capi) uses purego;
 // tests inject mocks.
 //
-// This interface will grow as we migrate functionality from cef/.
-// Eventually it will be replaced by generated interfaces in ports/out.
+// It embeds the generated AppFunctions interface for CEF free functions
+// (Initialize, Shutdown, etc.) and adds infrastructure methods that are
+// not in the parsed CEF headers (string ops from cef_string_types.h,
+// purego callback creation, and symbol registration).
 type CAPI interface {
-	// Functions — CEF free functions
-	Initialize(args, settings, app, sandboxInfo unsafe.Pointer) int32
-	Shutdown()
-	DoMessageLoopWork()
-	ExecuteProcess(args, app, sandboxInfo unsafe.Pointer) int32
+	// Generated outbound port — CEF free functions from cef_app_capi.h
+	out.AppFunctions
 
-	// Callbacks — wraps purego.NewCallback
+	// Infrastructure — not in parsed CEF headers, handwritten.
+	// NewCallback wraps purego.NewCallback.
 	NewCallback(fn any) uintptr
-
-	// Strings — CEF UTF-16 string operations
+	// String operations from cef_string_types.h (not parsed by cefgen).
 	StringSet(src *uint16, srcLen uintptr, output unsafe.Pointer, copy int32) int32
 	StringClear(s unsafe.Pointer)
 	StringUserfreeFree(s unsafe.Pointer)
 	StringListSize(list uintptr) uintptr
 	StringListValue(list uintptr, index uintptr, value unsafe.Pointer) int32
-
-	// Registration — bind all symbols from handle
+	// Register loads all CEF C API symbols from the shared library handle.
 	Register(handle uintptr)
 }
 

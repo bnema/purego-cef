@@ -17,3 +17,16 @@ type Display interface {
 	GetWorkArea() uintptr
 	GetRotation() uintptr
 }
+
+// DisplayFunctions defines the outbound port for Display free functions.
+type DisplayFunctions interface {
+	DisplayGetPrimary() unsafe.Pointer
+	DisplayGetNearestPoint(point unsafe.Pointer, inputPixelCoords unsafe.Pointer) unsafe.Pointer
+	DisplayGetMatchingBounds(bounds unsafe.Pointer, inputPixelCoords unsafe.Pointer) unsafe.Pointer
+	DisplayGetCount() int
+	DisplayGetAlls(displayscount unsafe.Pointer, displays unsafe.Pointer)
+	DisplayConvertScreenPointToPixels(point unsafe.Pointer) uintptr
+	DisplayConvertScreenPointFromPixels(point unsafe.Pointer) uintptr
+	DisplayConvertScreenRectToPixels(rect unsafe.Pointer) uintptr
+	DisplayConvertScreenRectFromPixels(rect unsafe.Pointer) uintptr
+}

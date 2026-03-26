@@ -109,3 +109,11 @@ type ListValue interface {
 	SetDictionary(index uintptr, value uintptr) uintptr
 	SetList(index uintptr, value uintptr) uintptr
 }
+
+// ValuesFunctions defines the outbound port for Values free functions.
+type ValuesFunctions interface {
+	ValueCreate() unsafe.Pointer
+	BinaryValueCreate(data unsafe.Pointer, dataSize unsafe.Pointer) unsafe.Pointer
+	DictionaryValueCreate() unsafe.Pointer
+	ListValueCreate() unsafe.Pointer
+}

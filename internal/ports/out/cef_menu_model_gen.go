@@ -66,3 +66,8 @@ type MenuModel interface {
 	SetFontList(commandID uintptr, fontList uintptr) uintptr
 	SetFontListAt(index uintptr, fontList uintptr) uintptr
 }
+
+// MenuModelFunctions defines the outbound port for MenuModel free functions.
+type MenuModelFunctions interface {
+	MenuModelCreate(delegate unsafe.Pointer) unsafe.Pointer
+}

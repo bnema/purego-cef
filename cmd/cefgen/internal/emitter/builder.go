@@ -70,8 +70,10 @@ func BuildPortFileData(header *model.Header, registry *TypeRegistry) *PublicFile
 }
 
 func buildFileData(header *model.Header, registry *TypeRegistry, applySkip bool) *PublicFileData {
+	stem := strings.TrimPrefix(header.RegisterName, "Register")
 	data := &PublicFileData{
 		PackageName: "cef",
+		HeaderStem:  stem,
 	}
 
 	for i := range header.Structs {

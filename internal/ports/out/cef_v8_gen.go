@@ -106,3 +106,26 @@ type V8StackFrame interface {
 	IsEval() uintptr
 	IsConstructor() uintptr
 }
+
+// V8Functions defines the outbound port for V8 free functions.
+type V8Functions interface {
+	V8ContextGetCurrentContext() unsafe.Pointer
+	V8ContextGetEnteredContext() unsafe.Pointer
+	V8ContextInContext() int32
+	V8ValueCreateUndefined() unsafe.Pointer
+	V8ValueCreateNull() unsafe.Pointer
+	V8ValueCreateBool(value unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateInt(value unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateUint(value unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateDouble(value unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateDate(date unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateString(value unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateObject(accessor unsafe.Pointer, interceptor unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateArray(length unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateArrayBuffer(buffer unsafe.Pointer, length unsafe.Pointer, releaseCallback unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateArrayBufferWithCopy(buffer unsafe.Pointer, length unsafe.Pointer) unsafe.Pointer
+	V8ValueCreateFunction(name unsafe.Pointer, handler unsafe.Pointer) unsafe.Pointer
+	V8ValueCreatePromise() unsafe.Pointer
+	V8StackTraceGetCurrent(frameLimit unsafe.Pointer) unsafe.Pointer
+	RegisterExtension(extensionName unsafe.Pointer, javascriptCode unsafe.Pointer, handler unsafe.Pointer) int32
+}

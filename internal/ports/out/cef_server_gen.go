@@ -23,3 +23,8 @@ type Server interface {
 	CloseConnection(connectionID uintptr)
 	SendWebSocketMessage(connectionID uintptr, data uintptr, dataSize uintptr)
 }
+
+// ServerFunctions defines the outbound port for Server free functions.
+type ServerFunctions interface {
+	ServerCreate(address unsafe.Pointer, port unsafe.Pointer, backlog unsafe.Pointer, handler unsafe.Pointer)
+}

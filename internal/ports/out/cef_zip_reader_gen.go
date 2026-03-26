@@ -22,3 +22,8 @@ type ZipReader interface {
 	Tell() uintptr
 	Eof() uintptr
 }
+
+// ZipReaderFunctions defines the outbound port for ZipReader free functions.
+type ZipReaderFunctions interface {
+	ZipReaderCreate(stream unsafe.Pointer) unsafe.Pointer
+}

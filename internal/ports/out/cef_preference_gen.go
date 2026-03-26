@@ -21,3 +21,10 @@ type PreferenceManager interface {
 	SetPreference(name uintptr, value uintptr, error uintptr) uintptr
 	AddPreferenceObserver(name uintptr, observer uintptr) uintptr
 }
+
+// PreferenceFunctions defines the outbound port for Preference free functions.
+type PreferenceFunctions interface {
+	PreferenceManagerGetChromeVariationsAsSwitches(switches unsafe.Pointer)
+	PreferenceManagerGetChromeVariationsAsStrings(strings unsafe.Pointer)
+	PreferenceManagerGetGlobal() unsafe.Pointer
+}

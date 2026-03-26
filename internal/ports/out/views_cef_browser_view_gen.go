@@ -14,3 +14,9 @@ type BrowserView interface {
 	SetPreferAccelerators(preferAccelerators uintptr)
 	GetRuntimeStyle() uintptr
 }
+
+// BrowserViewFunctions defines the outbound port for BrowserView free functions.
+type BrowserViewFunctions interface {
+	BrowserViewCreate(client unsafe.Pointer, uRL unsafe.Pointer, settings unsafe.Pointer, extraInfo unsafe.Pointer, requestContext unsafe.Pointer, delegate unsafe.Pointer) unsafe.Pointer
+	BrowserViewGetForBrowser(browser unsafe.Pointer) unsafe.Pointer
+}

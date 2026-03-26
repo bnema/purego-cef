@@ -121,3 +121,26 @@ type ApiVersionTestScopedLibraryChildChildV2 interface {
 	GetOtherOtherValue() uintptr
 	SetOtherOtherValue(value uintptr)
 }
+
+// ApiVersionTestFunctions defines the outbound port for ApiVersionTest free functions.
+type ApiVersionTestFunctions interface {
+	ApiVersionTestCreate() unsafe.Pointer
+	ApiVersionTestRefPtrLibraryCreate() unsafe.Pointer
+	ApiVersionTestRefPtrLibraryCreateWithDefault(value unsafe.Pointer) unsafe.Pointer
+	ApiVersionTestRefPtrLibraryChildCreate() unsafe.Pointer
+	ApiVersionTestRefPtrLibraryChildCreateWithDefault(value unsafe.Pointer, otherValue unsafe.Pointer) unsafe.Pointer
+	ApiVersionTestRefPtrLibraryChildChildCreate() unsafe.Pointer
+	ApiVersionTestRefPtrLibraryChildChildV1Create() unsafe.Pointer
+	ApiVersionTestRefPtrLibraryChildChildV1CreateWithDefault(value unsafe.Pointer, otherValue unsafe.Pointer, otherOtherValue unsafe.Pointer) unsafe.Pointer
+	ApiVersionTestRefPtrLibraryChildChildV2Create() unsafe.Pointer
+	ApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault(value unsafe.Pointer, otherValue unsafe.Pointer, otherOtherValue unsafe.Pointer) unsafe.Pointer
+	ApiVersionTestScopedLibraryCreate() unsafe.Pointer
+	ApiVersionTestScopedLibraryCreateWithDefault(value unsafe.Pointer) unsafe.Pointer
+	ApiVersionTestScopedLibraryChildCreate() unsafe.Pointer
+	ApiVersionTestScopedLibraryChildCreateWithDefault(value unsafe.Pointer, otherValue unsafe.Pointer) unsafe.Pointer
+	ApiVersionTestScopedLibraryChildChildCreate() unsafe.Pointer
+	ApiVersionTestScopedLibraryChildChildV1Create() unsafe.Pointer
+	ApiVersionTestScopedLibraryChildChildV1CreateWithDefault(value unsafe.Pointer, otherValue unsafe.Pointer, otherOtherValue unsafe.Pointer) unsafe.Pointer
+	ApiVersionTestScopedLibraryChildChildV2Create() unsafe.Pointer
+	ApiVersionTestScopedLibraryChildChildV2CreateWithDefault(value unsafe.Pointer, otherValue unsafe.Pointer, otherOtherValue unsafe.Pointer) unsafe.Pointer
+}

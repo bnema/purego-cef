@@ -20,11 +20,15 @@ type Adapter struct {
 	stringListSz  func(uintptr) uintptr
 	stringListVal func(uintptr, uintptr, unsafe.Pointer) int32
 
-	// Core functions bound from CEF shared library.
-	initialize     func(unsafe.Pointer, unsafe.Pointer, unsafe.Pointer, unsafe.Pointer) int32
-	shutdown       func()
-	doMsgLoopWork  func()
-	executeProcess func(unsafe.Pointer, unsafe.Pointer, unsafe.Pointer) int32
+	// Core functions bound from CEF shared library (matches out.AppFunctions).
+	initialize              func(unsafe.Pointer, unsafe.Pointer, unsafe.Pointer, unsafe.Pointer) int32
+	shutdown                func()
+	doMsgLoopWork           func()
+	executeProcess          func(unsafe.Pointer, unsafe.Pointer, unsafe.Pointer) int32
+	getExitCode             func() int32
+	runMessageLoop          func()
+	quitMessageLoop         func()
+	setNestableTasksAllowed func(int32)
 }
 
 // New creates a CAPI Adapter, registering all symbols from the handle.
@@ -49,6 +53,10 @@ func (a *Adapter) bindCoreFuncs(handle uintptr) {
 	purego.RegisterLibFunc(&a.shutdown, handle, "cef_shutdown")
 	purego.RegisterLibFunc(&a.doMsgLoopWork, handle, "cef_do_message_loop_work")
 	purego.RegisterLibFunc(&a.executeProcess, handle, "cef_execute_process")
+	purego.RegisterLibFunc(&a.getExitCode, handle, "cef_get_exit_code")
+	purego.RegisterLibFunc(&a.runMessageLoop, handle, "cef_run_message_loop")
+	purego.RegisterLibFunc(&a.quitMessageLoop, handle, "cef_quit_message_loop")
+	purego.RegisterLibFunc(&a.setNestableTasksAllowed, handle, "cef_set_nestable_tasks_allowed")
 }
 
 func (a *Adapter) Initialize(args, settings, app, sandboxInfo unsafe.Pointer) int32 {
@@ -65,6 +73,22 @@ func (a *Adapter) DoMessageLoopWork() {
 
 func (a *Adapter) ExecuteProcess(args, app, sandboxInfo unsafe.Pointer) int32 {
 	return a.executeProcess(args, app, sandboxInfo)
+}
+
+func (a *Adapter) GetExitCode() int32 {
+	return a.getExitCode()
+}
+
+func (a *Adapter) RunMessageLoop() {
+	a.runMessageLoop()
+}
+
+func (a *Adapter) QuitMessageLoop() {
+	a.quitMessageLoop()
+}
+
+func (a *Adapter) SetNestableTasksAllowed(allowed unsafe.Pointer) {
+	a.setNestableTasksAllowed(int32(uintptr(allowed)))
 }
 
 func (a *Adapter) NewCallback(fn any) uintptr {

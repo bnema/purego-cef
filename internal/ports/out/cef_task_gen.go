@@ -15,3 +15,12 @@ type TaskRunner interface {
 	PostTask(task uintptr) uintptr
 	PostDelayedTask(task uintptr, delayMs uintptr) uintptr
 }
+
+// TaskFunctions defines the outbound port for Task free functions.
+type TaskFunctions interface {
+	TaskRunnerGetForCurrentThread() unsafe.Pointer
+	TaskRunnerGetForThread(threadid unsafe.Pointer) unsafe.Pointer
+	CurrentlyOn(threadid unsafe.Pointer) int32
+	PostTask(threadid unsafe.Pointer, task unsafe.Pointer) int32
+	PostDelayedTask(threadid unsafe.Pointer, task unsafe.Pointer, delayMs unsafe.Pointer) int32
+}

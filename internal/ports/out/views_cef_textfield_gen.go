@@ -41,3 +41,8 @@ type Textfield interface {
 	SetPlaceholderTextColor(color uintptr)
 	SetAccessibleName(name uintptr)
 }
+
+// TextfieldFunctions defines the outbound port for Textfield free functions.
+type TextfieldFunctions interface {
+	TextfieldCreate(delegate unsafe.Pointer) unsafe.Pointer
+}

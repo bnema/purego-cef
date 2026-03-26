@@ -12,3 +12,8 @@ type MenuButton interface {
 	ShowMenu(menuModel uintptr, screenPoint uintptr, anchorPosition uintptr)
 	TriggerMenu()
 }
+
+// MenuButtonFunctions defines the outbound port for MenuButton free functions.
+type MenuButtonFunctions interface {
+	MenuButtonCreate(delegate unsafe.Pointer, text unsafe.Pointer) unsafe.Pointer
+}

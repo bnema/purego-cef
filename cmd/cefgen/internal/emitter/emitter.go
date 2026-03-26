@@ -370,11 +370,11 @@ func EmitRaw(header *model.Header) (string, error) {
 }
 
 // EmitPortOut generates outbound port interfaces for a header.
+// This includes per-object interfaces AND a Functions interface for free functions.
 func EmitPortOut(data *PublicFileData) (string, error) {
 	if data == nil {
 		return "", nil
 	}
-	// Check if there are any object interfaces to generate
 	hasObjects := false
 	for _, iface := range data.Interfaces {
 		if iface.Kind == "object" {
@@ -382,7 +382,8 @@ func EmitPortOut(data *PublicFileData) (string, error) {
 			break
 		}
 	}
-	if !hasObjects {
+	hasFreeFuncs := len(data.FreeFunctions) > 0
+	if !hasObjects && !hasFreeFuncs {
 		return "", nil
 	}
 	tmpl, err := template.New("port_out").ParseFS(templateFS, "templates/port_out.tmpl")

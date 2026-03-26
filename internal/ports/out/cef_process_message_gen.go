@@ -16,3 +16,8 @@ type ProcessMessage interface {
 	GetArgumentList() uintptr
 	GetSharedMemoryRegion() uintptr
 }
+
+// ProcessMessageFunctions defines the outbound port for ProcessMessage free functions.
+type ProcessMessageFunctions interface {
+	ProcessMessageCreate(name unsafe.Pointer) unsafe.Pointer
+}

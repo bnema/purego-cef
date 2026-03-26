@@ -52,3 +52,8 @@ type Window interface {
 	ThemeChanged()
 	GetRuntimeStyle() uintptr
 }
+
+// WindowFunctions defines the outbound port for Window free functions.
+type WindowFunctions interface {
+	WindowCreateTopLevel(delegate unsafe.Pointer) unsafe.Pointer
+}
