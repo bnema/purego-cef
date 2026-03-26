@@ -399,3 +399,27 @@ func EmitPortOut(data *PublicFileData) (string, error) {
 	}
 	return string(formatted), nil
 }
+
+// EmitPortIn generates inbound port interfaces for a header.
+func EmitPortIn(data *PublicFileData) (string, error) {
+	if data == nil {
+		return "", nil
+	}
+	hasContent := len(data.Interfaces) > 0 || len(data.Enums) > 0
+	if !hasContent {
+		return "", nil
+	}
+	tmpl, err := template.New("port_in").ParseFS(templateFS, "templates/port_in.tmpl")
+	if err != nil {
+		return "", err
+	}
+	var buf bytes.Buffer
+	if err := tmpl.ExecuteTemplate(&buf, "port_in.tmpl", data); err != nil {
+		return "", fmt.Errorf("execute port_in template: %w", err)
+	}
+	formatted, err := format.Source(buf.Bytes())
+	if err != nil {
+		return "", fmt.Errorf("format port_in source: %w\n%s", err, buf.String())
+	}
+	return string(formatted), nil
+}
