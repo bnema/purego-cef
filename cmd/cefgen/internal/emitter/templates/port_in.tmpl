@@ -21,7 +21,7 @@ type {{.Name}} interface {
 }
 {{end}}
 {{range .Enums}}
-type {{.Name}} = int32
+type {{.Name}} = {{if .Unsigned}}uint32{{else}}int32{{end}}
 {{end}}
 {{range .DataStructs}}
 // {{.Name}} is a type alias for the raw data struct.

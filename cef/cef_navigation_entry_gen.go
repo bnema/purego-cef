@@ -7,30 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // NavigationEntry Structure used to represent an entry in navigation history.
-type NavigationEntry interface {
-	// IsValid Returns true (1) if this object is valid. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// GetURL Returns the actual URL of the page. For some pages this may be data: URL or similar. Use get_display_url() to return a display-friendly version.
-	GetURL() string
-	GetDisplayURL() string
-	// GetOriginalURL Returns the original URL that was entered by the user before any redirects.
-	GetOriginalURL() string
-	// GetTitle Returns the title set by the page. This value may be NULL.
-	GetTitle() string
-	// GetTransitionType Returns the transition type which indicates what the user did to move to this page from the previous page.
-	GetTransitionType() TransitionType
-	// HasPostData Returns true (1) if this navigation includes post data.
-	HasPostData() bool
-	// GetCompletionTime Returns the time for the last known successful navigation completion. A navigation may be completed more than once if the page is reloaded. May be 0 if the navigation has not yet completed.
-	GetCompletionTime() uintptr
-	// GetHttpStatusCode Returns the HTTP status code for the last known successful navigation response. May be 0 if the response has not yet been received or if the navigation has not yet completed.
-	GetHttpStatusCode() int32
-	// GetSslstatus Returns the SSL information for this navigation entry.
-	GetSslstatus() Sslstatus
-}
+type NavigationEntry = in.NavigationEntry
 
 type navigationEntryImpl struct {
 	rawPtr *capi.CEFNavigationEntryT

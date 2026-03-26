@@ -8,14 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ResponseFilter Implement this structure to filter resource response content. The functions of this structure will be called on the browser process IO thread.
-type ResponseFilter interface {
-	// InitFilter Initialize the response filter. Will only be called a single time. The filter will not be installed if this function returns false (0).
-	InitFilter() int32
-	Filter(dataIn unsafe.Pointer, dataInSize int, dataInRead *int, dataOut unsafe.Pointer, dataOutSize int, dataOutWritten *int) ResponseFilterStatus
-}
+type ResponseFilter = in.ResponseFilter
 
 // responseFilterWrapper wraps a user-provided ResponseFilter implementation together
 // with the raw CEF struct pointer allocated by NewResponseFilter.  It satisfies the

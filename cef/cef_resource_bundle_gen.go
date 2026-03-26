@@ -7,17 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ResourceBundle Structure used for retrieving resources from the resource bundle (*.pak) files loaded by CEF during startup or via the cef_resource_bundle_handler_t returned from cef_app_t::GetResourceBundleHandler. See CefSettings for additional options related to resource bundle loading. The functions of this structure may be called on any thread unless otherwise indicated.
-type ResourceBundle interface {
-	// GetLocalizedString Returns the localized string for the specified |string_id| or an NULL string if the value is not found. Use the cef_id_for_pack_string_name() function for version-safe mapping of string IDS names from cef_pack_strings.h to version-specific numerical |string_id| values.
-	GetLocalizedString(stringID int32) string
-	// GetDataResource Returns a cef_binary_value_t containing the decompressed contents of the specified scale independent |resource_id| or NULL if not found. Use the cef_id_for_pack_resource_name() function for version-safe mapping of resource IDR names from cef_pack_resources.h to version-specific numerical |resource_id| values.
-	GetDataResource(resourceID int32) BinaryValue
-	// GetDataResourceForScale Returns a cef_binary_value_t containing the decompressed contents of the specified |resource_id| nearest the scale factor |scale_factor| or NULL if not found. Use a |scale_factor| value of SCALE_FACTOR_NONE for scale independent resources or call GetDataResource instead. Use the cef_id_for_pack_resource_name() function for version-safe mapping of resource IDR names from cef_pack_resources.h to version-specific numerical |resource_id| values.
-	GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor) BinaryValue
-}
+type ResourceBundle = in.ResourceBundle
 
 type resourceBundleImpl struct {
 	rawPtr *capi.CEFResourceBundleT

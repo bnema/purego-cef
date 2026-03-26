@@ -7,25 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ScrollView A ScrollView will show horizontal and/or vertical scrollbars when necessary based on the size of the attached content view. Methods must be called on the browser process UI thread unless otherwise indicated.
-type ScrollView interface {
-	// SetContentView Set the content View. The content View must have a specified size (e.g. via cef_view_t::SetBounds or cef_view_delegate_t::GetPreferredSize).
-	SetContentView(view View)
-	// GetContentView Returns the content View.
-	GetContentView() View
-	// GetVisibleContentRect Returns the visible region of the content View.
-	GetVisibleContentRect() uintptr
-	// HasHorizontalScrollbar Returns true (1) if the horizontal scrollbar is currently showing.
-	HasHorizontalScrollbar() bool
-	// GetHorizontalScrollbarHeight Returns the height of the horizontal scrollbar.
-	GetHorizontalScrollbarHeight() int32
-	// HasVerticalScrollbar Returns true (1) if the vertical scrollbar is currently showing.
-	HasVerticalScrollbar() bool
-	// GetVerticalScrollbarWidth Returns the width of the vertical scrollbar.
-	GetVerticalScrollbarWidth() int32
-}
+type ScrollView = in.ScrollView
 
 type scrollViewImpl struct {
 	rawPtr *capi.CEFScrollViewT

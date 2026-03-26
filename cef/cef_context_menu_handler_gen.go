@@ -9,14 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // RunContextMenuCallback Callback structure used for continuation of custom context menu display.
-type RunContextMenuCallback interface {
-	Cont(commandID int32, eventFlags EventFlags)
-	// Cancel Cancel context menu display.
-	Cancel()
-}
+type RunContextMenuCallback = in.RunContextMenuCallback
 
 type runContextMenuCallbackImpl struct {
 	rawPtr *capi.CEFRunContextMenuCallbackT
@@ -56,12 +54,7 @@ func wrapRunContextMenuCallback(ptr unsafe.Pointer) RunContextMenuCallback {
 }
 
 // RunQuickMenuCallback Callback structure used for continuation of custom quick menu display.
-type RunQuickMenuCallback interface {
-	// Cont Complete quick menu display by selecting the specified |command_id| and |event_flags|.
-	Cont(commandID int32, eventFlags EventFlags)
-	// Cancel Cancel quick menu display.
-	Cancel()
-}
+type RunQuickMenuCallback = in.RunQuickMenuCallback
 
 type runQuickMenuCallbackImpl struct {
 	rawPtr *capi.CEFRunQuickMenuCallbackT
@@ -101,22 +94,7 @@ func wrapRunQuickMenuCallback(ptr unsafe.Pointer) RunQuickMenuCallback {
 }
 
 // ContextMenuHandler Implement this structure to handle context menu events. The functions of this structure will be called on the UI thread.
-type ContextMenuHandler interface {
-	// OnBeforeContextMenu Called before a context menu is displayed. |params| provides information about the context menu state. |model| initially contains the default context menu. The |model| can be cleared to show no context menu or modified to show a custom menu. Do not keep references to |params| or |model| outside of this callback.
-	OnBeforeContextMenu(browser Browser, frame Frame, params ContextMenuParams, model MenuModel)
-	// RunContextMenu Called to allow custom display of the context menu. |params| provides information about the context menu state. |model| contains the context menu model resulting from OnBeforeContextMenu. For custom display return true (1) and execute |callback| either synchronously or asynchronously with the selected command ID. For default display return false (0). Do not keep references to |params| or |model| outside of this callback.
-	RunContextMenu(browser Browser, frame Frame, params ContextMenuParams, model MenuModel, callback RunContextMenuCallback) int32
-	// OnContextMenuCommand Called to execute a command selected from the context menu. Return true (1) if the command was handled or false (0) for the default implementation. See cef_menu_id_t for the command ids that have default implementations. All user-defined command ids should be between MENU_ID_USER_FIRST and MENU_ID_USER_LAST. |params| will have the same values as what was passed to on_before_context_menu(). Do not keep a reference to |params| outside of this callback.
-	OnContextMenuCommand(browser Browser, frame Frame, params ContextMenuParams, commandID int32, eventFlags EventFlags) int32
-	// OnContextMenuDismissed Called when the context menu is dismissed irregardless of whether the menu was canceled or a command was selected.
-	OnContextMenuDismissed(browser Browser, frame Frame)
-	// RunQuickMenu Called to allow custom display of the quick menu for a windowless browser. |location| is the top left corner of the selected region. |size| is the size of the selected region. |edit_state_flags| is a combination of flags that represent the state of the quick menu. Return true (1) if the menu will be handled and execute |callback| either synchronously or asynchronously with the selected command ID. Return false (0) to cancel the menu.
-	RunQuickMenu(browser Browser, frame Frame, location *Point, size *Size, editStateFlags QuickMenuEditStateFlags, callback RunQuickMenuCallback) int32
-	// OnQuickMenuCommand Called to execute a command selected from the quick menu for a windowless browser. Return true (1) if the command was handled or false (0) for the default implementation. See cef_menu_id_t for command IDs that have default implementations.
-	OnQuickMenuCommand(browser Browser, frame Frame, commandID int32, eventFlags EventFlags) int32
-	// OnQuickMenuDismissed Called when the quick menu for a windowless browser is dismissed irregardless of whether the menu was canceled or a command was selected.
-	OnQuickMenuDismissed(browser Browser, frame Frame)
-}
+type ContextMenuHandler = in.ContextMenuHandler
 
 // contextMenuHandlerWrapper wraps a user-provided ContextMenuHandler implementation together
 // with the raw CEF struct pointer allocated by NewContextMenuHandler.  It satisfies the
@@ -211,48 +189,7 @@ func wrapContextMenuHandler(ptr unsafe.Pointer) ContextMenuHandler {
 }
 
 // ContextMenuParams Provides information about the context menu state. The functions of this structure can only be accessed on browser process the UI thread.
-type ContextMenuParams interface {
-	// GetXcoord Returns the X coordinate of the mouse where the context menu was invoked. Coords are relative to the associated RenderView's origin.
-	GetXcoord() int32
-	// GetYcoord Returns the Y coordinate of the mouse where the context menu was invoked. Coords are relative to the associated RenderView's origin.
-	GetYcoord() int32
-	// GetTypeFlags Returns flags representing the type of node that the context menu was invoked on.
-	GetTypeFlags() ContextMenuTypeFlags
-	// GetLinkURL Returns the URL of the link, if any, that encloses the node that the context menu was invoked on.
-	GetLinkURL() string
-	// GetUnfilteredLinkURL Returns the link URL, if any, to be used ONLY for "copy link address". We don't validate this field in the frontend process.
-	GetUnfilteredLinkURL() string
-	// GetSourceURL Returns the source URL, if any, for the element that the context menu was invoked on. Example of elements with source URLs are img, audio, and video.
-	GetSourceURL() string
-	// HasImageContents Returns true (1) if the context menu was invoked on an image which has non-NULL contents.
-	HasImageContents() bool
-	// GetTitleText Returns the title text or the alt text if the context menu was invoked on an image.
-	GetTitleText() string
-	// GetPageURL Returns the URL of the top level page that the context menu was invoked on.
-	GetPageURL() string
-	// GetFrameURL Returns the URL of the subframe that the context menu was invoked on.
-	GetFrameURL() string
-	// GetFrameCharset Returns the character encoding of the subframe that the context menu was invoked on.
-	GetFrameCharset() string
-	// GetMediaType Returns the type of context node that the context menu was invoked on.
-	GetMediaType() ContextMenuMediaType
-	// GetMediaStateFlags Returns flags representing the actions supported by the media element, if any, that the context menu was invoked on.
-	GetMediaStateFlags() ContextMenuMediaStateFlags
-	// GetSelectionText Returns the text of the selection, if any, that the context menu was invoked on.
-	GetSelectionText() string
-	// GetMisspelledWord Returns the text of the misspelled word, if any, that the context menu was invoked on.
-	GetMisspelledWord() string
-	// GetDictionarySuggestions Returns true (1) if suggestions exist, false (0) otherwise. Fills in |suggestions| from the spell check service for the misspelled word if there is one.
-	GetDictionarySuggestions(suggestions uintptr) int32
-	// IsEditable Returns true (1) if the context menu was invoked on an editable node.
-	IsEditable() bool
-	// IsSpellCheckEnabled Returns true (1) if the context menu was invoked on an editable node where spell-check is enabled.
-	IsSpellCheckEnabled() bool
-	// GetEditStateFlags Returns flags representing the actions supported by the editable node, if any, that the context menu was invoked on.
-	GetEditStateFlags() ContextMenuEditStateFlags
-	// IsCustomMenu Returns true (1) if the context menu contains items specified by the renderer process.
-	IsCustomMenu() bool
-}
+type ContextMenuParams = in.ContextMenuParams
 
 type contextMenuParamsImpl struct {
 	rawPtr *capi.CEFContextMenuParamsT

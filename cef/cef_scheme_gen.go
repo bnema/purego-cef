@@ -8,13 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // SchemeRegistrar Structure that manages custom scheme registrations.
-type SchemeRegistrar interface {
-	// AddCustomScheme Register a custom scheme. This function should not be called for the built-in HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes. See cef_scheme_options_t for possible values for |options|. This function may be called on any thread. It should only be called once per unique |scheme_name| value. If |scheme_name| is already registered or if an error occurs this function will return false (0).
-	AddCustomScheme(schemeName string, options int32) int32
-}
+type SchemeRegistrar = in.SchemeRegistrar
 
 type schemeRegistrarImpl struct {
 	rawPtr *capi.CEFSchemeRegistrarT
@@ -39,10 +38,7 @@ func wrapSchemeRegistrar(ptr unsafe.Pointer) SchemeRegistrar {
 }
 
 // SchemeHandlerFactory Structure that creates cef_resource_handler_t instances for handling scheme requests. The functions of this structure will always be called on the IO thread.
-type SchemeHandlerFactory interface {
-	// Create Return a new resource handler instance to handle the request or an NULL reference to allow default handling of the request. |browser| and |frame| will be the browser window and frame respectively that originated the request or NULL if the request did not originate from a browser window (for example, if the request came from cef_urlrequest_t). The |request| object passed to this function cannot be modified.
-	Create(browser Browser, frame Frame, schemeName string, request Request) ResourceHandler
-}
+type SchemeHandlerFactory = in.SchemeHandlerFactory
 
 // schemeHandlerFactoryWrapper wraps a user-provided SchemeHandlerFactory implementation together
 // with the raw CEF struct pointer allocated by NewSchemeHandlerFactory.  It satisfies the

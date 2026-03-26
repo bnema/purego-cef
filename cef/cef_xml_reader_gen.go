@@ -7,69 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // XmlReader Structure that supports the reading of XML data via the libxml streaming API. The functions of this structure should only be called on the thread that creates the object.
-type XmlReader interface {
-	// MoveToNextNode Moves the cursor to the next node in the document. This function must be called at least once to set the current cursor position. Returns true (1) if the cursor position was set successfully.
-	MoveToNextNode() int32
-	// Close Close the document. This should be called directly to ensure that cleanup occurs on the correct thread.
-	Close() int32
-	// HasError Returns true (1) if an error has been reported by the XML parser.
-	HasError() bool
-	// GetError Returns the error string.
-	GetError() string
-	// GetType Returns the node type.
-	GetType() XmlNodeType
-	// GetDepth Returns the node depth. Depth starts at 0 for the root node.
-	GetDepth() int32
-	// GetLocalName Returns the local name. See http://www.w3.org/TR/REC-xml-names/#NT- LocalPart for additional details.
-	GetLocalName() string
-	// GetPrefix Returns the namespace prefix. See http://www.w3.org/TR/REC-xml-names/ for additional details.
-	GetPrefix() string
-	// GetQualifiedName Returns the qualified name, equal to (Prefix:)LocalName. See http://www.w3.org/TR/REC-xml-names/#ns-qualnames for additional details.
-	GetQualifiedName() string
-	// GetNamespaceUri Returns the URI defining the namespace associated with the node. See http://www.w3.org/TR/REC-xml-names/ for additional details.
-	GetNamespaceUri() string
-	// GetBaseUri Returns the base URI of the node. See http://www.w3.org/TR/xmlbase/ for additional details.
-	GetBaseUri() string
-	// GetXmlLang Returns the xml:lang scope within which the node resides. See http://www.w3.org/TR/REC-xml/#sec-lang-tag for additional details.
-	GetXmlLang() string
-	// IsEmptyElement Returns true (1) if the node represents an NULL element. "<a/>" is considered NULL but "<a></a>" is not.
-	IsEmptyElement() bool
-	// HasValue Returns true (1) if the node has a text value.
-	HasValue() bool
-	// GetValue Returns the text value.
-	GetValue() string
-	// HasAttributes Returns true (1) if the node has attributes.
-	HasAttributes() bool
-	// GetAttributeCount Returns the number of attributes.
-	GetAttributeCount() int
-	// GetAttributeByindex Returns the value of the attribute at the specified 0-based index.
-	GetAttributeByindex(index int32) string
-	// GetAttributeByqname Returns the value of the attribute with the specified qualified name.
-	GetAttributeByqname(qualifiedname string) string
-	// GetAttributeBylname Returns the value of the attribute with the specified local name and namespace URI.
-	GetAttributeBylname(localname string, namespaceuri string) string
-	// GetInnerXml Returns an XML representation of the current node's children.
-	GetInnerXml() string
-	// GetOuterXml Returns an XML representation of the current node including its children.
-	GetOuterXml() string
-	// GetLineNumber Returns the line number for the current node.
-	GetLineNumber() int32
-	// MoveToAttributeByindex Moves the cursor to the attribute at the specified 0-based index. Returns true (1) if the cursor position was set successfully.
-	MoveToAttributeByindex(index int32) int32
-	// MoveToAttributeByqname Moves the cursor to the attribute with the specified qualified name. Returns true (1) if the cursor position was set successfully.
-	MoveToAttributeByqname(qualifiedname string) int32
-	// MoveToAttributeBylname Moves the cursor to the attribute with the specified local name and namespace URI. Returns true (1) if the cursor position was set successfully.
-	MoveToAttributeBylname(localname string, namespaceuri string) int32
-	// MoveToFirstAttribute Moves the cursor to the first attribute in the current element. Returns true (1) if the cursor position was set successfully.
-	MoveToFirstAttribute() int32
-	// MoveToNextAttribute Moves the cursor to the next attribute in the current element. Returns true (1) if the cursor position was set successfully.
-	MoveToNextAttribute() int32
-	// MoveToCarryingElement Moves the cursor back to the carrying element. Returns true (1) if the cursor position was set successfully.
-	MoveToCarryingElement() int32
-}
+type XmlReader = in.XmlReader
 
 type xmlReaderImpl struct {
 	rawPtr *capi.CEFXmlReaderT

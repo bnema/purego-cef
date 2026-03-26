@@ -8,13 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // FindHandler Implement this structure to handle events related to find results. The functions of this structure will be called on the UI thread.
-type FindHandler interface {
-	// OnFindResult Called to report find results returned by cef_browser_host_t::find(). |identifer| is a unique incremental identifier for the currently active search, |count| is the number of matches currently identified, |selectionRect| is the location of where the match was found (in window coordinates), |activeMatchOrdinal| is the current position in the search results, and |finalUpdate| is true (1) if this is the last find notification.
-	OnFindResult(browser Browser, identifier int32, count int32, selectionrect *Rect, activematchordinal int32, finalupdate int32)
-}
+type FindHandler = in.FindHandler
 
 // findHandlerWrapper wraps a user-provided FindHandler implementation together
 // with the raw CEF struct pointer allocated by NewFindHandler.  It satisfies the

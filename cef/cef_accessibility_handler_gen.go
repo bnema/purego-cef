@@ -8,15 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // AccessibilityHandler Implement this structure to receive accessibility notification when accessibility events have been registered. The functions of this structure will be called on the UI thread.
-type AccessibilityHandler interface {
-	// OnAccessibilityTreeChange Called after renderer process sends accessibility tree changes to the browser process.
-	OnAccessibilityTreeChange(value Value)
-	// OnAccessibilityLocationChange Called after renderer process sends accessibility location changes to the browser process.
-	OnAccessibilityLocationChange(value Value)
-}
+type AccessibilityHandler = in.AccessibilityHandler
 
 // accessibilityHandlerWrapper wraps a user-provided AccessibilityHandler implementation together
 // with the raw CEF struct pointer allocated by NewAccessibilityHandler.  It satisfies the

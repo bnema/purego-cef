@@ -9,14 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // FileDialogCallback Callback structure for asynchronous continuation of file dialog requests.
-type FileDialogCallback interface {
-	// Cont Continue the file selection. |file_paths| should be a single value or a list of values depending on the dialog mode. An NULL |file_paths| value is treated the same as calling cancel().
-	Cont(filePaths uintptr)
-	Cancel()
-}
+type FileDialogCallback = in.FileDialogCallback
 
 type fileDialogCallbackImpl struct {
 	rawPtr *capi.CEFFileDialogCallbackT
@@ -56,10 +54,7 @@ func wrapFileDialogCallback(ptr unsafe.Pointer) FileDialogCallback {
 }
 
 // DialogHandler Implement this structure to handle dialog events. The functions of this structure will be called on the browser process UI thread.
-type DialogHandler interface {
-	// OnFileDialog Called to run a file chooser dialog. |mode| represents the type of dialog to display. |title| to the title to be used for the dialog and may be NULL to show the default title ("Open" or "Save" depending on the mode). |default_file_path| is the path with optional directory and/or file name component that should be initially selected in the dialog. |accept_filters| are used to restrict the selectable file types and may be any combination of valid lower-cased MIME types (e.g. "text/*" or "image/*") and individual file extensions (e.g. ".txt" or ".png"). |accept_extensions| provides the semicolon-delimited expansion of MIME types to file extensions (if known, or NULL string otherwise). |accept_descriptions| provides the descriptions for MIME types (if known, or NULL string otherwise). For example, the "image/*" mime type might have extensions ".png;.jpg;.bmp;..." and description "Image Files". |accept_filters|, |accept_extensions| and |accept_descriptions| will all be the same size. To display a custom dialog return true (1) and execute |callback| either inline or at a later time. To display the default dialog return false (0). If this function returns false (0) it may be called an additional time for the same dialog (both before and after MIME type expansion).
-	OnFileDialog(browser Browser, mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, acceptExtensions uintptr, acceptDescriptions uintptr, callback FileDialogCallback) int32
-}
+type DialogHandler = in.DialogHandler
 
 // dialogHandlerWrapper wraps a user-provided DialogHandler implementation together
 // with the raw CEF struct pointer allocated by NewDialogHandler.  It satisfies the

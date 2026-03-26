@@ -7,65 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // DragData Structure used to represent drag data. The functions of this structure may be called on any thread.
-type DragData interface {
-	// Clone Returns a copy of the current object.
-	Clone() DragData
-	// IsReadOnly Returns true (1) if this object is read-only.
-	IsReadOnly() bool
-	// IsLink Returns true (1) if the drag data is a link.
-	IsLink() bool
-	// IsFragment Returns true (1) if the drag data is a text or html fragment.
-	IsFragment() bool
-	// IsFile Returns true (1) if the drag data is a file.
-	IsFile() bool
-	// GetLinkURL Return the link URL that is being dragged.
-	GetLinkURL() string
-	// GetLinkTitle Return the title associated with the link being dragged.
-	GetLinkTitle() string
-	// GetLinkMetadata Return the metadata, if any, associated with the link being dragged.
-	GetLinkMetadata() string
-	// GetFragmentText Return the plain text fragment that is being dragged.
-	GetFragmentText() string
-	// GetFragmentHtml Return the text/html fragment that is being dragged.
-	GetFragmentHtml() string
-	// GetFragmentBaseURL Return the base URL that the fragment came from. This value is used for resolving relative URLs and may be NULL.
-	GetFragmentBaseURL() string
-	// GetFileName Return the name of the file being dragged out of the browser window.
-	GetFileName() string
-	// GetFileContents Write the contents of the file being dragged out of the web view into |writer|. Returns the number of bytes sent to |writer|. If |writer| is NULL this function will return the size of the file contents in bytes. Call get_file_name() to get a suggested name for the file.
-	GetFileContents(writer StreamWriter) int
-	// GetFileNames Retrieve the list of file names that are being dragged into the browser window.
-	GetFileNames(names uintptr) int32
-	// GetFilePaths Retrieve the list of file paths that are being dragged into the browser window.
-	GetFilePaths(paths uintptr) int32
-	// SetLinkURL Set the link URL that is being dragged.
-	SetLinkURL(uRL string)
-	// SetLinkTitle Set the title associated with the link being dragged.
-	SetLinkTitle(title string)
-	// SetLinkMetadata Set the metadata associated with the link being dragged.
-	SetLinkMetadata(data string)
-	// SetFragmentText Set the plain text fragment that is being dragged.
-	SetFragmentText(text string)
-	// SetFragmentHtml Set the text/html fragment that is being dragged.
-	SetFragmentHtml(html string)
-	// SetFragmentBaseURL Set the base URL that the fragment came from.
-	SetFragmentBaseURL(baseURL string)
-	// ResetFileContents Reset the file contents. You should do this before calling cef_browser_host_t::DragTargetDragEnter as the web view does not allow us to drag in this kind of data.
-	ResetFileContents()
-	// AddFile Add a file that is being dragged into the webview.
-	AddFile(path string, displayName string)
-	// ClearFilenames Clear list of filenames.
-	ClearFilenames()
-	// GetImage Get the image representation of drag data. May return NULL if no image representation is available.
-	GetImage() Image
-	// GetImageHotspot Get the image hotspot (drag start location relative to image dimensions).
-	GetImageHotspot() uintptr
-	// HasImage Returns true (1) if an image representation of drag data is available.
-	HasImage() bool
-}
+type DragData = in.DragData
 
 type dragDataImpl struct {
 	rawPtr *capi.CEFDragDataT

@@ -8,49 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Client Implement this structure to provide handler implementations.
-type Client interface {
-	// GetAudioHandler Return the handler for audio rendering events.
-	GetAudioHandler() AudioHandler
-	// GetCommandHandler Return the handler for commands. If no handler is provided the default implementation will be used.
-	GetCommandHandler() CommandHandler
-	// GetContextMenuHandler Return the handler for context menus. If no handler is provided the default implementation will be used.
-	GetContextMenuHandler() ContextMenuHandler
-	// GetDialogHandler Return the handler for dialogs. If no handler is provided the default implementation will be used.
-	GetDialogHandler() DialogHandler
-	// GetDisplayHandler Return the handler for browser display state events.
-	GetDisplayHandler() DisplayHandler
-	// GetDownloadHandler Return the handler for download events. If no handler is returned downloads will not be allowed.
-	GetDownloadHandler() DownloadHandler
-	// GetDragHandler Return the handler for drag events.
-	GetDragHandler() DragHandler
-	// GetFindHandler Return the handler for find result events.
-	GetFindHandler() FindHandler
-	// GetFocusHandler Return the handler for focus events.
-	GetFocusHandler() FocusHandler
-	// GetFrameHandler Return the handler for events related to cef_frame_t lifespan. This function will be called once during cef_browser_t creation and the result will be cached for performance reasons.
-	GetFrameHandler() FrameHandler
-	// GetPermissionHandler Return the handler for permission requests.
-	GetPermissionHandler() PermissionHandler
-	// GetJsdialogHandler Return the handler for JavaScript dialogs. If no handler is provided the default implementation will be used.
-	GetJsdialogHandler() JsdialogHandler
-	// GetKeyboardHandler Return the handler for keyboard events.
-	GetKeyboardHandler() KeyboardHandler
-	// GetLifeSpanHandler Return the handler for browser life span events.
-	GetLifeSpanHandler() LifeSpanHandler
-	// GetLoadHandler Return the handler for browser load status events.
-	GetLoadHandler() LoadHandler
-	// GetPrintHandler Return the handler for printing on Linux. If a print handler is not provided then printing will not be supported on the Linux platform.
-	GetPrintHandler() PrintHandler
-	// GetRenderHandler Return the handler for off-screen rendering events.
-	GetRenderHandler() RenderHandler
-	// GetRequestHandler Return the handler for browser request events.
-	GetRequestHandler() RequestHandler
-	// OnProcessMessageReceived Called when a new message is received from a different process. Return true (1) if the message was handled or false (0) otherwise.  It is safe to keep a reference to |message| outside of this callback.
-	OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32
-}
+type Client = in.Client
 
 // clientWrapper wraps a user-provided Client implementation together
 // with the raw CEF struct pointer allocated by NewClient.  It satisfies the

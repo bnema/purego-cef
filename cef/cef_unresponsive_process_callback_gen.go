@@ -7,15 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // UnresponsiveProcessCallback Callback structure for asynchronous handling of an unresponsive process.
-type UnresponsiveProcessCallback interface {
-	// Wait Reset the timeout for the unresponsive process.
-	Wait()
-	// Terminate Terminate the unresponsive process.
-	Terminate()
-}
+type UnresponsiveProcessCallback = in.UnresponsiveProcessCallback
 
 type unresponsiveProcessCallbackImpl struct {
 	rawPtr *capi.CEFUnresponsiveProcessCallbackT

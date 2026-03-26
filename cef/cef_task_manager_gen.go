@@ -7,21 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // TaskManager Structure that facilitates managing the browser-related tasks. The functions of this structure may only be called on the UI thread.
-type TaskManager interface {
-	// GetTasksCount Returns the number of tasks currently tracked by the task manager. Returns 0 if the function was called from the incorrect thread.
-	GetTasksCount() int
-	// GetTaskIdsList Gets the list of task IDs currently tracked by the task manager. Tasks that share the same process id will always be consecutive. The list will be sorted in a way that reflects the process tree: the browser process will be first, followed by the gpu process if it exists. Related processes (e.g., a subframe process and its parent) will be kept together if possible. Callers can expect this ordering to be stable when a process is added or removed. The task IDs are unique within the application lifespan. Returns false (0) if the function was called from the incorrect thread.
-	GetTaskIdsList(taskIdscount *int, taskIds unsafe.Pointer) int32
-	// GetTaskInfo Gets information about the task with |task_id|. Returns true (1) if the information about the task was successfully retrieved and false (0) if the |task_id| is invalid or the function was called from the incorrect thread.
-	GetTaskInfo(taskID int64, info *TaskInfo) int32
-	// KillTask Attempts to terminate a task with |task_id|. Returns false (0) if the |task_id| is invalid, the call is made from an incorrect thread, or if the task cannot be terminated.
-	KillTask(taskID int64) int32
-	// GetTaskIDForBrowserID Returns the task ID associated with the main task for |browser_id| (value from cef_browser_t::GetIdentifier). Returns -1 if |browser_id| is invalid, does not currently have an associated task, or the function was called from the incorrect thread.
-	GetTaskIDForBrowserID(browserID int32) int64
-}
+type TaskManager = in.TaskManager
 
 type taskManagerImpl struct {
 	rawPtr *capi.CEFTaskManagerT

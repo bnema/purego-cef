@@ -7,15 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MenuButton MenuButton is a button with optional text, icon and/or menu marker that shows a menu when clicked with the left mouse button. All size and position values are in density independent pixels (DIP) unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
-type MenuButton interface {
-	// ShowMenu Show a menu with contents |menu_model|. |screen_point| specifies the menu position in screen coordinates. |anchor_position| specifies how the menu will be anchored relative to |screen_point|. This function should be called from cef_menu_button_delegate_t::on_menu_button_pressed().
-	ShowMenu(menuModel MenuModel, screenPoint *Point, anchorPosition MenuAnchorPosition)
-	// TriggerMenu Show the menu for this button. Results in a call to cef_menu_button_delegate_t::on_menu_button_pressed().
-	TriggerMenu()
-}
+type MenuButton = in.MenuButton
 
 type menuButtonImpl struct {
 	rawPtr *capi.CEFMenuButtonT

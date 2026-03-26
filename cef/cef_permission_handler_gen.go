@@ -9,15 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MediaAccessCallback Callback structure used for asynchronous continuation of media access permission requests.
-type MediaAccessCallback interface {
-	// Cont Call to allow or deny media access. If this callback was initiated in response to a getUserMedia (indicated by CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE and/or CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE being set) then |allowed_permissions| must match |required_permissions| passed to OnRequestMediaAccessPermission.
-	Cont(allowedPermissions uint32)
-	// Cancel Cancel the media access request.
-	Cancel()
-}
+type MediaAccessCallback = in.MediaAccessCallback
 
 type mediaAccessCallbackImpl struct {
 	rawPtr *capi.CEFMediaAccessCallbackT
@@ -57,10 +54,7 @@ func wrapMediaAccessCallback(ptr unsafe.Pointer) MediaAccessCallback {
 }
 
 // PermissionPromptCallback Callback structure used for asynchronous continuation of permission prompts.
-type PermissionPromptCallback interface {
-	// Cont Complete the permissions request with the specified |result|.
-	Cont(result PermissionRequestResult)
-}
+type PermissionPromptCallback = in.PermissionPromptCallback
 
 type permissionPromptCallbackImpl struct {
 	rawPtr *capi.CEFPermissionPromptCallbackT
@@ -96,14 +90,7 @@ func wrapPermissionPromptCallback(ptr unsafe.Pointer) PermissionPromptCallback {
 }
 
 // PermissionHandler Implement this structure to handle events related to permission requests. The functions of this structure will be called on the browser process UI thread.
-type PermissionHandler interface {
-	// OnRequestMediaAccessPermission Called when a page requests permission to access media. |requesting_origin| is the URL origin requesting permission. |requested_permissions| is a combination of values from cef_media_access_permission_types_t that represent the requested permissions. Return true (1) and call cef_media_access_callback_t functions either in this function or at a later time to continue or cancel the request. Return false (0) to proceed with default handling. With Chrome style, default handling will display the permission request UI. With Alloy style, default handling will deny the request. This function will not be called if the "--enable-media-stream" command-line switch is used to grant all permissions.
-	OnRequestMediaAccessPermission(browser Browser, frame Frame, requestingOrigin string, requestedPermissions uint32, callback MediaAccessCallback) int32
-	// OnShowPermissionPrompt Called when a page should show a permission prompt. |prompt_id| uniquely identifies the prompt. |requesting_origin| is the URL origin requesting permission. |requested_permissions| is a combination of values from cef_permission_request_types_t that represent the requested permissions. Return true (1) and call cef_permission_prompt_callback_t::Continue either in this function or at a later time to continue or cancel the request. Return false (0) to proceed with default handling. With Chrome style, default handling will display the permission prompt UI. With Alloy style, default handling is CEF_PERMISSION_RESULT_IGNORE.
-	OnShowPermissionPrompt(browser Browser, promptID uint64, requestingOrigin string, requestedPermissions uint32, callback PermissionPromptCallback) int32
-	// OnDismissPermissionPrompt Called when a permission prompt handled via OnShowPermissionPrompt is dismissed. |prompt_id| will match the value that was passed to OnShowPermissionPrompt. |result| will be the value passed to cef_permission_prompt_callback_t::Continue or CEF_PERMISSION_RESULT_IGNORE if the dialog was dismissed for other reasons such as navigation, browser closure, etc. This function will not be called if OnShowPermissionPrompt returned false (0) for |prompt_id|.
-	OnDismissPermissionPrompt(browser Browser, promptID uint64, result PermissionRequestResult)
-}
+type PermissionHandler = in.PermissionHandler
 
 // permissionHandlerWrapper wraps a user-provided PermissionHandler implementation together
 // with the raw CEF struct pointer allocated by NewPermissionHandler.  It satisfies the

@@ -9,12 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Task Implement this structure for asynchronous task execution. If the task is posted successfully and if the associated message loop is still running then the execute() function will be called on the target thread. If the task fails to post then the task object may be destroyed on the source thread instead of the target thread. For this reason be cautious when performing work in the task object destructor.
-type Task interface {
-	Execute()
-}
+type Task = in.Task
 
 // taskWrapper wraps a user-provided Task implementation together
 // with the raw CEF struct pointer allocated by NewTask.  It satisfies the
@@ -57,18 +57,7 @@ func wrapTask(ptr unsafe.Pointer) Task {
 }
 
 // TaskRunner Structure that asynchronously executes tasks on the associated thread. It is safe to call the functions of this structure on any thread. CEF maintains multiple internal threads that are used for handling different types of tasks in different processes. The cef_thread_id_t definitions in cef_types.h list the common CEF threads. Task runners are also available for other CEF threads as appropriate (for example, V8 WebWorker threads).
-type TaskRunner interface {
-	// IsSame Returns true (1) if this object is pointing to the same task runner as |that| object.
-	IsSame(that TaskRunner) bool
-	// BelongsToCurrentThread Returns true (1) if this task runner belongs to the current thread.
-	BelongsToCurrentThread() int32
-	// BelongsToThread Returns true (1) if this task runner is for the specified CEF thread.
-	BelongsToThread(threadid ThreadID) int32
-	// PostTask Post a task for execution on the thread associated with this task runner. Execution will occur asynchronously.
-	PostTask(task Task) int32
-	// PostDelayedTask Post a task for delayed execution on the thread associated with this task runner. Execution will occur asynchronously. Delayed tasks are not supported on V8 WebWorker threads and will be executed without the specified delay.
-	PostDelayedTask(task Task, delayMs int64) int32
-}
+type TaskRunner = in.TaskRunner
 
 type taskRunnerImpl struct {
 	rawPtr *capi.CEFTaskRunnerT

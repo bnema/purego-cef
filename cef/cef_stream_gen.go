@@ -9,20 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ReadHandler Structure the client can implement to provide a custom stream reader. The functions of this structure may be called on any thread.
-type ReadHandler interface {
-	Read(ptr unsafe.Pointer, size int, n int) int
-	// SeekOffset Seek to the specified offset position. |whence| may be any one of SEEK_CUR, SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
-	SeekOffset(offset int64, whence int32) int32
-	// Tell Return the current offset position.
-	Tell() int64
-	// Eof Return non-zero if at end of file.
-	Eof() int32
-	// MayBlock Return true (1) if this handler performs work like accessing the file system which may block. Used as a hint for determining the thread to access the handler from.
-	MayBlock() int32
-}
+type ReadHandler = in.ReadHandler
 
 // readHandlerWrapper wraps a user-provided ReadHandler implementation together
 // with the raw CEF struct pointer allocated by NewReadHandler.  It satisfies the
@@ -86,17 +78,7 @@ func wrapReadHandler(ptr unsafe.Pointer) ReadHandler {
 }
 
 // StreamReader Structure used to read data from a stream. The functions of this structure may be called on any thread.
-type StreamReader interface {
-	Read(ptr unsafe.Pointer, size int, n int) int
-	// SeekOffset Seek to the specified offset position. |whence| may be any one of SEEK_CUR, SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
-	SeekOffset(offset int64, whence int32) int32
-	// Tell Return the current offset position.
-	Tell() int64
-	// Eof Return non-zero if at end of file.
-	Eof() int32
-	// MayBlock Returns true (1) if this reader performs work like accessing the file system which may block. Used as a hint for determining the thread to access the reader from.
-	MayBlock() int32
-}
+type StreamReader = in.StreamReader
 
 type streamReaderImpl struct {
 	rawPtr *capi.CEFStreamReaderT
@@ -148,17 +130,7 @@ func wrapStreamReader(ptr unsafe.Pointer) StreamReader {
 }
 
 // WriteHandler Structure the client can implement to provide a custom stream writer. The functions of this structure may be called on any thread.
-type WriteHandler interface {
-	Write(ptr unsafe.Pointer, size int, n int) int
-	// SeekOffset Seek to the specified offset position. |whence| may be any one of SEEK_CUR, SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
-	SeekOffset(offset int64, whence int32) int32
-	// Tell Return the current offset position.
-	Tell() int64
-	// Flush Flush the stream.
-	Flush() int32
-	// MayBlock Return true (1) if this handler performs work like accessing the file system which may block. Used as a hint for determining the thread to access the handler from.
-	MayBlock() int32
-}
+type WriteHandler = in.WriteHandler
 
 // writeHandlerWrapper wraps a user-provided WriteHandler implementation together
 // with the raw CEF struct pointer allocated by NewWriteHandler.  It satisfies the
@@ -222,17 +194,7 @@ func wrapWriteHandler(ptr unsafe.Pointer) WriteHandler {
 }
 
 // StreamWriter Structure used to write data to a stream. The functions of this structure may be called on any thread.
-type StreamWriter interface {
-	Write(ptr unsafe.Pointer, size int, n int) int
-	// SeekOffset Seek to the specified offset position. |whence| may be any one of SEEK_CUR, SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
-	SeekOffset(offset int64, whence int32) int32
-	// Tell Return the current offset position.
-	Tell() int64
-	// Flush Flush the stream.
-	Flush() int32
-	// MayBlock Returns true (1) if this writer performs work like accessing the file system which may block. Used as a hint for determining the thread to access the writer from.
-	MayBlock() int32
-}
+type StreamWriter = in.StreamWriter
 
 type streamWriterImpl struct {
 	rawPtr *capi.CEFStreamWriterT

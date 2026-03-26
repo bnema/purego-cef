@@ -9,12 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ResourceSkipCallback Callback for asynchronous continuation of cef_resource_handler_t::skip().
-type ResourceSkipCallback interface {
-	Cont(bytesSkipped int64)
-}
+type ResourceSkipCallback = in.ResourceSkipCallback
 
 type resourceSkipCallbackImpl struct {
 	rawPtr *capi.CEFResourceSkipCallbackT
@@ -50,9 +50,7 @@ func wrapResourceSkipCallback(ptr unsafe.Pointer) ResourceSkipCallback {
 }
 
 // ResourceReadCallback Callback for asynchronous continuation of cef_resource_handler_t::read().
-type ResourceReadCallback interface {
-	Cont(bytesRead int32)
-}
+type ResourceReadCallback = in.ResourceReadCallback
 
 type resourceReadCallbackImpl struct {
 	rawPtr *capi.CEFResourceReadCallbackT
@@ -88,18 +86,7 @@ func wrapResourceReadCallback(ptr unsafe.Pointer) ResourceReadCallback {
 }
 
 // ResourceHandler Structure used to implement a custom request handler structure. The functions of this structure will be called on the IO thread unless otherwise indicated.
-type ResourceHandler interface {
-	// Open Open the response stream. To handle the request immediately set |handle_request| to true (1) and return true (1). To decide at a later time set |handle_request| to false (0), return true (1), and execute |callback| to continue or cancel the request. To cancel the request immediately set |handle_request| to true (1) and return false (0). This function will be called in sequence but not from a dedicated thread. For backwards compatibility set |handle_request| to false (0) and return false (0) and the ProcessRequest function will be called.
-	Open(request Request, handleRequest unsafe.Pointer, callback Callback) int32
-	// ProcessRequest Begin processing the request. To handle the request return true (1) and call cef_callback_t::cont() once the response header information is available (cef_callback_t::cont() can also be called from inside this function if header information is available immediately). To cancel the request return false (0). WARNING: This function is deprecated. Use Open instead.
-	ProcessRequest(request Request, callback Callback) int32
-	// GetResponseHeaders Retrieve response header information. If the response length is not known set |response_length| to -1 and read_response() will be called until it returns false (0). If the response length is known set |response_length| to a positive value and read_response() will be called until it returns false (0) or the specified number of bytes have been read. Use the |response| object to set the mime type, http status code and other optional header values. To redirect the request to a new URL set |redirectUrl| to the new URL. |redirectUrl| can be either a relative or fully qualified URL. It is also possible to set |response| to a redirect http status code and pass the new URL via a Location header. Likewise with |redirectUrl| it is valid to set a relative or fully qualified URL as the Location header value. If an error occured while setting up the request you can call set_error() on |response| to indicate the error condition.
-	GetResponseHeaders(response Response, responseLength unsafe.Pointer, redirecturl uintptr)
-	Skip(bytesToSkip int64, bytesSkipped unsafe.Pointer, callback ResourceSkipCallback) int32
-	Read(dataOut unsafe.Pointer, bytesToRead int32, bytesRead unsafe.Pointer, callback ResourceReadCallback) int32
-	ReadResponse(dataOut unsafe.Pointer, bytesToRead int32, bytesRead unsafe.Pointer, callback Callback) int32
-	Cancel()
-}
+type ResourceHandler = in.ResourceHandler
 
 // resourceHandlerWrapper wraps a user-provided ResourceHandler implementation together
 // with the raw CEF struct pointer allocated by NewResourceHandler.  It satisfies the

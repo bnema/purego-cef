@@ -9,12 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Domvisitor Structure to implement for visiting the DOM. The functions of this structure will be called on the render process main thread.
-type Domvisitor interface {
-	Visit(document Domdocument)
-}
+type Domvisitor = in.Domvisitor
 
 // domvisitorWrapper wraps a user-provided Domvisitor implementation together
 // with the raw CEF struct pointer allocated by NewDomvisitor.  It satisfies the
@@ -58,36 +58,7 @@ func wrapDomvisitor(ptr unsafe.Pointer) Domvisitor {
 }
 
 // Domdocument Structure used to represent a DOM document. The functions of this structure should only be called on the render process main thread thread.
-type Domdocument interface {
-	// GetType Returns the document type.
-	GetType() DomDocumentType
-	// GetDocument Returns the root document node.
-	GetDocument() Domnode
-	// GetBody Returns the BODY node of an HTML document.
-	GetBody() Domnode
-	// GetHead Returns the HEAD node of an HTML document.
-	GetHead() Domnode
-	// GetTitle Returns the title of an HTML document.
-	GetTitle() string
-	// GetElementByID Returns the document element with the specified ID value.
-	GetElementByID(iD string) Domnode
-	// GetFocusedNode Returns the node that currently has keyboard focus.
-	GetFocusedNode() Domnode
-	// HasSelection Returns true (1) if a portion of the document is selected.
-	HasSelection() bool
-	// GetSelectionStartOffset Returns the selection offset within the start node.
-	GetSelectionStartOffset() int32
-	// GetSelectionEndOffset Returns the selection offset within the end node.
-	GetSelectionEndOffset() int32
-	// GetSelectionAsMarkup Returns the contents of this selection as markup.
-	GetSelectionAsMarkup() string
-	// GetSelectionAsText Returns the contents of this selection as text.
-	GetSelectionAsText() string
-	// GetBaseURL Returns the base URL for the document.
-	GetBaseURL() string
-	// GetCompleteURL Returns a complete URL based on the document base URL and the specified partial URL.
-	GetCompleteURL(partialurl string) string
-}
+type Domdocument = in.Domdocument
 
 type domdocumentImpl struct {
 	rawPtr *capi.CEFDomdocumentT
@@ -179,60 +150,7 @@ func wrapDomdocument(ptr unsafe.Pointer) Domdocument {
 }
 
 // Domnode Structure used to represent a DOM node. The functions of this structure should only be called on the render process main thread.
-type Domnode interface {
-	// GetType Returns the type for this node.
-	GetType() DomNodeType
-	// IsText Returns true (1) if this is a text node.
-	IsText() bool
-	// IsElement Returns true (1) if this is an element node.
-	IsElement() bool
-	// IsEditable Returns true (1) if this is an editable node.
-	IsEditable() bool
-	// IsFormControlElement Returns true (1) if this is a form control element node.
-	IsFormControlElement() bool
-	// GetFormControlElementType Returns the type of this form control element node.
-	GetFormControlElementType() DomFormControlType
-	// IsSame Returns true (1) if this object is pointing to the same handle as |that| object.
-	IsSame(that Domnode) bool
-	// GetName Returns the name of this node.
-	GetName() string
-	// GetValue Returns the value of this node.
-	GetValue() string
-	// SetValue Set the value of this node. Returns true (1) on success.
-	SetValue(value string) int32
-	// GetAsMarkup Returns the contents of this node as markup.
-	GetAsMarkup() string
-	// GetDocument Returns the document associated with this node.
-	GetDocument() Domdocument
-	// GetParent Returns the parent node.
-	GetParent() Domnode
-	// GetPreviousSibling Returns the previous sibling node.
-	GetPreviousSibling() Domnode
-	// GetNextSibling Returns the next sibling node.
-	GetNextSibling() Domnode
-	// HasChildren Returns true (1) if this node has child nodes.
-	HasChildren() bool
-	// GetFirstChild Return the first child node.
-	GetFirstChild() Domnode
-	// GetLastChild Returns the last child node.
-	GetLastChild() Domnode
-	// GetElementTagName Returns the tag name of this element.
-	GetElementTagName() string
-	// HasElementAttributes Returns true (1) if this element has attributes.
-	HasElementAttributes() bool
-	// HasElementAttribute Returns true (1) if this element has attributes.
-	HasElementAttribute(attrname string) bool
-	// GetElementAttribute Returns the element attribute named |attrName|.
-	GetElementAttribute(attrname string) string
-	// GetElementAttributes Returns a map of all element attributes.
-	GetElementAttributes(attrmap uintptr)
-	// SetElementAttribute Set the value for the element attribute named |attrName|. Returns true (1) on success.
-	SetElementAttribute(attrname string, value string) int32
-	// GetElementInnerText Returns the inner text of the element.
-	GetElementInnerText() string
-	// GetElementBounds Returns the bounds of the element in device pixels. Use "window.devicePixelRatio" to convert to/from CSS pixels.
-	GetElementBounds() uintptr
-}
+type Domnode = in.Domnode
 
 type domnodeImpl struct {
 	rawPtr *capi.CEFDomnodeT

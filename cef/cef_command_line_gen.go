@@ -7,52 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // CommandLine Structure used to create and/or parse command line arguments. Arguments with "--", "-" and, on Windows, "/" prefixes are considered switches. Switches will always precede any arguments without switch prefixes. Switches can optionally have a value specified using the "=" delimiter (e.g. "-switch=value"). An argument of "--" will terminate switch parsing with all subsequent tokens, regardless of prefix, being interpreted as non-switch arguments. Switch names should be lowercase ASCII and will be converted to such if necessary. Switch values will retain the original case and UTF8 encoding. This structure can be used before cef_initialize() is called.
-type CommandLine interface {
-	// IsValid Returns true (1) if this object is valid. Do not call any other functions if this function returns false (0).
-	IsValid() bool
-	// IsReadOnly Returns true (1) if the values of this object are read-only. Some APIs may expose read-only objects.
-	IsReadOnly() bool
-	Copy() CommandLine
-	// InitFromArgv Initialize the command line with the specified |argc| and |argv| values. The first argument must be the name of the program. This function is only supported on non-Windows platforms.
-	InitFromArgv(argc int32, argv unsafe.Pointer)
-	// InitFromString Initialize the command line with the string returned by calling GetCommandLineW(). This function is only supported on Windows.
-	InitFromString(commandLine string)
-	// Reset Reset the command-line switches and arguments but leave the program component unchanged.
-	Reset()
-	// GetArgv Retrieve the original command line string as a vector of strings. The argv array: `{ program, [(--|-|/)switch[=value]]*, [--], [argument]* }`
-	GetArgv(argv uintptr)
-	// GetCommandLineString Constructs and returns the represented command line string. Use this function cautiously because quoting behavior is unclear.
-	GetCommandLineString() string
-	// GetProgram Get the program part of the command line string (the first item).
-	GetProgram() string
-	// SetProgram Set the program part of the command line string (the first item).
-	SetProgram(program string)
-	// HasSwitches Returns true (1) if the command line has switches.
-	HasSwitches() bool
-	// HasSwitch Returns true (1) if the command line has switches.
-	HasSwitch(name string) bool
-	// GetSwitchValue Returns the value associated with the given switch. If the switch has no value or isn't present this function returns the NULL string.
-	GetSwitchValue(name string) string
-	// GetSwitches Returns the map of switch names and values. If a switch has no value an NULL string is returned.
-	GetSwitches(switches uintptr)
-	// AppendSwitch Add a switch to the end of the command line.
-	AppendSwitch(name string)
-	// AppendSwitchWithValue Add a switch with the specified value to the end of the command line. If the switch has no value pass an NULL value string.
-	AppendSwitchWithValue(name string, value string)
-	// HasArguments True if there are remaining command line arguments.
-	HasArguments() bool
-	// GetArguments Get the remaining command line arguments.
-	GetArguments(arguments uintptr)
-	// AppendArgument Add an argument to the end of the command line.
-	AppendArgument(argument string)
-	// PrependWrapper Insert a command before the current command. Common for debuggers, like "valgrind" or "gdb --args".
-	PrependWrapper(wrapper string)
-	// RemoveSwitch Remove a switch from the command line. If no such switch is present, this has no effect.
-	RemoveSwitch(name string)
-}
+type CommandLine = in.CommandLine
 
 type commandLineImpl struct {
 	rawPtr *capi.CEFCommandLineT

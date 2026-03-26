@@ -7,25 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // X509CertPrincipal Structure representing the issuer or subject field of an X.509 certificate.
-type X509CertPrincipal interface {
-	// GetDisplayName Returns a name that can be used to represent the issuer. It tries in this order: Common Name (CN), Organization Name (O) and Organizational Unit Name (OU) and returns the first non-NULL one found.
-	GetDisplayName() string
-	// GetCommonName Returns the common name.
-	GetCommonName() string
-	// GetLocalityName Returns the locality name.
-	GetLocalityName() string
-	// GetStateOrProvinceName Returns the state or province name.
-	GetStateOrProvinceName() string
-	// GetCountryName Returns the country name.
-	GetCountryName() string
-	// GetOrganizationNames Retrieve the list of organization names.
-	GetOrganizationNames(names uintptr)
-	// GetOrganizationUnitNames Retrieve the list of organization unit names.
-	GetOrganizationUnitNames(names uintptr)
-}
+type X509CertPrincipal = in.X509CertPrincipal
 
 type x509CertPrincipalImpl struct {
 	rawPtr *capi.CEFX509CertPrincipalT
@@ -85,28 +72,7 @@ func wrapX509CertPrincipal(ptr unsafe.Pointer) X509CertPrincipal {
 }
 
 // X509Certificate Structure representing a X.509 certificate.
-type X509Certificate interface {
-	// GetSubject Returns the subject of the X.509 certificate. For HTTPS server certificates this represents the web server.  The common name of the subject should match the host name of the web server.
-	GetSubject() X509CertPrincipal
-	// GetIssuer Returns the issuer of the X.509 certificate.
-	GetIssuer() X509CertPrincipal
-	// GetSerialNumber Returns the DER encoded serial number for the X.509 certificate. The value possibly includes a leading 00 byte.
-	GetSerialNumber() BinaryValue
-	// GetValidStart Returns the date before which the X.509 certificate is invalid. CefBaseTime.GetTimeT() will return 0 if no date was specified.
-	GetValidStart() uintptr
-	// GetValidExpiry Returns the date after which the X.509 certificate is invalid. CefBaseTime.GetTimeT() will return 0 if no date was specified.
-	GetValidExpiry() uintptr
-	// GetDerencoded Returns the DER encoded data for the X.509 certificate.
-	GetDerencoded() BinaryValue
-	// GetPemencoded Returns the PEM encoded data for the X.509 certificate.
-	GetPemencoded() BinaryValue
-	// GetIssuerChainSize Returns the number of certificates in the issuer chain. If 0, the certificate is self-signed.
-	GetIssuerChainSize() int
-	// GetDerencodedIssuerChain Returns the DER encoded data for the certificate issuer chain. If we failed to encode a certificate in the chain it is still present in the array but is an NULL string.
-	GetDerencodedIssuerChain(chaincount *int, chain unsafe.Pointer)
-	// GetPemencodedIssuerChain Returns the PEM encoded data for the certificate issuer chain. If we failed to encode a certificate in the chain it is still present in the array but is an NULL string.
-	GetPemencodedIssuerChain(chaincount *int, chain unsafe.Pointer)
-}
+type X509Certificate = in.X509Certificate
 
 type x509CertificateImpl struct {
 	rawPtr *capi.CEFX509CertificateT

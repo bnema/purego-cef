@@ -9,12 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // BeforeDownloadCallback Callback structure used to asynchronously continue a download.
-type BeforeDownloadCallback interface {
-	Cont(downloadPath string, showDialog int32)
-}
+type BeforeDownloadCallback = in.BeforeDownloadCallback
 
 type beforeDownloadCallbackImpl struct {
 	rawPtr *capi.CEFBeforeDownloadCallbackT
@@ -52,11 +52,7 @@ func wrapBeforeDownloadCallback(ptr unsafe.Pointer) BeforeDownloadCallback {
 }
 
 // DownloadItemCallback Callback structure used to asynchronously cancel a download.
-type DownloadItemCallback interface {
-	Cancel()
-	Pause()
-	Resume()
-}
+type DownloadItemCallback = in.DownloadItemCallback
 
 type downloadItemCallbackImpl struct {
 	rawPtr *capi.CEFDownloadItemCallbackT
@@ -100,14 +96,7 @@ func wrapDownloadItemCallback(ptr unsafe.Pointer) DownloadItemCallback {
 }
 
 // DownloadHandler Structure used to handle file downloads. The functions of this structure will called on the browser process UI thread.
-type DownloadHandler interface {
-	// CanDownload Called before a download begins in response to a user-initiated action (e.g. alt + link click or link click that returns a `Content-Disposition: attachment` response from the server). |url| is the target download URL and |request_function| is the target function (GET, POST, etc). Return true (1) to proceed with the download or false (0) to cancel the download.
-	CanDownload(browser Browser, uRL string, requestMethod string) bool
-	// OnBeforeDownload Called before a download begins. |suggested_name| is the suggested name for the download file. Return true (1) and execute |callback| either asynchronously or in this function to continue or cancel the download. Return false (0) to proceed with default handling (cancel with Alloy style, download shelf with Chrome style). Do not keep a reference to |download_item| outside of this function.
-	OnBeforeDownload(browser Browser, downloadItem DownloadItem, suggestedName string, callback BeforeDownloadCallback) bool
-	// OnDownloadUpdated Called when a download's status or progress information has been updated. This may be called multiple times before and after on_before_download(). Execute |callback| either asynchronously or in this function to cancel the download if desired. Do not keep a reference to |download_item| outside of this function.
-	OnDownloadUpdated(browser Browser, downloadItem DownloadItem, callback DownloadItemCallback)
-}
+type DownloadHandler = in.DownloadHandler
 
 // downloadHandlerWrapper wraps a user-provided DownloadHandler implementation together
 // with the raw CEF struct pointer allocated by NewDownloadHandler.  It satisfies the

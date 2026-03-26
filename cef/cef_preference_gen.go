@@ -9,13 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // PreferenceRegistrar Structure that manages custom preference registrations.
-type PreferenceRegistrar interface {
-	// AddPreference Register a preference with the specified |name| and |default_value|. To avoid conflicts with built-in preferences the |name| value should contain an application-specific prefix followed by a period (e.g. "myapp.value"). The contents of |default_value| will be copied. The data type for the preference will be inferred from |default_value|'s type and cannot be changed after registration. Returns true (1) on success. Returns false (0) if |name| is already registered or if |default_value| has an invalid type. This function must be called from within the scope of the cef_browser_process_handler_t::OnRegisterCustomPreferences callback.
-	AddPreference(name string, defaultValue Value) int32
-}
+type PreferenceRegistrar = in.PreferenceRegistrar
 
 type preferenceRegistrarImpl struct {
 	rawPtr *capi.CEFPreferenceRegistrarT
@@ -40,10 +39,7 @@ func wrapPreferenceRegistrar(ptr unsafe.Pointer) PreferenceRegistrar {
 }
 
 // PreferenceObserver Implemented by the client to observe preference changes and registered via cef_preference_manager_t::AddPreferenceObserver. The functions of this structure will be called on the browser process UI thread.
-type PreferenceObserver interface {
-	// OnPreferenceChanged Called when a preference has changed. The new value can be retrieved using cef_preference_manager_t::GetPreference.
-	OnPreferenceChanged(name string)
-}
+type PreferenceObserver = in.PreferenceObserver
 
 // preferenceObserverWrapper wraps a user-provided PreferenceObserver implementation together
 // with the raw CEF struct pointer allocated by NewPreferenceObserver.  It satisfies the
@@ -87,20 +83,7 @@ func wrapPreferenceObserver(ptr unsafe.Pointer) PreferenceObserver {
 }
 
 // PreferenceManager Manage access to preferences. Many built-in preferences are registered by Chromium. Custom preferences can be registered in cef_browser_process_handler_t::OnRegisterCustomPreferences.
-type PreferenceManager interface {
-	// HasPreference Returns true (1) if a preference with the specified |name| exists. This function must be called on the browser process UI thread.
-	HasPreference(name string) bool
-	// GetPreference Returns the value for the preference with the specified |name|. Returns NULL if the preference does not exist. The returned object contains a copy of the underlying preference value and modifications to the returned object will not modify the underlying preference value. This function must be called on the browser process UI thread.
-	GetPreference(name string) Value
-	// GetAllPreferences Returns all preferences as a dictionary. If |include_defaults| is true (1) then preferences currently at their default value will be included. The returned object contains a copy of the underlying preference values and modifications to the returned object will not modify the underlying preference values. This function must be called on the browser process UI thread.
-	GetAllPreferences(includeDefaults int32) DictionaryValue
-	// CanSetPreference Returns true (1) if the preference with the specified |name| can be modified using SetPreference. As one example preferences set via the command-line usually cannot be modified. This function must be called on the browser process UI thread.
-	CanSetPreference(name string) bool
-	// SetPreference Returns true (1) if the preference with the specified |name| can be modified using SetPreference. As one example preferences set via the command-line usually cannot be modified. This function must be called on the browser process UI thread.
-	SetPreference(name string, value Value, error uintptr) int32
-	// AddPreferenceObserver Add an observer for preference changes. |name| is the name of the preference to observe. If |name| is NULL then all preferences will be observed. Observing all preferences has performance consequences and is not recommended outside of testing scenarios. The observer will remain registered until the returned Registration object is destroyed. This function must be called on the browser process UI thread.
-	AddPreferenceObserver(name string, observer PreferenceObserver) Registration
-}
+type PreferenceManager = in.PreferenceManager
 
 type preferenceManagerImpl struct {
 	rawPtr *capi.CEFPreferenceManagerT

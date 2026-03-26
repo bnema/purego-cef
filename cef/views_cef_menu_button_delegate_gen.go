@@ -9,11 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // MenuButtonPressedLock MenuButton pressed lock is released when this object is destroyed.
-type MenuButtonPressedLock interface {
-}
+type MenuButtonPressedLock = in.MenuButtonPressedLock
 
 type menuButtonPressedLockImpl struct {
 	rawPtr *capi.CEFMenuButtonPressedLockT
@@ -45,10 +46,7 @@ func wrapMenuButtonPressedLock(ptr unsafe.Pointer) MenuButtonPressedLock {
 }
 
 // MenuButtonDelegate Implement this structure to handle MenuButton events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type MenuButtonDelegate interface {
-	// OnMenuButtonPressed Called when |button| is pressed. Call cef_menu_button_t::show_menu() to show a popup menu at |screen_point|. When showing a custom popup such as a window keep a reference to |button_pressed_lock| until the popup is hidden to maintain the pressed button state.
-	OnMenuButtonPressed(menuButton MenuButton, screenPoint *Point, buttonPressedLock MenuButtonPressedLock)
-}
+type MenuButtonDelegate = in.MenuButtonDelegate
 
 // menuButtonDelegateWrapper wraps a user-provided MenuButtonDelegate implementation together
 // with the raw CEF struct pointer allocated by NewMenuButtonDelegate.  It satisfies the

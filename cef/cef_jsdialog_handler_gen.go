@@ -9,13 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // JsdialogCallback Callback structure used for asynchronous continuation of JavaScript dialog requests.
-type JsdialogCallback interface {
-	// Cont Continue the JS dialog request. Set |success| to true (1) if the OK button was pressed. The |user_input| value should be specified for prompt dialogs.
-	Cont(success int32, userInput string)
-}
+type JsdialogCallback = in.JsdialogCallback
 
 type jsdialogCallbackImpl struct {
 	rawPtr *capi.CEFJsdialogCallbackT
@@ -53,16 +52,7 @@ func wrapJsdialogCallback(ptr unsafe.Pointer) JsdialogCallback {
 }
 
 // JsdialogHandler Implement this structure to handle events related to JavaScript dialogs. The functions of this structure will be called on the UI thread.
-type JsdialogHandler interface {
-	// OnJsdialog Called to run a JavaScript dialog. If |origin_url| is non-NULL it can be passed to the CefFormatUrlForSecurityDisplay function to retrieve a secure and user-friendly display string. The |default_prompt_text| value will be specified for prompt dialogs only. Set |suppress_message| to true (1) and return false (0) to suppress the message (suppressing messages is preferable to immediately executing the callback as this is used to detect presumably malicious behavior like spamming alert messages in onbeforeunload). Set |suppress_message| to false (0) and return false (0) to use the default implementation (the default implementation will show one modal dialog at a time and suppress any additional dialog requests until the displayed dialog is dismissed). Return true (1) if the application will use a custom dialog or if the callback has been executed immediately. Custom dialogs may be either modal or modeless. If a custom dialog is used the application must execute |callback| once the custom dialog is dismissed.
-	OnJsdialog(browser Browser, originURL string, dialogType JsdialogType, messageText string, defaultPromptText string, callback JsdialogCallback, suppressMessage unsafe.Pointer) int32
-	// OnBeforeUnloadDialog Called to run a dialog asking the user if they want to leave a page. Return false (0) to use the default dialog implementation. Return true (1) if the application will use a custom dialog or if the callback has been executed immediately. Custom dialogs may be either modal or modeless. If a custom dialog is used the application must execute |callback| once the custom dialog is dismissed.
-	OnBeforeUnloadDialog(browser Browser, messageText string, isReload int32, callback JsdialogCallback) bool
-	// OnResetDialogState Called to cancel any pending dialogs and reset any saved dialog state. Will be called due to events like page navigation irregardless of whether any dialogs are currently pending.
-	OnResetDialogState(browser Browser)
-	// OnDialogClosed Called when the dialog is closed.
-	OnDialogClosed(browser Browser)
-}
+type JsdialogHandler = in.JsdialogHandler
 
 // jsdialogHandlerWrapper wraps a user-provided JsdialogHandler implementation together
 // with the raw CEF struct pointer allocated by NewJsdialogHandler.  It satisfies the

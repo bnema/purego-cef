@@ -7,11 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Registration Generic callback structure used for managing the lifespan of a registration.
-type Registration interface {
-}
+type Registration = in.Registration
 
 type registrationImpl struct {
 	rawPtr *capi.CEFRegistrationT

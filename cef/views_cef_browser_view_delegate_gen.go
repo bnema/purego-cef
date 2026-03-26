@@ -8,30 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // BrowserViewDelegate Implement this structure to handle BrowserView events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type BrowserViewDelegate interface {
-	// OnBrowserCreated Called when |browser| associated with |browser_view| is created. This function will be called after cef_life_span_handler_t::on_after_created() is called for |browser| and before on_popup_browser_view_created() is called for |browser|'s parent delegate if |browser| is a popup.
-	OnBrowserCreated(browserView BrowserView, browser Browser)
-	// OnBrowserDestroyed Called when |browser| associated with |browser_view| is destroyed. Release all references to |browser| and do not attempt to execute any functions on |browser| after this callback returns. This function will be called before cef_life_span_handler_t::on_before_close() is called for |browser|.
-	OnBrowserDestroyed(browserView BrowserView, browser Browser)
-	// GetDelegateForPopupBrowserView Called before a new popup BrowserView is created. The popup originated from |browser_view|. |settings| and |client| are the values returned from cef_life_span_handler_t::on_before_popup(). |is_devtools| will be true (1) if the popup will be a DevTools browser. Return the delegate that will be used for the new popup BrowserView.
-	GetDelegateForPopupBrowserView(browserView BrowserView, settings *BrowserSettings, client Client, isDevtools int32) BrowserViewDelegate
-	OnPopupBrowserViewCreated(browserView BrowserView, popupBrowserView BrowserView, isDevtools int32) int32
-	// GetChromeToolbarType Returns the Chrome toolbar type that will be available via cef_browser_view_t::get_chrome_toolbar(). See that function for related documentation.
-	GetChromeToolbarType(browserView BrowserView) ChromeToolbarType
-	// UseFramelessWindowForPictureInPicture Return true (1) to create frameless windows for Document picture-in- picture popups. Content in frameless windows should specify draggable regions using "-webkit-app-region: drag" CSS.
-	UseFramelessWindowForPictureInPicture(browserView BrowserView) int32
-	// OnGestureCommand Called when |browser_view| receives a gesture command. Return true (1) to handle (or disable) a |gesture_command| or false (0) to propagate the gesture to the browser for default handling. With Chrome style these commands can also be handled via cef_command_handler_t::OnChromeCommand.
-	OnGestureCommand(browserView BrowserView, gestureCommand GestureCommand) int32
-	// GetBrowserRuntimeStyle Optionally change the runtime style for this BrowserView. See cef_runtime_style_t documentation for details.
-	GetBrowserRuntimeStyle() RuntimeStyle
-	// AllowMoveForPictureInPicture Return true (1) to allow the use of JavaScript moveTo/By() and resizeTo/By() (without user activation) with Document picture-in-picture popups.
-	AllowMoveForPictureInPicture(browserView BrowserView) int32
-	// AllowPictureInPictureWithoutUserActivation Return true (1) to allow opening Document picture-in-picture without user activation. Default is false (0) (user activation required).
-	AllowPictureInPictureWithoutUserActivation(browserView BrowserView) int32
-}
+type BrowserViewDelegate = in.BrowserViewDelegate
 
 // browserViewDelegateWrapper wraps a user-provided BrowserViewDelegate implementation together
 // with the raw CEF struct pointer allocated by NewBrowserViewDelegate.  It satisfies the

@@ -9,15 +9,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // PrintDialogCallback Callback structure for asynchronous continuation of print dialog requests.
-type PrintDialogCallback interface {
-	// Cont Continue printing with the specified |settings|.
-	Cont(settings PrintSettings)
-	// Cancel Cancel the printing.
-	Cancel()
-}
+type PrintDialogCallback = in.PrintDialogCallback
 
 type printDialogCallbackImpl struct {
 	rawPtr *capi.CEFPrintDialogCallbackT
@@ -57,10 +54,7 @@ func wrapPrintDialogCallback(ptr unsafe.Pointer) PrintDialogCallback {
 }
 
 // PrintJobCallback Callback structure for asynchronous continuation of print job requests.
-type PrintJobCallback interface {
-	// Cont Indicate completion of the print job.
-	Cont()
-}
+type PrintJobCallback = in.PrintJobCallback
 
 type printJobCallbackImpl struct {
 	rawPtr *capi.CEFPrintJobCallbackT
@@ -96,20 +90,7 @@ func wrapPrintJobCallback(ptr unsafe.Pointer) PrintJobCallback {
 }
 
 // PrintHandler Implement this structure to handle printing on Linux. Each browser will have only one print job in progress at a time. The functions of this structure will be called on the browser process UI thread.
-type PrintHandler interface {
-	// OnPrintStart Called when printing has started for the specified |browser|. This function will be called before the other OnPrint*() functions and irrespective of how printing was initiated (e.g. cef_browser_host_t::print(), JavaScript window.print() or PDF extension print button).
-	OnPrintStart(browser Browser)
-	// OnPrintSettings Synchronize |settings| with client state. If |get_defaults| is true (1) then populate |settings| with the default print settings. Do not keep a reference to |settings| outside of this callback.
-	OnPrintSettings(browser Browser, settings PrintSettings, getDefaults int32)
-	// OnPrintDialog Show the print dialog. Execute |callback| once the dialog is dismissed. Return true (1) if the dialog will be displayed or false (0) to cancel the printing immediately.
-	OnPrintDialog(browser Browser, hasSelection int32, callback PrintDialogCallback) int32
-	// OnPrintJob Send the print job to the printer. Execute |callback| once the job is completed. Return true (1) if the job will proceed or false (0) to cancel the job immediately.
-	OnPrintJob(browser Browser, documentName string, pdfFilePath string, callback PrintJobCallback) int32
-	// OnPrintReset Reset client state related to printing.
-	OnPrintReset(browser Browser)
-	// GetPdfPaperSize Return the PDF paper size in device units. Used in combination with cef_browser_host_t::print_to_pdf().
-	GetPdfPaperSize(browser Browser, deviceUnitsPerInch int32) uintptr
-}
+type PrintHandler = in.PrintHandler
 
 // printHandlerWrapper wraps a user-provided PrintHandler implementation together
 // with the raw CEF struct pointer allocated by NewPrintHandler.  It satisfies the

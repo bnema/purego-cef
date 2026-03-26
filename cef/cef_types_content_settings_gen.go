@@ -5,7 +5,7 @@ package cef
 import ()
 
 // ContentSettingTypes is a CEF enum type.
-type ContentSettingTypes int32
+type ContentSettingTypes = int32
 
 const (
 	ContentSettingTypesContentSettingTypeCookies                                       ContentSettingTypes = 0
@@ -148,7 +148,7 @@ const (
 )
 
 // ContentSettingValues is a CEF enum type.
-type ContentSettingValues int32
+type ContentSettingValues = int32
 
 const (
 	ContentSettingValuesContentSettingValueDefault                          ContentSettingValues = 0

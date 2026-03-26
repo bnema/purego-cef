@@ -7,72 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Textfield A Textfield supports editing of text. This control is custom rendered with no platform-specific code. Methods must be called on the browser process UI thread unless otherwise indicated.
-type Textfield interface {
-	// SetPasswordInput Sets whether the text will be displayed as asterisks.
-	SetPasswordInput(passwordInput int32)
-	// IsPasswordInput Returns true (1) if the text will be displayed as asterisks.
-	IsPasswordInput() bool
-	// SetReadOnly Sets whether the text will read-only.
-	SetReadOnly(readOnly int32)
-	// IsReadOnly Returns true (1) if the text is read-only.
-	IsReadOnly() bool
-	// GetText Returns the currently displayed text.
-	GetText() string
-	// SetText Sets the contents to |text|. The cursor will be moved to end of the text if the current position is outside of the text range.
-	SetText(text string)
-	// AppendText Appends |text| to the previously-existing text.
-	AppendText(text string)
-	// InsertOrReplaceText Inserts |text| at the current cursor position replacing any selected text.
-	InsertOrReplaceText(text string)
-	// HasSelection Returns true (1) if there is any selected text.
-	HasSelection() bool
-	// GetSelectedText Returns the currently selected text.
-	GetSelectedText() string
-	// SelectAll Selects all text. If |reversed| is true (1) the range will end at the logical beginning of the text; this generally shows the leading portion of text that overflows its display area.
-	SelectAll(reversed int32)
-	// ClearSelection Clears the text selection and sets the caret to the end.
-	ClearSelection()
-	// GetSelectedRange Returns the selected logical text range.
-	GetSelectedRange() uintptr
-	// SelectRange Selects the specified logical text range.
-	SelectRange(range_ *Range)
-	// GetCursorPosition Returns the current cursor position.
-	GetCursorPosition() int
-	// SetTextColor Sets the text color.
-	SetTextColor(color uintptr)
-	// GetTextColor Returns the text color.
-	GetTextColor() uintptr
-	// SetSelectionTextColor Sets the selection text color.
-	SetSelectionTextColor(color uintptr)
-	// GetSelectionTextColor Returns the selection text color.
-	GetSelectionTextColor() uintptr
-	// SetSelectionBackgroundColor Sets the selection background color.
-	SetSelectionBackgroundColor(color uintptr)
-	// GetSelectionBackgroundColor Returns the selection background color.
-	GetSelectionBackgroundColor() uintptr
-	// SetFontList Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>", where: - FONT_FAMILY_LIST is a comma-separated list of font family names, - STYLES is an optional space-separated list of style names (case-   sensitive "Bold" and "Italic" are supported), and - SIZE is an integer font size in pixels with the suffix "px". Here are examples of valid font description strings: - "Arial, Helvetica, Bold Italic 14px" - "Arial, 14px"
-	SetFontList(fontList string)
-	// ApplyTextColor Applies |color| to the specified |range| without changing the default color. If |range| is NULL the color will be set on the complete text contents.
-	ApplyTextColor(color uintptr, range_ *Range)
-	// ApplyTextStyle Applies |style| to the specified |range| without changing the default style. If |add| is true (1) the style will be added, otherwise the style will be removed. If |range| is NULL the style will be set on the complete text contents.
-	ApplyTextStyle(style TextStyle, add int32, range_ *Range)
-	// IsCommandEnabled Returns true (1) if the action associated with the specified command id is enabled. See additional comments on execute_command().
-	IsCommandEnabled(commandID TextFieldCommands) bool
-	ExecuteCommand(commandID TextFieldCommands)
-	// ClearEditHistory Clears Edit history.
-	ClearEditHistory()
-	// SetPlaceholderText Sets the placeholder text that will be displayed when the Textfield is NULL.
-	SetPlaceholderText(text string)
-	// GetPlaceholderText Returns the placeholder text that will be displayed when the Textfield is NULL.
-	GetPlaceholderText() string
-	// SetPlaceholderTextColor Sets the placeholder text color.
-	SetPlaceholderTextColor(color uintptr)
-	// SetAccessibleName Set the accessible name that will be exposed to assistive technology (AT).
-	SetAccessibleName(name string)
-}
+type Textfield = in.Textfield
 
 type textfieldImpl struct {
 	rawPtr *capi.CEFTextfieldT

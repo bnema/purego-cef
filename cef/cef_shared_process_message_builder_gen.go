@@ -7,16 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // SharedProcessMessageBuilder Structure that builds a cef_process_message_t containing a shared memory region. This structure is not thread-safe but may be used exclusively on a different thread from the one which constructed it.
-type SharedProcessMessageBuilder interface {
-	// IsValid Returns true (1) if the builder is valid.
-	IsValid() bool
-	Size() int
-	Memory() unsafe.Pointer
-	Build() ProcessMessage
-}
+type SharedProcessMessageBuilder = in.SharedProcessMessageBuilder
 
 type sharedProcessMessageBuilderImpl struct {
 	rawPtr *capi.CEFSharedProcessMessageBuilderT

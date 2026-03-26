@@ -8,15 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // ButtonDelegate Implement this structure to handle Button events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type ButtonDelegate interface {
-	// OnButtonPressed Called when |button| is pressed.
-	OnButtonPressed(button Button)
-	// OnButtonStateChanged Called when the state of |button| changes.
-	OnButtonStateChanged(button Button)
-}
+type ButtonDelegate = in.ButtonDelegate
 
 // buttonDelegateWrapper wraps a user-provided ButtonDelegate implementation together
 // with the raw CEF struct pointer allocated by NewButtonDelegate.  It satisfies the

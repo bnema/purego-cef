@@ -7,45 +7,12 @@ import (
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // Response Structure used to represent a web response. The functions of this structure may be called on any thread.
-type Response interface {
-	// IsReadOnly Returns true (1) if this object is read-only.
-	IsReadOnly() bool
-	// GetError Get the response error code. Returns ERR_NONE if there was no error.
-	GetError() Errorcode
-	// SetError Set the response error code. This can be used by custom scheme handlers to return errors during initial request processing.
-	SetError(error Errorcode)
-	// GetStatus Get the response status code.
-	GetStatus() int32
-	// SetStatus Set the response status code.
-	SetStatus(status int32)
-	// GetStatusText Get the response status text.
-	GetStatusText() string
-	// SetStatusText Set the response status text.
-	SetStatusText(statustext string)
-	// GetMimeType Get the response mime type.
-	GetMimeType() string
-	// SetMimeType Set the response mime type.
-	SetMimeType(mimetype string)
-	// GetCharset Get the response charset.
-	GetCharset() string
-	// SetCharset Set the response charset.
-	SetCharset(charset string)
-	// GetHeaderByName Get the value for the specified response header field.
-	GetHeaderByName(name string) string
-	// SetHeaderByName Set the header |name| to |value|. If |overwrite| is true (1) any existing values will be replaced with the new value. If |overwrite| is false (0) any existing values will not be overwritten.
-	SetHeaderByName(name string, value string, overwrite int32)
-	// GetHeaderMap Get all response header fields.
-	GetHeaderMap(headermap uintptr)
-	// SetHeaderMap Set all response header fields.
-	SetHeaderMap(headermap uintptr)
-	// GetURL Get the resolved URL after redirects or changed as a result of HSTS.
-	GetURL() string
-	// SetURL Set the resolved URL after redirects or changed as a result of HSTS.
-	SetURL(uRL string)
-}
+type Response = in.Response
 
 type responseImpl struct {
 	rawPtr *capi.CEFResponseT

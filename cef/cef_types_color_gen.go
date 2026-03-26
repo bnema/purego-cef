@@ -5,7 +5,7 @@ package cef
 import ()
 
 // ColorType is a CEF enum type.
-type ColorType int32
+type ColorType = int32
 
 const (
 	ColorTypeRgba8888  ColorType = 0

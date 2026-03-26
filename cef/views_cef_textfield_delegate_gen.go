@@ -8,15 +8,12 @@ import (
 	"github.com/ebitengine/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
+
+	in "github.com/bnema/purego-cef/internal/ports/in"
 )
 
 // TextfieldDelegate Implement this structure to handle Textfield events. The functions of this structure will be called on the browser process UI thread unless otherwise indicated.
-type TextfieldDelegate interface {
-	// OnKeyEvent Called when |textfield| receives a keyboard event. |event| contains information about the keyboard event. Return true (1) if the keyboard event was handled or false (0) otherwise for default handling.
-	OnKeyEvent(textfield Textfield, event *KeyEvent) int32
-	// OnAfterUserAction Called after performing a user action that may change |textfield|.
-	OnAfterUserAction(textfield Textfield)
-}
+type TextfieldDelegate = in.TextfieldDelegate
 
 // textfieldDelegateWrapper wraps a user-provided TextfieldDelegate implementation together
 // with the raw CEF struct pointer allocated by NewTextfieldDelegate.  It satisfies the
