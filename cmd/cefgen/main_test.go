@@ -34,12 +34,12 @@ func TestOutputName(t *testing.T) {
 		relPath string
 		want    string
 	}{
-		{"cef_browser_capi.h", "cef_browser.go"},
-		{"views/cef_button_capi.h", "views_cef_button.go"},
-		{"test/cef_test_helpers_capi.h", "test_cef_test_helpers.go"},
-		{"cef_types.h", "cef_types.go"},
-		{"cef_types_mac.h", "cef_types_darwin.go"},
-		{"cef_types_win.h", "cef_types_windows.go"},
+		{"cef_browser_capi.h", "cef_browser_gen.go"},
+		{"views/cef_button_capi.h", "views_cef_button_gen.go"},
+		{"test/cef_test_helpers_capi.h", "test_cef_test_helpers_gen.go"},
+		{"cef_types.h", "cef_types_gen.go"},
+		{"cef_types_mac.h", "cef_types_darwin_gen.go"},
+		{"cef_types_win.h", "cef_types_windows_gen.go"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.relPath, func(t *testing.T) {
@@ -101,11 +101,11 @@ func TestWriteRawRegisterAggregator(t *testing.T) {
 		}
 	}
 
-	checkFileContains("register.go", "RegisterTypes(handle)", "RegisterBase(handle)", "registerPlatform(handle)")
-	checkFileContains("register_platform_linux.go", "//go:build linux", "RegisterTypesLinux(handle)")
-	checkFileContains("register_platform_darwin.go", "//go:build darwin", "RegisterTypesMac(handle)")
-	checkFileContains("register_platform_windows.go", "//go:build windows", "RegisterTypesWin(handle)")
-	checkFileContains("register_platform_default.go", "//go:build !linux && !darwin && !windows", "func registerPlatform(_ uintptr) {}")
+	checkFileContains("register_gen.go", "RegisterTypes(handle)", "RegisterBase(handle)", "registerPlatform(handle)")
+	checkFileContains("register_platform_linux_gen.go", "//go:build linux", "RegisterTypesLinux(handle)")
+	checkFileContains("register_platform_darwin_gen.go", "//go:build darwin", "RegisterTypesMac(handle)")
+	checkFileContains("register_platform_windows_gen.go", "//go:build windows", "RegisterTypesWin(handle)")
+	checkFileContains("register_platform_default_gen.go", "//go:build !linux && !darwin && !windows", "func registerPlatform(_ uintptr) {}")
 }
 
 func TestFilterOut(t *testing.T) {
@@ -165,7 +165,7 @@ func mustWriteFileContent(t *testing.T, path, content string) {
 }
 
 func TestConfigValidate(t *testing.T) {
-	cfg := config{headersDir: "/tmp/headers", rawDir: "/tmp/raw", publicDir: "/tmp/pub", version: "145"}
+	cfg := config{headersDir: "/tmp/headers", capiDir: "/tmp/capi", portInDir: "/tmp/in", portOutDir: "/tmp/out", publicDir: "/tmp/pub", version: "145"}
 	if err := cfg.validate(); err != nil {
 		t.Fatal(err)
 	}
@@ -176,9 +176,9 @@ func TestConfigValidateErrors(t *testing.T) {
 		name string
 		cfg  config
 	}{
-		{"empty headersDir", config{headersDir: "", rawDir: "/tmp/raw", publicDir: "/tmp/pub"}},
-		{"empty rawDir", config{headersDir: "/tmp/h", rawDir: "", publicDir: "/tmp/pub"}},
-		{"empty publicDir", config{headersDir: "/tmp/h", rawDir: "/tmp/raw", publicDir: ""}},
+		{"empty headersDir", config{headersDir: "", capiDir: "/tmp/c", portInDir: "/tmp/i", portOutDir: "/tmp/o", publicDir: "/tmp/pub"}},
+		{"empty capiDir", config{headersDir: "/tmp/h", capiDir: "", portInDir: "/tmp/i", portOutDir: "/tmp/o", publicDir: "/tmp/pub"}},
+		{"empty publicDir", config{headersDir: "/tmp/h", capiDir: "/tmp/c", portInDir: "/tmp/i", portOutDir: "/tmp/o", publicDir: ""}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
