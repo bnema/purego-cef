@@ -1,0 +1,11 @@
+{{define "raw_register.tmpl"}}
+{{- if .Functions}}
+func {{.RegisterName}}(handle uintptr) {
+{{- range .Functions}}
+	purego.RegisterLibFunc(&{{.GoName}}, handle, "{{.CName}}")
+{{- end}}
+}
+{{- else}}
+func {{.RegisterName}}(_ uintptr) {}
+{{- end}}
+{{end}}

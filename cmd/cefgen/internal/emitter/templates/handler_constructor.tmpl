@@ -1,0 +1,88 @@
+{{define "handler_constructor.tmpl"}}
+// {{lower .Name}}Wrapper wraps a user-provided {{.Name}} implementation together
+// with the raw CEF struct pointer allocated by New{{.Name}}.  It satisfies the
+// {{.Name}} interface (by embedding the user impl) and rawPointerHolder (so
+// extractRawPointer can recover the raw pointer).
+type {{lower .Name}}Wrapper struct {
+	{{.Name}}                           // embed user impl for interface delegation
+	rawPtr *raw.{{.RawGoName}}
+}
+
+func (w *{{lower .Name}}Wrapper) rawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
+// New{{.Name}} creates a CEF handler backed by the given implementation.
+// The returned value can be passed directly to CEF functions that expect
+// this handler type (e.g. BrowserHostCreateBrowser for Client).
+func New{{.Name}}(impl {{.Name}}) {{.Name}} {
+	r := new(raw.{{.RawGoName}})
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+
+{{range .Methods}}
+	{{- if .IsGetter}}
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cached{{.Name}}Ptr unsafe.Pointer
+	if h := impl.{{.Name}}(); h != nil {
+		cached{{.Name}}Ptr = extractOrWrapRawPointer(h, func() any {
+			return New{{.GetterInterface}}(h)
+		})
+	}
+	r.Override{{.RawFieldName}}(purego.NewCallback(func(_ uintptr) uintptr {
+		if cached{{.Name}}Ptr != nil {
+			addRef(cached{{.Name}}Ptr)
+		}
+		return uintptr(cached{{.Name}}Ptr)
+	}))
+	{{- else}}
+	{{- $rawPs := .RawParams}}
+	r.Override{{.RawFieldName}}(purego.NewCallback(func(self uintptr{{range $i, $p := .RawParams}}, {{cbParamName $p $i}} uintptr{{end}}) {{if .Return.IsVoid}}{{else}}uintptr{{end}} {
+		{{- range $i, $p := .Params}}
+		{{- if eq $p.MarshalKind "slice"}}
+		{{$p.Name}} := decodeSlice[{{$p.SliceElemType}}]({{slicePtrArg $p $rawPs}}, int({{sliceCountArg $p $rawPs}}))
+		{{- else if eq $p.MarshalKind "objectSlice"}}
+		{{unmarshalObjectSlice $p $rawPs}}
+		{{- else}}
+		{{$p.Name}} := {{unmarshalParam $p (rawArgForParam $p $rawPs)}}
+		{{- end}}
+		{{- end}}
+		{{- if .Return.IsVoid}}
+		impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})
+		{{- else if .Return.IsBool}}
+		if impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}}) {
+			return 1
+		}
+		return 0
+		{{- else if .Return.IsHandler}}
+		result := impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})
+		if result == nil {
+			return 0
+		}
+		return uintptr(extractOrWrapRawPointer(result, func() any {
+			return New{{.Return.PublicType}}(result)
+		}))
+		{{- else if .Return.IsInterface}}
+		return uintptr(extractRawPointer(impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})))
+		{{- else}}
+		return uintptr(impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}}))
+		{{- end}}
+	}))
+	{{- end}}
+{{end}}
+
+	w := &{{lower .Name}}Wrapper{rawPtr: r}
+	w.{{.Name}} = impl
+	return w
+}
+
+// wrap{{.Name}} wraps a CEF handler pointer received from CEF into a Go interface.
+// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
+// interface is a thin facade that cannot call back into the original implementation.
+func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+	// Handler pointers returned by CEF cannot be meaningfully wrapped because
+	// the underlying function pointers may be Go callbacks that we cannot call
+	// back through purego.  Return nil for now; callers that need the handler
+	// should keep their own reference.
+	return nil
+}
+{{end}}
