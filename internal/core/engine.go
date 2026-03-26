@@ -46,3 +46,8 @@ func New(capi CAPI) *Engine {
 	e.refs = NewRefManager(capi)
 	return e
 }
+
+// Refs returns the engine's RefManager.
+func (e *Engine) Refs() *RefManager {
+	return e.refs
+}

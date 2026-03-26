@@ -79,7 +79,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			return methodNeedsTypedObjectCall(m)
 		},
 		"typedObjectFuncSig": func(rawGoName string, m MethodData) string {
-			parts := []string{"*raw." + rawGoName}
+			parts := []string{"*capi." + rawGoName}
 			for _, p := range m.Params {
 				switch {
 				case p.MarshalKind == "slice":
@@ -217,7 +217,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			case "enum":
 				// Cast public enum type to raw enum type if they differ.
 				if p.RawGoType != "" && p.RawGoType != "unsafe.Pointer" {
-					return "raw." + p.RawGoType + "(" + p.Name + ")"
+					return "capi." + p.RawGoType + "(" + p.Name + ")"
 				}
 				return p.Name
 			case "numeric":
@@ -225,7 +225,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				if p.RawGoType != "" && p.RawGoType != p.PublicType {
 					// CEF types live in raw package.
 					if strings.HasPrefix(p.RawGoType, "CEF") {
-						return "raw." + p.RawGoType + "(" + p.Name + ")"
+						return "capi." + p.RawGoType + "(" + p.Name + ")"
 					}
 					return p.RawGoType + "(" + p.Name + ")"
 				}
@@ -405,7 +405,7 @@ func EmitPortIn(data *PublicFileData) (string, error) {
 	if data == nil {
 		return "", nil
 	}
-	hasContent := len(data.Interfaces) > 0 || len(data.Enums) > 0
+	hasContent := len(data.Interfaces) > 0 || len(data.Enums) > 0 || len(data.DataStructs) > 0
 	if !hasContent {
 		return "", nil
 	}

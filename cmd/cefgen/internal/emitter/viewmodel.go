@@ -51,6 +51,25 @@ func usesUnsafe(typ string) bool {
 	return strings.Contains(typ, "unsafe.Pointer")
 }
 
+// NeedsUnsafeInSignatures returns true if any interface method signature
+// (params or return) directly uses unsafe.Pointer. Unlike NeedsUnsafe(),
+// this does NOT check free function marshaling — only literal type references.
+func (d *PublicFileData) NeedsUnsafeInSignatures() bool {
+	for _, iface := range d.Interfaces {
+		for _, m := range iface.Methods {
+			if usesUnsafe(m.Return.PublicType) {
+				return true
+			}
+			for _, p := range m.Params {
+				if usesUnsafe(p.PublicType) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
 // NeedsMath returns true if any generated callback unmarshalling requires
 // math.Float64frombits/Float32frombits.
 func (d *PublicFileData) NeedsMath() bool {

@@ -56,8 +56,20 @@ var paramOverrides = map[string]ParamOverride{
 }
 
 // BuildPublicFileData converts a parsed header and type registry into the
-// view model used by the public API templates.
+// view model used by the public API templates. Types in skipPublicTypes are
+// excluded (they have handwritten implementations).
 func BuildPublicFileData(header *model.Header, registry *TypeRegistry) *PublicFileData {
+	return buildFileData(header, registry, true)
+}
+
+// BuildPortFileData converts a parsed header into a view model for port
+// templates. Unlike BuildPublicFileData, it does NOT skip any types — ports
+// need the full interface surface so cross-package references resolve.
+func BuildPortFileData(header *model.Header, registry *TypeRegistry) *PublicFileData {
+	return buildFileData(header, registry, false)
+}
+
+func buildFileData(header *model.Header, registry *TypeRegistry, applySkip bool) *PublicFileData {
 	data := &PublicFileData{
 		PackageName: "cef",
 	}
@@ -65,7 +77,7 @@ func BuildPublicFileData(header *model.Header, registry *TypeRegistry) *PublicFi
 	for i := range header.Structs {
 		s := &header.Structs[i]
 		pubName := model.PublicName(s.CName)
-		if skipPublicTypes[pubName] {
+		if applySkip && skipPublicTypes[pubName] {
 			continue
 		}
 		switch s.Kind {
@@ -83,7 +95,7 @@ func BuildPublicFileData(header *model.Header, registry *TypeRegistry) *PublicFi
 	for i := range header.Functions {
 		fn := &header.Functions[i]
 		pubName := model.PublicName(fn.CName)
-		if skipPublicTypes[pubName] {
+		if applySkip && skipPublicTypes[pubName] {
 			continue
 		}
 		data.FreeFunctions = append(data.FreeFunctions, buildFreeFunc(fn, registry))
