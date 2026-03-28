@@ -101,6 +101,189 @@ func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 func wrapLifeSpanHandler(_ unsafe.Pointer) LifeSpanHandler { return nil }
 
 // ---------------------------------------------------------------------------
+// SafeLifeSpanHandler — typed out-params instead of unsafe.Pointer
+// ---------------------------------------------------------------------------
+
+// SafeLifeSpanHandler is the consumer-facing LifeSpanHandler with typed
+// parameters instead of unsafe.Pointer for out-params (client, extraInfo,
+// noJavascriptAccess / useDefaultWindow).
+type SafeLifeSpanHandler interface {
+	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string,
+		targetDisposition WindowOpenDisposition, userGesture int32, popupFeatures *PopupFeatures,
+		windowInfo *WindowInfo, client *Client, settings *BrowserSettings,
+		extraInfo *DictionaryValue, noJavascriptAccess *bool) bool
+	OnBeforePopupAborted(browser Browser, popupID int32)
+	OnBeforeDevToolsPopup(browser Browser, windowInfo *WindowInfo, client *Client,
+		settings *BrowserSettings, extraInfo *DictionaryValue, useDefaultWindow *bool)
+	OnAfterCreated(browser Browser)
+	DoClose(browser Browser) bool
+	OnBeforeClose(browser Browser)
+}
+
+type safeLifeSpanHandlerWrapper struct {
+	impl   SafeLifeSpanHandler
+	rawPtr *capi.CEFLifeSpanHandlerT
+}
+
+func (w *safeLifeSpanHandlerWrapper) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(w.rawPtr)
+}
+
+// portin.LifeSpanHandler interface compliance — these exist so the wrapper
+// satisfies the type but are never called directly (callbacks go through purego).
+func (w *safeLifeSpanHandlerWrapper) OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition WindowOpenDisposition, userGesture int32, popupfeatures *PopupFeatures, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess unsafe.Pointer) bool {
+	return false
+}
+func (w *safeLifeSpanHandlerWrapper) OnBeforePopupAborted(browser Browser, popupID int32) {}
+func (w *safeLifeSpanHandlerWrapper) OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow unsafe.Pointer) {
+}
+func (w *safeLifeSpanHandlerWrapper) OnAfterCreated(browser Browser) {}
+func (w *safeLifeSpanHandlerWrapper) DoClose(browser Browser) bool   { return false }
+func (w *safeLifeSpanHandlerWrapper) OnBeforeClose(browser Browser)  {}
+
+// NewSafeLifeSpanHandler creates a CEF handler backed by a SafeLifeSpanHandler.
+// It converts unsafe.Pointer out-params to typed Go values and writes back
+// any changes the consumer makes.
+func NewSafeLifeSpanHandler(impl SafeLifeSpanHandler) LifeSpanHandler {
+	r := new(capi.CEFLifeSpanHandlerT)
+	w := &safeLifeSpanHandlerWrapper{rawPtr: r, impl: impl}
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnBeforePopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12 uintptr) uintptr {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		popupID := int32(arg2)
+		targetURL := goString(unsafe.Pointer(arg3))
+		targetFrameName := goString(unsafe.Pointer(arg4))
+		targetDisposition := WindowOpenDisposition(arg5)
+		userGesture := int32(arg6)
+		popupFeatures := (*PopupFeatures)(unsafe.Pointer(arg7))
+		windowInfo := (*WindowInfo)(unsafe.Pointer(arg8))
+		settings := (*BrowserSettings)(unsafe.Pointer(arg10))
+
+		// Decode out-param: client (cef_client_t**)
+		var clientVal Client
+		if arg9 != 0 {
+			if cp := *(*unsafe.Pointer)(unsafe.Pointer(arg9)); cp != nil {
+				clientVal = wrapClient(cp)
+			}
+		}
+
+		// Decode out-param: extraInfo (cef_dictionary_value_t**)
+		var extraInfoVal DictionaryValue
+		if arg11 != 0 {
+			if ep := *(*unsafe.Pointer)(unsafe.Pointer(arg11)); ep != nil {
+				extraInfoVal = wrapDictionaryValue(ep)
+			}
+		}
+
+		// Decode out-param: noJavascriptAccess (int*)
+		var noJS bool
+		if arg12 != 0 {
+			noJS = *(*int32)(unsafe.Pointer(arg12)) != 0
+		}
+
+		blocked := impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName,
+			targetDisposition, userGesture, popupFeatures, windowInfo,
+			&clientVal, settings, &extraInfoVal, &noJS)
+
+		// Write back out-params
+		if arg9 != 0 && clientVal != nil {
+			if rp := extractRawPointer(clientVal); rp != nil {
+				*(*unsafe.Pointer)(unsafe.Pointer(arg9)) = rp
+			}
+		}
+		if arg11 != 0 && extraInfoVal != nil {
+			if rp := extractRawPointer(extraInfoVal); rp != nil {
+				*(*unsafe.Pointer)(unsafe.Pointer(arg11)) = rp
+			}
+		}
+		if arg12 != 0 {
+			if noJS {
+				*(*int32)(unsafe.Pointer(arg12)) = 1
+			} else {
+				*(*int32)(unsafe.Pointer(arg12)) = 0
+			}
+		}
+
+		if blocked {
+			return 1
+		}
+		return 0
+	}))
+
+	r.OverrideOnBeforePopupAborted(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) {
+		impl.OnBeforePopupAborted(wrapBrowser(unsafe.Pointer(arg0)), int32(arg1))
+	}))
+
+	r.OverrideOnBeforeDevToolsPopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5 uintptr) {
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		windowInfo := (*WindowInfo)(unsafe.Pointer(arg1))
+		settings := (*BrowserSettings)(unsafe.Pointer(arg3))
+
+		// Decode out-param: client (cef_client_t**)
+		var clientVal Client
+		if arg2 != 0 {
+			if cp := *(*unsafe.Pointer)(unsafe.Pointer(arg2)); cp != nil {
+				clientVal = wrapClient(cp)
+			}
+		}
+
+		// Decode out-param: extraInfo (cef_dictionary_value_t**)
+		var extraInfoVal DictionaryValue
+		if arg4 != 0 {
+			if ep := *(*unsafe.Pointer)(unsafe.Pointer(arg4)); ep != nil {
+				extraInfoVal = wrapDictionaryValue(ep)
+			}
+		}
+
+		// Decode out-param: useDefaultWindow (int*)
+		var useDefault bool
+		if arg5 != 0 {
+			useDefault = *(*int32)(unsafe.Pointer(arg5)) != 0
+		}
+
+		impl.OnBeforeDevToolsPopup(browser, windowInfo, &clientVal, settings, &extraInfoVal, &useDefault)
+
+		// Write back out-params
+		if arg2 != 0 && clientVal != nil {
+			if rp := extractRawPointer(clientVal); rp != nil {
+				*(*unsafe.Pointer)(unsafe.Pointer(arg2)) = rp
+			}
+		}
+		if arg4 != 0 && extraInfoVal != nil {
+			if rp := extractRawPointer(extraInfoVal); rp != nil {
+				*(*unsafe.Pointer)(unsafe.Pointer(arg4)) = rp
+			}
+		}
+		if arg5 != 0 {
+			if useDefault {
+				*(*int32)(unsafe.Pointer(arg5)) = 1
+			} else {
+				*(*int32)(unsafe.Pointer(arg5)) = 0
+			}
+		}
+	}))
+
+	r.OverrideOnAfterCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		impl.OnAfterCreated(wrapBrowser(unsafe.Pointer(arg0)))
+	}))
+
+	r.OverrideDoClose(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+		if impl.DoClose(wrapBrowser(unsafe.Pointer(arg0))) {
+			return 1
+		}
+		return 0
+	}))
+
+	r.OverrideOnBeforeClose(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+		impl.OnBeforeClose(wrapBrowser(unsafe.Pointer(arg0)))
+	}))
+
+	return w
+}
+
+// ---------------------------------------------------------------------------
 // AudioHandler constructor — decodes float** to [][]float32
 // ---------------------------------------------------------------------------
 
