@@ -211,8 +211,8 @@ type CEFSettingsT struct {
 	UserAgentProduct                 CEFStringT
 	Locale                           CEFStringT
 	LogFile                          CEFStringT
-	LogSeverity                      CEFLogSeverityT
-	LogItems                         CEFLogItemsT
+	LogSeverity                      int32
+	LogItems                         int32
 	JavascriptFlags                  CEFStringT
 	ResourcesDirPath                 CEFStringT
 	LocalesDirPath                   CEFStringT
@@ -252,22 +252,22 @@ type CEFBrowserSettingsT struct {
 	MinimumFontSize            int32
 	MinimumLogicalFontSize     int32
 	DefaultEncoding            CEFStringT
-	RemoteFonts                CEFStateT
-	Javascript                 CEFStateT
-	JavascriptCloseWindows     CEFStateT
-	JavascriptAccessClipboard  CEFStateT
-	JavascriptDomPaste         CEFStateT
-	ImageLoading               CEFStateT
-	ImageShrinkStandaloneToFit CEFStateT
-	TextAreaResize             CEFStateT
-	TabToLinks                 CEFStateT
-	LocalStorage               CEFStateT
-	DatabasesDeprecated        CEFStateT
-	Databases                  CEFStateT
-	Webgl                      CEFStateT
+	RemoteFonts                int32
+	Javascript                 int32
+	JavascriptCloseWindows     int32
+	JavascriptAccessClipboard  int32
+	JavascriptDomPaste         int32
+	ImageLoading               int32
+	ImageShrinkStandaloneToFit int32
+	TextAreaResize             int32
+	TabToLinks                 int32
+	LocalStorage               int32
+	DatabasesDeprecated        int32
+	Databases                  int32
+	Webgl                      int32
 	BackgroundColor            CEFColorT
-	ChromeStatusBubble         CEFStateT
-	ChromeZoomBubble           CEFStateT
+	ChromeStatusBubble         int32
+	ChromeZoomBubble           int32
 }
 
 type CEFUrlpartsT struct {
@@ -298,8 +298,8 @@ type CEFCookieT struct {
 	LastAccess CEFBasetimeT
 	HasExpires int32
 	Expires    CEFBasetimeT
-	SameSite   CEFCookieSameSiteT
-	Priority   CEFCookiePriorityT
+	SameSite   int32
+	Priority   int32
 }
 
 type CEFDraggableRegionT struct {
@@ -344,15 +344,15 @@ type CEFTouchEventT struct {
 	RadiusY       float32
 	RotationAngle float32
 	Pressure      float32
-	Type          CEFTouchEventTypeT
+	Type          int32
 	Modifiers     uint32
-	PointerType   CEFPointerTypeT
+	PointerType   int32
 }
 
 type CEFKeyEventT struct {
 	_                    structs.HostLayout
 	Size                 uintptr
-	Type                 CEFKeyEventTypeT
+	Type                 int32
 	Modifiers            uint32
 	WindowsKeyCode       int32
 	NativeKeyCode        int32
@@ -393,7 +393,7 @@ type CEFPdfPrintSettingsT struct {
 	PaperWidth              float64
 	PaperHeight             float64
 	PreferCssPageSize       int32
-	MarginType              CEFPdfPrintMarginTypeT
+	MarginType              int32
 	MarginTop               float64
 	MarginRight             float64
 	MarginBottom            float64
@@ -414,8 +414,8 @@ type CEFBoxLayoutSettingsT struct {
 	InsideBorderVerticalSpacing   int32
 	InsideBorderInsets            CEFInsetsT
 	BetweenChildSpacing           int32
-	MainAxisAlignment             CEFAxisAlignmentT
-	CrossAxisAlignment            CEFAxisAlignmentT
+	MainAxisAlignment             int32
+	CrossAxisAlignment            int32
 	MinimumCrossAxisSize          int32
 	DefaultFlex                   int32
 }
@@ -433,13 +433,13 @@ type CEFCompositionUnderlineT struct {
 	Color           CEFColorT
 	BackgroundColor CEFColorT
 	Thick           int32
-	Style           CEFCompositionUnderlineStyleT
+	Style           int32
 }
 
 type CEFAudioParametersT struct {
 	_               structs.HostLayout
 	Size            uintptr
-	ChannelLayout   CEFChannelLayoutT
+	ChannelLayout   int32
 	SampleRate      int32
 	FramesPerBuffer int32
 }
@@ -458,7 +458,7 @@ type CEFTouchHandleStateT struct {
 	TouchHandleID    int32
 	Flags            uint32
 	Enabled          int32
-	Orientation      CEFHorizontalAlignmentT
+	Orientation      int32
 	MirrorVertical   int32
 	MirrorHorizontal int32
 	Origin           CEFPointT
@@ -469,7 +469,7 @@ type CEFTaskInfoT struct {
 	_                   structs.HostLayout
 	Size                uintptr
 	ID                  int64
-	Type                CEFTaskTypeT
+	Type                int32
 	IsKillable          int32
 	Title               CEFStringT
 	CpuUsage            float64
