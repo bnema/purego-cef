@@ -25,11 +25,21 @@ func Open(cefDir string) (uintptr, error) {
 	if err != nil {
 		return 0, fmt.Errorf("dlopen %s: %w", libPath, err)
 	}
+	ok := false
+	defer func() {
+		if !ok {
+			purego.Dlclose(handle)
+		}
+	}()
 	if os.Getenv("CEF_SKIP_VERSION_CHECK") != "1" {
 		if err := validateVersion(handle); err != nil {
 			return 0, err
 		}
 	}
+	if err := configureAPIVersion(handle); err != nil {
+		return 0, err
+	}
+	ok = true
 	return handle, nil
 }
 
@@ -54,6 +64,22 @@ func targetMajor() int32 {
 		}
 	}
 	return defaultCEFVersion
+}
+
+// configureAPIVersion calls cef_api_hash to configure the API version.
+// CEF 133+ requires this before cef_initialize — without it,
+// cef_api_version() returns -1 and every versioned CToCpp wrapper FATALs.
+func configureAPIVersion(handle uintptr) error {
+	sym, err := purego.Dlsym(handle, "cef_api_hash")
+	if err != nil {
+		return fmt.Errorf("resolve cef_api_hash: %w", err)
+	}
+	var apiHash func(int32, int32) uintptr
+	purego.RegisterFunc(&apiHash, sym)
+	// 999999 = CEF_API_VERSION_EXPERIMENTAL (use all available API).
+	// entry 0 = CEF_API_HASH_PLATFORM; return value ignored.
+	apiHash(999999, 0)
+	return nil
 }
 
 func validateVersion(handle uintptr) error {
