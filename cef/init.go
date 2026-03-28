@@ -55,12 +55,13 @@ func InitWithApp(settings Settings, app App) error {
 		eng = e
 
 		var appPtr unsafe.Pointer
+		var wrapped App
 		if app != nil {
-			wrapped := NewApp(app)
+			wrapped = NewApp(app)
 			appPtr = extractRawPointer(wrapped)
-			runtime.KeepAlive(wrapped)
 		}
 		initErr = e.InitWithApp(settings, appPtr)
+		runtime.KeepAlive(wrapped)
 	})
 	return initErr
 }
