@@ -471,3 +471,117 @@ func extractOrWrapRawPointer(v any, wrap func() any) unsafe.Pointer {
 func decodeSlice[T any](ptr uintptr, count int) []T {
 	return core.DecodeSlice[T](ptr, count)
 }
+
+// ---------------------------------------------------------------------------
+// SafeClient — consumer-facing Client with safe handler types
+// ---------------------------------------------------------------------------
+
+// SafeClient is the consumer-facing Client interface. It differs from the
+// generated portin.Client in two ways:
+//   - GetAudioHandler() returns cef.AudioHandler (safe [][]float32) instead of portin.AudioHandler
+//   - GetLifeSpanHandler() returns SafeLifeSpanHandler (typed out-params) instead of portin.LifeSpanHandler
+//
+// Use NewSafeClient to wrap a SafeClient into a portin.Client for NewClient.
+type SafeClient interface {
+	GetAudioHandler() AudioHandler
+	GetCommandHandler() CommandHandler
+	GetContextMenuHandler() ContextMenuHandler
+	GetDialogHandler() DialogHandler
+	GetDisplayHandler() DisplayHandler
+	GetDownloadHandler() DownloadHandler
+	GetDragHandler() DragHandler
+	GetFindHandler() FindHandler
+	GetFocusHandler() FocusHandler
+	GetFrameHandler() FrameHandler
+	GetPermissionHandler() PermissionHandler
+	GetJsdialogHandler() JsdialogHandler
+	GetKeyboardHandler() KeyboardHandler
+	GetLifeSpanHandler() SafeLifeSpanHandler
+	GetLoadHandler() LoadHandler
+	GetPrintHandler() PrintHandler
+	GetRenderHandler() RenderHandler
+	GetRequestHandler() RequestHandler
+	OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32
+}
+
+// safeClientAdapter wraps a SafeClient to satisfy portin.Client by converting
+// safe handler types to their raw equivalents.
+type safeClientAdapter struct {
+	impl SafeClient
+}
+
+func (a *safeClientAdapter) GetAudioHandler() portin.AudioHandler {
+	h := a.impl.GetAudioHandler()
+	if h == nil {
+		return nil
+	}
+	return NewSafeAudioHandler(h)
+}
+
+func (a *safeClientAdapter) GetLifeSpanHandler() portin.LifeSpanHandler {
+	h := a.impl.GetLifeSpanHandler()
+	if h == nil {
+		return nil
+	}
+	return NewSafeLifeSpanHandler(h)
+}
+
+func (a *safeClientAdapter) GetCommandHandler() CommandHandler {
+	return a.impl.GetCommandHandler()
+}
+func (a *safeClientAdapter) GetContextMenuHandler() ContextMenuHandler {
+	return a.impl.GetContextMenuHandler()
+}
+func (a *safeClientAdapter) GetDialogHandler() DialogHandler {
+	return a.impl.GetDialogHandler()
+}
+func (a *safeClientAdapter) GetDisplayHandler() DisplayHandler {
+	return a.impl.GetDisplayHandler()
+}
+func (a *safeClientAdapter) GetDownloadHandler() DownloadHandler {
+	return a.impl.GetDownloadHandler()
+}
+func (a *safeClientAdapter) GetDragHandler() DragHandler {
+	return a.impl.GetDragHandler()
+}
+func (a *safeClientAdapter) GetFindHandler() FindHandler {
+	return a.impl.GetFindHandler()
+}
+func (a *safeClientAdapter) GetFocusHandler() FocusHandler {
+	return a.impl.GetFocusHandler()
+}
+func (a *safeClientAdapter) GetFrameHandler() FrameHandler {
+	return a.impl.GetFrameHandler()
+}
+func (a *safeClientAdapter) GetPermissionHandler() PermissionHandler {
+	return a.impl.GetPermissionHandler()
+}
+func (a *safeClientAdapter) GetJsdialogHandler() JsdialogHandler {
+	return a.impl.GetJsdialogHandler()
+}
+func (a *safeClientAdapter) GetKeyboardHandler() KeyboardHandler {
+	return a.impl.GetKeyboardHandler()
+}
+func (a *safeClientAdapter) GetLoadHandler() LoadHandler {
+	return a.impl.GetLoadHandler()
+}
+func (a *safeClientAdapter) GetPrintHandler() PrintHandler {
+	return a.impl.GetPrintHandler()
+}
+func (a *safeClientAdapter) GetRenderHandler() RenderHandler {
+	return a.impl.GetRenderHandler()
+}
+func (a *safeClientAdapter) GetRequestHandler() RequestHandler {
+	return a.impl.GetRequestHandler()
+}
+func (a *safeClientAdapter) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
+	return a.impl.OnProcessMessageReceived(browser, frame, sourceProcess, message)
+}
+
+// NewSafeClient creates a CEF Client from a SafeClient implementation.
+// It wraps AudioHandler via NewSafeAudioHandler ([][]float32 decoding) and
+// LifeSpanHandler via NewSafeLifeSpanHandler (typed out-params), then
+// delegates to the generated NewClient.
+func NewSafeClient(impl SafeClient) Client {
+	return NewClient(&safeClientAdapter{impl: impl})
+}
