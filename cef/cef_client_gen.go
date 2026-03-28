@@ -28,10 +28,8 @@ func (w *clientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewClient creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
-func NewClient(impl Client) Client {
+// newRawClient creates a CEF handler backed by the given portin.Client implementation.
+func newRawClient(impl Client) Client {
 	r := new(capi.CEFClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -221,7 +219,7 @@ func NewClient(impl Client) Client {
 	var cachedGetLifeSpanHandlerPtr unsafe.Pointer
 	if h := impl.GetLifeSpanHandler(); h != nil {
 		cachedGetLifeSpanHandlerPtr = extractOrWrapRawPointer(h, func() any {
-			return NewLifeSpanHandler(h)
+			return newRawLifeSpanHandler(h)
 		})
 	}
 	r.OverrideGetLifeSpanHandler(purego.NewCallback(func(_ uintptr) uintptr {

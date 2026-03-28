@@ -65,7 +65,7 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 	var cachedGetDefaultClientPtr unsafe.Pointer
 	if h := impl.GetDefaultClient(); h != nil {
 		cachedGetDefaultClientPtr = extractOrWrapRawPointer(h, func() any {
-			return NewClient(h)
+			return newRawClient(h)
 		})
 	}
 	r.OverrideGetDefaultClient(purego.NewCallback(func(_ uintptr) uintptr {

@@ -42,7 +42,7 @@ func (w *lifeSpanHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
+func newRawLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 	r := new(capi.CEFLifeSpanHandlerT)
 	w := &lifeSpanHandlerWrapper{rawPtr: r}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -101,7 +101,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 func wrapLifeSpanHandler(_ unsafe.Pointer) LifeSpanHandler { return nil }
 
 // ---------------------------------------------------------------------------
-// SafeLifeSpanHandler — typed out-params instead of unsafe.Pointer
+// Consumer-facing LifeSpanHandler — typed out-params instead of unsafe.Pointer
 // ---------------------------------------------------------------------------
 
 // SafeLifeSpanHandler is the consumer-facing LifeSpanHandler with typed
@@ -141,10 +141,10 @@ func (w *safeLifeSpanHandlerWrapper) OnAfterCreated(browser Browser) {}
 func (w *safeLifeSpanHandlerWrapper) DoClose(browser Browser) bool   { return false }
 func (w *safeLifeSpanHandlerWrapper) OnBeforeClose(browser Browser)  {}
 
-// NewSafeLifeSpanHandler creates a CEF handler backed by a SafeLifeSpanHandler.
+// NewLifeSpanHandler creates a CEF handler backed by a SafeLifeSpanHandler.
 // It converts unsafe.Pointer out-params to typed Go values and writes back
 // any changes the consumer makes.
-func NewSafeLifeSpanHandler(impl SafeLifeSpanHandler) LifeSpanHandler {
+func NewLifeSpanHandler(impl SafeLifeSpanHandler) LifeSpanHandler {
 	r := new(capi.CEFLifeSpanHandlerT)
 	w := &safeLifeSpanHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -473,7 +473,7 @@ func decodeSlice[T any](ptr uintptr, count int) []T {
 }
 
 // ---------------------------------------------------------------------------
-// SafeClient — consumer-facing Client with safe handler types
+// Consumer-facing Client with safe handler types
 // ---------------------------------------------------------------------------
 
 // SafeClient is the consumer-facing Client interface. It differs from the
@@ -481,7 +481,7 @@ func decodeSlice[T any](ptr uintptr, count int) []T {
 //   - GetAudioHandler() returns cef.AudioHandler (safe [][]float32) instead of portin.AudioHandler
 //   - GetLifeSpanHandler() returns SafeLifeSpanHandler (typed out-params) instead of portin.LifeSpanHandler
 //
-// Use NewSafeClient to wrap a SafeClient into a portin.Client for NewClient.
+// Use NewClient to create a CEF Client from a SafeClient implementation.
 type SafeClient interface {
 	GetAudioHandler() AudioHandler
 	GetCommandHandler() CommandHandler
@@ -523,7 +523,7 @@ func (a *safeClientAdapter) GetLifeSpanHandler() portin.LifeSpanHandler {
 	if h == nil {
 		return nil
 	}
-	return NewSafeLifeSpanHandler(h)
+	return NewLifeSpanHandler(h)
 }
 
 func (a *safeClientAdapter) GetCommandHandler() CommandHandler {
@@ -578,10 +578,10 @@ func (a *safeClientAdapter) OnProcessMessageReceived(browser Browser, frame Fram
 	return a.impl.OnProcessMessageReceived(browser, frame, sourceProcess, message)
 }
 
-// NewSafeClient creates a CEF Client from a SafeClient implementation.
+// NewClient creates a CEF Client from a SafeClient implementation.
 // It wraps AudioHandler via NewSafeAudioHandler ([][]float32 decoding) and
-// LifeSpanHandler via NewSafeLifeSpanHandler (typed out-params), then
-// delegates to the generated NewClient.
-func NewSafeClient(impl SafeClient) Client {
-	return NewClient(&safeClientAdapter{impl: impl})
+// LifeSpanHandler via NewLifeSpanHandler (typed out-params), then
+// delegates to the generated raw client constructor.
+func NewClient(impl SafeClient) Client {
+	return newRawClient(&safeClientAdapter{impl: impl})
 }
