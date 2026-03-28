@@ -102,8 +102,6 @@ func (w *v8HandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewV8Handler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewV8Handler(impl V8Handler) V8Handler {
 	r := new(capi.CEFV8HandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -151,8 +149,6 @@ func (w *v8AccessorWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewV8Accessor creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewV8Accessor(impl V8Accessor) V8Accessor {
 	r := new(capi.CEFV8AccessorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -206,8 +202,6 @@ func (w *v8InterceptorWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewV8Interceptor creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 	r := new(capi.CEFV8InterceptorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -341,8 +335,6 @@ func (w *v8ArrayBufferReleaseCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewV8ArrayBufferReleaseCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) V8ArrayBufferReleaseCallback {
 	r := new(capi.CEFV8ArrayBufferReleaseCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

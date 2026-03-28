@@ -29,8 +29,6 @@ func (w *focusHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewFocusHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewFocusHandler(impl FocusHandler) FocusHandler {
 	r := new(capi.CEFFocusHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

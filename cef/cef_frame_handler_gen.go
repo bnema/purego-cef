@@ -29,8 +29,6 @@ func (w *frameHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewFrameHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewFrameHandler(impl FrameHandler) FrameHandler {
 	r := new(capi.CEFFrameHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

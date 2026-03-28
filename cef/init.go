@@ -6,7 +6,7 @@
 // The hexagonal refactor removed the following hand-written APIs that are
 // now provided (or intentionally dropped) by the generated public layer:
 //   - NewKeyEvent, KeyEventSetType → use generated KeyEvent struct directly
-//   - DefaultWindowInfo, DefaultBrowserSettings → use generated zero-value structs
+//   - DefaultWindowInfo, DefaultBrowserSettings → use NewWindowInfo(), NewBrowserSettings()
 //   - SetHandlerTraceEnabled, HandlerTraceEnabled → handler tracing removed
 package cef
 

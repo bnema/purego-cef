@@ -29,8 +29,6 @@ func (w *responseFilterWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewResponseFilter creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewResponseFilter(impl ResponseFilter) ResponseFilter {
 	r := new(capi.CEFResponseFilterT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

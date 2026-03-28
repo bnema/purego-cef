@@ -16,7 +16,7 @@ import (
 type Client = portin.Client
 
 // clientWrapper wraps a user-provided Client implementation together
-// with the raw CEF struct pointer allocated by NewClient.  It satisfies the
+// with the raw CEF struct pointer allocated by newRawClient.  It satisfies the
 // Client interface (by embedding the user impl) and core.RawPointerHolder
 // (so extractRawPointer can recover the raw pointer).
 type clientWrapper struct {
@@ -28,7 +28,7 @@ func (w *clientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// newRawClient creates a CEF handler backed by the given portin.Client implementation.
+// newRawClient creates a CEF handler backed by the given implementation.
 func newRawClient(impl Client) Client {
 	r := new(capi.CEFClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

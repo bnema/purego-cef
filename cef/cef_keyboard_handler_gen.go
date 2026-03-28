@@ -29,8 +29,6 @@ func (w *keyboardHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewKeyboardHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
 	r := new(capi.CEFKeyboardHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

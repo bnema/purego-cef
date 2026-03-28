@@ -29,8 +29,6 @@ func (w *accessibilityHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewAccessibilityHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewAccessibilityHandler(impl AccessibilityHandler) AccessibilityHandler {
 	r := new(capi.CEFAccessibilityHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

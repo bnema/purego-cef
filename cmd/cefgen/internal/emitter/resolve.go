@@ -349,6 +349,31 @@ func (r *TypeRegistry) lookupStructForCType(ctype string) *model.Struct {
 	return nil
 }
 
+// FixupEnumFieldTypes rewrites GoType for enum-typed fields in data structs
+// from their internal Go enum type (e.g. CEFStateT) to int32. This is
+// necessary because public enums are type-aliased to int32, and the public
+// structs are type-aliased to the raw structs — using the internal enum type
+// would create a type mismatch for consumers.
+func (r *TypeRegistry) FixupEnumFieldTypes(headers []*model.Header) {
+	for _, h := range headers {
+		for i := range h.Structs {
+			s := &h.Structs[i]
+			if s.Kind != "data" {
+				continue
+			}
+			for j := range s.Fields {
+				f := &s.Fields[j]
+				if f.IsFunction {
+					continue
+				}
+				if _, ok := r.enums[f.CType]; ok {
+					f.GoType = "int32"
+				}
+			}
+		}
+	}
+}
+
 // IsBoolReturn returns true if a callback field returns int and its name
 // starts with a boolean-like prefix (is_, has_, can_, do_, on_before_).
 func IsBoolReturn(f model.Field) bool {

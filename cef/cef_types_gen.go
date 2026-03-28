@@ -3,6 +3,8 @@
 package cef
 
 import (
+	"unsafe"
+
 	"github.com/bnema/purego-cef/internal/capi"
 )
 
@@ -1449,14 +1451,42 @@ const (
 // RequestContextSettings Request context initialization settings. Specify NULL or 0 to get the recommended default values.
 type RequestContextSettings = capi.CEFRequestContextSettingsT
 
+// NewRequestContextSettings returns a RequestContextSettings with Size pre-filled.
+func NewRequestContextSettings() RequestContextSettings {
+	var v RequestContextSettings
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
+
 // BrowserSettings Browser initialization settings. Specify NULL or 0 to get the recommended default values. The consequences of using custom values may not be well tested. Many of these and other settings can also configured using command- line switches.
 type BrowserSettings = capi.CEFBrowserSettingsT
+
+// NewBrowserSettings returns a BrowserSettings with Size pre-filled.
+func NewBrowserSettings() BrowserSettings {
+	var v BrowserSettings
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
 
 // Urlparts URL component parts.
 type Urlparts = capi.CEFUrlpartsT
 
+// NewUrlparts returns a Urlparts with Size pre-filled.
+func NewUrlparts() Urlparts {
+	var v Urlparts
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
+
 // Cookie Cookie information.
 type Cookie = capi.CEFCookieT
+
+// NewCookie returns a Cookie with Size pre-filled.
+func NewCookie() Cookie {
+	var v Cookie
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
 
 // DraggableRegion Structure representing a draggable region.
 type DraggableRegion = capi.CEFDraggableRegionT
@@ -1464,8 +1494,22 @@ type DraggableRegion = capi.CEFDraggableRegionT
 // ScreenInfo Screen information used when window rendering is disabled. This structure is passed as a parameter to CefRenderHandler::GetScreenInfo and should be filled in by the client.
 type ScreenInfo = capi.CEFScreenInfoT
 
+// NewScreenInfo returns a ScreenInfo with Size pre-filled.
+func NewScreenInfo() ScreenInfo {
+	var v ScreenInfo
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
+
 // LinuxWindowProperties Linux window properties, such as X11's WM_CLASS or Wayland's app_id. Those are passed to CefWindowDelegate, so the client can set them for the CefWindow's top-level. Thus, allowing window managers to correctly display the application's information (e.g., icons).
 type LinuxWindowProperties = capi.CEFLinuxWindowPropertiesT
+
+// NewLinuxWindowProperties returns a LinuxWindowProperties with Size pre-filled.
+func NewLinuxWindowProperties() LinuxWindowProperties {
+	var v LinuxWindowProperties
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
 
 // MouseEvent Structure representing mouse event information.
 type MouseEvent = capi.CEFMouseEventT
@@ -1476,8 +1520,22 @@ type TouchEvent = capi.CEFTouchEventT
 // KeyEvent Structure representing keyboard event information.
 type KeyEvent = capi.CEFKeyEventT
 
+// NewKeyEvent returns a KeyEvent with Size pre-filled.
+func NewKeyEvent() KeyEvent {
+	var v KeyEvent
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
+
 // PopupFeatures Popup window features.
 type PopupFeatures = capi.CEFPopupFeaturesT
+
+// NewPopupFeatures returns a PopupFeatures with Size pre-filled.
+func NewPopupFeatures() PopupFeatures {
+	var v PopupFeatures
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
 
 // CursorInfo Structure representing cursor information. |buffer| will be |size.width|*|size.height|*4 bytes in size and represents a BGRA image with an upper-left origin.
 type CursorInfo = capi.CEFCursorInfoT
@@ -1485,8 +1543,22 @@ type CursorInfo = capi.CEFCursorInfoT
 // PdfPrintSettings Structure representing PDF print settings. These values match the parameters supported by the DevTools Page.printToPDF function. See https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-printToPDF
 type PdfPrintSettings = capi.CEFPdfPrintSettingsT
 
+// NewPdfPrintSettings returns a PdfPrintSettings with Size pre-filled.
+func NewPdfPrintSettings() PdfPrintSettings {
+	var v PdfPrintSettings
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
+
 // BoxLayoutSettings Settings used when initializing a CefBoxLayout.
 type BoxLayoutSettings = capi.CEFBoxLayoutSettingsT
+
+// NewBoxLayoutSettings returns a BoxLayoutSettings with Size pre-filled.
+func NewBoxLayoutSettings() BoxLayoutSettings {
+	var v BoxLayoutSettings
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
 
 // Range Structure representing a range.
 type Range = capi.CEFRangeT
@@ -1494,14 +1566,49 @@ type Range = capi.CEFRangeT
 // CompositionUnderline Structure representing IME composition underline information. This is a thin wrapper around Blink's WebCompositionUnderline class and should be kept in sync with that.
 type CompositionUnderline = capi.CEFCompositionUnderlineT
 
+// NewCompositionUnderline returns a CompositionUnderline with Size pre-filled.
+func NewCompositionUnderline() CompositionUnderline {
+	var v CompositionUnderline
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
+
 // AudioParameters Structure representing the audio parameters for setting up the audio handler.
 type AudioParameters = capi.CEFAudioParametersT
+
+// NewAudioParameters returns a AudioParameters with Size pre-filled.
+func NewAudioParameters() AudioParameters {
+	var v AudioParameters
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
 
 // MediaSinkDeviceInfo Device information for a MediaSink object.
 type MediaSinkDeviceInfo = capi.CEFMediaSinkDeviceInfoT
 
+// NewMediaSinkDeviceInfo returns a MediaSinkDeviceInfo with Size pre-filled.
+func NewMediaSinkDeviceInfo() MediaSinkDeviceInfo {
+	var v MediaSinkDeviceInfo
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
+
 // TouchHandleState is a CEF data structure.
 type TouchHandleState = capi.CEFTouchHandleStateT
 
+// NewTouchHandleState returns a TouchHandleState with Size pre-filled.
+func NewTouchHandleState() TouchHandleState {
+	var v TouchHandleState
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
+
 // TaskInfo Structure representing task information provided by CefTaskManager.
 type TaskInfo = capi.CEFTaskInfoT
+
+// NewTaskInfo returns a TaskInfo with Size pre-filled.
+func NewTaskInfo() TaskInfo {
+	var v TaskInfo
+	v.Size = unsafe.Sizeof(v)
+	return v
+}

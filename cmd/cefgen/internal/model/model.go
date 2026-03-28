@@ -122,16 +122,24 @@ func (h *Header) NeedsUnsafe() bool {
 	return false
 }
 
+// HasFunctionFields returns true if any field in the struct is a function pointer.
+func (s *Struct) HasFunctionFields() bool {
+	for _, f := range s.Fields {
+		if f.IsFunction {
+			return true
+		}
+	}
+	return false
+}
+
 // NeedsPurego returns true if any struct has function pointer fields
 // (which generate Call methods using purego.SyscallN). Free-function
 // registration uses tryRegisterLibFunc (same package) and no longer
 // needs the purego import.
 func (h *Header) NeedsPurego() bool {
 	for _, s := range h.Structs {
-		for _, f := range s.Fields {
-			if f.IsFunction {
-				return true
-			}
+		if s.HasFunctionFields() {
+			return true
 		}
 	}
 	return false

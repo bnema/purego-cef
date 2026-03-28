@@ -54,8 +54,6 @@ func (w *schemeHandlerFactoryWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewSchemeHandlerFactory creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewSchemeHandlerFactory(impl SchemeHandlerFactory) SchemeHandlerFactory {
 	r := new(capi.CEFSchemeHandlerFactoryT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

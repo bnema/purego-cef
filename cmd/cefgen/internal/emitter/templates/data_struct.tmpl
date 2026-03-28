@@ -1,4 +1,13 @@
 {{define "data_struct.tmpl"}}
 {{- if .Doc}}// {{.Name}} {{.Doc}}{{else}}// {{.Name}} is a CEF data structure.{{end}}
 type {{.Name}} = capi.{{.RawGoName}}
+{{- if .HasSizeField}}
+
+// New{{.Name}} returns a {{.Name}} with Size pre-filled.
+func New{{.Name}}() {{.Name}} {
+	var v {{.Name}}
+	v.Size = unsafe.Sizeof(v)
+	return v
+}
+{{- end}}
 {{end}}

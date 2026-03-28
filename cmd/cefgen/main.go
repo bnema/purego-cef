@@ -118,6 +118,10 @@ func run(cfg config) error {
 	// Build type registry from all parsed headers.
 	registry := emitter.NewTypeRegistry(allHeaders)
 
+	// Rewrite enum-typed fields in data structs to int32 so the raw struct
+	// fields match the public enum type aliases (which are int32).
+	registry.FixupEnumFieldTypes(allHeaders)
+
 	// Emit capi, port-out, port-in, and public output for each header.
 	for _, e := range entries {
 		// CAPI output (was "raw")

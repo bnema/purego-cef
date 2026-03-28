@@ -29,8 +29,6 @@ func (w *stringVisitorWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewStringVisitor creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewStringVisitor(impl StringVisitor) StringVisitor {
 	r := new(capi.CEFStringVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

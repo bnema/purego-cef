@@ -29,8 +29,6 @@ func (w *loadHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewLoadHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewLoadHandler(impl LoadHandler) LoadHandler {
 	r := new(capi.CEFLoadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

@@ -70,8 +70,6 @@ func (w *completionCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewCompletionCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewCompletionCallback(impl CompletionCallback) CompletionCallback {
 	r := new(capi.CEFCompletionCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

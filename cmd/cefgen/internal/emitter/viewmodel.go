@@ -126,6 +126,17 @@ func (d *PublicFileData) NeedsPuregoObjectCalls() bool {
 	return false
 }
 
+// HasSizedDataStructs returns true if any data struct has a Size field
+// that needs a New*() constructor with unsafe.Sizeof.
+func (d *PublicFileData) HasSizedDataStructs() bool {
+	for _, ds := range d.DataStructs {
+		if ds.HasSizeField {
+			return true
+		}
+	}
+	return false
+}
+
 // NeedsRaw returns true if the file references the raw package.
 func (d *PublicFileData) NeedsRaw() bool {
 	return len(d.Interfaces) > 0 || len(d.DataStructs) > 0 || len(d.FreeFunctions) > 0
@@ -201,10 +212,11 @@ type ReturnData struct {
 
 // DataStructData represents a plain data struct re-export.
 type DataStructData struct {
-	Name      string
-	Doc       string
-	RawGoName string
-	Fields    []DataFieldData
+	Name         string
+	Doc          string
+	RawGoName    string
+	Fields       []DataFieldData
+	HasSizeField bool // true when the struct has a Size uintptr field (needs New*() constructor)
 }
 
 // DataFieldData represents a field in a data struct.

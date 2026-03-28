@@ -432,8 +432,6 @@ func (w *translatorTestRefPtrClientWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewTranslatorTestRefPtrClient creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewTranslatorTestRefPtrClient(impl TranslatorTestRefPtrClient) TranslatorTestRefPtrClient {
 	r := new(capi.CEFTranslatorTestRefPtrClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -475,8 +473,6 @@ func (w *translatorTestRefPtrClientChildWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewTranslatorTestRefPtrClientChild creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewTranslatorTestRefPtrClientChild(impl TranslatorTestRefPtrClientChild) TranslatorTestRefPtrClientChild {
 	r := new(capi.CEFTranslatorTestRefPtrClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -625,8 +621,6 @@ func (w *translatorTestScopedClientWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewTranslatorTestScopedClient creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewTranslatorTestScopedClient(impl TranslatorTestScopedClient) TranslatorTestScopedClient {
 	r := new(capi.CEFTranslatorTestScopedClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -668,8 +662,6 @@ func (w *translatorTestScopedClientChildWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewTranslatorTestScopedClientChild creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewTranslatorTestScopedClientChild(impl TranslatorTestScopedClientChild) TranslatorTestScopedClientChild {
 	r := new(capi.CEFTranslatorTestScopedClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
