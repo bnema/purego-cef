@@ -29,8 +29,6 @@ func (w *findHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewFindHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewFindHandler(impl FindHandler) FindHandler {
 	r := new(capi.CEFFindHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

@@ -150,8 +150,6 @@ func (w *runFileDialogCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewRunFileDialogCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewRunFileDialogCallback(impl RunFileDialogCallback) RunFileDialogCallback {
 	r := new(capi.CEFRunFileDialogCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -194,8 +192,6 @@ func (w *navigationEntryVisitorWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewNavigationEntryVisitor creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewNavigationEntryVisitor(impl NavigationEntryVisitor) NavigationEntryVisitor {
 	r := new(capi.CEFNavigationEntryVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -241,8 +237,6 @@ func (w *pdfPrintCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewPdfPrintCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewPdfPrintCallback(impl PdfPrintCallback) PdfPrintCallback {
 	r := new(capi.CEFPdfPrintCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -286,8 +280,6 @@ func (w *downloadImageCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewDownloadImageCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewDownloadImageCallback(impl DownloadImageCallback) DownloadImageCallback {
 	r := new(capi.CEFDownloadImageCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

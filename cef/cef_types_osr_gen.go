@@ -3,8 +3,17 @@
 package cef
 
 import (
+	"unsafe"
+
 	"github.com/bnema/purego-cef/internal/capi"
 )
 
 // AcceleratedPaintInfoCommon Structure containing shared texture common metadata. For documentation on each field, please refer to src/media/base/video_frame_metadata.h for actual details.
 type AcceleratedPaintInfoCommon = capi.CEFAcceleratedPaintInfoCommonT
+
+// NewAcceleratedPaintInfoCommon returns a AcceleratedPaintInfoCommon with Size pre-filled.
+func NewAcceleratedPaintInfoCommon() AcceleratedPaintInfoCommon {
+	var v AcceleratedPaintInfoCommon
+	v.Size = unsafe.Sizeof(v)
+	return v
+}

@@ -30,8 +30,6 @@ func (w *resolveCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewResolveCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewResolveCallback(impl ResolveCallback) ResolveCallback {
 	r := new(capi.CEFResolveCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -75,8 +73,6 @@ func (w *settingObserverWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewSettingObserver creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewSettingObserver(impl SettingObserver) SettingObserver {
 	r := new(capi.CEFSettingObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

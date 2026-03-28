@@ -8,6 +8,14 @@ import (
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
 )
 
+// rawConstructorTypes lists handler types whose generated constructor should
+// be unexported (newRawXxx instead of NewXxx) because they have hand-written
+// public constructors in bridge.go that wrap them with safe types.
+var rawConstructorTypes = map[string]bool{
+	"Client":          true,
+	"LifeSpanHandler": true,
+}
+
 // skipPublicTypes lists type/function names (after PublicName conversion) that
 // are hand-written in init.go or support.go and must not be generated.
 var skipPublicTypes = map[string]bool{
@@ -241,6 +249,18 @@ func buildDataStruct(s *model.Struct, registry *TypeRegistry) DataStructData {
 			PublicType: registry.ResolvePublicType(f.CType),
 			Doc:        f.Doc,
 		})
+	}
+
+	// Sized data structs need a New*() constructor that sets Size = unsafe.Sizeof(v).
+	// Base types (cef_base_ref_counted_t etc.) also have a size field but their
+	// Size is set by initRefCount, so exclude structs with function pointers.
+	if !s.HasFunctionFields() {
+		for _, f := range s.Fields {
+			if f.CName == "size" && f.CType == "size_t" {
+				ds.HasSizeField = true
+				break
+			}
+		}
 	}
 
 	return ds

@@ -29,8 +29,6 @@ func (w *browserProcessHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewBrowserProcessHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler {
 	r := new(capi.CEFBrowserProcessHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

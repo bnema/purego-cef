@@ -70,8 +70,6 @@ func (w *dialogHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewDialogHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewDialogHandler(impl DialogHandler) DialogHandler {
 	r := new(capi.CEFDialogHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

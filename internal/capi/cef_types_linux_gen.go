@@ -23,7 +23,7 @@ type CEFWindowInfoT struct {
 	SharedTextureEnabled       int32
 	ExternalBeginFrameEnabled  int32
 	Window                     CEFWindowHandleT
-	RuntimeStyle               CEFRuntimeStyleT
+	RuntimeStyle               int32
 }
 
 type CEFAcceleratedPaintNativePixmapPlaneT struct {
@@ -40,7 +40,7 @@ type CEFAcceleratedPaintInfoT struct {
 	Planes     [4]CEFAcceleratedPaintNativePixmapPlaneT
 	PlaneCount int32
 	Modifier   uint64
-	Format     CEFColorTypeT
+	Format     int32
 	Extra      CEFAcceleratedPaintInfoCommonT
 }
 

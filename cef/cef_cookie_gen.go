@@ -90,8 +90,6 @@ func (w *cookieVisitorWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewCookieVisitor creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewCookieVisitor(impl CookieVisitor) CookieVisitor {
 	r := new(capi.CEFCookieVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -137,8 +135,6 @@ func (w *setCookieCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewSetCookieCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewSetCookieCallback(impl SetCookieCallback) SetCookieCallback {
 	r := new(capi.CEFSetCookieCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -181,8 +177,6 @@ func (w *deleteCookiesCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewDeleteCookiesCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewDeleteCookiesCallback(impl DeleteCookiesCallback) DeleteCookiesCallback {
 	r := new(capi.CEFDeleteCookiesCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

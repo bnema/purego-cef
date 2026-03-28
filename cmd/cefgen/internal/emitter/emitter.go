@@ -52,6 +52,14 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			}
 			return strings.ToLower(s[:1]) + s[1:]
 		},
+		// constructorName returns "newRawX" for types with handwritten public
+		// constructors in bridge.go, "NewX" for everything else.
+		"constructorName": func(typeName string) string {
+			if rawConstructorTypes[typeName] {
+				return "newRaw" + typeName
+			}
+			return "New" + typeName
+		},
 		"zeroVal": func(typ string) string {
 			switch typ {
 			case "bool":

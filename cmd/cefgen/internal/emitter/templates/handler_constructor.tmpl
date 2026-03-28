@@ -1,6 +1,6 @@
 {{define "handler_constructor.tmpl"}}
 // {{lower .Name}}Wrapper wraps a user-provided {{.Name}} implementation together
-// with the raw CEF struct pointer allocated by New{{.Name}}.  It satisfies the
+// with the raw CEF struct pointer allocated by {{constructorName .Name}}.  It satisfies the
 // {{.Name}} interface (by embedding the user impl) and core.RawPointerHolder
 // (so extractRawPointer can recover the raw pointer).
 type {{lower .Name}}Wrapper struct {
@@ -12,10 +12,8 @@ func (w *{{lower .Name}}Wrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// New{{.Name}} creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
-func New{{.Name}}(impl {{.Name}}) {{.Name}} {
+// {{constructorName .Name}} creates a CEF handler backed by the given implementation.
+func {{constructorName .Name}}(impl {{.Name}}) {{.Name}} {
 	r := new(capi.{{.RawGoName}})
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -25,7 +23,7 @@ func New{{.Name}}(impl {{.Name}}) {{.Name}} {
 	var cached{{.Name}}Ptr unsafe.Pointer
 	if h := impl.{{.Name}}(); h != nil {
 		cached{{.Name}}Ptr = extractOrWrapRawPointer(h, func() any {
-			return New{{.GetterInterface}}(h)
+			return {{constructorName .GetterInterface}}(h)
 		})
 	}
 	r.Override{{.RawFieldName}}(purego.NewCallback(func(_ uintptr) uintptr {
@@ -59,7 +57,7 @@ func New{{.Name}}(impl {{.Name}}) {{.Name}} {
 			return 0
 		}
 		return uintptr(extractOrWrapRawPointer(result, func() any {
-			return New{{.Return.PublicType}}(result)
+			return {{constructorName .Return.PublicType}}(result)
 		}))
 		{{- else if .Return.IsInterface}}
 		return uintptr(extractRawPointer(impl.{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}}{{end}})))

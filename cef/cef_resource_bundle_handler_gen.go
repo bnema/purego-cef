@@ -29,8 +29,6 @@ func (w *resourceBundleHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewResourceBundleHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewResourceBundleHandler(impl ResourceBundleHandler) ResourceBundleHandler {
 	r := new(capi.CEFResourceBundleHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

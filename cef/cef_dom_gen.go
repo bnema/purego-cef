@@ -30,8 +30,6 @@ func (w *domvisitorWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewDomvisitor creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewDomvisitor(impl Domvisitor) Domvisitor {
 	r := new(capi.CEFDomvisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

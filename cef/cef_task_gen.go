@@ -30,8 +30,6 @@ func (w *taskWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewTask creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewTask(impl Task) Task {
 	r := new(capi.CEFTaskT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

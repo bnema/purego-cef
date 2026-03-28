@@ -11,7 +11,7 @@ import (
 {{- if .HasObjects}}
 	"runtime"
 {{- end}}
-{{- if or .Interfaces .NeedsUnsafe}}
+{{- if or .Interfaces .NeedsUnsafe .HasSizedDataStructs}}
 	"unsafe"
 {{- end}}
 {{- if or .HasHandlers .NeedsPuregoObjectCalls}}

@@ -30,8 +30,6 @@ func (w *renderHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewRenderHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewRenderHandler(impl RenderHandler) RenderHandler {
 	r := new(capi.CEFRenderHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

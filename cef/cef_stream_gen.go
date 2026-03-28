@@ -30,8 +30,6 @@ func (w *readHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewReadHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewReadHandler(impl ReadHandler) ReadHandler {
 	r := new(capi.CEFReadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -146,8 +144,6 @@ func (w *writeHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewWriteHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewWriteHandler(impl WriteHandler) WriteHandler {
 	r := new(capi.CEFWriteHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

@@ -70,8 +70,6 @@ func (w *testServerHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewTestServerHandler creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewTestServerHandler(impl TestServerHandler) TestServerHandler {
 	r := new(capi.CEFTestServerHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)

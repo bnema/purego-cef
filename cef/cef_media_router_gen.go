@@ -84,8 +84,6 @@ func (w *mediaObserverWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewMediaObserver creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewMediaObserver(impl MediaObserver) MediaObserver {
 	r := new(capi.CEFMediaObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -200,8 +198,6 @@ func (w *mediaRouteCreateCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewMediaRouteCreateCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewMediaRouteCreateCallback(impl MediaRouteCreateCallback) MediaRouteCreateCallback {
 	r := new(capi.CEFMediaRouteCreateCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
@@ -306,8 +302,6 @@ func (w *mediaSinkDeviceInfoCallbackWrapper) RawPointer() unsafe.Pointer {
 }
 
 // NewMediaSinkDeviceInfoCallback creates a CEF handler backed by the given implementation.
-// The returned value can be passed directly to CEF functions that expect
-// this handler type (e.g. BrowserHostCreateBrowser for Client).
 func NewMediaSinkDeviceInfoCallback(impl MediaSinkDeviceInfoCallback) MediaSinkDeviceInfoCallback {
 	r := new(capi.CEFMediaSinkDeviceInfoCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
