@@ -35,6 +35,15 @@ func DefaultSettings() Settings {
 // the cached error without retrying. This is by design: a failed CEF init leaves
 // the process in an indeterminate state, so retrying would be unsafe.
 func Init(settings Settings) error {
+	return InitWithApp(settings, nil)
+}
+
+// InitWithApp loads the CEF library, registers all symbols, and initializes the
+// runtime with a custom App handler. The App enables registration of custom
+// schemes, browser process handlers, and subprocess apps.
+// It runs once via sync.Once — if initialization fails, subsequent calls return
+// the cached error without retrying.
+func InitWithApp(settings Settings, app App) error {
 	initOnce.Do(func() {
 		handle, err := loader.Open(settings.CEFDir)
 		if err != nil {
@@ -44,7 +53,14 @@ func Init(settings Settings) error {
 		bridge := capi.NewBridge(handle)
 		e := core.New(bridge)
 		eng = e
-		initErr = e.Init(settings)
+
+		var appPtr unsafe.Pointer
+		if app != nil {
+			wrapped := NewApp(app)
+			appPtr = extractRawPointer(wrapped)
+			runtime.KeepAlive(wrapped)
+		}
+		initErr = e.InitWithApp(settings, appPtr)
 	})
 	return initErr
 }
