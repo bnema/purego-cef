@@ -129,17 +129,26 @@ func (w *safeLifeSpanHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// portin.LifeSpanHandler interface compliance — these exist so the wrapper
-// satisfies the type but are never called directly (callbacks go through purego).
-func (w *safeLifeSpanHandlerWrapper) OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition WindowOpenDisposition, userGesture int32, popupfeatures *PopupFeatures, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess unsafe.Pointer) bool {
-	return false
+// portin.LifeSpanHandler interface compliance — callbacks go through purego,
+// so these methods should never be called directly. Panic to catch misuse.
+func (w *safeLifeSpanHandlerWrapper) OnBeforePopup(Browser, Frame, int32, string, string, WindowOpenDisposition, int32, *PopupFeatures, *WindowInfo, unsafe.Pointer, *BrowserSettings, unsafe.Pointer, unsafe.Pointer) bool {
+	panic("safeLifeSpanHandlerWrapper: raw OnBeforePopup called directly; callbacks go through purego")
 }
-func (w *safeLifeSpanHandlerWrapper) OnBeforePopupAborted(browser Browser, popupID int32) {}
-func (w *safeLifeSpanHandlerWrapper) OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow unsafe.Pointer) {
+func (w *safeLifeSpanHandlerWrapper) OnBeforePopupAborted(Browser, int32) {
+	panic("safeLifeSpanHandlerWrapper: raw OnBeforePopupAborted called directly; callbacks go through purego")
 }
-func (w *safeLifeSpanHandlerWrapper) OnAfterCreated(browser Browser) {}
-func (w *safeLifeSpanHandlerWrapper) DoClose(browser Browser) bool   { return false }
-func (w *safeLifeSpanHandlerWrapper) OnBeforeClose(browser Browser)  {}
+func (w *safeLifeSpanHandlerWrapper) OnBeforeDevToolsPopup(Browser, *WindowInfo, unsafe.Pointer, *BrowserSettings, unsafe.Pointer, unsafe.Pointer) {
+	panic("safeLifeSpanHandlerWrapper: raw OnBeforeDevToolsPopup called directly; callbacks go through purego")
+}
+func (w *safeLifeSpanHandlerWrapper) OnAfterCreated(Browser) {
+	panic("safeLifeSpanHandlerWrapper: raw OnAfterCreated called directly; callbacks go through purego")
+}
+func (w *safeLifeSpanHandlerWrapper) DoClose(Browser) bool {
+	panic("safeLifeSpanHandlerWrapper: raw DoClose called directly; callbacks go through purego")
+}
+func (w *safeLifeSpanHandlerWrapper) OnBeforeClose(Browser) {
+	panic("safeLifeSpanHandlerWrapper: raw OnBeforeClose called directly; callbacks go through purego")
+}
 
 // NewLifeSpanHandler creates a CEF handler backed by a SafeLifeSpanHandler.
 // It converts unsafe.Pointer out-params to typed Go values and writes back
