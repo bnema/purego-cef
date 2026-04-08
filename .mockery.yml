@@ -1,3 +1,4 @@
+all: false
 template: testify
 include-auto-generated: true
 packages:
@@ -6,10 +7,30 @@ packages:
       dir: "cef/mocks"
       filename: "mock_{{.InterfaceName | snakecase}}.go"
       pkgname: "mocks"
-      all: true
+    interfaces:
+      App: {}
+      Browser: {}
+      BrowserProcessHandler: {}
+      Client: {}
+      ContextMenuHandler: {}
+      DialogHandler: {}
+      DisplayHandler: {}
+      FocusHandler: {}
+      Frame: {}
+      KeyboardHandler: {}
+      LifeSpanHandler: {}
+      LoadHandler: {}
+      ProcessMessage: {}
+      RenderHandler: {}
+      RenderProcessHandler: {}
+      Request: {}
+      RequestContext: {}
+      RequestHandler: {}
+      Response: {}
   github.com/bnema/purego-cef/internal/ports/out:
     config:
       dir: "internal/ports/out/mocks"
       filename: "mock_{{.InterfaceName | snakecase}}.go"
       pkgname: "mocks"
-      all: true
+    interfaces:
+      CAPI: {}
