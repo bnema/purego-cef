@@ -56,6 +56,8 @@ type Settings struct {
 	BrowserSubprocessPath      string
 	LogFile                    string
 	InitTraceFile              string
+	CachePath                  string
+	RootCachePath              string
 }
 
 // DefaultSettings returns Settings suitable for off-screen rendering.
@@ -142,6 +144,16 @@ func (e *Engine) settingsToRaw(s Settings) (SettingsRaw, func()) {
 		cs := e.CefString(s.LogFile)
 		c.LogFile = cs
 		cleanups = append(cleanups, func() { e.FreeCefString(&c.LogFile) })
+	}
+	if s.CachePath != "" {
+		cs := e.CefString(s.CachePath)
+		c.CachePath = cs
+		cleanups = append(cleanups, func() { e.FreeCefString(&c.CachePath) })
+	}
+	if s.RootCachePath != "" {
+		cs := e.CefString(s.RootCachePath)
+		c.RootCachePath = cs
+		cleanups = append(cleanups, func() { e.FreeCefString(&c.RootCachePath) })
 	}
 
 	cleanup := func() {
