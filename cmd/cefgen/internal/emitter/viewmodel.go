@@ -71,21 +71,8 @@ func (d *PublicFileData) NeedsUnsafeInSignatures() bool {
 	return false
 }
 
-// NeedsMath returns true if any generated callback unmarshalling requires
-// math.Float64frombits/Float32frombits.
+// NeedsMath is retained for template compatibility.
 func (d *PublicFileData) NeedsMath() bool {
-	for _, iface := range d.Interfaces {
-		if iface.Kind != "handler" {
-			continue
-		}
-		for _, m := range iface.Methods {
-			for _, p := range m.Params {
-				if p.MarshalKind == "numeric" && (p.PublicType == "float64" || p.PublicType == "float32") {
-					return true
-				}
-			}
-		}
-	}
 	return false
 }
 

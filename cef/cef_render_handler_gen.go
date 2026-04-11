@@ -3,7 +3,6 @@
 package cef
 
 import (
-	"math"
 	"unsafe"
 
 	"github.com/ebitengine/purego"
@@ -133,10 +132,10 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		impl.UpdateDragCursor(browser, operation)
 	}))
 
-	r.OverrideOnScrollOffsetChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnScrollOffsetChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 float64, arg2 float64) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		x := math.Float64frombits(uint64(arg1))
-		y := math.Float64frombits(uint64(arg2))
+		x := arg1
+		y := arg2
 		impl.OnScrollOffsetChanged(browser, x, y)
 	}))
 

@@ -178,6 +178,46 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 	}
 }
 
+func TestEmitPublicHandlerInterface_UsesTypedFloatCallbackParams(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "cef_display_handler_t",
+			GoName:        "CEFDisplayHandlerT",
+			Kind:          "handler",
+			InterfaceName: "DisplayHandler",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "on_loading_progress_change",
+					GoName:      "OnLoadingProgressChange",
+					IsFunction:  true,
+					ReturnCType: "void",
+					Params: []model.Param{
+						{CName: "self", GoName: "self", CType: "struct _cef_display_handler_t*"},
+						{CName: "progress", GoName: "progress", CType: "double"},
+					},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	if !strings.Contains(code, "purego.NewCallback(func(self uintptr, arg0 float64) {") {
+		t.Fatalf("expected typed float callback parameter, got:\n%s", code)
+	}
+
+	if strings.Contains(code, "math.Float64frombits") {
+		t.Fatalf("expected callback float parameter to avoid math.Float64frombits, got:\n%s", code)
+	}
+}
+
 func TestEmitPublicEnum(t *testing.T) {
 	header := &model.Header{
 		Enums: []model.Enum{{
