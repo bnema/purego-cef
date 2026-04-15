@@ -6,7 +6,7 @@ import (
 	"structs"
 	"unsafe"
 
-	"github.com/ebitengine/purego"
+	"github.com/bnema/purego"
 )
 
 type CEFStringVisitorT struct {

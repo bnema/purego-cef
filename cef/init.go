@@ -19,7 +19,7 @@ import (
 	"github.com/bnema/purego-cef/internal/capi"
 	"github.com/bnema/purego-cef/internal/core"
 	"github.com/bnema/purego-cef/internal/loader"
-	"github.com/ebitengine/purego"
+	"github.com/bnema/purego"
 )
 
 // Settings configures the CEF runtime.

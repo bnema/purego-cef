@@ -5,7 +5,7 @@ package cef
 import (
 	"unsafe"
 
-	"github.com/ebitengine/purego"
+	"github.com/bnema/purego"
 
 	"github.com/bnema/purego-cef/internal/capi"
 

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/ebitengine/purego"
+	"github.com/bnema/purego"
 )
 
 const defaultCEFVersion = 145

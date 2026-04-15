@@ -110,7 +110,7 @@ func TestEmitPublicObjectInterface_UsesTypedPuregoForFloatMethods(t *testing.T) 
 	}
 
 	checks := []string{
-		`"github.com/ebitengine/purego"`,
+		`"github.com/bnema/purego"`,
 		`var fn func(*capi.CEFBrowserHostT) float64`,
 		`purego.RegisterFunc(&fn, obj.rawPtr.GetZoomLevel)`,
 		`var fn func(*capi.CEFBrowserHostT, float64)`,

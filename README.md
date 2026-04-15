@@ -1,6 +1,6 @@
 # purego-cef
 
-Go bindings for the [Chromium Embedded Framework](https://bitbucket.org/chromiumembedded/cef/) C API, using [purego](https://github.com/ebitengine/purego) instead of cgo.
+Go bindings for the [Chromium Embedded Framework](https://bitbucket.org/chromiumembedded/cef/) C API, using [purego](https://github.com/bnema/purego) instead of cgo.
 
 Linux only. `CGO_ENABLED=0`.
 

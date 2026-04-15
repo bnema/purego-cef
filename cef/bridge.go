@@ -12,7 +12,7 @@ import (
 	"github.com/bnema/purego-cef/internal/capi"
 	"github.com/bnema/purego-cef/internal/core"
 	portin "github.com/bnema/purego-cef/internal/ports/in"
-	"github.com/ebitengine/purego"
+	"github.com/bnema/purego"
 )
 
 // Type alias for LifeSpanHandler — uses generated interface (out-params are unsafe.Pointer).

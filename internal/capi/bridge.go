@@ -6,7 +6,7 @@ import (
 	"unsafe"
 
 	portout "github.com/bnema/purego-cef/internal/ports/out"
-	"github.com/ebitengine/purego"
+	"github.com/bnema/purego"
 )
 
 // Bridge implements portout.CAPI using purego bindings.
