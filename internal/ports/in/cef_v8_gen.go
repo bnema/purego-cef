@@ -21,7 +21,7 @@ type V8Context interface {
 
 // V8Handler defines the inbound port interface.
 type V8Handler interface {
-	Execute(name string, object V8Value, argumentscount int, arguments unsafe.Pointer, retval unsafe.Pointer, exception uintptr) int32
+	Execute(name string, object V8Value, arguments []V8Value, retval unsafe.Pointer, exception uintptr) int32
 }
 
 // V8Accessor defines the inbound port interface.
@@ -105,8 +105,8 @@ type V8Value interface {
 	GetArrayBufferData() unsafe.Pointer
 	GetFunctionName() string
 	GetFunctionHandler() V8Handler
-	ExecuteFunction(object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value
-	ExecuteFunctionWithContext(context V8Context, object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value
+	ExecuteFunction(object V8Value, arguments []V8Value) V8Value
+	ExecuteFunctionWithContext(context V8Context, object V8Value, arguments []V8Value) V8Value
 	ResolvePromise(arg V8Value) int32
 	RejectPromise(errormsg string) int32
 }

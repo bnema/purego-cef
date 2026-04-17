@@ -182,3 +182,156 @@ func TestObjectSliceMerge(t *testing.T) {
 		t.Errorf("expected MarshalKind objectSlice, got %s", certParam.MarshalKind)
 	}
 }
+
+func TestV8HandlerExecuteArgumentsMerge(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "_cef_v8_value_t",
+				GoName:        "CEFV8ValueT",
+				Kind:          "object",
+				InterfaceName: "V8Value",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				},
+			},
+			{
+				CName:         "cef_v8_handler_t",
+				GoName:        "CEFV8HandlerT",
+				Kind:          "handler",
+				InterfaceName: "V8Handler",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "execute",
+						GoName:      "Execute",
+						IsFunction:  true,
+						ReturnCType: "int",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_v8_handler_t*"},
+							{CName: "name", GoName: "name", CType: "const cef_string_t*"},
+							{CName: "object", GoName: "object", CType: "struct _cef_v8_value_t*"},
+							{CName: "argumentsCount", GoName: "argumentsCount", CType: "size_t"},
+							{CName: "arguments", GoName: "arguments", CType: "struct _cef_v8_value_t* const*"},
+							{CName: "retval", GoName: "retval", CType: "struct _cef_v8_value_t**"},
+							{CName: "exception", GoName: "exception", CType: "cef_string_t*"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	if len(data.Interfaces) != 2 {
+		t.Fatalf("expected 2 interfaces, got %d", len(data.Interfaces))
+	}
+	m := data.Interfaces[1].Methods[0]
+
+	var argsParam *ParamData
+	for i := range m.Params {
+		if m.Params[i].Name == "arguments" {
+			argsParam = &m.Params[i]
+		}
+		if m.Params[i].Name == "argumentsCount" {
+			t.Error("argumentsCount param should have been merged away, but is still present")
+		}
+	}
+	if argsParam == nil {
+		t.Fatal("arguments param not found")
+	}
+	if argsParam.PublicType != "[]V8Value" {
+		t.Errorf("expected PublicType []V8Value, got %s", argsParam.PublicType)
+	}
+	if argsParam.MarshalKind != "objectSlice" {
+		t.Errorf("expected MarshalKind objectSlice, got %s", argsParam.MarshalKind)
+	}
+}
+
+func TestV8ValueExecuteFunctionArgumentsMerge(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "cef_v8_context_t",
+				GoName:        "CEFV8ContextT",
+				Kind:          "object",
+				InterfaceName: "V8Context",
+				Fields: []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+			},
+			{
+				CName:         "cef_v8_value_t",
+				GoName:        "CEFV8ValueT",
+				Kind:          "object",
+				InterfaceName: "V8Value",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "execute_function",
+						GoName:      "ExecuteFunction",
+						IsFunction:  true,
+						ReturnCType: "struct _cef_v8_value_t*",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_v8_value_t*"},
+							{CName: "object", GoName: "object", CType: "struct _cef_v8_value_t*"},
+							{CName: "argumentsCount", GoName: "argumentsCount", CType: "size_t"},
+							{CName: "arguments", GoName: "arguments", CType: "struct _cef_v8_value_t* const*"},
+						},
+					},
+					{
+						CName:       "execute_function_with_context",
+						GoName:      "ExecuteFunctionWithContext",
+						IsFunction:  true,
+						ReturnCType: "struct _cef_v8_value_t*",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_v8_value_t*"},
+							{CName: "context", GoName: "context", CType: "struct _cef_v8_context_t*"},
+							{CName: "object", GoName: "object", CType: "struct _cef_v8_value_t*"},
+							{CName: "argumentsCount", GoName: "argumentsCount", CType: "size_t"},
+							{CName: "arguments", GoName: "arguments", CType: "struct _cef_v8_value_t* const*"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	var valueIface *InterfaceData
+	for i := range data.Interfaces {
+		if data.Interfaces[i].Name == "V8Value" {
+			valueIface = &data.Interfaces[i]
+			break
+		}
+	}
+	if valueIface == nil {
+		t.Fatal("V8Value interface not found")
+	}
+	if len(valueIface.Methods) != 2 {
+		t.Fatalf("expected 2 V8Value methods, got %d", len(valueIface.Methods))
+	}
+
+	for _, m := range valueIface.Methods {
+		var argsParam *ParamData
+		for i := range m.Params {
+			if m.Params[i].Name == "arguments" {
+				argsParam = &m.Params[i]
+			}
+			if m.Params[i].Name == "argumentsCount" {
+				t.Errorf("%s: argumentsCount param should have been merged away, but is still present", m.Name)
+			}
+		}
+		if argsParam == nil {
+			t.Fatalf("%s: arguments param not found", m.Name)
+		}
+		if argsParam.PublicType != "[]V8Value" {
+			t.Errorf("%s: expected PublicType []V8Value, got %s", m.Name, argsParam.PublicType)
+		}
+		if argsParam.MarshalKind != "objectSlice" {
+			t.Errorf("%s: expected MarshalKind objectSlice, got %s", m.Name, argsParam.MarshalKind)
+		}
+	}
+}

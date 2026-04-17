@@ -11,6 +11,8 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	{{$pre}}
 	{{- end}}
 	{{- end}}
+	{{- with methodPreamble $.Name .}}
+{{.}}{{- end}}
 	{{- if needsTypedObjectCall .}}
 	var fn {{typedObjectFuncSig $.RawGoName .}}
 	purego.RegisterFunc(&fn, obj.rawPtr.{{.RawFieldName}})
