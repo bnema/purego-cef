@@ -19,7 +19,6 @@ import (
 	"github.com/bnema/purego-cef/internal/capi"
 	"github.com/bnema/purego-cef/internal/core"
 	"github.com/bnema/purego-cef/internal/loader"
-	"github.com/bnema/purego"
 )
 
 // Settings configures the CEF runtime.
@@ -81,20 +80,44 @@ func DoMessageLoopWork() {
 }
 
 // MaybeExitSubprocess uses a lightweight path that binds only
-// cef_execute_process, bypassing the full Bridge initialization.
+// cef_execute_process, bypassing the full runtime initialization.
 // This is intentional — subprocess detection must happen before
 // the full CEF runtime is initialized.
 func MaybeExitSubprocess() {
+	MaybeExitSubprocessWithApp(nil)
+}
+
+// MaybeExitSubprocessWithApp is like MaybeExitSubprocess but passes the given
+// App to cef_execute_process. This enables custom render/browser-process
+// handlers in helper subprocesses without calling cef_initialize first.
+func MaybeExitSubprocessWithApp(app App) {
 	handle, err := loader.Open("")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "cef: MaybeExitSubprocess: %v\n", err)
+		fmt.Fprintf(os.Stderr, "cef: MaybeExitSubprocessWithApp: %v\n", err)
 		return
 	}
-	var executeProcess func(unsafe.Pointer, unsafe.Pointer, unsafe.Pointer) int32
-	purego.RegisterLibFunc(&executeProcess, handle, "cef_execute_process")
+
+	// Wrapping App handlers uses the generated refcount helpers, which depend on
+	// the package-level engine reference manager. Seed it with a lightweight core
+	// engine backed by the raw CAPI bridge just for the duration of execute_process.
+	prevEng := eng
+	bridge := capi.NewBridge(handle)
+	eng = core.New(bridge)
+	defer func() {
+		eng = prevEng
+	}()
+
+	var appPtr unsafe.Pointer
+	var wrapped App
+	if app != nil {
+		wrapped = NewApp(app)
+		appPtr = extractRawPointer(wrapped)
+	}
+
 	args := core.NewMainArgs(os.Args)
-	code := executeProcess(args.Ptr(), nil, nil)
+	code := bridge.ExecuteProcess(args.Ptr(), appPtr, nil)
 	runtime.KeepAlive(args)
+	runtime.KeepAlive(wrapped)
 	if code >= 0 {
 		os.Exit(int(code))
 	}
