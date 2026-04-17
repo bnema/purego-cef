@@ -475,3 +475,188 @@ func TestEmitObjectSliceOverride(t *testing.T) {
 		t.Error("count param should be merged away, but found certificatesCount in output")
 	}
 }
+
+func TestEmitV8HandlerExecuteArgumentsObjectSlice(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "_cef_v8_value_t",
+				GoName:        "CEFV8ValueT",
+				Kind:          "object",
+				InterfaceName: "V8Value",
+				Fields: []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+			},
+			{
+				CName:         "cef_v8_handler_t",
+				GoName:        "CEFV8HandlerT",
+				Kind:          "handler",
+				InterfaceName: "V8Handler",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "execute",
+						GoName:      "Execute",
+						IsFunction:  true,
+						ReturnCType: "int",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_v8_handler_t*"},
+							{CName: "name", GoName: "name", CType: "const cef_string_t*"},
+							{CName: "object", GoName: "object", CType: "struct _cef_v8_value_t*"},
+							{CName: "argumentsCount", GoName: "argumentsCount", CType: "size_t"},
+							{CName: "arguments", GoName: "arguments", CType: "struct _cef_v8_value_t* const*"},
+							{CName: "retval", GoName: "retval", CType: "struct _cef_v8_value_t**"},
+							{CName: "exception", GoName: "exception", CType: "cef_string_t*"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []string{
+		"argumentsPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg3)), int(arg2))",
+		"arguments[i] = wrapV8Value(unsafe.Pointer(ptr))",
+		"return uintptr(impl.Execute(name, object, arguments, retval, exception))",
+	}
+	for _, want := range checks {
+		if !strings.Contains(code, want) {
+			t.Errorf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
+	}
+
+	if strings.Contains(code, "argumentsCount") || strings.Contains(code, "argumentscount") {
+		t.Fatalf("expected argumentsCount to be merged away, got:\n%s", code)
+	}
+}
+
+func TestEmitV8ContextEvalAddsNilOutputGuards(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "_cef_v8_context_t",
+			GoName:        "CEFV8ContextT",
+			Kind:          "object",
+			InterfaceName: "V8Context",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "eval",
+					GoName:      "Eval",
+					IsFunction:  true,
+					ReturnCType: "int",
+					Params: []model.Param{
+						{CName: "self", GoName: "self", CType: "struct _cef_v8_context_t*"},
+						{CName: "code", GoName: "code", CType: "const cef_string_t*"},
+						{CName: "scriptURL", GoName: "scriptURL", CType: "const cef_string_t*"},
+						{CName: "startLine", GoName: "startLine", CType: "int"},
+						{CName: "retval", GoName: "retval", CType: "struct _cef_v8_value_t**"},
+						{CName: "exception", GoName: "exception", CType: "struct _cef_v8_exception_t**"},
+					},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []string{
+		"// CEF's eval requires valid output pointers",
+		"if retval == nil {",
+		"retval = unsafe.Pointer(&scratch)",
+		"if exception == nil {",
+		"exception = unsafe.Pointer(&scratch)",
+	}
+	for _, want := range checks {
+		if !strings.Contains(code, want) {
+			t.Errorf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
+	}
+}
+
+func TestEmitV8ValueExecuteFunctionArgumentsObjectSlice(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "cef_v8_context_t",
+				GoName:        "CEFV8ContextT",
+				Kind:          "object",
+				InterfaceName: "V8Context",
+				Fields: []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+			},
+			{
+				CName:         "cef_v8_value_t",
+				GoName:        "CEFV8ValueT",
+				Kind:          "object",
+				InterfaceName: "V8Value",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "execute_function",
+						GoName:      "ExecuteFunction",
+						IsFunction:  true,
+						ReturnCType: "struct _cef_v8_value_t*",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_v8_value_t*"},
+							{CName: "object", GoName: "object", CType: "struct _cef_v8_value_t*"},
+							{CName: "argumentsCount", GoName: "argumentsCount", CType: "size_t"},
+							{CName: "arguments", GoName: "arguments", CType: "struct _cef_v8_value_t* const*"},
+						},
+					},
+					{
+						CName:       "execute_function_with_context",
+						GoName:      "ExecuteFunctionWithContext",
+						IsFunction:  true,
+						ReturnCType: "struct _cef_v8_value_t*",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_v8_value_t*"},
+							{CName: "context", GoName: "context", CType: "struct _cef_v8_context_t*"},
+							{CName: "object", GoName: "object", CType: "struct _cef_v8_value_t*"},
+							{CName: "argumentsCount", GoName: "argumentsCount", CType: "size_t"},
+							{CName: "arguments", GoName: "arguments", CType: "struct _cef_v8_value_t* const*"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []string{
+		"func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8Value {",
+		"argumentsRaw = make([]uintptr, len(arguments))",
+		"argumentsRaw[i] = uintptr(extractRawPointer(elem))",
+		"argumentsPtr = unsafe.Pointer(&argumentsRaw[0])",
+		"CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))",
+		"func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8Value, arguments []V8Value) V8Value {",
+		"CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))",
+	}
+	for _, want := range checks {
+		if !strings.Contains(code, want) {
+			t.Errorf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
+	}
+
+	if strings.Contains(code, "argumentsCount") || strings.Contains(code, "argumentscount") {
+		t.Fatalf("expected argumentsCount to be merged away, got:\n%s", code)
+	}
+}

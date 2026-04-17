@@ -57,6 +57,18 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 	defer freeCefString(&codeStr)
 	scriptURLStr := cefString(scriptURL)
 	defer freeCefString(&scriptURLStr)
+	// CEF's eval requires valid output pointers — it unconditionally writes
+	// *retval and *exception. Provide scratch storage when the caller passes nil
+	// to avoid a NULL-pointer dereference crash in the renderer subprocess.
+	if retval == nil {
+		var scratch uintptr
+		retval = unsafe.Pointer(&scratch)
+	}
+	if exception == nil {
+		var scratch uintptr
+		exception = unsafe.Pointer(&scratch)
+	}
+
 	return int32(obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception)))
 }
 
@@ -109,11 +121,17 @@ func NewV8Handler(impl V8Handler) V8Handler {
 	r.OverrideExecute(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
 		name := goString(unsafe.Pointer(arg0))
 		object := wrapV8Value(unsafe.Pointer(arg1))
-		argumentscount := int(arg2)
-		arguments := unsafe.Pointer(arg3)
+		var arguments []V8Value
+		if arg3 != 0 && arg2 > 0 {
+			argumentsPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg3)), int(arg2))
+			arguments = make([]V8Value, int(arg2))
+			for i, ptr := range argumentsPtrs {
+				arguments[i] = wrapV8Value(unsafe.Pointer(ptr))
+			}
+		}
 		retval := unsafe.Pointer(arg4)
 		exception := uintptr(arg5)
-		return uintptr(impl.Execute(name, object, argumentscount, arguments, retval, exception))
+		return uintptr(impl.Execute(name, object, arguments, retval, exception))
 	}))
 
 	w := &v8HandlerWrapper{rawPtr: r}
@@ -571,12 +589,30 @@ func (obj *v8ValueImpl) GetFunctionHandler() V8Handler {
 	return wrapV8Handler(unsafe.Pointer(obj.rawPtr.CallGetFunctionHandler()))
 }
 
-func (obj *v8ValueImpl) ExecuteFunction(object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value {
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(argumentscount), uintptr(arguments))))
+func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8Value {
+	var argumentsRaw []uintptr
+	var argumentsPtr unsafe.Pointer
+	if len(arguments) > 0 {
+		argumentsRaw = make([]uintptr, len(arguments))
+		for i, elem := range arguments {
+			argumentsRaw[i] = uintptr(extractRawPointer(elem))
+		}
+		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
+	}
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))))
 }
 
-func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8Value, argumentscount int, arguments unsafe.Pointer) V8Value {
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(argumentscount), uintptr(arguments))))
+func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8Value, arguments []V8Value) V8Value {
+	var argumentsRaw []uintptr
+	var argumentsPtr unsafe.Pointer
+	if len(arguments) > 0 {
+		argumentsRaw = make([]uintptr, len(arguments))
+		for i, elem := range arguments {
+			argumentsRaw[i] = uintptr(extractRawPointer(elem))
+		}
+		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
+	}
+	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))))
 }
 
 func (obj *v8ValueImpl) ResolvePromise(arg V8Value) int32 {

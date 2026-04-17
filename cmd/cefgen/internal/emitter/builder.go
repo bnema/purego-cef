@@ -45,8 +45,8 @@ type ParamOverride struct {
 }
 
 // paramOverrides maps "structCName.fieldCName.paramCName" keys to overrides
-// for specific handler callback params that need safe public types instead of
-// unsafe.Pointer.
+// for specific params that need safe public types or custom marshaling instead
+// of the default unsafe/raw representation.
 var paramOverrides = map[string]ParamOverride{
 	// Problem 5: GetScreenPoint out-params
 	"cef_render_handler_t.get_screen_point.screenX": {PublicType: "*int32", MarshalKind: "dataStruct"},
@@ -61,6 +61,13 @@ var paramOverrides = map[string]ParamOverride{
 	"cef_request_handler_t.get_resource_request_handler.disable_default_handling": {PublicType: "*int32", MarshalKind: "dataStruct"},
 	// Problem 9: OnSelectClientCertificate object array
 	"cef_request_handler_t.on_select_client_certificate.certificates": {PublicType: "[]X509Certificate", MarshalKind: "objectSlice"},
+	// V8Handler.Execute argument list.
+	"cef_v8_handler_t.execute.arguments": {PublicType: "[]V8Value", MarshalKind: "objectSlice"},
+	// V8Value.ExecuteFunction argument list.
+	"cef_v8_value_t.execute_function.arguments":               {PublicType: "[]V8Value", MarshalKind: "objectSlice"},
+	"cef_v8_value_t.execute_function_with_context.arguments":  {PublicType: "[]V8Value", MarshalKind: "objectSlice"},
+	"_cef_v8_value_t.execute_function.arguments":              {PublicType: "[]V8Value", MarshalKind: "objectSlice"},
+	"_cef_v8_value_t.execute_function_with_context.arguments": {PublicType: "[]V8Value", MarshalKind: "objectSlice"},
 }
 
 // BuildPublicFileData converts a parsed header and type registry into the

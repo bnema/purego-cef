@@ -90,7 +90,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			parts := []string{"*capi." + rawGoName}
 			for _, p := range m.Params {
 				switch {
-				case p.MarshalKind == "slice":
+				case p.MarshalKind == "slice", p.MarshalKind == "objectSlice":
 					parts = append(parts, "uintptr", "uintptr")
 				case p.MarshalKind == "numeric" && isFloatPublicType(p.PublicType):
 					parts = append(parts, p.PublicType)
@@ -111,7 +111,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		"typedObjectCallArgs": func(m MethodData) string {
 			args := []string{"obj.rawPtr"}
 			for _, p := range m.Params {
-				if p.MarshalKind == "slice" {
+				if p.MarshalKind == "slice" || p.MarshalKind == "objectSlice" {
 					args = append(args, "uintptr(len("+p.Name+"))", "uintptr("+p.Name+"Ptr)")
 					continue
 				}
@@ -163,6 +163,27 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return p.Name + "Str := cefString(" + p.Name + ")\n\tdefer freeCefString(&" + p.Name + "Str)"
 			case "slice":
 				return "var " + p.Name + "Ptr unsafe.Pointer\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "[0])\n\t}"
+			case "objectSlice":
+				return "var " + p.Name + "Raw []uintptr\n\tvar " + p.Name + "Ptr unsafe.Pointer\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Raw = make([]uintptr, len(" + p.Name + "))\n\t\tfor i, elem := range " + p.Name + " {\n\t\t\t" + p.Name + "Raw[i] = uintptr(extractRawPointer(elem))\n\t\t}\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "Raw[0])\n\t}"
+			default:
+				return ""
+			}
+		},
+		// methodPreamble returns method-specific pre-call statements for public object wrappers.
+		"methodPreamble": func(ifaceName string, m MethodData) string {
+			switch ifaceName + "." + m.Name {
+			case "V8Context.Eval":
+				return "\t// CEF's eval requires valid output pointers — it unconditionally writes\n" +
+					"\t// *retval and *exception. Provide scratch storage when the caller passes nil\n" +
+					"\t// to avoid a NULL-pointer dereference crash in the renderer subprocess.\n" +
+					"\tif retval == nil {\n" +
+					"\t\tvar scratch uintptr\n" +
+					"\t\tretval = unsafe.Pointer(&scratch)\n" +
+					"\t}\n" +
+					"\tif exception == nil {\n" +
+					"\t\tvar scratch uintptr\n" +
+					"\t\texception = unsafe.Pointer(&scratch)\n" +
+					"\t}\n"
 			default:
 				return ""
 			}
@@ -203,7 +224,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 
 			var args []string
 			for _, p := range params {
-				if p.MarshalKind == "slice" {
+				if p.MarshalKind == "slice" || p.MarshalKind == "objectSlice" {
 					args = append(args, "uintptr(len("+p.Name+"))")
 					args = append(args, "uintptr("+p.Name+"Ptr)")
 				} else {

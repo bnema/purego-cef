@@ -82,8 +82,8 @@ type V8Value interface {
 	GetArrayBufferData() uintptr
 	GetFunctionName() uintptr
 	GetFunctionHandler() uintptr
-	ExecuteFunction(object uintptr, argumentscount uintptr, arguments uintptr) uintptr
-	ExecuteFunctionWithContext(context uintptr, object uintptr, argumentscount uintptr, arguments uintptr) uintptr
+	ExecuteFunction(object uintptr, arguments uintptr) uintptr
+	ExecuteFunctionWithContext(context uintptr, object uintptr, arguments uintptr) uintptr
 	ResolvePromise(arg uintptr) uintptr
 	RejectPromise(errormsg uintptr) uintptr
 }
