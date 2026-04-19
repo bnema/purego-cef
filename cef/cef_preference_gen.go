@@ -118,7 +118,7 @@ func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error 
 func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer PreferenceObserver) Registration {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(observer)))))
+	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractOrWrapRawPointer(observer, func() any { return NewPreferenceObserver(observer) })))))
 }
 
 func (obj *preferenceManagerImpl) RawPointer() unsafe.Pointer {

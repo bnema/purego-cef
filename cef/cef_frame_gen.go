@@ -59,11 +59,11 @@ func (obj *frameImpl) ViewSource() {
 }
 
 func (obj *frameImpl) GetSource(visitor StringVisitor) {
-	obj.rawPtr.CallGetSource(uintptr(extractRawPointer(visitor)))
+	obj.rawPtr.CallGetSource(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
 }
 
 func (obj *frameImpl) GetText(visitor StringVisitor) {
-	obj.rawPtr.CallGetText(uintptr(extractRawPointer(visitor)))
+	obj.rawPtr.CallGetText(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
 }
 
 func (obj *frameImpl) LoadRequest(request Request) {
@@ -117,11 +117,11 @@ func (obj *frameImpl) GetV8Context() V8Context {
 }
 
 func (obj *frameImpl) VisitDom(visitor Domvisitor) {
-	obj.rawPtr.CallVisitDom(uintptr(extractRawPointer(visitor)))
+	obj.rawPtr.CallVisitDom(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewDomvisitor(visitor) })))
 }
 
 func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient) Urlrequest {
-	return wrapUrlrequest(unsafe.Pointer(obj.rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractRawPointer(client)))))
+	return wrapUrlrequest(unsafe.Pointer(obj.rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })))))
 }
 
 func (obj *frameImpl) SendProcessMessage(targetProcess ProcessID, message ProcessMessage) {

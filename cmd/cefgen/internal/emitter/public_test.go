@@ -290,6 +290,89 @@ func TestEmitPublicFreeFunc(t *testing.T) {
 	}
 }
 
+func TestEmitPublicFreeFuncAutoWrapsHandlerParams(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "cef_client_t",
+			GoName:        "CEFClientT",
+			Kind:          "handler",
+			InterfaceName: "Client",
+			Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+		}},
+		Functions: []model.Function{{
+			CName:       "cef_make_client_consumer",
+			GoName:      "CEFMakeClientConsumer",
+			ReturnCType: "void",
+			Params:      []model.Param{{CName: "client", GoName: "client", CType: "struct _cef_client_t*"}},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	want := "extractOrWrapRawPointer(client, func() any { return newRawClient(client) })"
+	if !strings.Contains(code, want) {
+		t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+	}
+	if strings.Contains(code, "extractRawPointer(client)") {
+		t.Fatalf("expected generated code to auto-wrap client handler params, got:\n%s", code)
+	}
+}
+
+func TestEmitPublicObjectMethodAutoWrapsHandlerParams(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "cef_task_t",
+				GoName:        "CEFTaskT",
+				Kind:          "handler",
+				InterfaceName: "Task",
+				Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+			},
+			{
+				CName:         "cef_task_runner_t",
+				GoName:        "CEFTaskRunnerT",
+				Kind:          "object",
+				InterfaceName: "TaskRunner",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "post_task",
+						GoName:      "PostTask",
+						IsFunction:  true,
+						ReturnCType: "int",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_task_runner_t*"},
+							{CName: "task", GoName: "task", CType: "struct _cef_task_t*"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	want := "CallPostTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })))"
+	if !strings.Contains(code, want) {
+		t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+	}
+	if strings.Contains(code, "CallPostTask(uintptr(extractRawPointer(task)))") {
+		t.Fatalf("expected generated code to auto-wrap task handler params, got:\n%s", code)
+	}
+}
+
 func TestBuildPublicFileData(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{
@@ -484,7 +567,7 @@ func TestEmitV8HandlerExecuteArgumentsObjectSlice(t *testing.T) {
 				GoName:        "CEFV8ValueT",
 				Kind:          "object",
 				InterfaceName: "V8Value",
-				Fields: []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+				Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
 			},
 			{
 				CName:         "cef_v8_handler_t",
@@ -594,7 +677,7 @@ func TestEmitV8ValueExecuteFunctionArgumentsObjectSlice(t *testing.T) {
 				GoName:        "CEFV8ContextT",
 				Kind:          "object",
 				InterfaceName: "V8Context",
-				Fields: []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+				Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
 			},
 			{
 				CName:         "cef_v8_value_t",

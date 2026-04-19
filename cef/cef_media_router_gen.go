@@ -21,7 +21,7 @@ type mediaRouterImpl struct {
 }
 
 func (obj *mediaRouterImpl) AddObserver(observer MediaObserver) Registration {
-	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddObserver(uintptr(extractRawPointer(observer)))))
+	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) })))))
 }
 
 func (obj *mediaRouterImpl) GetSource(urn string) MediaSource {
@@ -35,7 +35,7 @@ func (obj *mediaRouterImpl) NotifyCurrentSinks() {
 }
 
 func (obj *mediaRouterImpl) CreateRoute(source MediaSource, sink MediaSink, callback MediaRouteCreateCallback) {
-	obj.rawPtr.CallCreateRoute(uintptr(extractRawPointer(source)), uintptr(extractRawPointer(sink)), uintptr(extractRawPointer(callback)))
+	obj.rawPtr.CallCreateRoute(uintptr(extractRawPointer(source)), uintptr(extractRawPointer(sink)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaRouteCreateCallback(callback) })))
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
@@ -245,7 +245,7 @@ func (obj *mediaSinkImpl) GetIconType() MediaSinkIconType {
 }
 
 func (obj *mediaSinkImpl) GetDeviceInfo(callback MediaSinkDeviceInfoCallback) {
-	obj.rawPtr.CallGetDeviceInfo(uintptr(extractRawPointer(callback)))
+	obj.rawPtr.CallGetDeviceInfo(uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaSinkDeviceInfoCallback(callback) })))
 }
 
 func (obj *mediaSinkImpl) IsCastSink() bool {
@@ -373,5 +373,5 @@ func wrapMediaSource(ptr unsafe.Pointer) MediaSource {
 
 // MediaRouterGetGlobal Returns the MediaRouter object associated with the global request context. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the manager's storage has been initialized. Equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >get_media_router().
 func MediaRouterGetGlobal(callback CompletionCallback) MediaRouter {
-	return wrapMediaRouter(capi.CEFMediaRouterGetGlobal(extractRawPointer(callback)))
+	return wrapMediaRouter(capi.CEFMediaRouterGetGlobal(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 }

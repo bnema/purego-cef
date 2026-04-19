@@ -171,6 +171,7 @@ type ParamData struct {
 	CType       string // original C type for marshal decisions
 	MarshalKind string // "interface", "string", "enum", "numeric", "pointer", "userfreeString", "slice"
 	RawGoType   string // raw Go type for free func params (e.g., "raw.CEFJsonParserOptionsT")
+	IsHandler   bool   // true when this param is a handler interface input that can be auto-wrapped
 
 	// For MarshalKind "slice": describes how to decode from raw callback args.
 	SliceCountArg string // raw arg name for the count (e.g., "arg2")

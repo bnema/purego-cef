@@ -219,5 +219,5 @@ func wrapWindow(ptr unsafe.Pointer) Window {
 
 // WindowCreateTopLevel Create a new Window.
 func WindowCreateTopLevel(delegate WindowDelegate) Window {
-	return wrapWindow(capi.CEFWindowCreateTopLevel(extractRawPointer(delegate)))
+	return wrapWindow(capi.CEFWindowCreateTopLevel(extractOrWrapRawPointer(delegate, func() any { return NewWindowDelegate(delegate) })))
 }

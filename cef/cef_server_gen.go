@@ -197,5 +197,5 @@ func wrapServerHandler(ptr unsafe.Pointer) ServerHandler {
 func ServerCreate(address string, port uint16, backlog int32, handler ServerHandler) {
 	addressStr := cefString(address)
 	defer freeCefString(&addressStr)
-	capi.CEFServerCreate(unsafe.Pointer(&addressStr), port, backlog, extractRawPointer(handler))
+	capi.CEFServerCreate(unsafe.Pointer(&addressStr), port, backlog, extractOrWrapRawPointer(handler, func() any { return NewServerHandler(handler) }))
 }

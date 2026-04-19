@@ -20,13 +20,25 @@ func EmitPublic(data *PublicFileData) (string, error) {
 	isFloatPublicType := func(typ string) bool {
 		return typ == "float32" || typ == "float64"
 	}
+	constructorName := func(typeName string) string {
+		if rawConstructorTypes[typeName] {
+			return "newRaw" + typeName
+		}
+		return "New" + typeName
+	}
+	interfaceRawPointerExpr := func(p ParamData) string {
+		if p.IsHandler {
+			return "extractOrWrapRawPointer(" + p.Name + ", func() any { return " + constructorName(p.PublicType) + "(" + p.Name + ") })"
+		}
+		return "extractRawPointer(" + p.Name + ")"
+	}
 	marshalNonFloatAsUintptr := func(p ParamData) string {
 		switch p.MarshalKind {
 		case "interface":
 			if p.PublicType == "unsafe.Pointer" {
 				return "uintptr(" + p.Name + ")"
 			}
-			return "uintptr(extractRawPointer(" + p.Name + "))"
+			return "uintptr(" + interfaceRawPointerExpr(p) + ")"
 		case "string", "userfreeString":
 			return "uintptr(unsafe.Pointer(&" + p.Name + "Str))"
 		case "enum":
@@ -54,12 +66,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		},
 		// constructorName returns "newRawX" for types with handwritten public
 		// constructors in bridge.go, "NewX" for everything else.
-		"constructorName": func(typeName string) string {
-			if rawConstructorTypes[typeName] {
-				return "newRaw" + typeName
-			}
-			return "New" + typeName
-		},
+		"constructorName": constructorName,
 		"zeroVal": func(typ string) string {
 			switch typ {
 			case "bool":
@@ -197,7 +204,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 					if p.PublicType == "unsafe.Pointer" {
 						return "uintptr(" + p.Name + ")"
 					}
-					return "uintptr(extractRawPointer(" + p.Name + "))"
+					return "uintptr(" + interfaceRawPointerExpr(p) + ")"
 				case "string", "userfreeString":
 					return "uintptr(unsafe.Pointer(&" + p.Name + "Str))"
 				case "enum":
@@ -238,7 +245,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		"marshalParamForRawFunc": func(p ParamData) string {
 			switch p.MarshalKind {
 			case "interface":
-				return "extractRawPointer(" + p.Name + ")"
+				return interfaceRawPointerExpr(p)
 			case "string", "userfreeString":
 				return "unsafe.Pointer(&" + p.Name + "Str)"
 			case "dataStruct":
@@ -271,7 +278,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				if p.PublicType == "unsafe.Pointer" {
 					return "uintptr(" + p.Name + ")"
 				}
-				return "uintptr(extractRawPointer(" + p.Name + "))"
+				return "uintptr(" + interfaceRawPointerExpr(p) + ")"
 			case "string", "userfreeString":
 				return "uintptr(unsafe.Pointer(&" + p.Name + "Str))"
 			case "enum":

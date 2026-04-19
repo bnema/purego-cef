@@ -812,7 +812,7 @@ func V8ValueCreateString(value string) V8Value {
 
 // V8ValueCreateObject wraps the CEF CEFV8ValueCreateObject function.
 func V8ValueCreateObject(accessor V8Accessor, interceptor V8Interceptor) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateObject(extractRawPointer(accessor), extractRawPointer(interceptor)))
+	return wrapV8Value(capi.CEFV8ValueCreateObject(extractOrWrapRawPointer(accessor, func() any { return NewV8Accessor(accessor) }), extractOrWrapRawPointer(interceptor, func() any { return NewV8Interceptor(interceptor) })))
 }
 
 // V8ValueCreateArray Create a new cef_v8_value_t object of type array with the specified |length|. If |length| is negative the returned array will have length 0. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
@@ -822,7 +822,7 @@ func V8ValueCreateArray(length int32) V8Value {
 
 // V8ValueCreateArrayBuffer Create a new cef_v8_value_t object of type ArrayBuffer which wraps the provided |buffer| of size |length| bytes. The ArrayBuffer is externalized, meaning that it does not own |buffer|. The caller is responsible for freeing |buffer| when requested via a call to cef_v8_array_buffer_release_callback_t::ReleaseBuffer. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference. NOTE: Always returns nullptr when V8 sandbox is enabled.
 func V8ValueCreateArrayBuffer(buffer unsafe.Pointer, length int, releaseCallback V8ArrayBufferReleaseCallback) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateArrayBuffer(buffer, uintptr(length), extractRawPointer(releaseCallback)))
+	return wrapV8Value(capi.CEFV8ValueCreateArrayBuffer(buffer, uintptr(length), extractOrWrapRawPointer(releaseCallback, func() any { return NewV8ArrayBufferReleaseCallback(releaseCallback) })))
 }
 
 // V8ValueCreateArrayBufferWithCopy Create a new cef_v8_value_t object of type ArrayBuffer which copies the provided |buffer| of size |length| bytes. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
@@ -834,7 +834,7 @@ func V8ValueCreateArrayBufferWithCopy(buffer unsafe.Pointer, length int) V8Value
 func V8ValueCreateFunction(name string, handler V8Handler) V8Value {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return wrapV8Value(capi.CEFV8ValueCreateFunction(unsafe.Pointer(&nameStr), extractRawPointer(handler)))
+	return wrapV8Value(capi.CEFV8ValueCreateFunction(unsafe.Pointer(&nameStr), extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) })))
 }
 
 // V8ValueCreatePromise Create a new cef_v8_value_t object of type Promise. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
@@ -853,5 +853,5 @@ func RegisterExtension(extensionName string, javascriptCode string, handler V8Ha
 	defer freeCefString(&extensionNameStr)
 	javascriptCodeStr := cefString(javascriptCode)
 	defer freeCefString(&javascriptCodeStr)
-	return int32(capi.CEFRegisterExtension(unsafe.Pointer(&extensionNameStr), unsafe.Pointer(&javascriptCodeStr), extractRawPointer(handler)))
+	return int32(capi.CEFRegisterExtension(unsafe.Pointer(&extensionNameStr), unsafe.Pointer(&javascriptCodeStr), extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) })))
 }

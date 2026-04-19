@@ -128,7 +128,7 @@ func (obj *requestContextImpl) GetCachePath() string {
 }
 
 func (obj *requestContextImpl) GetCookieManager(callback CompletionCallback) CookieManager {
-	return wrapCookieManager(unsafe.Pointer(obj.rawPtr.CallGetCookieManager(uintptr(extractRawPointer(callback)))))
+	return wrapCookieManager(unsafe.Pointer(obj.rawPtr.CallGetCookieManager(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))))
 }
 
 func (obj *requestContextImpl) RegisterSchemeHandlerFactory(schemeName string, domainName string, factory SchemeHandlerFactory) int32 {
@@ -136,7 +136,7 @@ func (obj *requestContextImpl) RegisterSchemeHandlerFactory(schemeName string, d
 	defer freeCefString(&schemeNameStr)
 	domainNameStr := cefString(domainName)
 	defer freeCefString(&domainNameStr)
-	return int32(obj.rawPtr.CallRegisterSchemeHandlerFactory(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(unsafe.Pointer(&domainNameStr)), uintptr(extractRawPointer(factory))))
+	return int32(obj.rawPtr.CallRegisterSchemeHandlerFactory(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(unsafe.Pointer(&domainNameStr)), uintptr(extractOrWrapRawPointer(factory, func() any { return NewSchemeHandlerFactory(factory) }))))
 }
 
 func (obj *requestContextImpl) ClearSchemeHandlerFactories() int32 {
@@ -144,25 +144,25 @@ func (obj *requestContextImpl) ClearSchemeHandlerFactories() int32 {
 }
 
 func (obj *requestContextImpl) ClearCertificateExceptions(callback CompletionCallback) {
-	obj.rawPtr.CallClearCertificateExceptions(uintptr(extractRawPointer(callback)))
+	obj.rawPtr.CallClearCertificateExceptions(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 }
 
 func (obj *requestContextImpl) ClearHttpAuthCredentials(callback CompletionCallback) {
-	obj.rawPtr.CallClearHttpAuthCredentials(uintptr(extractRawPointer(callback)))
+	obj.rawPtr.CallClearHttpAuthCredentials(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 }
 
 func (obj *requestContextImpl) CloseAllConnections(callback CompletionCallback) {
-	obj.rawPtr.CallCloseAllConnections(uintptr(extractRawPointer(callback)))
+	obj.rawPtr.CallCloseAllConnections(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 }
 
 func (obj *requestContextImpl) ResolveHost(origin string, callback ResolveCallback) {
 	originStr := cefString(origin)
 	defer freeCefString(&originStr)
-	obj.rawPtr.CallResolveHost(uintptr(unsafe.Pointer(&originStr)), uintptr(extractRawPointer(callback)))
+	obj.rawPtr.CallResolveHost(uintptr(unsafe.Pointer(&originStr)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewResolveCallback(callback) })))
 }
 
 func (obj *requestContextImpl) GetMediaRouter(callback CompletionCallback) MediaRouter {
-	return wrapMediaRouter(unsafe.Pointer(obj.rawPtr.CallGetMediaRouter(uintptr(extractRawPointer(callback)))))
+	return wrapMediaRouter(unsafe.Pointer(obj.rawPtr.CallGetMediaRouter(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))))
 }
 
 func (obj *requestContextImpl) GetWebsiteSetting(requestingURL string, topLevelURL string, contentType ContentSettingTypes) Value {
@@ -214,11 +214,11 @@ func (obj *requestContextImpl) GetChromeColorSchemeVariant() ColorVariant {
 }
 
 func (obj *requestContextImpl) AddSettingObserver(observer SettingObserver) Registration {
-	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddSettingObserver(uintptr(extractRawPointer(observer)))))
+	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddSettingObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewSettingObserver(observer) })))))
 }
 
 func (obj *requestContextImpl) ClearHttpCache(callback CompletionCallback) {
-	obj.rawPtr.CallClearHttpCache(uintptr(extractRawPointer(callback)))
+	obj.rawPtr.CallClearHttpCache(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 }
 
 func (obj *requestContextImpl) RawPointer() unsafe.Pointer {
@@ -253,10 +253,10 @@ func RequestContextGetGlobalContext() RequestContext {
 
 // RequestContextCreateContext Creates a new context object with the specified |settings| and optional |handler|.
 func RequestContextCreateContext(settings *RequestContextSettings, handler RequestContextHandler) RequestContext {
-	return wrapRequestContext(capi.CEFRequestContextCreateContext(unsafe.Pointer(settings), extractRawPointer(handler)))
+	return wrapRequestContext(capi.CEFRequestContextCreateContext(unsafe.Pointer(settings), extractOrWrapRawPointer(handler, func() any { return NewRequestContextHandler(handler) })))
 }
 
 // RequestContextCefCreateContextShared Creates a new context object that shares storage with |other| and uses an optional |handler|.
 func RequestContextCefCreateContextShared(other RequestContext, handler RequestContextHandler) RequestContext {
-	return wrapRequestContext(capi.CEFRequestContextCEFCreateContextShared(extractRawPointer(other), extractRawPointer(handler)))
+	return wrapRequestContext(capi.CEFRequestContextCEFCreateContextShared(extractRawPointer(other), extractOrWrapRawPointer(handler, func() any { return NewRequestContextHandler(handler) })))
 }

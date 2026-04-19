@@ -175,6 +175,7 @@ func buildMethod(structCName string, f model.Field, registry *TypeRegistry) Meth
 			PublicType:  registry.ResolvePublicType(p.CType),
 			CType:       p.CType,
 			MarshalKind: classifyParamType(p.CType, registry),
+			IsHandler:   registry.IsHandlerType(p.CType),
 		}
 		m.Params = append(m.Params, pd)
 	}
@@ -326,6 +327,7 @@ func buildFreeFunc(fn *model.Function, registry *TypeRegistry) FreeFuncData {
 			CType:       p.CType,
 			MarshalKind: classifyParamType(p.CType, registry),
 			RawGoType:   p.GoType,
+			IsHandler:   registry.IsHandlerType(p.CType),
 		})
 	}
 

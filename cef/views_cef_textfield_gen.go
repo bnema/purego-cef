@@ -181,5 +181,5 @@ func wrapTextfield(ptr unsafe.Pointer) Textfield {
 
 // TextfieldCreate Create a new Textfield.
 func TextfieldCreate(delegate TextfieldDelegate) Textfield {
-	return wrapTextfield(capi.CEFTextfieldCreate(extractRawPointer(delegate)))
+	return wrapTextfield(capi.CEFTextfieldCreate(extractOrWrapRawPointer(delegate, func() any { return NewTextfieldDelegate(delegate) })))
 }

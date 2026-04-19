@@ -293,5 +293,5 @@ func wrapMenuModel(ptr unsafe.Pointer) MenuModel {
 
 // MenuModelCreate Create a new MenuModel with the specified |delegate|.
 func MenuModelCreate(delegate MenuModelDelegate) MenuModel {
-	return wrapMenuModel(capi.CEFMenuModelCreate(extractRawPointer(delegate)))
+	return wrapMenuModel(capi.CEFMenuModelCreate(extractOrWrapRawPointer(delegate, func() any { return NewMenuModelDelegate(delegate) })))
 }

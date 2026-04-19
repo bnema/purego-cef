@@ -73,5 +73,5 @@ func wrapScrollView(ptr unsafe.Pointer) ScrollView {
 
 // ScrollViewCreate Create a new ScrollView.
 func ScrollViewCreate(delegate ViewDelegate) ScrollView {
-	return wrapScrollView(capi.CEFScrollViewCreate(extractRawPointer(delegate)))
+	return wrapScrollView(capi.CEFScrollViewCreate(extractOrWrapRawPointer(delegate, func() any { return NewViewDelegate(delegate) })))
 }

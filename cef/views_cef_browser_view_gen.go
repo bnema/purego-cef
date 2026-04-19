@@ -63,7 +63,7 @@ func wrapBrowserView(ptr unsafe.Pointer) BrowserView {
 func BrowserViewCreate(client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext, delegate BrowserViewDelegate) BrowserView {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	return wrapBrowserView(capi.CEFBrowserViewCreate(extractRawPointer(client), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext), extractRawPointer(delegate)))
+	return wrapBrowserView(capi.CEFBrowserViewCreate(extractOrWrapRawPointer(client, func() any { return newRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext), extractOrWrapRawPointer(delegate, func() any { return NewBrowserViewDelegate(delegate) })))
 }
 
 // BrowserViewGetForBrowser Returns the BrowserView associated with |browser|.

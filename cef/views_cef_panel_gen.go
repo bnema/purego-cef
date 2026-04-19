@@ -93,5 +93,5 @@ func wrapPanel(ptr unsafe.Pointer) Panel {
 
 // PanelCreate Create a new Panel.
 func PanelCreate(delegate PanelDelegate) Panel {
-	return wrapPanel(capi.CEFPanelCreate(extractRawPointer(delegate)))
+	return wrapPanel(capi.CEFPanelCreate(extractOrWrapRawPointer(delegate, func() any { return NewPanelDelegate(delegate) })))
 }

@@ -255,7 +255,7 @@ func StreamReaderCreateForData(data unsafe.Pointer, size int) StreamReader {
 
 // StreamReaderCreateForHandler Create a new cef_stream_reader_t object from a custom handler.
 func StreamReaderCreateForHandler(handler ReadHandler) StreamReader {
-	return wrapStreamReader(capi.CEFStreamReaderCreateForHandler(extractRawPointer(handler)))
+	return wrapStreamReader(capi.CEFStreamReaderCreateForHandler(extractOrWrapRawPointer(handler, func() any { return NewReadHandler(handler) })))
 }
 
 // StreamWriterCreateForFile Create a new cef_stream_writer_t object for a file.
@@ -267,5 +267,5 @@ func StreamWriterCreateForFile(filename string) StreamWriter {
 
 // StreamWriterCreateForHandler Create a new cef_stream_writer_t object for a custom handler.
 func StreamWriterCreateForHandler(handler WriteHandler) StreamWriter {
-	return wrapStreamWriter(capi.CEFStreamWriterCreateForHandler(extractRawPointer(handler)))
+	return wrapStreamWriter(capi.CEFStreamWriterCreateForHandler(extractOrWrapRawPointer(handler, func() any { return NewWriteHandler(handler) })))
 }

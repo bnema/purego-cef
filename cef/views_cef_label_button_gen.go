@@ -95,5 +95,5 @@ func wrapLabelButton(ptr unsafe.Pointer) LabelButton {
 func LabelButtonCreate(delegate ButtonDelegate, text string) LabelButton {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	return wrapLabelButton(capi.CEFLabelButtonCreate(extractRawPointer(delegate), unsafe.Pointer(&textStr)))
+	return wrapLabelButton(capi.CEFLabelButtonCreate(extractOrWrapRawPointer(delegate, func() any { return NewButtonDelegate(delegate) }), unsafe.Pointer(&textStr)))
 }
