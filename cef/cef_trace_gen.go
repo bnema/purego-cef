@@ -58,17 +58,20 @@ func wrapEndTracingCallback(ptr unsafe.Pointer) EndTracingCallback {
 func BeginTracing(categories string, callback CompletionCallback) int32 {
 	categoriesStr := cefString(categories)
 	defer freeCefString(&categoriesStr)
-	return int32(capi.CEFBeginTracing(unsafe.Pointer(&categoriesStr), extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	ret := capi.CEFBeginTracing(unsafe.Pointer(&categoriesStr), extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) }))
+	return int32(ret)
 }
 
 // EndTracing Stop tracing events on all processes. This function will fail and return false (0) if a previous call to CefEndTracingAsync is already pending or if CefBeginTracing was not called. |tracing_file| is the path at which tracing data will be written and |callback| is the callback that will be executed once all processes have sent their trace data. If |tracing_file| is NULL a new temporary file path will be used. If |callback| is NULL no trace data will be written. This function must be called on the browser process UI thread.
 func EndTracing(tracingFile string, callback EndTracingCallback) int32 {
 	tracingFileStr := cefString(tracingFile)
 	defer freeCefString(&tracingFileStr)
-	return int32(capi.CEFEndTracing(unsafe.Pointer(&tracingFileStr), extractOrWrapRawPointer(callback, func() any { return NewEndTracingCallback(callback) })))
+	ret := capi.CEFEndTracing(unsafe.Pointer(&tracingFileStr), extractOrWrapRawPointer(callback, func() any { return NewEndTracingCallback(callback) }))
+	return int32(ret)
 }
 
 // NowFromSystemTraceTime Returns the current system trace time or, if none is defined, the current high-res time. Can be used by clients to synchronize with the time information in trace events.
 func NowFromSystemTraceTime() int64 {
-	return int64(capi.CEFNowFromSystemTraceTime())
+	ret := capi.CEFNowFromSystemTraceTime()
+	return int64(ret)
 }

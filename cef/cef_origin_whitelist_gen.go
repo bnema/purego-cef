@@ -16,7 +16,8 @@ func AddCrossOriginWhitelistEntry(sourceOrigin string, targetProtocol string, ta
 	defer freeCefString(&targetProtocolStr)
 	targetDomainStr := cefString(targetDomain)
 	defer freeCefString(&targetDomainStr)
-	return int32(capi.CEFAddCrossOriginWhitelistEntry(unsafe.Pointer(&sourceOriginStr), unsafe.Pointer(&targetProtocolStr), unsafe.Pointer(&targetDomainStr), allowTargetSubdomains))
+	ret := capi.CEFAddCrossOriginWhitelistEntry(unsafe.Pointer(&sourceOriginStr), unsafe.Pointer(&targetProtocolStr), unsafe.Pointer(&targetDomainStr), allowTargetSubdomains)
+	return int32(ret)
 }
 
 // RemoveCrossOriginWhitelistEntry Remove an entry from the cross-origin access whitelist. Returns false (0) if |source_origin| is invalid or the whitelist cannot be accessed.
@@ -27,10 +28,12 @@ func RemoveCrossOriginWhitelistEntry(sourceOrigin string, targetProtocol string,
 	defer freeCefString(&targetProtocolStr)
 	targetDomainStr := cefString(targetDomain)
 	defer freeCefString(&targetDomainStr)
-	return int32(capi.CEFRemoveCrossOriginWhitelistEntry(unsafe.Pointer(&sourceOriginStr), unsafe.Pointer(&targetProtocolStr), unsafe.Pointer(&targetDomainStr), allowTargetSubdomains))
+	ret := capi.CEFRemoveCrossOriginWhitelistEntry(unsafe.Pointer(&sourceOriginStr), unsafe.Pointer(&targetProtocolStr), unsafe.Pointer(&targetDomainStr), allowTargetSubdomains)
+	return int32(ret)
 }
 
 // ClearCrossOriginWhitelist Remove all entries from the cross-origin access whitelist. Returns false (0) if the whitelist cannot be accessed.
 func ClearCrossOriginWhitelist() int32 {
-	return int32(capi.CEFClearCrossOriginWhitelist())
+	ret := capi.CEFClearCrossOriginWhitelist()
+	return int32(ret)
 }

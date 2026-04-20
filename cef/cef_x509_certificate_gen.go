@@ -19,23 +19,28 @@ type x509CertPrincipalImpl struct {
 }
 
 func (obj *x509CertPrincipalImpl) GetDisplayName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetDisplayName()))
+	ret := obj.rawPtr.CallGetDisplayName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetCommonName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetCommonName()))
+	ret := obj.rawPtr.CallGetCommonName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetLocalityName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLocalityName()))
+	ret := obj.rawPtr.CallGetLocalityName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetStateOrProvinceName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetStateOrProvinceName()))
+	ret := obj.rawPtr.CallGetStateOrProvinceName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetCountryName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetCountryName()))
+	ret := obj.rawPtr.CallGetCountryName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetOrganizationNames(names StringList) {
@@ -79,43 +84,95 @@ type x509CertificateImpl struct {
 }
 
 func (obj *x509CertificateImpl) GetSubject() X509CertPrincipal {
-	return wrapX509CertPrincipal(unsafe.Pointer(obj.rawPtr.CallGetSubject()))
+	ret := obj.rawPtr.CallGetSubject()
+	return wrapX509CertPrincipal(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetIssuer() X509CertPrincipal {
-	return wrapX509CertPrincipal(unsafe.Pointer(obj.rawPtr.CallGetIssuer()))
+	ret := obj.rawPtr.CallGetIssuer()
+	return wrapX509CertPrincipal(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetSerialNumber() BinaryValue {
-	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetSerialNumber()))
+	ret := obj.rawPtr.CallGetSerialNumber()
+	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetValidStart() uintptr {
-	return uintptr(obj.rawPtr.CallGetValidStart())
+	ret := obj.rawPtr.CallGetValidStart()
+	return uintptr(ret)
 }
 
 func (obj *x509CertificateImpl) GetValidExpiry() uintptr {
-	return uintptr(obj.rawPtr.CallGetValidExpiry())
+	ret := obj.rawPtr.CallGetValidExpiry()
+	return uintptr(ret)
 }
 
 func (obj *x509CertificateImpl) GetDerencoded() BinaryValue {
-	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDerencoded()))
+	ret := obj.rawPtr.CallGetDerencoded()
+	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetPemencoded() BinaryValue {
-	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetPemencoded()))
+	ret := obj.rawPtr.CallGetPemencoded()
+	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetIssuerChainSize() int {
-	return int(obj.rawPtr.CallGetIssuerChainSize())
+	ret := obj.rawPtr.CallGetIssuerChainSize()
+	return int(ret)
 }
 
-func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain unsafe.Pointer) {
-	obj.rawPtr.CallGetDerencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(chain))
+func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain []BinaryValue) {
+	var chainRaw []uintptr
+	var chainPtr unsafe.Pointer
+	chainCountPtr := chaincount
+	if chainCountPtr == nil {
+		chainCountScratch := len(chain)
+		chainCountPtr = &chainCountScratch
+	} else {
+		*chainCountPtr = len(chain)
+	}
+	if len(chain) > 0 {
+		chainRaw = make([]uintptr, len(chain))
+		chainPtr = unsafe.Pointer(&chainRaw[0])
+	}
+	obj.rawPtr.CallGetDerencodedIssuerChain(uintptr(unsafe.Pointer(chainCountPtr)), uintptr(chainPtr))
+	if len(chain) > 0 {
+		n := len(chain)
+		if *chainCountPtr < n {
+			n = *chainCountPtr
+		}
+		for i := 0; i < n; i++ {
+			chain[i] = wrapBinaryValue(unsafe.Pointer(chainRaw[i]))
+		}
+	}
 }
 
-func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain unsafe.Pointer) {
-	obj.rawPtr.CallGetPemencodedIssuerChain(uintptr(unsafe.Pointer(chaincount)), uintptr(chain))
+func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain []BinaryValue) {
+	var chainRaw []uintptr
+	var chainPtr unsafe.Pointer
+	chainCountPtr := chaincount
+	if chainCountPtr == nil {
+		chainCountScratch := len(chain)
+		chainCountPtr = &chainCountScratch
+	} else {
+		*chainCountPtr = len(chain)
+	}
+	if len(chain) > 0 {
+		chainRaw = make([]uintptr, len(chain))
+		chainPtr = unsafe.Pointer(&chainRaw[0])
+	}
+	obj.rawPtr.CallGetPemencodedIssuerChain(uintptr(unsafe.Pointer(chainCountPtr)), uintptr(chainPtr))
+	if len(chain) > 0 {
+		n := len(chain)
+		if *chainCountPtr < n {
+			n = *chainCountPtr
+		}
+		for i := 0; i < n; i++ {
+			chain[i] = wrapBinaryValue(unsafe.Pointer(chainRaw[i]))
+		}
+	}
 }
 
 func (obj *x509CertificateImpl) RawPointer() unsafe.Pointer {

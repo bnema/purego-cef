@@ -39,7 +39,8 @@ func (obj *windowImpl) Close() {
 }
 
 func (obj *windowImpl) IsClosed() bool {
-	return obj.rawPtr.CallIsClosed() != 0
+	ret := obj.rawPtr.CallIsClosed()
+	return ret != 0
 }
 
 func (obj *windowImpl) Activate() {
@@ -51,7 +52,8 @@ func (obj *windowImpl) Deactivate() {
 }
 
 func (obj *windowImpl) IsActive() bool {
-	return obj.rawPtr.CallIsActive() != 0
+	ret := obj.rawPtr.CallIsActive()
+	return ret != 0
 }
 
 func (obj *windowImpl) BringToTop() {
@@ -63,7 +65,8 @@ func (obj *windowImpl) SetAlwaysOnTop(onTop int32) {
 }
 
 func (obj *windowImpl) IsAlwaysOnTop() bool {
-	return obj.rawPtr.CallIsAlwaysOnTop() != 0
+	ret := obj.rawPtr.CallIsAlwaysOnTop()
+	return ret != 0
 }
 
 func (obj *windowImpl) Maximize() {
@@ -83,19 +86,23 @@ func (obj *windowImpl) SetFullscreen(fullscreen int32) {
 }
 
 func (obj *windowImpl) IsMaximized() bool {
-	return obj.rawPtr.CallIsMaximized() != 0
+	ret := obj.rawPtr.CallIsMaximized()
+	return ret != 0
 }
 
 func (obj *windowImpl) IsMinimized() bool {
-	return obj.rawPtr.CallIsMinimized() != 0
+	ret := obj.rawPtr.CallIsMinimized()
+	return ret != 0
 }
 
 func (obj *windowImpl) IsFullscreen() bool {
-	return obj.rawPtr.CallIsFullscreen() != 0
+	ret := obj.rawPtr.CallIsFullscreen()
+	return ret != 0
 }
 
 func (obj *windowImpl) GetFocusedView() View {
-	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetFocusedView()))
+	ret := obj.rawPtr.CallGetFocusedView()
+	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) SetTitle(title string) {
@@ -105,7 +112,8 @@ func (obj *windowImpl) SetTitle(title string) {
 }
 
 func (obj *windowImpl) GetTitle() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetTitle()))
+	ret := obj.rawPtr.CallGetTitle()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) SetWindowIcon(image Image) {
@@ -113,7 +121,8 @@ func (obj *windowImpl) SetWindowIcon(image Image) {
 }
 
 func (obj *windowImpl) GetWindowIcon() Image {
-	return wrapImage(unsafe.Pointer(obj.rawPtr.CallGetWindowIcon()))
+	ret := obj.rawPtr.CallGetWindowIcon()
+	return wrapImage(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) SetWindowAppIcon(image Image) {
@@ -121,11 +130,13 @@ func (obj *windowImpl) SetWindowAppIcon(image Image) {
 }
 
 func (obj *windowImpl) GetWindowAppIcon() Image {
-	return wrapImage(unsafe.Pointer(obj.rawPtr.CallGetWindowAppIcon()))
+	ret := obj.rawPtr.CallGetWindowAppIcon()
+	return wrapImage(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) AddOverlayView(view View, dockingMode DockingMode, canActivate int32) OverlayController {
-	return wrapOverlayController(unsafe.Pointer(obj.rawPtr.CallAddOverlayView(uintptr(extractRawPointer(view)), uintptr(dockingMode), uintptr(canActivate))))
+	ret := obj.rawPtr.CallAddOverlayView(uintptr(extractRawPointer(view)), uintptr(dockingMode), uintptr(canActivate))
+	return wrapOverlayController(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anchorPosition MenuAnchorPosition) {
@@ -137,11 +148,13 @@ func (obj *windowImpl) CancelMenu() {
 }
 
 func (obj *windowImpl) GetDisplay() Display {
-	return wrapDisplay(unsafe.Pointer(obj.rawPtr.CallGetDisplay()))
+	ret := obj.rawPtr.CallGetDisplay()
+	return wrapDisplay(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) GetClientAreaBoundsInScreen() uintptr {
-	return uintptr(obj.rawPtr.CallGetClientAreaBoundsInScreen())
+	ret := obj.rawPtr.CallGetClientAreaBoundsInScreen()
+	return uintptr(ret)
 }
 
 func (obj *windowImpl) SetDraggableRegions(regions []DraggableRegion) {
@@ -153,7 +166,8 @@ func (obj *windowImpl) SetDraggableRegions(regions []DraggableRegion) {
 }
 
 func (obj *windowImpl) GetWindowHandle() uintptr {
-	return uintptr(obj.rawPtr.CallGetWindowHandle())
+	ret := obj.rawPtr.CallGetWindowHandle()
+	return uintptr(ret)
 }
 
 func (obj *windowImpl) SendKeyPress(keyCode int32, eventFlags uint32) {
@@ -189,7 +203,8 @@ func (obj *windowImpl) ThemeChanged() {
 }
 
 func (obj *windowImpl) GetRuntimeStyle() RuntimeStyle {
-	return RuntimeStyle(obj.rawPtr.CallGetRuntimeStyle())
+	ret := obj.rawPtr.CallGetRuntimeStyle()
+	return RuntimeStyle(ret)
 }
 
 func (obj *windowImpl) RawPointer() unsafe.Pointer {
@@ -219,5 +234,6 @@ func wrapWindow(ptr unsafe.Pointer) Window {
 
 // WindowCreateTopLevel Create a new Window.
 func WindowCreateTopLevel(delegate WindowDelegate) Window {
-	return wrapWindow(capi.CEFWindowCreateTopLevel(extractOrWrapRawPointer(delegate, func() any { return NewWindowDelegate(delegate) })))
+	ret := capi.CEFWindowCreateTopLevel(extractOrWrapRawPointer(delegate, func() any { return NewWindowDelegate(delegate) }))
+	return wrapWindow(ret)
 }

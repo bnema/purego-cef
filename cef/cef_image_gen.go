@@ -21,73 +21,86 @@ type imageImpl struct {
 }
 
 func (obj *imageImpl) IsEmpty() bool {
-	return obj.rawPtr.CallIsEmpty() != 0
+	ret := obj.rawPtr.CallIsEmpty()
+	return ret != 0
 }
 
 func (obj *imageImpl) IsSame(that Image) bool {
-	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
+	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	return ret != 0
 }
 
 func (obj *imageImpl) AddBitmap(scaleFactor float32, pixelWidth int32, pixelHeight int32, colorType ColorType, alphaType AlphaType, pixelData unsafe.Pointer, pixelDataSize int) int32 {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr, uintptr, uintptr, uintptr) uintptr
 	purego.RegisterFunc(&fn, obj.rawPtr.AddBitmap)
-	return int32(fn(obj.rawPtr, scaleFactor, uintptr(pixelWidth), uintptr(pixelHeight), uintptr(colorType), uintptr(alphaType), uintptr(pixelData), uintptr(pixelDataSize)))
+	ret := fn(obj.rawPtr, scaleFactor, uintptr(pixelWidth), uintptr(pixelHeight), uintptr(colorType), uintptr(alphaType), uintptr(pixelData), uintptr(pixelDataSize))
+	return int32(ret)
 }
 
 func (obj *imageImpl) AddPng(scaleFactor float32, pngData unsafe.Pointer, pngDataSize int) int32 {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr) uintptr
 	purego.RegisterFunc(&fn, obj.rawPtr.AddPng)
-	return int32(fn(obj.rawPtr, scaleFactor, uintptr(pngData), uintptr(pngDataSize)))
+	ret := fn(obj.rawPtr, scaleFactor, uintptr(pngData), uintptr(pngDataSize))
+	return int32(ret)
 }
 
 func (obj *imageImpl) AddJpeg(scaleFactor float32, jpegData unsafe.Pointer, jpegDataSize int) int32 {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr) uintptr
 	purego.RegisterFunc(&fn, obj.rawPtr.AddJpeg)
-	return int32(fn(obj.rawPtr, scaleFactor, uintptr(jpegData), uintptr(jpegDataSize)))
+	ret := fn(obj.rawPtr, scaleFactor, uintptr(jpegData), uintptr(jpegDataSize))
+	return int32(ret)
 }
 
 func (obj *imageImpl) GetWidth() int {
-	return int(obj.rawPtr.CallGetWidth())
+	ret := obj.rawPtr.CallGetWidth()
+	return int(ret)
 }
 
 func (obj *imageImpl) GetHeight() int {
-	return int(obj.rawPtr.CallGetHeight())
+	ret := obj.rawPtr.CallGetHeight()
+	return int(ret)
 }
 
 func (obj *imageImpl) HasRepresentation(scaleFactor float32) bool {
 	var fn func(*capi.CEFImageT, float32) uintptr
 	purego.RegisterFunc(&fn, obj.rawPtr.HasRepresentation)
-	return fn(obj.rawPtr, scaleFactor) != 0
+	ret := fn(obj.rawPtr, scaleFactor)
+	return ret != 0
 }
 
 func (obj *imageImpl) RemoveRepresentation(scaleFactor float32) int32 {
 	var fn func(*capi.CEFImageT, float32) uintptr
 	purego.RegisterFunc(&fn, obj.rawPtr.RemoveRepresentation)
-	return int32(fn(obj.rawPtr, scaleFactor))
+	ret := fn(obj.rawPtr, scaleFactor)
+	return int32(ret)
 }
 
-func (obj *imageImpl) GetRepresentationInfo(scaleFactor float32, actualScaleFactor unsafe.Pointer, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) int32 {
+func (obj *imageImpl) GetRepresentationInfo(scaleFactor float32, actualScaleFactor *float32, pixelWidth *int32, pixelHeight *int32) int32 {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr) uintptr
 	purego.RegisterFunc(&fn, obj.rawPtr.GetRepresentationInfo)
-	return int32(fn(obj.rawPtr, scaleFactor, uintptr(actualScaleFactor), uintptr(pixelWidth), uintptr(pixelHeight)))
+	ret := fn(obj.rawPtr, scaleFactor, uintptr(unsafe.Pointer(actualScaleFactor)), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
+	return int32(ret)
 }
 
-func (obj *imageImpl) GetAsBitmap(scaleFactor float32, colorType ColorType, alphaType AlphaType, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue {
+func (obj *imageImpl) GetAsBitmap(scaleFactor float32, colorType ColorType, alphaType AlphaType, pixelWidth *int32, pixelHeight *int32) BinaryValue {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr, uintptr) uintptr
 	purego.RegisterFunc(&fn, obj.rawPtr.GetAsBitmap)
-	return wrapBinaryValue(unsafe.Pointer(fn(obj.rawPtr, scaleFactor, uintptr(colorType), uintptr(alphaType), uintptr(pixelWidth), uintptr(pixelHeight))))
+	ret := fn(obj.rawPtr, scaleFactor, uintptr(colorType), uintptr(alphaType), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
+	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
-func (obj *imageImpl) GetAsPng(scaleFactor float32, withTransparency int32, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue {
+func (obj *imageImpl) GetAsPng(scaleFactor float32, withTransparency int32, pixelWidth *int32, pixelHeight *int32) BinaryValue {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr) uintptr
 	purego.RegisterFunc(&fn, obj.rawPtr.GetAsPng)
-	return wrapBinaryValue(unsafe.Pointer(fn(obj.rawPtr, scaleFactor, uintptr(withTransparency), uintptr(pixelWidth), uintptr(pixelHeight))))
+	ret := fn(obj.rawPtr, scaleFactor, uintptr(withTransparency), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
+	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
-func (obj *imageImpl) GetAsJpeg(scaleFactor float32, quality int32, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue {
+func (obj *imageImpl) GetAsJpeg(scaleFactor float32, quality int32, pixelWidth *int32, pixelHeight *int32) BinaryValue {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr) uintptr
 	purego.RegisterFunc(&fn, obj.rawPtr.GetAsJpeg)
-	return wrapBinaryValue(unsafe.Pointer(fn(obj.rawPtr, scaleFactor, uintptr(quality), uintptr(pixelWidth), uintptr(pixelHeight))))
+	ret := fn(obj.rawPtr, scaleFactor, uintptr(quality), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
+	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *imageImpl) RawPointer() unsafe.Pointer {
@@ -117,5 +130,6 @@ func wrapImage(ptr unsafe.Pointer) Image {
 
 // ImageCreate Create a new cef_image_t. It will initially be NULL. Use the Add*() functions to add representations at different scale factors.
 func ImageCreate() Image {
-	return wrapImage(capi.CEFImageCreate())
+	ret := capi.CEFImageCreate()
+	return wrapImage(ret)
 }

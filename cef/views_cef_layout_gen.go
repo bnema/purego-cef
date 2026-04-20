@@ -19,15 +19,18 @@ type layoutImpl struct {
 }
 
 func (obj *layoutImpl) AsBoxLayout() BoxLayout {
-	return wrapBoxLayout(unsafe.Pointer(obj.rawPtr.CallAsBoxLayout()))
+	ret := obj.rawPtr.CallAsBoxLayout()
+	return wrapBoxLayout(unsafe.Pointer(ret))
 }
 
 func (obj *layoutImpl) AsFillLayout() FillLayout {
-	return wrapFillLayout(unsafe.Pointer(obj.rawPtr.CallAsFillLayout()))
+	ret := obj.rawPtr.CallAsFillLayout()
+	return wrapFillLayout(unsafe.Pointer(ret))
 }
 
 func (obj *layoutImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *layoutImpl) RawPointer() unsafe.Pointer {

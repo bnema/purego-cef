@@ -47,6 +47,10 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			return "uintptr(" + p.Name + ")"
 		case "dataStruct":
 			return "uintptr(unsafe.Pointer(" + p.Name + "))"
+		case "outCount":
+			return "uintptr(unsafe.Pointer(" + p.CountPartnerName + "CountPtr))"
+		case "outSlice", "outObjectSlice":
+			return "uintptr(" + p.Name + "Ptr)"
 		case "numeric":
 			if p.PublicType == "uintptr" {
 				return p.Name
@@ -172,9 +176,29 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return "var " + p.Name + "Ptr unsafe.Pointer\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "[0])\n\t}"
 			case "objectSlice":
 				return "var " + p.Name + "Raw []uintptr\n\tvar " + p.Name + "Ptr unsafe.Pointer\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Raw = make([]uintptr, len(" + p.Name + "))\n\t\tfor i, elem := range " + p.Name + " {\n\t\t\t" + p.Name + "Raw[i] = uintptr(extractRawPointer(elem))\n\t\t}\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "Raw[0])\n\t}"
+			case "outSlice":
+				return "var " + p.Name + "Ptr unsafe.Pointer\n\t" + p.Name + "CountPtr := " + p.CountParamName + "\n\tif " + p.Name + "CountPtr == nil {\n\t\t" + p.Name + "CountScratch := len(" + p.Name + ")\n\t\t" + p.Name + "CountPtr = &" + p.Name + "CountScratch\n\t} else {\n\t\t*" + p.Name + "CountPtr = len(" + p.Name + ")\n\t}\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "[0])\n\t}"
+			case "outObjectSlice":
+				return "var " + p.Name + "Raw []uintptr\n\tvar " + p.Name + "Ptr unsafe.Pointer\n\t" + p.Name + "CountPtr := " + p.CountParamName + "\n\tif " + p.Name + "CountPtr == nil {\n\t\t" + p.Name + "CountScratch := len(" + p.Name + ")\n\t\t" + p.Name + "CountPtr = &" + p.Name + "CountScratch\n\t} else {\n\t\t*" + p.Name + "CountPtr = len(" + p.Name + ")\n\t}\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Raw = make([]uintptr, len(" + p.Name + "))\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "Raw[0])\n\t}"
 			default:
 				return ""
 			}
+		},
+		"marshalPostamble": func(p ParamData) string {
+			switch p.MarshalKind {
+			case "outObjectSlice":
+				return "if len(" + p.Name + ") > 0 {\n\t\tn := len(" + p.Name + ")\n\t\tif *" + p.Name + "CountPtr < n {\n\t\t\tn = *" + p.Name + "CountPtr\n\t\t}\n\t\tfor i := 0; i < n; i++ {\n\t\t\t" + p.Name + "[i] = wrap" + p.SliceElemType + "(unsafe.Pointer(" + p.Name + "Raw[i]))\n\t\t}\n\t}"
+			default:
+				return ""
+			}
+		},
+		"hasMarshalPostamble": func(params []ParamData) bool {
+			for _, p := range params {
+				if p.MarshalKind == "outObjectSlice" {
+					return true
+				}
+			}
+			return false
 		},
 		// methodPreamble returns method-specific pre-call statements for public object wrappers.
 		"methodPreamble": func(ifaceName string, m MethodData) string {
@@ -213,6 +237,10 @@ func EmitPublic(data *PublicFileData) (string, error) {
 					return "uintptr(" + p.Name + ")"
 				case "dataStruct":
 					return "uintptr(unsafe.Pointer(" + p.Name + "))"
+				case "outCount":
+					return "uintptr(unsafe.Pointer(" + p.CountPartnerName + "CountPtr))"
+				case "outSlice", "outObjectSlice":
+					return "uintptr(" + p.Name + "Ptr)"
 				case "numeric":
 					switch p.PublicType {
 					case "float64":
@@ -250,6 +278,10 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return "unsafe.Pointer(&" + p.Name + "Str)"
 			case "dataStruct":
 				return "unsafe.Pointer(" + p.Name + ")"
+			case "outCount":
+				return "unsafe.Pointer(" + p.CountPartnerName + "CountPtr)"
+			case "outSlice", "outObjectSlice":
+				return p.Name + "Ptr"
 			case "enum":
 				// Cast public enum type to raw enum type if they differ.
 				if p.RawGoType != "" && p.RawGoType != "unsafe.Pointer" {
@@ -287,6 +319,10 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return "uintptr(" + p.Name + ")"
 			case "dataStruct":
 				return "uintptr(unsafe.Pointer(" + p.Name + "))"
+			case "outCount":
+				return "uintptr(unsafe.Pointer(" + p.CountPartnerName + "CountPtr))"
+			case "outSlice", "outObjectSlice":
+				return "uintptr(" + p.Name + "Ptr)"
 			case "numeric":
 				switch p.PublicType {
 				case "float64":

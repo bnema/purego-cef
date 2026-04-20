@@ -19,11 +19,13 @@ type threadImpl struct {
 }
 
 func (obj *threadImpl) GetTaskRunner() TaskRunner {
-	return wrapTaskRunner(unsafe.Pointer(obj.rawPtr.CallGetTaskRunner()))
+	ret := obj.rawPtr.CallGetTaskRunner()
+	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
 func (obj *threadImpl) GetPlatformThreadID() uintptr {
-	return uintptr(obj.rawPtr.CallGetPlatformThreadID())
+	ret := obj.rawPtr.CallGetPlatformThreadID()
+	return uintptr(ret)
 }
 
 func (obj *threadImpl) Stop() {
@@ -31,7 +33,8 @@ func (obj *threadImpl) Stop() {
 }
 
 func (obj *threadImpl) IsRunning() bool {
-	return obj.rawPtr.CallIsRunning() != 0
+	ret := obj.rawPtr.CallIsRunning()
+	return ret != 0
 }
 
 func (obj *threadImpl) RawPointer() unsafe.Pointer {
@@ -63,5 +66,6 @@ func wrapThread(ptr unsafe.Pointer) Thread {
 func ThreadCreate(displayName string, priority ThreadPriority, messageLoopType MessageLoopType, stoppable int32, comInitMode ComInitMode) Thread {
 	displayNameStr := cefString(displayName)
 	defer freeCefString(&displayNameStr)
-	return wrapThread(capi.CEFThreadCreate(unsafe.Pointer(&displayNameStr), capi.CEFThreadPriorityT(priority), capi.CEFMessageLoopTypeT(messageLoopType), stoppable, capi.CEFComInitModeT(comInitMode)))
+	ret := capi.CEFThreadCreate(unsafe.Pointer(&displayNameStr), capi.CEFThreadPriorityT(priority), capi.CEFMessageLoopTypeT(messageLoopType), stoppable, capi.CEFComInitModeT(comInitMode))
+	return wrapThread(ret)
 }

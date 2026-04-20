@@ -13,50 +13,69 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	{{- end}}
 	{{- with methodPreamble $.Name .}}
 {{.}}{{- end}}
+	{{- $hasPost := hasMarshalPostamble .Params}}
 	{{- if needsTypedObjectCall .}}
 	var fn {{typedObjectFuncSig $.RawGoName .}}
 	purego.RegisterFunc(&fn, obj.rawPtr.{{.RawFieldName}})
 	{{- if .Return.IsVoid}}
 	fn({{typedObjectCallArgs .}})
-	{{- else if .Return.IsBool}}
-	return fn({{typedObjectCallArgs .}}) != 0
-	{{- else if .Return.IsEnum}}
-	return {{.Return.PublicType}}(fn({{typedObjectCallArgs .}}))
-	{{- else if .Return.IsString}}
-	return goStringUserfree(unsafe.Pointer(fn({{typedObjectCallArgs .}})))
-	{{- else if .Return.IsInterface}}
-	return wrap{{.Return.PublicType}}(unsafe.Pointer(fn({{typedObjectCallArgs .}})))
-	{{- else if .Return.IsDataStruct}}
-	return ({{.Return.PublicType}})(unsafe.Pointer(fn({{typedObjectCallArgs .}})))
-	{{- else if .Return.IsPointer}}
-	return unsafe.Pointer(fn({{typedObjectCallArgs .}}))
-	{{- else if .Return.IsNumeric}}
-		{{- if isFloatPublicType .Return.PublicType}}
-	return fn({{typedObjectCallArgs .}})
-		{{- else}}
-	return {{.Return.PublicType}}(fn({{typedObjectCallArgs .}}))
-		{{- end}}
+	{{- range .Params}}{{with marshalPostamble .}}
+	{{.}}
+	{{- end}}{{end}}
 	{{- else}}
-	return {{.Return.PublicType}}(fn({{typedObjectCallArgs .}}))
+	ret := fn({{typedObjectCallArgs .}})
+	{{- range .Params}}{{with marshalPostamble .}}
+	{{.}}
+	{{- end}}{{end}}
+		{{- if .Return.IsBool}}
+	return ret != 0
+		{{- else if .Return.IsEnum}}
+	return {{.Return.PublicType}}(ret)
+		{{- else if .Return.IsString}}
+	return goStringUserfree(unsafe.Pointer(ret))
+		{{- else if .Return.IsInterface}}
+	return wrap{{.Return.PublicType}}(unsafe.Pointer(ret))
+		{{- else if .Return.IsDataStruct}}
+	return ({{.Return.PublicType}})(unsafe.Pointer(ret))
+		{{- else if .Return.IsPointer}}
+	return unsafe.Pointer(ret)
+		{{- else if .Return.IsNumeric}}
+			{{- if isFloatPublicType .Return.PublicType}}
+	return ret
+			{{- else}}
+	return {{.Return.PublicType}}(ret)
+			{{- end}}
+		{{- else}}
+	return {{.Return.PublicType}}(ret)
+		{{- end}}
 	{{- end}}
 	{{- else if .Return.IsVoid}}
 	obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
-	{{- else if .Return.IsBool}}
-	return obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}) != 0
-	{{- else if .Return.IsEnum}}
-	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}))
-	{{- else if .Return.IsString}}
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})))
-	{{- else if .Return.IsInterface}}
-	return wrap{{.Return.PublicType}}(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})))
-	{{- else if .Return.IsDataStruct}}
-	return ({{.Return.PublicType}})(unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})))
-	{{- else if .Return.IsPointer}}
-	return unsafe.Pointer(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}))
-	{{- else if .Return.IsNumeric}}
-	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}))
+	{{- range .Params}}{{with marshalPostamble .}}
+	{{.}}
+	{{- end}}{{end}}
 	{{- else}}
-	return {{.Return.PublicType}}(obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}}))
+	ret := obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
+	{{- range .Params}}{{with marshalPostamble .}}
+	{{.}}
+	{{- end}}{{end}}
+		{{- if .Return.IsBool}}
+	return ret != 0
+		{{- else if .Return.IsEnum}}
+	return {{.Return.PublicType}}(ret)
+		{{- else if .Return.IsString}}
+	return goStringUserfree(unsafe.Pointer(ret))
+		{{- else if .Return.IsInterface}}
+	return wrap{{.Return.PublicType}}(unsafe.Pointer(ret))
+		{{- else if .Return.IsDataStruct}}
+	return ({{.Return.PublicType}})(unsafe.Pointer(ret))
+		{{- else if .Return.IsPointer}}
+	return unsafe.Pointer(ret)
+		{{- else if .Return.IsNumeric}}
+	return {{.Return.PublicType}}(ret)
+		{{- else}}
+	return {{.Return.PublicType}}(ret)
+		{{- end}}
 	{{- end}}
 }
 {{end}}

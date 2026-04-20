@@ -45,7 +45,7 @@ func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler 
 		isNavigation := int32(arg3)
 		isDownload := int32(arg4)
 		requestInitiator := goString(unsafe.Pointer(arg5))
-		disableDefaultHandling := unsafe.Pointer(arg6)
+		disableDefaultHandling := (*int32)(unsafe.Pointer(arg6))
 		result := impl.GetResourceRequestHandler(browser, frame, request, isNavigation, isDownload, requestInitiator, disableDefaultHandling)
 		if result == nil {
 			return 0

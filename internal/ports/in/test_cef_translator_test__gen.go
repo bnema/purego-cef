@@ -2,10 +2,6 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // TranslatorTest defines the inbound port interface.
 type TranslatorTest interface {
 	GetVoid()
@@ -20,8 +16,8 @@ type TranslatorTest interface {
 	SetDouble(val float64) int32
 	SetLong(val uintptr) int32
 	SetSizet(val int) int32
-	SetIntList(valcount int, val uintptr) int32
-	GetIntListByRef(valcount *int, val unsafe.Pointer) int32
+	SetIntList(val []int32) int32
+	GetIntListByRef(valcount *int, val []int32) int32
 	GetIntListSize() int
 	GetString() string
 	SetString(val string) int32
@@ -36,7 +32,7 @@ type TranslatorTest interface {
 	SetPoint(val *Point) int32
 	GetPointByRef(val *Point)
 	SetPointList(val []Point) int32
-	GetPointListByRef(valcount *int, val *Point) int32
+	GetPointListByRef(valcount *int, val []Point) int32
 	GetPointListSize() int
 	GetRefPtrLibrary(val int32) TranslatorTestRefPtrLibrary
 	SetRefPtrLibrary(val TranslatorTestRefPtrLibrary) int32
@@ -44,14 +40,14 @@ type TranslatorTest interface {
 	SetChildRefPtrLibrary(val TranslatorTestRefPtrLibraryChild) int32
 	SetChildRefPtrLibraryAndReturnParent(val TranslatorTestRefPtrLibraryChild) TranslatorTestRefPtrLibrary
 	SetRefPtrLibraryList(val []TranslatorTestRefPtrLibrary, val1 int32, val2 int32) int32
-	GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	GetRefPtrLibraryListByRef(valcount *int, val []TranslatorTestRefPtrLibrary, val1 int32, val2 int32) int32
 	GetRefPtrLibraryListSize() int
 	SetRefPtrClient(val TranslatorTestRefPtrClient) int32
 	SetRefPtrClientAndReturn(val TranslatorTestRefPtrClient) TranslatorTestRefPtrClient
 	SetChildRefPtrClient(val TranslatorTestRefPtrClientChild) int32
 	SetChildRefPtrClientAndReturnParent(val TranslatorTestRefPtrClientChild) TranslatorTestRefPtrClient
 	SetRefPtrClientList(val []TranslatorTestRefPtrClient, val1 int32, val2 int32) int32
-	GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 TranslatorTestRefPtrClient, val2 TranslatorTestRefPtrClient) int32
+	GetRefPtrClientListByRef(valcount *int, val []TranslatorTestRefPtrClient, val1 TranslatorTestRefPtrClient, val2 TranslatorTestRefPtrClient) int32
 	GetRefPtrClientListSize() int
 	GetOwnPtrLibrary(val int32) TranslatorTestScopedLibrary
 	SetOwnPtrLibrary(val TranslatorTestScopedLibrary) int32

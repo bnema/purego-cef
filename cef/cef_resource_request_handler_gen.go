@@ -112,7 +112,7 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
-		allowOsExecution := unsafe.Pointer(arg3)
+		allowOsExecution := (*int32)(unsafe.Pointer(arg3))
 		impl.OnProtocolExecution(browser, frame, request, allowOsExecution)
 	}))
 

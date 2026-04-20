@@ -19,23 +19,28 @@ type sslstatusImpl struct {
 }
 
 func (obj *sslstatusImpl) IsSecureConnection() bool {
-	return obj.rawPtr.CallIsSecureConnection() != 0
+	ret := obj.rawPtr.CallIsSecureConnection()
+	return ret != 0
 }
 
 func (obj *sslstatusImpl) GetCertStatus() CertStatus {
-	return CertStatus(obj.rawPtr.CallGetCertStatus())
+	ret := obj.rawPtr.CallGetCertStatus()
+	return CertStatus(ret)
 }
 
 func (obj *sslstatusImpl) GetSslversion() SslVersion {
-	return SslVersion(obj.rawPtr.CallGetSslversion())
+	ret := obj.rawPtr.CallGetSslversion()
+	return SslVersion(ret)
 }
 
 func (obj *sslstatusImpl) GetContentStatus() SslContentStatus {
-	return SslContentStatus(obj.rawPtr.CallGetContentStatus())
+	ret := obj.rawPtr.CallGetContentStatus()
+	return SslContentStatus(ret)
 }
 
 func (obj *sslstatusImpl) GetX509Certificate() X509Certificate {
-	return wrapX509Certificate(unsafe.Pointer(obj.rawPtr.CallGetX509Certificate()))
+	ret := obj.rawPtr.CallGetX509Certificate()
+	return wrapX509Certificate(unsafe.Pointer(ret))
 }
 
 func (obj *sslstatusImpl) RawPointer() unsafe.Pointer {

@@ -12,19 +12,22 @@ import (
 func CreateDirectory(fullPath string) int32 {
 	fullPathStr := cefString(fullPath)
 	defer freeCefString(&fullPathStr)
-	return int32(capi.CEFCreateDirectory(unsafe.Pointer(&fullPathStr)))
+	ret := capi.CEFCreateDirectory(unsafe.Pointer(&fullPathStr))
+	return int32(ret)
 }
 
 // GetTempDirectory Get the temporary directory provided by the system. WARNING: In general, you should use the temp directory variants below instead of this function. Those variants will ensure that the proper permissions are set so that other users on the system can't edit them while they're open (which could lead to security issues).
 func GetTempDirectory(tempDir uintptr) int32 {
-	return int32(capi.CEFGetTempDirectory(unsafe.Pointer(tempDir)))
+	ret := capi.CEFGetTempDirectory(unsafe.Pointer(tempDir))
+	return int32(ret)
 }
 
 // CreateNewTempDirectory Creates a new directory. On Windows if |prefix| is provided the new directory name is in the format of "prefixyyyy". Returns true (1) on success and sets |new_temp_path| to the full path of the directory that was created. The directory is only readable by the current user. Calling this function on the browser process UI or IO threads is not allowed.
 func CreateNewTempDirectory(prefix string, newTempPath uintptr) int32 {
 	prefixStr := cefString(prefix)
 	defer freeCefString(&prefixStr)
-	return int32(capi.CEFCreateNewTempDirectory(unsafe.Pointer(&prefixStr), unsafe.Pointer(newTempPath)))
+	ret := capi.CEFCreateNewTempDirectory(unsafe.Pointer(&prefixStr), unsafe.Pointer(newTempPath))
+	return int32(ret)
 }
 
 // CreateTempDirectoryInDirectory Creates a directory within another directory. Extra characters will be appended to |prefix| to ensure that the new directory does not have the same name as an existing directory. Returns true (1) on success and sets |new_dir| to the full path of the directory that was created. The directory is only readable by the current user. Calling this function on the browser process UI or IO threads is not allowed.
@@ -33,21 +36,24 @@ func CreateTempDirectoryInDirectory(baseDir string, prefix string, newDir uintpt
 	defer freeCefString(&baseDirStr)
 	prefixStr := cefString(prefix)
 	defer freeCefString(&prefixStr)
-	return int32(capi.CEFCreateTempDirectoryInDirectory(unsafe.Pointer(&baseDirStr), unsafe.Pointer(&prefixStr), unsafe.Pointer(newDir)))
+	ret := capi.CEFCreateTempDirectoryInDirectory(unsafe.Pointer(&baseDirStr), unsafe.Pointer(&prefixStr), unsafe.Pointer(newDir))
+	return int32(ret)
 }
 
 // DirectoryExists Returns true (1) if the given path exists and is a directory. Calling this function on the browser process UI or IO threads is not allowed.
 func DirectoryExists(path string) int32 {
 	pathStr := cefString(path)
 	defer freeCefString(&pathStr)
-	return int32(capi.CEFDirectoryExists(unsafe.Pointer(&pathStr)))
+	ret := capi.CEFDirectoryExists(unsafe.Pointer(&pathStr))
+	return int32(ret)
 }
 
 // DeleteFile Deletes the given path whether it's a file or a directory. If |path| is a directory all contents will be deleted.  If |recursive| is true (1) any sub- directories and their contents will also be deleted (equivalent to executing "rm -rf", so use with caution). On POSIX environments if |path| is a symbolic link then only the symlink will be deleted. Returns true (1) on successful deletion or if |path| does not exist. Calling this function on the browser process UI or IO threads is not allowed.
 func DeleteFile(path string, recursive int32) int32 {
 	pathStr := cefString(path)
 	defer freeCefString(&pathStr)
-	return int32(capi.CEFDeleteFile(unsafe.Pointer(&pathStr), recursive))
+	ret := capi.CEFDeleteFile(unsafe.Pointer(&pathStr), recursive)
+	return int32(ret)
 }
 
 // ZipDirectory Writes the contents of |src_dir| into a zip archive at |dest_file|. If |include_hidden_files| is true (1) files starting with "." will be included. Returns true (1) on success.  Calling this function on the browser process UI or IO threads is not allowed.
@@ -56,7 +62,8 @@ func ZipDirectory(srcDir string, destFile string, includeHiddenFiles int32) int3
 	defer freeCefString(&srcDirStr)
 	destFileStr := cefString(destFile)
 	defer freeCefString(&destFileStr)
-	return int32(capi.CEFZipDirectory(unsafe.Pointer(&srcDirStr), unsafe.Pointer(&destFileStr), includeHiddenFiles))
+	ret := capi.CEFZipDirectory(unsafe.Pointer(&srcDirStr), unsafe.Pointer(&destFileStr), includeHiddenFiles)
+	return int32(ret)
 }
 
 // LoadCrlsetsFile Loads the existing "Certificate Revocation Lists" file that is managed by Google Chrome. This file can generally be found in Chrome's User Data directory (e.g. "C:\Users\[User]\AppData\Local\Google\Chrome\User Data\" on Windows) and is updated periodically by Chrome's component updater service. Must be called in the browser process after the context has been initialized. See https://dev.chromium.org/Home/chromium-security/crlsets for background.

@@ -83,23 +83,28 @@ type streamReaderImpl struct {
 }
 
 func (obj *streamReaderImpl) Read(ptr unsafe.Pointer, size int, n int) int {
-	return int(obj.rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n)))
+	ret := obj.rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
+	return int(ret)
 }
 
 func (obj *streamReaderImpl) SeekOffset(offset int64, whence int32) int32 {
-	return int32(obj.rawPtr.CallSeek(uintptr(offset), uintptr(whence)))
+	ret := obj.rawPtr.CallSeek(uintptr(offset), uintptr(whence))
+	return int32(ret)
 }
 
 func (obj *streamReaderImpl) Tell() int64 {
-	return int64(obj.rawPtr.CallTell())
+	ret := obj.rawPtr.CallTell()
+	return int64(ret)
 }
 
 func (obj *streamReaderImpl) Eof() int32 {
-	return int32(obj.rawPtr.CallEof())
+	ret := obj.rawPtr.CallEof()
+	return int32(ret)
 }
 
 func (obj *streamReaderImpl) MayBlock() int32 {
-	return int32(obj.rawPtr.CallMayBlock())
+	ret := obj.rawPtr.CallMayBlock()
+	return int32(ret)
 }
 
 func (obj *streamReaderImpl) RawPointer() unsafe.Pointer {
@@ -197,23 +202,28 @@ type streamWriterImpl struct {
 }
 
 func (obj *streamWriterImpl) Write(ptr unsafe.Pointer, size int, n int) int {
-	return int(obj.rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n)))
+	ret := obj.rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
+	return int(ret)
 }
 
 func (obj *streamWriterImpl) SeekOffset(offset int64, whence int32) int32 {
-	return int32(obj.rawPtr.CallSeek(uintptr(offset), uintptr(whence)))
+	ret := obj.rawPtr.CallSeek(uintptr(offset), uintptr(whence))
+	return int32(ret)
 }
 
 func (obj *streamWriterImpl) Tell() int64 {
-	return int64(obj.rawPtr.CallTell())
+	ret := obj.rawPtr.CallTell()
+	return int64(ret)
 }
 
 func (obj *streamWriterImpl) Flush() int32 {
-	return int32(obj.rawPtr.CallFlush())
+	ret := obj.rawPtr.CallFlush()
+	return int32(ret)
 }
 
 func (obj *streamWriterImpl) MayBlock() int32 {
-	return int32(obj.rawPtr.CallMayBlock())
+	ret := obj.rawPtr.CallMayBlock()
+	return int32(ret)
 }
 
 func (obj *streamWriterImpl) RawPointer() unsafe.Pointer {
@@ -245,27 +255,32 @@ func wrapStreamWriter(ptr unsafe.Pointer) StreamWriter {
 func StreamReaderCreateForFile(filename string) StreamReader {
 	filenameStr := cefString(filename)
 	defer freeCefString(&filenameStr)
-	return wrapStreamReader(capi.CEFStreamReaderCreateForFile(unsafe.Pointer(&filenameStr)))
+	ret := capi.CEFStreamReaderCreateForFile(unsafe.Pointer(&filenameStr))
+	return wrapStreamReader(ret)
 }
 
 // StreamReaderCreateForData Create a new cef_stream_reader_t object from data.
 func StreamReaderCreateForData(data unsafe.Pointer, size int) StreamReader {
-	return wrapStreamReader(capi.CEFStreamReaderCreateForData(data, uintptr(size)))
+	ret := capi.CEFStreamReaderCreateForData(data, uintptr(size))
+	return wrapStreamReader(ret)
 }
 
 // StreamReaderCreateForHandler Create a new cef_stream_reader_t object from a custom handler.
 func StreamReaderCreateForHandler(handler ReadHandler) StreamReader {
-	return wrapStreamReader(capi.CEFStreamReaderCreateForHandler(extractOrWrapRawPointer(handler, func() any { return NewReadHandler(handler) })))
+	ret := capi.CEFStreamReaderCreateForHandler(extractOrWrapRawPointer(handler, func() any { return NewReadHandler(handler) }))
+	return wrapStreamReader(ret)
 }
 
 // StreamWriterCreateForFile Create a new cef_stream_writer_t object for a file.
 func StreamWriterCreateForFile(filename string) StreamWriter {
 	filenameStr := cefString(filename)
 	defer freeCefString(&filenameStr)
-	return wrapStreamWriter(capi.CEFStreamWriterCreateForFile(unsafe.Pointer(&filenameStr)))
+	ret := capi.CEFStreamWriterCreateForFile(unsafe.Pointer(&filenameStr))
+	return wrapStreamWriter(ret)
 }
 
 // StreamWriterCreateForHandler Create a new cef_stream_writer_t object for a custom handler.
 func StreamWriterCreateForHandler(handler WriteHandler) StreamWriter {
-	return wrapStreamWriter(capi.CEFStreamWriterCreateForHandler(extractOrWrapRawPointer(handler, func() any { return NewWriteHandler(handler) })))
+	ret := capi.CEFStreamWriterCreateForHandler(extractOrWrapRawPointer(handler, func() any { return NewWriteHandler(handler) }))
+	return wrapStreamWriter(ret)
 }

@@ -19,15 +19,18 @@ type resourceBundleImpl struct {
 }
 
 func (obj *resourceBundleImpl) GetLocalizedString(stringID int32) string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLocalizedString(uintptr(stringID))))
+	ret := obj.rawPtr.CallGetLocalizedString(uintptr(stringID))
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *resourceBundleImpl) GetDataResource(resourceID int32) BinaryValue {
-	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDataResource(uintptr(resourceID))))
+	ret := obj.rawPtr.CallGetDataResource(uintptr(resourceID))
+	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *resourceBundleImpl) GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor) BinaryValue {
-	return wrapBinaryValue(unsafe.Pointer(obj.rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor))))
+	ret := obj.rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor))
+	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *resourceBundleImpl) RawPointer() unsafe.Pointer {
@@ -57,5 +60,6 @@ func wrapResourceBundle(ptr unsafe.Pointer) ResourceBundle {
 
 // ResourceBundleGetGlobal Returns the global resource bundle instance.
 func ResourceBundleGetGlobal() ResourceBundle {
-	return wrapResourceBundle(capi.CEFResourceBundleGetGlobal())
+	ret := capi.CEFResourceBundleGetGlobal()
+	return wrapResourceBundle(ret)
 }

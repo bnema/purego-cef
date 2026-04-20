@@ -2,10 +2,6 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // MenuModel defines the inbound port interface.
 type MenuModel interface {
 	IsSubMenu() bool
@@ -56,8 +52,8 @@ type MenuModel interface {
 	SetAcceleratorAt(index int, keyCode int32, shiftPressed int32, ctrlPressed int32, altPressed int32) int32
 	RemoveAccelerator(commandID int32) int32
 	RemoveAcceleratorAt(index int) int32
-	GetAccelerator(commandID int32, keyCode unsafe.Pointer, shiftPressed unsafe.Pointer, ctrlPressed unsafe.Pointer, altPressed unsafe.Pointer) int32
-	GetAcceleratorAt(index int, keyCode unsafe.Pointer, shiftPressed unsafe.Pointer, ctrlPressed unsafe.Pointer, altPressed unsafe.Pointer) int32
+	GetAccelerator(commandID int32, keyCode *int32, shiftPressed *int32, ctrlPressed *int32, altPressed *int32) int32
+	GetAcceleratorAt(index int, keyCode *int32, shiftPressed *int32, ctrlPressed *int32, altPressed *int32) int32
 	SetColor(commandID int32, colorType MenuColorType, color uintptr) int32
 	SetColorAt(index int32, colorType MenuColorType, color uintptr) int32
 	GetColor(commandID int32, colorType MenuColorType, color uintptr) int32

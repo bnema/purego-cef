@@ -36,7 +36,7 @@ func (d *PublicFileData) NeedsUnsafe() bool {
 			}
 			// Free func marshaling generates unsafe.Pointer for these kinds.
 			switch p.MarshalKind {
-			case "string", "userfreeString", "dataStruct":
+			case "string", "userfreeString", "dataStruct", "outCount", "outSlice", "outObjectSlice":
 				return true
 			case "numeric":
 				if p.PublicType == "uintptr" {
@@ -169,14 +169,21 @@ type ParamData struct {
 	Name        string // "browser"
 	PublicType  string // "Browser"
 	CType       string // original C type for marshal decisions
-	MarshalKind string // "interface", "string", "enum", "numeric", "pointer", "userfreeString", "slice"
+	MarshalKind string // "interface", "string", "enum", "numeric", "pointer", "userfreeString", "slice", "outSlice", "outObjectSlice", "outCount"
 	RawGoType   string // raw Go type for free func params (e.g., "raw.CEFJsonParserOptionsT")
 	IsHandler   bool   // true when this param is a handler interface input that can be auto-wrapped
 
-	// For MarshalKind "slice": describes how to decode from raw callback args.
+	// For MarshalKind "slice"/"objectSlice": describes how to decode from raw
+	// callback args when a count+pointer pair is merged into a single public slice.
 	SliceCountArg string // raw arg name for the count (e.g., "arg2")
 	SlicePtrArg   string // raw arg name for the pointer (e.g., "arg3")
 	SliceElemType string // element type (e.g., "Rect")
+
+	// CountParamName links an out-slice buffer param to its count pointer param
+	// (for example, elements []PostDataElement -> elementscount *int).
+	CountParamName string
+	// CountPartnerName links an out-count param to its slice buffer param.
+	CountPartnerName string
 
 	// UnmarshalExtra holds a resolved Go expression used by special marshal kinds
 	// (pixelBuffer, objectSlice) that need more context than a single param cast.

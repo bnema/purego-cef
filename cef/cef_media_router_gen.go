@@ -21,13 +21,15 @@ type mediaRouterImpl struct {
 }
 
 func (obj *mediaRouterImpl) AddObserver(observer MediaObserver) Registration {
-	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) })))))
+	ret := obj.rawPtr.CallAddObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) })))
+	return wrapRegistration(unsafe.Pointer(ret))
 }
 
 func (obj *mediaRouterImpl) GetSource(urn string) MediaSource {
 	urnStr := cefString(urn)
 	defer freeCefString(&urnStr)
-	return wrapMediaSource(unsafe.Pointer(obj.rawPtr.CallGetSource(uintptr(unsafe.Pointer(&urnStr)))))
+	ret := obj.rawPtr.CallGetSource(uintptr(unsafe.Pointer(&urnStr)))
+	return wrapMediaSource(unsafe.Pointer(ret))
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentSinks() {
@@ -149,15 +151,18 @@ type mediaRouteImpl struct {
 }
 
 func (obj *mediaRouteImpl) GetID() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetID()))
+	ret := obj.rawPtr.CallGetID()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *mediaRouteImpl) GetSource() MediaSource {
-	return wrapMediaSource(unsafe.Pointer(obj.rawPtr.CallGetSource()))
+	ret := obj.rawPtr.CallGetSource()
+	return wrapMediaSource(unsafe.Pointer(ret))
 }
 
 func (obj *mediaRouteImpl) GetSink() MediaSink {
-	return wrapMediaSink(unsafe.Pointer(obj.rawPtr.CallGetSink()))
+	ret := obj.rawPtr.CallGetSink()
+	return wrapMediaSink(unsafe.Pointer(ret))
 }
 
 func (obj *mediaRouteImpl) SendRouteMessage(message unsafe.Pointer, messageSize int) {
@@ -245,15 +250,18 @@ type mediaSinkImpl struct {
 }
 
 func (obj *mediaSinkImpl) GetID() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetID()))
+	ret := obj.rawPtr.CallGetID()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *mediaSinkImpl) GetName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetName()))
+	ret := obj.rawPtr.CallGetName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *mediaSinkImpl) GetIconType() MediaSinkIconType {
-	return MediaSinkIconType(obj.rawPtr.CallGetIconType())
+	ret := obj.rawPtr.CallGetIconType()
+	return MediaSinkIconType(ret)
 }
 
 func (obj *mediaSinkImpl) GetDeviceInfo(callback MediaSinkDeviceInfoCallback) {
@@ -261,15 +269,18 @@ func (obj *mediaSinkImpl) GetDeviceInfo(callback MediaSinkDeviceInfoCallback) {
 }
 
 func (obj *mediaSinkImpl) IsCastSink() bool {
-	return obj.rawPtr.CallIsCastSink() != 0
+	ret := obj.rawPtr.CallIsCastSink()
+	return ret != 0
 }
 
 func (obj *mediaSinkImpl) IsDialSink() bool {
-	return obj.rawPtr.CallIsDialSink() != 0
+	ret := obj.rawPtr.CallIsDialSink()
+	return ret != 0
 }
 
 func (obj *mediaSinkImpl) IsCompatibleWith(source MediaSource) bool {
-	return obj.rawPtr.CallIsCompatibleWith(uintptr(extractRawPointer(source))) != 0
+	ret := obj.rawPtr.CallIsCompatibleWith(uintptr(extractRawPointer(source)))
+	return ret != 0
 }
 
 func (obj *mediaSinkImpl) RawPointer() unsafe.Pointer {
@@ -347,15 +358,18 @@ type mediaSourceImpl struct {
 }
 
 func (obj *mediaSourceImpl) GetID() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetID()))
+	ret := obj.rawPtr.CallGetID()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *mediaSourceImpl) IsCastSource() bool {
-	return obj.rawPtr.CallIsCastSource() != 0
+	ret := obj.rawPtr.CallIsCastSource()
+	return ret != 0
 }
 
 func (obj *mediaSourceImpl) IsDialSource() bool {
-	return obj.rawPtr.CallIsDialSource() != 0
+	ret := obj.rawPtr.CallIsDialSource()
+	return ret != 0
 }
 
 func (obj *mediaSourceImpl) RawPointer() unsafe.Pointer {
@@ -385,5 +399,6 @@ func wrapMediaSource(ptr unsafe.Pointer) MediaSource {
 
 // MediaRouterGetGlobal Returns the MediaRouter object associated with the global request context. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the manager's storage has been initialized. Equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >get_media_router().
 func MediaRouterGetGlobal(callback CompletionCallback) MediaRouter {
-	return wrapMediaRouter(capi.CEFMediaRouterGetGlobal(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	ret := capi.CEFMediaRouterGetGlobal(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) }))
+	return wrapMediaRouter(ret)
 }

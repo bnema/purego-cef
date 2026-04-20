@@ -19,11 +19,13 @@ type printSettingsImpl struct {
 }
 
 func (obj *printSettingsImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *printSettingsImpl) IsReadOnly() bool {
-	return obj.rawPtr.CallIsReadOnly() != 0
+	ret := obj.rawPtr.CallIsReadOnly()
+	return ret != 0
 }
 
 func (obj *printSettingsImpl) SetOrientation(landscape int32) {
@@ -31,7 +33,8 @@ func (obj *printSettingsImpl) SetOrientation(landscape int32) {
 }
 
 func (obj *printSettingsImpl) IsLandscape() bool {
-	return obj.rawPtr.CallIsLandscape() != 0
+	ret := obj.rawPtr.CallIsLandscape()
+	return ret != 0
 }
 
 func (obj *printSettingsImpl) SetPrinterPrintableArea(physicalSizeDeviceUnits *Size, printableAreaDeviceUnits *Rect, landscapeNeedsFlip int32) {
@@ -45,7 +48,8 @@ func (obj *printSettingsImpl) SetDeviceName(name string) {
 }
 
 func (obj *printSettingsImpl) GetDeviceName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetDeviceName()))
+	ret := obj.rawPtr.CallGetDeviceName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *printSettingsImpl) SetDpi(dpi int32) {
@@ -53,7 +57,8 @@ func (obj *printSettingsImpl) SetDpi(dpi int32) {
 }
 
 func (obj *printSettingsImpl) GetDpi() int32 {
-	return int32(obj.rawPtr.CallGetDpi())
+	ret := obj.rawPtr.CallGetDpi()
+	return int32(ret)
 }
 
 func (obj *printSettingsImpl) SetPageRanges(ranges []Range) {
@@ -65,11 +70,23 @@ func (obj *printSettingsImpl) SetPageRanges(ranges []Range) {
 }
 
 func (obj *printSettingsImpl) GetPageRangesCount() int {
-	return int(obj.rawPtr.CallGetPageRangesCount())
+	ret := obj.rawPtr.CallGetPageRangesCount()
+	return int(ret)
 }
 
-func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges *Range) {
-	obj.rawPtr.CallGetPageRanges(uintptr(unsafe.Pointer(rangescount)), uintptr(unsafe.Pointer(ranges)))
+func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges []Range) {
+	var rangesPtr unsafe.Pointer
+	rangesCountPtr := rangescount
+	if rangesCountPtr == nil {
+		rangesCountScratch := len(ranges)
+		rangesCountPtr = &rangesCountScratch
+	} else {
+		*rangesCountPtr = len(ranges)
+	}
+	if len(ranges) > 0 {
+		rangesPtr = unsafe.Pointer(&ranges[0])
+	}
+	obj.rawPtr.CallGetPageRanges(uintptr(unsafe.Pointer(rangesCountPtr)), uintptr(rangesPtr))
 }
 
 func (obj *printSettingsImpl) SetSelectionOnly(selectionOnly int32) {
@@ -77,7 +94,8 @@ func (obj *printSettingsImpl) SetSelectionOnly(selectionOnly int32) {
 }
 
 func (obj *printSettingsImpl) IsSelectionOnly() bool {
-	return obj.rawPtr.CallIsSelectionOnly() != 0
+	ret := obj.rawPtr.CallIsSelectionOnly()
+	return ret != 0
 }
 
 func (obj *printSettingsImpl) SetCollate(collate int32) {
@@ -85,7 +103,8 @@ func (obj *printSettingsImpl) SetCollate(collate int32) {
 }
 
 func (obj *printSettingsImpl) WillCollate() int32 {
-	return int32(obj.rawPtr.CallWillCollate())
+	ret := obj.rawPtr.CallWillCollate()
+	return int32(ret)
 }
 
 func (obj *printSettingsImpl) SetColorModel(model ColorModel) {
@@ -93,7 +112,8 @@ func (obj *printSettingsImpl) SetColorModel(model ColorModel) {
 }
 
 func (obj *printSettingsImpl) GetColorModel() ColorModel {
-	return ColorModel(obj.rawPtr.CallGetColorModel())
+	ret := obj.rawPtr.CallGetColorModel()
+	return ColorModel(ret)
 }
 
 func (obj *printSettingsImpl) SetCopies(copies int32) {
@@ -101,7 +121,8 @@ func (obj *printSettingsImpl) SetCopies(copies int32) {
 }
 
 func (obj *printSettingsImpl) GetCopies() int32 {
-	return int32(obj.rawPtr.CallGetCopies())
+	ret := obj.rawPtr.CallGetCopies()
+	return int32(ret)
 }
 
 func (obj *printSettingsImpl) SetDuplexMode(mode DuplexMode) {
@@ -109,7 +130,8 @@ func (obj *printSettingsImpl) SetDuplexMode(mode DuplexMode) {
 }
 
 func (obj *printSettingsImpl) GetDuplexMode() DuplexMode {
-	return DuplexMode(obj.rawPtr.CallGetDuplexMode())
+	ret := obj.rawPtr.CallGetDuplexMode()
+	return DuplexMode(ret)
 }
 
 func (obj *printSettingsImpl) RawPointer() unsafe.Pointer {
@@ -139,5 +161,6 @@ func wrapPrintSettings(ptr unsafe.Pointer) PrintSettings {
 
 // PrintSettingsCreate Create a new cef_print_settings_t object.
 func PrintSettingsCreate() PrintSettings {
-	return wrapPrintSettings(capi.CEFPrintSettingsCreate())
+	ret := capi.CEFPrintSettingsCreate()
+	return wrapPrintSettings(ret)
 }

@@ -37,7 +37,7 @@ type PostData interface {
 	IsReadOnly() bool
 	HasExcludedElements() bool
 	GetElementCount() int
-	GetElements(elementscount *int, elements unsafe.Pointer)
+	GetElements(elementscount *int, elements []PostDataElement)
 	RemoveElement(element PostDataElement) int32
 	AddElement(element PostDataElement) int32
 	RemoveElements()

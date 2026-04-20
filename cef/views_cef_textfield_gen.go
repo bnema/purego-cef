@@ -23,7 +23,8 @@ func (obj *textfieldImpl) SetPasswordInput(passwordInput int32) {
 }
 
 func (obj *textfieldImpl) IsPasswordInput() bool {
-	return obj.rawPtr.CallIsPasswordInput() != 0
+	ret := obj.rawPtr.CallIsPasswordInput()
+	return ret != 0
 }
 
 func (obj *textfieldImpl) SetReadOnly(readOnly int32) {
@@ -31,11 +32,13 @@ func (obj *textfieldImpl) SetReadOnly(readOnly int32) {
 }
 
 func (obj *textfieldImpl) IsReadOnly() bool {
-	return obj.rawPtr.CallIsReadOnly() != 0
+	ret := obj.rawPtr.CallIsReadOnly()
+	return ret != 0
 }
 
 func (obj *textfieldImpl) GetText() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetText()))
+	ret := obj.rawPtr.CallGetText()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *textfieldImpl) SetText(text string) {
@@ -57,11 +60,13 @@ func (obj *textfieldImpl) InsertOrReplaceText(text string) {
 }
 
 func (obj *textfieldImpl) HasSelection() bool {
-	return obj.rawPtr.CallHasSelection() != 0
+	ret := obj.rawPtr.CallHasSelection()
+	return ret != 0
 }
 
 func (obj *textfieldImpl) GetSelectedText() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSelectedText()))
+	ret := obj.rawPtr.CallGetSelectedText()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *textfieldImpl) SelectAll(reversed int32) {
@@ -73,7 +78,8 @@ func (obj *textfieldImpl) ClearSelection() {
 }
 
 func (obj *textfieldImpl) GetSelectedRange() uintptr {
-	return uintptr(obj.rawPtr.CallGetSelectedRange())
+	ret := obj.rawPtr.CallGetSelectedRange()
+	return uintptr(ret)
 }
 
 func (obj *textfieldImpl) SelectRange(range_ *Range) {
@@ -81,7 +87,8 @@ func (obj *textfieldImpl) SelectRange(range_ *Range) {
 }
 
 func (obj *textfieldImpl) GetCursorPosition() int {
-	return int(obj.rawPtr.CallGetCursorPosition())
+	ret := obj.rawPtr.CallGetCursorPosition()
+	return int(ret)
 }
 
 func (obj *textfieldImpl) SetTextColor(color uintptr) {
@@ -89,7 +96,8 @@ func (obj *textfieldImpl) SetTextColor(color uintptr) {
 }
 
 func (obj *textfieldImpl) GetTextColor() uintptr {
-	return uintptr(obj.rawPtr.CallGetTextColor())
+	ret := obj.rawPtr.CallGetTextColor()
+	return uintptr(ret)
 }
 
 func (obj *textfieldImpl) SetSelectionTextColor(color uintptr) {
@@ -97,7 +105,8 @@ func (obj *textfieldImpl) SetSelectionTextColor(color uintptr) {
 }
 
 func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
-	return uintptr(obj.rawPtr.CallGetSelectionTextColor())
+	ret := obj.rawPtr.CallGetSelectionTextColor()
+	return uintptr(ret)
 }
 
 func (obj *textfieldImpl) SetSelectionBackgroundColor(color uintptr) {
@@ -105,7 +114,8 @@ func (obj *textfieldImpl) SetSelectionBackgroundColor(color uintptr) {
 }
 
 func (obj *textfieldImpl) GetSelectionBackgroundColor() uintptr {
-	return uintptr(obj.rawPtr.CallGetSelectionBackgroundColor())
+	ret := obj.rawPtr.CallGetSelectionBackgroundColor()
+	return uintptr(ret)
 }
 
 func (obj *textfieldImpl) SetFontList(fontList string) {
@@ -123,7 +133,8 @@ func (obj *textfieldImpl) ApplyTextStyle(style TextStyle, add int32, range_ *Ran
 }
 
 func (obj *textfieldImpl) IsCommandEnabled(commandID TextFieldCommands) bool {
-	return obj.rawPtr.CallIsCommandEnabled(uintptr(commandID)) != 0
+	ret := obj.rawPtr.CallIsCommandEnabled(uintptr(commandID))
+	return ret != 0
 }
 
 func (obj *textfieldImpl) ExecuteCommand(commandID TextFieldCommands) {
@@ -141,7 +152,8 @@ func (obj *textfieldImpl) SetPlaceholderText(text string) {
 }
 
 func (obj *textfieldImpl) GetPlaceholderText() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetPlaceholderText()))
+	ret := obj.rawPtr.CallGetPlaceholderText()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *textfieldImpl) SetPlaceholderTextColor(color uintptr) {
@@ -181,5 +193,6 @@ func wrapTextfield(ptr unsafe.Pointer) Textfield {
 
 // TextfieldCreate Create a new Textfield.
 func TextfieldCreate(delegate TextfieldDelegate) Textfield {
-	return wrapTextfield(capi.CEFTextfieldCreate(extractOrWrapRawPointer(delegate, func() any { return NewTextfieldDelegate(delegate) })))
+	ret := capi.CEFTextfieldCreate(extractOrWrapRawPointer(delegate, func() any { return NewTextfieldDelegate(delegate) }))
+	return wrapTextfield(ret)
 }

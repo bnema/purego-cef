@@ -2,10 +2,6 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // ResourceRequestHandler defines the inbound port interface.
 type ResourceRequestHandler interface {
 	GetCookieAccessFilter(browser Browser, frame Frame, request Request) CookieAccessFilter
@@ -15,7 +11,7 @@ type ResourceRequestHandler interface {
 	OnResourceResponse(browser Browser, frame Frame, request Request, response Response) int32
 	GetResourceResponseFilter(browser Browser, frame Frame, request Request, response Response) ResponseFilter
 	OnResourceLoadComplete(browser Browser, frame Frame, request Request, response Response, status UrlrequestStatus, receivedContentLength int64)
-	OnProtocolExecution(browser Browser, frame Frame, request Request, allowOsExecution unsafe.Pointer)
+	OnProtocolExecution(browser Browser, frame Frame, request Request, allowOsExecution *int32)
 }
 
 // CookieAccessFilter defines the inbound port interface.

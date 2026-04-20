@@ -19,23 +19,39 @@ type taskManagerImpl struct {
 }
 
 func (obj *taskManagerImpl) GetTasksCount() int {
-	return int(obj.rawPtr.CallGetTasksCount())
+	ret := obj.rawPtr.CallGetTasksCount()
+	return int(ret)
 }
 
-func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds unsafe.Pointer) int32 {
-	return int32(obj.rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(taskIdscount)), uintptr(taskIds)))
+func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds []int64) int32 {
+	var taskIdsPtr unsafe.Pointer
+	taskIdsCountPtr := taskIdscount
+	if taskIdsCountPtr == nil {
+		taskIdsCountScratch := len(taskIds)
+		taskIdsCountPtr = &taskIdsCountScratch
+	} else {
+		*taskIdsCountPtr = len(taskIds)
+	}
+	if len(taskIds) > 0 {
+		taskIdsPtr = unsafe.Pointer(&taskIds[0])
+	}
+	ret := obj.rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(taskIdsCountPtr)), uintptr(taskIdsPtr))
+	return int32(ret)
 }
 
 func (obj *taskManagerImpl) GetTaskInfo(taskID int64, info *TaskInfo) int32 {
-	return int32(obj.rawPtr.CallGetTaskInfo(uintptr(taskID), uintptr(unsafe.Pointer(info))))
+	ret := obj.rawPtr.CallGetTaskInfo(uintptr(taskID), uintptr(unsafe.Pointer(info)))
+	return int32(ret)
 }
 
 func (obj *taskManagerImpl) KillTask(taskID int64) int32 {
-	return int32(obj.rawPtr.CallKillTask(uintptr(taskID)))
+	ret := obj.rawPtr.CallKillTask(uintptr(taskID))
+	return int32(ret)
 }
 
 func (obj *taskManagerImpl) GetTaskIDForBrowserID(browserID int32) int64 {
-	return int64(obj.rawPtr.CallGetTaskIDForBrowserID(uintptr(browserID)))
+	ret := obj.rawPtr.CallGetTaskIDForBrowserID(uintptr(browserID))
+	return int64(ret)
 }
 
 func (obj *taskManagerImpl) RawPointer() unsafe.Pointer {
@@ -65,5 +81,6 @@ func wrapTaskManager(ptr unsafe.Pointer) TaskManager {
 
 // TaskManagerGet Returns the global task manager object. Returns nullptr if the function was called from the incorrect thread.
 func TaskManagerGet() TaskManager {
-	return wrapTaskManager(capi.CEFTaskManagerGet())
+	ret := capi.CEFTaskManagerGet()
+	return wrapTaskManager(ret)
 }

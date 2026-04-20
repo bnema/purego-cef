@@ -818,3 +818,145 @@ func TestEmitV8ValueExecuteFunctionArgumentsObjectSlice(t *testing.T) {
 		t.Fatalf("expected argumentsCount to be merged away, got:\n%s", code)
 	}
 }
+
+func TestEmitObjectMethodOutputObjectSliceBuffer(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "cef_post_data_element_t",
+				GoName:        "CEFPostDataElementT",
+				Kind:          "object",
+				InterfaceName: "PostDataElement",
+				Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+			},
+			{
+				CName:         "cef_post_data_t",
+				GoName:        "CEFPostDataT",
+				Kind:          "object",
+				InterfaceName: "PostData",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "get_elements",
+						GoName:      "GetElements",
+						IsFunction:  true,
+						ReturnCType: "void",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_post_data_t*"},
+							{CName: "elementsCount", GoName: "elementsCount", CType: "size_t*"},
+							{CName: "elements", GoName: "elements", CType: "struct _cef_post_data_element_t**"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []string{
+		"func (obj *postDataImpl) GetElements(elementsCount *int, elements []PostDataElement) {",
+		"elementsCountPtr := elementsCount",
+		"elementsRaw = make([]uintptr, len(elements))",
+		"obj.rawPtr.CallGetElements(uintptr(unsafe.Pointer(elementsCountPtr)), uintptr(elementsPtr))",
+		"elements[i] = wrapPostDataElement(unsafe.Pointer(elementsRaw[i]))",
+	}
+	for _, want := range checks {
+		if !strings.Contains(code, want) {
+			t.Errorf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
+	}
+}
+
+func TestEmitObjectMethodOutputNumericSliceBuffer(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "cef_task_manager_t",
+			GoName:        "CEFTaskManagerT",
+			Kind:          "object",
+			InterfaceName: "TaskManager",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "get_task_ids_list",
+					GoName:      "GetTaskIdsList",
+					IsFunction:  true,
+					ReturnCType: "int",
+					Params: []model.Param{
+						{CName: "self", GoName: "self", CType: "struct _cef_task_manager_t*"},
+						{CName: "task_idsCount", GoName: "task_idsCount", CType: "size_t*"},
+						{CName: "task_ids", GoName: "task_ids", CType: "int64_t*"},
+					},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []string{
+		"func (obj *taskManagerImpl) GetTaskIdsList(task_idsCount *int, task_ids []int64) int32 {",
+		"task_idsCountPtr := task_idsCount",
+		"task_idsPtr = unsafe.Pointer(&task_ids[0])",
+		"ret := obj.rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(task_idsCountPtr)), uintptr(task_idsPtr))",
+	}
+	for _, want := range checks {
+		if !strings.Contains(code, want) {
+			t.Errorf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
+	}
+}
+
+func TestEmitFreeFuncOutputObjectSliceBuffer(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "cef_display_t",
+			GoName:        "CEFDisplayT",
+			Kind:          "object",
+			InterfaceName: "Display",
+			Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+		}},
+		Functions: []model.Function{{
+			CName:       "cef_display_get_alls",
+			GoName:      "CEFDisplayGetAlls",
+			ReturnCType: "void",
+			Params: []model.Param{
+				{CName: "displaysCount", GoName: "displaysCount", CType: "size_t*", GoType: "unsafe.Pointer"},
+				{CName: "displays", GoName: "displays", CType: "cef_display_t**", GoType: "unsafe.Pointer"},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []string{
+		"func DisplayGetAlls(displaysCount *int, displays []Display) {",
+		"displaysCountPtr := displaysCount",
+		"displaysRaw = make([]uintptr, len(displays))",
+		"capi.CEFDisplayGetAlls(unsafe.Pointer(displaysCountPtr), displaysPtr)",
+		"displays[i] = wrapDisplay(unsafe.Pointer(displaysRaw[i]))",
+	}
+	for _, want := range checks {
+		if !strings.Contains(code, want) {
+			t.Errorf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
+	}
+}

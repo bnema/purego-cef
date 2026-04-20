@@ -194,83 +194,103 @@ type contextMenuParamsImpl struct {
 }
 
 func (obj *contextMenuParamsImpl) GetXcoord() int32 {
-	return int32(obj.rawPtr.CallGetXcoord())
+	ret := obj.rawPtr.CallGetXcoord()
+	return int32(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetYcoord() int32 {
-	return int32(obj.rawPtr.CallGetYcoord())
+	ret := obj.rawPtr.CallGetYcoord()
+	return int32(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetTypeFlags() ContextMenuTypeFlags {
-	return ContextMenuTypeFlags(obj.rawPtr.CallGetTypeFlags())
+	ret := obj.rawPtr.CallGetTypeFlags()
+	return ContextMenuTypeFlags(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetLinkURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetLinkURL()))
+	ret := obj.rawPtr.CallGetLinkURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetUnfilteredLinkURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetUnfilteredLinkURL()))
+	ret := obj.rawPtr.CallGetUnfilteredLinkURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetSourceURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSourceURL()))
+	ret := obj.rawPtr.CallGetSourceURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) HasImageContents() bool {
-	return obj.rawPtr.CallHasImageContents() != 0
+	ret := obj.rawPtr.CallHasImageContents()
+	return ret != 0
 }
 
 func (obj *contextMenuParamsImpl) GetTitleText() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetTitleText()))
+	ret := obj.rawPtr.CallGetTitleText()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetPageURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetPageURL()))
+	ret := obj.rawPtr.CallGetPageURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetFrameURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFrameURL()))
+	ret := obj.rawPtr.CallGetFrameURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetFrameCharset() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFrameCharset()))
+	ret := obj.rawPtr.CallGetFrameCharset()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetMediaType() ContextMenuMediaType {
-	return ContextMenuMediaType(obj.rawPtr.CallGetMediaType())
+	ret := obj.rawPtr.CallGetMediaType()
+	return ContextMenuMediaType(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetMediaStateFlags() ContextMenuMediaStateFlags {
-	return ContextMenuMediaStateFlags(obj.rawPtr.CallGetMediaStateFlags())
+	ret := obj.rawPtr.CallGetMediaStateFlags()
+	return ContextMenuMediaStateFlags(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetSelectionText() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSelectionText()))
+	ret := obj.rawPtr.CallGetSelectionText()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetMisspelledWord() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetMisspelledWord()))
+	ret := obj.rawPtr.CallGetMisspelledWord()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions StringList) int32 {
-	return int32(obj.rawPtr.CallGetDictionarySuggestions(uintptr(suggestions)))
+	ret := obj.rawPtr.CallGetDictionarySuggestions(uintptr(suggestions))
+	return int32(ret)
 }
 
 func (obj *contextMenuParamsImpl) IsEditable() bool {
-	return obj.rawPtr.CallIsEditable() != 0
+	ret := obj.rawPtr.CallIsEditable()
+	return ret != 0
 }
 
 func (obj *contextMenuParamsImpl) IsSpellCheckEnabled() bool {
-	return obj.rawPtr.CallIsSpellCheckEnabled() != 0
+	ret := obj.rawPtr.CallIsSpellCheckEnabled()
+	return ret != 0
 }
 
 func (obj *contextMenuParamsImpl) GetEditStateFlags() ContextMenuEditStateFlags {
-	return ContextMenuEditStateFlags(obj.rawPtr.CallGetEditStateFlags())
+	ret := obj.rawPtr.CallGetEditStateFlags()
+	return ContextMenuEditStateFlags(ret)
 }
 
 func (obj *contextMenuParamsImpl) IsCustomMenu() bool {
-	return obj.rawPtr.CallIsCustomMenu() != 0
+	ret := obj.rawPtr.CallIsCustomMenu()
+	return ret != 0
 }
 
 func (obj *contextMenuParamsImpl) RawPointer() unsafe.Pointer {

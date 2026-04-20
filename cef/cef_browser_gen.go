@@ -21,15 +21,18 @@ type browserImpl struct {
 }
 
 func (obj *browserImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *browserImpl) GetHost() BrowserHost {
-	return wrapBrowserHost(unsafe.Pointer(obj.rawPtr.CallGetHost()))
+	ret := obj.rawPtr.CallGetHost()
+	return wrapBrowserHost(unsafe.Pointer(ret))
 }
 
 func (obj *browserImpl) CanGoBack() bool {
-	return obj.rawPtr.CallCanGoBack() != 0
+	ret := obj.rawPtr.CallCanGoBack()
+	return ret != 0
 }
 
 func (obj *browserImpl) GoBack() {
@@ -37,7 +40,8 @@ func (obj *browserImpl) GoBack() {
 }
 
 func (obj *browserImpl) CanGoForward() bool {
-	return obj.rawPtr.CallCanGoForward() != 0
+	ret := obj.rawPtr.CallCanGoForward()
+	return ret != 0
 }
 
 func (obj *browserImpl) GoForward() {
@@ -45,7 +49,8 @@ func (obj *browserImpl) GoForward() {
 }
 
 func (obj *browserImpl) IsLoading() bool {
-	return obj.rawPtr.CallIsLoading() != 0
+	ret := obj.rawPtr.CallIsLoading()
+	return ret != 0
 }
 
 func (obj *browserImpl) Reload() {
@@ -61,43 +66,52 @@ func (obj *browserImpl) StopLoad() {
 }
 
 func (obj *browserImpl) GetIdentifier() int32 {
-	return int32(obj.rawPtr.CallGetIdentifier())
+	ret := obj.rawPtr.CallGetIdentifier()
+	return int32(ret)
 }
 
 func (obj *browserImpl) IsSame(that Browser) bool {
-	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
+	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	return ret != 0
 }
 
 func (obj *browserImpl) IsPopup() bool {
-	return obj.rawPtr.CallIsPopup() != 0
+	ret := obj.rawPtr.CallIsPopup()
+	return ret != 0
 }
 
 func (obj *browserImpl) HasDocument() bool {
-	return obj.rawPtr.CallHasDocument() != 0
+	ret := obj.rawPtr.CallHasDocument()
+	return ret != 0
 }
 
 func (obj *browserImpl) GetMainFrame() Frame {
-	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetMainFrame()))
+	ret := obj.rawPtr.CallGetMainFrame()
+	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *browserImpl) GetFocusedFrame() Frame {
-	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFocusedFrame()))
+	ret := obj.rawPtr.CallGetFocusedFrame()
+	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *browserImpl) GetFrameByIdentifier(identifier string) Frame {
 	identifierStr := cefString(identifier)
 	defer freeCefString(&identifierStr)
-	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrameByIdentifier(uintptr(unsafe.Pointer(&identifierStr)))))
+	ret := obj.rawPtr.CallGetFrameByIdentifier(uintptr(unsafe.Pointer(&identifierStr)))
+	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *browserImpl) GetFrameByName(name string) Frame {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrameByName(uintptr(unsafe.Pointer(&nameStr)))))
+	ret := obj.rawPtr.CallGetFrameByName(uintptr(unsafe.Pointer(&nameStr)))
+	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *browserImpl) GetFrameCount() int {
-	return int(obj.rawPtr.CallGetFrameCount())
+	ret := obj.rawPtr.CallGetFrameCount()
+	return int(ret)
 }
 
 func (obj *browserImpl) GetFrameIdentifiers(identifiers StringList) {
@@ -315,7 +329,8 @@ type browserHostImpl struct {
 }
 
 func (obj *browserHostImpl) GetBrowser() Browser {
-	return wrapBrowser(unsafe.Pointer(obj.rawPtr.CallGetBrowser()))
+	ret := obj.rawPtr.CallGetBrowser()
+	return wrapBrowser(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) CloseBrowser(forceClose int32) {
@@ -323,11 +338,13 @@ func (obj *browserHostImpl) CloseBrowser(forceClose int32) {
 }
 
 func (obj *browserHostImpl) TryCloseBrowser() int32 {
-	return int32(obj.rawPtr.CallTryCloseBrowser())
+	ret := obj.rawPtr.CallTryCloseBrowser()
+	return int32(ret)
 }
 
 func (obj *browserHostImpl) IsReadyToBeClosed() bool {
-	return obj.rawPtr.CallIsReadyToBeClosed() != 0
+	ret := obj.rawPtr.CallIsReadyToBeClosed()
+	return ret != 0
 }
 
 func (obj *browserHostImpl) SetFocus(focus int32) {
@@ -335,31 +352,38 @@ func (obj *browserHostImpl) SetFocus(focus int32) {
 }
 
 func (obj *browserHostImpl) GetWindowHandle() uintptr {
-	return uintptr(obj.rawPtr.CallGetWindowHandle())
+	ret := obj.rawPtr.CallGetWindowHandle()
+	return uintptr(ret)
 }
 
 func (obj *browserHostImpl) GetOpenerWindowHandle() uintptr {
-	return uintptr(obj.rawPtr.CallGetOpenerWindowHandle())
+	ret := obj.rawPtr.CallGetOpenerWindowHandle()
+	return uintptr(ret)
 }
 
 func (obj *browserHostImpl) GetOpenerIdentifier() int32 {
-	return int32(obj.rawPtr.CallGetOpenerIdentifier())
+	ret := obj.rawPtr.CallGetOpenerIdentifier()
+	return int32(ret)
 }
 
 func (obj *browserHostImpl) HasView() bool {
-	return obj.rawPtr.CallHasView() != 0
+	ret := obj.rawPtr.CallHasView()
+	return ret != 0
 }
 
 func (obj *browserHostImpl) GetClient() Client {
-	return wrapClient(unsafe.Pointer(obj.rawPtr.CallGetClient()))
+	ret := obj.rawPtr.CallGetClient()
+	return wrapClient(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) GetRequestContext() RequestContext {
-	return wrapRequestContext(unsafe.Pointer(obj.rawPtr.CallGetRequestContext()))
+	ret := obj.rawPtr.CallGetRequestContext()
+	return wrapRequestContext(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) CanZoom(command ZoomCommand) bool {
-	return obj.rawPtr.CallCanZoom(uintptr(command)) != 0
+	ret := obj.rawPtr.CallCanZoom(uintptr(command))
+	return ret != 0
 }
 
 func (obj *browserHostImpl) Zoom(command ZoomCommand) {
@@ -369,13 +393,15 @@ func (obj *browserHostImpl) Zoom(command ZoomCommand) {
 func (obj *browserHostImpl) GetDefaultZoomLevel() float64 {
 	var fn func(*capi.CEFBrowserHostT) float64
 	purego.RegisterFunc(&fn, obj.rawPtr.GetDefaultZoomLevel)
-	return fn(obj.rawPtr)
+	ret := fn(obj.rawPtr)
+	return ret
 }
 
 func (obj *browserHostImpl) GetZoomLevel() float64 {
 	var fn func(*capi.CEFBrowserHostT) float64
 	purego.RegisterFunc(&fn, obj.rawPtr.GetZoomLevel)
-	return fn(obj.rawPtr)
+	ret := fn(obj.rawPtr)
+	return ret
 }
 
 func (obj *browserHostImpl) SetZoomLevel(zoomlevel float64) {
@@ -433,21 +459,25 @@ func (obj *browserHostImpl) CloseDevTools() {
 }
 
 func (obj *browserHostImpl) HasDevTools() bool {
-	return obj.rawPtr.CallHasDevTools() != 0
+	ret := obj.rawPtr.CallHasDevTools()
+	return ret != 0
 }
 
 func (obj *browserHostImpl) SendDevToolsMessage(message unsafe.Pointer, messageSize int) int32 {
-	return int32(obj.rawPtr.CallSendDevToolsMessage(uintptr(message), uintptr(messageSize)))
+	ret := obj.rawPtr.CallSendDevToolsMessage(uintptr(message), uintptr(messageSize))
+	return int32(ret)
 }
 
 func (obj *browserHostImpl) ExecuteDevToolsMethod(messageID int32, method string, params DictionaryValue) int32 {
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
-	return int32(obj.rawPtr.CallExecuteDevToolsMethod(uintptr(messageID), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(params))))
+	ret := obj.rawPtr.CallExecuteDevToolsMethod(uintptr(messageID), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(params)))
+	return int32(ret)
 }
 
 func (obj *browserHostImpl) AddDevToolsMessageObserver(observer DevToolsMessageObserver) Registration {
-	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddDevToolsMessageObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewDevToolsMessageObserver(observer) })))))
+	ret := obj.rawPtr.CallAddDevToolsMessageObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewDevToolsMessageObserver(observer) })))
+	return wrapRegistration(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) GetNavigationEntries(visitor NavigationEntryVisitor, currentOnly int32) {
@@ -467,7 +497,8 @@ func (obj *browserHostImpl) AddWordToDictionary(word string) {
 }
 
 func (obj *browserHostImpl) IsWindowRenderingDisabled() bool {
-	return obj.rawPtr.CallIsWindowRenderingDisabled() != 0
+	ret := obj.rawPtr.CallIsWindowRenderingDisabled()
+	return ret != 0
 }
 
 func (obj *browserHostImpl) WasResized() {
@@ -519,7 +550,8 @@ func (obj *browserHostImpl) NotifyMoveOrResizeStarted() {
 }
 
 func (obj *browserHostImpl) GetWindowlessFrameRate() int32 {
-	return int32(obj.rawPtr.CallGetWindowlessFrameRate())
+	ret := obj.rawPtr.CallGetWindowlessFrameRate()
+	return int32(ret)
 }
 
 func (obj *browserHostImpl) SetWindowlessFrameRate(frameRate int32) {
@@ -575,7 +607,8 @@ func (obj *browserHostImpl) DragSourceSystemDragEnded() {
 }
 
 func (obj *browserHostImpl) GetVisibleNavigationEntry() NavigationEntry {
-	return wrapNavigationEntry(unsafe.Pointer(obj.rawPtr.CallGetVisibleNavigationEntry()))
+	ret := obj.rawPtr.CallGetVisibleNavigationEntry()
+	return wrapNavigationEntry(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) SetAccessibilityState(accessibilityState State) {
@@ -591,11 +624,13 @@ func (obj *browserHostImpl) SetAudioMuted(mute int32) {
 }
 
 func (obj *browserHostImpl) IsAudioMuted() bool {
-	return obj.rawPtr.CallIsAudioMuted() != 0
+	ret := obj.rawPtr.CallIsAudioMuted()
+	return ret != 0
 }
 
 func (obj *browserHostImpl) IsFullscreen() bool {
-	return obj.rawPtr.CallIsFullscreen() != 0
+	ret := obj.rawPtr.CallIsFullscreen()
+	return ret != 0
 }
 
 func (obj *browserHostImpl) ExitFullscreen(willCauseResize int32) {
@@ -603,7 +638,8 @@ func (obj *browserHostImpl) ExitFullscreen(willCauseResize int32) {
 }
 
 func (obj *browserHostImpl) CanExecuteChromeCommand(commandID int32) bool {
-	return obj.rawPtr.CallCanExecuteChromeCommand(uintptr(commandID)) != 0
+	ret := obj.rawPtr.CallCanExecuteChromeCommand(uintptr(commandID))
+	return ret != 0
 }
 
 func (obj *browserHostImpl) ExecuteChromeCommand(commandID int32, disposition WindowOpenDisposition) {
@@ -611,11 +647,13 @@ func (obj *browserHostImpl) ExecuteChromeCommand(commandID int32, disposition Wi
 }
 
 func (obj *browserHostImpl) IsRenderProcessUnresponsive() bool {
-	return obj.rawPtr.CallIsRenderProcessUnresponsive() != 0
+	ret := obj.rawPtr.CallIsRenderProcessUnresponsive()
+	return ret != 0
 }
 
 func (obj *browserHostImpl) GetRuntimeStyle() RuntimeStyle {
-	return RuntimeStyle(obj.rawPtr.CallGetRuntimeStyle())
+	ret := obj.rawPtr.CallGetRuntimeStyle()
+	return RuntimeStyle(ret)
 }
 
 func (obj *browserHostImpl) RawPointer() unsafe.Pointer {
@@ -647,17 +685,20 @@ func wrapBrowserHost(ptr unsafe.Pointer) BrowserHost {
 func BrowserHostCreateBrowser(windowinfo *WindowInfo, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) int32 {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	return int32(capi.CEFBrowserHostCreateBrowser(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return newRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext)))
+	ret := capi.CEFBrowserHostCreateBrowser(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return newRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
+	return int32(ret)
 }
 
 // BrowserHostCreateBrowserSync Create a new browser using the window parameters specified by |windowInfo|. If |request_context| is NULL the global request context will be used. This function can only be called on the browser process UI thread. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
 func BrowserHostCreateBrowserSync(windowinfo *WindowInfo, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) Browser {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	return wrapBrowser(capi.CEFBrowserHostCreateBrowserSync(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return newRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext)))
+	ret := capi.CEFBrowserHostCreateBrowserSync(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return newRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
+	return wrapBrowser(ret)
 }
 
 // BrowserHostGetBrowserByIdentifier Returns the browser (if any) with the specified identifier.
 func BrowserHostGetBrowserByIdentifier(browserID int32) Browser {
-	return wrapBrowser(capi.CEFBrowserHostGetBrowserByIdentifier(browserID))
+	ret := capi.CEFBrowserHostGetBrowserByIdentifier(browserID)
+	return wrapBrowser(ret)
 }

@@ -19,43 +19,53 @@ type navigationEntryImpl struct {
 }
 
 func (obj *navigationEntryImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *navigationEntryImpl) GetURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetURL()))
+	ret := obj.rawPtr.CallGetURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) GetDisplayURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetDisplayURL()))
+	ret := obj.rawPtr.CallGetDisplayURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) GetOriginalURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetOriginalURL()))
+	ret := obj.rawPtr.CallGetOriginalURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) GetTitle() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetTitle()))
+	ret := obj.rawPtr.CallGetTitle()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) GetTransitionType() TransitionType {
-	return TransitionType(obj.rawPtr.CallGetTransitionType())
+	ret := obj.rawPtr.CallGetTransitionType()
+	return TransitionType(ret)
 }
 
 func (obj *navigationEntryImpl) HasPostData() bool {
-	return obj.rawPtr.CallHasPostData() != 0
+	ret := obj.rawPtr.CallHasPostData()
+	return ret != 0
 }
 
 func (obj *navigationEntryImpl) GetCompletionTime() uintptr {
-	return uintptr(obj.rawPtr.CallGetCompletionTime())
+	ret := obj.rawPtr.CallGetCompletionTime()
+	return uintptr(ret)
 }
 
 func (obj *navigationEntryImpl) GetHttpStatusCode() int32 {
-	return int32(obj.rawPtr.CallGetHttpStatusCode())
+	ret := obj.rawPtr.CallGetHttpStatusCode()
+	return int32(ret)
 }
 
 func (obj *navigationEntryImpl) GetSslstatus() Sslstatus {
-	return wrapSslstatus(unsafe.Pointer(obj.rawPtr.CallGetSslstatus()))
+	ret := obj.rawPtr.CallGetSslstatus()
+	return wrapSslstatus(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) RawPointer() unsafe.Pointer {

@@ -17,8 +17,8 @@ type Image interface {
 	GetHeight() int
 	HasRepresentation(scaleFactor float32) bool
 	RemoveRepresentation(scaleFactor float32) int32
-	GetRepresentationInfo(scaleFactor float32, actualScaleFactor unsafe.Pointer, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) int32
-	GetAsBitmap(scaleFactor float32, colorType ColorType, alphaType AlphaType, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue
-	GetAsPng(scaleFactor float32, withTransparency int32, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue
-	GetAsJpeg(scaleFactor float32, quality int32, pixelWidth unsafe.Pointer, pixelHeight unsafe.Pointer) BinaryValue
+	GetRepresentationInfo(scaleFactor float32, actualScaleFactor *float32, pixelWidth *int32, pixelHeight *int32) int32
+	GetAsBitmap(scaleFactor float32, colorType ColorType, alphaType AlphaType, pixelWidth *int32, pixelHeight *int32) BinaryValue
+	GetAsPng(scaleFactor float32, withTransparency int32, pixelWidth *int32, pixelHeight *int32) BinaryValue
+	GetAsJpeg(scaleFactor float32, quality int32, pixelWidth *int32, pixelHeight *int32) BinaryValue
 }

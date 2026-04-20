@@ -2,10 +2,6 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // JsdialogCallback defines the inbound port interface.
 type JsdialogCallback interface {
 	Cont(success int32, userInput string)
@@ -13,7 +9,7 @@ type JsdialogCallback interface {
 
 // JsdialogHandler defines the inbound port interface.
 type JsdialogHandler interface {
-	OnJsdialog(browser Browser, originURL string, dialogType JsdialogType, messageText string, defaultPromptText string, callback JsdialogCallback, suppressMessage unsafe.Pointer) int32
+	OnJsdialog(browser Browser, originURL string, dialogType JsdialogType, messageText string, defaultPromptText string, callback JsdialogCallback, suppressMessage *int32) int32
 	OnBeforeUnloadDialog(browser Browser, messageText string, isReload int32, callback JsdialogCallback) bool
 	OnResetDialogState(browser Browser)
 	OnDialogClosed(browser Browser)

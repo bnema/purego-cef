@@ -5,8 +5,6 @@
 package mocks
 
 import (
-	"unsafe"
-
 	"github.com/bnema/purego-cef/internal/ports/in"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -102,7 +100,7 @@ func (_c *MockKeyboardHandler_OnKeyEvent_Call) RunAndReturn(run func(browser in.
 }
 
 // OnPreKeyEvent provides a mock function for the type MockKeyboardHandler
-func (_mock *MockKeyboardHandler) OnPreKeyEvent(browser in.Browser, event *in.KeyEvent, osEvent uintptr, isKeyboardShortcut unsafe.Pointer) int32 {
+func (_mock *MockKeyboardHandler) OnPreKeyEvent(browser in.Browser, event *in.KeyEvent, osEvent uintptr, isKeyboardShortcut *int32) int32 {
 	ret := _mock.Called(browser, event, osEvent, isKeyboardShortcut)
 
 	if len(ret) == 0 {
@@ -110,7 +108,7 @@ func (_mock *MockKeyboardHandler) OnPreKeyEvent(browser in.Browser, event *in.Ke
 	}
 
 	var r0 int32
-	if returnFunc, ok := ret.Get(0).(func(in.Browser, *in.KeyEvent, uintptr, unsafe.Pointer) int32); ok {
+	if returnFunc, ok := ret.Get(0).(func(in.Browser, *in.KeyEvent, uintptr, *int32) int32); ok {
 		r0 = returnFunc(browser, event, osEvent, isKeyboardShortcut)
 	} else {
 		r0 = ret.Get(0).(int32)
@@ -127,12 +125,12 @@ type MockKeyboardHandler_OnPreKeyEvent_Call struct {
 //   - browser in.Browser
 //   - event *in.KeyEvent
 //   - osEvent uintptr
-//   - isKeyboardShortcut unsafe.Pointer
+//   - isKeyboardShortcut *int32
 func (_e *MockKeyboardHandler_Expecter) OnPreKeyEvent(browser interface{}, event interface{}, osEvent interface{}, isKeyboardShortcut interface{}) *MockKeyboardHandler_OnPreKeyEvent_Call {
 	return &MockKeyboardHandler_OnPreKeyEvent_Call{Call: _e.mock.On("OnPreKeyEvent", browser, event, osEvent, isKeyboardShortcut)}
 }
 
-func (_c *MockKeyboardHandler_OnPreKeyEvent_Call) Run(run func(browser in.Browser, event *in.KeyEvent, osEvent uintptr, isKeyboardShortcut unsafe.Pointer)) *MockKeyboardHandler_OnPreKeyEvent_Call {
+func (_c *MockKeyboardHandler_OnPreKeyEvent_Call) Run(run func(browser in.Browser, event *in.KeyEvent, osEvent uintptr, isKeyboardShortcut *int32)) *MockKeyboardHandler_OnPreKeyEvent_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 in.Browser
 		if args[0] != nil {
@@ -146,9 +144,9 @@ func (_c *MockKeyboardHandler_OnPreKeyEvent_Call) Run(run func(browser in.Browse
 		if args[2] != nil {
 			arg2 = args[2].(uintptr)
 		}
-		var arg3 unsafe.Pointer
+		var arg3 *int32
 		if args[3] != nil {
-			arg3 = args[3].(unsafe.Pointer)
+			arg3 = args[3].(*int32)
 		}
 		run(
 			arg0,
@@ -165,7 +163,7 @@ func (_c *MockKeyboardHandler_OnPreKeyEvent_Call) Return(n int32) *MockKeyboardH
 	return _c
 }
 
-func (_c *MockKeyboardHandler_OnPreKeyEvent_Call) RunAndReturn(run func(browser in.Browser, event *in.KeyEvent, osEvent uintptr, isKeyboardShortcut unsafe.Pointer) int32) *MockKeyboardHandler_OnPreKeyEvent_Call {
+func (_c *MockKeyboardHandler_OnPreKeyEvent_Call) RunAndReturn(run func(browser in.Browser, event *in.KeyEvent, osEvent uintptr, isKeyboardShortcut *int32) int32) *MockKeyboardHandler_OnPreKeyEvent_Call {
 	_c.Call.Return(run)
 	return _c
 }

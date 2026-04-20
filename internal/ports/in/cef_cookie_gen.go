@@ -2,10 +2,6 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // CookieManager defines the inbound port interface.
 type CookieManager interface {
 	VisitAllCookies(visitor CookieVisitor) int32
@@ -17,7 +13,7 @@ type CookieManager interface {
 
 // CookieVisitor defines the inbound port interface.
 type CookieVisitor interface {
-	Visit(cookie *Cookie, count int32, total int32, deletecookie unsafe.Pointer) int32
+	Visit(cookie *Cookie, count int32, total int32, deletecookie *int32) int32
 }
 
 // SetCookieCallback defines the inbound port interface.

@@ -21,7 +21,7 @@ type TranslatorTest interface {
 	SetDouble(val uintptr) uintptr
 	SetLong(val uintptr) uintptr
 	SetSizet(val uintptr) uintptr
-	SetIntList(valcount uintptr, val uintptr) uintptr
+	SetIntList(val uintptr) uintptr
 	GetIntListByRef(valcount uintptr, val uintptr) uintptr
 	GetIntListSize() uintptr
 	GetString() uintptr

@@ -2,10 +2,6 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // WindowDelegate defines the inbound port interface.
 type WindowDelegate interface {
 	OnWindowCreated(window Window)
@@ -14,13 +10,13 @@ type WindowDelegate interface {
 	OnWindowActivationChanged(window Window, active int32)
 	OnWindowBoundsChanged(window Window, newBounds *Rect)
 	OnWindowFullscreenTransition(window Window, isCompleted int32)
-	GetParentWindow(window Window, isMenu unsafe.Pointer, canActivateMenu unsafe.Pointer) Window
+	GetParentWindow(window Window, isMenu *int32, canActivateMenu *int32) Window
 	IsWindowModalDialog(window Window) bool
 	GetInitialBounds(window Window) uintptr
 	GetInitialShowState(window Window) ShowState
 	IsFrameless(window Window) bool
 	WithStandardWindowButtons(window Window) int32
-	GetTitlebarHeight(window Window, titlebarHeight unsafe.Pointer) int32
+	GetTitlebarHeight(window Window, titlebarHeight *float32) int32
 	AcceptsFirstMouse(window Window) State
 	CanResize(window Window) bool
 	CanMaximize(window Window) bool
