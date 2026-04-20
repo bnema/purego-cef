@@ -40,8 +40,17 @@ func (obj *apiVersionTestImpl) SetChildRefPtrLibraryAndReturnParent(val ApiVersi
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(obj.rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))))
 }
 
-func (obj *apiVersionTestImpl) SetRefPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallSetRefPtrLibraryList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2)))
+func (obj *apiVersionTestImpl) SetRefPtrLibraryList(val []ApiVersionTestRefPtrLibrary, val1 int32, val2 int32) int32 {
+	var valRaw []uintptr
+	var valPtr unsafe.Pointer
+	if len(val) > 0 {
+		valRaw = make([]uintptr, len(val))
+		for i, elem := range val {
+			valRaw[i] = uintptr(extractRawPointer(elem))
+		}
+		valPtr = unsafe.Pointer(&valRaw[0])
+	}
+	return int32(obj.rawPtr.CallSetRefPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
@@ -68,8 +77,17 @@ func (obj *apiVersionTestImpl) SetChildRefPtrClientAndReturnParent(val ApiVersio
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(obj.rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChild(val) })))))
 }
 
-func (obj *apiVersionTestImpl) SetRefPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallSetRefPtrClientList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2)))
+func (obj *apiVersionTestImpl) SetRefPtrClientList(val []ApiVersionTestRefPtrClient, val1 int32, val2 int32) int32 {
+	var valRaw []uintptr
+	var valPtr unsafe.Pointer
+	if len(val) > 0 {
+		valRaw = make([]uintptr, len(val))
+		for i, elem := range val {
+			valRaw[i] = uintptr(extractRawPointer(elem))
+		}
+		valPtr = unsafe.Pointer(&valRaw[0])
+	}
+	return int32(obj.rawPtr.CallSetRefPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 ApiVersionTestRefPtrClient, val2 ApiVersionTestRefPtrClient) int32 {
@@ -124,8 +142,17 @@ func (obj *apiVersionTestImpl) SetChildRawPtrLibrary(val ApiVersionTestScopedLib
 	return int32(obj.rawPtr.CallSetChildRawPtrLibrary(uintptr(extractRawPointer(val))))
 }
 
-func (obj *apiVersionTestImpl) SetRawPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallSetRawPtrLibraryList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2)))
+func (obj *apiVersionTestImpl) SetRawPtrLibraryList(val []ApiVersionTestScopedLibrary, val1 int32, val2 int32) int32 {
+	var valRaw []uintptr
+	var valPtr unsafe.Pointer
+	if len(val) > 0 {
+		valRaw = make([]uintptr, len(val))
+		for i, elem := range val {
+			valRaw[i] = uintptr(extractRawPointer(elem))
+		}
+		valPtr = unsafe.Pointer(&valRaw[0])
+	}
+	return int32(obj.rawPtr.CallSetRawPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *apiVersionTestImpl) SetRawPtrClient(val ApiVersionTestScopedClient) int32 {
@@ -136,8 +163,17 @@ func (obj *apiVersionTestImpl) SetChildRawPtrClient(val ApiVersionTestScopedClie
 	return int32(obj.rawPtr.CallSetChildRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) }))))
 }
 
-func (obj *apiVersionTestImpl) SetRawPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
-	return int32(obj.rawPtr.CallSetRawPtrClientList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2)))
+func (obj *apiVersionTestImpl) SetRawPtrClientList(val []ApiVersionTestScopedClient, val1 int32, val2 int32) int32 {
+	var valRaw []uintptr
+	var valPtr unsafe.Pointer
+	if len(val) > 0 {
+		valRaw = make([]uintptr, len(val))
+		for i, elem := range val {
+			valRaw[i] = uintptr(extractRawPointer(elem))
+		}
+		valPtr = unsafe.Pointer(&valRaw[0])
+	}
+	return int32(obj.rawPtr.CallSetRawPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2)))
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrClientV2(val ApiVersionTestRefPtrClientChildV2) int32 {

@@ -321,7 +321,7 @@ func (_c *MockBrowser_GetFrameCount_Call) RunAndReturn(run func() int) *MockBrow
 }
 
 // GetFrameIdentifiers provides a mock function for the type MockBrowser
-func (_mock *MockBrowser) GetFrameIdentifiers(identifiers uintptr) {
+func (_mock *MockBrowser) GetFrameIdentifiers(identifiers in.StringList) {
 	_mock.Called(identifiers)
 	return
 }
@@ -332,16 +332,16 @@ type MockBrowser_GetFrameIdentifiers_Call struct {
 }
 
 // GetFrameIdentifiers is a helper method to define mock.On call
-//   - identifiers uintptr
+//   - identifiers in.StringList
 func (_e *MockBrowser_Expecter) GetFrameIdentifiers(identifiers interface{}) *MockBrowser_GetFrameIdentifiers_Call {
 	return &MockBrowser_GetFrameIdentifiers_Call{Call: _e.mock.On("GetFrameIdentifiers", identifiers)}
 }
 
-func (_c *MockBrowser_GetFrameIdentifiers_Call) Run(run func(identifiers uintptr)) *MockBrowser_GetFrameIdentifiers_Call {
+func (_c *MockBrowser_GetFrameIdentifiers_Call) Run(run func(identifiers in.StringList)) *MockBrowser_GetFrameIdentifiers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uintptr
+		var arg0 in.StringList
 		if args[0] != nil {
-			arg0 = args[0].(uintptr)
+			arg0 = args[0].(in.StringList)
 		}
 		run(
 			arg0,
@@ -355,13 +355,13 @@ func (_c *MockBrowser_GetFrameIdentifiers_Call) Return() *MockBrowser_GetFrameId
 	return _c
 }
 
-func (_c *MockBrowser_GetFrameIdentifiers_Call) RunAndReturn(run func(identifiers uintptr)) *MockBrowser_GetFrameIdentifiers_Call {
+func (_c *MockBrowser_GetFrameIdentifiers_Call) RunAndReturn(run func(identifiers in.StringList)) *MockBrowser_GetFrameIdentifiers_Call {
 	_c.Run(run)
 	return _c
 }
 
 // GetFrameNames provides a mock function for the type MockBrowser
-func (_mock *MockBrowser) GetFrameNames(names uintptr) {
+func (_mock *MockBrowser) GetFrameNames(names in.StringList) {
 	_mock.Called(names)
 	return
 }
@@ -372,16 +372,16 @@ type MockBrowser_GetFrameNames_Call struct {
 }
 
 // GetFrameNames is a helper method to define mock.On call
-//   - names uintptr
+//   - names in.StringList
 func (_e *MockBrowser_Expecter) GetFrameNames(names interface{}) *MockBrowser_GetFrameNames_Call {
 	return &MockBrowser_GetFrameNames_Call{Call: _e.mock.On("GetFrameNames", names)}
 }
 
-func (_c *MockBrowser_GetFrameNames_Call) Run(run func(names uintptr)) *MockBrowser_GetFrameNames_Call {
+func (_c *MockBrowser_GetFrameNames_Call) Run(run func(names in.StringList)) *MockBrowser_GetFrameNames_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uintptr
+		var arg0 in.StringList
 		if args[0] != nil {
-			arg0 = args[0].(uintptr)
+			arg0 = args[0].(in.StringList)
 		}
 		run(
 			arg0,
@@ -395,7 +395,7 @@ func (_c *MockBrowser_GetFrameNames_Call) Return() *MockBrowser_GetFrameNames_Ca
 	return _c
 }
 
-func (_c *MockBrowser_GetFrameNames_Call) RunAndReturn(run func(names uintptr)) *MockBrowser_GetFrameNames_Call {
+func (_c *MockBrowser_GetFrameNames_Call) RunAndReturn(run func(names in.StringList)) *MockBrowser_GetFrameNames_Call {
 	_c.Run(run)
 	return _c
 }

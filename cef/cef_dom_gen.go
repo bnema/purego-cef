@@ -248,8 +248,8 @@ func (obj *domnodeImpl) GetElementAttribute(attrname string) string {
 	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetElementAttribute(uintptr(unsafe.Pointer(&attrnameStr)))))
 }
 
-func (obj *domnodeImpl) GetElementAttributes(attrmap uintptr) {
-	obj.rawPtr.CallGetElementAttributes(attrmap)
+func (obj *domnodeImpl) GetElementAttributes(attrmap StringMap) {
+	obj.rawPtr.CallGetElementAttributes(uintptr(attrmap))
 }
 
 func (obj *domnodeImpl) SetElementAttribute(attrname string, value string) int32 {

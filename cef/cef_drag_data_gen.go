@@ -70,12 +70,12 @@ func (obj *dragDataImpl) GetFileContents(writer StreamWriter) int {
 	return int(obj.rawPtr.CallGetFileContents(uintptr(extractRawPointer(writer))))
 }
 
-func (obj *dragDataImpl) GetFileNames(names uintptr) int32 {
-	return int32(obj.rawPtr.CallGetFileNames(names))
+func (obj *dragDataImpl) GetFileNames(names StringList) int32 {
+	return int32(obj.rawPtr.CallGetFileNames(uintptr(names)))
 }
 
-func (obj *dragDataImpl) GetFilePaths(paths uintptr) int32 {
-	return int32(obj.rawPtr.CallGetFilePaths(paths))
+func (obj *dragDataImpl) GetFilePaths(paths StringList) int32 {
+	return int32(obj.rawPtr.CallGetFilePaths(uintptr(paths)))
 }
 
 func (obj *dragDataImpl) SetLinkURL(uRL string) {

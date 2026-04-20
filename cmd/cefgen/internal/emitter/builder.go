@@ -16,11 +16,9 @@ var rawConstructorTypes = map[string]bool{
 	"LifeSpanHandler": true,
 }
 
-// skipPublicTypes lists type/function names (after PublicName conversion) that
-// are hand-written in init.go or support.go and must not be generated.
+// skipPublicTypes lists type/function names (after public renames) that are
+// hand-written in init.go or support.go and must not be generated.
 var skipPublicTypes = map[string]bool{
-	"Settings":          true,
-	"MainArgs":          true,
 	"Shutdown":          true,
 	"DoMessageLoopWork": true,
 	"Initialize":        true,
@@ -93,7 +91,7 @@ func buildFileData(header *model.Header, registry *TypeRegistry, applySkip bool)
 
 	for i := range header.Structs {
 		s := &header.Structs[i]
-		pubName := model.PublicName(s.CName)
+		pubName := publicTypeNameForCName(s.CName)
 		if applySkip && skipPublicTypes[pubName] {
 			continue
 		}
@@ -132,7 +130,7 @@ func buildInterface(s *model.Struct, registry *TypeRegistry) InterfaceData {
 	}
 
 	iface := InterfaceData{
-		Name:      s.InterfaceName,
+		Name:      publicTypeNameForCName(s.CName),
 		Doc:       s.Doc,
 		Kind:      s.Kind,
 		IsScoped:  isScoped,
@@ -243,7 +241,7 @@ func buildMethod(structCName string, f model.Field, registry *TypeRegistry) Meth
 
 func buildDataStruct(s *model.Struct, registry *TypeRegistry) DataStructData {
 	ds := DataStructData{
-		Name:      model.PublicName(s.CName),
+		Name:      publicTypeNameForCName(s.CName),
 		Doc:       s.Doc,
 		RawGoName: s.GoName,
 	}
@@ -276,7 +274,7 @@ func buildDataStruct(s *model.Struct, registry *TypeRegistry) DataStructData {
 
 func buildEnum(e *model.Enum) EnumData {
 	ed := EnumData{
-		Name:      model.PublicName(e.CName),
+		Name:      publicTypeNameForCName(e.CName),
 		RawGoName: e.GoName,
 	}
 
@@ -512,35 +510,59 @@ func mergeCountPointerParams(params []ParamData, registry *TypeRegistry) []Param
 			ptrName := strings.ToLower(ptrP.Name)
 			if strings.HasSuffix(countName, "count") &&
 				isIntLikeType(countP.PublicType) &&
-				strings.HasPrefix(countName, ptrName) &&
-				(ptrP.MarshalKind == "dataStruct" || ptrP.MarshalKind == "objectSlice") {
-
-				// Extract element type: "*Rect" → "Rect", "[]X509Certificate" → "X509Certificate"
-				elemType := strings.TrimPrefix(ptrP.PublicType, "*")
-				elemType = strings.TrimPrefix(elemType, "[]")
-
-				// Preserve objectSlice kind; default to slice for dataStruct.
-				marshalKind := "slice"
-				if ptrP.MarshalKind == "objectSlice" {
-					marshalKind = "objectSlice"
+				strings.HasPrefix(countName, ptrName) {
+				elemType, marshalKind, ok := inferCountedSliceParam(ptrP, registry)
+				if ok {
+					sliceParam := ParamData{
+						Name:          ptrP.Name,
+						PublicType:    "[]" + elemType,
+						CType:         ptrP.CType,
+						MarshalKind:   marshalKind,
+						SliceElemType: elemType,
+						// SliceCountArg/SlicePtrArg set by template using RawParams indices
+					}
+					merged = append(merged, sliceParam)
+					skip = true
+					continue
 				}
-
-				sliceParam := ParamData{
-					Name:          ptrP.Name,
-					PublicType:    "[]" + elemType,
-					CType:         ptrP.CType,
-					MarshalKind:   marshalKind,
-					SliceElemType: elemType,
-					// SliceCountArg/SlicePtrArg set by template using RawParams indices
-				}
-				merged = append(merged, sliceParam)
-				skip = true
-				continue
 			}
 		}
 		merged = append(merged, params[i])
 	}
 	return merged
+}
+
+func inferCountedSliceParam(ptrP ParamData, registry *TypeRegistry) (elemType string, marshalKind string, ok bool) {
+	switch ptrP.MarshalKind {
+	case "objectSlice":
+		return strings.TrimPrefix(ptrP.PublicType, "[]"), "objectSlice", true
+	case "dataStruct":
+		if strings.HasPrefix(ptrP.PublicType, "*") {
+			return strings.TrimPrefix(ptrP.PublicType, "*"), "slice", true
+		}
+	}
+
+	ct := normalizeConst(strings.TrimSpace(ptrP.CType))
+	ct = strings.TrimPrefix(ct, "const ")
+	ptrCount := strings.Count(ct, "*")
+	base := strings.TrimSpace(strings.TrimRight(ct, "*"))
+
+	switch ptrCount {
+	case 1:
+		pub := registry.ResolvePublicType(ct)
+		if strings.HasPrefix(pub, "*") {
+			return strings.TrimPrefix(pub, "*"), "slice", true
+		}
+	case 2:
+		if pub, ok := registry.resolveStructPointer(base + "*"); ok && pub != "unsafe.Pointer" && !strings.HasPrefix(pub, "*") {
+			return pub, "objectSlice", true
+		}
+		if pub, ok := registry.resolveBarePointer(base + "*"); ok && pub != "unsafe.Pointer" && !strings.HasPrefix(pub, "*") {
+			return pub, "objectSlice", true
+		}
+	}
+
+	return "", "", false
 }
 
 // isIntLikeType returns true if the Go type is an integer type suitable as an array count.

@@ -541,8 +541,8 @@ func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattri
 	return int32(obj.rawPtr.CallSetValueByaccessor(uintptr(unsafe.Pointer(&keyStr)), uintptr(attribute)))
 }
 
-func (obj *v8ValueImpl) GetKeys(keys uintptr) int32 {
-	return int32(obj.rawPtr.CallGetKeys(keys))
+func (obj *v8ValueImpl) GetKeys(keys StringList) int32 {
+	return int32(obj.rawPtr.CallGetKeys(uintptr(keys)))
 }
 
 func (obj *v8ValueImpl) SetUserData(userData *BaseRefCounted) int32 {

@@ -36,7 +36,7 @@ func NewResolveCallback(impl ResolveCallback) ResolveCallback {
 
 	r.OverrideOnResolveCompleted(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		result := Errorcode(arg0)
-		resolvedIps := uintptr(arg1)
+		resolvedIps := StringList(arg1)
 		impl.OnResolveCompleted(result, resolvedIps)
 	}))
 

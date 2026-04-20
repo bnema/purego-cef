@@ -37,7 +37,7 @@ func (_m *MockDialogHandler) EXPECT() *MockDialogHandler_Expecter {
 }
 
 // OnFileDialog provides a mock function for the type MockDialogHandler
-func (_mock *MockDialogHandler) OnFileDialog(browser in.Browser, mode in.FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, acceptExtensions uintptr, acceptDescriptions uintptr, callback in.FileDialogCallback) int32 {
+func (_mock *MockDialogHandler) OnFileDialog(browser in.Browser, mode in.FileDialogMode, title string, defaultFilePath string, acceptFilters in.StringList, acceptExtensions in.StringList, acceptDescriptions in.StringList, callback in.FileDialogCallback) int32 {
 	ret := _mock.Called(browser, mode, title, defaultFilePath, acceptFilters, acceptExtensions, acceptDescriptions, callback)
 
 	if len(ret) == 0 {
@@ -45,7 +45,7 @@ func (_mock *MockDialogHandler) OnFileDialog(browser in.Browser, mode in.FileDia
 	}
 
 	var r0 int32
-	if returnFunc, ok := ret.Get(0).(func(in.Browser, in.FileDialogMode, string, string, uintptr, uintptr, uintptr, in.FileDialogCallback) int32); ok {
+	if returnFunc, ok := ret.Get(0).(func(in.Browser, in.FileDialogMode, string, string, in.StringList, in.StringList, in.StringList, in.FileDialogCallback) int32); ok {
 		r0 = returnFunc(browser, mode, title, defaultFilePath, acceptFilters, acceptExtensions, acceptDescriptions, callback)
 	} else {
 		r0 = ret.Get(0).(int32)
@@ -63,15 +63,15 @@ type MockDialogHandler_OnFileDialog_Call struct {
 //   - mode in.FileDialogMode
 //   - title string
 //   - defaultFilePath string
-//   - acceptFilters uintptr
-//   - acceptExtensions uintptr
-//   - acceptDescriptions uintptr
+//   - acceptFilters in.StringList
+//   - acceptExtensions in.StringList
+//   - acceptDescriptions in.StringList
 //   - callback in.FileDialogCallback
 func (_e *MockDialogHandler_Expecter) OnFileDialog(browser interface{}, mode interface{}, title interface{}, defaultFilePath interface{}, acceptFilters interface{}, acceptExtensions interface{}, acceptDescriptions interface{}, callback interface{}) *MockDialogHandler_OnFileDialog_Call {
 	return &MockDialogHandler_OnFileDialog_Call{Call: _e.mock.On("OnFileDialog", browser, mode, title, defaultFilePath, acceptFilters, acceptExtensions, acceptDescriptions, callback)}
 }
 
-func (_c *MockDialogHandler_OnFileDialog_Call) Run(run func(browser in.Browser, mode in.FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, acceptExtensions uintptr, acceptDescriptions uintptr, callback in.FileDialogCallback)) *MockDialogHandler_OnFileDialog_Call {
+func (_c *MockDialogHandler_OnFileDialog_Call) Run(run func(browser in.Browser, mode in.FileDialogMode, title string, defaultFilePath string, acceptFilters in.StringList, acceptExtensions in.StringList, acceptDescriptions in.StringList, callback in.FileDialogCallback)) *MockDialogHandler_OnFileDialog_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 in.Browser
 		if args[0] != nil {
@@ -89,17 +89,17 @@ func (_c *MockDialogHandler_OnFileDialog_Call) Run(run func(browser in.Browser, 
 		if args[3] != nil {
 			arg3 = args[3].(string)
 		}
-		var arg4 uintptr
+		var arg4 in.StringList
 		if args[4] != nil {
-			arg4 = args[4].(uintptr)
+			arg4 = args[4].(in.StringList)
 		}
-		var arg5 uintptr
+		var arg5 in.StringList
 		if args[5] != nil {
-			arg5 = args[5].(uintptr)
+			arg5 = args[5].(in.StringList)
 		}
-		var arg6 uintptr
+		var arg6 in.StringList
 		if args[6] != nil {
-			arg6 = args[6].(uintptr)
+			arg6 = args[6].(in.StringList)
 		}
 		var arg7 in.FileDialogCallback
 		if args[7] != nil {
@@ -124,7 +124,7 @@ func (_c *MockDialogHandler_OnFileDialog_Call) Return(n int32) *MockDialogHandle
 	return _c
 }
 
-func (_c *MockDialogHandler_OnFileDialog_Call) RunAndReturn(run func(browser in.Browser, mode in.FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, acceptExtensions uintptr, acceptDescriptions uintptr, callback in.FileDialogCallback) int32) *MockDialogHandler_OnFileDialog_Call {
+func (_c *MockDialogHandler_OnFileDialog_Call) RunAndReturn(run func(browser in.Browser, mode in.FileDialogMode, title string, defaultFilePath string, acceptFilters in.StringList, acceptExtensions in.StringList, acceptDescriptions in.StringList, callback in.FileDialogCallback) int32) *MockDialogHandler_OnFileDialog_Call {
 	_c.Call.Return(run)
 	return _c
 }

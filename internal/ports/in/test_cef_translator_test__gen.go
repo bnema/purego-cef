@@ -26,12 +26,12 @@ type TranslatorTest interface {
 	GetString() string
 	SetString(val string) int32
 	GetStringByRef(val uintptr)
-	SetStringList(val uintptr) int32
-	GetStringListByRef(val uintptr) int32
-	SetStringMap(val uintptr) int32
-	GetStringMapByRef(val uintptr) int32
-	SetStringMultimap(val uintptr) int32
-	GetStringMultimapByRef(val uintptr) int32
+	SetStringList(val StringList) int32
+	GetStringListByRef(val StringList) int32
+	SetStringMap(val StringMap) int32
+	GetStringMapByRef(val StringMap) int32
+	SetStringMultimap(val StringMultimap) int32
+	GetStringMultimapByRef(val StringMultimap) int32
 	GetPoint() uintptr
 	SetPoint(val *Point) int32
 	GetPointByRef(val *Point)
@@ -43,14 +43,14 @@ type TranslatorTest interface {
 	SetRefPtrLibraryAndReturn(val TranslatorTestRefPtrLibrary) TranslatorTestRefPtrLibrary
 	SetChildRefPtrLibrary(val TranslatorTestRefPtrLibraryChild) int32
 	SetChildRefPtrLibraryAndReturnParent(val TranslatorTestRefPtrLibraryChild) TranslatorTestRefPtrLibrary
-	SetRefPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	SetRefPtrLibraryList(val []TranslatorTestRefPtrLibrary, val1 int32, val2 int32) int32
 	GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32
 	GetRefPtrLibraryListSize() int
 	SetRefPtrClient(val TranslatorTestRefPtrClient) int32
 	SetRefPtrClientAndReturn(val TranslatorTestRefPtrClient) TranslatorTestRefPtrClient
 	SetChildRefPtrClient(val TranslatorTestRefPtrClientChild) int32
 	SetChildRefPtrClientAndReturnParent(val TranslatorTestRefPtrClientChild) TranslatorTestRefPtrClient
-	SetRefPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	SetRefPtrClientList(val []TranslatorTestRefPtrClient, val1 int32, val2 int32) int32
 	GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 TranslatorTestRefPtrClient, val2 TranslatorTestRefPtrClient) int32
 	GetRefPtrClientListSize() int
 	GetOwnPtrLibrary(val int32) TranslatorTestScopedLibrary
@@ -64,10 +64,10 @@ type TranslatorTest interface {
 	SetChildOwnPtrClientAndReturnParent(val TranslatorTestScopedClientChild) TranslatorTestScopedClient
 	SetRawPtrLibrary(val TranslatorTestScopedLibrary) int32
 	SetChildRawPtrLibrary(val TranslatorTestScopedLibraryChild) int32
-	SetRawPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	SetRawPtrLibraryList(val []TranslatorTestScopedLibrary, val1 int32, val2 int32) int32
 	SetRawPtrClient(val TranslatorTestScopedClient) int32
 	SetChildRawPtrClient(val TranslatorTestScopedClientChild) int32
-	SetRawPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	SetRawPtrClientList(val []TranslatorTestScopedClient, val1 int32, val2 int32) int32
 }
 
 // TranslatorTestRefPtrLibrary defines the inbound port interface.

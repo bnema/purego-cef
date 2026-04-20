@@ -17,8 +17,8 @@ type DragData interface {
 	GetFragmentBaseURL() string
 	GetFileName() string
 	GetFileContents(writer StreamWriter) int
-	GetFileNames(names uintptr) int32
-	GetFilePaths(paths uintptr) int32
+	GetFileNames(names StringList) int32
+	GetFilePaths(paths StringList) int32
 	SetLinkURL(uRL string)
 	SetLinkTitle(title string)
 	SetLinkMetadata(data string)

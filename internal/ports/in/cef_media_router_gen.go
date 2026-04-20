@@ -17,8 +17,8 @@ type MediaRouter interface {
 
 // MediaObserver defines the inbound port interface.
 type MediaObserver interface {
-	OnSinks(sinkscount int, sinks unsafe.Pointer)
-	OnRoutes(routescount int, routes unsafe.Pointer)
+	OnSinks(sinks []MediaSink)
+	OnRoutes(routes []MediaRoute)
 	OnRouteStateChanged(route MediaRoute, state MediaRouteConnectionState)
 	OnRouteMessageReceived(route MediaRoute, message unsafe.Pointer, messageSize int)
 }

@@ -6,7 +6,7 @@ package in
 type DisplayHandler interface {
 	OnAddressChange(browser Browser, frame Frame, uRL string)
 	OnTitleChange(browser Browser, title string)
-	OnFaviconUrlchange(browser Browser, iconUrls uintptr)
+	OnFaviconUrlchange(browser Browser, iconUrls StringList)
 	OnFullscreenModeChange(browser Browser, fullscreen int32)
 	OnTooltip(browser Browser, text uintptr) int32
 	OnStatusMessage(browser Browser, value string)

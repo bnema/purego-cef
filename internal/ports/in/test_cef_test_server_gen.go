@@ -22,5 +22,5 @@ type TestServerConnection interface {
 	SendHttp200Response(contentType string, data unsafe.Pointer, dataSize int)
 	SendHttp404Response()
 	SendHttp500Response(errorMessage string)
-	SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders uintptr)
+	SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders StringMultimap)
 }

@@ -93,7 +93,7 @@ type V8Value interface {
 	SetValueBykey(key string, value V8Value, attribute V8Propertyattribute) int32
 	SetValueByindex(index int32, value V8Value) int32
 	SetValueByaccessor(key string, attribute V8Propertyattribute) int32
-	GetKeys(keys uintptr) int32
+	GetKeys(keys StringList) int32
 	SetUserData(userData *BaseRefCounted) int32
 	GetUserData() *BaseRefCounted
 	GetExternallyAllocatedMemory() int32

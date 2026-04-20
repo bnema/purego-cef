@@ -49,7 +49,7 @@ type Domnode interface {
 	HasElementAttributes() bool
 	HasElementAttribute(attrname string) bool
 	GetElementAttribute(attrname string) string
-	GetElementAttributes(attrmap uintptr)
+	GetElementAttributes(attrmap StringMap)
 	SetElementAttribute(attrname string, value string) int32
 	GetElementInnerText() string
 	GetElementBounds() uintptr

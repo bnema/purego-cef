@@ -71,11 +71,11 @@ func (r *TypeRegistry) ResolvePublicType(ctype string) string {
 	case "cef_string_userfree_t":
 		return "string"
 	case "cef_string_list_t":
-		return "uintptr"
+		return "StringList"
 	case "cef_string_map_t":
-		return "uintptr"
+		return "StringMap"
 	case "cef_string_multimap_t":
-		return "uintptr"
+		return "StringMultimap"
 	case "int":
 		return "int32"
 	case "unsigned int":
@@ -124,7 +124,7 @@ func (r *TypeRegistry) ResolvePublicType(ctype string) string {
 
 	// Enum lookup: bare enum type name like "cef_process_id_t".
 	if _, ok := r.enums[ct]; ok {
-		return model.PublicName(ct)
+		return publicTypeNameForCName(ct)
 	}
 
 	// Handle "struct _cef_xxx_t*" and "const struct _cef_xxx_t*".
@@ -142,7 +142,7 @@ func (r *TypeRegistry) ResolvePublicType(ctype string) string {
 	trimmed := strings.TrimSuffix(ct, "*")
 	trimmed = strings.TrimSpace(trimmed)
 	if _, ok := r.enums[trimmed]; ok {
-		return "*" + model.PublicName(trimmed)
+		return "*" + publicTypeNameForCName(trimmed)
 	}
 
 	return "uintptr"
@@ -174,9 +174,9 @@ func (r *TypeRegistry) resolveStructPointer(ct string) (string, bool) {
 	if st, ok := r.structs[s]; ok {
 		switch st.Kind {
 		case "handler", "object":
-			return st.InterfaceName, true
+			return publicTypeNameForCName(st.CName), true
 		case "data":
-			return "*" + model.PublicName(s), true
+			return "*" + publicTypeNameForCName(s), true
 		}
 	}
 
@@ -185,14 +185,14 @@ func (r *TypeRegistry) resolveStructPointer(ct string) (string, bool) {
 	if st, ok := r.structs[trimmed]; ok {
 		switch st.Kind {
 		case "handler", "object":
-			return st.InterfaceName, true
+			return publicTypeNameForCName(st.CName), true
 		case "data":
-			return "*" + model.PublicName(trimmed), true
+			return "*" + publicTypeNameForCName(trimmed), true
 		}
 	}
 
 	// Not found in registry; fall back to public name.
-	return model.PublicName(s), true
+	return publicTypeNameForCName(s), true
 }
 
 // resolveBarePointer handles "const cef_xxx_t*" or "cef_xxx_t*" patterns
@@ -218,18 +218,18 @@ func (r *TypeRegistry) resolveBarePointer(ct string) (string, bool) {
 	if st, ok := r.structs[withUnderscore]; ok {
 		switch st.Kind {
 		case "handler", "object":
-			return st.InterfaceName, true
+			return publicTypeNameForCName(st.CName), true
 		case "data":
-			return "*" + model.PublicName(withUnderscore), true
+			return "*" + publicTypeNameForCName(withUnderscore), true
 		}
 	}
 	// Try bare name as-is.
 	if st, ok := r.structs[s]; ok {
 		switch st.Kind {
 		case "handler", "object":
-			return st.InterfaceName, true
+			return publicTypeNameForCName(st.CName), true
 		case "data":
-			return "*" + model.PublicName(s), true
+			return "*" + publicTypeNameForCName(s), true
 		}
 	}
 

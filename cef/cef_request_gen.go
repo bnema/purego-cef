@@ -64,12 +64,12 @@ func (obj *requestImpl) SetPostData(postdata PostData) {
 	obj.rawPtr.CallSetPostData(uintptr(extractRawPointer(postdata)))
 }
 
-func (obj *requestImpl) GetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallGetHeaderMap(headermap)
+func (obj *requestImpl) GetHeaderMap(headermap StringMultimap) {
+	obj.rawPtr.CallGetHeaderMap(uintptr(headermap))
 }
 
-func (obj *requestImpl) SetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallSetHeaderMap(headermap)
+func (obj *requestImpl) SetHeaderMap(headermap StringMultimap) {
+	obj.rawPtr.CallSetHeaderMap(uintptr(headermap))
 }
 
 func (obj *requestImpl) GetHeaderByName(name string) string {
@@ -86,12 +86,12 @@ func (obj *requestImpl) SetHeaderByName(name string, value string, overwrite int
 	obj.rawPtr.CallSetHeaderByName(uintptr(unsafe.Pointer(&nameStr)), uintptr(unsafe.Pointer(&valueStr)), uintptr(overwrite))
 }
 
-func (obj *requestImpl) Set(uRL string, method string, postdata PostData, headermap uintptr) {
+func (obj *requestImpl) Set(uRL string, method string, postdata PostData, headermap StringMultimap) {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
-	obj.rawPtr.CallSet(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(postdata)), headermap)
+	obj.rawPtr.CallSet(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(postdata)), uintptr(headermap))
 }
 
 func (obj *requestImpl) GetFlags() int32 {

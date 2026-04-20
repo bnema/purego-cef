@@ -147,13 +147,13 @@ func wrapPreferenceManager(ptr unsafe.Pointer) PreferenceManager {
 }
 
 // PreferenceManagerGetChromeVariationsAsSwitches Returns the current Chrome Variations configuration (combination of field trials and chrome://flags) as equivalent command-line switches (`--[enable|disable]-features=XXXX`, etc). These switches can be used to apply the same configuration when launching a CEF-based application. See https://developer.chrome.com/docs/web-platform/chrome-variations for background and details. Note that field trial tests are disabled by default in Official CEF builds (via the `disable_fieldtrial_testing_config=true (1)` GN flag). This function must be called on the browser process UI thread.
-func PreferenceManagerGetChromeVariationsAsSwitches(switches uintptr) {
-	capi.CEFPreferenceManagerGetChromeVariationsAsSwitches(switches)
+func PreferenceManagerGetChromeVariationsAsSwitches(switches StringList) {
+	capi.CEFPreferenceManagerGetChromeVariationsAsSwitches(uintptr(switches))
 }
 
 // PreferenceManagerGetChromeVariationsAsStrings Returns the current Chrome Variations configuration (combination of field trials and chrome://flags) as human-readable strings. This is the human- readable equivalent of the "Active Variations" section of chrome://version. See https://developer.chrome.com/docs/web-platform/chrome-variations for background and details. Note that field trial tests are disabled by default in Official CEF builds (via the `disable_fieldtrial_testing_config=true (1)` GN flag). This function must be called on the browser process UI thread.
-func PreferenceManagerGetChromeVariationsAsStrings(strings uintptr) {
-	capi.CEFPreferenceManagerGetChromeVariationsAsStrings(strings)
+func PreferenceManagerGetChromeVariationsAsStrings(strings StringList) {
+	capi.CEFPreferenceManagerGetChromeVariationsAsStrings(uintptr(strings))
 }
 
 // PreferenceManagerGetGlobal Returns the global preference manager object.

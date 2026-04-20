@@ -13,14 +13,14 @@ type ApiVersionTest interface {
 	SetRefPtrLibraryAndReturn(val ApiVersionTestRefPtrLibrary) ApiVersionTestRefPtrLibrary
 	SetChildRefPtrLibrary(val ApiVersionTestRefPtrLibraryChild) int32
 	SetChildRefPtrLibraryAndReturnParent(val ApiVersionTestRefPtrLibraryChild) ApiVersionTestRefPtrLibrary
-	SetRefPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	SetRefPtrLibraryList(val []ApiVersionTestRefPtrLibrary, val1 int32, val2 int32) int32
 	GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32
 	GetRefPtrLibraryListSize() int
 	SetRefPtrClient(val ApiVersionTestRefPtrClient) int32
 	SetRefPtrClientAndReturn(val ApiVersionTestRefPtrClient) ApiVersionTestRefPtrClient
 	SetChildRefPtrClient(val ApiVersionTestRefPtrClientChild) int32
 	SetChildRefPtrClientAndReturnParent(val ApiVersionTestRefPtrClientChild) ApiVersionTestRefPtrClient
-	SetRefPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	SetRefPtrClientList(val []ApiVersionTestRefPtrClient, val1 int32, val2 int32) int32
 	GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 ApiVersionTestRefPtrClient, val2 ApiVersionTestRefPtrClient) int32
 	GetRefPtrClientListSize() int
 	GetOwnPtrLibrary(val int32) ApiVersionTestScopedLibrary
@@ -34,10 +34,10 @@ type ApiVersionTest interface {
 	SetChildOwnPtrClientAndReturnParent(val ApiVersionTestScopedClientChild) ApiVersionTestScopedClient
 	SetRawPtrLibrary(val ApiVersionTestScopedLibrary) int32
 	SetChildRawPtrLibrary(val ApiVersionTestScopedLibraryChild) int32
-	SetRawPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	SetRawPtrLibraryList(val []ApiVersionTestScopedLibrary, val1 int32, val2 int32) int32
 	SetRawPtrClient(val ApiVersionTestScopedClient) int32
 	SetChildRawPtrClient(val ApiVersionTestScopedClientChild) int32
-	SetRawPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	SetRawPtrClientList(val []ApiVersionTestScopedClient, val1 int32, val2 int32) int32
 	SetChildRefPtrClientV2(val ApiVersionTestRefPtrClientChildV2) int32
 	SetChildRefPtrClientAndReturnParentV2(val ApiVersionTestRefPtrClientChildV2) ApiVersionTestRefPtrClient
 	SetChildOwnPtrClientV2(val ApiVersionTestScopedClientChildV2) int32

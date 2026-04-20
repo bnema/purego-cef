@@ -38,12 +38,12 @@ func (obj *x509CertPrincipalImpl) GetCountryName() string {
 	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetCountryName()))
 }
 
-func (obj *x509CertPrincipalImpl) GetOrganizationNames(names uintptr) {
-	obj.rawPtr.CallGetOrganizationNames(names)
+func (obj *x509CertPrincipalImpl) GetOrganizationNames(names StringList) {
+	obj.rawPtr.CallGetOrganizationNames(uintptr(names))
 }
 
-func (obj *x509CertPrincipalImpl) GetOrganizationUnitNames(names uintptr) {
-	obj.rawPtr.CallGetOrganizationUnitNames(names)
+func (obj *x509CertPrincipalImpl) GetOrganizationUnitNames(names StringList) {
+	obj.rawPtr.CallGetOrganizationUnitNames(uintptr(names))
 }
 
 func (obj *x509CertPrincipalImpl) RawPointer() unsafe.Pointer {

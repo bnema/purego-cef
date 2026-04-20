@@ -290,6 +290,81 @@ func TestEmitPublicFreeFunc(t *testing.T) {
 	}
 }
 
+func TestEmitPublicDataStructUsesRenamedPublicType(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:  "cef_settings_t",
+			GoName: "CEFSettingsT",
+			Kind:   "data",
+			Fields: []model.Field{{CName: "size", GoName: "Size", CType: "size_t", GoType: "uintptr"}},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	if !strings.Contains(code, "type CEFSettings = capi.CEFSettingsT") {
+		t.Fatalf("expected renamed public data struct, got:\n%s", code)
+	}
+	if !strings.Contains(code, "func NewCEFSettings() CEFSettings") {
+		t.Fatalf("expected constructor for renamed data struct, got:\n%s", code)
+	}
+}
+
+func TestEmitPublicFreeFuncUsesNamedStringHandleTypes(t *testing.T) {
+	header := &model.Header{
+		Functions: []model.Function{{
+			CName:       "cef_fill_string_list",
+			GoName:      "CEFFillStringList",
+			ReturnCType: "void",
+			Params:      []model.Param{{CName: "values", GoName: "values", CType: "cef_string_list_t", GoType: "uintptr"}},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	if !strings.Contains(code, "func FillStringList(values StringList)") {
+		t.Fatalf("expected named string-list handle in public signature, got:\n%s", code)
+	}
+	if !strings.Contains(code, "capi.CEFFillStringList(uintptr(values))") {
+		t.Fatalf("expected raw call to cast named handle back to uintptr, got:\n%s", code)
+	}
+}
+
+func TestEmitPublicDataStructUsesRenamedMainArgsType(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:  "cef_main_args_t",
+			GoName: "CEFMainArgsT",
+			Kind:   "data",
+			Fields: []model.Field{{CName: "argc", GoName: "Argc", CType: "int", GoType: "int32"}},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	if !strings.Contains(code, "type CEFMainArgs = capi.CEFMainArgsT") {
+		t.Fatalf("expected renamed public main args type, got:\n%s", code)
+	}
+}
+
 func TestEmitPublicFreeFuncAutoWrapsHandlerParams(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{{

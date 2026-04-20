@@ -120,10 +120,10 @@ func (obj *testServerConnectionImpl) SendHttp500Response(errorMessage string) {
 	obj.rawPtr.CallSendHttp500Response(uintptr(unsafe.Pointer(&errorMessageStr)))
 }
 
-func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders uintptr) {
+func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders StringMultimap) {
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
-	obj.rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), extraHeaders)
+	obj.rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), uintptr(extraHeaders))
 }
 
 func (obj *testServerConnectionImpl) RawPointer() unsafe.Pointer {
