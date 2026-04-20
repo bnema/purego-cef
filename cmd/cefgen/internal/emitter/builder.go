@@ -9,12 +9,9 @@ import (
 )
 
 // rawConstructorTypes lists handler types whose generated constructor should
-// be unexported (newRawXxx instead of NewXxx) because they have hand-written
-// public constructors in bridge.go that wrap them with safe types.
-var rawConstructorTypes = map[string]bool{
-	"Client":          true,
-	"LifeSpanHandler": true,
-}
+// be unexported (newRawXxx instead of NewXxx). Keep this empty unless a raw
+// generated type still collides with a handwritten public constructor.
+var rawConstructorTypes = map[string]bool{}
 
 // skipPublicTypes lists type/function names (after public renames) that are
 // hand-written in init.go or support.go and must not be generated.
@@ -29,9 +26,9 @@ var skipPublicTypes = map[string]bool{
 	"DisplayConvertScreenPointFromPixels": true,
 	"DisplayConvertScreenRectToPixels":    true,
 	"DisplayConvertScreenRectFromPixels":  true,
-	// Handlers with unsafe out-params that need hand-written safe signatures.
-	"LifeSpanHandler": true,
-	"AudioHandler":    true,
+	// These raw handlers still use handwritten wrappers in cef/bridge.go.
+	"RawAudioHandler":    true,
+	"RawLifeSpanHandler": true,
 }
 
 // ParamOverride specifies the public type and marshal kind for a specific
@@ -40,6 +37,12 @@ type ParamOverride struct {
 	PublicType    string
 	MarshalKind   string
 	UnmarshalExpr string
+}
+
+// ReturnOverride specifies the public type for a specific method return,
+// overriding the default type resolution.
+type ReturnOverride struct {
+	PublicType string
 }
 
 // paramOverrides maps "structCName.fieldCName.paramCName" keys to overrides
@@ -66,6 +69,54 @@ var paramOverrides = map[string]ParamOverride{
 	"cef_v8_value_t.execute_function_with_context.arguments":  {PublicType: "[]V8Value", MarshalKind: "objectSlice"},
 	"_cef_v8_value_t.execute_function.arguments":              {PublicType: "[]V8Value", MarshalKind: "objectSlice"},
 	"_cef_v8_value_t.execute_function_with_context.arguments": {PublicType: "[]V8Value", MarshalKind: "objectSlice"},
+}
+
+// returnOverrides maps "structCName.fieldCName" keys to overrides for method
+// returns that should not expose a misleading wrapped type.
+var returnOverrides = map[string]ReturnOverride{
+	"cef_browser_host_t.get_client": {PublicType: "unsafe.Pointer"},
+}
+
+func lookupParamOverride(structCName, fieldCName, paramCName string) (ParamOverride, bool) {
+	if ov, ok := paramOverrides[structCName+"."+fieldCName+"."+paramCName]; ok {
+		return ov, true
+	}
+	trimmed := strings.TrimPrefix(structCName, "_")
+	if trimmed != structCName {
+		ov, ok := paramOverrides[trimmed+"."+fieldCName+"."+paramCName]
+		return ov, ok
+	}
+	return ParamOverride{}, false
+}
+
+func lookupReturnOverride(structCName, fieldCName string) (ReturnOverride, bool) {
+	if ov, ok := returnOverrides[structCName+"."+fieldCName]; ok {
+		return ov, true
+	}
+	trimmed := strings.TrimPrefix(structCName, "_")
+	if trimmed != structCName {
+		ov, ok := returnOverrides[trimmed+"."+fieldCName]
+		return ov, ok
+	}
+	return ReturnOverride{}, false
+}
+
+func buildReturnData(retCType string, pubType string, isBool bool, registry *TypeRegistry) ReturnData {
+	if isBool {
+		pubType = "bool"
+	}
+	return ReturnData{
+		PublicType:   pubType,
+		CType:        retCType,
+		IsBool:       isBool,
+		IsEnum:       registry.IsEnumType(retCType),
+		IsString:     registry.IsStringType(retCType),
+		IsInterface:  pubType != "unsafe.Pointer" && registry.IsInterfaceType(retCType),
+		IsNumeric:    isNumericType(pubType),
+		IsPointer:    pubType == "unsafe.Pointer",
+		IsHandler:    pubType != "unsafe.Pointer" && registry.IsHandlerType(retCType),
+		IsDataStruct: pubType != "unsafe.Pointer" && registry.IsDataStructType(retCType),
+	}
 }
 
 // BuildPublicFileData converts a parsed header and type registry into the
@@ -180,8 +231,7 @@ func buildMethod(structCName string, structKind string, f model.Field, registry 
 
 	// Apply param overrides before copying to RawParams and merging.
 	for i := range m.Params {
-		key := structCName + "." + f.CName + "." + f.Params[i+1].CName // +1 to skip self
-		if ov, ok := paramOverrides[key]; ok {
+		if ov, ok := lookupParamOverride(structCName, f.CName, f.Params[i+1].CName); ok {
 			m.Params[i].PublicType = ov.PublicType
 			m.Params[i].MarshalKind = ov.MarshalKind
 		}
@@ -189,8 +239,7 @@ func buildMethod(structCName string, structKind string, f model.Field, registry 
 
 	// Resolve UnmarshalExpr placeholders to raw arg names.
 	for i := range m.Params {
-		key := structCName + "." + f.CName + "." + f.Params[i+1].CName
-		if ov, ok := paramOverrides[key]; ok && ov.UnmarshalExpr != "" {
+		if ov, ok := lookupParamOverride(structCName, f.CName, f.Params[i+1].CName); ok && ov.UnmarshalExpr != "" {
 			expr := ov.UnmarshalExpr
 			for j, rp := range m.Params {
 				placeholder := "{{" + rp.Name + "}}"
@@ -213,21 +262,10 @@ func buildMethod(structCName string, structKind string, f model.Field, registry 
 	} else {
 		isBool := IsBoolReturn(f)
 		pubType := registry.ResolvePublicType(ret)
-		if isBool {
-			pubType = "bool"
+		if ov, ok := lookupReturnOverride(structCName, f.CName); ok {
+			pubType = ov.PublicType
 		}
-		m.Return = ReturnData{
-			PublicType:   pubType,
-			CType:        ret,
-			IsBool:       isBool,
-			IsEnum:       registry.IsEnumType(ret),
-			IsString:     registry.IsStringType(ret),
-			IsInterface:  registry.IsInterfaceType(ret),
-			IsNumeric:    isNumericType(pubType),
-			IsPointer:    pubType == "unsafe.Pointer",
-			IsHandler:    registry.IsHandlerType(ret),
-			IsDataStruct: registry.IsDataStructType(ret),
-		}
+		m.Return = buildReturnData(ret, pubType, isBool, registry)
 	}
 
 	// Check if this is a getter callback.

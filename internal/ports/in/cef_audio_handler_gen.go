@@ -6,8 +6,8 @@ import (
 	"unsafe"
 )
 
-// AudioHandler defines the inbound port interface.
-type AudioHandler interface {
+// RawAudioHandler defines the inbound port interface.
+type RawAudioHandler interface {
 	GetAudioParameters(browser Browser, params *AudioParameters) int32
 	OnAudioStreamStarted(browser Browser, params *AudioParameters, channels int32)
 	OnAudioStreamPacket(browser Browser, data unsafe.Pointer, frames int32, pts int64)

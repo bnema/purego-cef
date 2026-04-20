@@ -371,9 +371,9 @@ func (obj *browserHostImpl) HasView() bool {
 	return ret != 0
 }
 
-func (obj *browserHostImpl) GetClient() Client {
+func (obj *browserHostImpl) GetClient() unsafe.Pointer {
 	ret := obj.rawPtr.CallGetClient()
-	return wrapClient(unsafe.Pointer(ret))
+	return unsafe.Pointer(ret)
 }
 
 func (obj *browserHostImpl) GetRequestContext() RequestContext {
@@ -450,8 +450,8 @@ func (obj *browserHostImpl) StopFinding(clearselection int32) {
 	obj.rawPtr.CallStopFinding(uintptr(clearselection))
 }
 
-func (obj *browserHostImpl) ShowDevTools(windowinfo *WindowInfo, client Client, settings *BrowserSettings, inspectElementAt *Point) {
-	obj.rawPtr.CallShowDevTools(uintptr(unsafe.Pointer(windowinfo)), uintptr(extractOrWrapRawPointer(client, func() any { return newRawClient(client) })), uintptr(unsafe.Pointer(settings)), uintptr(unsafe.Pointer(inspectElementAt)))
+func (obj *browserHostImpl) ShowDevTools(windowinfo *WindowInfo, client RawClient, settings *BrowserSettings, inspectElementAt *Point) {
+	obj.rawPtr.CallShowDevTools(uintptr(unsafe.Pointer(windowinfo)), uintptr(extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })), uintptr(unsafe.Pointer(settings)), uintptr(unsafe.Pointer(inspectElementAt)))
 }
 
 func (obj *browserHostImpl) CloseDevTools() {
@@ -682,18 +682,18 @@ func wrapBrowserHost(ptr unsafe.Pointer) BrowserHost {
 }
 
 // BrowserHostCreateBrowser Create a new browser using the window parameters specified by |windowInfo|. All values will be copied internally and the actual window (if any) will be created on the UI thread. If |request_context| is NULL the global request context will be used. This function can be called on any browser process thread and will not block. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
-func BrowserHostCreateBrowser(windowinfo *WindowInfo, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) int32 {
+func BrowserHostCreateBrowser(windowinfo *WindowInfo, client RawClient, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) int32 {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	ret := capi.CEFBrowserHostCreateBrowser(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return newRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
+	ret := capi.CEFBrowserHostCreateBrowser(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return NewRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
 	return int32(ret)
 }
 
 // BrowserHostCreateBrowserSync Create a new browser using the window parameters specified by |windowInfo|. If |request_context| is NULL the global request context will be used. This function can only be called on the browser process UI thread. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
-func BrowserHostCreateBrowserSync(windowinfo *WindowInfo, client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) Browser {
+func BrowserHostCreateBrowserSync(windowinfo *WindowInfo, client RawClient, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) Browser {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	ret := capi.CEFBrowserHostCreateBrowserSync(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return newRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
+	ret := capi.CEFBrowserHostCreateBrowserSync(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return NewRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
 	return wrapBrowser(ret)
 }
 

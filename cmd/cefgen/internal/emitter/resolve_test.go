@@ -80,8 +80,8 @@ func TestResolvePublicType(t *testing.T) {
 		{"double*", "*float64"},
 		// struct pointer: object kind -> interface name
 		{"struct _cef_browser_t*", "Browser"},
-		// struct pointer: handler kind -> interface name
-		{"struct _cef_life_span_handler_t*", "LifeSpanHandler"},
+		// struct pointer: handler kind -> raw handler name
+		{"struct _cef_life_span_handler_t*", "RawLifeSpanHandler"},
 		// struct pointer: data kind -> pointer to data struct
 		{"struct _cef_popup_features_t*", "*PopupFeatures"},
 		// const struct pointer
@@ -90,8 +90,8 @@ func TestResolvePublicType(t *testing.T) {
 		{"cef_process_id_t", "ProcessID"},
 		{"cef_log_severity_t", "LogSeverity"},
 		// renamed public types
-		{"struct _cef_settings_t*", "*CEFSettings"},
-		{"struct _cef_main_args_t*", "*CEFMainArgs"},
+		{"struct _cef_settings_t*", "*RawSettings"},
+		{"struct _cef_main_args_t*", "*RawMainArgs"},
 		// "TYPE const*" form (same as "const TYPE*")
 		{"cef_popup_features_t const*", "*PopupFeatures"},
 		{"struct _cef_browser_t const*", "Browser"},

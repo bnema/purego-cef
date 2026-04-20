@@ -6,7 +6,7 @@ package in
 type BrowserViewDelegate interface {
 	OnBrowserCreated(browserView BrowserView, browser Browser)
 	OnBrowserDestroyed(browserView BrowserView, browser Browser)
-	GetDelegateForPopupBrowserView(browserView BrowserView, settings *BrowserSettings, client Client, isDevtools int32) BrowserViewDelegate
+	GetDelegateForPopupBrowserView(browserView BrowserView, settings *BrowserSettings, client RawClient, isDevtools int32) BrowserViewDelegate
 	OnPopupBrowserViewCreated(browserView BrowserView, popupBrowserView BrowserView, isDevtools int32) int32
 	GetChromeToolbarType(browserView BrowserView) ChromeToolbarType
 	UseFramelessWindowForPictureInPicture(browserView BrowserView) int32

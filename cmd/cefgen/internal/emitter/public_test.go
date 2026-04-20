@@ -128,6 +128,45 @@ func TestEmitPublicObjectInterface_UsesTypedPuregoForFloatMethods(t *testing.T) 
 	}
 }
 
+func TestEmitPublicObjectInterface_GetClientReturnsUnsafePointer(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "_cef_browser_host_t",
+			GoName:        "CEFBrowserHostT",
+			Kind:          "object",
+			InterfaceName: "BrowserHost",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "get_client",
+					GoName:      "GetClient",
+					IsFunction:  true,
+					ReturnCType: "struct _cef_client_t*",
+					Params:      []model.Param{{CName: "self", GoName: "self", CType: "struct _cef_browser_host_t*"}},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	if !strings.Contains(code, "func (obj *browserHostImpl) GetClient() unsafe.Pointer") {
+		t.Fatalf("GetClient should return unsafe.Pointer:\n%s", code)
+	}
+	if !strings.Contains(code, "return unsafe.Pointer(ret)") {
+		t.Fatalf("GetClient should return the raw pointer directly:\n%s", code)
+	}
+	if strings.Contains(code, "wrapRawClient") {
+		t.Fatalf("GetClient should not promise a wrapped RawClient:\n%s", code)
+	}
+}
+
 func TestEmitPublicHandlerInterface(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{{
@@ -308,10 +347,10 @@ func TestEmitPublicDataStructUsesRenamedPublicType(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	if !strings.Contains(code, "type CEFSettings = capi.CEFSettingsT") {
+	if !strings.Contains(code, "type RawSettings = capi.CEFSettingsT") {
 		t.Fatalf("expected renamed public data struct, got:\n%s", code)
 	}
-	if !strings.Contains(code, "func NewCEFSettings() CEFSettings") {
+	if !strings.Contains(code, "func NewRawSettings() RawSettings") {
 		t.Fatalf("expected constructor for renamed data struct, got:\n%s", code)
 	}
 }
@@ -360,7 +399,7 @@ func TestEmitPublicDataStructUsesRenamedMainArgsType(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	if !strings.Contains(code, "type CEFMainArgs = capi.CEFMainArgsT") {
+	if !strings.Contains(code, "type RawMainArgs = capi.CEFMainArgsT") {
 		t.Fatalf("expected renamed public main args type, got:\n%s", code)
 	}
 }
@@ -390,12 +429,57 @@ func TestEmitPublicFreeFuncAutoWrapsHandlerParams(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	want := "extractOrWrapRawPointer(client, func() any { return newRawClient(client) })"
+	want := "extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })"
 	if !strings.Contains(code, want) {
 		t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
 	}
 	if strings.Contains(code, "extractRawPointer(client)") {
 		t.Fatalf("expected generated code to auto-wrap client handler params, got:\n%s", code)
+	}
+}
+
+func TestEmitGeneratedClientUsesRawAudioConstructor(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "cef_audio_handler_t",
+				GoName:        "CEFAudioHandlerT",
+				Kind:          "handler",
+				InterfaceName: "AudioHandler",
+				Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+			},
+			{
+				CName:         "cef_client_t",
+				GoName:        "CEFClientT",
+				Kind:          "handler",
+				InterfaceName: "Client",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "get_audio_handler",
+						GoName:      "GetAudioHandler",
+						IsFunction:  true,
+						ReturnCType: "struct _cef_audio_handler_t*",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_client_t*"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	want := "return NewRawAudioHandler(h)"
+	if !strings.Contains(code, want) {
+		t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
 	}
 }
 

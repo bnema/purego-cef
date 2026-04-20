@@ -5,23 +5,17 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"structs"
 	"unsafe"
+
+	"github.com/bnema/purego-cef/internal/capi"
 )
 
 // MainArgs holds command-line arguments for CEF. The backing byte buffers
 // are kept alive for the lifetime of the value.
 type MainArgs struct {
-	raw  MainArgsT
+	raw  capi.CEFMainArgsT
 	argv [][]byte
 	ptrs []*byte
-}
-
-// MainArgsT mirrors cef_main_args_t on Linux.
-type MainArgsT struct {
-	_    structs.HostLayout
-	Argc int32
-	Argv uintptr
 }
 
 // NewMainArgs creates MainArgs from a string slice.
@@ -55,9 +49,11 @@ type Settings struct {
 	NoSandbox                  bool
 	BrowserSubprocessPath      string
 	LogFile                    string
-	InitTraceFile              string
-	CachePath                  string
-	RootCachePath              string
+	// Deprecated: reserved for bootstrap diagnostics only; it is not translated
+	// into a CEF setting and has no effect in purego-cef itself.
+	InitTraceFile string
+	CachePath     string
+	RootCachePath string
 }
 
 // DefaultSettings returns Settings suitable for off-screen rendering.
@@ -116,8 +112,8 @@ func (e *Engine) MaybeExitSubprocess() {
 
 // settingsToRaw converts Settings to raw CEF settings struct bytes.
 // Returns the raw struct and a cleanup function for string fields.
-func (e *Engine) settingsToRaw(s Settings) (SettingsRaw, func()) {
-	var c SettingsRaw
+func (e *Engine) settingsToRaw(s Settings) (capi.CEFSettingsT, func()) {
+	var c capi.CEFSettingsT
 	c.Size = uintptr(unsafe.Sizeof(c))
 
 	if s.NoSandbox {
@@ -162,40 +158,4 @@ func (e *Engine) settingsToRaw(s Settings) (SettingsRaw, func()) {
 		}
 	}
 	return c, cleanup
-}
-
-// SettingsRaw mirrors cef_settings_t layout exactly.
-// Field names and order MUST match the generated capi.CEFSettingsT.
-type SettingsRaw struct {
-	_                                structs.HostLayout
-	Size                             uintptr
-	NoSandbox                        int32
-	BrowserSubprocessPath            CEFStringT
-	FrameworkDirPath                 CEFStringT
-	MainBundlePath                   CEFStringT
-	MultiThreadedMessageLoop         int32
-	ExternalMessagePump              int32
-	WindowlessRenderingEnabled       int32
-	CommandLineArgsDisabled          int32
-	CachePath                        CEFStringT
-	RootCachePath                    CEFStringT
-	PersistSessionCookies            int32
-	UserAgent                        CEFStringT
-	UserAgentProduct                 CEFStringT
-	Locale                           CEFStringT
-	LogFile                          CEFStringT
-	LogSeverity                      int32
-	LogItems                         int32
-	JavascriptFlags                  CEFStringT
-	ResourcesDirPath                 CEFStringT
-	LocalesDirPath                   CEFStringT
-	RemoteDebuggingPort              int32
-	UncaughtExceptionStackSize       int32
-	BackgroundColor                  uint32
-	AcceptLanguageList               CEFStringT
-	CookieableSchemesList            CEFStringT
-	CookieableSchemesExcludeDefaults int32
-	ChromePolicyID                   CEFStringT
-	ChromeAppIconID                  int32
-	DisableSignalHandlers            int32
 }

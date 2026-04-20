@@ -48,7 +48,7 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
 	r.OverrideGetDelegateForPopupBrowserView(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		settings := (*BrowserSettings)(unsafe.Pointer(arg1))
-		client := wrapClient(unsafe.Pointer(arg2))
+		client := wrapRawClient(unsafe.Pointer(arg2))
 		isDevtools := int32(arg3)
 		result := impl.GetDelegateForPopupBrowserView(browserView, settings, client, isDevtools)
 		if result == nil {

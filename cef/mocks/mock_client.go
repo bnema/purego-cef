@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"github.com/bnema/purego-cef/internal/ports/in"
+	"github.com/bnema/purego-cef/cef"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -37,19 +37,19 @@ func (_m *MockClient) EXPECT() *MockClient_Expecter {
 }
 
 // GetAudioHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetAudioHandler() in.AudioHandler {
+func (_mock *MockClient) GetAudioHandler() cef.AudioHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAudioHandler")
 	}
 
-	var r0 in.AudioHandler
-	if returnFunc, ok := ret.Get(0).(func() in.AudioHandler); ok {
+	var r0 cef.AudioHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.AudioHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.AudioHandler)
+			r0 = ret.Get(0).(cef.AudioHandler)
 		}
 	}
 	return r0
@@ -72,30 +72,30 @@ func (_c *MockClient_GetAudioHandler_Call) Run(run func()) *MockClient_GetAudioH
 	return _c
 }
 
-func (_c *MockClient_GetAudioHandler_Call) Return(audioHandler in.AudioHandler) *MockClient_GetAudioHandler_Call {
+func (_c *MockClient_GetAudioHandler_Call) Return(audioHandler cef.AudioHandler) *MockClient_GetAudioHandler_Call {
 	_c.Call.Return(audioHandler)
 	return _c
 }
 
-func (_c *MockClient_GetAudioHandler_Call) RunAndReturn(run func() in.AudioHandler) *MockClient_GetAudioHandler_Call {
+func (_c *MockClient_GetAudioHandler_Call) RunAndReturn(run func() cef.AudioHandler) *MockClient_GetAudioHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetCommandHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetCommandHandler() in.CommandHandler {
+func (_mock *MockClient) GetCommandHandler() cef.CommandHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCommandHandler")
 	}
 
-	var r0 in.CommandHandler
-	if returnFunc, ok := ret.Get(0).(func() in.CommandHandler); ok {
+	var r0 cef.CommandHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.CommandHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.CommandHandler)
+			r0 = ret.Get(0).(cef.CommandHandler)
 		}
 	}
 	return r0
@@ -118,30 +118,30 @@ func (_c *MockClient_GetCommandHandler_Call) Run(run func()) *MockClient_GetComm
 	return _c
 }
 
-func (_c *MockClient_GetCommandHandler_Call) Return(commandHandler in.CommandHandler) *MockClient_GetCommandHandler_Call {
-	_c.Call.Return(commandHandler)
+func (_c *MockClient_GetCommandHandler_Call) Return(v cef.CommandHandler) *MockClient_GetCommandHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetCommandHandler_Call) RunAndReturn(run func() in.CommandHandler) *MockClient_GetCommandHandler_Call {
+func (_c *MockClient_GetCommandHandler_Call) RunAndReturn(run func() cef.CommandHandler) *MockClient_GetCommandHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetContextMenuHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetContextMenuHandler() in.ContextMenuHandler {
+func (_mock *MockClient) GetContextMenuHandler() cef.ContextMenuHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetContextMenuHandler")
 	}
 
-	var r0 in.ContextMenuHandler
-	if returnFunc, ok := ret.Get(0).(func() in.ContextMenuHandler); ok {
+	var r0 cef.ContextMenuHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.ContextMenuHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.ContextMenuHandler)
+			r0 = ret.Get(0).(cef.ContextMenuHandler)
 		}
 	}
 	return r0
@@ -164,30 +164,30 @@ func (_c *MockClient_GetContextMenuHandler_Call) Run(run func()) *MockClient_Get
 	return _c
 }
 
-func (_c *MockClient_GetContextMenuHandler_Call) Return(contextMenuHandler in.ContextMenuHandler) *MockClient_GetContextMenuHandler_Call {
-	_c.Call.Return(contextMenuHandler)
+func (_c *MockClient_GetContextMenuHandler_Call) Return(v cef.ContextMenuHandler) *MockClient_GetContextMenuHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetContextMenuHandler_Call) RunAndReturn(run func() in.ContextMenuHandler) *MockClient_GetContextMenuHandler_Call {
+func (_c *MockClient_GetContextMenuHandler_Call) RunAndReturn(run func() cef.ContextMenuHandler) *MockClient_GetContextMenuHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetDialogHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetDialogHandler() in.DialogHandler {
+func (_mock *MockClient) GetDialogHandler() cef.DialogHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDialogHandler")
 	}
 
-	var r0 in.DialogHandler
-	if returnFunc, ok := ret.Get(0).(func() in.DialogHandler); ok {
+	var r0 cef.DialogHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.DialogHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.DialogHandler)
+			r0 = ret.Get(0).(cef.DialogHandler)
 		}
 	}
 	return r0
@@ -210,30 +210,30 @@ func (_c *MockClient_GetDialogHandler_Call) Run(run func()) *MockClient_GetDialo
 	return _c
 }
 
-func (_c *MockClient_GetDialogHandler_Call) Return(dialogHandler in.DialogHandler) *MockClient_GetDialogHandler_Call {
-	_c.Call.Return(dialogHandler)
+func (_c *MockClient_GetDialogHandler_Call) Return(v cef.DialogHandler) *MockClient_GetDialogHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetDialogHandler_Call) RunAndReturn(run func() in.DialogHandler) *MockClient_GetDialogHandler_Call {
+func (_c *MockClient_GetDialogHandler_Call) RunAndReturn(run func() cef.DialogHandler) *MockClient_GetDialogHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetDisplayHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetDisplayHandler() in.DisplayHandler {
+func (_mock *MockClient) GetDisplayHandler() cef.DisplayHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDisplayHandler")
 	}
 
-	var r0 in.DisplayHandler
-	if returnFunc, ok := ret.Get(0).(func() in.DisplayHandler); ok {
+	var r0 cef.DisplayHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.DisplayHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.DisplayHandler)
+			r0 = ret.Get(0).(cef.DisplayHandler)
 		}
 	}
 	return r0
@@ -256,30 +256,30 @@ func (_c *MockClient_GetDisplayHandler_Call) Run(run func()) *MockClient_GetDisp
 	return _c
 }
 
-func (_c *MockClient_GetDisplayHandler_Call) Return(displayHandler in.DisplayHandler) *MockClient_GetDisplayHandler_Call {
-	_c.Call.Return(displayHandler)
+func (_c *MockClient_GetDisplayHandler_Call) Return(v cef.DisplayHandler) *MockClient_GetDisplayHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetDisplayHandler_Call) RunAndReturn(run func() in.DisplayHandler) *MockClient_GetDisplayHandler_Call {
+func (_c *MockClient_GetDisplayHandler_Call) RunAndReturn(run func() cef.DisplayHandler) *MockClient_GetDisplayHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetDownloadHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetDownloadHandler() in.DownloadHandler {
+func (_mock *MockClient) GetDownloadHandler() cef.DownloadHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDownloadHandler")
 	}
 
-	var r0 in.DownloadHandler
-	if returnFunc, ok := ret.Get(0).(func() in.DownloadHandler); ok {
+	var r0 cef.DownloadHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.DownloadHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.DownloadHandler)
+			r0 = ret.Get(0).(cef.DownloadHandler)
 		}
 	}
 	return r0
@@ -302,30 +302,30 @@ func (_c *MockClient_GetDownloadHandler_Call) Run(run func()) *MockClient_GetDow
 	return _c
 }
 
-func (_c *MockClient_GetDownloadHandler_Call) Return(downloadHandler in.DownloadHandler) *MockClient_GetDownloadHandler_Call {
-	_c.Call.Return(downloadHandler)
+func (_c *MockClient_GetDownloadHandler_Call) Return(v cef.DownloadHandler) *MockClient_GetDownloadHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetDownloadHandler_Call) RunAndReturn(run func() in.DownloadHandler) *MockClient_GetDownloadHandler_Call {
+func (_c *MockClient_GetDownloadHandler_Call) RunAndReturn(run func() cef.DownloadHandler) *MockClient_GetDownloadHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetDragHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetDragHandler() in.DragHandler {
+func (_mock *MockClient) GetDragHandler() cef.DragHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDragHandler")
 	}
 
-	var r0 in.DragHandler
-	if returnFunc, ok := ret.Get(0).(func() in.DragHandler); ok {
+	var r0 cef.DragHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.DragHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.DragHandler)
+			r0 = ret.Get(0).(cef.DragHandler)
 		}
 	}
 	return r0
@@ -348,30 +348,30 @@ func (_c *MockClient_GetDragHandler_Call) Run(run func()) *MockClient_GetDragHan
 	return _c
 }
 
-func (_c *MockClient_GetDragHandler_Call) Return(dragHandler in.DragHandler) *MockClient_GetDragHandler_Call {
-	_c.Call.Return(dragHandler)
+func (_c *MockClient_GetDragHandler_Call) Return(v cef.DragHandler) *MockClient_GetDragHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetDragHandler_Call) RunAndReturn(run func() in.DragHandler) *MockClient_GetDragHandler_Call {
+func (_c *MockClient_GetDragHandler_Call) RunAndReturn(run func() cef.DragHandler) *MockClient_GetDragHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetFindHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetFindHandler() in.FindHandler {
+func (_mock *MockClient) GetFindHandler() cef.FindHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFindHandler")
 	}
 
-	var r0 in.FindHandler
-	if returnFunc, ok := ret.Get(0).(func() in.FindHandler); ok {
+	var r0 cef.FindHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.FindHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.FindHandler)
+			r0 = ret.Get(0).(cef.FindHandler)
 		}
 	}
 	return r0
@@ -394,30 +394,30 @@ func (_c *MockClient_GetFindHandler_Call) Run(run func()) *MockClient_GetFindHan
 	return _c
 }
 
-func (_c *MockClient_GetFindHandler_Call) Return(findHandler in.FindHandler) *MockClient_GetFindHandler_Call {
-	_c.Call.Return(findHandler)
+func (_c *MockClient_GetFindHandler_Call) Return(v cef.FindHandler) *MockClient_GetFindHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetFindHandler_Call) RunAndReturn(run func() in.FindHandler) *MockClient_GetFindHandler_Call {
+func (_c *MockClient_GetFindHandler_Call) RunAndReturn(run func() cef.FindHandler) *MockClient_GetFindHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetFocusHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetFocusHandler() in.FocusHandler {
+func (_mock *MockClient) GetFocusHandler() cef.FocusHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFocusHandler")
 	}
 
-	var r0 in.FocusHandler
-	if returnFunc, ok := ret.Get(0).(func() in.FocusHandler); ok {
+	var r0 cef.FocusHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.FocusHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.FocusHandler)
+			r0 = ret.Get(0).(cef.FocusHandler)
 		}
 	}
 	return r0
@@ -440,30 +440,30 @@ func (_c *MockClient_GetFocusHandler_Call) Run(run func()) *MockClient_GetFocusH
 	return _c
 }
 
-func (_c *MockClient_GetFocusHandler_Call) Return(focusHandler in.FocusHandler) *MockClient_GetFocusHandler_Call {
-	_c.Call.Return(focusHandler)
+func (_c *MockClient_GetFocusHandler_Call) Return(v cef.FocusHandler) *MockClient_GetFocusHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetFocusHandler_Call) RunAndReturn(run func() in.FocusHandler) *MockClient_GetFocusHandler_Call {
+func (_c *MockClient_GetFocusHandler_Call) RunAndReturn(run func() cef.FocusHandler) *MockClient_GetFocusHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetFrameHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetFrameHandler() in.FrameHandler {
+func (_mock *MockClient) GetFrameHandler() cef.FrameHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFrameHandler")
 	}
 
-	var r0 in.FrameHandler
-	if returnFunc, ok := ret.Get(0).(func() in.FrameHandler); ok {
+	var r0 cef.FrameHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.FrameHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.FrameHandler)
+			r0 = ret.Get(0).(cef.FrameHandler)
 		}
 	}
 	return r0
@@ -486,30 +486,30 @@ func (_c *MockClient_GetFrameHandler_Call) Run(run func()) *MockClient_GetFrameH
 	return _c
 }
 
-func (_c *MockClient_GetFrameHandler_Call) Return(frameHandler in.FrameHandler) *MockClient_GetFrameHandler_Call {
-	_c.Call.Return(frameHandler)
+func (_c *MockClient_GetFrameHandler_Call) Return(v cef.FrameHandler) *MockClient_GetFrameHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetFrameHandler_Call) RunAndReturn(run func() in.FrameHandler) *MockClient_GetFrameHandler_Call {
+func (_c *MockClient_GetFrameHandler_Call) RunAndReturn(run func() cef.FrameHandler) *MockClient_GetFrameHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetJsdialogHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetJsdialogHandler() in.JsdialogHandler {
+func (_mock *MockClient) GetJsdialogHandler() cef.JsdialogHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJsdialogHandler")
 	}
 
-	var r0 in.JsdialogHandler
-	if returnFunc, ok := ret.Get(0).(func() in.JsdialogHandler); ok {
+	var r0 cef.JsdialogHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.JsdialogHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.JsdialogHandler)
+			r0 = ret.Get(0).(cef.JsdialogHandler)
 		}
 	}
 	return r0
@@ -532,30 +532,30 @@ func (_c *MockClient_GetJsdialogHandler_Call) Run(run func()) *MockClient_GetJsd
 	return _c
 }
 
-func (_c *MockClient_GetJsdialogHandler_Call) Return(jsdialogHandler in.JsdialogHandler) *MockClient_GetJsdialogHandler_Call {
-	_c.Call.Return(jsdialogHandler)
+func (_c *MockClient_GetJsdialogHandler_Call) Return(v cef.JsdialogHandler) *MockClient_GetJsdialogHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetJsdialogHandler_Call) RunAndReturn(run func() in.JsdialogHandler) *MockClient_GetJsdialogHandler_Call {
+func (_c *MockClient_GetJsdialogHandler_Call) RunAndReturn(run func() cef.JsdialogHandler) *MockClient_GetJsdialogHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetKeyboardHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetKeyboardHandler() in.KeyboardHandler {
+func (_mock *MockClient) GetKeyboardHandler() cef.KeyboardHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetKeyboardHandler")
 	}
 
-	var r0 in.KeyboardHandler
-	if returnFunc, ok := ret.Get(0).(func() in.KeyboardHandler); ok {
+	var r0 cef.KeyboardHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.KeyboardHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.KeyboardHandler)
+			r0 = ret.Get(0).(cef.KeyboardHandler)
 		}
 	}
 	return r0
@@ -578,30 +578,30 @@ func (_c *MockClient_GetKeyboardHandler_Call) Run(run func()) *MockClient_GetKey
 	return _c
 }
 
-func (_c *MockClient_GetKeyboardHandler_Call) Return(keyboardHandler in.KeyboardHandler) *MockClient_GetKeyboardHandler_Call {
-	_c.Call.Return(keyboardHandler)
+func (_c *MockClient_GetKeyboardHandler_Call) Return(v cef.KeyboardHandler) *MockClient_GetKeyboardHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetKeyboardHandler_Call) RunAndReturn(run func() in.KeyboardHandler) *MockClient_GetKeyboardHandler_Call {
+func (_c *MockClient_GetKeyboardHandler_Call) RunAndReturn(run func() cef.KeyboardHandler) *MockClient_GetKeyboardHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetLifeSpanHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetLifeSpanHandler() in.LifeSpanHandler {
+func (_mock *MockClient) GetLifeSpanHandler() cef.LifeSpanHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetLifeSpanHandler")
 	}
 
-	var r0 in.LifeSpanHandler
-	if returnFunc, ok := ret.Get(0).(func() in.LifeSpanHandler); ok {
+	var r0 cef.LifeSpanHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.LifeSpanHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.LifeSpanHandler)
+			r0 = ret.Get(0).(cef.LifeSpanHandler)
 		}
 	}
 	return r0
@@ -624,30 +624,30 @@ func (_c *MockClient_GetLifeSpanHandler_Call) Run(run func()) *MockClient_GetLif
 	return _c
 }
 
-func (_c *MockClient_GetLifeSpanHandler_Call) Return(lifeSpanHandler in.LifeSpanHandler) *MockClient_GetLifeSpanHandler_Call {
+func (_c *MockClient_GetLifeSpanHandler_Call) Return(lifeSpanHandler cef.LifeSpanHandler) *MockClient_GetLifeSpanHandler_Call {
 	_c.Call.Return(lifeSpanHandler)
 	return _c
 }
 
-func (_c *MockClient_GetLifeSpanHandler_Call) RunAndReturn(run func() in.LifeSpanHandler) *MockClient_GetLifeSpanHandler_Call {
+func (_c *MockClient_GetLifeSpanHandler_Call) RunAndReturn(run func() cef.LifeSpanHandler) *MockClient_GetLifeSpanHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetLoadHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetLoadHandler() in.LoadHandler {
+func (_mock *MockClient) GetLoadHandler() cef.LoadHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetLoadHandler")
 	}
 
-	var r0 in.LoadHandler
-	if returnFunc, ok := ret.Get(0).(func() in.LoadHandler); ok {
+	var r0 cef.LoadHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.LoadHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.LoadHandler)
+			r0 = ret.Get(0).(cef.LoadHandler)
 		}
 	}
 	return r0
@@ -670,30 +670,30 @@ func (_c *MockClient_GetLoadHandler_Call) Run(run func()) *MockClient_GetLoadHan
 	return _c
 }
 
-func (_c *MockClient_GetLoadHandler_Call) Return(loadHandler in.LoadHandler) *MockClient_GetLoadHandler_Call {
-	_c.Call.Return(loadHandler)
+func (_c *MockClient_GetLoadHandler_Call) Return(v cef.LoadHandler) *MockClient_GetLoadHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetLoadHandler_Call) RunAndReturn(run func() in.LoadHandler) *MockClient_GetLoadHandler_Call {
+func (_c *MockClient_GetLoadHandler_Call) RunAndReturn(run func() cef.LoadHandler) *MockClient_GetLoadHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetPermissionHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetPermissionHandler() in.PermissionHandler {
+func (_mock *MockClient) GetPermissionHandler() cef.PermissionHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPermissionHandler")
 	}
 
-	var r0 in.PermissionHandler
-	if returnFunc, ok := ret.Get(0).(func() in.PermissionHandler); ok {
+	var r0 cef.PermissionHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.PermissionHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.PermissionHandler)
+			r0 = ret.Get(0).(cef.PermissionHandler)
 		}
 	}
 	return r0
@@ -716,30 +716,30 @@ func (_c *MockClient_GetPermissionHandler_Call) Run(run func()) *MockClient_GetP
 	return _c
 }
 
-func (_c *MockClient_GetPermissionHandler_Call) Return(permissionHandler in.PermissionHandler) *MockClient_GetPermissionHandler_Call {
-	_c.Call.Return(permissionHandler)
+func (_c *MockClient_GetPermissionHandler_Call) Return(v cef.PermissionHandler) *MockClient_GetPermissionHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetPermissionHandler_Call) RunAndReturn(run func() in.PermissionHandler) *MockClient_GetPermissionHandler_Call {
+func (_c *MockClient_GetPermissionHandler_Call) RunAndReturn(run func() cef.PermissionHandler) *MockClient_GetPermissionHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetPrintHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetPrintHandler() in.PrintHandler {
+func (_mock *MockClient) GetPrintHandler() cef.PrintHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPrintHandler")
 	}
 
-	var r0 in.PrintHandler
-	if returnFunc, ok := ret.Get(0).(func() in.PrintHandler); ok {
+	var r0 cef.PrintHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.PrintHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.PrintHandler)
+			r0 = ret.Get(0).(cef.PrintHandler)
 		}
 	}
 	return r0
@@ -762,30 +762,30 @@ func (_c *MockClient_GetPrintHandler_Call) Run(run func()) *MockClient_GetPrintH
 	return _c
 }
 
-func (_c *MockClient_GetPrintHandler_Call) Return(printHandler in.PrintHandler) *MockClient_GetPrintHandler_Call {
-	_c.Call.Return(printHandler)
+func (_c *MockClient_GetPrintHandler_Call) Return(v cef.PrintHandler) *MockClient_GetPrintHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetPrintHandler_Call) RunAndReturn(run func() in.PrintHandler) *MockClient_GetPrintHandler_Call {
+func (_c *MockClient_GetPrintHandler_Call) RunAndReturn(run func() cef.PrintHandler) *MockClient_GetPrintHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetRenderHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetRenderHandler() in.RenderHandler {
+func (_mock *MockClient) GetRenderHandler() cef.RenderHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetRenderHandler")
 	}
 
-	var r0 in.RenderHandler
-	if returnFunc, ok := ret.Get(0).(func() in.RenderHandler); ok {
+	var r0 cef.RenderHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.RenderHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.RenderHandler)
+			r0 = ret.Get(0).(cef.RenderHandler)
 		}
 	}
 	return r0
@@ -808,30 +808,30 @@ func (_c *MockClient_GetRenderHandler_Call) Run(run func()) *MockClient_GetRende
 	return _c
 }
 
-func (_c *MockClient_GetRenderHandler_Call) Return(renderHandler in.RenderHandler) *MockClient_GetRenderHandler_Call {
-	_c.Call.Return(renderHandler)
+func (_c *MockClient_GetRenderHandler_Call) Return(v cef.RenderHandler) *MockClient_GetRenderHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetRenderHandler_Call) RunAndReturn(run func() in.RenderHandler) *MockClient_GetRenderHandler_Call {
+func (_c *MockClient_GetRenderHandler_Call) RunAndReturn(run func() cef.RenderHandler) *MockClient_GetRenderHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetRequestHandler provides a mock function for the type MockClient
-func (_mock *MockClient) GetRequestHandler() in.RequestHandler {
+func (_mock *MockClient) GetRequestHandler() cef.RequestHandler {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetRequestHandler")
 	}
 
-	var r0 in.RequestHandler
-	if returnFunc, ok := ret.Get(0).(func() in.RequestHandler); ok {
+	var r0 cef.RequestHandler
+	if returnFunc, ok := ret.Get(0).(func() cef.RequestHandler); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.RequestHandler)
+			r0 = ret.Get(0).(cef.RequestHandler)
 		}
 	}
 	return r0
@@ -854,18 +854,18 @@ func (_c *MockClient_GetRequestHandler_Call) Run(run func()) *MockClient_GetRequ
 	return _c
 }
 
-func (_c *MockClient_GetRequestHandler_Call) Return(requestHandler in.RequestHandler) *MockClient_GetRequestHandler_Call {
-	_c.Call.Return(requestHandler)
+func (_c *MockClient_GetRequestHandler_Call) Return(v cef.RequestHandler) *MockClient_GetRequestHandler_Call {
+	_c.Call.Return(v)
 	return _c
 }
 
-func (_c *MockClient_GetRequestHandler_Call) RunAndReturn(run func() in.RequestHandler) *MockClient_GetRequestHandler_Call {
+func (_c *MockClient_GetRequestHandler_Call) RunAndReturn(run func() cef.RequestHandler) *MockClient_GetRequestHandler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // OnProcessMessageReceived provides a mock function for the type MockClient
-func (_mock *MockClient) OnProcessMessageReceived(browser in.Browser, frame in.Frame, sourceProcess in.ProcessID, message in.ProcessMessage) int32 {
+func (_mock *MockClient) OnProcessMessageReceived(browser cef.Browser, frame cef.Frame, sourceProcess cef.ProcessID, message cef.ProcessMessage) int32 {
 	ret := _mock.Called(browser, frame, sourceProcess, message)
 
 	if len(ret) == 0 {
@@ -873,7 +873,7 @@ func (_mock *MockClient) OnProcessMessageReceived(browser in.Browser, frame in.F
 	}
 
 	var r0 int32
-	if returnFunc, ok := ret.Get(0).(func(in.Browser, in.Frame, in.ProcessID, in.ProcessMessage) int32); ok {
+	if returnFunc, ok := ret.Get(0).(func(cef.Browser, cef.Frame, cef.ProcessID, cef.ProcessMessage) int32); ok {
 		r0 = returnFunc(browser, frame, sourceProcess, message)
 	} else {
 		r0 = ret.Get(0).(int32)
@@ -887,31 +887,31 @@ type MockClient_OnProcessMessageReceived_Call struct {
 }
 
 // OnProcessMessageReceived is a helper method to define mock.On call
-//   - browser in.Browser
-//   - frame in.Frame
-//   - sourceProcess in.ProcessID
-//   - message in.ProcessMessage
+//   - browser cef.Browser
+//   - frame cef.Frame
+//   - sourceProcess cef.ProcessID
+//   - message cef.ProcessMessage
 func (_e *MockClient_Expecter) OnProcessMessageReceived(browser interface{}, frame interface{}, sourceProcess interface{}, message interface{}) *MockClient_OnProcessMessageReceived_Call {
 	return &MockClient_OnProcessMessageReceived_Call{Call: _e.mock.On("OnProcessMessageReceived", browser, frame, sourceProcess, message)}
 }
 
-func (_c *MockClient_OnProcessMessageReceived_Call) Run(run func(browser in.Browser, frame in.Frame, sourceProcess in.ProcessID, message in.ProcessMessage)) *MockClient_OnProcessMessageReceived_Call {
+func (_c *MockClient_OnProcessMessageReceived_Call) Run(run func(browser cef.Browser, frame cef.Frame, sourceProcess cef.ProcessID, message cef.ProcessMessage)) *MockClient_OnProcessMessageReceived_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 in.Browser
+		var arg0 cef.Browser
 		if args[0] != nil {
-			arg0 = args[0].(in.Browser)
+			arg0 = args[0].(cef.Browser)
 		}
-		var arg1 in.Frame
+		var arg1 cef.Frame
 		if args[1] != nil {
-			arg1 = args[1].(in.Frame)
+			arg1 = args[1].(cef.Frame)
 		}
-		var arg2 in.ProcessID
+		var arg2 cef.ProcessID
 		if args[2] != nil {
-			arg2 = args[2].(in.ProcessID)
+			arg2 = args[2].(cef.ProcessID)
 		}
-		var arg3 in.ProcessMessage
+		var arg3 cef.ProcessMessage
 		if args[3] != nil {
-			arg3 = args[3].(in.ProcessMessage)
+			arg3 = args[3].(cef.ProcessMessage)
 		}
 		run(
 			arg0,
@@ -928,7 +928,7 @@ func (_c *MockClient_OnProcessMessageReceived_Call) Return(n int32) *MockClient_
 	return _c
 }
 
-func (_c *MockClient_OnProcessMessageReceived_Call) RunAndReturn(run func(browser in.Browser, frame in.Frame, sourceProcess in.ProcessID, message in.ProcessMessage) int32) *MockClient_OnProcessMessageReceived_Call {
+func (_c *MockClient_OnProcessMessageReceived_Call) RunAndReturn(run func(browser cef.Browser, frame cef.Frame, sourceProcess cef.ProcessID, message cef.ProcessMessage) int32) *MockClient_OnProcessMessageReceived_Call {
 	_c.Call.Return(run)
 	return _c
 }

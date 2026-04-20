@@ -62,7 +62,7 @@ type BrowserHost interface {
 	GetOpenerWindowHandle() uintptr
 	GetOpenerIdentifier() int32
 	HasView() bool
-	GetClient() Client
+	GetClient() unsafe.Pointer
 	GetRequestContext() RequestContext
 	CanZoom(command ZoomCommand) bool
 	Zoom(command ZoomCommand)
@@ -76,7 +76,7 @@ type BrowserHost interface {
 	PrintToPdf(path string, settings *PdfPrintSettings, callback PdfPrintCallback)
 	Find(searchtext string, forward int32, matchcase int32, findnext int32)
 	StopFinding(clearselection int32)
-	ShowDevTools(windowinfo *WindowInfo, client Client, settings *BrowserSettings, inspectElementAt *Point)
+	ShowDevTools(windowinfo *WindowInfo, client RawClient, settings *BrowserSettings, inspectElementAt *Point)
 	CloseDevTools()
 	HasDevTools() bool
 	SendDevToolsMessage(message unsafe.Pointer, messageSize int) int32

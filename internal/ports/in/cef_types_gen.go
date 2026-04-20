@@ -192,8 +192,8 @@ type ColorVariant = int32
 
 type TaskType = int32
 
-// CEFSettings is a type alias for the raw data struct.
-type CEFSettings = capi.CEFSettingsT
+// RawSettings is a type alias for the raw data struct.
+type RawSettings = capi.CEFSettingsT
 
 // RequestContextSettings is a type alias for the raw data struct.
 type RequestContextSettings = capi.CEFRequestContextSettingsT

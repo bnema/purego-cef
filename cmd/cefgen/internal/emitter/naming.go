@@ -6,8 +6,11 @@ import "github.com/bnema/purego-cef/cmd/cefgen/internal/model"
 // Use this when the natural public name would conflict with a handwritten API
 // surface that intentionally exposes a safer abstraction.
 var typeRenames = map[string]string{
-	"Settings": "CEFSettings",
-	"MainArgs": "CEFMainArgs",
+	"AudioHandler":    "RawAudioHandler",
+	"Client":          "RawClient",
+	"LifeSpanHandler": "RawLifeSpanHandler",
+	"MainArgs":        "RawMainArgs",
+	"Settings":        "RawSettings",
 }
 
 func publicTypeName(name string) string {

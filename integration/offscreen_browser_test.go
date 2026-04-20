@@ -16,24 +16,24 @@ type testClient struct {
 	renderHandler cef.RenderHandler
 }
 
-func (c *testClient) GetAudioHandler() cef.AudioHandler                { return nil }
-func (c *testClient) GetCommandHandler() cef.CommandHandler            { return nil }
-func (c *testClient) GetContextMenuHandler() cef.ContextMenuHandler    { return nil }
-func (c *testClient) GetDialogHandler() cef.DialogHandler              { return nil }
-func (c *testClient) GetDisplayHandler() cef.DisplayHandler            { return nil }
-func (c *testClient) GetDownloadHandler() cef.DownloadHandler          { return nil }
-func (c *testClient) GetDragHandler() cef.DragHandler                  { return nil }
-func (c *testClient) GetFindHandler() cef.FindHandler                  { return nil }
-func (c *testClient) GetFocusHandler() cef.FocusHandler                { return nil }
-func (c *testClient) GetFrameHandler() cef.FrameHandler                { return nil }
-func (c *testClient) GetPermissionHandler() cef.PermissionHandler      { return nil }
-func (c *testClient) GetJsdialogHandler() cef.JsdialogHandler          { return nil }
-func (c *testClient) GetKeyboardHandler() cef.KeyboardHandler          { return nil }
-func (c *testClient) GetLifeSpanHandler() cef.LifeSpanHandler          { return nil }
-func (c *testClient) GetLoadHandler() cef.LoadHandler                  { return nil }
-func (c *testClient) GetPrintHandler() cef.PrintHandler                { return nil }
-func (c *testClient) GetRenderHandler() cef.RenderHandler              { return c.renderHandler }
-func (c *testClient) GetRequestHandler() cef.RequestHandler            { return nil }
+func (c *testClient) GetAudioHandler() cef.AudioHandler             { return nil }
+func (c *testClient) GetCommandHandler() cef.CommandHandler         { return nil }
+func (c *testClient) GetContextMenuHandler() cef.ContextMenuHandler { return nil }
+func (c *testClient) GetDialogHandler() cef.DialogHandler           { return nil }
+func (c *testClient) GetDisplayHandler() cef.DisplayHandler         { return nil }
+func (c *testClient) GetDownloadHandler() cef.DownloadHandler       { return nil }
+func (c *testClient) GetDragHandler() cef.DragHandler               { return nil }
+func (c *testClient) GetFindHandler() cef.FindHandler               { return nil }
+func (c *testClient) GetFocusHandler() cef.FocusHandler             { return nil }
+func (c *testClient) GetFrameHandler() cef.FrameHandler             { return nil }
+func (c *testClient) GetPermissionHandler() cef.PermissionHandler   { return nil }
+func (c *testClient) GetJsdialogHandler() cef.JsdialogHandler       { return nil }
+func (c *testClient) GetKeyboardHandler() cef.KeyboardHandler       { return nil }
+func (c *testClient) GetLifeSpanHandler() cef.LifeSpanHandler       { return nil }
+func (c *testClient) GetLoadHandler() cef.LoadHandler               { return nil }
+func (c *testClient) GetPrintHandler() cef.PrintHandler             { return nil }
+func (c *testClient) GetRenderHandler() cef.RenderHandler           { return c.renderHandler }
+func (c *testClient) GetRequestHandler() cef.RequestHandler         { return nil }
 func (c *testClient) OnProcessMessageReceived(browser cef.Browser, frame cef.Frame, sourceProcess cef.ProcessID, message cef.ProcessMessage) int32 {
 	return 0
 }
@@ -54,8 +54,8 @@ func (h *testRenderHandler) GetScreenPoint(browser cef.Browser, viewx, viewy int
 func (h *testRenderHandler) GetScreenInfo(browser cef.Browser, screenInfo *cef.ScreenInfo) int32 {
 	return 0
 }
-func (h *testRenderHandler) OnPopupShow(browser cef.Browser, show int32)                 {}
-func (h *testRenderHandler) OnPopupSize(browser cef.Browser, rect *cef.Rect)                {}
+func (h *testRenderHandler) OnPopupShow(browser cef.Browser, show int32)     {}
+func (h *testRenderHandler) OnPopupSize(browser cef.Browser, rect *cef.Rect) {}
 func (h *testRenderHandler) OnPaint(browser cef.Browser, type_ cef.PaintElementType, dirtyrects []cef.Rect, buffer unsafe.Pointer, width, height int32) {
 	select {
 	case h.painted <- struct{}{}:

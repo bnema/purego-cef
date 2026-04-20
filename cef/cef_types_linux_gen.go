@@ -8,8 +8,8 @@ import (
 	"github.com/bnema/purego-cef/internal/capi"
 )
 
-// CEFMainArgs Structure representing CefExecuteProcess arguments.
-type CEFMainArgs = capi.CEFMainArgsT
+// RawMainArgs Structure representing CefExecuteProcess arguments.
+type RawMainArgs = capi.CEFMainArgsT
 
 // WindowInfo Class representing window information.
 type WindowInfo = capi.CEFWindowInfoT

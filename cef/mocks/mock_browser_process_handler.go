@@ -37,19 +37,19 @@ func (_m *MockBrowserProcessHandler) EXPECT() *MockBrowserProcessHandler_Expecte
 }
 
 // GetDefaultClient provides a mock function for the type MockBrowserProcessHandler
-func (_mock *MockBrowserProcessHandler) GetDefaultClient() in.Client {
+func (_mock *MockBrowserProcessHandler) GetDefaultClient() in.RawClient {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDefaultClient")
 	}
 
-	var r0 in.Client
-	if returnFunc, ok := ret.Get(0).(func() in.Client); ok {
+	var r0 in.RawClient
+	if returnFunc, ok := ret.Get(0).(func() in.RawClient); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(in.Client)
+			r0 = ret.Get(0).(in.RawClient)
 		}
 	}
 	return r0
@@ -72,12 +72,12 @@ func (_c *MockBrowserProcessHandler_GetDefaultClient_Call) Run(run func()) *Mock
 	return _c
 }
 
-func (_c *MockBrowserProcessHandler_GetDefaultClient_Call) Return(client in.Client) *MockBrowserProcessHandler_GetDefaultClient_Call {
-	_c.Call.Return(client)
+func (_c *MockBrowserProcessHandler_GetDefaultClient_Call) Return(rawClient in.RawClient) *MockBrowserProcessHandler_GetDefaultClient_Call {
+	_c.Call.Return(rawClient)
 	return _c
 }
 
-func (_c *MockBrowserProcessHandler_GetDefaultClient_Call) RunAndReturn(run func() in.Client) *MockBrowserProcessHandler_GetDefaultClient_Call {
+func (_c *MockBrowserProcessHandler_GetDefaultClient_Call) RunAndReturn(run func() in.RawClient) *MockBrowserProcessHandler_GetDefaultClient_Call {
 	_c.Call.Return(run)
 	return _c
 }

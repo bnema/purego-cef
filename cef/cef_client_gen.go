@@ -12,24 +12,24 @@ import (
 	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
-// Client Implement this structure to provide handler implementations.
-type Client = portin.Client
+// RawClient Implement this structure to provide handler implementations.
+type RawClient = portin.RawClient
 
-// clientWrapper wraps a user-provided Client implementation together
-// with the raw CEF struct pointer allocated by newRawClient.  It satisfies the
-// Client interface (by embedding the user impl) and core.RawPointerHolder
+// rawClientWrapper wraps a user-provided RawClient implementation together
+// with the raw CEF struct pointer allocated by NewRawClient.  It satisfies the
+// RawClient interface (by embedding the user impl) and core.RawPointerHolder
 // (so extractRawPointer can recover the raw pointer).
-type clientWrapper struct {
-	Client // embed user impl for interface delegation
-	rawPtr *capi.CEFClientT
+type rawClientWrapper struct {
+	RawClient // embed user impl for interface delegation
+	rawPtr    *capi.CEFClientT
 }
 
-func (w *clientWrapper) RawPointer() unsafe.Pointer {
+func (w *rawClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// newRawClient creates a CEF handler backed by the given implementation.
-func newRawClient(impl Client) Client {
+// NewRawClient creates a CEF handler backed by the given implementation.
+func NewRawClient(impl RawClient) RawClient {
 	r := new(capi.CEFClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -37,7 +37,7 @@ func newRawClient(impl Client) Client {
 	var cachedGetAudioHandlerPtr unsafe.Pointer
 	if h := impl.GetAudioHandler(); h != nil {
 		cachedGetAudioHandlerPtr = extractOrWrapRawPointer(h, func() any {
-			return NewAudioHandler(h)
+			return NewRawAudioHandler(h)
 		})
 	}
 	r.OverrideGetAudioHandler(purego.NewCallback(func(_ uintptr) uintptr {
@@ -219,7 +219,7 @@ func newRawClient(impl Client) Client {
 	var cachedGetLifeSpanHandlerPtr unsafe.Pointer
 	if h := impl.GetLifeSpanHandler(); h != nil {
 		cachedGetLifeSpanHandlerPtr = extractOrWrapRawPointer(h, func() any {
-			return newRawLifeSpanHandler(h)
+			return NewRawLifeSpanHandler(h)
 		})
 	}
 	r.OverrideGetLifeSpanHandler(purego.NewCallback(func(_ uintptr) uintptr {
@@ -293,15 +293,15 @@ func newRawClient(impl Client) Client {
 		return uintptr(impl.OnProcessMessageReceived(browser, frame, sourceProcess, message))
 	}))
 
-	w := &clientWrapper{rawPtr: r}
-	w.Client = impl
+	w := &rawClientWrapper{rawPtr: r}
+	w.RawClient = impl
 	return w
 }
 
-// wrapClient wraps a CEF handler pointer received from CEF into a Go interface.
+// wrapRawClient wraps a CEF handler pointer received from CEF into a Go interface.
 // This is a no-op wrapper since handler pointers from CEF are opaque; the returned
 // interface is a thin facade that cannot call back into the original implementation.
-func wrapClient(ptr unsafe.Pointer) Client {
+func wrapRawClient(ptr unsafe.Pointer) RawClient {
 	// Handler pointers returned by CEF cannot be meaningfully wrapped because
 	// the underlying function pointers may be Go callbacks that we cannot call
 	// back through purego.  Return nil for now; callers that need the handler
