@@ -12,6 +12,7 @@ import (
 // be unexported (newRawXxx instead of NewXxx) because they have hand-written
 // public constructors in bridge.go that wrap them with safe types.
 var rawConstructorTypes = map[string]bool{
+	"AudioHandler":    true,
 	"Client":          true,
 	"LifeSpanHandler": true,
 }

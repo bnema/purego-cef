@@ -37,7 +37,7 @@ func newRawClient(impl Client) Client {
 	var cachedGetAudioHandlerPtr unsafe.Pointer
 	if h := impl.GetAudioHandler(); h != nil {
 		cachedGetAudioHandlerPtr = extractOrWrapRawPointer(h, func() any {
-			return NewAudioHandler(h)
+			return newRawAudioHandler(h)
 		})
 	}
 	r.OverrideGetAudioHandler(purego.NewCallback(func(_ uintptr) uintptr {

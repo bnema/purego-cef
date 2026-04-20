@@ -5,19 +5,13 @@ import (
 	"runtime"
 	"unicode/utf16"
 	"unsafe"
+
+	"github.com/bnema/purego-cef/internal/capi"
 )
 
-// CEFStringT mirrors cef_string_utf16_t. This layout MUST match
-// internal/capi/doc.go:CEFStringT exactly — both are 24 bytes on
-// 64-bit systems (pointer + uintptr + uintptr).
-// Intentionally duplicated from capi.CEFStringT to avoid a circular import
-// (core defines the CAPI interface that capi implements). Both definitions
-// MUST stay in sync — they share the same memory layout.
-type CEFStringT struct {
-	Str    *uint16
-	Length uintptr
-	Dtor   uintptr
-}
+// CEFStringT is the raw CEF UTF-16 string layout shared with the generated
+// capi layer.
+type CEFStringT = capi.CEFStringT
 
 // CefString converts a Go string to a CEF UTF-16 string via the CAPI adapter.
 func (e *Engine) CefString(s string) CEFStringT {

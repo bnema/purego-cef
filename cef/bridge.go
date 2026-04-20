@@ -15,12 +15,18 @@ import (
 	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
-// Type alias for LifeSpanHandler — uses generated interface (out-params are unsafe.Pointer).
+// LifeSpanHandler is the low-level/raw generated handler interface.
+// End users should usually implement SafeLifeSpanHandler and pass it to
+// NewLifeSpanHandler instead of implementing this directly.
 type LifeSpanHandler = portin.LifeSpanHandler
 
+// RawAudioHandler is the low-level/raw generated audio handler interface.
+// End users should usually implement AudioHandler and pass it to
+// NewAudioHandler instead of using this directly.
+type RawAudioHandler = portin.AudioHandler
+
 // AudioHandler handles audio events with a safe [][]float32 data signature.
-// This is NOT an alias of the generated portin.AudioHandler (which uses unsafe.Pointer
-// for the data param). The constructor decodes the raw float** to [][]float32.
+// The constructor decodes the raw float** callback input for you.
 type AudioHandler interface {
 	GetAudioParameters(browser Browser, params *AudioParameters) int32
 	OnAudioStreamStarted(browser Browser, params *AudioParameters, channels int32)
@@ -325,9 +331,8 @@ func (w *audioHandlerWrapper) OnAudioStreamError(browser Browser, message string
 	w.impl.OnAudioStreamError(browser, message)
 }
 
-// NewSafeAudioHandler creates a CEF handler with safe [][]float32 audio data decoding.
-// Use this instead of NewAudioHandler when you want decoded audio packets.
-func NewSafeAudioHandler(impl AudioHandler) portin.AudioHandler {
+// NewAudioHandler creates a CEF handler with decoded [][]float32 audio packets.
+func NewAudioHandler(impl AudioHandler) RawAudioHandler {
 	r := new(capi.CEFAudioHandlerT)
 	w := &audioHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -370,9 +375,9 @@ func NewSafeAudioHandler(impl AudioHandler) portin.AudioHandler {
 	return w
 }
 
-// NewAudioHandler creates a CEF handler from the generated portin.AudioHandler interface.
-// For decoded [][]float32 audio data, use NewSafeAudioHandler instead.
-func NewAudioHandler(impl portin.AudioHandler) portin.AudioHandler {
+// newRawAudioHandler creates a CEF handler from the low-level raw audio handler
+// interface. Most users should prefer NewAudioHandler.
+func newRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
 	r := new(capi.CEFAudioHandlerT)
 	w := &rawAudioHandlerWrapper{impl: impl, rawPtr: r}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -397,7 +402,7 @@ func NewAudioHandler(impl portin.AudioHandler) portin.AudioHandler {
 }
 
 type rawAudioHandlerWrapper struct {
-	impl   portin.AudioHandler
+	impl   RawAudioHandler
 	rawPtr *capi.CEFAudioHandlerT
 }
 
@@ -416,7 +421,13 @@ func (w *rawAudioHandlerWrapper) OnAudioStreamError(b Browser, m string) {
 	w.impl.OnAudioStreamError(b, m)
 }
 
-func wrapAudioHandler(_ unsafe.Pointer) portin.AudioHandler { return nil }
+func wrapAudioHandler(_ unsafe.Pointer) RawAudioHandler { return nil }
+
+// NewRawAudioHandler exposes the low-level raw audio handler constructor for
+// advanced callers. Most users should prefer NewAudioHandler.
+func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
+	return newRawAudioHandler(impl)
+}
 
 // ---------------------------------------------------------------------------
 // Engine access — initialised once via sync.Once in Init()
@@ -436,7 +447,6 @@ func mustEng() *core.Engine {
 }
 
 // cefString converts a Go string to a CEF UTF-16 string.
-// CEFStringT is layout-identical in core and capi packages (both mirror cef_string_t).
 func cefString(s string) core.CEFStringT {
 	return mustEng().CefString(s)
 }
@@ -524,7 +534,7 @@ func (a *safeClientAdapter) GetAudioHandler() portin.AudioHandler {
 	if h == nil {
 		return nil
 	}
-	return NewSafeAudioHandler(h)
+	return NewAudioHandler(h)
 }
 
 func (a *safeClientAdapter) GetLifeSpanHandler() portin.LifeSpanHandler {
@@ -588,7 +598,7 @@ func (a *safeClientAdapter) OnProcessMessageReceived(browser Browser, frame Fram
 }
 
 // NewClient creates a CEF Client from a SafeClient implementation.
-// It wraps AudioHandler via NewSafeAudioHandler ([][]float32 decoding) and
+// It wraps AudioHandler via NewAudioHandler ([][]float32 decoding) and
 // LifeSpanHandler via NewLifeSpanHandler (typed out-params), then
 // delegates to the generated raw client constructor.
 func NewClient(impl SafeClient) Client {

@@ -399,6 +399,51 @@ func TestEmitPublicFreeFuncAutoWrapsHandlerParams(t *testing.T) {
 	}
 }
 
+func TestEmitGeneratedClientUsesRawAudioConstructor(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "cef_audio_handler_t",
+				GoName:        "CEFAudioHandlerT",
+				Kind:          "handler",
+				InterfaceName: "AudioHandler",
+				Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+			},
+			{
+				CName:         "cef_client_t",
+				GoName:        "CEFClientT",
+				Kind:          "handler",
+				InterfaceName: "Client",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "get_audio_handler",
+						GoName:      "GetAudioHandler",
+						IsFunction:  true,
+						ReturnCType: "struct _cef_audio_handler_t*",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_client_t*"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	want := "return newRawAudioHandler(h)"
+	if !strings.Contains(code, want) {
+		t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+	}
+}
+
 func TestEmitPublicObjectMethodAutoWrapsHandlerParams(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{
