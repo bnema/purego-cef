@@ -65,7 +65,6 @@ func TestSettingsCoreSettingsCopiesFields(t *testing.T) {
 		NoSandbox:                  true,
 		BrowserSubprocessPath:      "/cef/helper",
 		LogFile:                    "/tmp/cef.log",
-		InitTraceFile:              "/tmp/trace.log",
 		CachePath:                  "/tmp/cache",
 		RootCachePath:              "/tmp/root-cache",
 	}
@@ -85,9 +84,6 @@ func TestSettingsCoreSettingsCopiesFields(t *testing.T) {
 	}
 	if got != want {
 		t.Fatalf("Settings.coreSettings() = %#v, want %#v", got, want)
-	}
-	if got.InitTraceFile != "" {
-		t.Fatalf("Settings.coreSettings().InitTraceFile = %q, want empty string", got.InitTraceFile)
 	}
 }
 

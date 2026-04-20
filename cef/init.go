@@ -45,11 +45,8 @@ type Settings struct {
 	NoSandbox                  bool
 	BrowserSubprocessPath      string
 	LogFile                    string
-	// Deprecated: reserved for bootstrap diagnostics only. It is ignored by the
-	// public cef package and has no effect on purego-cef runtime behavior.
-	InitTraceFile string
-	CachePath     string
-	RootCachePath string
+	CachePath                  string
+	RootCachePath              string
 }
 
 func (s Settings) coreSettings() core.Settings {
