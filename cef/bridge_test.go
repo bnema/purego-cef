@@ -21,12 +21,23 @@ func newBridgeTestEngine(t *testing.T) *core.Engine {
 type plainRawClientStub struct{}
 
 type nilAudioHandlerStub struct{}
+type plainLifeSpanHandlerStub struct{}
 
 func (*nilAudioHandlerStub) GetAudioParameters(Browser, *AudioParameters) int32     { return 0 }
 func (*nilAudioHandlerStub) OnAudioStreamStarted(Browser, *AudioParameters, int32)  {}
 func (*nilAudioHandlerStub) OnAudioStreamPacket(Browser, [][]float32, int32, int64) {}
 func (*nilAudioHandlerStub) OnAudioStreamStopped(Browser)                           {}
 func (*nilAudioHandlerStub) OnAudioStreamError(Browser, string)                     {}
+
+func (plainLifeSpanHandlerStub) OnBeforePopup(Browser, Frame, int32, string, string, WindowOpenDisposition, int32, *PopupFeatures, *WindowInfo, *RawClientWriteSlot, *BrowserSettings, *DictionaryValue, *bool) bool {
+	return false
+}
+func (plainLifeSpanHandlerStub) OnBeforePopupAborted(Browser, int32) {}
+func (plainLifeSpanHandlerStub) OnBeforeDevToolsPopup(Browser, *WindowInfo, *RawClientWriteSlot, *BrowserSettings, *DictionaryValue, *bool) {
+}
+func (plainLifeSpanHandlerStub) OnAfterCreated(Browser) {}
+func (plainLifeSpanHandlerStub) DoClose(Browser) bool   { return false }
+func (plainLifeSpanHandlerStub) OnBeforeClose(Browser)  {}
 
 func (plainRawClientStub) GetAudioHandler() RawAudioHandler          { return nil }
 func (plainRawClientStub) GetCommandHandler() CommandHandler         { return nil }
@@ -81,6 +92,16 @@ func TestConstructorsReturnNilForTypedNilImpl(t *testing.T) {
 	var impl AudioHandler = (*nilAudioHandlerStub)(nil)
 	if got := NewAudioHandler(impl); got != nil {
 		t.Fatalf("NewAudioHandler(typed nil) = %#v, want nil", got)
+	}
+}
+
+func TestNewLifeSpanHandlerUsesDirectPopupSlotAPI(t *testing.T) {
+	prevEng := eng
+	eng = newBridgeTestEngine(t)
+	t.Cleanup(func() { eng = prevEng })
+
+	if got := NewLifeSpanHandler(plainLifeSpanHandlerStub{}); got == nil {
+		t.Fatal("NewLifeSpanHandler(...) = nil, want non-nil raw handler")
 	}
 }
 
