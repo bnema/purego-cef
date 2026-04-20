@@ -165,6 +165,11 @@ func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 	return w
 }
 
+// wrapLifeSpanHandler is a placeholder for reverse-wrapping a CEF life span
+// handler pointer into a RawLifeSpanHandler. It returns nil today because
+// reverse-wrapping callback-backed handler pointers is not implemented yet.
+// TODO: implement this to return a RawLifeSpanHandler facade for a C pointer
+// when RawLifeSpanHandler reverse-wrapping is required.
 func wrapLifeSpanHandler(_ unsafe.Pointer) RawLifeSpanHandler { return nil }
 
 // ---------------------------------------------------------------------------
@@ -457,6 +462,9 @@ func (w *rawAudioHandlerWrapper) OnAudioStreamError(b Browser, m string) {
 	w.impl.OnAudioStreamError(b, m)
 }
 
+// wrapAudioHandler is an intentional placeholder for reverse-wrapping a CEF
+// audio handler pointer into a RawAudioHandler. It returns nil for now because
+// audio handler reverse-wrapping is not implemented yet.
 func wrapAudioHandler(_ unsafe.Pointer) RawAudioHandler { return nil }
 
 // NewRawAudioHandler exposes the low-level raw audio handler constructor for
