@@ -2,10 +2,6 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // X509CertPrincipal defines the inbound port interface.
 type X509CertPrincipal interface {
 	GetDisplayName() string
@@ -27,6 +23,6 @@ type X509Certificate interface {
 	GetDerencoded() BinaryValue
 	GetPemencoded() BinaryValue
 	GetIssuerChainSize() int
-	GetDerencodedIssuerChain(chaincount *int, chain unsafe.Pointer)
-	GetPemencodedIssuerChain(chaincount *int, chain unsafe.Pointer)
+	GetDerencodedIssuerChain(chaincount *int, chain []BinaryValue)
+	GetPemencodedIssuerChain(chaincount *int, chain []BinaryValue)
 }

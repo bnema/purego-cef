@@ -19,19 +19,23 @@ type sharedProcessMessageBuilderImpl struct {
 }
 
 func (obj *sharedProcessMessageBuilderImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *sharedProcessMessageBuilderImpl) Size() int {
-	return int(obj.rawPtr.CallSize())
+	ret := obj.rawPtr.CallSize()
+	return int(ret)
 }
 
 func (obj *sharedProcessMessageBuilderImpl) Memory() unsafe.Pointer {
-	return unsafe.Pointer(obj.rawPtr.CallMemory())
+	ret := obj.rawPtr.CallMemory()
+	return unsafe.Pointer(ret)
 }
 
 func (obj *sharedProcessMessageBuilderImpl) Build() ProcessMessage {
-	return wrapProcessMessage(unsafe.Pointer(obj.rawPtr.CallBuild()))
+	ret := obj.rawPtr.CallBuild()
+	return wrapProcessMessage(unsafe.Pointer(ret))
 }
 
 func (obj *sharedProcessMessageBuilderImpl) RawPointer() unsafe.Pointer {
@@ -63,5 +67,6 @@ func wrapSharedProcessMessageBuilder(ptr unsafe.Pointer) SharedProcessMessageBui
 func SharedProcessMessageBuilderCreate(name string, byteSize int) SharedProcessMessageBuilder {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return wrapSharedProcessMessageBuilder(capi.CEFSharedProcessMessageBuilderCreate(unsafe.Pointer(&nameStr), uintptr(byteSize)))
+	ret := capi.CEFSharedProcessMessageBuilderCreate(unsafe.Pointer(&nameStr), uintptr(byteSize))
+	return wrapSharedProcessMessageBuilder(ret)
 }

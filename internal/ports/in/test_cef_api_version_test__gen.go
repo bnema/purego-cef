@@ -2,10 +2,6 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // ApiVersionTest defines the inbound port interface.
 type ApiVersionTest interface {
 	GetRefPtrLibrary(val int32) ApiVersionTestRefPtrLibrary
@@ -14,14 +10,14 @@ type ApiVersionTest interface {
 	SetChildRefPtrLibrary(val ApiVersionTestRefPtrLibraryChild) int32
 	SetChildRefPtrLibraryAndReturnParent(val ApiVersionTestRefPtrLibraryChild) ApiVersionTestRefPtrLibrary
 	SetRefPtrLibraryList(val []ApiVersionTestRefPtrLibrary, val1 int32, val2 int32) int32
-	GetRefPtrLibraryListByRef(valcount *int, val unsafe.Pointer, val1 int32, val2 int32) int32
+	GetRefPtrLibraryListByRef(valcount *int, val []ApiVersionTestRefPtrLibrary, val1 int32, val2 int32) int32
 	GetRefPtrLibraryListSize() int
 	SetRefPtrClient(val ApiVersionTestRefPtrClient) int32
 	SetRefPtrClientAndReturn(val ApiVersionTestRefPtrClient) ApiVersionTestRefPtrClient
 	SetChildRefPtrClient(val ApiVersionTestRefPtrClientChild) int32
 	SetChildRefPtrClientAndReturnParent(val ApiVersionTestRefPtrClientChild) ApiVersionTestRefPtrClient
 	SetRefPtrClientList(val []ApiVersionTestRefPtrClient, val1 int32, val2 int32) int32
-	GetRefPtrClientListByRef(valcount *int, val unsafe.Pointer, val1 ApiVersionTestRefPtrClient, val2 ApiVersionTestRefPtrClient) int32
+	GetRefPtrClientListByRef(valcount *int, val []ApiVersionTestRefPtrClient, val1 ApiVersionTestRefPtrClient, val2 ApiVersionTestRefPtrClient) int32
 	GetRefPtrClientListSize() int
 	GetOwnPtrLibrary(val int32) ApiVersionTestScopedLibrary
 	SetOwnPtrLibrary(val ApiVersionTestScopedLibrary) int32

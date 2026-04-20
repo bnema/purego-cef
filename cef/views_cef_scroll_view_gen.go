@@ -23,27 +23,33 @@ func (obj *scrollViewImpl) SetContentView(view View) {
 }
 
 func (obj *scrollViewImpl) GetContentView() View {
-	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetContentView()))
+	ret := obj.rawPtr.CallGetContentView()
+	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *scrollViewImpl) GetVisibleContentRect() uintptr {
-	return uintptr(obj.rawPtr.CallGetVisibleContentRect())
+	ret := obj.rawPtr.CallGetVisibleContentRect()
+	return uintptr(ret)
 }
 
 func (obj *scrollViewImpl) HasHorizontalScrollbar() bool {
-	return obj.rawPtr.CallHasHorizontalScrollbar() != 0
+	ret := obj.rawPtr.CallHasHorizontalScrollbar()
+	return ret != 0
 }
 
 func (obj *scrollViewImpl) GetHorizontalScrollbarHeight() int32 {
-	return int32(obj.rawPtr.CallGetHorizontalScrollbarHeight())
+	ret := obj.rawPtr.CallGetHorizontalScrollbarHeight()
+	return int32(ret)
 }
 
 func (obj *scrollViewImpl) HasVerticalScrollbar() bool {
-	return obj.rawPtr.CallHasVerticalScrollbar() != 0
+	ret := obj.rawPtr.CallHasVerticalScrollbar()
+	return ret != 0
 }
 
 func (obj *scrollViewImpl) GetVerticalScrollbarWidth() int32 {
-	return int32(obj.rawPtr.CallGetVerticalScrollbarWidth())
+	ret := obj.rawPtr.CallGetVerticalScrollbarWidth()
+	return int32(ret)
 }
 
 func (obj *scrollViewImpl) RawPointer() unsafe.Pointer {
@@ -73,5 +79,6 @@ func wrapScrollView(ptr unsafe.Pointer) ScrollView {
 
 // ScrollViewCreate Create a new ScrollView.
 func ScrollViewCreate(delegate ViewDelegate) ScrollView {
-	return wrapScrollView(capi.CEFScrollViewCreate(extractOrWrapRawPointer(delegate, func() any { return NewViewDelegate(delegate) })))
+	ret := capi.CEFScrollViewCreate(extractOrWrapRawPointer(delegate, func() any { return NewViewDelegate(delegate) }))
+	return wrapScrollView(ret)
 }

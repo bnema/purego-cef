@@ -15,7 +15,7 @@ type PrintSettings interface {
 	GetDpi() int32
 	SetPageRanges(ranges []Range)
 	GetPageRangesCount() int
-	GetPageRanges(rangescount *int, ranges *Range)
+	GetPageRanges(rangescount *int, ranges []Range)
 	SetSelectionOnly(selectionOnly int32)
 	IsSelectionOnly() bool
 	SetCollate(collate int32)

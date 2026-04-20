@@ -21,7 +21,8 @@ type serverImpl struct {
 }
 
 func (obj *serverImpl) GetTaskRunner() TaskRunner {
-	return wrapTaskRunner(unsafe.Pointer(obj.rawPtr.CallGetTaskRunner()))
+	ret := obj.rawPtr.CallGetTaskRunner()
+	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
 func (obj *serverImpl) Shutdown() {
@@ -29,19 +30,23 @@ func (obj *serverImpl) Shutdown() {
 }
 
 func (obj *serverImpl) IsRunning() bool {
-	return obj.rawPtr.CallIsRunning() != 0
+	ret := obj.rawPtr.CallIsRunning()
+	return ret != 0
 }
 
 func (obj *serverImpl) GetAddress() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetAddress()))
+	ret := obj.rawPtr.CallGetAddress()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *serverImpl) HasConnection() bool {
-	return obj.rawPtr.CallHasConnection() != 0
+	ret := obj.rawPtr.CallHasConnection()
+	return ret != 0
 }
 
 func (obj *serverImpl) IsValidConnection(connectionID int32) bool {
-	return obj.rawPtr.CallIsValidConnection(uintptr(connectionID)) != 0
+	ret := obj.rawPtr.CallIsValidConnection(uintptr(connectionID))
+	return ret != 0
 }
 
 func (obj *serverImpl) SendHttp200Response(connectionID int32, contentType string, data unsafe.Pointer, dataSize int) {

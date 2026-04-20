@@ -27,7 +27,8 @@ func (obj *waitableEventImpl) Signal() {
 }
 
 func (obj *waitableEventImpl) IsSignaled() bool {
-	return obj.rawPtr.CallIsSignaled() != 0
+	ret := obj.rawPtr.CallIsSignaled()
+	return ret != 0
 }
 
 func (obj *waitableEventImpl) Wait() {
@@ -35,7 +36,8 @@ func (obj *waitableEventImpl) Wait() {
 }
 
 func (obj *waitableEventImpl) TimedWait(maxMs int64) int32 {
-	return int32(obj.rawPtr.CallTimedWait(uintptr(maxMs)))
+	ret := obj.rawPtr.CallTimedWait(uintptr(maxMs))
+	return int32(ret)
 }
 
 func (obj *waitableEventImpl) RawPointer() unsafe.Pointer {
@@ -65,5 +67,6 @@ func wrapWaitableEvent(ptr unsafe.Pointer) WaitableEvent {
 
 // WaitableEventCreate Create a new waitable event. If |automatic_reset| is true (1) then the event state is automatically reset to un-signaled after a single waiting thread has been released; otherwise, the state remains signaled until reset() is called manually. If |initially_signaled| is true (1) then the event will start in the signaled state.
 func WaitableEventCreate(automaticReset int32, initiallySignaled int32) WaitableEvent {
-	return wrapWaitableEvent(capi.CEFWaitableEventCreate(automaticReset, initiallySignaled))
+	ret := capi.CEFWaitableEventCreate(automaticReset, initiallySignaled)
+	return wrapWaitableEvent(ret)
 }

@@ -19,15 +19,18 @@ type sharedMemoryRegionImpl struct {
 }
 
 func (obj *sharedMemoryRegionImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *sharedMemoryRegionImpl) Size() int {
-	return int(obj.rawPtr.CallSize())
+	ret := obj.rawPtr.CallSize()
+	return int(ret)
 }
 
 func (obj *sharedMemoryRegionImpl) Memory() unsafe.Pointer {
-	return unsafe.Pointer(obj.rawPtr.CallMemory())
+	ret := obj.rawPtr.CallMemory()
+	return unsafe.Pointer(ret)
 }
 
 func (obj *sharedMemoryRegionImpl) RawPointer() unsafe.Pointer {

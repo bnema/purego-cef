@@ -26,5 +26,6 @@ func SetDataDirectoryForTests(dir string) {
 func IsFeatureEnabledForTests(featureName string) int32 {
 	featureNameStr := cefString(featureName)
 	defer freeCefString(&featureNameStr)
-	return int32(capi.CEFIsFeatureEnabledForTests(unsafe.Pointer(&featureNameStr)))
+	ret := capi.CEFIsFeatureEnabledForTests(unsafe.Pointer(&featureNameStr))
+	return int32(ret)
 }

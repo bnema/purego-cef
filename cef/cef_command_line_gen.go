@@ -19,15 +19,18 @@ type commandLineImpl struct {
 }
 
 func (obj *commandLineImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *commandLineImpl) IsReadOnly() bool {
-	return obj.rawPtr.CallIsReadOnly() != 0
+	ret := obj.rawPtr.CallIsReadOnly()
+	return ret != 0
 }
 
 func (obj *commandLineImpl) Copy() CommandLine {
-	return wrapCommandLine(unsafe.Pointer(obj.rawPtr.CallCopy()))
+	ret := obj.rawPtr.CallCopy()
+	return wrapCommandLine(unsafe.Pointer(ret))
 }
 
 func (obj *commandLineImpl) InitFromArgv(argc int32, argv unsafe.Pointer) {
@@ -49,11 +52,13 @@ func (obj *commandLineImpl) GetArgv(argv StringList) {
 }
 
 func (obj *commandLineImpl) GetCommandLineString() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetCommandLineString()))
+	ret := obj.rawPtr.CallGetCommandLineString()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *commandLineImpl) GetProgram() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetProgram()))
+	ret := obj.rawPtr.CallGetProgram()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *commandLineImpl) SetProgram(program string) {
@@ -63,19 +68,22 @@ func (obj *commandLineImpl) SetProgram(program string) {
 }
 
 func (obj *commandLineImpl) HasSwitches() bool {
-	return obj.rawPtr.CallHasSwitches() != 0
+	ret := obj.rawPtr.CallHasSwitches()
+	return ret != 0
 }
 
 func (obj *commandLineImpl) HasSwitch(name string) bool {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return obj.rawPtr.CallHasSwitch(uintptr(unsafe.Pointer(&nameStr))) != 0
+	ret := obj.rawPtr.CallHasSwitch(uintptr(unsafe.Pointer(&nameStr)))
+	return ret != 0
 }
 
 func (obj *commandLineImpl) GetSwitchValue(name string) string {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSwitchValue(uintptr(unsafe.Pointer(&nameStr)))))
+	ret := obj.rawPtr.CallGetSwitchValue(uintptr(unsafe.Pointer(&nameStr)))
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *commandLineImpl) GetSwitches(switches StringMap) {
@@ -97,7 +105,8 @@ func (obj *commandLineImpl) AppendSwitchWithValue(name string, value string) {
 }
 
 func (obj *commandLineImpl) HasArguments() bool {
-	return obj.rawPtr.CallHasArguments() != 0
+	ret := obj.rawPtr.CallHasArguments()
+	return ret != 0
 }
 
 func (obj *commandLineImpl) GetArguments(arguments StringList) {
@@ -149,10 +158,12 @@ func wrapCommandLine(ptr unsafe.Pointer) CommandLine {
 
 // CommandLineCreate Create a new cef_command_line_t instance.
 func CommandLineCreate() CommandLine {
-	return wrapCommandLine(capi.CEFCommandLineCreate())
+	ret := capi.CEFCommandLineCreate()
+	return wrapCommandLine(ret)
 }
 
 // CommandLineGetGlobal Returns the singleton global cef_command_line_t object. The returned object will be read-only.
 func CommandLineGetGlobal() CommandLine {
-	return wrapCommandLine(capi.CEFCommandLineGetGlobal())
+	ret := capi.CEFCommandLineGetGlobal()
+	return wrapCommandLine(ret)
 }

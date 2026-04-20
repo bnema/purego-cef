@@ -19,11 +19,13 @@ type sslinfoImpl struct {
 }
 
 func (obj *sslinfoImpl) GetCertStatus() CertStatus {
-	return CertStatus(obj.rawPtr.CallGetCertStatus())
+	ret := obj.rawPtr.CallGetCertStatus()
+	return CertStatus(ret)
 }
 
 func (obj *sslinfoImpl) GetX509Certificate() X509Certificate {
-	return wrapX509Certificate(unsafe.Pointer(obj.rawPtr.CallGetX509Certificate()))
+	ret := obj.rawPtr.CallGetX509Certificate()
+	return wrapX509Certificate(unsafe.Pointer(ret))
 }
 
 func (obj *sslinfoImpl) RawPointer() unsafe.Pointer {
@@ -53,5 +55,6 @@ func wrapSslinfo(ptr unsafe.Pointer) Sslinfo {
 
 // IsCertStatusError Returns true (1) if the certificate status represents an error.
 func IsCertStatusError(status CertStatus) int32 {
-	return int32(capi.CEFIsCertStatusError(capi.CEFCertStatusT(status)))
+	ret := capi.CEFIsCertStatusError(capi.CEFCertStatusT(status))
+	return int32(ret)
 }

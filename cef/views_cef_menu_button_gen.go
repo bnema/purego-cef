@@ -55,5 +55,6 @@ func wrapMenuButton(ptr unsafe.Pointer) MenuButton {
 func MenuButtonCreate(delegate MenuButtonDelegate, text string) MenuButton {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	return wrapMenuButton(capi.CEFMenuButtonCreate(extractOrWrapRawPointer(delegate, func() any { return NewMenuButtonDelegate(delegate) }), unsafe.Pointer(&textStr)))
+	ret := capi.CEFMenuButtonCreate(extractOrWrapRawPointer(delegate, func() any { return NewMenuButtonDelegate(delegate) }), unsafe.Pointer(&textStr))
+	return wrapMenuButton(ret)
 }

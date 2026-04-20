@@ -19,27 +19,33 @@ type processMessageImpl struct {
 }
 
 func (obj *processMessageImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *processMessageImpl) IsReadOnly() bool {
-	return obj.rawPtr.CallIsReadOnly() != 0
+	ret := obj.rawPtr.CallIsReadOnly()
+	return ret != 0
 }
 
 func (obj *processMessageImpl) Copy() ProcessMessage {
-	return wrapProcessMessage(unsafe.Pointer(obj.rawPtr.CallCopy()))
+	ret := obj.rawPtr.CallCopy()
+	return wrapProcessMessage(unsafe.Pointer(ret))
 }
 
 func (obj *processMessageImpl) GetName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetName()))
+	ret := obj.rawPtr.CallGetName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *processMessageImpl) GetArgumentList() ListValue {
-	return wrapListValue(unsafe.Pointer(obj.rawPtr.CallGetArgumentList()))
+	ret := obj.rawPtr.CallGetArgumentList()
+	return wrapListValue(unsafe.Pointer(ret))
 }
 
 func (obj *processMessageImpl) GetSharedMemoryRegion() SharedMemoryRegion {
-	return wrapSharedMemoryRegion(unsafe.Pointer(obj.rawPtr.CallGetSharedMemoryRegion()))
+	ret := obj.rawPtr.CallGetSharedMemoryRegion()
+	return wrapSharedMemoryRegion(unsafe.Pointer(ret))
 }
 
 func (obj *processMessageImpl) RawPointer() unsafe.Pointer {
@@ -71,5 +77,6 @@ func wrapProcessMessage(ptr unsafe.Pointer) ProcessMessage {
 func ProcessMessageCreate(name string) ProcessMessage {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return wrapProcessMessage(capi.CEFProcessMessageCreate(unsafe.Pointer(&nameStr)))
+	ret := capi.CEFProcessMessageCreate(unsafe.Pointer(&nameStr))
+	return wrapProcessMessage(ret)
 }

@@ -10,5 +10,6 @@ import (
 
 // GetPath Retrieve the path associated with the specified |key|. Returns true (1) on success. Can be called on any thread in the browser process.
 func GetPath(key PathKey, path uintptr) int32 {
-	return int32(capi.CEFGetPath(capi.CEFPathKeyT(key), unsafe.Pointer(path)))
+	ret := capi.CEFGetPath(capi.CEFPathKeyT(key), unsafe.Pointer(path))
+	return int32(ret)
 }

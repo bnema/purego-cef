@@ -19,7 +19,8 @@ type labelButtonImpl struct {
 }
 
 func (obj *labelButtonImpl) AsMenuButton() MenuButton {
-	return wrapMenuButton(unsafe.Pointer(obj.rawPtr.CallAsMenuButton()))
+	ret := obj.rawPtr.CallAsMenuButton()
+	return wrapMenuButton(unsafe.Pointer(ret))
 }
 
 func (obj *labelButtonImpl) SetText(text string) {
@@ -29,7 +30,8 @@ func (obj *labelButtonImpl) SetText(text string) {
 }
 
 func (obj *labelButtonImpl) GetText() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetText()))
+	ret := obj.rawPtr.CallGetText()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
@@ -37,7 +39,8 @@ func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
 }
 
 func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
-	return wrapImage(unsafe.Pointer(obj.rawPtr.CallGetImage(uintptr(buttonState))))
+	ret := obj.rawPtr.CallGetImage(uintptr(buttonState))
+	return wrapImage(unsafe.Pointer(ret))
 }
 
 func (obj *labelButtonImpl) SetTextColor(forState ButtonState, color uintptr) {
@@ -95,5 +98,6 @@ func wrapLabelButton(ptr unsafe.Pointer) LabelButton {
 func LabelButtonCreate(delegate ButtonDelegate, text string) LabelButton {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	return wrapLabelButton(capi.CEFLabelButtonCreate(extractOrWrapRawPointer(delegate, func() any { return NewButtonDelegate(delegate) }), unsafe.Pointer(&textStr)))
+	ret := capi.CEFLabelButtonCreate(extractOrWrapRawPointer(delegate, func() any { return NewButtonDelegate(delegate) }), unsafe.Pointer(&textStr))
+	return wrapLabelButton(ret)
 }

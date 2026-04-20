@@ -19,7 +19,8 @@ type frameImpl struct {
 }
 
 func (obj *frameImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *frameImpl) Undo() {
@@ -85,35 +86,43 @@ func (obj *frameImpl) ExecuteJavaScript(code string, scriptURL string, startLine
 }
 
 func (obj *frameImpl) IsMain() bool {
-	return obj.rawPtr.CallIsMain() != 0
+	ret := obj.rawPtr.CallIsMain()
+	return ret != 0
 }
 
 func (obj *frameImpl) IsFocused() bool {
-	return obj.rawPtr.CallIsFocused() != 0
+	ret := obj.rawPtr.CallIsFocused()
+	return ret != 0
 }
 
 func (obj *frameImpl) GetName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetName()))
+	ret := obj.rawPtr.CallGetName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetIdentifier() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetIdentifier()))
+	ret := obj.rawPtr.CallGetIdentifier()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetParent() Frame {
-	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetParent()))
+	ret := obj.rawPtr.CallGetParent()
+	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetURL()))
+	ret := obj.rawPtr.CallGetURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetBrowser() Browser {
-	return wrapBrowser(unsafe.Pointer(obj.rawPtr.CallGetBrowser()))
+	ret := obj.rawPtr.CallGetBrowser()
+	return wrapBrowser(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetV8Context() V8Context {
-	return wrapV8Context(unsafe.Pointer(obj.rawPtr.CallGetV8Context()))
+	ret := obj.rawPtr.CallGetV8Context()
+	return wrapV8Context(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) VisitDom(visitor Domvisitor) {
@@ -121,7 +130,8 @@ func (obj *frameImpl) VisitDom(visitor Domvisitor) {
 }
 
 func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient) Urlrequest {
-	return wrapUrlrequest(unsafe.Pointer(obj.rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })))))
+	ret := obj.rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })))
+	return wrapUrlrequest(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) SendProcessMessage(targetProcess ProcessID, message ProcessMessage) {

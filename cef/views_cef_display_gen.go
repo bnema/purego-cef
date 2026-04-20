@@ -21,13 +21,15 @@ type displayImpl struct {
 }
 
 func (obj *displayImpl) GetID() int64 {
-	return int64(obj.rawPtr.CallGetID())
+	ret := obj.rawPtr.CallGetID()
+	return int64(ret)
 }
 
 func (obj *displayImpl) GetDeviceScaleFactor() float32 {
 	var fn func(*capi.CEFDisplayT) float32
 	purego.RegisterFunc(&fn, obj.rawPtr.GetDeviceScaleFactor)
-	return fn(obj.rawPtr)
+	ret := fn(obj.rawPtr)
+	return ret
 }
 
 func (obj *displayImpl) ConvertPointToPixels(point *Point) {
@@ -39,15 +41,18 @@ func (obj *displayImpl) ConvertPointFromPixels(point *Point) {
 }
 
 func (obj *displayImpl) GetBounds() uintptr {
-	return uintptr(obj.rawPtr.CallGetBounds())
+	ret := obj.rawPtr.CallGetBounds()
+	return uintptr(ret)
 }
 
 func (obj *displayImpl) GetWorkArea() uintptr {
-	return uintptr(obj.rawPtr.CallGetWorkArea())
+	ret := obj.rawPtr.CallGetWorkArea()
+	return uintptr(ret)
 }
 
 func (obj *displayImpl) GetRotation() int32 {
-	return int32(obj.rawPtr.CallGetRotation())
+	ret := obj.rawPtr.CallGetRotation()
+	return int32(ret)
 }
 
 func (obj *displayImpl) RawPointer() unsafe.Pointer {
@@ -77,25 +82,51 @@ func wrapDisplay(ptr unsafe.Pointer) Display {
 
 // DisplayGetPrimary Returns the primary Display.
 func DisplayGetPrimary() Display {
-	return wrapDisplay(capi.CEFDisplayGetPrimary())
+	ret := capi.CEFDisplayGetPrimary()
+	return wrapDisplay(ret)
 }
 
 // DisplayGetNearestPoint Returns the Display nearest |point|. Set |input_pixel_coords| to true (1) if |point| is in pixel screen coordinates instead of DIP screen coordinates.
 func DisplayGetNearestPoint(point *Point, inputPixelCoords int32) Display {
-	return wrapDisplay(capi.CEFDisplayGetNearestPoint(unsafe.Pointer(point), inputPixelCoords))
+	ret := capi.CEFDisplayGetNearestPoint(unsafe.Pointer(point), inputPixelCoords)
+	return wrapDisplay(ret)
 }
 
 // DisplayGetMatchingBounds Returns the Display that most closely intersects |bounds|.  Set |input_pixel_coords| to true (1) if |bounds| is in pixel screen coordinates instead of DIP screen coordinates.
 func DisplayGetMatchingBounds(bounds *Rect, inputPixelCoords int32) Display {
-	return wrapDisplay(capi.CEFDisplayGetMatchingBounds(unsafe.Pointer(bounds), inputPixelCoords))
+	ret := capi.CEFDisplayGetMatchingBounds(unsafe.Pointer(bounds), inputPixelCoords)
+	return wrapDisplay(ret)
 }
 
 // DisplayGetCount Returns the total number of Displays. Mirrored displays are excluded; this function is intended to return the number of distinct, usable displays.
 func DisplayGetCount() int {
-	return int(capi.CEFDisplayGetCount())
+	ret := capi.CEFDisplayGetCount()
+	return int(ret)
 }
 
 // DisplayGetAlls Returns all Displays. Mirrored displays are excluded; this function is intended to return distinct, usable displays.
-func DisplayGetAlls(displayscount *int, displays unsafe.Pointer) {
-	capi.CEFDisplayGetAlls(unsafe.Pointer(displayscount), extractRawPointer(displays))
+func DisplayGetAlls(displayscount *int, displays []Display) {
+	var displaysRaw []uintptr
+	var displaysPtr unsafe.Pointer
+	displaysCountPtr := displayscount
+	if displaysCountPtr == nil {
+		displaysCountScratch := len(displays)
+		displaysCountPtr = &displaysCountScratch
+	} else {
+		*displaysCountPtr = len(displays)
+	}
+	if len(displays) > 0 {
+		displaysRaw = make([]uintptr, len(displays))
+		displaysPtr = unsafe.Pointer(&displaysRaw[0])
+	}
+	capi.CEFDisplayGetAlls(unsafe.Pointer(displaysCountPtr), displaysPtr)
+	if len(displays) > 0 {
+		n := len(displays)
+		if *displaysCountPtr < n {
+			n = *displaysCountPtr
+		}
+		for i := 0; i < n; i++ {
+			displays[i] = wrapDisplay(unsafe.Pointer(displaysRaw[i]))
+		}
+	}
 }

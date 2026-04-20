@@ -14,33 +14,38 @@ func ResolveURL(baseURL string, relativeURL string, resolvedURL uintptr) int32 {
 	defer freeCefString(&baseURLStr)
 	relativeURLStr := cefString(relativeURL)
 	defer freeCefString(&relativeURLStr)
-	return int32(capi.CEFResolveURL(unsafe.Pointer(&baseURLStr), unsafe.Pointer(&relativeURLStr), unsafe.Pointer(resolvedURL)))
+	ret := capi.CEFResolveURL(unsafe.Pointer(&baseURLStr), unsafe.Pointer(&relativeURLStr), unsafe.Pointer(resolvedURL))
+	return int32(ret)
 }
 
 // ParseURL Parse the specified |url| into its component parts. Returns false (0) if the URL is NULL or invalid.
 func ParseURL(uRL string, parts *Urlparts) int32 {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	return int32(capi.CEFParseURL(unsafe.Pointer(&uRLStr), unsafe.Pointer(parts)))
+	ret := capi.CEFParseURL(unsafe.Pointer(&uRLStr), unsafe.Pointer(parts))
+	return int32(ret)
 }
 
 // CreateURL Creates a URL from the specified |parts|, which must contain a non-NULL spec or a non-NULL host and path (at a minimum), but not both. Returns false (0) if |parts| isn't initialized as described.
 func CreateURL(parts *Urlparts, uRL uintptr) int32 {
-	return int32(capi.CEFCreateURL(unsafe.Pointer(parts), unsafe.Pointer(uRL)))
+	ret := capi.CEFCreateURL(unsafe.Pointer(parts), unsafe.Pointer(uRL))
+	return int32(ret)
 }
 
 // FormatURLForSecurityDisplay This is a convenience function for formatting a URL in a concise and human- friendly way to help users make security-related decisions (or in other circumstances when people need to distinguish sites, origins, or otherwise- simplified URLs from each other). Internationalized domain names (IDN) may be presented in Unicode if the conversion is considered safe. The returned value will (a) omit the path for standard schemes, excepting file and filesystem, and (b) omit the port if it is the default for the scheme. Do not use this for URLs which will be parsed or sent to other applications.
 func FormatURLForSecurityDisplay(originURL string) string {
 	originURLStr := cefString(originURL)
 	defer freeCefString(&originURLStr)
-	return goStringUserfree(unsafe.Pointer(capi.CEFFormatURLForSecurityDisplay(unsafe.Pointer(&originURLStr))))
+	ret := capi.CEFFormatURLForSecurityDisplay(unsafe.Pointer(&originURLStr))
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 // GetMimeType Returns the mime type for the specified file extension or an NULL string if unknown.
 func GetMimeType(extension string) string {
 	extensionStr := cefString(extension)
 	defer freeCefString(&extensionStr)
-	return goStringUserfree(unsafe.Pointer(capi.CEFGetMimeType(unsafe.Pointer(&extensionStr))))
+	ret := capi.CEFGetMimeType(unsafe.Pointer(&extensionStr))
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 // GetExtensionsForMimeType Get the extensions associated with the given mime type. This should be passed in lower case. There could be multiple extensions for a given mime type, like "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing elements in the provided vector will not be erased.
@@ -52,50 +57,58 @@ func GetExtensionsForMimeType(mimeType string, extensions StringList) {
 
 // Base64Encode Encodes |data| as a base64 string.
 func Base64Encode(data unsafe.Pointer, dataSize int) string {
-	return goStringUserfree(unsafe.Pointer(capi.CEFBase64Encode(data, uintptr(dataSize))))
+	ret := capi.CEFBase64Encode(data, uintptr(dataSize))
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 // Base64Decode Decodes the base64 encoded string |data|. The returned value will be NULL if the decoding fails.
 func Base64Decode(data string) BinaryValue {
 	dataStr := cefString(data)
 	defer freeCefString(&dataStr)
-	return wrapBinaryValue(capi.CEFBase64Decode(unsafe.Pointer(&dataStr)))
+	ret := capi.CEFBase64Decode(unsafe.Pointer(&dataStr))
+	return wrapBinaryValue(ret)
 }
 
 // Uriencode Escapes characters in |text| which are unsuitable for use as a query parameter value. Everything except alphanumerics and -_.!~*'() will be converted to "%XX". If |use_plus| is true (1) spaces will change to "+". The result is basically the same as encodeURIComponent in Javacript.
 func Uriencode(text string, usePlus int32) string {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	return goStringUserfree(unsafe.Pointer(capi.CEFUriencode(unsafe.Pointer(&textStr), usePlus)))
+	ret := capi.CEFUriencode(unsafe.Pointer(&textStr), usePlus)
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 // Uridecode Unescapes |text| and returns the result. Unescaping consists of looking for the exact pattern "%XX" where each X is a hex digit and converting to the character with the numerical value of those digits (e.g. "i%20=%203%3b" unescapes to "i = 3;"). If |convert_to_utf8| is true (1) this function will attempt to interpret the initial decoded result as UTF-8. If the result is convertable into UTF-8 it will be returned as converted. Otherwise the initial decoded result will be returned.  The |unescape_rule| parameter supports further customization the decoding process.
 func Uridecode(text string, convertToUtf8 int32, unescapeRule UriUnescapeRule) string {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	return goStringUserfree(unsafe.Pointer(capi.CEFUridecode(unsafe.Pointer(&textStr), convertToUtf8, capi.CEFUriUnescapeRuleT(unescapeRule))))
+	ret := capi.CEFUridecode(unsafe.Pointer(&textStr), convertToUtf8, capi.CEFUriUnescapeRuleT(unescapeRule))
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 // ParseJson Parses the specified |json_string| and returns a dictionary or list representation. If JSON parsing fails this function returns NULL.
 func ParseJson(jsonString string, options JsonParserOptions) Value {
 	jsonStringStr := cefString(jsonString)
 	defer freeCefString(&jsonStringStr)
-	return wrapValue(capi.CEFParseJson(unsafe.Pointer(&jsonStringStr), capi.CEFJsonParserOptionsT(options)))
+	ret := capi.CEFParseJson(unsafe.Pointer(&jsonStringStr), capi.CEFJsonParserOptionsT(options))
+	return wrapValue(ret)
 }
 
 // ParseJsonBuffer Parses the specified UTF8-encoded |json| buffer of size |json_size| and returns a dictionary or list representation. If JSON parsing fails this function returns NULL.
 func ParseJsonBuffer(json unsafe.Pointer, jsonSize int, options JsonParserOptions) Value {
-	return wrapValue(capi.CEFParseJsonBuffer(json, uintptr(jsonSize), capi.CEFJsonParserOptionsT(options)))
+	ret := capi.CEFParseJsonBuffer(json, uintptr(jsonSize), capi.CEFJsonParserOptionsT(options))
+	return wrapValue(ret)
 }
 
 // ParseJsonandReturnError Parses the specified |json_string| and returns a dictionary or list representation. If JSON parsing fails this function returns NULL and populates |error_msg_out| with a formatted error message.
 func ParseJsonandReturnError(jsonString string, options JsonParserOptions, errorMsgOut uintptr) Value {
 	jsonStringStr := cefString(jsonString)
 	defer freeCefString(&jsonStringStr)
-	return wrapValue(capi.CEFParseJsonandReturnError(unsafe.Pointer(&jsonStringStr), capi.CEFJsonParserOptionsT(options), unsafe.Pointer(errorMsgOut)))
+	ret := capi.CEFParseJsonandReturnError(unsafe.Pointer(&jsonStringStr), capi.CEFJsonParserOptionsT(options), unsafe.Pointer(errorMsgOut))
+	return wrapValue(ret)
 }
 
 // WriteJson Generates a JSON string from the specified root |node| which should be a dictionary or list value. Returns an NULL string on failure. This function requires exclusive access to |node| including any underlying data.
 func WriteJson(node Value, options JsonWriterOptions) string {
-	return goStringUserfree(unsafe.Pointer(capi.CEFWriteJson(extractRawPointer(node), capi.CEFJsonWriterOptionsT(options))))
+	ret := capi.CEFWriteJson(extractRawPointer(node), capi.CEFJsonWriterOptionsT(options))
+	return goStringUserfree(unsafe.Pointer(ret))
 }

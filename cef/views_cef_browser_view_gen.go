@@ -19,11 +19,13 @@ type browserViewImpl struct {
 }
 
 func (obj *browserViewImpl) GetBrowser() Browser {
-	return wrapBrowser(unsafe.Pointer(obj.rawPtr.CallGetBrowser()))
+	ret := obj.rawPtr.CallGetBrowser()
+	return wrapBrowser(unsafe.Pointer(ret))
 }
 
 func (obj *browserViewImpl) GetChromeToolbar() View {
-	return wrapView(unsafe.Pointer(obj.rawPtr.CallGetChromeToolbar()))
+	ret := obj.rawPtr.CallGetChromeToolbar()
+	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *browserViewImpl) SetPreferAccelerators(preferAccelerators int32) {
@@ -31,7 +33,8 @@ func (obj *browserViewImpl) SetPreferAccelerators(preferAccelerators int32) {
 }
 
 func (obj *browserViewImpl) GetRuntimeStyle() RuntimeStyle {
-	return RuntimeStyle(obj.rawPtr.CallGetRuntimeStyle())
+	ret := obj.rawPtr.CallGetRuntimeStyle()
+	return RuntimeStyle(ret)
 }
 
 func (obj *browserViewImpl) RawPointer() unsafe.Pointer {
@@ -63,10 +66,12 @@ func wrapBrowserView(ptr unsafe.Pointer) BrowserView {
 func BrowserViewCreate(client Client, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext, delegate BrowserViewDelegate) BrowserView {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	return wrapBrowserView(capi.CEFBrowserViewCreate(extractOrWrapRawPointer(client, func() any { return newRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext), extractOrWrapRawPointer(delegate, func() any { return NewBrowserViewDelegate(delegate) })))
+	ret := capi.CEFBrowserViewCreate(extractOrWrapRawPointer(client, func() any { return newRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext), extractOrWrapRawPointer(delegate, func() any { return NewBrowserViewDelegate(delegate) }))
+	return wrapBrowserView(ret)
 }
 
 // BrowserViewGetForBrowser Returns the BrowserView associated with |browser|.
 func BrowserViewGetForBrowser(browser Browser) BrowserView {
-	return wrapBrowserView(capi.CEFBrowserViewGetForBrowser(extractRawPointer(browser)))
+	ret := capi.CEFBrowserViewGetForBrowser(extractRawPointer(browser))
+	return wrapBrowserView(ret)
 }

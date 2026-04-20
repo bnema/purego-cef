@@ -62,23 +62,28 @@ type taskRunnerImpl struct {
 }
 
 func (obj *taskRunnerImpl) IsSame(that TaskRunner) bool {
-	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
+	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	return ret != 0
 }
 
 func (obj *taskRunnerImpl) BelongsToCurrentThread() int32 {
-	return int32(obj.rawPtr.CallBelongsToCurrentThread())
+	ret := obj.rawPtr.CallBelongsToCurrentThread()
+	return int32(ret)
 }
 
 func (obj *taskRunnerImpl) BelongsToThread(threadid ThreadID) int32 {
-	return int32(obj.rawPtr.CallBelongsToThread(uintptr(threadid)))
+	ret := obj.rawPtr.CallBelongsToThread(uintptr(threadid))
+	return int32(ret)
 }
 
 func (obj *taskRunnerImpl) PostTask(task Task) int32 {
-	return int32(obj.rawPtr.CallPostTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) }))))
+	ret := obj.rawPtr.CallPostTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })))
+	return int32(ret)
 }
 
 func (obj *taskRunnerImpl) PostDelayedTask(task Task, delayMs int64) int32 {
-	return int32(obj.rawPtr.CallPostDelayedTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), uintptr(delayMs)))
+	ret := obj.rawPtr.CallPostDelayedTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), uintptr(delayMs))
+	return int32(ret)
 }
 
 func (obj *taskRunnerImpl) RawPointer() unsafe.Pointer {
@@ -108,25 +113,30 @@ func wrapTaskRunner(ptr unsafe.Pointer) TaskRunner {
 
 // TaskRunnerGetForCurrentThread Returns the task runner for the current thread. Only CEF threads will have task runners. An NULL reference will be returned if this function is called on an invalid thread.
 func TaskRunnerGetForCurrentThread() TaskRunner {
-	return wrapTaskRunner(capi.CEFTaskRunnerGetForCurrentThread())
+	ret := capi.CEFTaskRunnerGetForCurrentThread()
+	return wrapTaskRunner(ret)
 }
 
 // TaskRunnerGetForThread Returns the task runner for the specified CEF thread.
 func TaskRunnerGetForThread(threadid ThreadID) TaskRunner {
-	return wrapTaskRunner(capi.CEFTaskRunnerGetForThread(capi.CEFThreadIDT(threadid)))
+	ret := capi.CEFTaskRunnerGetForThread(capi.CEFThreadIDT(threadid))
+	return wrapTaskRunner(ret)
 }
 
 // CurrentlyOn Returns true (1) if called on the specified thread. Equivalent to using cef_task_runner_t::GetForThread(threadId)->belongs_to_current_thread().
 func CurrentlyOn(threadid ThreadID) int32 {
-	return int32(capi.CEFCurrentlyOn(capi.CEFThreadIDT(threadid)))
+	ret := capi.CEFCurrentlyOn(capi.CEFThreadIDT(threadid))
+	return int32(ret)
 }
 
 // PostTask Post a task for execution on the specified thread. Equivalent to using cef_task_runner_t::GetForThread(threadId)->PostTask(task).
 func PostTask(threadid ThreadID, task Task) int32 {
-	return int32(capi.CEFPostTask(capi.CEFThreadIDT(threadid), extractOrWrapRawPointer(task, func() any { return NewTask(task) })))
+	ret := capi.CEFPostTask(capi.CEFThreadIDT(threadid), extractOrWrapRawPointer(task, func() any { return NewTask(task) }))
+	return int32(ret)
 }
 
 // PostDelayedTask Post a task for delayed execution on the specified thread. Equivalent to using cef_task_runner_t::GetForThread(threadId)->PostDelayedTask(task, delay_ms).
 func PostDelayedTask(threadid ThreadID, task Task, delayMs int64) int32 {
-	return int32(capi.CEFPostDelayedTask(capi.CEFThreadIDT(threadid), extractOrWrapRawPointer(task, func() any { return NewTask(task) }), delayMs))
+	ret := capi.CEFPostDelayedTask(capi.CEFThreadIDT(threadid), extractOrWrapRawPointer(task, func() any { return NewTask(task) }), delayMs)
+	return int32(ret)
 }

@@ -2,12 +2,8 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // RequestContextHandler defines the inbound port interface.
 type RequestContextHandler interface {
 	OnRequestContextInitialized(requestContext RequestContext)
-	GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling unsafe.Pointer) ResourceRequestHandler
+	GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling *int32) ResourceRequestHandler
 }

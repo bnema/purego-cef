@@ -23,7 +23,8 @@ type preferenceRegistrarImpl struct {
 func (obj *preferenceRegistrarImpl) AddPreference(name string, defaultValue Value) int32 {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return int32(obj.rawPtr.CallAddPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(defaultValue))))
+	ret := obj.rawPtr.CallAddPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(defaultValue)))
+	return int32(ret)
 }
 
 func (obj *preferenceRegistrarImpl) RawPointer() unsafe.Pointer {
@@ -90,35 +91,41 @@ type preferenceManagerImpl struct {
 func (obj *preferenceManagerImpl) HasPreference(name string) bool {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return obj.rawPtr.CallHasPreference(uintptr(unsafe.Pointer(&nameStr))) != 0
+	ret := obj.rawPtr.CallHasPreference(uintptr(unsafe.Pointer(&nameStr)))
+	return ret != 0
 }
 
 func (obj *preferenceManagerImpl) GetPreference(name string) Value {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return wrapValue(unsafe.Pointer(obj.rawPtr.CallGetPreference(uintptr(unsafe.Pointer(&nameStr)))))
+	ret := obj.rawPtr.CallGetPreference(uintptr(unsafe.Pointer(&nameStr)))
+	return wrapValue(unsafe.Pointer(ret))
 }
 
 func (obj *preferenceManagerImpl) GetAllPreferences(includeDefaults int32) DictionaryValue {
-	return wrapDictionaryValue(unsafe.Pointer(obj.rawPtr.CallGetAllPreferences(uintptr(includeDefaults))))
+	ret := obj.rawPtr.CallGetAllPreferences(uintptr(includeDefaults))
+	return wrapDictionaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *preferenceManagerImpl) CanSetPreference(name string) bool {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return obj.rawPtr.CallCanSetPreference(uintptr(unsafe.Pointer(&nameStr))) != 0
+	ret := obj.rawPtr.CallCanSetPreference(uintptr(unsafe.Pointer(&nameStr)))
+	return ret != 0
 }
 
 func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error uintptr) int32 {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return int32(obj.rawPtr.CallSetPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(value)), error))
+	ret := obj.rawPtr.CallSetPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(value)), error)
+	return int32(ret)
 }
 
 func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer PreferenceObserver) Registration {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return wrapRegistration(unsafe.Pointer(obj.rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractOrWrapRawPointer(observer, func() any { return NewPreferenceObserver(observer) })))))
+	ret := obj.rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractOrWrapRawPointer(observer, func() any { return NewPreferenceObserver(observer) })))
+	return wrapRegistration(unsafe.Pointer(ret))
 }
 
 func (obj *preferenceManagerImpl) RawPointer() unsafe.Pointer {
@@ -158,5 +165,6 @@ func PreferenceManagerGetChromeVariationsAsStrings(strings StringList) {
 
 // PreferenceManagerGetGlobal Returns the global preference manager object.
 func PreferenceManagerGetGlobal() PreferenceManager {
-	return wrapPreferenceManager(capi.CEFPreferenceManagerGetGlobal())
+	ret := capi.CEFPreferenceManagerGetGlobal()
+	return wrapPreferenceManager(ret)
 }

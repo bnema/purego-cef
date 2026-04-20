@@ -19,55 +19,67 @@ type zipReaderImpl struct {
 }
 
 func (obj *zipReaderImpl) MoveToFirstFile() int32 {
-	return int32(obj.rawPtr.CallMoveToFirstFile())
+	ret := obj.rawPtr.CallMoveToFirstFile()
+	return int32(ret)
 }
 
 func (obj *zipReaderImpl) MoveToNextFile() int32 {
-	return int32(obj.rawPtr.CallMoveToNextFile())
+	ret := obj.rawPtr.CallMoveToNextFile()
+	return int32(ret)
 }
 
 func (obj *zipReaderImpl) MoveToFile(filename string, casesensitive int32) int32 {
 	filenameStr := cefString(filename)
 	defer freeCefString(&filenameStr)
-	return int32(obj.rawPtr.CallMoveToFile(uintptr(unsafe.Pointer(&filenameStr)), uintptr(casesensitive)))
+	ret := obj.rawPtr.CallMoveToFile(uintptr(unsafe.Pointer(&filenameStr)), uintptr(casesensitive))
+	return int32(ret)
 }
 
 func (obj *zipReaderImpl) Close() int32 {
-	return int32(obj.rawPtr.CallClose())
+	ret := obj.rawPtr.CallClose()
+	return int32(ret)
 }
 
 func (obj *zipReaderImpl) GetFileName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFileName()))
+	ret := obj.rawPtr.CallGetFileName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *zipReaderImpl) GetFileSize() int64 {
-	return int64(obj.rawPtr.CallGetFileSize())
+	ret := obj.rawPtr.CallGetFileSize()
+	return int64(ret)
 }
 
 func (obj *zipReaderImpl) GetFileLastModified() uintptr {
-	return uintptr(obj.rawPtr.CallGetFileLastModified())
+	ret := obj.rawPtr.CallGetFileLastModified()
+	return uintptr(ret)
 }
 
 func (obj *zipReaderImpl) OpenFile(password string) int32 {
 	passwordStr := cefString(password)
 	defer freeCefString(&passwordStr)
-	return int32(obj.rawPtr.CallOpenFile(uintptr(unsafe.Pointer(&passwordStr))))
+	ret := obj.rawPtr.CallOpenFile(uintptr(unsafe.Pointer(&passwordStr)))
+	return int32(ret)
 }
 
 func (obj *zipReaderImpl) CloseFile() int32 {
-	return int32(obj.rawPtr.CallCloseFile())
+	ret := obj.rawPtr.CallCloseFile()
+	return int32(ret)
 }
 
 func (obj *zipReaderImpl) ReadFile(buffer unsafe.Pointer, buffersize int) int32 {
-	return int32(obj.rawPtr.CallReadFile(uintptr(buffer), uintptr(buffersize)))
+	ret := obj.rawPtr.CallReadFile(uintptr(buffer), uintptr(buffersize))
+	return int32(ret)
 }
 
 func (obj *zipReaderImpl) Tell() int64 {
-	return int64(obj.rawPtr.CallTell())
+	ret := obj.rawPtr.CallTell()
+	return int64(ret)
 }
 
 func (obj *zipReaderImpl) Eof() int32 {
-	return int32(obj.rawPtr.CallEof())
+	ret := obj.rawPtr.CallEof()
+	return int32(ret)
 }
 
 func (obj *zipReaderImpl) RawPointer() unsafe.Pointer {
@@ -97,5 +109,6 @@ func wrapZipReader(ptr unsafe.Pointer) ZipReader {
 
 // ZipReaderCreate Create a new cef_zip_reader_t object. The returned object's functions can only be called from the thread that created the object.
 func ZipReaderCreate(stream StreamReader) ZipReader {
-	return wrapZipReader(capi.CEFZipReaderCreate(extractRawPointer(stream)))
+	ret := capi.CEFZipReaderCreate(extractRawPointer(stream))
+	return wrapZipReader(ret)
 }

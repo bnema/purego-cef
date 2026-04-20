@@ -18,11 +18,11 @@ type ResourceReadCallback interface {
 
 // ResourceHandler defines the inbound port interface.
 type ResourceHandler interface {
-	Open(request Request, handleRequest unsafe.Pointer, callback Callback) int32
+	Open(request Request, handleRequest *int32, callback Callback) int32
 	ProcessRequest(request Request, callback Callback) int32
-	GetResponseHeaders(response Response, responseLength unsafe.Pointer, redirecturl uintptr)
-	Skip(bytesToSkip int64, bytesSkipped unsafe.Pointer, callback ResourceSkipCallback) int32
-	Read(dataOut unsafe.Pointer, bytesToRead int32, bytesRead unsafe.Pointer, callback ResourceReadCallback) int32
-	ReadResponse(dataOut unsafe.Pointer, bytesToRead int32, bytesRead unsafe.Pointer, callback Callback) int32
+	GetResponseHeaders(response Response, responseLength *int64, redirecturl uintptr)
+	Skip(bytesToSkip int64, bytesSkipped *int64, callback ResourceSkipCallback) int32
+	Read(dataOut unsafe.Pointer, bytesToRead int32, bytesRead *int32, callback ResourceReadCallback) int32
+	ReadResponse(dataOut unsafe.Pointer, bytesToRead int32, bytesRead *int32, callback Callback) int32
 	Cancel()
 }

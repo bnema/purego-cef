@@ -386,3 +386,140 @@ func TestV8ValueExecuteFunctionArgumentsMerge(t *testing.T) {
 		}
 	}
 }
+
+func TestObjectMethodOutputObjectSliceBuffer(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "cef_post_data_element_t",
+				GoName:        "CEFPostDataElementT",
+				Kind:          "object",
+				InterfaceName: "PostDataElement",
+				Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+			},
+			{
+				CName:         "cef_post_data_t",
+				GoName:        "CEFPostDataT",
+				Kind:          "object",
+				InterfaceName: "PostData",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "get_elements",
+						GoName:      "GetElements",
+						IsFunction:  true,
+						ReturnCType: "void",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_post_data_t*"},
+							{CName: "elementsCount", GoName: "elementsCount", CType: "size_t*"},
+							{CName: "elements", GoName: "elements", CType: "struct _cef_post_data_element_t**"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	m := data.Interfaces[1].Methods[0]
+	if len(m.Params) != 2 {
+		t.Fatalf("expected count + typed output slice params, got %#v", m.Params)
+	}
+	if got := m.Params[0].MarshalKind; got != "outCount" {
+		t.Fatalf("expected outCount marshal kind, got %s", got)
+	}
+	if got := m.Params[1].PublicType; got != "[]PostDataElement" {
+		t.Fatalf("expected []PostDataElement, got %s", got)
+	}
+	if got := m.Params[1].MarshalKind; got != "outObjectSlice" {
+		t.Fatalf("expected outObjectSlice, got %s", got)
+	}
+	if got := m.Params[1].CountParamName; got != "elementsCount" {
+		t.Fatalf("expected CountParamName elementsCount, got %s", got)
+	}
+}
+
+func TestObjectMethodOutputNumericSliceBuffer(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "cef_task_manager_t",
+			GoName:        "CEFTaskManagerT",
+			Kind:          "object",
+			InterfaceName: "TaskManager",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "get_task_ids_list",
+					GoName:      "GetTaskIdsList",
+					IsFunction:  true,
+					ReturnCType: "int",
+					Params: []model.Param{
+						{CName: "self", GoName: "self", CType: "struct _cef_task_manager_t*"},
+						{CName: "task_idsCount", GoName: "task_idsCount", CType: "size_t*"},
+						{CName: "task_ids", GoName: "task_ids", CType: "int64_t*"},
+					},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	m := data.Interfaces[0].Methods[0]
+	if len(m.Params) != 2 {
+		t.Fatalf("expected count + typed output slice params, got %#v", m.Params)
+	}
+	if got := m.Params[0].MarshalKind; got != "outCount" {
+		t.Fatalf("expected outCount marshal kind, got %s", got)
+	}
+	if got := m.Params[1].PublicType; got != "[]int64" {
+		t.Fatalf("expected []int64, got %s", got)
+	}
+	if got := m.Params[1].MarshalKind; got != "outSlice" {
+		t.Fatalf("expected outSlice, got %s", got)
+	}
+}
+
+func TestFreeFuncOutputObjectSliceBuffer(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "cef_display_t",
+			GoName:        "CEFDisplayT",
+			Kind:          "object",
+			InterfaceName: "Display",
+			Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+		}},
+		Functions: []model.Function{{
+			CName:       "cef_display_get_alls",
+			GoName:      "CEFDisplayGetAlls",
+			ReturnCType: "void",
+			Params: []model.Param{
+				{CName: "displaysCount", GoName: "displaysCount", CType: "size_t*"},
+				{CName: "displays", GoName: "displays", CType: "cef_display_t**"},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	if len(data.FreeFunctions) != 1 {
+		t.Fatalf("expected 1 free function, got %d", len(data.FreeFunctions))
+	}
+	ff := data.FreeFunctions[0]
+	if len(ff.Params) != 2 {
+		t.Fatalf("expected count + typed output slice params, got %#v", ff.Params)
+	}
+	if got := ff.Params[0].MarshalKind; got != "outCount" {
+		t.Fatalf("expected outCount marshal kind, got %s", got)
+	}
+	if got := ff.Params[1].PublicType; got != "[]Display" {
+		t.Fatalf("expected []Display, got %s", got)
+	}
+	if got := ff.Params[1].MarshalKind; got != "outObjectSlice" {
+		t.Fatalf("expected outObjectSlice, got %s", got)
+	}
+}

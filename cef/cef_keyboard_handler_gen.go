@@ -37,7 +37,7 @@ func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		event := (*KeyEvent)(unsafe.Pointer(arg1))
 		osEvent := uintptr(arg2)
-		isKeyboardShortcut := unsafe.Pointer(arg3)
+		isKeyboardShortcut := (*int32)(unsafe.Pointer(arg3))
 		return uintptr(impl.OnPreKeyEvent(browser, event, osEvent, isKeyboardShortcut))
 	}))
 

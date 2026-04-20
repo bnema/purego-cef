@@ -19,83 +19,103 @@ type downloadItemImpl struct {
 }
 
 func (obj *downloadItemImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *downloadItemImpl) IsInProgress() bool {
-	return obj.rawPtr.CallIsInProgress() != 0
+	ret := obj.rawPtr.CallIsInProgress()
+	return ret != 0
 }
 
 func (obj *downloadItemImpl) IsComplete() bool {
-	return obj.rawPtr.CallIsComplete() != 0
+	ret := obj.rawPtr.CallIsComplete()
+	return ret != 0
 }
 
 func (obj *downloadItemImpl) IsCanceled() bool {
-	return obj.rawPtr.CallIsCanceled() != 0
+	ret := obj.rawPtr.CallIsCanceled()
+	return ret != 0
 }
 
 func (obj *downloadItemImpl) IsInterrupted() bool {
-	return obj.rawPtr.CallIsInterrupted() != 0
+	ret := obj.rawPtr.CallIsInterrupted()
+	return ret != 0
 }
 
 func (obj *downloadItemImpl) GetInterruptReason() DownloadInterruptReason {
-	return DownloadInterruptReason(obj.rawPtr.CallGetInterruptReason())
+	ret := obj.rawPtr.CallGetInterruptReason()
+	return DownloadInterruptReason(ret)
 }
 
 func (obj *downloadItemImpl) GetCurrentSpeed() int64 {
-	return int64(obj.rawPtr.CallGetCurrentSpeed())
+	ret := obj.rawPtr.CallGetCurrentSpeed()
+	return int64(ret)
 }
 
 func (obj *downloadItemImpl) GetPercentComplete() int32 {
-	return int32(obj.rawPtr.CallGetPercentComplete())
+	ret := obj.rawPtr.CallGetPercentComplete()
+	return int32(ret)
 }
 
 func (obj *downloadItemImpl) GetTotalBytes() int64 {
-	return int64(obj.rawPtr.CallGetTotalBytes())
+	ret := obj.rawPtr.CallGetTotalBytes()
+	return int64(ret)
 }
 
 func (obj *downloadItemImpl) GetReceivedBytes() int64 {
-	return int64(obj.rawPtr.CallGetReceivedBytes())
+	ret := obj.rawPtr.CallGetReceivedBytes()
+	return int64(ret)
 }
 
 func (obj *downloadItemImpl) GetStartTime() uintptr {
-	return uintptr(obj.rawPtr.CallGetStartTime())
+	ret := obj.rawPtr.CallGetStartTime()
+	return uintptr(ret)
 }
 
 func (obj *downloadItemImpl) GetEndTime() uintptr {
-	return uintptr(obj.rawPtr.CallGetEndTime())
+	ret := obj.rawPtr.CallGetEndTime()
+	return uintptr(ret)
 }
 
 func (obj *downloadItemImpl) GetFullPath() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFullPath()))
+	ret := obj.rawPtr.CallGetFullPath()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetID() uint32 {
-	return uint32(obj.rawPtr.CallGetID())
+	ret := obj.rawPtr.CallGetID()
+	return uint32(ret)
 }
 
 func (obj *downloadItemImpl) GetURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetURL()))
+	ret := obj.rawPtr.CallGetURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetOriginalURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetOriginalURL()))
+	ret := obj.rawPtr.CallGetOriginalURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetSuggestedFileName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSuggestedFileName()))
+	ret := obj.rawPtr.CallGetSuggestedFileName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetContentDisposition() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetContentDisposition()))
+	ret := obj.rawPtr.CallGetContentDisposition()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetMimeType() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetMimeType()))
+	ret := obj.rawPtr.CallGetMimeType()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) IsPaused() bool {
-	return obj.rawPtr.CallIsPaused() != 0
+	ret := obj.rawPtr.CallIsPaused()
+	return ret != 0
 }
 
 func (obj *downloadItemImpl) RawPointer() unsafe.Pointer {

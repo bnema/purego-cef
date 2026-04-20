@@ -21,35 +21,43 @@ type v8ContextImpl struct {
 }
 
 func (obj *v8ContextImpl) GetTaskRunner() TaskRunner {
-	return wrapTaskRunner(unsafe.Pointer(obj.rawPtr.CallGetTaskRunner()))
+	ret := obj.rawPtr.CallGetTaskRunner()
+	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
 func (obj *v8ContextImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *v8ContextImpl) GetBrowser() Browser {
-	return wrapBrowser(unsafe.Pointer(obj.rawPtr.CallGetBrowser()))
+	ret := obj.rawPtr.CallGetBrowser()
+	return wrapBrowser(unsafe.Pointer(ret))
 }
 
 func (obj *v8ContextImpl) GetFrame() Frame {
-	return wrapFrame(unsafe.Pointer(obj.rawPtr.CallGetFrame()))
+	ret := obj.rawPtr.CallGetFrame()
+	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *v8ContextImpl) GetGlobal() V8Value {
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetGlobal()))
+	ret := obj.rawPtr.CallGetGlobal()
+	return wrapV8Value(unsafe.Pointer(ret))
 }
 
 func (obj *v8ContextImpl) Enter() int32 {
-	return int32(obj.rawPtr.CallEnter())
+	ret := obj.rawPtr.CallEnter()
+	return int32(ret)
 }
 
 func (obj *v8ContextImpl) Exit() int32 {
-	return int32(obj.rawPtr.CallExit())
+	ret := obj.rawPtr.CallExit()
+	return int32(ret)
 }
 
 func (obj *v8ContextImpl) IsSame(that V8Context) bool {
-	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
+	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	return ret != 0
 }
 
 func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, retval unsafe.Pointer, exception unsafe.Pointer) int32 {
@@ -69,7 +77,8 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 		exception = unsafe.Pointer(&scratch)
 	}
 
-	return int32(obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception)))
+	ret := obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception))
+	return int32(ret)
 }
 
 func (obj *v8ContextImpl) RawPointer() unsafe.Pointer {
@@ -280,35 +289,43 @@ type v8ExceptionImpl struct {
 }
 
 func (obj *v8ExceptionImpl) GetMessage() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetMessage()))
+	ret := obj.rawPtr.CallGetMessage()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ExceptionImpl) GetSourceLine() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSourceLine()))
+	ret := obj.rawPtr.CallGetSourceLine()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ExceptionImpl) GetScriptResourceName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetScriptResourceName()))
+	ret := obj.rawPtr.CallGetScriptResourceName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ExceptionImpl) GetLineNumber() int32 {
-	return int32(obj.rawPtr.CallGetLineNumber())
+	ret := obj.rawPtr.CallGetLineNumber()
+	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) GetStartPosition() int32 {
-	return int32(obj.rawPtr.CallGetStartPosition())
+	ret := obj.rawPtr.CallGetStartPosition()
+	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) GetEndPosition() int32 {
-	return int32(obj.rawPtr.CallGetEndPosition())
+	ret := obj.rawPtr.CallGetEndPosition()
+	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) GetStartColumn() int32 {
-	return int32(obj.rawPtr.CallGetStartColumn())
+	ret := obj.rawPtr.CallGetStartColumn()
+	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) GetEndColumn() int32 {
-	return int32(obj.rawPtr.CallGetEndColumn())
+	ret := obj.rawPtr.CallGetEndColumn()
+	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) RawPointer() unsafe.Pointer {
@@ -386,207 +403,255 @@ type v8ValueImpl struct {
 }
 
 func (obj *v8ValueImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsUndefined() bool {
-	return obj.rawPtr.CallIsUndefined() != 0
+	ret := obj.rawPtr.CallIsUndefined()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsNull() bool {
-	return obj.rawPtr.CallIsNull() != 0
+	ret := obj.rawPtr.CallIsNull()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsBool() bool {
-	return obj.rawPtr.CallIsBool() != 0
+	ret := obj.rawPtr.CallIsBool()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsInt() bool {
-	return obj.rawPtr.CallIsInt() != 0
+	ret := obj.rawPtr.CallIsInt()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsUint() bool {
-	return obj.rawPtr.CallIsUint() != 0
+	ret := obj.rawPtr.CallIsUint()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsDouble() bool {
-	return obj.rawPtr.CallIsDouble() != 0
+	ret := obj.rawPtr.CallIsDouble()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsDate() bool {
-	return obj.rawPtr.CallIsDate() != 0
+	ret := obj.rawPtr.CallIsDate()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsString() bool {
-	return obj.rawPtr.CallIsString() != 0
+	ret := obj.rawPtr.CallIsString()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsObject() bool {
-	return obj.rawPtr.CallIsObject() != 0
+	ret := obj.rawPtr.CallIsObject()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsArray() bool {
-	return obj.rawPtr.CallIsArray() != 0
+	ret := obj.rawPtr.CallIsArray()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsArrayBuffer() bool {
-	return obj.rawPtr.CallIsArrayBuffer() != 0
+	ret := obj.rawPtr.CallIsArrayBuffer()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsFunction() bool {
-	return obj.rawPtr.CallIsFunction() != 0
+	ret := obj.rawPtr.CallIsFunction()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsPromise() bool {
-	return obj.rawPtr.CallIsPromise() != 0
+	ret := obj.rawPtr.CallIsPromise()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsSame(that V8Value) bool {
-	return obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that))) != 0
+	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) GetBoolValue() int32 {
-	return int32(obj.rawPtr.CallGetBoolValue())
+	ret := obj.rawPtr.CallGetBoolValue()
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetIntValue() int32 {
-	return int32(obj.rawPtr.CallGetIntValue())
+	ret := obj.rawPtr.CallGetIntValue()
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetUintValue() uint32 {
-	return uint32(obj.rawPtr.CallGetUintValue())
+	ret := obj.rawPtr.CallGetUintValue()
+	return uint32(ret)
 }
 
 func (obj *v8ValueImpl) GetDoubleValue() float64 {
 	var fn func(*capi.CEFV8ValueT) float64
 	purego.RegisterFunc(&fn, obj.rawPtr.GetDoubleValue)
-	return fn(obj.rawPtr)
+	ret := fn(obj.rawPtr)
+	return ret
 }
 
 func (obj *v8ValueImpl) GetDateValue() uintptr {
-	return uintptr(obj.rawPtr.CallGetDateValue())
+	ret := obj.rawPtr.CallGetDateValue()
+	return uintptr(ret)
 }
 
 func (obj *v8ValueImpl) GetStringValue() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetStringValue()))
+	ret := obj.rawPtr.CallGetStringValue()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) IsUserCreated() bool {
-	return obj.rawPtr.CallIsUserCreated() != 0
+	ret := obj.rawPtr.CallIsUserCreated()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) HasException() bool {
-	return obj.rawPtr.CallHasException() != 0
+	ret := obj.rawPtr.CallHasException()
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) GetException() V8Exception {
-	return wrapV8Exception(unsafe.Pointer(obj.rawPtr.CallGetException()))
+	ret := obj.rawPtr.CallGetException()
+	return wrapV8Exception(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) ClearException() int32 {
-	return int32(obj.rawPtr.CallClearException())
+	ret := obj.rawPtr.CallClearException()
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) WillRethrowExceptions() int32 {
-	return int32(obj.rawPtr.CallWillRethrowExceptions())
+	ret := obj.rawPtr.CallWillRethrowExceptions()
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) SetRethrowExceptions(rethrow int32) int32 {
-	return int32(obj.rawPtr.CallSetRethrowExceptions(uintptr(rethrow)))
+	ret := obj.rawPtr.CallSetRethrowExceptions(uintptr(rethrow))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) HasValueBykey(key string) bool {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	return obj.rawPtr.CallHasValueBykey(uintptr(unsafe.Pointer(&keyStr))) != 0
+	ret := obj.rawPtr.CallHasValueBykey(uintptr(unsafe.Pointer(&keyStr)))
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) HasValueByindex(index int32) bool {
-	return obj.rawPtr.CallHasValueByindex(uintptr(index)) != 0
+	ret := obj.rawPtr.CallHasValueByindex(uintptr(index))
+	return ret != 0
 }
 
 func (obj *v8ValueImpl) DeleteValueBykey(key string) int32 {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	return int32(obj.rawPtr.CallDeleteValueBykey(uintptr(unsafe.Pointer(&keyStr))))
+	ret := obj.rawPtr.CallDeleteValueBykey(uintptr(unsafe.Pointer(&keyStr)))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) DeleteValueByindex(index int32) int32 {
-	return int32(obj.rawPtr.CallDeleteValueByindex(uintptr(index)))
+	ret := obj.rawPtr.CallDeleteValueByindex(uintptr(index))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetValueBykey(key string) V8Value {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetValueBykey(uintptr(unsafe.Pointer(&keyStr)))))
+	ret := obj.rawPtr.CallGetValueBykey(uintptr(unsafe.Pointer(&keyStr)))
+	return wrapV8Value(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) GetValueByindex(index int32) V8Value {
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallGetValueByindex(uintptr(index))))
+	ret := obj.rawPtr.CallGetValueByindex(uintptr(index))
+	return wrapV8Value(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) SetValueBykey(key string, value V8Value, attribute V8Propertyattribute) int32 {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	return int32(obj.rawPtr.CallSetValueBykey(uintptr(unsafe.Pointer(&keyStr)), uintptr(extractRawPointer(value)), uintptr(attribute)))
+	ret := obj.rawPtr.CallSetValueBykey(uintptr(unsafe.Pointer(&keyStr)), uintptr(extractRawPointer(value)), uintptr(attribute))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) SetValueByindex(index int32, value V8Value) int32 {
-	return int32(obj.rawPtr.CallSetValueByindex(uintptr(index), uintptr(extractRawPointer(value))))
+	ret := obj.rawPtr.CallSetValueByindex(uintptr(index), uintptr(extractRawPointer(value)))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattribute) int32 {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	return int32(obj.rawPtr.CallSetValueByaccessor(uintptr(unsafe.Pointer(&keyStr)), uintptr(attribute)))
+	ret := obj.rawPtr.CallSetValueByaccessor(uintptr(unsafe.Pointer(&keyStr)), uintptr(attribute))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetKeys(keys StringList) int32 {
-	return int32(obj.rawPtr.CallGetKeys(uintptr(keys)))
+	ret := obj.rawPtr.CallGetKeys(uintptr(keys))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) SetUserData(userData *BaseRefCounted) int32 {
-	return int32(obj.rawPtr.CallSetUserData(uintptr(unsafe.Pointer(userData))))
+	ret := obj.rawPtr.CallSetUserData(uintptr(unsafe.Pointer(userData)))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetUserData() *BaseRefCounted {
-	return (*BaseRefCounted)(unsafe.Pointer(obj.rawPtr.CallGetUserData()))
+	ret := obj.rawPtr.CallGetUserData()
+	return (*BaseRefCounted)(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) GetExternallyAllocatedMemory() int32 {
-	return int32(obj.rawPtr.CallGetExternallyAllocatedMemory())
+	ret := obj.rawPtr.CallGetExternallyAllocatedMemory()
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) AdjustExternallyAllocatedMemory(changeInBytes int32) int32 {
-	return int32(obj.rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(changeInBytes)))
+	ret := obj.rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(changeInBytes))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetArrayLength() int32 {
-	return int32(obj.rawPtr.CallGetArrayLength())
+	ret := obj.rawPtr.CallGetArrayLength()
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetArrayBufferReleaseCallback() V8ArrayBufferReleaseCallback {
-	return wrapV8ArrayBufferReleaseCallback(unsafe.Pointer(obj.rawPtr.CallGetArrayBufferReleaseCallback()))
+	ret := obj.rawPtr.CallGetArrayBufferReleaseCallback()
+	return wrapV8ArrayBufferReleaseCallback(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) NeuterArrayBuffer() int32 {
-	return int32(obj.rawPtr.CallNeuterArrayBuffer())
+	ret := obj.rawPtr.CallNeuterArrayBuffer()
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetArrayBufferByteLength() int {
-	return int(obj.rawPtr.CallGetArrayBufferByteLength())
+	ret := obj.rawPtr.CallGetArrayBufferByteLength()
+	return int(ret)
 }
 
 func (obj *v8ValueImpl) GetArrayBufferData() unsafe.Pointer {
-	return unsafe.Pointer(obj.rawPtr.CallGetArrayBufferData())
+	ret := obj.rawPtr.CallGetArrayBufferData()
+	return unsafe.Pointer(ret)
 }
 
 func (obj *v8ValueImpl) GetFunctionName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFunctionName()))
+	ret := obj.rawPtr.CallGetFunctionName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) GetFunctionHandler() V8Handler {
-	return wrapV8Handler(unsafe.Pointer(obj.rawPtr.CallGetFunctionHandler()))
+	ret := obj.rawPtr.CallGetFunctionHandler()
+	return wrapV8Handler(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8Value {
@@ -599,7 +664,8 @@ func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8V
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))))
+	ret := obj.rawPtr.CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
+	return wrapV8Value(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8Value, arguments []V8Value) V8Value {
@@ -612,17 +678,20 @@ func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8V
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	return wrapV8Value(unsafe.Pointer(obj.rawPtr.CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))))
+	ret := obj.rawPtr.CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
+	return wrapV8Value(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) ResolvePromise(arg V8Value) int32 {
-	return int32(obj.rawPtr.CallResolvePromise(uintptr(extractRawPointer(arg))))
+	ret := obj.rawPtr.CallResolvePromise(uintptr(extractRawPointer(arg)))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) RejectPromise(errormsg string) int32 {
 	errormsgStr := cefString(errormsg)
 	defer freeCefString(&errormsgStr)
-	return int32(obj.rawPtr.CallRejectPromise(uintptr(unsafe.Pointer(&errormsgStr))))
+	ret := obj.rawPtr.CallRejectPromise(uintptr(unsafe.Pointer(&errormsgStr)))
+	return int32(ret)
 }
 
 func (obj *v8ValueImpl) RawPointer() unsafe.Pointer {
@@ -658,15 +727,18 @@ type v8StackTraceImpl struct {
 }
 
 func (obj *v8StackTraceImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *v8StackTraceImpl) GetFrameCount() int32 {
-	return int32(obj.rawPtr.CallGetFrameCount())
+	ret := obj.rawPtr.CallGetFrameCount()
+	return int32(ret)
 }
 
 func (obj *v8StackTraceImpl) GetFrame(index int32) V8StackFrame {
-	return wrapV8StackFrame(unsafe.Pointer(obj.rawPtr.CallGetFrame(uintptr(index))))
+	ret := obj.rawPtr.CallGetFrame(uintptr(index))
+	return wrapV8StackFrame(unsafe.Pointer(ret))
 }
 
 func (obj *v8StackTraceImpl) RawPointer() unsafe.Pointer {
@@ -702,35 +774,43 @@ type v8StackFrameImpl struct {
 }
 
 func (obj *v8StackFrameImpl) IsValid() bool {
-	return obj.rawPtr.CallIsValid() != 0
+	ret := obj.rawPtr.CallIsValid()
+	return ret != 0
 }
 
 func (obj *v8StackFrameImpl) GetScriptName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetScriptName()))
+	ret := obj.rawPtr.CallGetScriptName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8StackFrameImpl) GetScriptNameOrSourceURL() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetScriptNameOrSourceURL()))
+	ret := obj.rawPtr.CallGetScriptNameOrSourceURL()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8StackFrameImpl) GetFunctionName() string {
-	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetFunctionName()))
+	ret := obj.rawPtr.CallGetFunctionName()
+	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8StackFrameImpl) GetLineNumber() int32 {
-	return int32(obj.rawPtr.CallGetLineNumber())
+	ret := obj.rawPtr.CallGetLineNumber()
+	return int32(ret)
 }
 
 func (obj *v8StackFrameImpl) GetColumn() int32 {
-	return int32(obj.rawPtr.CallGetColumn())
+	ret := obj.rawPtr.CallGetColumn()
+	return int32(ret)
 }
 
 func (obj *v8StackFrameImpl) IsEval() bool {
-	return obj.rawPtr.CallIsEval() != 0
+	ret := obj.rawPtr.CallIsEval()
+	return ret != 0
 }
 
 func (obj *v8StackFrameImpl) IsConstructor() bool {
-	return obj.rawPtr.CallIsConstructor() != 0
+	ret := obj.rawPtr.CallIsConstructor()
+	return ret != 0
 }
 
 func (obj *v8StackFrameImpl) RawPointer() unsafe.Pointer {
@@ -760,91 +840,108 @@ func wrapV8StackFrame(ptr unsafe.Pointer) V8StackFrame {
 
 // V8ContextGetCurrentContext Returns the current (top) context object in the V8 context stack.
 func V8ContextGetCurrentContext() V8Context {
-	return wrapV8Context(capi.CEFV8ContextGetCurrentContext())
+	ret := capi.CEFV8ContextGetCurrentContext()
+	return wrapV8Context(ret)
 }
 
 // V8ContextGetEnteredContext Returns the entered (bottom) context object in the V8 context stack.
 func V8ContextGetEnteredContext() V8Context {
-	return wrapV8Context(capi.CEFV8ContextGetEnteredContext())
+	ret := capi.CEFV8ContextGetEnteredContext()
+	return wrapV8Context(ret)
 }
 
 // V8ContextInContext Returns true (1) if V8 is currently inside a context.
 func V8ContextInContext() int32 {
-	return int32(capi.CEFV8ContextInContext())
+	ret := capi.CEFV8ContextInContext()
+	return int32(ret)
 }
 
 // V8ValueCreateUndefined Create a new cef_v8_value_t object of type undefined.
 func V8ValueCreateUndefined() V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateUndefined())
+	ret := capi.CEFV8ValueCreateUndefined()
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateNull Create a new cef_v8_value_t object of type null.
 func V8ValueCreateNull() V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateNull())
+	ret := capi.CEFV8ValueCreateNull()
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateBool Create a new cef_v8_value_t object of type bool.
 func V8ValueCreateBool(value int32) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateBool(value))
+	ret := capi.CEFV8ValueCreateBool(value)
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateInt Create a new cef_v8_value_t object of type int.
 func V8ValueCreateInt(value int32) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateInt(value))
+	ret := capi.CEFV8ValueCreateInt(value)
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateUint Create a new cef_v8_value_t object of type unsigned int.
 func V8ValueCreateUint(value uint32) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateUint(value))
+	ret := capi.CEFV8ValueCreateUint(value)
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateDouble Create a new cef_v8_value_t object of type double.
 func V8ValueCreateDouble(value float64) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateDouble(value))
+	ret := capi.CEFV8ValueCreateDouble(value)
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateString Create a new cef_v8_value_t object of type string.
 func V8ValueCreateString(value string) V8Value {
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
-	return wrapV8Value(capi.CEFV8ValueCreateString(unsafe.Pointer(&valueStr)))
+	ret := capi.CEFV8ValueCreateString(unsafe.Pointer(&valueStr))
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateObject wraps the CEF CEFV8ValueCreateObject function.
 func V8ValueCreateObject(accessor V8Accessor, interceptor V8Interceptor) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateObject(extractOrWrapRawPointer(accessor, func() any { return NewV8Accessor(accessor) }), extractOrWrapRawPointer(interceptor, func() any { return NewV8Interceptor(interceptor) })))
+	ret := capi.CEFV8ValueCreateObject(extractOrWrapRawPointer(accessor, func() any { return NewV8Accessor(accessor) }), extractOrWrapRawPointer(interceptor, func() any { return NewV8Interceptor(interceptor) }))
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateArray Create a new cef_v8_value_t object of type array with the specified |length|. If |length| is negative the returned array will have length 0. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
 func V8ValueCreateArray(length int32) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateArray(length))
+	ret := capi.CEFV8ValueCreateArray(length)
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateArrayBuffer Create a new cef_v8_value_t object of type ArrayBuffer which wraps the provided |buffer| of size |length| bytes. The ArrayBuffer is externalized, meaning that it does not own |buffer|. The caller is responsible for freeing |buffer| when requested via a call to cef_v8_array_buffer_release_callback_t::ReleaseBuffer. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference. NOTE: Always returns nullptr when V8 sandbox is enabled.
 func V8ValueCreateArrayBuffer(buffer unsafe.Pointer, length int, releaseCallback V8ArrayBufferReleaseCallback) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateArrayBuffer(buffer, uintptr(length), extractOrWrapRawPointer(releaseCallback, func() any { return NewV8ArrayBufferReleaseCallback(releaseCallback) })))
+	ret := capi.CEFV8ValueCreateArrayBuffer(buffer, uintptr(length), extractOrWrapRawPointer(releaseCallback, func() any { return NewV8ArrayBufferReleaseCallback(releaseCallback) }))
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateArrayBufferWithCopy Create a new cef_v8_value_t object of type ArrayBuffer which copies the provided |buffer| of size |length| bytes. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
 func V8ValueCreateArrayBufferWithCopy(buffer unsafe.Pointer, length int) V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreateArrayBufferWithCopy(buffer, uintptr(length)))
+	ret := capi.CEFV8ValueCreateArrayBufferWithCopy(buffer, uintptr(length))
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateFunction Create a new cef_v8_value_t object of type function. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
 func V8ValueCreateFunction(name string, handler V8Handler) V8Value {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	return wrapV8Value(capi.CEFV8ValueCreateFunction(unsafe.Pointer(&nameStr), extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) })))
+	ret := capi.CEFV8ValueCreateFunction(unsafe.Pointer(&nameStr), extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) }))
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreatePromise Create a new cef_v8_value_t object of type Promise. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
 func V8ValueCreatePromise() V8Value {
-	return wrapV8Value(capi.CEFV8ValueCreatePromise())
+	ret := capi.CEFV8ValueCreatePromise()
+	return wrapV8Value(ret)
 }
 
 // V8StackTraceGetCurrent Returns the stack trace for the currently active context. |frame_limit| is the maximum number of frames that will be captured.
 func V8StackTraceGetCurrent(frameLimit int32) V8StackTrace {
-	return wrapV8StackTrace(capi.CEFV8StackTraceGetCurrent(frameLimit))
+	ret := capi.CEFV8StackTraceGetCurrent(frameLimit)
+	return wrapV8StackTrace(ret)
 }
 
 // RegisterExtension Register a new V8 extension with the specified JavaScript extension code and handler. Functions implemented by the handler are prototyped using the keyword 'native'. The calling of a native function is restricted to the scope in which the prototype of the native function is defined. This function may only be called on the render process main thread. Example JavaScript extension code: <pre>   // create the 'example' global object if it doesn't already exist.   if (!example)     example = {};   // create the 'example.test' global object if it doesn't already exist.   if (!example.test)     example.test = {};   (function() {     // Define the function 'example.test.myfunction'.     example.test.myfunction = function() {       // Call CefV8Handler::Execute() with the function name 'MyFunction'       // and no arguments.       native function MyFunction();       return MyFunction();     };     // Define the getter function for parameter 'example.test.myparam'.     example.test.__defineGetter__('myparam', function() {       // Call CefV8Handler::Execute() with the function name 'GetMyParam'       // and no arguments.       native function GetMyParam();       return GetMyParam();     });     // Define the setter function for parameter 'example.test.myparam'.     example.test.__defineSetter__('myparam', function(b) {       // Call CefV8Handler::Execute() with the function name 'SetMyParam'       // and a single argument.       native function SetMyParam();       if(b) SetMyParam(b);     });     // Extension definitions can also contain normal JavaScript variables     // and functions.     var myint = 0;     example.test.increment = function() {       myint += 1;       return myint;     };   })(); </pre> Example usage in the page: <pre>   // Call the function.   example.test.myfunction();   // Set the parameter.   example.test.myparam = value;   // Get the parameter.   value = example.test.myparam;   // Call another function.   example.test.increment(); </pre>
@@ -853,5 +950,6 @@ func RegisterExtension(extensionName string, javascriptCode string, handler V8Ha
 	defer freeCefString(&extensionNameStr)
 	javascriptCodeStr := cefString(javascriptCode)
 	defer freeCefString(&javascriptCodeStr)
-	return int32(capi.CEFRegisterExtension(unsafe.Pointer(&extensionNameStr), unsafe.Pointer(&javascriptCodeStr), extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) })))
+	ret := capi.CEFRegisterExtension(unsafe.Pointer(&extensionNameStr), unsafe.Pointer(&javascriptCodeStr), extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) }))
+	return int32(ret)
 }

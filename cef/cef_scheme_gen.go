@@ -22,7 +22,8 @@ type schemeRegistrarImpl struct {
 func (obj *schemeRegistrarImpl) AddCustomScheme(schemeName string, options int32) int32 {
 	schemeNameStr := cefString(schemeName)
 	defer freeCefString(&schemeNameStr)
-	return int32(obj.rawPtr.CallAddCustomScheme(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(options)))
+	ret := obj.rawPtr.CallAddCustomScheme(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(options))
+	return int32(ret)
 }
 
 func (obj *schemeRegistrarImpl) RawPointer() unsafe.Pointer {
@@ -94,10 +95,12 @@ func RegisterSchemeHandlerFactory(schemeName string, domainName string, factory 
 	defer freeCefString(&schemeNameStr)
 	domainNameStr := cefString(domainName)
 	defer freeCefString(&domainNameStr)
-	return int32(capi.CEFRegisterSchemeHandlerFactory(unsafe.Pointer(&schemeNameStr), unsafe.Pointer(&domainNameStr), extractOrWrapRawPointer(factory, func() any { return NewSchemeHandlerFactory(factory) })))
+	ret := capi.CEFRegisterSchemeHandlerFactory(unsafe.Pointer(&schemeNameStr), unsafe.Pointer(&domainNameStr), extractOrWrapRawPointer(factory, func() any { return NewSchemeHandlerFactory(factory) }))
+	return int32(ret)
 }
 
 // ClearSchemeHandlerFactories Clear all scheme handler factories registered with the global request context. Returns false (0) on error. This function may be called on any thread in the browser process. Using this function is equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >clear_scheme_handler_factories().
 func ClearSchemeHandlerFactories() int32 {
-	return int32(capi.CEFClearSchemeHandlerFactories())
+	ret := capi.CEFClearSchemeHandlerFactories()
+	return int32(ret)
 }

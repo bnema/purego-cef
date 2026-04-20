@@ -68,8 +68,8 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 
 	r.OverrideGetParentWindow(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
-		isMenu := unsafe.Pointer(arg1)
-		canActivateMenu := unsafe.Pointer(arg2)
+		isMenu := (*int32)(unsafe.Pointer(arg1))
+		canActivateMenu := (*int32)(unsafe.Pointer(arg2))
 		return uintptr(extractRawPointer(impl.GetParentWindow(window, isMenu, canActivateMenu)))
 	}))
 
@@ -106,7 +106,7 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 
 	r.OverrideGetTitlebarHeight(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
-		titlebarHeight := unsafe.Pointer(arg1)
+		titlebarHeight := (*float32)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetTitlebarHeight(window, titlebarHeight))
 	}))
 

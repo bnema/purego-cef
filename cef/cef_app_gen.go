@@ -104,7 +104,8 @@ func wrapApp(ptr unsafe.Pointer) App {
 
 // GetExitCode This function can optionally be called on the main application thread after CefInitialize to retrieve the initialization exit code. When CefInitialize returns true (1) the exit code will be 0 (CEF_RESULT_CODE_NORMAL_EXIT). Otherwise, see cef_resultcode_t for possible exit code values including browser process initialization errors and normal early exit conditions (such as CEF_RESULT_CODE_NORMAL_EXIT_PROCESS_NOTIFIED for process singleton relaunch behavior).
 func GetExitCode() int32 {
-	return int32(capi.CEFGetExitCode())
+	ret := capi.CEFGetExitCode()
+	return int32(ret)
 }
 
 // RunMessageLoop wraps the CEF CEFRunMessageLoop function.

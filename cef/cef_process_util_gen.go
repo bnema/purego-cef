@@ -8,5 +8,6 @@ import (
 
 // LaunchProcess Launches the process specified via |command_line|. Returns true (1) upon success. Must be called on the browser process TID_PROCESS_LAUNCHER thread. Unix-specific notes: - All file descriptors open in the parent process will be closed in the   child process except for stdin, stdout, and stderr. - If the first argument on the command line does not contain a slash, PATH   will be searched. (See man execvp.)
 func LaunchProcess(commandLine CommandLine) int32 {
-	return int32(capi.CEFLaunchProcess(extractRawPointer(commandLine)))
+	ret := capi.CEFLaunchProcess(extractRawPointer(commandLine))
+	return int32(ret)
 }

@@ -145,14 +145,14 @@ func buildInterface(s *model.Struct, registry *TypeRegistry) InterfaceData {
 			continue
 		}
 
-		m := buildMethod(s.CName, f, registry)
+		m := buildMethod(s.CName, s.Kind, f, registry)
 		iface.Methods = append(iface.Methods, m)
 	}
 
 	return iface
 }
 
-func buildMethod(structCName string, f model.Field, registry *TypeRegistry) MethodData {
+func buildMethod(structCName string, structKind string, f model.Field, registry *TypeRegistry) MethodData {
 	name := model.PublicName(f.CName)
 	if renamed, ok := methodRenames[name]; ok {
 		name = renamed
@@ -204,7 +204,7 @@ func buildMethod(structCName string, f model.Field, registry *TypeRegistry) Meth
 	// Save original params for raw callback signatures, then merge count+pointer pairs.
 	m.RawParams = make([]ParamData, len(m.Params))
 	copy(m.RawParams, m.Params)
-	m.Params = mergeCountPointerParams(m.Params, registry)
+	m.Params = mergeCountPointerParams(m.Params, registry, structKind == "object")
 
 	// Build return type.
 	ret := strings.TrimSpace(f.ReturnCType)
@@ -328,6 +328,7 @@ func buildFreeFunc(fn *model.Function, registry *TypeRegistry) FreeFuncData {
 			IsHandler:   registry.IsHandlerType(p.CType),
 		})
 	}
+	ff.Params = mergeCountPointerParams(ff.Params, registry, true)
 
 	ret := strings.TrimSpace(fn.ReturnCType)
 	if ret == "" || ret == "void" {
@@ -482,13 +483,10 @@ func cleanEnumValueName(cName, prefix string) string {
 	return result
 }
 
-// mergeCountPointerParams detects count+pointer param pairs in handler callbacks
-// and merges them into a single []ElemType slice param.
-//
-// Pattern: param[i] has name ending in "count" with numeric type, and param[i+1]
-// has a name matching the prefix (e.g., "dirtyrectscount" + "dirtyrects").
-// The pointer param's type must resolve to a data struct pointer ("*Rect" etc.).
-func mergeCountPointerParams(params []ParamData, registry *TypeRegistry) []ParamData {
+// mergeCountPointerParams detects adjacent count+pointer param pairs and either
+// merges input vectors into a single []ElemType param or upgrades output buffer
+// pointers to typed []ElemType params while retaining the explicit count pointer.
+func mergeCountPointerParams(params []ParamData, registry *TypeRegistry, allowOutputPairs bool) []ParamData {
 	if len(params) < 2 {
 		return params
 	}
@@ -504,26 +502,43 @@ func mergeCountPointerParams(params []ParamData, registry *TypeRegistry) []Param
 			countP := params[i]
 			ptrP := params[i+1]
 
-			// Check: count param is numeric, name ends with "count",
-			// and the pointer param's name matches the prefix.
 			countName := strings.ToLower(countP.Name)
 			ptrName := strings.ToLower(ptrP.Name)
-			if strings.HasSuffix(countName, "count") &&
-				isIntLikeType(countP.PublicType) &&
-				strings.HasPrefix(countName, ptrName) {
-				elemType, marshalKind, ok := inferCountedSliceParam(ptrP, registry)
-				if ok {
-					sliceParam := ParamData{
-						Name:          ptrP.Name,
-						PublicType:    "[]" + elemType,
-						CType:         ptrP.CType,
-						MarshalKind:   marshalKind,
-						SliceElemType: elemType,
-						// SliceCountArg/SlicePtrArg set by template using RawParams indices
+			if strings.HasSuffix(countName, "count") && strings.HasPrefix(countName, ptrName) {
+				if isIntLikeType(countP.PublicType) {
+					elemType, marshalKind, ok := inferCountedSliceParam(ptrP, registry)
+					if ok {
+						sliceParam := ParamData{
+							Name:          ptrP.Name,
+							PublicType:    "[]" + elemType,
+							CType:         ptrP.CType,
+							MarshalKind:   marshalKind,
+							SliceElemType: elemType,
+						}
+						merged = append(merged, sliceParam)
+						skip = true
+						continue
 					}
-					merged = append(merged, sliceParam)
-					skip = true
-					continue
+				}
+				if allowOutputPairs && isOutCountType(countP.PublicType) {
+					elemType, marshalKind, ok := inferCountedOutputSliceParam(ptrP, registry)
+					if ok {
+						countParam := countP
+						countParam.MarshalKind = "outCount"
+						countParam.CountPartnerName = ptrP.Name
+						sliceParam := ParamData{
+							Name:             ptrP.Name,
+							PublicType:       "[]" + elemType,
+							CType:            ptrP.CType,
+							MarshalKind:      marshalKind,
+							SliceElemType:    elemType,
+							CountParamName:   countP.Name,
+							CountPartnerName: ptrP.Name,
+						}
+						merged = append(merged, countParam, sliceParam)
+						skip = true
+						continue
+					}
 				}
 			}
 		}
@@ -563,6 +578,37 @@ func inferCountedSliceParam(ptrP ParamData, registry *TypeRegistry) (elemType st
 	}
 
 	return "", "", false
+}
+
+func inferCountedOutputSliceParam(ptrP ParamData, registry *TypeRegistry) (elemType string, marshalKind string, ok bool) {
+	ct := normalizeConst(strings.TrimSpace(ptrP.CType))
+	ct = strings.TrimPrefix(ct, "const ")
+	ptrCount := strings.Count(ct, "*")
+	base := strings.TrimSpace(strings.TrimRight(ct, "*"))
+
+	switch ptrCount {
+	case 1:
+		pub := registry.ResolvePublicType(ct)
+		if strings.HasPrefix(pub, "*") {
+			return strings.TrimPrefix(pub, "*"), "outSlice", true
+		}
+	case 2:
+		if pub, ok := registry.resolveStructPointer(base + "*"); ok && pub != "unsafe.Pointer" && !strings.HasPrefix(pub, "*") {
+			return pub, "outObjectSlice", true
+		}
+		if pub, ok := registry.resolveBarePointer(base + "*"); ok && pub != "unsafe.Pointer" && !strings.HasPrefix(pub, "*") {
+			return pub, "outObjectSlice", true
+		}
+	}
+
+	return "", "", false
+}
+
+func isOutCountType(goType string) bool {
+	// CEF's translated vector out-params use size_t* counts in the current
+	// headers. Keep this narrow so the out-slice preamble can safely treat the
+	// count as a Go *int without introducing typed-count mismatches.
+	return goType == "*int"
 }
 
 // isIntLikeType returns true if the Go type is an integer type suitable as an array count.

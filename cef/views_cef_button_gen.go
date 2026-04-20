@@ -19,7 +19,8 @@ type buttonImpl struct {
 }
 
 func (obj *buttonImpl) AsLabelButton() LabelButton {
-	return wrapLabelButton(unsafe.Pointer(obj.rawPtr.CallAsLabelButton()))
+	ret := obj.rawPtr.CallAsLabelButton()
+	return wrapLabelButton(unsafe.Pointer(ret))
 }
 
 func (obj *buttonImpl) SetState(state ButtonState) {
@@ -27,7 +28,8 @@ func (obj *buttonImpl) SetState(state ButtonState) {
 }
 
 func (obj *buttonImpl) GetState() ButtonState {
-	return ButtonState(obj.rawPtr.CallGetState())
+	ret := obj.rawPtr.CallGetState()
+	return ButtonState(ret)
 }
 
 func (obj *buttonImpl) SetInkDropEnabled(enabled int32) {

@@ -9,10 +9,10 @@ import (
 	"sync"
 	"unsafe"
 
+	"github.com/bnema/purego"
 	"github.com/bnema/purego-cef/internal/capi"
 	"github.com/bnema/purego-cef/internal/core"
 	portin "github.com/bnema/purego-cef/internal/ports/in"
-	"github.com/bnema/purego"
 )
 
 // Type alias for LifeSpanHandler — uses generated interface (out-params are unsafe.Pointer).
@@ -61,7 +61,7 @@ func newRawLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 
 		blocked := impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName,
 			targetDisposition, userGesture, popupFeatures, windowInfo,
-			unsafe.Pointer(arg9), settings, unsafe.Pointer(arg11), unsafe.Pointer(arg12))
+			unsafe.Pointer(arg9), settings, unsafe.Pointer(arg11), (*int32)(unsafe.Pointer(arg12)))
 
 		if blocked {
 			return 1
@@ -76,7 +76,7 @@ func newRawLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 	r.OverrideOnBeforeDevToolsPopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5 uintptr) {
 		impl.OnBeforeDevToolsPopup(wrapBrowser(unsafe.Pointer(arg0)),
 			(*WindowInfo)(unsafe.Pointer(arg1)), unsafe.Pointer(arg2),
-			(*BrowserSettings)(unsafe.Pointer(arg3)), unsafe.Pointer(arg4), unsafe.Pointer(arg5))
+			(*BrowserSettings)(unsafe.Pointer(arg3)), unsafe.Pointer(arg4), (*int32)(unsafe.Pointer(arg5)))
 	}))
 
 	r.OverrideOnAfterCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
@@ -131,13 +131,13 @@ func (w *safeLifeSpanHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // portin.LifeSpanHandler interface compliance — callbacks go through purego,
 // so these methods should never be called directly. Panic to catch misuse.
-func (w *safeLifeSpanHandlerWrapper) OnBeforePopup(Browser, Frame, int32, string, string, WindowOpenDisposition, int32, *PopupFeatures, *WindowInfo, unsafe.Pointer, *BrowserSettings, unsafe.Pointer, unsafe.Pointer) bool {
+func (w *safeLifeSpanHandlerWrapper) OnBeforePopup(Browser, Frame, int32, string, string, WindowOpenDisposition, int32, *PopupFeatures, *WindowInfo, unsafe.Pointer, *BrowserSettings, unsafe.Pointer, *int32) bool {
 	panic("safeLifeSpanHandlerWrapper: raw OnBeforePopup called directly; callbacks go through purego")
 }
 func (w *safeLifeSpanHandlerWrapper) OnBeforePopupAborted(Browser, int32) {
 	panic("safeLifeSpanHandlerWrapper: raw OnBeforePopupAborted called directly; callbacks go through purego")
 }
-func (w *safeLifeSpanHandlerWrapper) OnBeforeDevToolsPopup(Browser, *WindowInfo, unsafe.Pointer, *BrowserSettings, unsafe.Pointer, unsafe.Pointer) {
+func (w *safeLifeSpanHandlerWrapper) OnBeforeDevToolsPopup(Browser, *WindowInfo, unsafe.Pointer, *BrowserSettings, unsafe.Pointer, *int32) {
 	panic("safeLifeSpanHandlerWrapper: raw OnBeforeDevToolsPopup called directly; callbacks go through purego")
 }
 func (w *safeLifeSpanHandlerWrapper) OnAfterCreated(Browser) {

@@ -8,9 +8,9 @@ import (
 
 // LifeSpanHandler defines the inbound port interface.
 type LifeSpanHandler interface {
-	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition WindowOpenDisposition, userGesture int32, popupfeatures *PopupFeatures, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess unsafe.Pointer) bool
+	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition WindowOpenDisposition, userGesture int32, popupfeatures *PopupFeatures, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess *int32) bool
 	OnBeforePopupAborted(browser Browser, popupID int32)
-	OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow unsafe.Pointer)
+	OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow *int32)
 	OnAfterCreated(browser Browser)
 	DoClose(browser Browser) bool
 	OnBeforeClose(browser Browser)

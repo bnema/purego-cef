@@ -108,7 +108,7 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 
 	r.OverrideOpen(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		request := wrapRequest(unsafe.Pointer(arg0))
-		handleRequest := unsafe.Pointer(arg1)
+		handleRequest := (*int32)(unsafe.Pointer(arg1))
 		callback := wrapCallback(unsafe.Pointer(arg2))
 		return uintptr(impl.Open(request, handleRequest, callback))
 	}))
@@ -121,14 +121,14 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 
 	r.OverrideGetResponseHeaders(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		response := wrapResponse(unsafe.Pointer(arg0))
-		responseLength := unsafe.Pointer(arg1)
+		responseLength := (*int64)(unsafe.Pointer(arg1))
 		redirecturl := uintptr(arg2)
 		impl.GetResponseHeaders(response, responseLength, redirecturl)
 	}))
 
 	r.OverrideSkip(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		bytesToSkip := int64(arg0)
-		bytesSkipped := unsafe.Pointer(arg1)
+		bytesSkipped := (*int64)(unsafe.Pointer(arg1))
 		callback := wrapResourceSkipCallback(unsafe.Pointer(arg2))
 		return uintptr(impl.Skip(bytesToSkip, bytesSkipped, callback))
 	}))
@@ -136,7 +136,7 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 	r.OverrideRead(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		dataOut := unsafe.Pointer(arg0)
 		bytesToRead := int32(arg1)
-		bytesRead := unsafe.Pointer(arg2)
+		bytesRead := (*int32)(unsafe.Pointer(arg2))
 		callback := wrapResourceReadCallback(unsafe.Pointer(arg3))
 		return uintptr(impl.Read(dataOut, bytesToRead, bytesRead, callback))
 	}))
@@ -144,7 +144,7 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 	r.OverrideReadResponse(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		dataOut := unsafe.Pointer(arg0)
 		bytesToRead := int32(arg1)
-		bytesRead := unsafe.Pointer(arg2)
+		bytesRead := (*int32)(unsafe.Pointer(arg2))
 		callback := wrapCallback(unsafe.Pointer(arg3))
 		return uintptr(impl.ReadResponse(dataOut, bytesToRead, bytesRead, callback))
 	}))

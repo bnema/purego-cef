@@ -2,12 +2,8 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // KeyboardHandler defines the inbound port interface.
 type KeyboardHandler interface {
-	OnPreKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr, isKeyboardShortcut unsafe.Pointer) int32
+	OnPreKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr, isKeyboardShortcut *int32) int32
 	OnKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr) int32
 }

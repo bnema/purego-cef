@@ -21,27 +21,33 @@ type urlrequestImpl struct {
 }
 
 func (obj *urlrequestImpl) GetRequest() Request {
-	return wrapRequest(unsafe.Pointer(obj.rawPtr.CallGetRequest()))
+	ret := obj.rawPtr.CallGetRequest()
+	return wrapRequest(unsafe.Pointer(ret))
 }
 
 func (obj *urlrequestImpl) GetClient() UrlrequestClient {
-	return wrapUrlrequestClient(unsafe.Pointer(obj.rawPtr.CallGetClient()))
+	ret := obj.rawPtr.CallGetClient()
+	return wrapUrlrequestClient(unsafe.Pointer(ret))
 }
 
 func (obj *urlrequestImpl) GetRequestStatus() UrlrequestStatus {
-	return UrlrequestStatus(obj.rawPtr.CallGetRequestStatus())
+	ret := obj.rawPtr.CallGetRequestStatus()
+	return UrlrequestStatus(ret)
 }
 
 func (obj *urlrequestImpl) GetRequestError() Errorcode {
-	return Errorcode(obj.rawPtr.CallGetRequestError())
+	ret := obj.rawPtr.CallGetRequestError()
+	return Errorcode(ret)
 }
 
 func (obj *urlrequestImpl) GetResponse() Response {
-	return wrapResponse(unsafe.Pointer(obj.rawPtr.CallGetResponse()))
+	ret := obj.rawPtr.CallGetResponse()
+	return wrapResponse(unsafe.Pointer(ret))
 }
 
 func (obj *urlrequestImpl) ResponseWasCached() int32 {
-	return int32(obj.rawPtr.CallResponseWasCached())
+	ret := obj.rawPtr.CallResponseWasCached()
+	return int32(ret)
 }
 
 func (obj *urlrequestImpl) Cancel() {
@@ -148,5 +154,6 @@ func wrapUrlrequestClient(ptr unsafe.Pointer) UrlrequestClient {
 
 // UrlrequestCreate Create a new URL request that is not associated with a specific browser or frame. Use cef_frame_t::CreateURLRequest instead if you want the request to have this association, in which case it may be handled differently (see documentation on that function). A request created with this function may only originate from the browser process, and will behave as follows:   - It may be intercepted by the client via CefResourceRequestHandler or     CefSchemeHandlerFactory.   - POST data may only contain only a single element of type PDE_TYPE_FILE     or PDE_TYPE_BYTES.   - If |request_context| is empty the global request context will be used. The |request| object will be marked as read-only after calling this function.
 func UrlrequestCreate(request Request, client UrlrequestClient, requestContext RequestContext) Urlrequest {
-	return wrapUrlrequest(capi.CEFUrlrequestCreate(extractRawPointer(request), extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) }), extractRawPointer(requestContext)))
+	ret := capi.CEFUrlrequestCreate(extractRawPointer(request), extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) }), extractRawPointer(requestContext))
+	return wrapUrlrequest(ret)
 }

@@ -70,8 +70,14 @@ func TestResolvePublicType(t *testing.T) {
 		// char pointer
 		{"const char*", "string"},
 		{"char*", "string"},
-		// size_t pointer
+		// typed numeric pointers
 		{"size_t*", "*int"},
+		{"int*", "*int32"},
+		{"uint32_t*", "*uint32"},
+		{"int64_t*", "*int64"},
+		{"uint64_t*", "*uint64"},
+		{"float*", "*float32"},
+		{"double*", "*float64"},
 		// struct pointer: object kind -> interface name
 		{"struct _cef_browser_t*", "Browser"},
 		// struct pointer: handler kind -> interface name

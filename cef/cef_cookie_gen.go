@@ -21,19 +21,22 @@ type cookieManagerImpl struct {
 }
 
 func (obj *cookieManagerImpl) VisitAllCookies(visitor CookieVisitor) int32 {
-	return int32(obj.rawPtr.CallVisitAllCookies(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) }))))
+	ret := obj.rawPtr.CallVisitAllCookies(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
+	return int32(ret)
 }
 
 func (obj *cookieManagerImpl) VisitURLCookies(uRL string, includehttponly int32, visitor CookieVisitor) int32 {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	return int32(obj.rawPtr.CallVisitURLCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(includehttponly), uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) }))))
+	ret := obj.rawPtr.CallVisitURLCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(includehttponly), uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
+	return int32(ret)
 }
 
 func (obj *cookieManagerImpl) SetCookie(uRL string, cookie *Cookie, callback SetCookieCallback) int32 {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	return int32(obj.rawPtr.CallSetCookie(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(cookie)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewSetCookieCallback(callback) }))))
+	ret := obj.rawPtr.CallSetCookie(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(cookie)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewSetCookieCallback(callback) })))
+	return int32(ret)
 }
 
 func (obj *cookieManagerImpl) DeleteCookies(uRL string, cookieName string, callback DeleteCookiesCallback) int32 {
@@ -41,11 +44,13 @@ func (obj *cookieManagerImpl) DeleteCookies(uRL string, cookieName string, callb
 	defer freeCefString(&uRLStr)
 	cookieNameStr := cefString(cookieName)
 	defer freeCefString(&cookieNameStr)
-	return int32(obj.rawPtr.CallDeleteCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&cookieNameStr)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewDeleteCookiesCallback(callback) }))))
+	ret := obj.rawPtr.CallDeleteCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&cookieNameStr)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewDeleteCookiesCallback(callback) })))
+	return int32(ret)
 }
 
 func (obj *cookieManagerImpl) FlushStore(callback CompletionCallback) int32 {
-	return int32(obj.rawPtr.CallFlushStore(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) }))))
+	ret := obj.rawPtr.CallFlushStore(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	return int32(ret)
 }
 
 func (obj *cookieManagerImpl) RawPointer() unsafe.Pointer {
@@ -98,7 +103,7 @@ func NewCookieVisitor(impl CookieVisitor) CookieVisitor {
 		cookie := (*Cookie)(unsafe.Pointer(arg0))
 		count := int32(arg1)
 		total := int32(arg2)
-		deletecookie := unsafe.Pointer(arg3)
+		deletecookie := (*int32)(unsafe.Pointer(arg3))
 		return uintptr(impl.Visit(cookie, count, total, deletecookie))
 	}))
 
@@ -204,5 +209,6 @@ func wrapDeleteCookiesCallback(ptr unsafe.Pointer) DeleteCookiesCallback {
 
 // CookieManagerGetGlobalManager Returns the global cookie manager. By default data will be stored at cef_settings_t.cache_path if specified or in memory otherwise. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the manager's storage has been initialized. Using this function is equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >GetDefaultCookieManager().
 func CookieManagerGetGlobalManager(callback CompletionCallback) CookieManager {
-	return wrapCookieManager(capi.CEFCookieManagerGetGlobalManager(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	ret := capi.CEFCookieManagerGetGlobalManager(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) }))
+	return wrapCookieManager(ret)
 }

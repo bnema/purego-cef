@@ -109,17 +109,17 @@ func (r *TypeRegistry) ResolvePublicType(ctype string) string {
 	case "size_t*":
 		return "*int"
 	case "int*":
-		return "unsafe.Pointer"
+		return "*int32"
 	case "uint32_t*":
-		return "unsafe.Pointer"
+		return "*uint32"
 	case "int64_t*":
-		return "unsafe.Pointer"
+		return "*int64"
 	case "uint64_t*":
-		return "unsafe.Pointer"
+		return "*uint64"
 	case "double*":
-		return "unsafe.Pointer"
+		return "*float64"
 	case "float*":
-		return "unsafe.Pointer"
+		return "*float32"
 	}
 
 	// Enum lookup: bare enum type name like "cef_process_id_t".

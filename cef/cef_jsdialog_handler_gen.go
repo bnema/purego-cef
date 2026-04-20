@@ -79,7 +79,7 @@ func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 		messageText := goString(unsafe.Pointer(arg3))
 		defaultPromptText := goString(unsafe.Pointer(arg4))
 		callback := wrapJsdialogCallback(unsafe.Pointer(arg5))
-		suppressMessage := unsafe.Pointer(arg6)
+		suppressMessage := (*int32)(unsafe.Pointer(arg6))
 		return uintptr(impl.OnJsdialog(browser, originURL, dialogType, messageText, defaultPromptText, callback, suppressMessage))
 	}))
 

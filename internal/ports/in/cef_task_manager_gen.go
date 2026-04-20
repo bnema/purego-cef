@@ -2,14 +2,10 @@
 
 package in
 
-import (
-	"unsafe"
-)
-
 // TaskManager defines the inbound port interface.
 type TaskManager interface {
 	GetTasksCount() int
-	GetTaskIdsList(taskIdscount *int, taskIds unsafe.Pointer) int32
+	GetTaskIdsList(taskIdscount *int, taskIds []int64) int32
 	GetTaskInfo(taskID int64, info *TaskInfo) int32
 	KillTask(taskID int64) int32
 	GetTaskIDForBrowserID(browserID int32) int64
