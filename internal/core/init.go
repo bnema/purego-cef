@@ -49,11 +49,8 @@ type Settings struct {
 	NoSandbox                  bool
 	BrowserSubprocessPath      string
 	LogFile                    string
-	// Deprecated: reserved for bootstrap diagnostics only; it is not translated
-	// into a CEF setting and has no effect in purego-cef itself.
-	InitTraceFile string
-	CachePath     string
-	RootCachePath string
+	CachePath                  string
+	RootCachePath              string
 }
 
 // DefaultSettings returns Settings suitable for off-screen rendering.

@@ -45,6 +45,11 @@ For most code, prefer the ergonomic handwritten layer when it exists:
 - `cef.NewClient(...)` with `cef.Client`
 - `cef.NewLifeSpanHandler(...)` with `cef.LifeSpanHandler`
 - `cef.NewAudioHandler(...)` with the decoded `cef.AudioHandler` interface
+- `cef.ExecuteSubprocess()` when you want subprocess status and errors without
+  implicit `os.Exit` or `stderr` writes; `cef.MaybeExitSubprocess()` remains the
+  short helper for main packages
+- `cef.ExecuteSubprocessWithApp(app)` when helper subprocess startup also needs
+  a custom `cef.App`
 - `cef.LifeSpanHandler` popup callbacks receive a callback-scoped
   `*cef.RawClientWriteSlot` when CEF exposes a writable popup client out-param;
   check for nil before calling `Set` or `Clear`
@@ -52,6 +57,10 @@ For most code, prefer the ergonomic handwritten layer when it exists:
 Treat `Raw*` types as advanced escape hatches.
 
 ## Usage
+
+For main packages, `cef.MaybeExitSubprocess()` is the short path. If you need
+explicit subprocess status and error handling, use `cef.ExecuteSubprocess()` or
+`cef.ExecuteSubprocessWithApp(app)`.
 
 ```go
 package main

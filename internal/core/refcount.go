@@ -112,6 +112,12 @@ func (rm *RefManager) AddRef(base unsafe.Pointer) {
 	rm.addRef(base)
 }
 
+// Has reports whether this manager currently tracks the object at base.
+func (rm *RefManager) Has(base unsafe.Pointer) bool {
+	_, ok := rm.loadState(base)
+	return ok
+}
+
 func (rm *RefManager) loadState(base unsafe.Pointer) (*refState, bool) {
 	v, ok := rm.states.Load(uintptr(base))
 	if !ok {

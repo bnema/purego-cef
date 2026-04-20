@@ -507,13 +507,17 @@ func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
 }
 
 // ---------------------------------------------------------------------------
-// Engine access — initialised once via sync.Once in Init()
+// Engine and refcount access — initialised once via sync.Once in Init()
 // ---------------------------------------------------------------------------
 
 var (
-	eng      *core.Engine
-	initOnce sync.Once
-	initErr  error
+	eng                   *core.Engine
+	initOnce              sync.Once
+	initErr               error
+	refManagerMu          sync.RWMutex
+	currentRefManager     *core.RefManager
+	registeredRefManagers []*core.RefManager
+	debugRefCountf        func(format string, args ...any)
 )
 
 func mustEng() *core.Engine {
@@ -543,14 +547,92 @@ func goStringUserfree(ptr unsafe.Pointer) string {
 	return mustEng().GoStringUserfree(ptr)
 }
 
+func setCurrentRefManager(rm *core.RefManager) {
+	refManagerMu.Lock()
+	defer refManagerMu.Unlock()
+	currentRefManager = rm
+	registerRefManagerLocked(rm)
+}
+
+func withCurrentRefManager(rm *core.RefManager, fn func()) {
+	refManagerMu.Lock()
+	prev := currentRefManager
+	currentRefManager = rm
+	refManagerMu.Unlock()
+	defer func() {
+		refManagerMu.Lock()
+		currentRefManager = prev
+		refManagerMu.Unlock()
+	}()
+	fn()
+}
+
+func registerRefManager(rm *core.RefManager) {
+	refManagerMu.Lock()
+	defer refManagerMu.Unlock()
+	registerRefManagerLocked(rm)
+}
+
+func registerRefManagerLocked(rm *core.RefManager) {
+	if rm == nil {
+		return
+	}
+	for _, existing := range registeredRefManagers {
+		if existing == rm {
+			return
+		}
+	}
+	registeredRefManagers = append(registeredRefManagers, rm)
+}
+
+func unregisterRefManager(rm *core.RefManager) {
+	if rm == nil {
+		return
+	}
+	refManagerMu.Lock()
+	defer refManagerMu.Unlock()
+	for i, existing := range registeredRefManagers {
+		if existing != rm {
+			continue
+		}
+		registeredRefManagers = append(registeredRefManagers[:i], registeredRefManagers[i+1:]...)
+		return
+	}
+}
+
+func mustCurrentRefManager() *core.RefManager {
+	refManagerMu.RLock()
+	rm := currentRefManager
+	refManagerMu.RUnlock()
+	if rm == nil {
+		panic("cef: ref manager not initialized; call cef.Init() first")
+	}
+	return rm
+}
+
 // initRefCount wires refcount callbacks into a CEF base struct header.
 func initRefCount(base unsafe.Pointer, size uintptr, owner any) {
-	mustEng().Refs().InitRefCount(base, size, owner)
+	mustCurrentRefManager().InitRefCount(base, size, owner)
 }
 
 // addRef increments the refcount for the object at base.
 func addRef(base unsafe.Pointer) {
-	mustEng().Refs().AddRef(base)
+	if base == nil {
+		return
+	}
+	refManagerMu.RLock()
+	for i := len(registeredRefManagers) - 1; i >= 0; i-- {
+		if registeredRefManagers[i].Has(base) {
+			registeredRefManagers[i].AddRef(base)
+			refManagerMu.RUnlock()
+			return
+		}
+	}
+	debugf := debugRefCountf
+	refManagerMu.RUnlock()
+	if debugf != nil {
+		debugf("cef: addRef: no RefManager found for pointer %p", base)
+	}
 }
 
 // extractRawPointer returns the underlying raw CEF pointer from an interface.
