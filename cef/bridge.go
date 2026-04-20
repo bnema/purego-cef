@@ -60,7 +60,7 @@ func (s *RawClientWriteSlot) rawPointer() unsafe.Pointer {
 		return nil
 	}
 	if s.touched {
-		return extractRawPointer(s.value)
+		return extractOrWrapRawPointer(s.value, func() any { return NewRawClient(s.value) })
 	}
 	return s.initialRaw
 }
