@@ -20,6 +20,14 @@ func newBridgeTestEngine(t *testing.T) *core.Engine {
 
 type plainRawClientStub struct{}
 
+type nilAudioHandlerStub struct{}
+
+func (*nilAudioHandlerStub) GetAudioParameters(Browser, *AudioParameters) int32     { return 0 }
+func (*nilAudioHandlerStub) OnAudioStreamStarted(Browser, *AudioParameters, int32)  {}
+func (*nilAudioHandlerStub) OnAudioStreamPacket(Browser, [][]float32, int32, int64) {}
+func (*nilAudioHandlerStub) OnAudioStreamStopped(Browser)                           {}
+func (*nilAudioHandlerStub) OnAudioStreamError(Browser, string)                     {}
+
 func (plainRawClientStub) GetAudioHandler() RawAudioHandler          { return nil }
 func (plainRawClientStub) GetCommandHandler() CommandHandler         { return nil }
 func (plainRawClientStub) GetContextMenuHandler() ContextMenuHandler { return nil }
@@ -40,6 +48,40 @@ func (plainRawClientStub) GetRenderHandler() RenderHandler           { return ni
 func (plainRawClientStub) GetRequestHandler() RequestHandler         { return nil }
 func (plainRawClientStub) OnProcessMessageReceived(Browser, Frame, ProcessID, ProcessMessage) int32 {
 	return 0
+}
+
+func TestConstructorsReturnNilForNilImpl(t *testing.T) {
+	var rawLifeSpan RawLifeSpanHandler
+	if got := NewRawLifeSpanHandler(rawLifeSpan); got != nil {
+		t.Fatalf("NewRawLifeSpanHandler(nil) = %#v, want nil", got)
+	}
+
+	var lifeSpan LifeSpanHandler
+	if got := NewLifeSpanHandler(lifeSpan); got != nil {
+		t.Fatalf("NewLifeSpanHandler(nil) = %#v, want nil", got)
+	}
+
+	var audio AudioHandler
+	if got := NewAudioHandler(audio); got != nil {
+		t.Fatalf("NewAudioHandler(nil) = %#v, want nil", got)
+	}
+
+	var rawAudio RawAudioHandler
+	if got := NewRawAudioHandler(rawAudio); got != nil {
+		t.Fatalf("NewRawAudioHandler(nil) = %#v, want nil", got)
+	}
+
+	var client Client
+	if got := NewClient(client); got != nil {
+		t.Fatalf("NewClient(nil) = %#v, want nil", got)
+	}
+}
+
+func TestConstructorsReturnNilForTypedNilImpl(t *testing.T) {
+	var impl AudioHandler = (*nilAudioHandlerStub)(nil)
+	if got := NewAudioHandler(impl); got != nil {
+		t.Fatalf("NewAudioHandler(typed nil) = %#v, want nil", got)
+	}
 }
 
 func TestRawClientWriteSlotPreservesInitialRawPointerUntilTouched(t *testing.T) {

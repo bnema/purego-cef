@@ -6,6 +6,7 @@
 package cef
 
 import (
+	"reflect"
 	"sync"
 	"unsafe"
 
@@ -110,6 +111,9 @@ func (w *rawLifeSpanHandlerWrapper) RawPointer() unsafe.Pointer {
 }
 
 func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFLifeSpanHandlerT)
 	w := &rawLifeSpanHandlerWrapper{rawPtr: r}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -210,6 +214,9 @@ func (w *safeLifeSpanHandlerWrapper) OnBeforeClose(Browser) {
 // typed lifespan handler interface. It converts raw callback out-params to
 // typed Go values and writes back any changes the consumer makes.
 func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFLifeSpanHandlerT)
 	w := &safeLifeSpanHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -374,6 +381,9 @@ func (w *audioHandlerWrapper) OnAudioStreamError(browser Browser, message string
 
 // NewAudioHandler creates a CEF handler with decoded [][]float32 audio packets.
 func NewAudioHandler(impl AudioHandler) RawAudioHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFAudioHandlerT)
 	w := &audioHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -470,6 +480,9 @@ func wrapAudioHandler(_ unsafe.Pointer) RawAudioHandler { return nil }
 // NewRawAudioHandler exposes the low-level raw audio handler constructor for
 // advanced callers. Most users should prefer NewAudioHandler.
 func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	return newRawAudioHandler(impl)
 }
 
@@ -523,6 +536,19 @@ func addRef(base unsafe.Pointer) {
 // extractRawPointer returns the underlying raw CEF pointer from an interface.
 func extractRawPointer(v any) unsafe.Pointer {
 	return core.ExtractRawPointer(v)
+}
+
+func isNilImpl(v any) bool {
+	if v == nil {
+		return true
+	}
+	rv := reflect.ValueOf(v)
+	switch rv.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return rv.IsNil()
+	default:
+		return false
+	}
 }
 
 // extractOrWrapRawPointer returns the raw pointer for v, calling wrap if needed.
@@ -645,5 +671,8 @@ func (a *clientAdapter) OnProcessMessageReceived(browser Browser, frame Frame, s
 // LifeSpanHandler via NewLifeSpanHandler (typed out-params), then delegates
 // to the generated raw client constructor.
 func NewClient(impl Client) RawClient {
+	if isNilImpl(impl) {
+		return nil
+	}
 	return NewRawClient(&clientAdapter{impl: impl})
 }
