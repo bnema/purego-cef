@@ -32,8 +32,9 @@ type RawAudioHandler = portin.RawAudioHandler
 //
 // The slot preserves CEF's default raw client until Set or Clear is called.
 // It is only valid for the duration of the active callback and must not be
-// retained after the callback returns. Set and Clear panic if used on a nil,
-// zero-value, or invalidated slot.
+// retained after the callback returns. Popup callbacks may receive a nil slot
+// when CEF does not provide a writable client out-param. Set and Clear panic
+// if used on a nil, zero-value, or invalidated slot.
 type RawClientWriteSlot struct {
 	initialRaw unsafe.Pointer
 	value      RawClient
@@ -92,7 +93,9 @@ func (s *RawClientWriteSlot) rawPointer() unsafe.Pointer {
 // CEF popup callbacks expose the client as a raw handler out-param, but
 // reverse-wrapping an existing CEF client back into a readable Go RawClient is
 // not implemented yet. Handlers that need to replace or clear that client
-// receive a write-only RawClientWriteSlot directly in popup callbacks.
+// receive a write-only RawClientWriteSlot directly in popup callbacks. That
+// slot may be nil when CEF does not provide a writable client out-param, so
+// handlers must check it before calling Set or Clear.
 type LifeSpanHandler interface {
 	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string,
 		targetDisposition WindowOpenDisposition, userGesture int32, popupFeatures *PopupFeatures,
