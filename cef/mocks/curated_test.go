@@ -16,6 +16,7 @@ var (
 	_ cef.Browser               = (*cefmocks.MockBrowser)(nil)
 	_ cef.BrowserProcessHandler = (*cefmocks.MockBrowserProcessHandler)(nil)
 	_ cef.Client                = (*cefmocks.MockClient)(nil)
+	_ cef.RawClient             = (*cefmocks.MockRawClient)(nil)
 	_ cef.ContextMenuHandler    = (*cefmocks.MockContextMenuHandler)(nil)
 	_ cef.DialogHandler         = (*cefmocks.MockDialogHandler)(nil)
 	_ cef.DisplayHandler        = (*cefmocks.MockDisplayHandler)(nil)
@@ -23,6 +24,7 @@ var (
 	_ cef.Frame                 = (*cefmocks.MockFrame)(nil)
 	_ cef.KeyboardHandler       = (*cefmocks.MockKeyboardHandler)(nil)
 	_ cef.LifeSpanHandler       = (*cefmocks.MockLifeSpanHandler)(nil)
+	_ cef.RawLifeSpanHandler    = (*cefmocks.MockRawLifeSpanHandler)(nil)
 	_ cef.LoadHandler           = (*cefmocks.MockLoadHandler)(nil)
 	_ cef.ProcessMessage        = (*cefmocks.MockProcessMessage)(nil)
 	_ cef.RenderHandler         = (*cefmocks.MockRenderHandler)(nil)
@@ -72,6 +74,8 @@ func TestCuratedMocksOnly(t *testing.T) {
 		"mock_life_span_handler.go",
 		"mock_load_handler.go",
 		"mock_process_message.go",
+		"mock_raw_client.go",
+		"mock_raw_life_span_handler.go",
 		"mock_render_handler.go",
 		"mock_render_process_handler.go",
 		"mock_request.go",

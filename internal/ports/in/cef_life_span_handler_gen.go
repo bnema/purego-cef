@@ -6,8 +6,8 @@ import (
 	"unsafe"
 )
 
-// LifeSpanHandler defines the inbound port interface.
-type LifeSpanHandler interface {
+// RawLifeSpanHandler defines the inbound port interface.
+type RawLifeSpanHandler interface {
 	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition WindowOpenDisposition, userGesture int32, popupfeatures *PopupFeatures, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess *int32) bool
 	OnBeforePopupAborted(browser Browser, popupID int32)
 	OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow *int32)

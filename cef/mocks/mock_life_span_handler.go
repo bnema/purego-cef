@@ -5,9 +5,7 @@
 package mocks
 
 import (
-	"unsafe"
-
-	"github.com/bnema/purego-cef/internal/ports/in"
+	"github.com/bnema/purego-cef/cef"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,7 +37,7 @@ func (_m *MockLifeSpanHandler) EXPECT() *MockLifeSpanHandler_Expecter {
 }
 
 // DoClose provides a mock function for the type MockLifeSpanHandler
-func (_mock *MockLifeSpanHandler) DoClose(browser in.Browser) bool {
+func (_mock *MockLifeSpanHandler) DoClose(browser cef.Browser) bool {
 	ret := _mock.Called(browser)
 
 	if len(ret) == 0 {
@@ -47,7 +45,7 @@ func (_mock *MockLifeSpanHandler) DoClose(browser in.Browser) bool {
 	}
 
 	var r0 bool
-	if returnFunc, ok := ret.Get(0).(func(in.Browser) bool); ok {
+	if returnFunc, ok := ret.Get(0).(func(cef.Browser) bool); ok {
 		r0 = returnFunc(browser)
 	} else {
 		r0 = ret.Get(0).(bool)
@@ -61,16 +59,16 @@ type MockLifeSpanHandler_DoClose_Call struct {
 }
 
 // DoClose is a helper method to define mock.On call
-//   - browser in.Browser
+//   - browser cef.Browser
 func (_e *MockLifeSpanHandler_Expecter) DoClose(browser interface{}) *MockLifeSpanHandler_DoClose_Call {
 	return &MockLifeSpanHandler_DoClose_Call{Call: _e.mock.On("DoClose", browser)}
 }
 
-func (_c *MockLifeSpanHandler_DoClose_Call) Run(run func(browser in.Browser)) *MockLifeSpanHandler_DoClose_Call {
+func (_c *MockLifeSpanHandler_DoClose_Call) Run(run func(browser cef.Browser)) *MockLifeSpanHandler_DoClose_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 in.Browser
+		var arg0 cef.Browser
 		if args[0] != nil {
-			arg0 = args[0].(in.Browser)
+			arg0 = args[0].(cef.Browser)
 		}
 		run(
 			arg0,
@@ -84,13 +82,13 @@ func (_c *MockLifeSpanHandler_DoClose_Call) Return(b bool) *MockLifeSpanHandler_
 	return _c
 }
 
-func (_c *MockLifeSpanHandler_DoClose_Call) RunAndReturn(run func(browser in.Browser) bool) *MockLifeSpanHandler_DoClose_Call {
+func (_c *MockLifeSpanHandler_DoClose_Call) RunAndReturn(run func(browser cef.Browser) bool) *MockLifeSpanHandler_DoClose_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // OnAfterCreated provides a mock function for the type MockLifeSpanHandler
-func (_mock *MockLifeSpanHandler) OnAfterCreated(browser in.Browser) {
+func (_mock *MockLifeSpanHandler) OnAfterCreated(browser cef.Browser) {
 	_mock.Called(browser)
 	return
 }
@@ -101,16 +99,16 @@ type MockLifeSpanHandler_OnAfterCreated_Call struct {
 }
 
 // OnAfterCreated is a helper method to define mock.On call
-//   - browser in.Browser
+//   - browser cef.Browser
 func (_e *MockLifeSpanHandler_Expecter) OnAfterCreated(browser interface{}) *MockLifeSpanHandler_OnAfterCreated_Call {
 	return &MockLifeSpanHandler_OnAfterCreated_Call{Call: _e.mock.On("OnAfterCreated", browser)}
 }
 
-func (_c *MockLifeSpanHandler_OnAfterCreated_Call) Run(run func(browser in.Browser)) *MockLifeSpanHandler_OnAfterCreated_Call {
+func (_c *MockLifeSpanHandler_OnAfterCreated_Call) Run(run func(browser cef.Browser)) *MockLifeSpanHandler_OnAfterCreated_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 in.Browser
+		var arg0 cef.Browser
 		if args[0] != nil {
-			arg0 = args[0].(in.Browser)
+			arg0 = args[0].(cef.Browser)
 		}
 		run(
 			arg0,
@@ -124,13 +122,13 @@ func (_c *MockLifeSpanHandler_OnAfterCreated_Call) Return() *MockLifeSpanHandler
 	return _c
 }
 
-func (_c *MockLifeSpanHandler_OnAfterCreated_Call) RunAndReturn(run func(browser in.Browser)) *MockLifeSpanHandler_OnAfterCreated_Call {
+func (_c *MockLifeSpanHandler_OnAfterCreated_Call) RunAndReturn(run func(browser cef.Browser)) *MockLifeSpanHandler_OnAfterCreated_Call {
 	_c.Run(run)
 	return _c
 }
 
 // OnBeforeClose provides a mock function for the type MockLifeSpanHandler
-func (_mock *MockLifeSpanHandler) OnBeforeClose(browser in.Browser) {
+func (_mock *MockLifeSpanHandler) OnBeforeClose(browser cef.Browser) {
 	_mock.Called(browser)
 	return
 }
@@ -141,16 +139,16 @@ type MockLifeSpanHandler_OnBeforeClose_Call struct {
 }
 
 // OnBeforeClose is a helper method to define mock.On call
-//   - browser in.Browser
+//   - browser cef.Browser
 func (_e *MockLifeSpanHandler_Expecter) OnBeforeClose(browser interface{}) *MockLifeSpanHandler_OnBeforeClose_Call {
 	return &MockLifeSpanHandler_OnBeforeClose_Call{Call: _e.mock.On("OnBeforeClose", browser)}
 }
 
-func (_c *MockLifeSpanHandler_OnBeforeClose_Call) Run(run func(browser in.Browser)) *MockLifeSpanHandler_OnBeforeClose_Call {
+func (_c *MockLifeSpanHandler_OnBeforeClose_Call) Run(run func(browser cef.Browser)) *MockLifeSpanHandler_OnBeforeClose_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 in.Browser
+		var arg0 cef.Browser
 		if args[0] != nil {
-			arg0 = args[0].(in.Browser)
+			arg0 = args[0].(cef.Browser)
 		}
 		run(
 			arg0,
@@ -164,14 +162,14 @@ func (_c *MockLifeSpanHandler_OnBeforeClose_Call) Return() *MockLifeSpanHandler_
 	return _c
 }
 
-func (_c *MockLifeSpanHandler_OnBeforeClose_Call) RunAndReturn(run func(browser in.Browser)) *MockLifeSpanHandler_OnBeforeClose_Call {
+func (_c *MockLifeSpanHandler_OnBeforeClose_Call) RunAndReturn(run func(browser cef.Browser)) *MockLifeSpanHandler_OnBeforeClose_Call {
 	_c.Run(run)
 	return _c
 }
 
 // OnBeforeDevToolsPopup provides a mock function for the type MockLifeSpanHandler
-func (_mock *MockLifeSpanHandler) OnBeforeDevToolsPopup(browser in.Browser, windowinfo *in.WindowInfo, client unsafe.Pointer, settings *in.BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow *int32) {
-	_mock.Called(browser, windowinfo, client, settings, extraInfo, useDefaultWindow)
+func (_mock *MockLifeSpanHandler) OnBeforeDevToolsPopup(browser cef.Browser, windowInfo *cef.WindowInfo, client *cef.RawClient, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, useDefaultWindow *bool) {
+	_mock.Called(browser, windowInfo, client, settings, extraInfo, useDefaultWindow)
 	return
 }
 
@@ -181,41 +179,41 @@ type MockLifeSpanHandler_OnBeforeDevToolsPopup_Call struct {
 }
 
 // OnBeforeDevToolsPopup is a helper method to define mock.On call
-//   - browser in.Browser
-//   - windowinfo *in.WindowInfo
-//   - client unsafe.Pointer
-//   - settings *in.BrowserSettings
-//   - extraInfo unsafe.Pointer
-//   - useDefaultWindow *int32
-func (_e *MockLifeSpanHandler_Expecter) OnBeforeDevToolsPopup(browser interface{}, windowinfo interface{}, client interface{}, settings interface{}, extraInfo interface{}, useDefaultWindow interface{}) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
-	return &MockLifeSpanHandler_OnBeforeDevToolsPopup_Call{Call: _e.mock.On("OnBeforeDevToolsPopup", browser, windowinfo, client, settings, extraInfo, useDefaultWindow)}
+//   - browser cef.Browser
+//   - windowInfo *cef.WindowInfo
+//   - client *cef.RawClient
+//   - settings *cef.BrowserSettings
+//   - extraInfo *cef.DictionaryValue
+//   - useDefaultWindow *bool
+func (_e *MockLifeSpanHandler_Expecter) OnBeforeDevToolsPopup(browser interface{}, windowInfo interface{}, client interface{}, settings interface{}, extraInfo interface{}, useDefaultWindow interface{}) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
+	return &MockLifeSpanHandler_OnBeforeDevToolsPopup_Call{Call: _e.mock.On("OnBeforeDevToolsPopup", browser, windowInfo, client, settings, extraInfo, useDefaultWindow)}
 }
 
-func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) Run(run func(browser in.Browser, windowinfo *in.WindowInfo, client unsafe.Pointer, settings *in.BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow *int32)) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
+func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) Run(run func(browser cef.Browser, windowInfo *cef.WindowInfo, client *cef.RawClient, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, useDefaultWindow *bool)) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 in.Browser
+		var arg0 cef.Browser
 		if args[0] != nil {
-			arg0 = args[0].(in.Browser)
+			arg0 = args[0].(cef.Browser)
 		}
-		var arg1 *in.WindowInfo
+		var arg1 *cef.WindowInfo
 		if args[1] != nil {
-			arg1 = args[1].(*in.WindowInfo)
+			arg1 = args[1].(*cef.WindowInfo)
 		}
-		var arg2 unsafe.Pointer
+		var arg2 *cef.RawClient
 		if args[2] != nil {
-			arg2 = args[2].(unsafe.Pointer)
+			arg2 = args[2].(*cef.RawClient)
 		}
-		var arg3 *in.BrowserSettings
+		var arg3 *cef.BrowserSettings
 		if args[3] != nil {
-			arg3 = args[3].(*in.BrowserSettings)
+			arg3 = args[3].(*cef.BrowserSettings)
 		}
-		var arg4 unsafe.Pointer
+		var arg4 *cef.DictionaryValue
 		if args[4] != nil {
-			arg4 = args[4].(unsafe.Pointer)
+			arg4 = args[4].(*cef.DictionaryValue)
 		}
-		var arg5 *int32
+		var arg5 *bool
 		if args[5] != nil {
-			arg5 = args[5].(*int32)
+			arg5 = args[5].(*bool)
 		}
 		run(
 			arg0,
@@ -234,22 +232,22 @@ func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) Return() *MockLifeSpan
 	return _c
 }
 
-func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) RunAndReturn(run func(browser in.Browser, windowinfo *in.WindowInfo, client unsafe.Pointer, settings *in.BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow *int32)) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
+func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) RunAndReturn(run func(browser cef.Browser, windowInfo *cef.WindowInfo, client *cef.RawClient, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, useDefaultWindow *bool)) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
 	_c.Run(run)
 	return _c
 }
 
 // OnBeforePopup provides a mock function for the type MockLifeSpanHandler
-func (_mock *MockLifeSpanHandler) OnBeforePopup(browser in.Browser, frame in.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition in.WindowOpenDisposition, userGesture int32, popupfeatures *in.PopupFeatures, windowinfo *in.WindowInfo, client unsafe.Pointer, settings *in.BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess *int32) bool {
-	ret := _mock.Called(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupfeatures, windowinfo, client, settings, extraInfo, noJavascriptAccess)
+func (_mock *MockLifeSpanHandler) OnBeforePopup(browser cef.Browser, frame cef.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition cef.WindowOpenDisposition, userGesture int32, popupFeatures *cef.PopupFeatures, windowInfo *cef.WindowInfo, client *cef.RawClient, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, noJavascriptAccess *bool) bool {
+	ret := _mock.Called(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupFeatures, windowInfo, client, settings, extraInfo, noJavascriptAccess)
 
 	if len(ret) == 0 {
 		panic("no return value specified for OnBeforePopup")
 	}
 
 	var r0 bool
-	if returnFunc, ok := ret.Get(0).(func(in.Browser, in.Frame, int32, string, string, in.WindowOpenDisposition, int32, *in.PopupFeatures, *in.WindowInfo, unsafe.Pointer, *in.BrowserSettings, unsafe.Pointer, *int32) bool); ok {
-		r0 = returnFunc(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupfeatures, windowinfo, client, settings, extraInfo, noJavascriptAccess)
+	if returnFunc, ok := ret.Get(0).(func(cef.Browser, cef.Frame, int32, string, string, cef.WindowOpenDisposition, int32, *cef.PopupFeatures, *cef.WindowInfo, *cef.RawClient, *cef.BrowserSettings, *cef.DictionaryValue, *bool) bool); ok {
+		r0 = returnFunc(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupFeatures, windowInfo, client, settings, extraInfo, noJavascriptAccess)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
@@ -262,32 +260,32 @@ type MockLifeSpanHandler_OnBeforePopup_Call struct {
 }
 
 // OnBeforePopup is a helper method to define mock.On call
-//   - browser in.Browser
-//   - frame in.Frame
+//   - browser cef.Browser
+//   - frame cef.Frame
 //   - popupID int32
 //   - targetURL string
 //   - targetFrameName string
-//   - targetDisposition in.WindowOpenDisposition
+//   - targetDisposition cef.WindowOpenDisposition
 //   - userGesture int32
-//   - popupfeatures *in.PopupFeatures
-//   - windowinfo *in.WindowInfo
-//   - client unsafe.Pointer
-//   - settings *in.BrowserSettings
-//   - extraInfo unsafe.Pointer
-//   - noJavascriptAccess *int32
-func (_e *MockLifeSpanHandler_Expecter) OnBeforePopup(browser interface{}, frame interface{}, popupID interface{}, targetURL interface{}, targetFrameName interface{}, targetDisposition interface{}, userGesture interface{}, popupfeatures interface{}, windowinfo interface{}, client interface{}, settings interface{}, extraInfo interface{}, noJavascriptAccess interface{}) *MockLifeSpanHandler_OnBeforePopup_Call {
-	return &MockLifeSpanHandler_OnBeforePopup_Call{Call: _e.mock.On("OnBeforePopup", browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupfeatures, windowinfo, client, settings, extraInfo, noJavascriptAccess)}
+//   - popupFeatures *cef.PopupFeatures
+//   - windowInfo *cef.WindowInfo
+//   - client *cef.RawClient
+//   - settings *cef.BrowserSettings
+//   - extraInfo *cef.DictionaryValue
+//   - noJavascriptAccess *bool
+func (_e *MockLifeSpanHandler_Expecter) OnBeforePopup(browser interface{}, frame interface{}, popupID interface{}, targetURL interface{}, targetFrameName interface{}, targetDisposition interface{}, userGesture interface{}, popupFeatures interface{}, windowInfo interface{}, client interface{}, settings interface{}, extraInfo interface{}, noJavascriptAccess interface{}) *MockLifeSpanHandler_OnBeforePopup_Call {
+	return &MockLifeSpanHandler_OnBeforePopup_Call{Call: _e.mock.On("OnBeforePopup", browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupFeatures, windowInfo, client, settings, extraInfo, noJavascriptAccess)}
 }
 
-func (_c *MockLifeSpanHandler_OnBeforePopup_Call) Run(run func(browser in.Browser, frame in.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition in.WindowOpenDisposition, userGesture int32, popupfeatures *in.PopupFeatures, windowinfo *in.WindowInfo, client unsafe.Pointer, settings *in.BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess *int32)) *MockLifeSpanHandler_OnBeforePopup_Call {
+func (_c *MockLifeSpanHandler_OnBeforePopup_Call) Run(run func(browser cef.Browser, frame cef.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition cef.WindowOpenDisposition, userGesture int32, popupFeatures *cef.PopupFeatures, windowInfo *cef.WindowInfo, client *cef.RawClient, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, noJavascriptAccess *bool)) *MockLifeSpanHandler_OnBeforePopup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 in.Browser
+		var arg0 cef.Browser
 		if args[0] != nil {
-			arg0 = args[0].(in.Browser)
+			arg0 = args[0].(cef.Browser)
 		}
-		var arg1 in.Frame
+		var arg1 cef.Frame
 		if args[1] != nil {
-			arg1 = args[1].(in.Frame)
+			arg1 = args[1].(cef.Frame)
 		}
 		var arg2 int32
 		if args[2] != nil {
@@ -301,37 +299,37 @@ func (_c *MockLifeSpanHandler_OnBeforePopup_Call) Run(run func(browser in.Browse
 		if args[4] != nil {
 			arg4 = args[4].(string)
 		}
-		var arg5 in.WindowOpenDisposition
+		var arg5 cef.WindowOpenDisposition
 		if args[5] != nil {
-			arg5 = args[5].(in.WindowOpenDisposition)
+			arg5 = args[5].(cef.WindowOpenDisposition)
 		}
 		var arg6 int32
 		if args[6] != nil {
 			arg6 = args[6].(int32)
 		}
-		var arg7 *in.PopupFeatures
+		var arg7 *cef.PopupFeatures
 		if args[7] != nil {
-			arg7 = args[7].(*in.PopupFeatures)
+			arg7 = args[7].(*cef.PopupFeatures)
 		}
-		var arg8 *in.WindowInfo
+		var arg8 *cef.WindowInfo
 		if args[8] != nil {
-			arg8 = args[8].(*in.WindowInfo)
+			arg8 = args[8].(*cef.WindowInfo)
 		}
-		var arg9 unsafe.Pointer
+		var arg9 *cef.RawClient
 		if args[9] != nil {
-			arg9 = args[9].(unsafe.Pointer)
+			arg9 = args[9].(*cef.RawClient)
 		}
-		var arg10 *in.BrowserSettings
+		var arg10 *cef.BrowserSettings
 		if args[10] != nil {
-			arg10 = args[10].(*in.BrowserSettings)
+			arg10 = args[10].(*cef.BrowserSettings)
 		}
-		var arg11 unsafe.Pointer
+		var arg11 *cef.DictionaryValue
 		if args[11] != nil {
-			arg11 = args[11].(unsafe.Pointer)
+			arg11 = args[11].(*cef.DictionaryValue)
 		}
-		var arg12 *int32
+		var arg12 *bool
 		if args[12] != nil {
-			arg12 = args[12].(*int32)
+			arg12 = args[12].(*bool)
 		}
 		run(
 			arg0,
@@ -357,13 +355,13 @@ func (_c *MockLifeSpanHandler_OnBeforePopup_Call) Return(b bool) *MockLifeSpanHa
 	return _c
 }
 
-func (_c *MockLifeSpanHandler_OnBeforePopup_Call) RunAndReturn(run func(browser in.Browser, frame in.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition in.WindowOpenDisposition, userGesture int32, popupfeatures *in.PopupFeatures, windowinfo *in.WindowInfo, client unsafe.Pointer, settings *in.BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess *int32) bool) *MockLifeSpanHandler_OnBeforePopup_Call {
+func (_c *MockLifeSpanHandler_OnBeforePopup_Call) RunAndReturn(run func(browser cef.Browser, frame cef.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition cef.WindowOpenDisposition, userGesture int32, popupFeatures *cef.PopupFeatures, windowInfo *cef.WindowInfo, client *cef.RawClient, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, noJavascriptAccess *bool) bool) *MockLifeSpanHandler_OnBeforePopup_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // OnBeforePopupAborted provides a mock function for the type MockLifeSpanHandler
-func (_mock *MockLifeSpanHandler) OnBeforePopupAborted(browser in.Browser, popupID int32) {
+func (_mock *MockLifeSpanHandler) OnBeforePopupAborted(browser cef.Browser, popupID int32) {
 	_mock.Called(browser, popupID)
 	return
 }
@@ -374,17 +372,17 @@ type MockLifeSpanHandler_OnBeforePopupAborted_Call struct {
 }
 
 // OnBeforePopupAborted is a helper method to define mock.On call
-//   - browser in.Browser
+//   - browser cef.Browser
 //   - popupID int32
 func (_e *MockLifeSpanHandler_Expecter) OnBeforePopupAborted(browser interface{}, popupID interface{}) *MockLifeSpanHandler_OnBeforePopupAborted_Call {
 	return &MockLifeSpanHandler_OnBeforePopupAborted_Call{Call: _e.mock.On("OnBeforePopupAborted", browser, popupID)}
 }
 
-func (_c *MockLifeSpanHandler_OnBeforePopupAborted_Call) Run(run func(browser in.Browser, popupID int32)) *MockLifeSpanHandler_OnBeforePopupAborted_Call {
+func (_c *MockLifeSpanHandler_OnBeforePopupAborted_Call) Run(run func(browser cef.Browser, popupID int32)) *MockLifeSpanHandler_OnBeforePopupAborted_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 in.Browser
+		var arg0 cef.Browser
 		if args[0] != nil {
-			arg0 = args[0].(in.Browser)
+			arg0 = args[0].(cef.Browser)
 		}
 		var arg1 int32
 		if args[1] != nil {
@@ -403,7 +401,7 @@ func (_c *MockLifeSpanHandler_OnBeforePopupAborted_Call) Return() *MockLifeSpanH
 	return _c
 }
 
-func (_c *MockLifeSpanHandler_OnBeforePopupAborted_Call) RunAndReturn(run func(browser in.Browser, popupID int32)) *MockLifeSpanHandler_OnBeforePopupAborted_Call {
+func (_c *MockLifeSpanHandler_OnBeforePopupAborted_Call) RunAndReturn(run func(browser cef.Browser, popupID int32)) *MockLifeSpanHandler_OnBeforePopupAborted_Call {
 	_c.Run(run)
 	return _c
 }

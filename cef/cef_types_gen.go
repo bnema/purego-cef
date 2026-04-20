@@ -1448,12 +1448,12 @@ const (
 	TaskTypeNumValues        TaskType = 14
 )
 
-// CEFSettings Initialization settings. Specify NULL or 0 to get the recommended default values. Many of these and other settings can also configured using command- line switches.
-type CEFSettings = capi.CEFSettingsT
+// RawSettings Initialization settings. Specify NULL or 0 to get the recommended default values. Many of these and other settings can also configured using command- line switches.
+type RawSettings = capi.CEFSettingsT
 
-// NewCEFSettings returns a CEFSettings with Size pre-filled.
-func NewCEFSettings() CEFSettings {
-	var v CEFSettings
+// NewRawSettings returns a RawSettings with Size pre-filled.
+func NewRawSettings() RawSettings {
+	var v RawSettings
 	v.Size = unsafe.Sizeof(v)
 	return v
 }

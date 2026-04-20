@@ -24,7 +24,7 @@ import (
 // Settings configures the CEF runtime.
 //
 // This is the user-facing settings type for Init/InitWithApp. Prefer it over
-// the raw generated CEFSettings struct unless you specifically need the exact
+// the raw generated RawSettings struct unless you specifically need the exact
 // CEF memory layout.
 type Settings = core.Settings
 

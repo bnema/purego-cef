@@ -308,10 +308,10 @@ func TestEmitPublicDataStructUsesRenamedPublicType(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	if !strings.Contains(code, "type CEFSettings = capi.CEFSettingsT") {
+	if !strings.Contains(code, "type RawSettings = capi.CEFSettingsT") {
 		t.Fatalf("expected renamed public data struct, got:\n%s", code)
 	}
-	if !strings.Contains(code, "func NewCEFSettings() CEFSettings") {
+	if !strings.Contains(code, "func NewRawSettings() RawSettings") {
 		t.Fatalf("expected constructor for renamed data struct, got:\n%s", code)
 	}
 }
@@ -360,7 +360,7 @@ func TestEmitPublicDataStructUsesRenamedMainArgsType(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	if !strings.Contains(code, "type CEFMainArgs = capi.CEFMainArgsT") {
+	if !strings.Contains(code, "type RawMainArgs = capi.CEFMainArgsT") {
 		t.Fatalf("expected renamed public main args type, got:\n%s", code)
 	}
 }
@@ -390,7 +390,7 @@ func TestEmitPublicFreeFuncAutoWrapsHandlerParams(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	want := "extractOrWrapRawPointer(client, func() any { return newRawClient(client) })"
+	want := "extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })"
 	if !strings.Contains(code, want) {
 		t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
 	}
@@ -438,7 +438,7 @@ func TestEmitGeneratedClientUsesRawAudioConstructor(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	want := "return newRawAudioHandler(h)"
+	want := "return NewRawAudioHandler(h)"
 	if !strings.Contains(code, want) {
 		t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
 	}

@@ -9,6 +9,6 @@ type BrowserProcessHandler interface {
 	OnBeforeChildProcessLaunch(commandLine CommandLine)
 	OnAlreadyRunningAppRelaunch(commandLine CommandLine, currentDirectory string) int32
 	OnScheduleMessagePumpWork(delayMs int64)
-	GetDefaultClient() Client
+	GetDefaultClient() RawClient
 	GetDefaultRequestContextHandler() RequestContextHandler
 }

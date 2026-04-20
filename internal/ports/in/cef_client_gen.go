@@ -2,9 +2,9 @@
 
 package in
 
-// Client defines the inbound port interface.
-type Client interface {
-	GetAudioHandler() AudioHandler
+// RawClient defines the inbound port interface.
+type RawClient interface {
+	GetAudioHandler() RawAudioHandler
 	GetCommandHandler() CommandHandler
 	GetContextMenuHandler() ContextMenuHandler
 	GetDialogHandler() DialogHandler
@@ -17,7 +17,7 @@ type Client interface {
 	GetPermissionHandler() PermissionHandler
 	GetJsdialogHandler() JsdialogHandler
 	GetKeyboardHandler() KeyboardHandler
-	GetLifeSpanHandler() LifeSpanHandler
+	GetLifeSpanHandler() RawLifeSpanHandler
 	GetLoadHandler() LoadHandler
 	GetPrintHandler() PrintHandler
 	GetRenderHandler() RenderHandler

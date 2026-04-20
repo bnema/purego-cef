@@ -8,11 +8,10 @@
 //
 // As a rule of thumb:
 //
-//   - prefer Settings over CEFSettings
+//   - prefer Settings over RawSettings
 //   - prefer the safe adapter constructors over raw handler interfaces when
 //     they exist (for example NewClient, NewLifeSpanHandler, NewAudioHandler)
-//   - treat CEF-prefixed structs, LifeSpanHandler, and RawAudioHandler as
-//     advanced escape hatches
+//   - treat Raw* aliases and generated raw structs as advanced escape hatches
 //
 // The generated bindings remain public because they are useful for advanced
 // callers and for keeping the binding surface complete, but they should not be

@@ -15,15 +15,33 @@ import (
 	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
-// LifeSpanHandler is the low-level/raw generated handler interface.
-// End users should usually implement SafeLifeSpanHandler and pass it to
+// RawLifeSpanHandler is the low-level/raw lifespan handler interface.
+// End users should usually implement LifeSpanHandler and pass it to
 // NewLifeSpanHandler instead of implementing this directly.
-type LifeSpanHandler = portin.LifeSpanHandler
+type RawLifeSpanHandler = portin.RawLifeSpanHandler
 
-// RawAudioHandler is the low-level/raw generated audio handler interface.
+// RawAudioHandler is the low-level/raw audio handler interface.
 // End users should usually implement AudioHandler and pass it to
 // NewAudioHandler instead of using this directly.
-type RawAudioHandler = portin.AudioHandler
+type RawAudioHandler = portin.RawAudioHandler
+
+// LifeSpanHandler is the user-facing lifespan handler interface with typed
+// out-params.
+//
+// Note: client out-params may arrive as nil when the underlying raw client
+// handle originated inside CEF and cannot be meaningfully wrapped back into Go.
+type LifeSpanHandler interface {
+	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string,
+		targetDisposition WindowOpenDisposition, userGesture int32, popupFeatures *PopupFeatures,
+		windowInfo *WindowInfo, client *RawClient, settings *BrowserSettings,
+		extraInfo *DictionaryValue, noJavascriptAccess *bool) bool
+	OnBeforePopupAborted(browser Browser, popupID int32)
+	OnBeforeDevToolsPopup(browser Browser, windowInfo *WindowInfo, client *RawClient,
+		settings *BrowserSettings, extraInfo *DictionaryValue, useDefaultWindow *bool)
+	OnAfterCreated(browser Browser)
+	DoClose(browser Browser) bool
+	OnBeforeClose(browser Browser)
+}
 
 // AudioHandler handles audio events with a safe [][]float32 data signature.
 // The constructor decodes the raw float** callback input for you.
@@ -39,18 +57,18 @@ type AudioHandler interface {
 // LifeSpanHandler constructor
 // ---------------------------------------------------------------------------
 
-type lifeSpanHandlerWrapper struct {
-	LifeSpanHandler
+type rawLifeSpanHandlerWrapper struct {
+	RawLifeSpanHandler
 	rawPtr *capi.CEFLifeSpanHandlerT
 }
 
-func (w *lifeSpanHandlerWrapper) RawPointer() unsafe.Pointer {
+func (w *rawLifeSpanHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-func newRawLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
+func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 	r := new(capi.CEFLifeSpanHandlerT)
-	w := &lifeSpanHandlerWrapper{rawPtr: r}
+	w := &rawLifeSpanHandlerWrapper{rawPtr: r}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
 	r.OverrideOnBeforePopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12 uintptr) uintptr {
@@ -100,34 +118,18 @@ func newRawLifeSpanHandler(impl LifeSpanHandler) LifeSpanHandler {
 		impl.OnBeforeClose(wrapBrowser(unsafe.Pointer(arg0)))
 	}))
 
-	w.LifeSpanHandler = impl
+	w.RawLifeSpanHandler = impl
 	return w
 }
 
-func wrapLifeSpanHandler(_ unsafe.Pointer) LifeSpanHandler { return nil }
+func wrapLifeSpanHandler(_ unsafe.Pointer) RawLifeSpanHandler { return nil }
 
 // ---------------------------------------------------------------------------
-// Consumer-facing LifeSpanHandler — typed out-params instead of unsafe.Pointer
+// Safe lifespan handler adapter
 // ---------------------------------------------------------------------------
-
-// SafeLifeSpanHandler is the consumer-facing LifeSpanHandler with typed
-// parameters instead of unsafe.Pointer for out-params (client, extraInfo,
-// noJavascriptAccess / useDefaultWindow).
-type SafeLifeSpanHandler interface {
-	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string,
-		targetDisposition WindowOpenDisposition, userGesture int32, popupFeatures *PopupFeatures,
-		windowInfo *WindowInfo, client *Client, settings *BrowserSettings,
-		extraInfo *DictionaryValue, noJavascriptAccess *bool) bool
-	OnBeforePopupAborted(browser Browser, popupID int32)
-	OnBeforeDevToolsPopup(browser Browser, windowInfo *WindowInfo, client *Client,
-		settings *BrowserSettings, extraInfo *DictionaryValue, useDefaultWindow *bool)
-	OnAfterCreated(browser Browser)
-	DoClose(browser Browser) bool
-	OnBeforeClose(browser Browser)
-}
 
 type safeLifeSpanHandlerWrapper struct {
-	impl   SafeLifeSpanHandler
+	impl   LifeSpanHandler
 	rawPtr *capi.CEFLifeSpanHandlerT
 }
 
@@ -156,10 +158,10 @@ func (w *safeLifeSpanHandlerWrapper) OnBeforeClose(Browser) {
 	panic("safeLifeSpanHandlerWrapper: raw OnBeforeClose called directly; callbacks go through purego")
 }
 
-// NewLifeSpanHandler creates a CEF handler backed by a SafeLifeSpanHandler.
-// It converts unsafe.Pointer out-params to typed Go values and writes back
-// any changes the consumer makes.
-func NewLifeSpanHandler(impl SafeLifeSpanHandler) LifeSpanHandler {
+// NewLifeSpanHandler creates a raw lifespan handler from the user-facing
+// typed lifespan handler interface. It converts raw callback out-params to
+// typed Go values and writes back any changes the consumer makes.
+func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 	r := new(capi.CEFLifeSpanHandlerT)
 	w := &safeLifeSpanHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
@@ -177,10 +179,10 @@ func NewLifeSpanHandler(impl SafeLifeSpanHandler) LifeSpanHandler {
 		settings := (*BrowserSettings)(unsafe.Pointer(arg10))
 
 		// Decode out-param: client (cef_client_t**)
-		var clientVal Client
+		var clientVal RawClient
 		if arg9 != 0 {
 			if cp := *(*unsafe.Pointer)(unsafe.Pointer(arg9)); cp != nil {
-				clientVal = wrapClient(cp)
+				clientVal = wrapRawClient(cp)
 			}
 		}
 
@@ -237,10 +239,10 @@ func NewLifeSpanHandler(impl SafeLifeSpanHandler) LifeSpanHandler {
 		settings := (*BrowserSettings)(unsafe.Pointer(arg3))
 
 		// Decode out-param: client (cef_client_t**)
-		var clientVal Client
+		var clientVal RawClient
 		if arg2 != 0 {
 			if cp := *(*unsafe.Pointer)(unsafe.Pointer(arg2)); cp != nil {
-				clientVal = wrapClient(cp)
+				clientVal = wrapRawClient(cp)
 			}
 		}
 
@@ -492,16 +494,15 @@ func decodeSlice[T any](ptr uintptr, count int) []T {
 }
 
 // ---------------------------------------------------------------------------
-// Consumer-facing Client with safe handler types
+// User-facing Client with safe handler types
 // ---------------------------------------------------------------------------
 
-// SafeClient is the consumer-facing Client interface. It differs from the
-// generated portin.Client in two ways:
-//   - GetAudioHandler() returns cef.AudioHandler (safe [][]float32) instead of portin.AudioHandler
-//   - GetLifeSpanHandler() returns SafeLifeSpanHandler (typed out-params) instead of portin.LifeSpanHandler
+// Client is the user-facing client interface. It differs from RawClient in two ways:
+//   - GetAudioHandler() returns cef.AudioHandler (decoded [][]float32) instead of RawAudioHandler
+//   - GetLifeSpanHandler() returns cef.LifeSpanHandler (typed out-params) instead of RawLifeSpanHandler
 //
-// Use NewClient to create a CEF Client from a SafeClient implementation.
-type SafeClient interface {
+// Use NewClient to create a raw CEF client from a Client implementation.
+type Client interface {
 	GetAudioHandler() AudioHandler
 	GetCommandHandler() CommandHandler
 	GetContextMenuHandler() ContextMenuHandler
@@ -515,7 +516,7 @@ type SafeClient interface {
 	GetPermissionHandler() PermissionHandler
 	GetJsdialogHandler() JsdialogHandler
 	GetKeyboardHandler() KeyboardHandler
-	GetLifeSpanHandler() SafeLifeSpanHandler
+	GetLifeSpanHandler() LifeSpanHandler
 	GetLoadHandler() LoadHandler
 	GetPrintHandler() PrintHandler
 	GetRenderHandler() RenderHandler
@@ -523,13 +524,13 @@ type SafeClient interface {
 	OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32
 }
 
-// safeClientAdapter wraps a SafeClient to satisfy portin.Client by converting
-// safe handler types to their raw equivalents.
-type safeClientAdapter struct {
-	impl SafeClient
+// clientAdapter wraps a Client to satisfy RawClient by converting safe handler
+// types to their raw equivalents.
+type clientAdapter struct {
+	impl Client
 }
 
-func (a *safeClientAdapter) GetAudioHandler() portin.AudioHandler {
+func (a *clientAdapter) GetAudioHandler() RawAudioHandler {
 	h := a.impl.GetAudioHandler()
 	if h == nil {
 		return nil
@@ -537,7 +538,7 @@ func (a *safeClientAdapter) GetAudioHandler() portin.AudioHandler {
 	return NewAudioHandler(h)
 }
 
-func (a *safeClientAdapter) GetLifeSpanHandler() portin.LifeSpanHandler {
+func (a *clientAdapter) GetLifeSpanHandler() RawLifeSpanHandler {
 	h := a.impl.GetLifeSpanHandler()
 	if h == nil {
 		return nil
@@ -545,62 +546,62 @@ func (a *safeClientAdapter) GetLifeSpanHandler() portin.LifeSpanHandler {
 	return NewLifeSpanHandler(h)
 }
 
-func (a *safeClientAdapter) GetCommandHandler() CommandHandler {
+func (a *clientAdapter) GetCommandHandler() CommandHandler {
 	return a.impl.GetCommandHandler()
 }
-func (a *safeClientAdapter) GetContextMenuHandler() ContextMenuHandler {
+func (a *clientAdapter) GetContextMenuHandler() ContextMenuHandler {
 	return a.impl.GetContextMenuHandler()
 }
-func (a *safeClientAdapter) GetDialogHandler() DialogHandler {
+func (a *clientAdapter) GetDialogHandler() DialogHandler {
 	return a.impl.GetDialogHandler()
 }
-func (a *safeClientAdapter) GetDisplayHandler() DisplayHandler {
+func (a *clientAdapter) GetDisplayHandler() DisplayHandler {
 	return a.impl.GetDisplayHandler()
 }
-func (a *safeClientAdapter) GetDownloadHandler() DownloadHandler {
+func (a *clientAdapter) GetDownloadHandler() DownloadHandler {
 	return a.impl.GetDownloadHandler()
 }
-func (a *safeClientAdapter) GetDragHandler() DragHandler {
+func (a *clientAdapter) GetDragHandler() DragHandler {
 	return a.impl.GetDragHandler()
 }
-func (a *safeClientAdapter) GetFindHandler() FindHandler {
+func (a *clientAdapter) GetFindHandler() FindHandler {
 	return a.impl.GetFindHandler()
 }
-func (a *safeClientAdapter) GetFocusHandler() FocusHandler {
+func (a *clientAdapter) GetFocusHandler() FocusHandler {
 	return a.impl.GetFocusHandler()
 }
-func (a *safeClientAdapter) GetFrameHandler() FrameHandler {
+func (a *clientAdapter) GetFrameHandler() FrameHandler {
 	return a.impl.GetFrameHandler()
 }
-func (a *safeClientAdapter) GetPermissionHandler() PermissionHandler {
+func (a *clientAdapter) GetPermissionHandler() PermissionHandler {
 	return a.impl.GetPermissionHandler()
 }
-func (a *safeClientAdapter) GetJsdialogHandler() JsdialogHandler {
+func (a *clientAdapter) GetJsdialogHandler() JsdialogHandler {
 	return a.impl.GetJsdialogHandler()
 }
-func (a *safeClientAdapter) GetKeyboardHandler() KeyboardHandler {
+func (a *clientAdapter) GetKeyboardHandler() KeyboardHandler {
 	return a.impl.GetKeyboardHandler()
 }
-func (a *safeClientAdapter) GetLoadHandler() LoadHandler {
+func (a *clientAdapter) GetLoadHandler() LoadHandler {
 	return a.impl.GetLoadHandler()
 }
-func (a *safeClientAdapter) GetPrintHandler() PrintHandler {
+func (a *clientAdapter) GetPrintHandler() PrintHandler {
 	return a.impl.GetPrintHandler()
 }
-func (a *safeClientAdapter) GetRenderHandler() RenderHandler {
+func (a *clientAdapter) GetRenderHandler() RenderHandler {
 	return a.impl.GetRenderHandler()
 }
-func (a *safeClientAdapter) GetRequestHandler() RequestHandler {
+func (a *clientAdapter) GetRequestHandler() RequestHandler {
 	return a.impl.GetRequestHandler()
 }
-func (a *safeClientAdapter) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
+func (a *clientAdapter) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
 	return a.impl.OnProcessMessageReceived(browser, frame, sourceProcess, message)
 }
 
-// NewClient creates a CEF Client from a SafeClient implementation.
+// NewClient creates a raw CEF client from a user-facing Client implementation.
 // It wraps AudioHandler via NewAudioHandler ([][]float32 decoding) and
-// LifeSpanHandler via NewLifeSpanHandler (typed out-params), then
-// delegates to the generated raw client constructor.
-func NewClient(impl SafeClient) Client {
-	return newRawClient(&safeClientAdapter{impl: impl})
+// LifeSpanHandler via NewLifeSpanHandler (typed out-params), then delegates
+// to the generated raw client constructor.
+func NewClient(impl Client) RawClient {
+	return NewRawClient(&clientAdapter{impl: impl})
 }

@@ -2,6 +2,14 @@ all: false
 template: testify
 include-auto-generated: true
 packages:
+  github.com/bnema/purego-cef/cef:
+    config:
+      dir: "cef/mocks"
+      filename: "mock_{{.InterfaceName | snakecase}}.go"
+      pkgname: "mocks"
+    interfaces:
+      Client: {}
+      LifeSpanHandler: {}
   github.com/bnema/purego-cef/internal/ports/in:
     config:
       dir: "cef/mocks"
@@ -11,14 +19,14 @@ packages:
       App: {}
       Browser: {}
       BrowserProcessHandler: {}
-      Client: {}
+      RawClient: {}
       ContextMenuHandler: {}
       DialogHandler: {}
       DisplayHandler: {}
       FocusHandler: {}
       Frame: {}
       KeyboardHandler: {}
-      LifeSpanHandler: {}
+      RawLifeSpanHandler: {}
       LoadHandler: {}
       ProcessMessage: {}
       RenderHandler: {}

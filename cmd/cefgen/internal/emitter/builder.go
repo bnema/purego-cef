@@ -9,13 +9,9 @@ import (
 )
 
 // rawConstructorTypes lists handler types whose generated constructor should
-// be unexported (newRawXxx instead of NewXxx) because they have hand-written
-// public constructors in bridge.go that wrap them with safe types.
-var rawConstructorTypes = map[string]bool{
-	"AudioHandler":    true,
-	"Client":          true,
-	"LifeSpanHandler": true,
-}
+// be unexported (newRawXxx instead of NewXxx). Keep this empty unless a raw
+// generated type still collides with a handwritten public constructor.
+var rawConstructorTypes = map[string]bool{}
 
 // skipPublicTypes lists type/function names (after public renames) that are
 // hand-written in init.go or support.go and must not be generated.
@@ -30,9 +26,9 @@ var skipPublicTypes = map[string]bool{
 	"DisplayConvertScreenPointFromPixels": true,
 	"DisplayConvertScreenRectToPixels":    true,
 	"DisplayConvertScreenRectFromPixels":  true,
-	// Handlers with unsafe out-params that need hand-written safe signatures.
-	"LifeSpanHandler": true,
-	"AudioHandler":    true,
+	// These raw handlers still use handwritten wrappers in cef/bridge.go.
+	"RawAudioHandler":    true,
+	"RawLifeSpanHandler": true,
 }
 
 // ParamOverride specifies the public type and marshal kind for a specific
