@@ -33,6 +33,8 @@ For most code, prefer the ergonomic handwritten layer when it exists:
 - `cef.NewClient(...)` with `cef.Client`
 - `cef.NewLifeSpanHandler(...)` with `cef.LifeSpanHandler`
 - `cef.NewAudioHandler(...)` with the decoded `cef.AudioHandler` interface
+- `cef.LifeSpanHandler` popup callbacks receive an explicit `*cef.RawClientWriteSlot`
+  when they need to replace or clear the popup client out-param
 
 Treat `Raw*` types as advanced escape hatches.
 

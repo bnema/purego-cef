@@ -32,8 +32,9 @@ type RawAudioHandler = portin.RawAudioHandler
 //
 // The slot preserves CEF's default raw client until Set or Clear is called.
 // It is only valid for the duration of the active callback and must not be
-// retained after the callback returns. Set and Clear panic if used on a nil,
-// zero-value, or invalidated slot.
+// retained after the callback returns. Popup callbacks may receive a nil slot
+// when CEF does not provide a writable client out-param. Set and Clear panic
+// if used on a nil, zero-value, or invalidated slot.
 type RawClientWriteSlot struct {
 	initialRaw unsafe.Pointer
 	value      RawClient
@@ -91,16 +92,17 @@ func (s *RawClientWriteSlot) rawPointer() unsafe.Pointer {
 //
 // CEF popup callbacks expose the client as a raw handler out-param, but
 // reverse-wrapping an existing CEF client back into a readable Go RawClient is
-// not implemented yet. Handlers that need to replace or clear that client can
-// use ProvideRawClientForWrite during popup callbacks.
+// not implemented yet. Handlers that need to replace or clear that client
+// receive a write-only RawClientWriteSlot directly in popup callbacks. That
+// slot may be nil when CEF does not provide a writable client out-param, so
+// handlers must check it before calling Set or Clear.
 type LifeSpanHandler interface {
-	ProvideRawClientForWrite(slot *RawClientWriteSlot)
 	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string,
 		targetDisposition WindowOpenDisposition, userGesture int32, popupFeatures *PopupFeatures,
-		windowInfo *WindowInfo, settings *BrowserSettings,
+		windowInfo *WindowInfo, client *RawClientWriteSlot, settings *BrowserSettings,
 		extraInfo *DictionaryValue, noJavascriptAccess *bool) bool
 	OnBeforePopupAborted(browser Browser, popupID int32)
-	OnBeforeDevToolsPopup(browser Browser, windowInfo *WindowInfo,
+	OnBeforeDevToolsPopup(browser Browser, windowInfo *WindowInfo, client *RawClientWriteSlot,
 		settings *BrowserSettings, extraInfo *DictionaryValue, useDefaultWindow *bool)
 	OnAfterCreated(browser Browser)
 	DoClose(browser Browser) bool
@@ -258,11 +260,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		if arg9 != 0 {
 			clientSlot = newRawClientWriteSlot(*(*unsafe.Pointer)(unsafe.Pointer(arg9)))
 		}
-		impl.ProvideRawClientForWrite(clientSlot)
-		defer func() {
-			clientSlot.invalidate()
-			impl.ProvideRawClientForWrite(nil)
-		}()
+		defer clientSlot.invalidate()
 
 		// Decode out-param: extraInfo (cef_dictionary_value_t**)
 		var extraInfoVal DictionaryValue
@@ -280,7 +278,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 
 		blocked := impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName,
 			targetDisposition, userGesture, popupFeatures, windowInfo,
-			settings, &extraInfoVal, &noJS)
+			clientSlot, settings, &extraInfoVal, &noJS)
 
 		// Write back out-params.
 		if arg9 != 0 {
@@ -317,11 +315,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		if arg2 != 0 {
 			clientSlot = newRawClientWriteSlot(*(*unsafe.Pointer)(unsafe.Pointer(arg2)))
 		}
-		impl.ProvideRawClientForWrite(clientSlot)
-		defer func() {
-			clientSlot.invalidate()
-			impl.ProvideRawClientForWrite(nil)
-		}()
+		defer clientSlot.invalidate()
 
 		// Decode out-param: extraInfo (cef_dictionary_value_t**)
 		var extraInfoVal DictionaryValue
@@ -337,7 +331,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 			useDefault = *(*int32)(unsafe.Pointer(arg5)) != 0
 		}
 
-		impl.OnBeforeDevToolsPopup(browser, windowInfo, settings, &extraInfoVal, &useDefault)
+		impl.OnBeforeDevToolsPopup(browser, windowInfo, clientSlot, settings, &extraInfoVal, &useDefault)
 
 		// Write back out-params.
 		if arg2 != 0 {

@@ -168,8 +168,8 @@ func (_c *MockLifeSpanHandler_OnBeforeClose_Call) RunAndReturn(run func(browser 
 }
 
 // OnBeforeDevToolsPopup provides a mock function for the type MockLifeSpanHandler
-func (_mock *MockLifeSpanHandler) OnBeforeDevToolsPopup(browser cef.Browser, windowInfo *cef.WindowInfo, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, useDefaultWindow *bool) {
-	_mock.Called(browser, windowInfo, settings, extraInfo, useDefaultWindow)
+func (_mock *MockLifeSpanHandler) OnBeforeDevToolsPopup(browser cef.Browser, windowInfo *cef.WindowInfo, client *cef.RawClientWriteSlot, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, useDefaultWindow *bool) {
+	_mock.Called(browser, windowInfo, client, settings, extraInfo, useDefaultWindow)
 	return
 }
 
@@ -181,14 +181,15 @@ type MockLifeSpanHandler_OnBeforeDevToolsPopup_Call struct {
 // OnBeforeDevToolsPopup is a helper method to define mock.On call
 //   - browser cef.Browser
 //   - windowInfo *cef.WindowInfo
+//   - client *cef.RawClientWriteSlot
 //   - settings *cef.BrowserSettings
 //   - extraInfo *cef.DictionaryValue
 //   - useDefaultWindow *bool
-func (_e *MockLifeSpanHandler_Expecter) OnBeforeDevToolsPopup(browser interface{}, windowInfo interface{}, settings interface{}, extraInfo interface{}, useDefaultWindow interface{}) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
-	return &MockLifeSpanHandler_OnBeforeDevToolsPopup_Call{Call: _e.mock.On("OnBeforeDevToolsPopup", browser, windowInfo, settings, extraInfo, useDefaultWindow)}
+func (_e *MockLifeSpanHandler_Expecter) OnBeforeDevToolsPopup(browser interface{}, windowInfo interface{}, client interface{}, settings interface{}, extraInfo interface{}, useDefaultWindow interface{}) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
+	return &MockLifeSpanHandler_OnBeforeDevToolsPopup_Call{Call: _e.mock.On("OnBeforeDevToolsPopup", browser, windowInfo, client, settings, extraInfo, useDefaultWindow)}
 }
 
-func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) Run(run func(browser cef.Browser, windowInfo *cef.WindowInfo, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, useDefaultWindow *bool)) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
+func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) Run(run func(browser cef.Browser, windowInfo *cef.WindowInfo, client *cef.RawClientWriteSlot, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, useDefaultWindow *bool)) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 cef.Browser
 		if args[0] != nil {
@@ -198,17 +199,21 @@ func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) Run(run func(browser c
 		if args[1] != nil {
 			arg1 = args[1].(*cef.WindowInfo)
 		}
-		var arg2 *cef.BrowserSettings
+		var arg2 *cef.RawClientWriteSlot
 		if args[2] != nil {
-			arg2 = args[2].(*cef.BrowserSettings)
+			arg2 = args[2].(*cef.RawClientWriteSlot)
 		}
-		var arg3 *cef.DictionaryValue
+		var arg3 *cef.BrowserSettings
 		if args[3] != nil {
-			arg3 = args[3].(*cef.DictionaryValue)
+			arg3 = args[3].(*cef.BrowserSettings)
 		}
-		var arg4 *bool
+		var arg4 *cef.DictionaryValue
 		if args[4] != nil {
-			arg4 = args[4].(*bool)
+			arg4 = args[4].(*cef.DictionaryValue)
+		}
+		var arg5 *bool
+		if args[5] != nil {
+			arg5 = args[5].(*bool)
 		}
 		run(
 			arg0,
@@ -216,6 +221,7 @@ func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) Run(run func(browser c
 			arg2,
 			arg3,
 			arg4,
+			arg5,
 		)
 	})
 	return _c
@@ -226,22 +232,22 @@ func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) Return() *MockLifeSpan
 	return _c
 }
 
-func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) RunAndReturn(run func(browser cef.Browser, windowInfo *cef.WindowInfo, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, useDefaultWindow *bool)) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
+func (_c *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call) RunAndReturn(run func(browser cef.Browser, windowInfo *cef.WindowInfo, client *cef.RawClientWriteSlot, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, useDefaultWindow *bool)) *MockLifeSpanHandler_OnBeforeDevToolsPopup_Call {
 	_c.Run(run)
 	return _c
 }
 
 // OnBeforePopup provides a mock function for the type MockLifeSpanHandler
-func (_mock *MockLifeSpanHandler) OnBeforePopup(browser cef.Browser, frame cef.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition cef.WindowOpenDisposition, userGesture int32, popupFeatures *cef.PopupFeatures, windowInfo *cef.WindowInfo, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, noJavascriptAccess *bool) bool {
-	ret := _mock.Called(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupFeatures, windowInfo, settings, extraInfo, noJavascriptAccess)
+func (_mock *MockLifeSpanHandler) OnBeforePopup(browser cef.Browser, frame cef.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition cef.WindowOpenDisposition, userGesture int32, popupFeatures *cef.PopupFeatures, windowInfo *cef.WindowInfo, client *cef.RawClientWriteSlot, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, noJavascriptAccess *bool) bool {
+	ret := _mock.Called(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupFeatures, windowInfo, client, settings, extraInfo, noJavascriptAccess)
 
 	if len(ret) == 0 {
 		panic("no return value specified for OnBeforePopup")
 	}
 
 	var r0 bool
-	if returnFunc, ok := ret.Get(0).(func(cef.Browser, cef.Frame, int32, string, string, cef.WindowOpenDisposition, int32, *cef.PopupFeatures, *cef.WindowInfo, *cef.BrowserSettings, *cef.DictionaryValue, *bool) bool); ok {
-		r0 = returnFunc(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupFeatures, windowInfo, settings, extraInfo, noJavascriptAccess)
+	if returnFunc, ok := ret.Get(0).(func(cef.Browser, cef.Frame, int32, string, string, cef.WindowOpenDisposition, int32, *cef.PopupFeatures, *cef.WindowInfo, *cef.RawClientWriteSlot, *cef.BrowserSettings, *cef.DictionaryValue, *bool) bool); ok {
+		r0 = returnFunc(browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupFeatures, windowInfo, client, settings, extraInfo, noJavascriptAccess)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
@@ -263,14 +269,15 @@ type MockLifeSpanHandler_OnBeforePopup_Call struct {
 //   - userGesture int32
 //   - popupFeatures *cef.PopupFeatures
 //   - windowInfo *cef.WindowInfo
+//   - client *cef.RawClientWriteSlot
 //   - settings *cef.BrowserSettings
 //   - extraInfo *cef.DictionaryValue
 //   - noJavascriptAccess *bool
-func (_e *MockLifeSpanHandler_Expecter) OnBeforePopup(browser interface{}, frame interface{}, popupID interface{}, targetURL interface{}, targetFrameName interface{}, targetDisposition interface{}, userGesture interface{}, popupFeatures interface{}, windowInfo interface{}, settings interface{}, extraInfo interface{}, noJavascriptAccess interface{}) *MockLifeSpanHandler_OnBeforePopup_Call {
-	return &MockLifeSpanHandler_OnBeforePopup_Call{Call: _e.mock.On("OnBeforePopup", browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupFeatures, windowInfo, settings, extraInfo, noJavascriptAccess)}
+func (_e *MockLifeSpanHandler_Expecter) OnBeforePopup(browser interface{}, frame interface{}, popupID interface{}, targetURL interface{}, targetFrameName interface{}, targetDisposition interface{}, userGesture interface{}, popupFeatures interface{}, windowInfo interface{}, client interface{}, settings interface{}, extraInfo interface{}, noJavascriptAccess interface{}) *MockLifeSpanHandler_OnBeforePopup_Call {
+	return &MockLifeSpanHandler_OnBeforePopup_Call{Call: _e.mock.On("OnBeforePopup", browser, frame, popupID, targetURL, targetFrameName, targetDisposition, userGesture, popupFeatures, windowInfo, client, settings, extraInfo, noJavascriptAccess)}
 }
 
-func (_c *MockLifeSpanHandler_OnBeforePopup_Call) Run(run func(browser cef.Browser, frame cef.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition cef.WindowOpenDisposition, userGesture int32, popupFeatures *cef.PopupFeatures, windowInfo *cef.WindowInfo, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, noJavascriptAccess *bool)) *MockLifeSpanHandler_OnBeforePopup_Call {
+func (_c *MockLifeSpanHandler_OnBeforePopup_Call) Run(run func(browser cef.Browser, frame cef.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition cef.WindowOpenDisposition, userGesture int32, popupFeatures *cef.PopupFeatures, windowInfo *cef.WindowInfo, client *cef.RawClientWriteSlot, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, noJavascriptAccess *bool)) *MockLifeSpanHandler_OnBeforePopup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 cef.Browser
 		if args[0] != nil {
@@ -308,17 +315,21 @@ func (_c *MockLifeSpanHandler_OnBeforePopup_Call) Run(run func(browser cef.Brows
 		if args[8] != nil {
 			arg8 = args[8].(*cef.WindowInfo)
 		}
-		var arg9 *cef.BrowserSettings
+		var arg9 *cef.RawClientWriteSlot
 		if args[9] != nil {
-			arg9 = args[9].(*cef.BrowserSettings)
+			arg9 = args[9].(*cef.RawClientWriteSlot)
 		}
-		var arg10 *cef.DictionaryValue
+		var arg10 *cef.BrowserSettings
 		if args[10] != nil {
-			arg10 = args[10].(*cef.DictionaryValue)
+			arg10 = args[10].(*cef.BrowserSettings)
 		}
-		var arg11 *bool
+		var arg11 *cef.DictionaryValue
 		if args[11] != nil {
-			arg11 = args[11].(*bool)
+			arg11 = args[11].(*cef.DictionaryValue)
+		}
+		var arg12 *bool
+		if args[12] != nil {
+			arg12 = args[12].(*bool)
 		}
 		run(
 			arg0,
@@ -333,6 +344,7 @@ func (_c *MockLifeSpanHandler_OnBeforePopup_Call) Run(run func(browser cef.Brows
 			arg9,
 			arg10,
 			arg11,
+			arg12,
 		)
 	})
 	return _c
@@ -343,7 +355,7 @@ func (_c *MockLifeSpanHandler_OnBeforePopup_Call) Return(b bool) *MockLifeSpanHa
 	return _c
 }
 
-func (_c *MockLifeSpanHandler_OnBeforePopup_Call) RunAndReturn(run func(browser cef.Browser, frame cef.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition cef.WindowOpenDisposition, userGesture int32, popupFeatures *cef.PopupFeatures, windowInfo *cef.WindowInfo, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, noJavascriptAccess *bool) bool) *MockLifeSpanHandler_OnBeforePopup_Call {
+func (_c *MockLifeSpanHandler_OnBeforePopup_Call) RunAndReturn(run func(browser cef.Browser, frame cef.Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition cef.WindowOpenDisposition, userGesture int32, popupFeatures *cef.PopupFeatures, windowInfo *cef.WindowInfo, client *cef.RawClientWriteSlot, settings *cef.BrowserSettings, extraInfo *cef.DictionaryValue, noJavascriptAccess *bool) bool) *MockLifeSpanHandler_OnBeforePopup_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -390,46 +402,6 @@ func (_c *MockLifeSpanHandler_OnBeforePopupAborted_Call) Return() *MockLifeSpanH
 }
 
 func (_c *MockLifeSpanHandler_OnBeforePopupAborted_Call) RunAndReturn(run func(browser cef.Browser, popupID int32)) *MockLifeSpanHandler_OnBeforePopupAborted_Call {
-	_c.Run(run)
-	return _c
-}
-
-// ProvideRawClientForWrite provides a mock function for the type MockLifeSpanHandler
-func (_mock *MockLifeSpanHandler) ProvideRawClientForWrite(slot *cef.RawClientWriteSlot) {
-	_mock.Called(slot)
-	return
-}
-
-// MockLifeSpanHandler_ProvideRawClientForWrite_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ProvideRawClientForWrite'
-type MockLifeSpanHandler_ProvideRawClientForWrite_Call struct {
-	*mock.Call
-}
-
-// ProvideRawClientForWrite is a helper method to define mock.On call
-//   - slot *cef.RawClientWriteSlot
-func (_e *MockLifeSpanHandler_Expecter) ProvideRawClientForWrite(slot interface{}) *MockLifeSpanHandler_ProvideRawClientForWrite_Call {
-	return &MockLifeSpanHandler_ProvideRawClientForWrite_Call{Call: _e.mock.On("ProvideRawClientForWrite", slot)}
-}
-
-func (_c *MockLifeSpanHandler_ProvideRawClientForWrite_Call) Run(run func(slot *cef.RawClientWriteSlot)) *MockLifeSpanHandler_ProvideRawClientForWrite_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *cef.RawClientWriteSlot
-		if args[0] != nil {
-			arg0 = args[0].(*cef.RawClientWriteSlot)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *MockLifeSpanHandler_ProvideRawClientForWrite_Call) Return() *MockLifeSpanHandler_ProvideRawClientForWrite_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *MockLifeSpanHandler_ProvideRawClientForWrite_Call) RunAndReturn(run func(slot *cef.RawClientWriteSlot)) *MockLifeSpanHandler_ProvideRawClientForWrite_Call {
 	_c.Run(run)
 	return _c
 }
