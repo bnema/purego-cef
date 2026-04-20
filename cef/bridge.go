@@ -8,6 +8,7 @@ package cef
 import (
 	"reflect"
 	"sync"
+	"sync/atomic"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -31,27 +32,46 @@ type RawAudioHandler = portin.RawAudioHandler
 //
 // The slot preserves CEF's default raw client until Set or Clear is called.
 // It is only valid for the duration of the active callback and must not be
-// retained after the callback returns.
+// retained after the callback returns. Set and Clear panic if used on a nil,
+// zero-value, or invalidated slot.
 type RawClientWriteSlot struct {
 	initialRaw unsafe.Pointer
 	value      RawClient
 	touched    bool
+	valid      atomic.Bool
+}
+
+func newRawClientWriteSlot(initialRaw unsafe.Pointer) *RawClientWriteSlot {
+	s := &RawClientWriteSlot{initialRaw: initialRaw}
+	s.valid.Store(true)
+	return s
+}
+
+func (s *RawClientWriteSlot) invalidate() {
+	if s != nil {
+		s.valid.Store(false)
+	}
+}
+
+func (s *RawClientWriteSlot) assertUsable() {
+	if s == nil {
+		panic("RawClientWriteSlot: slot is nil")
+	}
+	if !s.valid.Load() {
+		panic("RawClientWriteSlot: slot is no longer valid")
+	}
 }
 
 // Set replaces the popup client out-param with raw.
 func (s *RawClientWriteSlot) Set(raw RawClient) {
-	if s == nil {
-		return
-	}
+	s.assertUsable()
 	s.value = raw
 	s.touched = true
 }
 
 // Clear explicitly writes a nil popup client out-param.
 func (s *RawClientWriteSlot) Clear() {
-	if s == nil {
-		return
-	}
+	s.assertUsable()
 	s.value = nil
 	s.touched = true
 }
@@ -236,10 +256,13 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		// Provide write-only access to the popup client out-param.
 		var clientSlot *RawClientWriteSlot
 		if arg9 != 0 {
-			clientSlot = &RawClientWriteSlot{initialRaw: *(*unsafe.Pointer)(unsafe.Pointer(arg9))}
+			clientSlot = newRawClientWriteSlot(*(*unsafe.Pointer)(unsafe.Pointer(arg9)))
 		}
 		impl.ProvideRawClientForWrite(clientSlot)
-		defer impl.ProvideRawClientForWrite(nil)
+		defer func() {
+			clientSlot.invalidate()
+			impl.ProvideRawClientForWrite(nil)
+		}()
 
 		// Decode out-param: extraInfo (cef_dictionary_value_t**)
 		var extraInfoVal DictionaryValue
@@ -292,10 +315,13 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		// Provide write-only access to the popup client out-param.
 		var clientSlot *RawClientWriteSlot
 		if arg2 != 0 {
-			clientSlot = &RawClientWriteSlot{initialRaw: *(*unsafe.Pointer)(unsafe.Pointer(arg2))}
+			clientSlot = newRawClientWriteSlot(*(*unsafe.Pointer)(unsafe.Pointer(arg2)))
 		}
 		impl.ProvideRawClientForWrite(clientSlot)
-		defer impl.ProvideRawClientForWrite(nil)
+		defer func() {
+			clientSlot.invalidate()
+			impl.ProvideRawClientForWrite(nil)
+		}()
 
 		// Decode out-param: extraInfo (cef_dictionary_value_t**)
 		var extraInfoVal DictionaryValue
@@ -598,6 +624,10 @@ type clientAdapter struct {
 	impl Client
 }
 
+// GetAudioHandler wraps the safe audio handler on demand. Callers that may
+// invoke this repeatedly are expected to cache the returned raw wrapper, as
+// generated NewRawClient code already does, because clientAdapter does not
+// memoize it itself.
 func (a *clientAdapter) GetAudioHandler() RawAudioHandler {
 	h := a.impl.GetAudioHandler()
 	if h == nil {
@@ -606,6 +636,10 @@ func (a *clientAdapter) GetAudioHandler() RawAudioHandler {
 	return NewAudioHandler(h)
 }
 
+// GetLifeSpanHandler wraps the safe life span handler on demand. Callers that
+// may invoke this repeatedly are expected to cache the returned raw wrapper, as
+// generated NewRawClient code already does, because clientAdapter does not
+// memoize it itself.
 func (a *clientAdapter) GetLifeSpanHandler() RawLifeSpanHandler {
 	h := a.impl.GetLifeSpanHandler()
 	if h == nil {

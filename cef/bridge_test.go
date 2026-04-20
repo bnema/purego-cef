@@ -86,7 +86,7 @@ func TestConstructorsReturnNilForTypedNilImpl(t *testing.T) {
 
 func TestRawClientWriteSlotPreservesInitialRawPointerUntilTouched(t *testing.T) {
 	initial := unsafe.Pointer(&capi.CEFClientT{})
-	slot := &RawClientWriteSlot{initialRaw: initial}
+	slot := newRawClientWriteSlot(initial)
 
 	if got := slot.rawPointer(); got != initial {
 		t.Fatalf("rawPointer() = %p, want %p", got, initial)
@@ -94,7 +94,7 @@ func TestRawClientWriteSlotPreservesInitialRawPointerUntilTouched(t *testing.T) 
 }
 
 func TestRawClientWriteSlotClearWritesNil(t *testing.T) {
-	slot := &RawClientWriteSlot{initialRaw: unsafe.Pointer(&capi.CEFClientT{})}
+	slot := newRawClientWriteSlot(unsafe.Pointer(&capi.CEFClientT{}))
 	slot.Clear()
 
 	if got := slot.rawPointer(); got != nil {
@@ -104,7 +104,7 @@ func TestRawClientWriteSlotClearWritesNil(t *testing.T) {
 
 func TestRawClientWriteSlotSetUsesProvidedRawClient(t *testing.T) {
 	want := &capi.CEFClientT{}
-	slot := &RawClientWriteSlot{initialRaw: unsafe.Pointer(&capi.CEFClientT{})}
+	slot := newRawClientWriteSlot(unsafe.Pointer(&capi.CEFClientT{}))
 	slot.Set(&rawClientWrapper{rawPtr: want})
 
 	if got := slot.rawPointer(); got != unsafe.Pointer(want) {
@@ -118,7 +118,7 @@ func TestRawClientWriteSlotSetWrapsPlainRawClient(t *testing.T) {
 	t.Cleanup(func() { eng = prevEng })
 
 	initial := unsafe.Pointer(&capi.CEFClientT{})
-	slot := &RawClientWriteSlot{initialRaw: initial}
+	slot := newRawClientWriteSlot(initial)
 	slot.Set(plainRawClientStub{})
 
 	got := slot.rawPointer()
@@ -127,6 +127,65 @@ func TestRawClientWriteSlotSetWrapsPlainRawClient(t *testing.T) {
 	}
 	if got == initial {
 		t.Fatalf("rawPointer() = %p, want wrapped client pointer distinct from initial raw %p", got, initial)
+	}
+}
+
+func TestRawClientWriteSlotSetPanicsOnNilOrUninitializedSlot(t *testing.T) {
+	t.Run("nil slot", func(t *testing.T) {
+		var slot *RawClientWriteSlot
+		defer func() {
+			r := recover()
+			if r == nil {
+				t.Fatal("expected panic")
+			}
+			msg, ok := r.(string)
+			if !ok || !strings.Contains(msg, "slot is nil") {
+				t.Fatalf("panic = %#v, want nil-slot message", r)
+			}
+		}()
+		slot.Set(nil)
+	})
+
+	t.Run("zero value slot", func(t *testing.T) {
+		slot := &RawClientWriteSlot{}
+		defer func() {
+			r := recover()
+			if r == nil {
+				t.Fatal("expected panic")
+			}
+			msg, ok := r.(string)
+			if !ok || !strings.Contains(msg, "no longer valid") {
+				t.Fatalf("panic = %#v, want invalid-slot message", r)
+			}
+		}()
+		slot.Clear()
+	})
+}
+
+func TestRawClientWriteSlotPanicsAfterInvalidation(t *testing.T) {
+	slot := newRawClientWriteSlot(nil)
+	slot.invalidate()
+
+	for _, tc := range []struct {
+		name string
+		run  func()
+	}{
+		{name: "Set", run: func() { slot.Set(nil) }},
+		{name: "Clear", run: func() { slot.Clear() }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			defer func() {
+				r := recover()
+				if r == nil {
+					t.Fatal("expected panic")
+				}
+				msg, ok := r.(string)
+				if !ok || !strings.Contains(msg, "no longer valid") {
+					t.Fatalf("panic = %#v, want invalid-slot message", r)
+				}
+			}()
+			tc.run()
+		})
 	}
 }
 
