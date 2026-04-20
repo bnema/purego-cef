@@ -82,12 +82,12 @@ func (obj *responseImpl) SetHeaderByName(name string, value string, overwrite in
 	obj.rawPtr.CallSetHeaderByName(uintptr(unsafe.Pointer(&nameStr)), uintptr(unsafe.Pointer(&valueStr)), uintptr(overwrite))
 }
 
-func (obj *responseImpl) GetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallGetHeaderMap(headermap)
+func (obj *responseImpl) GetHeaderMap(headermap StringMultimap) {
+	obj.rawPtr.CallGetHeaderMap(uintptr(headermap))
 }
 
-func (obj *responseImpl) SetHeaderMap(headermap uintptr) {
-	obj.rawPtr.CallSetHeaderMap(headermap)
+func (obj *responseImpl) SetHeaderMap(headermap StringMultimap) {
+	obj.rawPtr.CallSetHeaderMap(uintptr(headermap))
 }
 
 func (obj *responseImpl) GetURL() string {

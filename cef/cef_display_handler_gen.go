@@ -48,7 +48,7 @@ func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
 
 	r.OverrideOnFaviconUrlchange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		iconUrls := uintptr(arg1)
+		iconUrls := StringList(arg1)
 		impl.OnFaviconUrlchange(browser, iconUrls)
 	}))
 

@@ -248,8 +248,8 @@ func (obj *dictionaryValueImpl) HasKey(key string) bool {
 	return obj.rawPtr.CallHasKey(uintptr(unsafe.Pointer(&keyStr))) != 0
 }
 
-func (obj *dictionaryValueImpl) GetKeys(keys uintptr) int32 {
-	return int32(obj.rawPtr.CallGetKeys(keys))
+func (obj *dictionaryValueImpl) GetKeys(keys StringList) int32 {
+	return int32(obj.rawPtr.CallGetKeys(uintptr(keys)))
 }
 
 func (obj *dictionaryValueImpl) Remove(key string) int32 {

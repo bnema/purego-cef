@@ -14,18 +14,18 @@ type CommandLine interface {
 	InitFromArgv(argc int32, argv unsafe.Pointer)
 	InitFromString(commandLine string)
 	Reset()
-	GetArgv(argv uintptr)
+	GetArgv(argv StringList)
 	GetCommandLineString() string
 	GetProgram() string
 	SetProgram(program string)
 	HasSwitches() bool
 	HasSwitch(name string) bool
 	GetSwitchValue(name string) string
-	GetSwitches(switches uintptr)
+	GetSwitches(switches StringMap)
 	AppendSwitch(name string)
 	AppendSwitchWithValue(name string, value string)
 	HasArguments() bool
-	GetArguments(arguments uintptr)
+	GetArguments(arguments StringList)
 	AppendArgument(argument string)
 	PrependWrapper(wrapper string)
 	RemoveSwitch(name string)

@@ -18,11 +18,11 @@ type Request interface {
 	GetReferrerPolicy() ReferrerPolicy
 	GetPostData() PostData
 	SetPostData(postdata PostData)
-	GetHeaderMap(headermap uintptr)
-	SetHeaderMap(headermap uintptr)
+	GetHeaderMap(headermap StringMultimap)
+	SetHeaderMap(headermap StringMultimap)
 	GetHeaderByName(name string) string
 	SetHeaderByName(name string, value string, overwrite int32)
-	Set(uRL string, method string, postdata PostData, headermap uintptr)
+	Set(uRL string, method string, postdata PostData, headermap StringMultimap)
 	GetFlags() int32
 	SetFlags(flags int32)
 	GetFirstPartyForCookies() string

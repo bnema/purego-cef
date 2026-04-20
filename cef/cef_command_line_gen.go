@@ -44,8 +44,8 @@ func (obj *commandLineImpl) Reset() {
 	obj.rawPtr.CallReset()
 }
 
-func (obj *commandLineImpl) GetArgv(argv uintptr) {
-	obj.rawPtr.CallGetArgv(argv)
+func (obj *commandLineImpl) GetArgv(argv StringList) {
+	obj.rawPtr.CallGetArgv(uintptr(argv))
 }
 
 func (obj *commandLineImpl) GetCommandLineString() string {
@@ -78,8 +78,8 @@ func (obj *commandLineImpl) GetSwitchValue(name string) string {
 	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetSwitchValue(uintptr(unsafe.Pointer(&nameStr)))))
 }
 
-func (obj *commandLineImpl) GetSwitches(switches uintptr) {
-	obj.rawPtr.CallGetSwitches(switches)
+func (obj *commandLineImpl) GetSwitches(switches StringMap) {
+	obj.rawPtr.CallGetSwitches(uintptr(switches))
 }
 
 func (obj *commandLineImpl) AppendSwitch(name string) {
@@ -100,8 +100,8 @@ func (obj *commandLineImpl) HasArguments() bool {
 	return obj.rawPtr.CallHasArguments() != 0
 }
 
-func (obj *commandLineImpl) GetArguments(arguments uintptr) {
-	obj.rawPtr.CallGetArguments(arguments)
+func (obj *commandLineImpl) GetArguments(arguments StringList) {
+	obj.rawPtr.CallGetArguments(uintptr(arguments))
 }
 
 func (obj *commandLineImpl) AppendArgument(argument string) {

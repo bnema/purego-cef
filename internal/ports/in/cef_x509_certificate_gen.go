@@ -13,8 +13,8 @@ type X509CertPrincipal interface {
 	GetLocalityName() string
 	GetStateOrProvinceName() string
 	GetCountryName() string
-	GetOrganizationNames(names uintptr)
-	GetOrganizationUnitNames(names uintptr)
+	GetOrganizationNames(names StringList)
+	GetOrganizationUnitNames(names StringList)
 }
 
 // X509Certificate defines the inbound port interface.

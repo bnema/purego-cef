@@ -55,7 +55,7 @@ type DictionaryValue interface {
 	GetSize() int
 	Clear() int32
 	HasKey(key string) bool
-	GetKeys(keys uintptr) int32
+	GetKeys(keys StringList) int32
 	Remove(key string) int32
 	GetType(key string) ValueType
 	GetValue(key string) Value

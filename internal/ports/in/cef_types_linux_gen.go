@@ -6,8 +6,8 @@ import (
 	"github.com/bnema/purego-cef/internal/capi"
 )
 
-// MainArgs is a type alias for the raw data struct.
-type MainArgs = capi.CEFMainArgsT
+// CEFMainArgs is a type alias for the raw data struct.
+type CEFMainArgs = capi.CEFMainArgsT
 
 // WindowInfo is a type alias for the raw data struct.
 type WindowInfo = capi.CEFWindowInfoT

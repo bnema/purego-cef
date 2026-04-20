@@ -18,6 +18,10 @@ func testRegistry() *TypeRegistry {
 				{CName: "cef_request_t", Kind: "object", InterfaceName: "Request"},
 				{CName: "_cef_popup_features_t", Kind: "data", InterfaceName: "PopupFeatures"},
 				{CName: "cef_popup_features_t", Kind: "data", InterfaceName: "PopupFeatures"},
+				{CName: "_cef_settings_t", Kind: "data", InterfaceName: "Settings"},
+				{CName: "cef_settings_t", Kind: "data", InterfaceName: "Settings"},
+				{CName: "_cef_main_args_t", Kind: "data", InterfaceName: "MainArgs"},
+				{CName: "cef_main_args_t", Kind: "data", InterfaceName: "MainArgs"},
 			},
 			Enums: []model.Enum{
 				{CName: "cef_process_id_t"},
@@ -45,9 +49,9 @@ func TestResolvePublicType(t *testing.T) {
 		{"cef_string_t*", "uintptr"},
 		{"cef_string_userfree_t", "string"},
 		// string collections (opaque handles)
-		{"cef_string_list_t", "uintptr"},
-		{"cef_string_map_t", "uintptr"},
-		{"cef_string_multimap_t", "uintptr"},
+		{"cef_string_list_t", "StringList"},
+		{"cef_string_map_t", "StringMap"},
+		{"cef_string_multimap_t", "StringMultimap"},
 		// primitive types
 		{"int", "int32"},
 		{"unsigned int", "uint32"},
@@ -79,6 +83,9 @@ func TestResolvePublicType(t *testing.T) {
 		// enum type
 		{"cef_process_id_t", "ProcessID"},
 		{"cef_log_severity_t", "LogSeverity"},
+		// renamed public types
+		{"struct _cef_settings_t*", "*CEFSettings"},
+		{"struct _cef_main_args_t*", "*CEFMainArgs"},
 		// "TYPE const*" form (same as "const TYPE*")
 		{"cef_popup_features_t const*", "*PopupFeatures"},
 		{"struct _cef_browser_t const*", "Browser"},

@@ -253,8 +253,8 @@ func (obj *contextMenuParamsImpl) GetMisspelledWord() string {
 	return goStringUserfree(unsafe.Pointer(obj.rawPtr.CallGetMisspelledWord()))
 }
 
-func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions uintptr) int32 {
-	return int32(obj.rawPtr.CallGetDictionarySuggestions(suggestions))
+func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions StringList) int32 {
+	return int32(obj.rawPtr.CallGetDictionarySuggestions(uintptr(suggestions)))
 }
 
 func (obj *contextMenuParamsImpl) IsEditable() bool {

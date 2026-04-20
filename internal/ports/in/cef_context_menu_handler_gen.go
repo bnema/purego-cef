@@ -42,7 +42,7 @@ type ContextMenuParams interface {
 	GetMediaStateFlags() ContextMenuMediaStateFlags
 	GetSelectionText() string
 	GetMisspelledWord() string
-	GetDictionarySuggestions(suggestions uintptr) int32
+	GetDictionarySuggestions(suggestions StringList) int32
 	IsEditable() bool
 	IsSpellCheckEnabled() bool
 	GetEditStateFlags() ContextMenuEditStateFlags

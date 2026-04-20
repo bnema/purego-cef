@@ -183,6 +183,57 @@ func TestObjectSliceMerge(t *testing.T) {
 	}
 }
 
+func TestGenericCountedObjectSliceMergeWithoutOverride(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "_cef_v8_value_t",
+				GoName:        "CEFV8ValueT",
+				Kind:          "object",
+				InterfaceName: "V8Value",
+				Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+			},
+			{
+				CName:         "cef_dummy_handler_t",
+				GoName:        "CEFDummyHandlerT",
+				Kind:          "handler",
+				InterfaceName: "DummyHandler",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "on_values",
+						GoName:      "OnValues",
+						IsFunction:  true,
+						ReturnCType: "void",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_dummy_handler_t*"},
+							{CName: "valuesCount", GoName: "valuesCount", CType: "size_t"},
+							{CName: "values", GoName: "values", CType: "struct _cef_v8_value_t* const*"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	if len(data.Interfaces) != 2 {
+		t.Fatalf("expected 2 interfaces, got %d", len(data.Interfaces))
+	}
+	m := data.Interfaces[1].Methods[0]
+	if len(m.Params) != 1 {
+		t.Fatalf("expected merged slice param, got %#v", m.Params)
+	}
+	if got := m.Params[0].PublicType; got != "[]V8Value" {
+		t.Fatalf("expected []V8Value, got %s", got)
+	}
+	if got := m.Params[0].MarshalKind; got != "objectSlice" {
+		t.Fatalf("expected objectSlice, got %s", got)
+	}
+}
+
 func TestV8HandlerExecuteArgumentsMerge(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{
@@ -258,7 +309,7 @@ func TestV8ValueExecuteFunctionArgumentsMerge(t *testing.T) {
 				GoName:        "CEFV8ContextT",
 				Kind:          "object",
 				InterfaceName: "V8Context",
-				Fields: []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
+				Fields:        []model.Field{{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false}},
 			},
 			{
 				CName:         "cef_v8_value_t",

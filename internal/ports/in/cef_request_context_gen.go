@@ -4,7 +4,7 @@ package in
 
 // ResolveCallback defines the inbound port interface.
 type ResolveCallback interface {
-	OnResolveCompleted(result Errorcode, resolvedIps uintptr)
+	OnResolveCompleted(result Errorcode, resolvedIps StringList)
 }
 
 // SettingObserver defines the inbound port interface.

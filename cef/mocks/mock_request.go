@@ -176,7 +176,7 @@ func (_c *MockRequest_GetHeaderByName_Call) RunAndReturn(run func(name string) s
 }
 
 // GetHeaderMap provides a mock function for the type MockRequest
-func (_mock *MockRequest) GetHeaderMap(headermap uintptr) {
+func (_mock *MockRequest) GetHeaderMap(headermap in.StringMultimap) {
 	_mock.Called(headermap)
 	return
 }
@@ -187,16 +187,16 @@ type MockRequest_GetHeaderMap_Call struct {
 }
 
 // GetHeaderMap is a helper method to define mock.On call
-//   - headermap uintptr
+//   - headermap in.StringMultimap
 func (_e *MockRequest_Expecter) GetHeaderMap(headermap interface{}) *MockRequest_GetHeaderMap_Call {
 	return &MockRequest_GetHeaderMap_Call{Call: _e.mock.On("GetHeaderMap", headermap)}
 }
 
-func (_c *MockRequest_GetHeaderMap_Call) Run(run func(headermap uintptr)) *MockRequest_GetHeaderMap_Call {
+func (_c *MockRequest_GetHeaderMap_Call) Run(run func(headermap in.StringMultimap)) *MockRequest_GetHeaderMap_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uintptr
+		var arg0 in.StringMultimap
 		if args[0] != nil {
-			arg0 = args[0].(uintptr)
+			arg0 = args[0].(in.StringMultimap)
 		}
 		run(
 			arg0,
@@ -210,7 +210,7 @@ func (_c *MockRequest_GetHeaderMap_Call) Return() *MockRequest_GetHeaderMap_Call
 	return _c
 }
 
-func (_c *MockRequest_GetHeaderMap_Call) RunAndReturn(run func(headermap uintptr)) *MockRequest_GetHeaderMap_Call {
+func (_c *MockRequest_GetHeaderMap_Call) RunAndReturn(run func(headermap in.StringMultimap)) *MockRequest_GetHeaderMap_Call {
 	_c.Run(run)
 	return _c
 }
@@ -614,7 +614,7 @@ func (_c *MockRequest_IsReadOnly_Call) RunAndReturn(run func() bool) *MockReques
 }
 
 // Set provides a mock function for the type MockRequest
-func (_mock *MockRequest) Set(uRL string, method string, postdata in.PostData, headermap uintptr) {
+func (_mock *MockRequest) Set(uRL string, method string, postdata in.PostData, headermap in.StringMultimap) {
 	_mock.Called(uRL, method, postdata, headermap)
 	return
 }
@@ -628,12 +628,12 @@ type MockRequest_Set_Call struct {
 //   - uRL string
 //   - method string
 //   - postdata in.PostData
-//   - headermap uintptr
+//   - headermap in.StringMultimap
 func (_e *MockRequest_Expecter) Set(uRL interface{}, method interface{}, postdata interface{}, headermap interface{}) *MockRequest_Set_Call {
 	return &MockRequest_Set_Call{Call: _e.mock.On("Set", uRL, method, postdata, headermap)}
 }
 
-func (_c *MockRequest_Set_Call) Run(run func(uRL string, method string, postdata in.PostData, headermap uintptr)) *MockRequest_Set_Call {
+func (_c *MockRequest_Set_Call) Run(run func(uRL string, method string, postdata in.PostData, headermap in.StringMultimap)) *MockRequest_Set_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
@@ -647,9 +647,9 @@ func (_c *MockRequest_Set_Call) Run(run func(uRL string, method string, postdata
 		if args[2] != nil {
 			arg2 = args[2].(in.PostData)
 		}
-		var arg3 uintptr
+		var arg3 in.StringMultimap
 		if args[3] != nil {
-			arg3 = args[3].(uintptr)
+			arg3 = args[3].(in.StringMultimap)
 		}
 		run(
 			arg0,
@@ -666,7 +666,7 @@ func (_c *MockRequest_Set_Call) Return() *MockRequest_Set_Call {
 	return _c
 }
 
-func (_c *MockRequest_Set_Call) RunAndReturn(run func(uRL string, method string, postdata in.PostData, headermap uintptr)) *MockRequest_Set_Call {
+func (_c *MockRequest_Set_Call) RunAndReturn(run func(uRL string, method string, postdata in.PostData, headermap in.StringMultimap)) *MockRequest_Set_Call {
 	_c.Run(run)
 	return _c
 }
@@ -804,7 +804,7 @@ func (_c *MockRequest_SetHeaderByName_Call) RunAndReturn(run func(name string, v
 }
 
 // SetHeaderMap provides a mock function for the type MockRequest
-func (_mock *MockRequest) SetHeaderMap(headermap uintptr) {
+func (_mock *MockRequest) SetHeaderMap(headermap in.StringMultimap) {
 	_mock.Called(headermap)
 	return
 }
@@ -815,16 +815,16 @@ type MockRequest_SetHeaderMap_Call struct {
 }
 
 // SetHeaderMap is a helper method to define mock.On call
-//   - headermap uintptr
+//   - headermap in.StringMultimap
 func (_e *MockRequest_Expecter) SetHeaderMap(headermap interface{}) *MockRequest_SetHeaderMap_Call {
 	return &MockRequest_SetHeaderMap_Call{Call: _e.mock.On("SetHeaderMap", headermap)}
 }
 
-func (_c *MockRequest_SetHeaderMap_Call) Run(run func(headermap uintptr)) *MockRequest_SetHeaderMap_Call {
+func (_c *MockRequest_SetHeaderMap_Call) Run(run func(headermap in.StringMultimap)) *MockRequest_SetHeaderMap_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uintptr
+		var arg0 in.StringMultimap
 		if args[0] != nil {
-			arg0 = args[0].(uintptr)
+			arg0 = args[0].(in.StringMultimap)
 		}
 		run(
 			arg0,
@@ -838,7 +838,7 @@ func (_c *MockRequest_SetHeaderMap_Call) Return() *MockRequest_SetHeaderMap_Call
 	return _c
 }
 
-func (_c *MockRequest_SetHeaderMap_Call) RunAndReturn(run func(headermap uintptr)) *MockRequest_SetHeaderMap_Call {
+func (_c *MockRequest_SetHeaderMap_Call) RunAndReturn(run func(headermap in.StringMultimap)) *MockRequest_SetHeaderMap_Call {
 	_c.Run(run)
 	return _c
 }

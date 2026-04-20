@@ -89,15 +89,27 @@ func NewMediaObserver(impl MediaObserver) MediaObserver {
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
 	r.OverrideOnSinks(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		sinkscount := int(arg0)
-		sinks := unsafe.Pointer(arg1)
-		impl.OnSinks(sinkscount, sinks)
+		var sinks []MediaSink
+		if arg1 != 0 && arg0 > 0 {
+			sinksPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg1)), int(arg0))
+			sinks = make([]MediaSink, int(arg0))
+			for i, ptr := range sinksPtrs {
+				sinks[i] = wrapMediaSink(unsafe.Pointer(ptr))
+			}
+		}
+		impl.OnSinks(sinks)
 	}))
 
 	r.OverrideOnRoutes(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		routescount := int(arg0)
-		routes := unsafe.Pointer(arg1)
-		impl.OnRoutes(routescount, routes)
+		var routes []MediaRoute
+		if arg1 != 0 && arg0 > 0 {
+			routesPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg1)), int(arg0))
+			routes = make([]MediaRoute, int(arg0))
+			for i, ptr := range routesPtrs {
+				routes[i] = wrapMediaRoute(unsafe.Pointer(ptr))
+			}
+		}
+		impl.OnRoutes(routes)
 	}))
 
 	r.OverrideOnRouteStateChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {

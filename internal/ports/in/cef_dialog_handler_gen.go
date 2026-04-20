@@ -4,11 +4,11 @@ package in
 
 // FileDialogCallback defines the inbound port interface.
 type FileDialogCallback interface {
-	Cont(filePaths uintptr)
+	Cont(filePaths StringList)
 	Cancel()
 }
 
 // DialogHandler defines the inbound port interface.
 type DialogHandler interface {
-	OnFileDialog(browser Browser, mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, acceptExtensions uintptr, acceptDescriptions uintptr, callback FileDialogCallback) int32
+	OnFileDialog(browser Browser, mode FileDialogMode, title string, defaultFilePath string, acceptFilters StringList, acceptExtensions StringList, acceptDescriptions StringList, callback FileDialogCallback) int32
 }

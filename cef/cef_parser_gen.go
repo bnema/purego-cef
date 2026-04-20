@@ -44,10 +44,10 @@ func GetMimeType(extension string) string {
 }
 
 // GetExtensionsForMimeType Get the extensions associated with the given mime type. This should be passed in lower case. There could be multiple extensions for a given mime type, like "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing elements in the provided vector will not be erased.
-func GetExtensionsForMimeType(mimeType string, extensions uintptr) {
+func GetExtensionsForMimeType(mimeType string, extensions StringList) {
 	mimeTypeStr := cefString(mimeType)
 	defer freeCefString(&mimeTypeStr)
-	capi.CEFGetExtensionsForMimeType(unsafe.Pointer(&mimeTypeStr), extensions)
+	capi.CEFGetExtensionsForMimeType(unsafe.Pointer(&mimeTypeStr), uintptr(extensions))
 }
 
 // Base64Encode Encodes |data| as a base64 string.

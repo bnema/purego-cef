@@ -14,14 +14,14 @@ type ApiVersionTest interface {
 	SetRefPtrLibraryAndReturn(val uintptr) uintptr
 	SetChildRefPtrLibrary(val uintptr) uintptr
 	SetChildRefPtrLibraryAndReturnParent(val uintptr) uintptr
-	SetRefPtrLibraryList(valcount uintptr, val uintptr, val1 uintptr, val2 uintptr) uintptr
+	SetRefPtrLibraryList(val uintptr, val1 uintptr, val2 uintptr) uintptr
 	GetRefPtrLibraryListByRef(valcount uintptr, val uintptr, val1 uintptr, val2 uintptr) uintptr
 	GetRefPtrLibraryListSize() uintptr
 	SetRefPtrClient(val uintptr) uintptr
 	SetRefPtrClientAndReturn(val uintptr) uintptr
 	SetChildRefPtrClient(val uintptr) uintptr
 	SetChildRefPtrClientAndReturnParent(val uintptr) uintptr
-	SetRefPtrClientList(valcount uintptr, val uintptr, val1 uintptr, val2 uintptr) uintptr
+	SetRefPtrClientList(val uintptr, val1 uintptr, val2 uintptr) uintptr
 	GetRefPtrClientListByRef(valcount uintptr, val uintptr, val1 uintptr, val2 uintptr) uintptr
 	GetRefPtrClientListSize() uintptr
 	GetOwnPtrLibrary(val uintptr) uintptr
@@ -35,10 +35,10 @@ type ApiVersionTest interface {
 	SetChildOwnPtrClientAndReturnParent(val uintptr) uintptr
 	SetRawPtrLibrary(val uintptr) uintptr
 	SetChildRawPtrLibrary(val uintptr) uintptr
-	SetRawPtrLibraryList(valcount uintptr, val uintptr, val1 uintptr, val2 uintptr) uintptr
+	SetRawPtrLibraryList(val uintptr, val1 uintptr, val2 uintptr) uintptr
 	SetRawPtrClient(val uintptr) uintptr
 	SetChildRawPtrClient(val uintptr) uintptr
-	SetRawPtrClientList(valcount uintptr, val uintptr, val1 uintptr, val2 uintptr) uintptr
+	SetRawPtrClientList(val uintptr, val1 uintptr, val2 uintptr) uintptr
 	SetChildRefPtrClientV2(val uintptr) uintptr
 	SetChildRefPtrClientAndReturnParentV2(val uintptr) uintptr
 	SetChildOwnPtrClientV2(val uintptr) uintptr

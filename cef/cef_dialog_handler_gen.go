@@ -20,8 +20,8 @@ type fileDialogCallbackImpl struct {
 	rawPtr *capi.CEFFileDialogCallbackT
 }
 
-func (obj *fileDialogCallbackImpl) Cont(filePaths uintptr) {
-	obj.rawPtr.CallCont(filePaths)
+func (obj *fileDialogCallbackImpl) Cont(filePaths StringList) {
+	obj.rawPtr.CallCont(uintptr(filePaths))
 }
 
 func (obj *fileDialogCallbackImpl) Cancel() {
@@ -79,9 +79,9 @@ func NewDialogHandler(impl DialogHandler) DialogHandler {
 		mode := FileDialogMode(arg1)
 		title := goString(unsafe.Pointer(arg2))
 		defaultFilePath := goString(unsafe.Pointer(arg3))
-		acceptFilters := uintptr(arg4)
-		acceptExtensions := uintptr(arg5)
-		acceptDescriptions := uintptr(arg6)
+		acceptFilters := StringList(arg4)
+		acceptExtensions := StringList(arg5)
+		acceptDescriptions := StringList(arg6)
 		callback := wrapFileDialogCallback(unsafe.Pointer(arg7))
 		return uintptr(impl.OnFileDialog(browser, mode, title, defaultFilePath, acceptFilters, acceptExtensions, acceptDescriptions, callback))
 	}))

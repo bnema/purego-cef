@@ -100,12 +100,12 @@ func (obj *browserImpl) GetFrameCount() int {
 	return int(obj.rawPtr.CallGetFrameCount())
 }
 
-func (obj *browserImpl) GetFrameIdentifiers(identifiers uintptr) {
-	obj.rawPtr.CallGetFrameIdentifiers(identifiers)
+func (obj *browserImpl) GetFrameIdentifiers(identifiers StringList) {
+	obj.rawPtr.CallGetFrameIdentifiers(uintptr(identifiers))
 }
 
-func (obj *browserImpl) GetFrameNames(names uintptr) {
-	obj.rawPtr.CallGetFrameNames(names)
+func (obj *browserImpl) GetFrameNames(names StringList) {
+	obj.rawPtr.CallGetFrameNames(uintptr(names))
 }
 
 func (obj *browserImpl) RawPointer() unsafe.Pointer {
@@ -155,7 +155,7 @@ func NewRunFileDialogCallback(impl RunFileDialogCallback) RunFileDialogCallback 
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
 	r.OverrideOnFileDialogDismissed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
-		filePaths := uintptr(arg0)
+		filePaths := StringList(arg0)
 		impl.OnFileDialogDismissed(filePaths)
 	}))
 
@@ -384,12 +384,12 @@ func (obj *browserHostImpl) SetZoomLevel(zoomlevel float64) {
 	fn(obj.rawPtr, zoomlevel)
 }
 
-func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, callback RunFileDialogCallback) {
+func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters StringList, callback RunFileDialogCallback) {
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
 	defaultFilePathStr := cefString(defaultFilePath)
 	defer freeCefString(&defaultFilePathStr)
-	obj.rawPtr.CallRunFileDialog(uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), acceptFilters, uintptr(extractOrWrapRawPointer(callback, func() any { return NewRunFileDialogCallback(callback) })))
+	obj.rawPtr.CallRunFileDialog(uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), uintptr(acceptFilters), uintptr(extractOrWrapRawPointer(callback, func() any { return NewRunFileDialogCallback(callback) })))
 }
 
 func (obj *browserHostImpl) StartDownload(uRL string) {

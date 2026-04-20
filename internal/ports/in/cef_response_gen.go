@@ -17,8 +17,8 @@ type Response interface {
 	SetCharset(charset string)
 	GetHeaderByName(name string) string
 	SetHeaderByName(name string, value string, overwrite int32)
-	GetHeaderMap(headermap uintptr)
-	SetHeaderMap(headermap uintptr)
+	GetHeaderMap(headermap StringMultimap)
+	SetHeaderMap(headermap StringMultimap)
 	GetURL() string
 	SetURL(uRL string)
 }

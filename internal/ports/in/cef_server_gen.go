@@ -17,7 +17,7 @@ type Server interface {
 	SendHttp200Response(connectionID int32, contentType string, data unsafe.Pointer, dataSize int)
 	SendHttp404Response(connectionID int32)
 	SendHttp500Response(connectionID int32, errorMessage string)
-	SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders uintptr)
+	SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders StringMultimap)
 	SendRawData(connectionID int32, data unsafe.Pointer, dataSize int)
 	CloseConnection(connectionID int32)
 	SendWebSocketMessage(connectionID int32, data unsafe.Pointer, dataSize int)

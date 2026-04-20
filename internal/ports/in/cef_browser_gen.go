@@ -27,13 +27,13 @@ type Browser interface {
 	GetFrameByIdentifier(identifier string) Frame
 	GetFrameByName(name string) Frame
 	GetFrameCount() int
-	GetFrameIdentifiers(identifiers uintptr)
-	GetFrameNames(names uintptr)
+	GetFrameIdentifiers(identifiers StringList)
+	GetFrameNames(names StringList)
 }
 
 // RunFileDialogCallback defines the inbound port interface.
 type RunFileDialogCallback interface {
-	OnFileDialogDismissed(filePaths uintptr)
+	OnFileDialogDismissed(filePaths StringList)
 }
 
 // NavigationEntryVisitor defines the inbound port interface.
@@ -69,7 +69,7 @@ type BrowserHost interface {
 	GetDefaultZoomLevel() float64
 	GetZoomLevel() float64
 	SetZoomLevel(zoomlevel float64)
-	RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters uintptr, callback RunFileDialogCallback)
+	RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters StringList, callback RunFileDialogCallback)
 	StartDownload(uRL string)
 	DownloadImage(imageURL string, isFavicon int32, maxImageSize uint32, bypassCache int32, callback DownloadImageCallback)
 	Print()

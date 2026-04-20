@@ -404,7 +404,7 @@ func (_c *MockDisplayHandler_OnCursorChange_Call) RunAndReturn(run func(browser 
 }
 
 // OnFaviconUrlchange provides a mock function for the type MockDisplayHandler
-func (_mock *MockDisplayHandler) OnFaviconUrlchange(browser in.Browser, iconUrls uintptr) {
+func (_mock *MockDisplayHandler) OnFaviconUrlchange(browser in.Browser, iconUrls in.StringList) {
 	_mock.Called(browser, iconUrls)
 	return
 }
@@ -416,20 +416,20 @@ type MockDisplayHandler_OnFaviconUrlchange_Call struct {
 
 // OnFaviconUrlchange is a helper method to define mock.On call
 //   - browser in.Browser
-//   - iconUrls uintptr
+//   - iconUrls in.StringList
 func (_e *MockDisplayHandler_Expecter) OnFaviconUrlchange(browser interface{}, iconUrls interface{}) *MockDisplayHandler_OnFaviconUrlchange_Call {
 	return &MockDisplayHandler_OnFaviconUrlchange_Call{Call: _e.mock.On("OnFaviconUrlchange", browser, iconUrls)}
 }
 
-func (_c *MockDisplayHandler_OnFaviconUrlchange_Call) Run(run func(browser in.Browser, iconUrls uintptr)) *MockDisplayHandler_OnFaviconUrlchange_Call {
+func (_c *MockDisplayHandler_OnFaviconUrlchange_Call) Run(run func(browser in.Browser, iconUrls in.StringList)) *MockDisplayHandler_OnFaviconUrlchange_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 in.Browser
 		if args[0] != nil {
 			arg0 = args[0].(in.Browser)
 		}
-		var arg1 uintptr
+		var arg1 in.StringList
 		if args[1] != nil {
-			arg1 = args[1].(uintptr)
+			arg1 = args[1].(in.StringList)
 		}
 		run(
 			arg0,
@@ -444,7 +444,7 @@ func (_c *MockDisplayHandler_OnFaviconUrlchange_Call) Return() *MockDisplayHandl
 	return _c
 }
 
-func (_c *MockDisplayHandler_OnFaviconUrlchange_Call) RunAndReturn(run func(browser in.Browser, iconUrls uintptr)) *MockDisplayHandler_OnFaviconUrlchange_Call {
+func (_c *MockDisplayHandler_OnFaviconUrlchange_Call) RunAndReturn(run func(browser in.Browser, iconUrls in.StringList)) *MockDisplayHandler_OnFaviconUrlchange_Call {
 	_c.Run(run)
 	return _c
 }
