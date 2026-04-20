@@ -5,8 +5,8 @@
 //
 // The package intentionally contains two layers:
 //
-//   - ergonomic APIs for normal use, such as Settings, Init, NewClient,
-//     NewLifeSpanHandler, and NewAudioHandler
+//   - ergonomic APIs for normal use, such as Settings, Init,
+//     ExecuteSubprocess, NewClient, NewLifeSpanHandler, and NewAudioHandler
 //   - low-level generated/raw bindings that mirror the CEF C API more directly
 //
 // As a rule of thumb:
@@ -14,6 +14,8 @@
 //   - prefer Settings over RawSettings
 //   - prefer the safe adapter constructors over raw handler interfaces when
 //     they exist (for example NewClient, NewLifeSpanHandler, NewAudioHandler)
+//   - prefer ExecuteSubprocess when you want explicit subprocess status; keep
+//     MaybeExitSubprocess as a convenience helper for main packages
 //   - treat Raw* aliases and generated raw structs as advanced escape hatches
 //
 // The generated bindings remain public because they are useful for advanced

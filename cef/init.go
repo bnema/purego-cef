@@ -12,6 +12,7 @@ package cef
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"unsafe"
@@ -19,6 +20,15 @@ import (
 	"github.com/bnema/purego-cef/internal/capi"
 	"github.com/bnema/purego-cef/internal/core"
 	"github.com/bnema/purego-cef/internal/loader"
+	portout "github.com/bnema/purego-cef/internal/ports/out"
+)
+
+var (
+	openCEFLibrary           = loader.Open
+	newCAPI                  = func(handle uintptr) portout.CAPI { return capi.NewBridge(handle) }
+	processArgs              = func() []string { return os.Args }
+	exitProcess              = os.Exit
+	stderrWriter   io.Writer = os.Stderr
 )
 
 // Settings configures the CEF runtime.
@@ -26,11 +36,45 @@ import (
 // This is the user-facing settings type for Init/InitWithApp. Prefer it over
 // the raw generated RawSettings struct unless you specifically need the exact
 // CEF memory layout.
-type Settings = core.Settings
+type Settings struct {
+	CEFDir                     string
+	LogSeverity                int32
+	MultiThreadedMessageLoop   bool
+	WindowlessRenderingEnabled bool
+	ExternalMessagePump        bool
+	NoSandbox                  bool
+	BrowserSubprocessPath      string
+	LogFile                    string
+	// Deprecated: reserved for bootstrap diagnostics only; it is not translated
+	// into a CEF setting and has no effect in purego-cef itself.
+	InitTraceFile string
+	CachePath     string
+	RootCachePath string
+}
+
+func (s Settings) coreSettings() core.Settings {
+	return core.Settings{
+		CEFDir:                     s.CEFDir,
+		LogSeverity:                s.LogSeverity,
+		MultiThreadedMessageLoop:   s.MultiThreadedMessageLoop,
+		WindowlessRenderingEnabled: s.WindowlessRenderingEnabled,
+		ExternalMessagePump:        s.ExternalMessagePump,
+		NoSandbox:                  s.NoSandbox,
+		BrowserSubprocessPath:      s.BrowserSubprocessPath,
+		LogFile:                    s.LogFile,
+		InitTraceFile:              s.InitTraceFile,
+		CachePath:                  s.CachePath,
+		RootCachePath:              s.RootCachePath,
+	}
+}
 
 // DefaultSettings returns Settings suitable for off-screen rendering.
 func DefaultSettings() Settings {
-	return core.DefaultSettings()
+	return Settings{
+		ExternalMessagePump:        true,
+		WindowlessRenderingEnabled: true,
+		NoSandbox:                  true,
+	}
 }
 
 // Init loads the CEF library, registers all symbols, and initializes the runtime.
@@ -48,13 +92,13 @@ func Init(settings Settings) error {
 // the cached error without retrying.
 func InitWithApp(settings Settings, app App) error {
 	initOnce.Do(func() {
-		handle, err := loader.Open(settings.CEFDir)
+		handle, err := openCEFLibrary(settings.CEFDir)
 		if err != nil {
 			initErr = err
 			return
 		}
-		bridge := capi.NewBridge(handle)
-		e := core.New(bridge)
+		capi := newCAPI(handle)
+		e := core.New(capi)
 		eng = e
 
 		var appPtr unsafe.Pointer
@@ -63,7 +107,7 @@ func InitWithApp(settings Settings, app App) error {
 			wrapped = NewApp(app)
 			appPtr = extractRawPointer(wrapped)
 		}
-		initErr = e.InitWithApp(settings, appPtr)
+		initErr = e.InitWithApp(settings.coreSettings(), appPtr)
 		runtime.KeepAlive(wrapped)
 	})
 	return initErr
@@ -83,21 +127,55 @@ func DoMessageLoopWork() {
 	}
 }
 
-// MaybeExitSubprocess uses a lightweight path that binds only
-// cef_execute_process, bypassing the full runtime initialization.
-// This is intentional — subprocess detection must happen before
-// the full CEF runtime is initialized.
+// ExecuteSubprocess runs cef_execute_process using a lightweight path that
+// binds only the symbols needed for subprocess detection.
+//
+// It returns executed=true when the current process was handled as a CEF helper
+// subprocess. In that case exitCode should be used as the process exit status.
+// When executed=false and err=nil, the caller should continue normal startup.
+func ExecuteSubprocess() (executed bool, exitCode int, err error) {
+	handle, err := openCEFLibrary("")
+	if err != nil {
+		return false, 0, err
+	}
+	capi := newCAPI(handle)
+	args := core.NewMainArgs(processArgs())
+	code := capi.ExecuteProcess(args.Ptr(), nil, nil)
+	runtime.KeepAlive(args)
+	if code >= 0 {
+		return true, int(code), nil
+	}
+	return false, 0, nil
+}
+
+// MaybeExitSubprocess is a convenience helper for main packages.
+// Library code should usually prefer ExecuteSubprocess.
 func MaybeExitSubprocess() {
-	MaybeExitSubprocessWithApp(nil)
+	executed, exitCode, err := ExecuteSubprocess()
+	if err != nil {
+		fmt.Fprintf(stderrWriter, "cef: ExecuteSubprocess: %v\n", err)
+		return
+	}
+	if executed {
+		exitProcess(exitCode)
+	}
 }
 
 // MaybeExitSubprocessWithApp is like MaybeExitSubprocess but passes the given
 // App to cef_execute_process. This enables custom render/browser-process
 // handlers in helper subprocesses without calling cef_initialize first.
+//
+// This is a convenience helper for main packages. It may write to stderr and
+// call os.Exit. Prefer ExecuteSubprocess when you do not need a custom App.
 func MaybeExitSubprocessWithApp(app App) {
-	handle, err := loader.Open("")
+	if app == nil {
+		MaybeExitSubprocess()
+		return
+	}
+
+	handle, err := openCEFLibrary("")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "cef: MaybeExitSubprocessWithApp: %v\n", err)
+		fmt.Fprintf(stderrWriter, "cef: MaybeExitSubprocessWithApp: %v\n", err)
 		return
 	}
 
@@ -105,8 +183,8 @@ func MaybeExitSubprocessWithApp(app App) {
 	// the package-level engine reference manager. Seed it with a lightweight core
 	// engine backed by the raw CAPI bridge just for the duration of execute_process.
 	prevEng := eng
-	bridge := capi.NewBridge(handle)
-	eng = core.New(bridge)
+	capi := newCAPI(handle)
+	eng = core.New(capi)
 	defer func() {
 		eng = prevEng
 	}()
@@ -118,11 +196,11 @@ func MaybeExitSubprocessWithApp(app App) {
 		appPtr = extractRawPointer(wrapped)
 	}
 
-	args := core.NewMainArgs(os.Args)
-	code := bridge.ExecuteProcess(args.Ptr(), appPtr, nil)
+	args := core.NewMainArgs(processArgs())
+	code := capi.ExecuteProcess(args.Ptr(), appPtr, nil)
 	runtime.KeepAlive(args)
 	runtime.KeepAlive(wrapped)
 	if code >= 0 {
-		os.Exit(int(code))
+		exitProcess(int(code))
 	}
 }
