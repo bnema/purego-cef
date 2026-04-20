@@ -128,6 +128,45 @@ func TestEmitPublicObjectInterface_UsesTypedPuregoForFloatMethods(t *testing.T) 
 	}
 }
 
+func TestEmitPublicObjectInterface_GetClientReturnsUnsafePointer(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "_cef_browser_host_t",
+			GoName:        "CEFBrowserHostT",
+			Kind:          "object",
+			InterfaceName: "BrowserHost",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "get_client",
+					GoName:      "GetClient",
+					IsFunction:  true,
+					ReturnCType: "struct _cef_client_t*",
+					Params:      []model.Param{{CName: "self", GoName: "self", CType: "struct _cef_browser_host_t*"}},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	if !strings.Contains(code, "func (obj *browserHostImpl) GetClient() unsafe.Pointer") {
+		t.Fatalf("GetClient should return unsafe.Pointer:\n%s", code)
+	}
+	if !strings.Contains(code, "return unsafe.Pointer(ret)") {
+		t.Fatalf("GetClient should return the raw pointer directly:\n%s", code)
+	}
+	if strings.Contains(code, "wrapRawClient") {
+		t.Fatalf("GetClient should not promise a wrapped RawClient:\n%s", code)
+	}
+}
+
 func TestEmitPublicHandlerInterface(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{{

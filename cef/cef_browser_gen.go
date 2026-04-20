@@ -371,9 +371,9 @@ func (obj *browserHostImpl) HasView() bool {
 	return ret != 0
 }
 
-func (obj *browserHostImpl) GetClient() RawClient {
+func (obj *browserHostImpl) GetClient() unsafe.Pointer {
 	ret := obj.rawPtr.CallGetClient()
-	return wrapRawClient(unsafe.Pointer(ret))
+	return unsafe.Pointer(ret)
 }
 
 func (obj *browserHostImpl) GetRequestContext() RequestContext {

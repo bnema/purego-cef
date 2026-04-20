@@ -62,7 +62,7 @@ type BrowserHost interface {
 	GetOpenerWindowHandle() uintptr
 	GetOpenerIdentifier() int32
 	HasView() bool
-	GetClient() RawClient
+	GetClient() unsafe.Pointer
 	GetRequestContext() RequestContext
 	CanZoom(command ZoomCommand) bool
 	Zoom(command ZoomCommand)

@@ -25,18 +25,61 @@ type RawLifeSpanHandler = portin.RawLifeSpanHandler
 // NewAudioHandler instead of using this directly.
 type RawAudioHandler = portin.RawAudioHandler
 
+// RawClientWriteSlot provides write-only access to the popup client out-param
+// exposed by CEF popup callbacks.
+//
+// The slot preserves CEF's default raw client until Set or Clear is called.
+// It is only valid for the duration of the active callback and must not be
+// retained after the callback returns.
+type RawClientWriteSlot struct {
+	initialRaw unsafe.Pointer
+	value      RawClient
+	touched    bool
+}
+
+// Set replaces the popup client out-param with raw.
+func (s *RawClientWriteSlot) Set(raw RawClient) {
+	if s == nil {
+		return
+	}
+	s.value = raw
+	s.touched = true
+}
+
+// Clear explicitly writes a nil popup client out-param.
+func (s *RawClientWriteSlot) Clear() {
+	if s == nil {
+		return
+	}
+	s.value = nil
+	s.touched = true
+}
+
+func (s *RawClientWriteSlot) rawPointer() unsafe.Pointer {
+	if s == nil {
+		return nil
+	}
+	if s.touched {
+		return extractRawPointer(s.value)
+	}
+	return s.initialRaw
+}
+
 // LifeSpanHandler is the user-facing lifespan handler interface with typed
 // out-params.
 //
-// Note: client out-params may arrive as nil when the underlying raw client
-// handle originated inside CEF and cannot be meaningfully wrapped back into Go.
+// CEF popup callbacks expose the client as a raw handler out-param, but
+// reverse-wrapping an existing CEF client back into a readable Go RawClient is
+// not implemented yet. Handlers that need to replace or clear that client can
+// use ProvideRawClientForWrite during popup callbacks.
 type LifeSpanHandler interface {
+	ProvideRawClientForWrite(slot *RawClientWriteSlot)
 	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string,
 		targetDisposition WindowOpenDisposition, userGesture int32, popupFeatures *PopupFeatures,
-		windowInfo *WindowInfo, client *RawClient, settings *BrowserSettings,
+		windowInfo *WindowInfo, settings *BrowserSettings,
 		extraInfo *DictionaryValue, noJavascriptAccess *bool) bool
 	OnBeforePopupAborted(browser Browser, popupID int32)
-	OnBeforeDevToolsPopup(browser Browser, windowInfo *WindowInfo, client *RawClient,
+	OnBeforeDevToolsPopup(browser Browser, windowInfo *WindowInfo,
 		settings *BrowserSettings, extraInfo *DictionaryValue, useDefaultWindow *bool)
 	OnAfterCreated(browser Browser)
 	DoClose(browser Browser) bool
@@ -178,13 +221,13 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		windowInfo := (*WindowInfo)(unsafe.Pointer(arg8))
 		settings := (*BrowserSettings)(unsafe.Pointer(arg10))
 
-		// Decode out-param: client (cef_client_t**)
-		var clientVal RawClient
+		// Provide write-only access to the popup client out-param.
+		var clientSlot *RawClientWriteSlot
 		if arg9 != 0 {
-			if cp := *(*unsafe.Pointer)(unsafe.Pointer(arg9)); cp != nil {
-				clientVal = wrapRawClient(cp)
-			}
+			clientSlot = &RawClientWriteSlot{initialRaw: *(*unsafe.Pointer)(unsafe.Pointer(arg9))}
 		}
+		impl.ProvideRawClientForWrite(clientSlot)
+		defer impl.ProvideRawClientForWrite(nil)
 
 		// Decode out-param: extraInfo (cef_dictionary_value_t**)
 		var extraInfoVal DictionaryValue
@@ -202,18 +245,14 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 
 		blocked := impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName,
 			targetDisposition, userGesture, popupFeatures, windowInfo,
-			&clientVal, settings, &extraInfoVal, &noJS)
+			settings, &extraInfoVal, &noJS)
 
-		// Write back out-params
-		if arg9 != 0 && clientVal != nil {
-			if rp := extractRawPointer(clientVal); rp != nil {
-				*(*unsafe.Pointer)(unsafe.Pointer(arg9)) = rp
-			}
+		// Write back out-params.
+		if arg9 != 0 {
+			*(*unsafe.Pointer)(unsafe.Pointer(arg9)) = clientSlot.rawPointer()
 		}
-		if arg11 != 0 && extraInfoVal != nil {
-			if rp := extractRawPointer(extraInfoVal); rp != nil {
-				*(*unsafe.Pointer)(unsafe.Pointer(arg11)) = rp
-			}
+		if arg11 != 0 {
+			*(*unsafe.Pointer)(unsafe.Pointer(arg11)) = extractRawPointer(extraInfoVal)
 		}
 		if arg12 != 0 {
 			if noJS {
@@ -238,13 +277,13 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		windowInfo := (*WindowInfo)(unsafe.Pointer(arg1))
 		settings := (*BrowserSettings)(unsafe.Pointer(arg3))
 
-		// Decode out-param: client (cef_client_t**)
-		var clientVal RawClient
+		// Provide write-only access to the popup client out-param.
+		var clientSlot *RawClientWriteSlot
 		if arg2 != 0 {
-			if cp := *(*unsafe.Pointer)(unsafe.Pointer(arg2)); cp != nil {
-				clientVal = wrapRawClient(cp)
-			}
+			clientSlot = &RawClientWriteSlot{initialRaw: *(*unsafe.Pointer)(unsafe.Pointer(arg2))}
 		}
+		impl.ProvideRawClientForWrite(clientSlot)
+		defer impl.ProvideRawClientForWrite(nil)
 
 		// Decode out-param: extraInfo (cef_dictionary_value_t**)
 		var extraInfoVal DictionaryValue
@@ -260,18 +299,14 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 			useDefault = *(*int32)(unsafe.Pointer(arg5)) != 0
 		}
 
-		impl.OnBeforeDevToolsPopup(browser, windowInfo, &clientVal, settings, &extraInfoVal, &useDefault)
+		impl.OnBeforeDevToolsPopup(browser, windowInfo, settings, &extraInfoVal, &useDefault)
 
-		// Write back out-params
-		if arg2 != 0 && clientVal != nil {
-			if rp := extractRawPointer(clientVal); rp != nil {
-				*(*unsafe.Pointer)(unsafe.Pointer(arg2)) = rp
-			}
+		// Write back out-params.
+		if arg2 != 0 {
+			*(*unsafe.Pointer)(unsafe.Pointer(arg2)) = clientSlot.rawPointer()
 		}
-		if arg4 != 0 && extraInfoVal != nil {
-			if rp := extractRawPointer(extraInfoVal); rp != nil {
-				*(*unsafe.Pointer)(unsafe.Pointer(arg4)) = rp
-			}
+		if arg4 != 0 {
+			*(*unsafe.Pointer)(unsafe.Pointer(arg4)) = extractRawPointer(extraInfoVal)
 		}
 		if arg5 != 0 {
 			if useDefault {
@@ -323,8 +358,7 @@ func (w *audioHandlerWrapper) OnAudioStreamStarted(browser Browser, params *Audi
 	w.impl.OnAudioStreamStarted(browser, params, channels)
 }
 func (w *audioHandlerWrapper) OnAudioStreamPacket(browser Browser, _ unsafe.Pointer, frames int32, pts int64) {
-	// The actual decoded data is passed through the safe interface by the callback below.
-	// This method exists only for interface compliance; it is never called directly.
+	panic("audioHandlerWrapper: raw OnAudioStreamPacket called directly; use the purego callback path or NewRawAudioHandler for raw audio packets")
 }
 func (w *audioHandlerWrapper) OnAudioStreamStopped(browser Browser) {
 	w.impl.OnAudioStreamStopped(browser)
