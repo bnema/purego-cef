@@ -163,6 +163,33 @@ func TestRawClientWriteSlotSetWrapsPlainRawClient(t *testing.T) {
 	}
 }
 
+func TestAddRefReportsUnknownPointersToDebugHook(t *testing.T) {
+	prev := debugRefCountf
+	defer func() { debugRefCountf = prev }()
+
+	called := false
+	var gotFormat string
+	var gotArgs []any
+	debugRefCountf = func(format string, args ...any) {
+		called = true
+		gotFormat = format
+		gotArgs = args
+	}
+
+	base := unsafe.Pointer(&capi.CEFClientT{})
+	addRef(base)
+
+	if !called {
+		t.Fatal("addRef(...) did not report unknown pointer")
+	}
+	if !strings.Contains(gotFormat, "no RefManager found") {
+		t.Fatalf("debug format = %q, want no-manager message", gotFormat)
+	}
+	if len(gotArgs) != 1 || gotArgs[0] != base {
+		t.Fatalf("debug args = %#v, want [%p]", gotArgs, base)
+	}
+}
+
 func TestRawClientWriteSlotSetPanicsOnNilOrUninitializedSlot(t *testing.T) {
 	t.Run("nil slot", func(t *testing.T) {
 		var slot *RawClientWriteSlot

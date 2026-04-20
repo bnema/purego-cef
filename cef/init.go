@@ -45,8 +45,8 @@ type Settings struct {
 	NoSandbox                  bool
 	BrowserSubprocessPath      string
 	LogFile                    string
-	// Deprecated: reserved for bootstrap diagnostics only; it is not translated
-	// into a CEF setting and has no effect in purego-cef itself.
+	// Deprecated: reserved for bootstrap diagnostics only. It is ignored by the
+	// public cef package and has no effect on purego-cef runtime behavior.
 	InitTraceFile string
 	CachePath     string
 	RootCachePath string
@@ -62,7 +62,6 @@ func (s Settings) coreSettings() core.Settings {
 		NoSandbox:                  s.NoSandbox,
 		BrowserSubprocessPath:      s.BrowserSubprocessPath,
 		LogFile:                    s.LogFile,
-		InitTraceFile:              s.InitTraceFile,
 		CachePath:                  s.CachePath,
 		RootCachePath:              s.RootCachePath,
 	}
@@ -97,8 +96,8 @@ func InitWithApp(settings Settings, app App) error {
 			initErr = err
 			return
 		}
-		capi := newCAPI(handle)
-		e := core.New(capi)
+		api := newCAPI(handle)
+		e := core.New(api)
 		eng = e
 		setCurrentRefManager(e.Refs())
 
@@ -146,12 +145,12 @@ func ExecuteSubprocessWithApp(app App) (executed bool, exitCode int, err error) 
 	if err != nil {
 		return false, 0, err
 	}
-	capi := newCAPI(handle)
+	api := newCAPI(handle)
 
 	var appPtr unsafe.Pointer
 	var wrapped App
 	if !isNilImpl(app) {
-		tempRefs := core.NewRefManager(capi)
+		tempRefs := core.NewRefManager(api)
 		registerRefManager(tempRefs)
 		defer unregisterRefManager(tempRefs)
 		withCurrentRefManager(tempRefs, func() {
@@ -161,7 +160,7 @@ func ExecuteSubprocessWithApp(app App) (executed bool, exitCode int, err error) 
 	}
 
 	args := core.NewMainArgs(processArgs())
-	code := capi.ExecuteProcess(args.Ptr(), appPtr, nil)
+	code := api.ExecuteProcess(args.Ptr(), appPtr, nil)
 	runtime.KeepAlive(args)
 	runtime.KeepAlive(wrapped)
 	if code >= 0 {
@@ -175,7 +174,7 @@ func ExecuteSubprocessWithApp(app App) (executed bool, exitCode int, err error) 
 func MaybeExitSubprocess() {
 	executed, exitCode, err := ExecuteSubprocess()
 	if err != nil {
-		fmt.Fprintf(stderrWriter, "cef: ExecuteSubprocess: %v\n", err)
+		_, _ = fmt.Fprintf(stderrWriter, "cef: ExecuteSubprocess: %v\n", err)
 		return
 	}
 	if executed {

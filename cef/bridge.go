@@ -517,6 +517,7 @@ var (
 	refManagerMu          sync.RWMutex
 	currentRefManager     *core.RefManager
 	registeredRefManagers []*core.RefManager
+	debugRefCountf        func(format string, args ...any)
 )
 
 func mustEng() *core.Engine {
@@ -557,9 +558,12 @@ func withCurrentRefManager(rm *core.RefManager, fn func()) {
 	refManagerMu.Lock()
 	prev := currentRefManager
 	currentRefManager = rm
-	registerRefManagerLocked(rm)
 	refManagerMu.Unlock()
-	defer setCurrentRefManager(prev)
+	defer func() {
+		refManagerMu.Lock()
+		currentRefManager = prev
+		refManagerMu.Unlock()
+	}()
 	fn()
 }
 
@@ -617,13 +621,17 @@ func addRef(base unsafe.Pointer) {
 		return
 	}
 	refManagerMu.RLock()
-	managers := append([]*core.RefManager(nil), registeredRefManagers...)
-	refManagerMu.RUnlock()
-	for i := len(managers) - 1; i >= 0; i-- {
-		if managers[i].Has(base) {
-			managers[i].AddRef(base)
+	for i := len(registeredRefManagers) - 1; i >= 0; i-- {
+		if registeredRefManagers[i].Has(base) {
+			registeredRefManagers[i].AddRef(base)
+			refManagerMu.RUnlock()
 			return
 		}
+	}
+	debugf := debugRefCountf
+	refManagerMu.RUnlock()
+	if debugf != nil {
+		debugf("cef: addRef: no RefManager found for pointer %p", base)
 	}
 }
 
