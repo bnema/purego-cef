@@ -14,18 +14,32 @@ import (
 	portoutmocks "github.com/bnema/purego-cef/internal/ports/out/mocks"
 )
 
+type subprocessAppStub struct{}
+
+func (subprocessAppStub) OnBeforeCommandLineProcessing(string, CommandLine) {}
+func (subprocessAppStub) OnRegisterCustomSchemes(SchemeRegistrar)           {}
+func (subprocessAppStub) GetResourceBundleHandler() ResourceBundleHandler   { return nil }
+func (subprocessAppStub) GetBrowserProcessHandler() BrowserProcessHandler   { return nil }
+func (subprocessAppStub) GetRenderProcessHandler() RenderProcessHandler     { return nil }
+
 func restoreInitTestDeps() func() {
 	prevOpen := openCEFLibrary
 	prevNewCAPI := newCAPI
 	prevProcessArgs := processArgs
 	prevExit := exitProcess
 	prevStderr := stderrWriter
+	prevEng := eng
+	prevCurrentRefManager := currentRefManager
+	prevRegisteredRefManagers := append([]*core.RefManager(nil), registeredRefManagers...)
 	return func() {
 		openCEFLibrary = prevOpen
 		newCAPI = prevNewCAPI
 		processArgs = prevProcessArgs
 		exitProcess = prevExit
 		stderrWriter = prevStderr
+		eng = prevEng
+		currentRefManager = prevCurrentRefManager
+		registeredRefManagers = prevRegisteredRefManagers
 	}
 }
 
@@ -138,6 +152,48 @@ func TestExecuteSubprocessPropagatesLoaderError(t *testing.T) {
 	}
 	if exitCode != 0 {
 		t.Fatalf("ExecuteSubprocess() exitCode = %d, want 0", exitCode)
+	}
+}
+
+func TestExecuteSubprocessWithAppPassesWrappedAppAndLeavesEngineUntouched(t *testing.T) {
+	defer restoreInitTestDeps()()
+
+	m := portoutmocks.NewMockCAPI(t)
+	m.EXPECT().NewCallback(mock.Anything).Maybe().Return(uintptr(0))
+	m.EXPECT().ExecuteProcess(mock.Anything, mock.Anything, unsafe.Pointer(nil)).
+		RunAndReturn(func(_ unsafe.Pointer, application unsafe.Pointer, _ unsafe.Pointer) int32 {
+			if application == nil {
+				t.Fatal("ExecuteProcess application = nil, want wrapped App pointer")
+			}
+			return 9
+		}).Once()
+
+	openCEFLibrary = func(string) (uintptr, error) { return 1, nil }
+	newCAPI = func(uintptr) portout.CAPI { return m }
+	processArgs = func() []string { return []string{"purego-cef-test"} }
+
+	sentinelEng := new(core.Engine)
+	eng = sentinelEng
+	initialManagers := len(registeredRefManagers)
+
+	executed, exitCode, err := ExecuteSubprocessWithApp(subprocessAppStub{})
+	if err != nil {
+		t.Fatalf("ExecuteSubprocessWithApp(...) error = %v, want nil", err)
+	}
+	if !executed {
+		t.Fatal("ExecuteSubprocessWithApp(...) executed = false, want true")
+	}
+	if exitCode != 9 {
+		t.Fatalf("ExecuteSubprocessWithApp(...) exitCode = %d, want 9", exitCode)
+	}
+	if eng != sentinelEng {
+		t.Fatal("ExecuteSubprocessWithApp(...) mutated global eng")
+	}
+	if currentRefManager != nil {
+		t.Fatal("ExecuteSubprocessWithApp(...) left a temporary current ref manager behind")
+	}
+	if got := len(registeredRefManagers); got != initialManagers {
+		t.Fatalf("registeredRefManagers length = %d, want %d after cleanup", got, initialManagers)
 	}
 }
 

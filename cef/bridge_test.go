@@ -18,6 +18,22 @@ func newBridgeTestEngine(t *testing.T) *core.Engine {
 	return core.New(m)
 }
 
+func installBridgeTestEngine(t *testing.T) {
+	prevEng := eng
+	prevCurrentRefManager := currentRefManager
+	prevRegisteredRefManagers := append([]*core.RefManager(nil), registeredRefManagers...)
+
+	e := newBridgeTestEngine(t)
+	eng = e
+	setCurrentRefManager(e.Refs())
+
+	t.Cleanup(func() {
+		eng = prevEng
+		currentRefManager = prevCurrentRefManager
+		registeredRefManagers = prevRegisteredRefManagers
+	})
+}
+
 type plainRawClientStub struct{}
 
 type nilAudioHandlerStub struct{}
@@ -96,9 +112,7 @@ func TestConstructorsReturnNilForTypedNilImpl(t *testing.T) {
 }
 
 func TestNewLifeSpanHandlerUsesDirectPopupSlotAPI(t *testing.T) {
-	prevEng := eng
-	eng = newBridgeTestEngine(t)
-	t.Cleanup(func() { eng = prevEng })
+	installBridgeTestEngine(t)
 
 	if got := NewLifeSpanHandler(plainLifeSpanHandlerStub{}); got == nil {
 		t.Fatal("NewLifeSpanHandler(...) = nil, want non-nil raw handler")
@@ -134,9 +148,7 @@ func TestRawClientWriteSlotSetUsesProvidedRawClient(t *testing.T) {
 }
 
 func TestRawClientWriteSlotSetWrapsPlainRawClient(t *testing.T) {
-	prevEng := eng
-	eng = newBridgeTestEngine(t)
-	t.Cleanup(func() { eng = prevEng })
+	installBridgeTestEngine(t)
 
 	initial := unsafe.Pointer(&capi.CEFClientT{})
 	slot := newRawClientWriteSlot(initial)

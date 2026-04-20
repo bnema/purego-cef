@@ -100,10 +100,11 @@ func InitWithApp(settings Settings, app App) error {
 		capi := newCAPI(handle)
 		e := core.New(capi)
 		eng = e
+		setCurrentRefManager(e.Refs())
 
 		var appPtr unsafe.Pointer
 		var wrapped App
-		if app != nil {
+		if !isNilImpl(app) {
 			wrapped = NewApp(app)
 			appPtr = extractRawPointer(wrapped)
 		}
@@ -134,14 +135,35 @@ func DoMessageLoopWork() {
 // subprocess. In that case exitCode should be used as the process exit status.
 // When executed=false and err=nil, the caller should continue normal startup.
 func ExecuteSubprocess() (executed bool, exitCode int, err error) {
+	return ExecuteSubprocessWithApp(nil)
+}
+
+// ExecuteSubprocessWithApp is like ExecuteSubprocess but passes the given App
+// to cef_execute_process. This enables custom render/browser-process handlers
+// in helper subprocesses without calling cef_initialize first.
+func ExecuteSubprocessWithApp(app App) (executed bool, exitCode int, err error) {
 	handle, err := openCEFLibrary("")
 	if err != nil {
 		return false, 0, err
 	}
 	capi := newCAPI(handle)
+
+	var appPtr unsafe.Pointer
+	var wrapped App
+	if !isNilImpl(app) {
+		tempRefs := core.NewRefManager(capi)
+		registerRefManager(tempRefs)
+		defer unregisterRefManager(tempRefs)
+		withCurrentRefManager(tempRefs, func() {
+			wrapped = NewApp(app)
+			appPtr = extractRawPointer(wrapped)
+		})
+	}
+
 	args := core.NewMainArgs(processArgs())
-	code := capi.ExecuteProcess(args.Ptr(), nil, nil)
+	code := capi.ExecuteProcess(args.Ptr(), appPtr, nil)
 	runtime.KeepAlive(args)
+	runtime.KeepAlive(wrapped)
 	if code >= 0 {
 		return true, int(code), nil
 	}
@@ -158,49 +180,5 @@ func MaybeExitSubprocess() {
 	}
 	if executed {
 		exitProcess(exitCode)
-	}
-}
-
-// MaybeExitSubprocessWithApp is like MaybeExitSubprocess but passes the given
-// App to cef_execute_process. This enables custom render/browser-process
-// handlers in helper subprocesses without calling cef_initialize first.
-//
-// This is a convenience helper for main packages. It may write to stderr and
-// call os.Exit. Prefer ExecuteSubprocess when you do not need a custom App.
-func MaybeExitSubprocessWithApp(app App) {
-	if app == nil {
-		MaybeExitSubprocess()
-		return
-	}
-
-	handle, err := openCEFLibrary("")
-	if err != nil {
-		fmt.Fprintf(stderrWriter, "cef: MaybeExitSubprocessWithApp: %v\n", err)
-		return
-	}
-
-	// Wrapping App handlers uses the generated refcount helpers, which depend on
-	// the package-level engine reference manager. Seed it with a lightweight core
-	// engine backed by the raw CAPI bridge just for the duration of execute_process.
-	prevEng := eng
-	capi := newCAPI(handle)
-	eng = core.New(capi)
-	defer func() {
-		eng = prevEng
-	}()
-
-	var appPtr unsafe.Pointer
-	var wrapped App
-	if app != nil {
-		wrapped = NewApp(app)
-		appPtr = extractRawPointer(wrapped)
-	}
-
-	args := core.NewMainArgs(processArgs())
-	code := capi.ExecuteProcess(args.Ptr(), appPtr, nil)
-	runtime.KeepAlive(args)
-	runtime.KeepAlive(wrapped)
-	if code >= 0 {
-		exitProcess(int(code))
 	}
 }
