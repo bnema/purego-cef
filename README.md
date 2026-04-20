@@ -4,8 +4,20 @@ Go bindings for the [Chromium Embedded Framework](https://bitbucket.org/chromium
 
 Linux only. `CGO_ENABLED=0`.
 
-> [!WARNING]
-> This is early stage and very unstable, API changes daily as I iterate to make it work for [Dumber](https://github.com/bnema/dumber). I strongly do not recommend using it yet.
+> [!NOTE]
+> purego-cef is usable today, but it is still pre-1.0.
+> Expect API changes while the handwritten `cef` layer settles.
+
+## Status
+
+purego-cef exposes the CEF C API through generated bindings and adds a smaller
+handwritten `cef` layer for the common paths.
+
+What to expect today:
+- generated low-level bindings across the CEF C API
+- a smaller ergonomic `cef` layer for init, clients, and common handlers
+- shipped mocks for testing
+- ongoing API cleanup before 1.0
 
 ## Architecture
 
@@ -33,8 +45,9 @@ For most code, prefer the ergonomic handwritten layer when it exists:
 - `cef.NewClient(...)` with `cef.Client`
 - `cef.NewLifeSpanHandler(...)` with `cef.LifeSpanHandler`
 - `cef.NewAudioHandler(...)` with the decoded `cef.AudioHandler` interface
-- `cef.LifeSpanHandler` popup callbacks receive an explicit `*cef.RawClientWriteSlot`
-  when they need to replace or clear the popup client out-param
+- `cef.LifeSpanHandler` popup callbacks receive a callback-scoped
+  `*cef.RawClientWriteSlot` when CEF exposes a writable popup client out-param;
+  check for nil before calling `Set` or `Clear`
 
 Treat `Raw*` types as advanced escape hatches.
 

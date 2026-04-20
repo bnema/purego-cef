@@ -1,5 +1,8 @@
 // Package cef exposes the user-facing purego CEF API.
 //
+// The package is usable today, but it is still pre-1.0 and parts of the
+// handwritten ergonomic layer may change as the API settles.
+//
 // The package intentionally contains two layers:
 //
 //   - ergonomic APIs for normal use, such as Settings, Init, NewClient,
