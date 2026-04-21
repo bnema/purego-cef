@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -52,13 +53,45 @@ func NewDragHandler(impl DragHandler) DragHandler {
 	return w
 }
 
-// wrapDragHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type dragHandlerImpl struct {
+	rawPtr *capi.CEFDragHandlerT
+}
+
+func (obj *dragHandlerImpl) OnDragEnter(browser Browser, dragdata DragData, mask DragOperationsMask) int32 {
+	ret := obj.rawPtr.CallOnDragEnter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(dragdata)), uintptr(mask))
+	return int32(ret)
+}
+
+func (obj *dragHandlerImpl) OnDraggableRegionsChanged(browser Browser, frame Frame, regions []DraggableRegion) {
+	var regionsPtr unsafe.Pointer
+	if len(regions) > 0 {
+		regionsPtr = unsafe.Pointer(&regions[0])
+	}
+	obj.rawPtr.CallOnDraggableRegionsChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(len(regions)), uintptr(regionsPtr))
+}
+
+func (obj *dragHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *dragHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapDragHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapDragHandler(ptr unsafe.Pointer) DragHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFDragHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &dragHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *dragHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

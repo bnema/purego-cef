@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -60,13 +61,43 @@ func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler 
 	return w
 }
 
-// wrapRequestContextHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type requestContextHandlerImpl struct {
+	rawPtr *capi.CEFRequestContextHandlerT
+}
+
+func (obj *requestContextHandlerImpl) OnRequestContextInitialized(requestContext RequestContext) {
+	obj.rawPtr.CallOnRequestContextInitialized(uintptr(extractRawPointer(requestContext)))
+}
+
+func (obj *requestContextHandlerImpl) GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling *int32) ResourceRequestHandler {
+	requestInitiatorStr := cefString(requestInitiator)
+	defer freeCefString(&requestInitiatorStr)
+	ret := obj.rawPtr.CallGetResourceRequestHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(isNavigation), uintptr(isDownload), uintptr(unsafe.Pointer(&requestInitiatorStr)), uintptr(unsafe.Pointer(disableDefaultHandling)))
+	return wrapResourceRequestHandler(unsafe.Pointer(ret))
+}
+
+func (obj *requestContextHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *requestContextHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapRequestContextHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapRequestContextHandler(ptr unsafe.Pointer) RequestContextHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFRequestContextHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &requestContextHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *requestContextHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

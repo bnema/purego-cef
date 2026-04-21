@@ -44,15 +44,38 @@ func NewDomvisitor(impl Domvisitor) Domvisitor {
 	return w
 }
 
-// wrapDomvisitor wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type domvisitorImpl struct {
+	rawPtr *capi.CEFDomvisitorT
+}
+
+func (obj *domvisitorImpl) Visit(document Domdocument) {
+	obj.rawPtr.CallVisit(uintptr(extractRawPointer(document)))
+}
+
+func (obj *domvisitorImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *domvisitorImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapDomvisitor wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapDomvisitor(ptr unsafe.Pointer) Domvisitor {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFDomvisitorT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &domvisitorImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *domvisitorImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // Domdocument Structure used to represent a DOM document. The functions of this structure should only be called on the render process main thread thread.

@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -121,15 +122,71 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 	return w
 }
 
-// wrapResourceRequestHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type resourceRequestHandlerImpl struct {
+	rawPtr *capi.CEFResourceRequestHandlerT
+}
+
+func (obj *resourceRequestHandlerImpl) GetCookieAccessFilter(browser Browser, frame Frame, request Request) CookieAccessFilter {
+	ret := obj.rawPtr.CallGetCookieAccessFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
+	return wrapCookieAccessFilter(unsafe.Pointer(ret))
+}
+
+func (obj *resourceRequestHandlerImpl) OnBeforeResourceLoad(browser Browser, frame Frame, request Request, callback Callback) ReturnValue {
+	ret := obj.rawPtr.CallOnBeforeResourceLoad(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
+	return ReturnValue(ret)
+}
+
+func (obj *resourceRequestHandlerImpl) GetResourceHandler(browser Browser, frame Frame, request Request) ResourceHandler {
+	ret := obj.rawPtr.CallGetResourceHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
+	return wrapResourceHandler(unsafe.Pointer(ret))
+}
+
+func (obj *resourceRequestHandlerImpl) OnResourceRedirect(browser Browser, frame Frame, request Request, response Response, newURL uintptr) {
+	obj.rawPtr.CallOnResourceRedirect(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), newURL)
+}
+
+func (obj *resourceRequestHandlerImpl) OnResourceResponse(browser Browser, frame Frame, request Request, response Response) int32 {
+	ret := obj.rawPtr.CallOnResourceResponse(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
+	return int32(ret)
+}
+
+func (obj *resourceRequestHandlerImpl) GetResourceResponseFilter(browser Browser, frame Frame, request Request, response Response) ResponseFilter {
+	ret := obj.rawPtr.CallGetResourceResponseFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
+	return wrapResponseFilter(unsafe.Pointer(ret))
+}
+
+func (obj *resourceRequestHandlerImpl) OnResourceLoadComplete(browser Browser, frame Frame, request Request, response Response, status UrlrequestStatus, receivedContentLength int64) {
+	obj.rawPtr.CallOnResourceLoadComplete(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(status), uintptr(receivedContentLength))
+}
+
+func (obj *resourceRequestHandlerImpl) OnProtocolExecution(browser Browser, frame Frame, request Request, allowOsExecution *int32) {
+	obj.rawPtr.CallOnProtocolExecution(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(allowOsExecution)))
+}
+
+func (obj *resourceRequestHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *resourceRequestHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapResourceRequestHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapResourceRequestHandler(ptr unsafe.Pointer) ResourceRequestHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFResourceRequestHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &resourceRequestHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *resourceRequestHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // CookieAccessFilter Implement this structure to filter cookies that may be sent or received from resource requests. The functions of this structure will be called on the IO thread unless otherwise indicated.
@@ -181,13 +238,42 @@ func NewCookieAccessFilter(impl CookieAccessFilter) CookieAccessFilter {
 	return w
 }
 
-// wrapCookieAccessFilter wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type cookieAccessFilterImpl struct {
+	rawPtr *capi.CEFCookieAccessFilterT
+}
+
+func (obj *cookieAccessFilterImpl) CanSendCookie(browser Browser, frame Frame, request Request, cookie *Cookie) bool {
+	ret := obj.rawPtr.CallCanSendCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(cookie)))
+	return ret != 0
+}
+
+func (obj *cookieAccessFilterImpl) CanSaveCookie(browser Browser, frame Frame, request Request, response Response, cookie *Cookie) bool {
+	ret := obj.rawPtr.CallCanSaveCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(cookie)))
+	return ret != 0
+}
+
+func (obj *cookieAccessFilterImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *cookieAccessFilterImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapCookieAccessFilter wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapCookieAccessFilter(ptr unsafe.Pointer) CookieAccessFilter {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFCookieAccessFilterT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &cookieAccessFilterImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *cookieAccessFilterImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

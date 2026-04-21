@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -79,13 +80,61 @@ func NewMenuModelDelegate(impl MenuModelDelegate) MenuModelDelegate {
 	return w
 }
 
-// wrapMenuModelDelegate wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type menuModelDelegateImpl struct {
+	rawPtr *capi.CEFMenuModelDelegateT
+}
+
+func (obj *menuModelDelegateImpl) ExecuteCommand(menuModel MenuModel, commandID int32, eventFlags EventFlags) {
+	obj.rawPtr.CallExecuteCommand(uintptr(extractRawPointer(menuModel)), uintptr(commandID), uintptr(eventFlags))
+}
+
+func (obj *menuModelDelegateImpl) MouseOutsideMenu(menuModel MenuModel, screenPoint *Point) {
+	obj.rawPtr.CallMouseOutsideMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)))
+}
+
+func (obj *menuModelDelegateImpl) UnhandledOpenSubmenu(menuModel MenuModel, isRtl int32) {
+	obj.rawPtr.CallUnhandledOpenSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
+}
+
+func (obj *menuModelDelegateImpl) UnhandledCloseSubmenu(menuModel MenuModel, isRtl int32) {
+	obj.rawPtr.CallUnhandledCloseSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
+}
+
+func (obj *menuModelDelegateImpl) MenuWillShow(menuModel MenuModel) {
+	obj.rawPtr.CallMenuWillShow(uintptr(extractRawPointer(menuModel)))
+}
+
+func (obj *menuModelDelegateImpl) MenuClosed(menuModel MenuModel) {
+	obj.rawPtr.CallMenuClosed(uintptr(extractRawPointer(menuModel)))
+}
+
+func (obj *menuModelDelegateImpl) FormatLabel(menuModel MenuModel, label uintptr) int32 {
+	ret := obj.rawPtr.CallFormatLabel(uintptr(extractRawPointer(menuModel)), label)
+	return int32(ret)
+}
+
+func (obj *menuModelDelegateImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *menuModelDelegateImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapMenuModelDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapMenuModelDelegate(ptr unsafe.Pointer) MenuModelDelegate {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFMenuModelDelegateT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &menuModelDelegateImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *menuModelDelegateImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

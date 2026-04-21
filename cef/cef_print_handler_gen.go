@@ -153,13 +153,63 @@ func NewPrintHandler(impl PrintHandler) PrintHandler {
 	return w
 }
 
-// wrapPrintHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type printHandlerImpl struct {
+	rawPtr *capi.CEFPrintHandlerT
+}
+
+func (obj *printHandlerImpl) OnPrintStart(browser Browser) {
+	obj.rawPtr.CallOnPrintStart(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *printHandlerImpl) OnPrintSettings(browser Browser, settings PrintSettings, getDefaults int32) {
+	obj.rawPtr.CallOnPrintSettings(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(settings)), uintptr(getDefaults))
+}
+
+func (obj *printHandlerImpl) OnPrintDialog(browser Browser, hasSelection int32, callback PrintDialogCallback) int32 {
+	ret := obj.rawPtr.CallOnPrintDialog(uintptr(extractRawPointer(browser)), uintptr(hasSelection), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *printHandlerImpl) OnPrintJob(browser Browser, documentName string, pdfFilePath string, callback PrintJobCallback) int32 {
+	documentNameStr := cefString(documentName)
+	defer freeCefString(&documentNameStr)
+	pdfFilePathStr := cefString(pdfFilePath)
+	defer freeCefString(&pdfFilePathStr)
+	ret := obj.rawPtr.CallOnPrintJob(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&documentNameStr)), uintptr(unsafe.Pointer(&pdfFilePathStr)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *printHandlerImpl) OnPrintReset(browser Browser) {
+	obj.rawPtr.CallOnPrintReset(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *printHandlerImpl) GetPdfPaperSize(browser Browser, deviceUnitsPerInch int32) uintptr {
+	ret := obj.rawPtr.CallGetPdfPaperSize(uintptr(extractRawPointer(browser)), uintptr(deviceUnitsPerInch))
+	return uintptr(ret)
+}
+
+func (obj *printHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *printHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapPrintHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapPrintHandler(ptr unsafe.Pointer) PrintHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFPrintHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &printHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *printHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

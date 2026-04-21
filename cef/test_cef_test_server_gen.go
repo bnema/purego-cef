@@ -87,15 +87,39 @@ func NewTestServerHandler(impl TestServerHandler) TestServerHandler {
 	return w
 }
 
-// wrapTestServerHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type testServerHandlerImpl struct {
+	rawPtr *capi.CEFTestServerHandlerT
+}
+
+func (obj *testServerHandlerImpl) OnTestServerRequest(server TestServer, request Request, connection TestServerConnection) int32 {
+	ret := obj.rawPtr.CallOnTestServerRequest(uintptr(extractRawPointer(server)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(connection)))
+	return int32(ret)
+}
+
+func (obj *testServerHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *testServerHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapTestServerHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapTestServerHandler(ptr unsafe.Pointer) TestServerHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFTestServerHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &testServerHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *testServerHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // TestServerConnection Structure representing a test server connection. The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.

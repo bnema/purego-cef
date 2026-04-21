@@ -72,10 +72,8 @@ var paramOverrides = map[string]ParamOverride{
 }
 
 // returnOverrides maps "structCName.fieldCName" keys to overrides for method
-// returns that should not expose a misleading wrapped type.
-var returnOverrides = map[string]ReturnOverride{
-	"cef_browser_host_t.get_client": {PublicType: "unsafe.Pointer"},
-}
+// returns that need a custom public type.
+var returnOverrides = map[string]ReturnOverride{}
 
 func lookupParamOverride(structCName, fieldCName, paramCName string) (ParamOverride, bool) {
 	if ov, ok := paramOverrides[structCName+"."+fieldCName+"."+paramCName]; ok {

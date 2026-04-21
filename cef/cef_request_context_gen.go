@@ -45,15 +45,38 @@ func NewResolveCallback(impl ResolveCallback) ResolveCallback {
 	return w
 }
 
-// wrapResolveCallback wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type resolveCallbackImpl struct {
+	rawPtr *capi.CEFResolveCallbackT
+}
+
+func (obj *resolveCallbackImpl) OnResolveCompleted(result Errorcode, resolvedIps StringList) {
+	obj.rawPtr.CallOnResolveCompleted(uintptr(result), uintptr(resolvedIps))
+}
+
+func (obj *resolveCallbackImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *resolveCallbackImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapResolveCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapResolveCallback(ptr unsafe.Pointer) ResolveCallback {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFResolveCallbackT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &resolveCallbackImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *resolveCallbackImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // SettingObserver Implemented by the client to observe content and website setting changes and registered via cef_request_context_t::AddSettingObserver. The functions of this structure will be called on the browser process UI thread.
@@ -89,15 +112,42 @@ func NewSettingObserver(impl SettingObserver) SettingObserver {
 	return w
 }
 
-// wrapSettingObserver wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type settingObserverImpl struct {
+	rawPtr *capi.CEFSettingObserverT
+}
+
+func (obj *settingObserverImpl) OnSettingChanged(requestingURL string, topLevelURL string, contentType ContentSettingTypes) {
+	requestingURLStr := cefString(requestingURL)
+	defer freeCefString(&requestingURLStr)
+	topLevelURLStr := cefString(topLevelURL)
+	defer freeCefString(&topLevelURLStr)
+	obj.rawPtr.CallOnSettingChanged(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
+}
+
+func (obj *settingObserverImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *settingObserverImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapSettingObserver wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapSettingObserver(ptr unsafe.Pointer) SettingObserver {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFSettingObserverT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &settingObserverImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *settingObserverImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // RequestContext A request context provides request handling for a set of related browser or URL request objects. A request context can be specified when creating a new browser via the cef_browser_host_t static factory functions or when creating a new URL request via the cef_urlrequest_t static factory functions. Browser objects with different request contexts will never be hosted in the same render process. Browser objects with the same request context may or may not be hosted in the same render process depending on the process model. Browser objects created indirectly via the JavaScript window.open function or targeted links will share the same render process and the same request context as the source browser. When running in single-process mode there is only a single render process (the main process) and so all browsers created in single-process mode will share the same request context. This will be the first request context passed into a cef_browser_host_t static factory function and all other request context objects will be ignored.

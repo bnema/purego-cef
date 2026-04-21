@@ -109,13 +109,58 @@ func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 	return w
 }
 
-// wrapJsdialogHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type jsdialogHandlerImpl struct {
+	rawPtr *capi.CEFJsdialogHandlerT
+}
+
+func (obj *jsdialogHandlerImpl) OnJsdialog(browser Browser, originURL string, dialogType JsdialogType, messageText string, defaultPromptText string, callback JsdialogCallback, suppressMessage *int32) int32 {
+	originURLStr := cefString(originURL)
+	defer freeCefString(&originURLStr)
+	messageTextStr := cefString(messageText)
+	defer freeCefString(&messageTextStr)
+	defaultPromptTextStr := cefString(defaultPromptText)
+	defer freeCefString(&defaultPromptTextStr)
+	ret := obj.rawPtr.CallOnJsdialog(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&originURLStr)), uintptr(dialogType), uintptr(unsafe.Pointer(&messageTextStr)), uintptr(unsafe.Pointer(&defaultPromptTextStr)), uintptr(extractRawPointer(callback)), uintptr(unsafe.Pointer(suppressMessage)))
+	return int32(ret)
+}
+
+func (obj *jsdialogHandlerImpl) OnBeforeUnloadDialog(browser Browser, messageText string, isReload int32, callback JsdialogCallback) bool {
+	messageTextStr := cefString(messageText)
+	defer freeCefString(&messageTextStr)
+	ret := obj.rawPtr.CallOnBeforeUnloadDialog(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&messageTextStr)), uintptr(isReload), uintptr(extractRawPointer(callback)))
+	return ret != 0
+}
+
+func (obj *jsdialogHandlerImpl) OnResetDialogState(browser Browser) {
+	obj.rawPtr.CallOnResetDialogState(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *jsdialogHandlerImpl) OnDialogClosed(browser Browser) {
+	obj.rawPtr.CallOnDialogClosed(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *jsdialogHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *jsdialogHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapJsdialogHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapJsdialogHandler(ptr unsafe.Pointer) JsdialogHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFJsdialogHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &jsdialogHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *jsdialogHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

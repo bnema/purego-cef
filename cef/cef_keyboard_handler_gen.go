@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -53,13 +54,42 @@ func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
 	return w
 }
 
-// wrapKeyboardHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type keyboardHandlerImpl struct {
+	rawPtr *capi.CEFKeyboardHandlerT
+}
+
+func (obj *keyboardHandlerImpl) OnPreKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr, isKeyboardShortcut *int32) int32 {
+	ret := obj.rawPtr.CallOnPreKeyEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(event)), osEvent, uintptr(unsafe.Pointer(isKeyboardShortcut)))
+	return int32(ret)
+}
+
+func (obj *keyboardHandlerImpl) OnKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr) int32 {
+	ret := obj.rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(event)), osEvent)
+	return int32(ret)
+}
+
+func (obj *keyboardHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *keyboardHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapKeyboardHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapKeyboardHandler(ptr unsafe.Pointer) KeyboardHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFKeyboardHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &keyboardHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *keyboardHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

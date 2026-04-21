@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -70,13 +71,52 @@ func NewFrameHandler(impl FrameHandler) FrameHandler {
 	return w
 }
 
-// wrapFrameHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type frameHandlerImpl struct {
+	rawPtr *capi.CEFFrameHandlerT
+}
+
+func (obj *frameHandlerImpl) OnFrameCreated(browser Browser, frame Frame) {
+	obj.rawPtr.CallOnFrameCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+}
+
+func (obj *frameHandlerImpl) OnFrameDestroyed(browser Browser, frame Frame) {
+	obj.rawPtr.CallOnFrameDestroyed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+}
+
+func (obj *frameHandlerImpl) OnFrameAttached(browser Browser, frame Frame, reattached int32) {
+	obj.rawPtr.CallOnFrameAttached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(reattached))
+}
+
+func (obj *frameHandlerImpl) OnFrameDetached(browser Browser, frame Frame) {
+	obj.rawPtr.CallOnFrameDetached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+}
+
+func (obj *frameHandlerImpl) OnMainFrameChanged(browser Browser, oldFrame Frame, newFrame Frame) {
+	obj.rawPtr.CallOnMainFrameChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(oldFrame)), uintptr(extractRawPointer(newFrame)))
+}
+
+func (obj *frameHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *frameHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapFrameHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapFrameHandler(ptr unsafe.Pointer) FrameHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFFrameHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &frameHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *frameHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

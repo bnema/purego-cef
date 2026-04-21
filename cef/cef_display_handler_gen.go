@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -123,13 +124,102 @@ func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
 	return w
 }
 
-// wrapDisplayHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type displayHandlerImpl struct {
+	rawPtr *capi.CEFDisplayHandlerT
+}
+
+func (obj *displayHandlerImpl) OnAddressChange(browser Browser, frame Frame, uRL string) {
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	obj.rawPtr.CallOnAddressChange(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&uRLStr)))
+}
+
+func (obj *displayHandlerImpl) OnTitleChange(browser Browser, title string) {
+	titleStr := cefString(title)
+	defer freeCefString(&titleStr)
+	obj.rawPtr.CallOnTitleChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&titleStr)))
+}
+
+func (obj *displayHandlerImpl) OnFaviconUrlchange(browser Browser, iconUrls StringList) {
+	obj.rawPtr.CallOnFaviconUrlchange(uintptr(extractRawPointer(browser)), uintptr(iconUrls))
+}
+
+func (obj *displayHandlerImpl) OnFullscreenModeChange(browser Browser, fullscreen int32) {
+	obj.rawPtr.CallOnFullscreenModeChange(uintptr(extractRawPointer(browser)), uintptr(fullscreen))
+}
+
+func (obj *displayHandlerImpl) OnTooltip(browser Browser, text uintptr) int32 {
+	ret := obj.rawPtr.CallOnTooltip(uintptr(extractRawPointer(browser)), text)
+	return int32(ret)
+}
+
+func (obj *displayHandlerImpl) OnStatusMessage(browser Browser, value string) {
+	valueStr := cefString(value)
+	defer freeCefString(&valueStr)
+	obj.rawPtr.CallOnStatusMessage(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&valueStr)))
+}
+
+func (obj *displayHandlerImpl) OnConsoleMessage(browser Browser, level LogSeverity, message string, source string, line int32) int32 {
+	messageStr := cefString(message)
+	defer freeCefString(&messageStr)
+	sourceStr := cefString(source)
+	defer freeCefString(&sourceStr)
+	ret := obj.rawPtr.CallOnConsoleMessage(uintptr(extractRawPointer(browser)), uintptr(level), uintptr(unsafe.Pointer(&messageStr)), uintptr(unsafe.Pointer(&sourceStr)), uintptr(line))
+	return int32(ret)
+}
+
+func (obj *displayHandlerImpl) OnAutoResize(browser Browser, newSize *Size) int32 {
+	ret := obj.rawPtr.CallOnAutoResize(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newSize)))
+	return int32(ret)
+}
+
+func (obj *displayHandlerImpl) OnLoadingProgressChange(browser Browser, progress float64) {
+	var fn func(*capi.CEFDisplayHandlerT, uintptr, float64)
+	purego.RegisterFunc(&fn, obj.rawPtr.OnLoadingProgressChange)
+	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), progress)
+}
+
+func (obj *displayHandlerImpl) OnCursorChange(browser Browser, cursor uintptr, type_ CursorType, customCursorInfo *CursorInfo) int32 {
+	ret := obj.rawPtr.CallOnCursorChange(uintptr(extractRawPointer(browser)), cursor, uintptr(type_), uintptr(unsafe.Pointer(customCursorInfo)))
+	return int32(ret)
+}
+
+func (obj *displayHandlerImpl) OnMediaAccessChange(browser Browser, hasVideoAccess int32, hasAudioAccess int32) {
+	obj.rawPtr.CallOnMediaAccessChange(uintptr(extractRawPointer(browser)), uintptr(hasVideoAccess), uintptr(hasAudioAccess))
+}
+
+func (obj *displayHandlerImpl) OnContentsBoundsChange(browser Browser, newBounds *Rect) int32 {
+	ret := obj.rawPtr.CallOnContentsBoundsChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newBounds)))
+	return int32(ret)
+}
+
+func (obj *displayHandlerImpl) GetRootWindowScreenRect(browser Browser, rect *Rect) int32 {
+	ret := obj.rawPtr.CallGetRootWindowScreenRect(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
+	return int32(ret)
+}
+
+func (obj *displayHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *displayHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapDisplayHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapDisplayHandler(ptr unsafe.Pointer) DisplayHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFDisplayHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &displayHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *displayHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

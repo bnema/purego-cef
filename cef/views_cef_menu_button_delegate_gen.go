@@ -78,13 +78,36 @@ func NewMenuButtonDelegate(impl MenuButtonDelegate) MenuButtonDelegate {
 	return w
 }
 
-// wrapMenuButtonDelegate wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type menuButtonDelegateImpl struct {
+	rawPtr *capi.CEFMenuButtonDelegateT
+}
+
+func (obj *menuButtonDelegateImpl) OnMenuButtonPressed(menuButton MenuButton, screenPoint *Point, buttonPressedLock MenuButtonPressedLock) {
+	obj.rawPtr.CallOnMenuButtonPressed(uintptr(extractRawPointer(menuButton)), uintptr(unsafe.Pointer(screenPoint)), uintptr(extractRawPointer(buttonPressedLock)))
+}
+
+func (obj *menuButtonDelegateImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *menuButtonDelegateImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapMenuButtonDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapMenuButtonDelegate(ptr unsafe.Pointer) MenuButtonDelegate {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFMenuButtonDelegateT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &menuButtonDelegateImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *menuButtonDelegateImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

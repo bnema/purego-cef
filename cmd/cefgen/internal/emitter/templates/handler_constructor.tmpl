@@ -73,14 +73,119 @@ func {{constructorName .Name}}(impl {{.Name}}) {{.Name}} {
 	return w
 }
 
-// wrap{{.Name}} wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
-func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+type {{lower .Name}}Impl struct {
+	rawPtr *capi.{{.RawGoName}}
 }
+
+{{range .Methods}}
+func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+	{{- range .Params}}
+	{{- $pre := marshalPreamble .}}
+	{{- if $pre}}
+	{{$pre}}
+	{{- end}}
+	{{- end}}
+	{{- with methodPreamble $.Name .}}
+{{.}}{{- end}}
+	{{- if needsTypedObjectCall .}}
+	var fn {{typedObjectFuncSig $.RawGoName .}}
+	purego.RegisterFunc(&fn, obj.rawPtr.{{.RawFieldName}})
+	{{- if .Return.IsVoid}}
+	fn({{typedObjectCallArgs .}})
+	{{- range .Params}}{{with marshalPostamble .}}
+	{{.}}
+	{{- end}}{{end}}
+	{{- else}}
+	ret := fn({{typedObjectCallArgs .}})
+	{{- range .Params}}{{with marshalPostamble .}}
+	{{.}}
+	{{- end}}{{end}}
+		{{- if .Return.IsBool}}
+	return ret != 0
+		{{- else if .Return.IsEnum}}
+	return {{.Return.PublicType}}(ret)
+		{{- else if .Return.IsString}}
+	return goStringUserfree(unsafe.Pointer(ret))
+		{{- else if .Return.IsInterface}}
+	return {{wrapFuncName .Return.PublicType}}(unsafe.Pointer(ret))
+		{{- else if .Return.IsDataStruct}}
+	return ({{.Return.PublicType}})(unsafe.Pointer(ret))
+		{{- else if .Return.IsPointer}}
+	return unsafe.Pointer(ret)
+		{{- else if .Return.IsNumeric}}
+			{{- if isFloatPublicType .Return.PublicType}}
+	return ret
+			{{- else}}
+	return {{.Return.PublicType}}(ret)
+			{{- end}}
+		{{- else}}
+	return {{.Return.PublicType}}(ret)
+		{{- end}}
+	{{- end}}
+	{{- else if .Return.IsVoid}}
+	obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
+	{{- range .Params}}{{with marshalPostamble .}}
+	{{.}}
+	{{- end}}{{end}}
+	{{- else}}
+	ret := obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
+	{{- range .Params}}{{with marshalPostamble .}}
+	{{.}}
+	{{- end}}{{end}}
+		{{- if .Return.IsBool}}
+	return ret != 0
+		{{- else if .Return.IsEnum}}
+	return {{.Return.PublicType}}(ret)
+		{{- else if .Return.IsString}}
+	return goStringUserfree(unsafe.Pointer(ret))
+		{{- else if .Return.IsInterface}}
+	return {{wrapFuncName .Return.PublicType}}(unsafe.Pointer(ret))
+		{{- else if .Return.IsDataStruct}}
+	return ({{.Return.PublicType}})(unsafe.Pointer(ret))
+		{{- else if .Return.IsPointer}}
+	return unsafe.Pointer(ret)
+		{{- else if .Return.IsNumeric}}
+	return {{.Return.PublicType}}(ret)
+		{{- else}}
+	return {{.Return.PublicType}}(ret)
+		{{- end}}
+	{{- end}}
+}
+{{end}}
+
+func (obj *{{lower .Name}}Impl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+{{if .IsScoped}}
+func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.{{.RawGoName}})(ptr)
+	return &{{lower .Name}}Impl{rawPtr: r}
+}
+{{else}}
+// Release releases the underlying CEF object.
+func (obj *{{lower .Name}}Impl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrap{{.Name}} wraps a CEF handler pointer received from CEF into a thin Go façade.
+func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.{{.RawGoName}})(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &{{lower .Name}}Impl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *{{lower .Name}}Impl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
+}
+{{end}}
 {{end}}

@@ -180,13 +180,110 @@ func NewRequestHandler(impl RequestHandler) RequestHandler {
 	return w
 }
 
-// wrapRequestHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type requestHandlerImpl struct {
+	rawPtr *capi.CEFRequestHandlerT
+}
+
+func (obj *requestHandlerImpl) OnBeforeBrowse(browser Browser, frame Frame, request Request, userGesture int32, isRedirect int32) bool {
+	ret := obj.rawPtr.CallOnBeforeBrowse(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(userGesture), uintptr(isRedirect))
+	return ret != 0
+}
+
+func (obj *requestHandlerImpl) OnOpenUrlfromTab(browser Browser, frame Frame, targetURL string, targetDisposition WindowOpenDisposition, userGesture int32) int32 {
+	targetURLStr := cefString(targetURL)
+	defer freeCefString(&targetURLStr)
+	ret := obj.rawPtr.CallOnOpenUrlfromTab(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&targetURLStr)), uintptr(targetDisposition), uintptr(userGesture))
+	return int32(ret)
+}
+
+func (obj *requestHandlerImpl) GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling *int32) ResourceRequestHandler {
+	requestInitiatorStr := cefString(requestInitiator)
+	defer freeCefString(&requestInitiatorStr)
+	ret := obj.rawPtr.CallGetResourceRequestHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(isNavigation), uintptr(isDownload), uintptr(unsafe.Pointer(&requestInitiatorStr)), uintptr(unsafe.Pointer(disableDefaultHandling)))
+	return wrapResourceRequestHandler(unsafe.Pointer(ret))
+}
+
+func (obj *requestHandlerImpl) GetAuthCredentials(browser Browser, originURL string, isproxy int32, host string, port int32, realm string, scheme string, callback AuthCallback) int32 {
+	originURLStr := cefString(originURL)
+	defer freeCefString(&originURLStr)
+	hostStr := cefString(host)
+	defer freeCefString(&hostStr)
+	realmStr := cefString(realm)
+	defer freeCefString(&realmStr)
+	schemeStr := cefString(scheme)
+	defer freeCefString(&schemeStr)
+	ret := obj.rawPtr.CallGetAuthCredentials(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&originURLStr)), uintptr(isproxy), uintptr(unsafe.Pointer(&hostStr)), uintptr(port), uintptr(unsafe.Pointer(&realmStr)), uintptr(unsafe.Pointer(&schemeStr)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *requestHandlerImpl) OnCertificateError(browser Browser, certError Errorcode, requestURL string, sslInfo Sslinfo, callback Callback) int32 {
+	requestURLStr := cefString(requestURL)
+	defer freeCefString(&requestURLStr)
+	ret := obj.rawPtr.CallOnCertificateError(uintptr(extractRawPointer(browser)), uintptr(certError), uintptr(unsafe.Pointer(&requestURLStr)), uintptr(extractRawPointer(sslInfo)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *requestHandlerImpl) OnSelectClientCertificate(browser Browser, isproxy int32, host string, port int32, certificates []X509Certificate, callback SelectClientCertificateCallback) int32 {
+	hostStr := cefString(host)
+	defer freeCefString(&hostStr)
+	var certificatesRaw []uintptr
+	var certificatesPtr unsafe.Pointer
+	if len(certificates) > 0 {
+		certificatesRaw = make([]uintptr, len(certificates))
+		for i, elem := range certificates {
+			certificatesRaw[i] = uintptr(extractRawPointer(elem))
+		}
+		certificatesPtr = unsafe.Pointer(&certificatesRaw[0])
+	}
+	ret := obj.rawPtr.CallOnSelectClientCertificate(uintptr(extractRawPointer(browser)), uintptr(isproxy), uintptr(unsafe.Pointer(&hostStr)), uintptr(port), uintptr(len(certificates)), uintptr(certificatesPtr), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *requestHandlerImpl) OnRenderViewReady(browser Browser) {
+	obj.rawPtr.CallOnRenderViewReady(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *requestHandlerImpl) OnRenderProcessUnresponsive(browser Browser, callback UnresponsiveProcessCallback) int32 {
+	ret := obj.rawPtr.CallOnRenderProcessUnresponsive(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *requestHandlerImpl) OnRenderProcessResponsive(browser Browser) {
+	obj.rawPtr.CallOnRenderProcessResponsive(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *requestHandlerImpl) OnRenderProcessTerminated(browser Browser, status TerminationStatus, errorCode int32, errorString string) {
+	errorStringStr := cefString(errorString)
+	defer freeCefString(&errorStringStr)
+	obj.rawPtr.CallOnRenderProcessTerminated(uintptr(extractRawPointer(browser)), uintptr(status), uintptr(errorCode), uintptr(unsafe.Pointer(&errorStringStr)))
+}
+
+func (obj *requestHandlerImpl) OnDocumentAvailableInMainFrame(browser Browser) {
+	obj.rawPtr.CallOnDocumentAvailableInMainFrame(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *requestHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *requestHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapRequestHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapRequestHandler(ptr unsafe.Pointer) RequestHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFRequestHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &requestHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *requestHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

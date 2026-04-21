@@ -158,13 +158,65 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 	return w
 }
 
-// wrapResourceHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type resourceHandlerImpl struct {
+	rawPtr *capi.CEFResourceHandlerT
+}
+
+func (obj *resourceHandlerImpl) Open(request Request, handleRequest *int32, callback Callback) int32 {
+	ret := obj.rawPtr.CallOpen(uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(handleRequest)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *resourceHandlerImpl) ProcessRequest(request Request, callback Callback) int32 {
+	ret := obj.rawPtr.CallProcessRequest(uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *resourceHandlerImpl) GetResponseHeaders(response Response, responseLength *int64, redirecturl uintptr) {
+	obj.rawPtr.CallGetResponseHeaders(uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(responseLength)), redirecturl)
+}
+
+func (obj *resourceHandlerImpl) Skip(bytesToSkip int64, bytesSkipped *int64, callback ResourceSkipCallback) int32 {
+	ret := obj.rawPtr.CallSkip(uintptr(bytesToSkip), uintptr(unsafe.Pointer(bytesSkipped)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *resourceHandlerImpl) Read(dataOut unsafe.Pointer, bytesToRead int32, bytesRead *int32, callback ResourceReadCallback) int32 {
+	ret := obj.rawPtr.CallRead(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *resourceHandlerImpl) ReadResponse(dataOut unsafe.Pointer, bytesToRead int32, bytesRead *int32, callback Callback) int32 {
+	ret := obj.rawPtr.CallReadResponse(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *resourceHandlerImpl) Cancel() {
+	obj.rawPtr.CallCancel()
+}
+
+func (obj *resourceHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *resourceHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapResourceHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapResourceHandler(ptr unsafe.Pointer) ResourceHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFResourceHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &resourceHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *resourceHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

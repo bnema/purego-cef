@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -43,15 +44,40 @@ func NewEndTracingCallback(impl EndTracingCallback) EndTracingCallback {
 	return w
 }
 
-// wrapEndTracingCallback wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type endTracingCallbackImpl struct {
+	rawPtr *capi.CEFEndTracingCallbackT
+}
+
+func (obj *endTracingCallbackImpl) OnEndTracingComplete(tracingFile string) {
+	tracingFileStr := cefString(tracingFile)
+	defer freeCefString(&tracingFileStr)
+	obj.rawPtr.CallOnEndTracingComplete(uintptr(unsafe.Pointer(&tracingFileStr)))
+}
+
+func (obj *endTracingCallbackImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *endTracingCallbackImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapEndTracingCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapEndTracingCallback(ptr unsafe.Pointer) EndTracingCallback {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFEndTracingCallbackT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &endTracingCallbackImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *endTracingCallbackImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // BeginTracing Start tracing events on all processes. Tracing is initialized asynchronously and |callback| will be executed on the UI thread after initialization is complete. If CefBeginTracing was called previously, or if a CefEndTracingAsync call is pending, CefBeginTracing will fail and return false (0). |categories| is a comma-delimited list of category wildcards. A category can have an optional '-' prefix to make it an excluded category. Having both included and excluded categories in the same list is not supported. Examples: - "test_MyTest*" - "test_MyTest*,test_OtherStuff" - "-excluded_category1,-excluded_category2" This function must be called on the browser process UI thread.

@@ -187,15 +187,70 @@ func NewServerHandler(impl ServerHandler) ServerHandler {
 	return w
 }
 
-// wrapServerHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type serverHandlerImpl struct {
+	rawPtr *capi.CEFServerHandlerT
+}
+
+func (obj *serverHandlerImpl) OnServerCreated(server Server) {
+	obj.rawPtr.CallOnServerCreated(uintptr(extractRawPointer(server)))
+}
+
+func (obj *serverHandlerImpl) OnServerDestroyed(server Server) {
+	obj.rawPtr.CallOnServerDestroyed(uintptr(extractRawPointer(server)))
+}
+
+func (obj *serverHandlerImpl) OnClientConnected(server Server, connectionID int32) {
+	obj.rawPtr.CallOnClientConnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
+}
+
+func (obj *serverHandlerImpl) OnClientDisconnected(server Server, connectionID int32) {
+	obj.rawPtr.CallOnClientDisconnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
+}
+
+func (obj *serverHandlerImpl) OnHttpRequest(server Server, connectionID int32, clientAddress string, request Request) {
+	clientAddressStr := cefString(clientAddress)
+	defer freeCefString(&clientAddressStr)
+	obj.rawPtr.CallOnHttpRequest(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(unsafe.Pointer(&clientAddressStr)), uintptr(extractRawPointer(request)))
+}
+
+func (obj *serverHandlerImpl) OnWebSocketRequest(server Server, connectionID int32, clientAddress string, request Request, callback Callback) {
+	clientAddressStr := cefString(clientAddress)
+	defer freeCefString(&clientAddressStr)
+	obj.rawPtr.CallOnWebSocketRequest(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(unsafe.Pointer(&clientAddressStr)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
+}
+
+func (obj *serverHandlerImpl) OnWebSocketConnected(server Server, connectionID int32) {
+	obj.rawPtr.CallOnWebSocketConnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
+}
+
+func (obj *serverHandlerImpl) OnWebSocketMessage(server Server, connectionID int32, data unsafe.Pointer, dataSize int) {
+	obj.rawPtr.CallOnWebSocketMessage(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(data), uintptr(dataSize))
+}
+
+func (obj *serverHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *serverHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapServerHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapServerHandler(ptr unsafe.Pointer) ServerHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFServerHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &serverHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *serverHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // ServerCreate Create a new server that binds to |address| and |port|. |address| must be a valid IPv4 or IPv6 address (e.g. 127.0.0.1 or ::1) and |port| must be a port number outside of the reserved range (e.g. between 1025 and 65535 on most platforms). |backlog| is the maximum number of pending connections. A new thread will be created for each CreateServer call (the "dedicated server thread"). It is therefore recommended to use a different cef_server_handler_t instance for each CreateServer call to avoid thread safety issues in the cef_server_handler_t implementation. The cef_server_handler_t::OnServerCreated function will be called on the dedicated server thread to report success or failure. See cef_server_handler_t::OnServerCreated documentation for a description of server lifespan.

@@ -587,15 +587,59 @@ func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) ApiVersionTe
 	return w
 }
 
-// wrapApiVersionTestRefPtrClient wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type apiVersionTestRefPtrClientImpl struct {
+	rawPtr *capi.CEFApiVersionTestRefPtrClientT
+}
+
+func (obj *apiVersionTestRefPtrClientImpl) GetValueLegacy() int32 {
+	ret := obj.rawPtr.CallGetValueLegacy()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestRefPtrClientImpl) GetValue() int32 {
+	ret := obj.rawPtr.CallGetValue()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestRefPtrClientImpl) GetValueV1() int32 {
+	ret := obj.rawPtr.CallGetValueV1()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestRefPtrClientImpl) GetValueV2() int32 {
+	ret := obj.rawPtr.CallGetValueV2()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestRefPtrClientImpl) GetValueExp() int32 {
+	ret := obj.rawPtr.CallGetValueExp()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestRefPtrClientImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *apiVersionTestRefPtrClientImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapApiVersionTestRefPtrClient wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapApiVersionTestRefPtrClient(ptr unsafe.Pointer) ApiVersionTestRefPtrClient {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestRefPtrClientT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &apiVersionTestRefPtrClientImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrClientImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // ApiVersionTestRefPtrClientChild Client-side child test object for RefPtr. This is replaced with cef_api_version_test_ref_ptr_client_child_v2_t in version 13302.
@@ -632,15 +676,44 @@ func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) Ap
 	return w
 }
 
-// wrapApiVersionTestRefPtrClientChild wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type apiVersionTestRefPtrClientChildImpl struct {
+	rawPtr *capi.CEFApiVersionTestRefPtrClientChildT
+}
+
+func (obj *apiVersionTestRefPtrClientChildImpl) GetOtherValue() int32 {
+	ret := obj.rawPtr.CallGetOtherValue()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestRefPtrClientChildImpl) GetOtherValueV1() int32 {
+	ret := obj.rawPtr.CallGetOtherValueV1()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestRefPtrClientChildImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *apiVersionTestRefPtrClientChildImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapApiVersionTestRefPtrClientChild wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapApiVersionTestRefPtrClientChild(ptr unsafe.Pointer) ApiVersionTestRefPtrClientChild {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestRefPtrClientChildT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &apiVersionTestRefPtrClientChildImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrClientChildImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // ApiVersionTestRefPtrClientChildV2 Client-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_client_child_t in version 13302.
@@ -677,15 +750,44 @@ func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2
 	return w
 }
 
-// wrapApiVersionTestRefPtrClientChildV2 wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type apiVersionTestRefPtrClientChildV2Impl struct {
+	rawPtr *capi.CEFApiVersionTestRefPtrClientChildV2T
+}
+
+func (obj *apiVersionTestRefPtrClientChildV2Impl) GetOtherValue() int32 {
+	ret := obj.rawPtr.CallGetOtherValue()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestRefPtrClientChildV2Impl) GetAnotherValue() int32 {
+	ret := obj.rawPtr.CallGetAnotherValue()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestRefPtrClientChildV2Impl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *apiVersionTestRefPtrClientChildV2Impl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapApiVersionTestRefPtrClientChildV2 wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapApiVersionTestRefPtrClientChildV2(ptr unsafe.Pointer) ApiVersionTestRefPtrClientChildV2 {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestRefPtrClientChildV2T)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &apiVersionTestRefPtrClientChildV2Impl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrClientChildV2Impl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // ApiVersionTestScopedLibrary Library-side test object for OwnPtr/RawPtr.
@@ -962,15 +1064,45 @@ func NewApiVersionTestScopedClient(impl ApiVersionTestScopedClient) ApiVersionTe
 	return w
 }
 
-// wrapApiVersionTestScopedClient wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type apiVersionTestScopedClientImpl struct {
+	rawPtr *capi.CEFApiVersionTestScopedClientT
+}
+
+func (obj *apiVersionTestScopedClientImpl) GetValueLegacy() int32 {
+	ret := obj.rawPtr.CallGetValueLegacy()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestScopedClientImpl) GetValue() int32 {
+	ret := obj.rawPtr.CallGetValue()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestScopedClientImpl) GetValueV1() int32 {
+	ret := obj.rawPtr.CallGetValueV1()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestScopedClientImpl) GetValueV2() int32 {
+	ret := obj.rawPtr.CallGetValueV2()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestScopedClientImpl) GetValueExp() int32 {
+	ret := obj.rawPtr.CallGetValueExp()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestScopedClientImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 func wrapApiVersionTestScopedClient(ptr unsafe.Pointer) ApiVersionTestScopedClient {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestScopedClientT)(ptr)
+	return &apiVersionTestScopedClientImpl{rawPtr: r}
 }
 
 // ApiVersionTestScopedClientChild Client-side child test object for OwnPtr/RawPtr. This is replaced with cef_api_version_test_scoped_client_child_v2_t in version 13302.
@@ -1007,15 +1139,44 @@ func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) Ap
 	return w
 }
 
-// wrapApiVersionTestScopedClientChild wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type apiVersionTestScopedClientChildImpl struct {
+	rawPtr *capi.CEFApiVersionTestScopedClientChildT
+}
+
+func (obj *apiVersionTestScopedClientChildImpl) GetOtherValue() int32 {
+	ret := obj.rawPtr.CallGetOtherValue()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestScopedClientChildImpl) GetOtherValueV1() int32 {
+	ret := obj.rawPtr.CallGetOtherValueV1()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestScopedClientChildImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *apiVersionTestScopedClientChildImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapApiVersionTestScopedClientChild wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapApiVersionTestScopedClientChild(ptr unsafe.Pointer) ApiVersionTestScopedClientChild {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestScopedClientChildT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &apiVersionTestScopedClientChildImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *apiVersionTestScopedClientChildImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // ApiVersionTestScopedClientChildV2 Client-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_client_child_t in version 13302.
@@ -1052,15 +1213,44 @@ func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2
 	return w
 }
 
-// wrapApiVersionTestScopedClientChildV2 wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type apiVersionTestScopedClientChildV2Impl struct {
+	rawPtr *capi.CEFApiVersionTestScopedClientChildV2T
+}
+
+func (obj *apiVersionTestScopedClientChildV2Impl) GetOtherValue() int32 {
+	ret := obj.rawPtr.CallGetOtherValue()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestScopedClientChildV2Impl) GetAnotherValue() int32 {
+	ret := obj.rawPtr.CallGetAnotherValue()
+	return int32(ret)
+}
+
+func (obj *apiVersionTestScopedClientChildV2Impl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *apiVersionTestScopedClientChildV2Impl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapApiVersionTestScopedClientChildV2 wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapApiVersionTestScopedClientChildV2(ptr unsafe.Pointer) ApiVersionTestScopedClientChildV2 {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestScopedClientChildV2T)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &apiVersionTestScopedClientChildV2Impl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *apiVersionTestScopedClientChildV2Impl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // ApiVersionTestCreate Create the test object.

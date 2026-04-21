@@ -140,13 +140,50 @@ func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 	return w
 }
 
-// wrapPermissionHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type permissionHandlerImpl struct {
+	rawPtr *capi.CEFPermissionHandlerT
+}
+
+func (obj *permissionHandlerImpl) OnRequestMediaAccessPermission(browser Browser, frame Frame, requestingOrigin string, requestedPermissions uint32, callback MediaAccessCallback) int32 {
+	requestingOriginStr := cefString(requestingOrigin)
+	defer freeCefString(&requestingOriginStr)
+	ret := obj.rawPtr.CallOnRequestMediaAccessPermission(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *permissionHandlerImpl) OnShowPermissionPrompt(browser Browser, promptID uint64, requestingOrigin string, requestedPermissions uint32, callback PermissionPromptCallback) int32 {
+	requestingOriginStr := cefString(requestingOrigin)
+	defer freeCefString(&requestingOriginStr)
+	ret := obj.rawPtr.CallOnShowPermissionPrompt(uintptr(extractRawPointer(browser)), uintptr(promptID), uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *permissionHandlerImpl) OnDismissPermissionPrompt(browser Browser, promptID uint64, result PermissionRequestResult) {
+	obj.rawPtr.CallOnDismissPermissionPrompt(uintptr(extractRawPointer(browser)), uintptr(promptID), uintptr(result))
+}
+
+func (obj *permissionHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *permissionHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapPermissionHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapPermissionHandler(ptr unsafe.Pointer) PermissionHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFPermissionHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &permissionHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *permissionHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

@@ -8,7 +8,7 @@ import (
 {{- if .NeedsMath}}
 	"math"
 {{- end}}
-{{- if .HasObjects}}
+{{- if .NeedsRuntime}}
 	"runtime"
 {{- end}}
 {{- if or .Interfaces .NeedsUnsafe .HasSizedDataStructs}}

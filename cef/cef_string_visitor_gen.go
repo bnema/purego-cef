@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -43,13 +44,38 @@ func NewStringVisitor(impl StringVisitor) StringVisitor {
 	return w
 }
 
-// wrapStringVisitor wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type stringVisitorImpl struct {
+	rawPtr *capi.CEFStringVisitorT
+}
+
+func (obj *stringVisitorImpl) Visit(string string) {
+	stringStr := cefString(string)
+	defer freeCefString(&stringStr)
+	obj.rawPtr.CallVisit(uintptr(unsafe.Pointer(&stringStr)))
+}
+
+func (obj *stringVisitorImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *stringVisitorImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapStringVisitor wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapStringVisitor(ptr unsafe.Pointer) StringVisitor {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFStringVisitorT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &stringVisitorImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *stringVisitorImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

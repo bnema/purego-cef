@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -105,13 +106,70 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 	return w
 }
 
-// wrapRenderProcessHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type renderProcessHandlerImpl struct {
+	rawPtr *capi.CEFRenderProcessHandlerT
+}
+
+func (obj *renderProcessHandlerImpl) OnWebKitInitialized() {
+	obj.rawPtr.CallOnWebKitInitialized()
+}
+
+func (obj *renderProcessHandlerImpl) OnBrowserCreated(browser Browser, extraInfo DictionaryValue) {
+	obj.rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(extraInfo)))
+}
+
+func (obj *renderProcessHandlerImpl) OnBrowserDestroyed(browser Browser) {
+	obj.rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *renderProcessHandlerImpl) GetLoadHandler() LoadHandler {
+	ret := obj.rawPtr.CallGetLoadHandler()
+	return wrapLoadHandler(unsafe.Pointer(ret))
+}
+
+func (obj *renderProcessHandlerImpl) OnContextCreated(browser Browser, frame Frame, context V8Context) {
+	obj.rawPtr.CallOnContextCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
+}
+
+func (obj *renderProcessHandlerImpl) OnContextReleased(browser Browser, frame Frame, context V8Context) {
+	obj.rawPtr.CallOnContextReleased(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
+}
+
+func (obj *renderProcessHandlerImpl) OnUncaughtException(browser Browser, frame Frame, context V8Context, exception V8Exception, stacktrace V8StackTrace) {
+	obj.rawPtr.CallOnUncaughtException(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)), uintptr(extractRawPointer(exception)), uintptr(extractRawPointer(stacktrace)))
+}
+
+func (obj *renderProcessHandlerImpl) OnFocusedNodeChanged(browser Browser, frame Frame, node Domnode) {
+	obj.rawPtr.CallOnFocusedNodeChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(node)))
+}
+
+func (obj *renderProcessHandlerImpl) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
+	ret := obj.rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
+	return int32(ret)
+}
+
+func (obj *renderProcessHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *renderProcessHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapRenderProcessHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapRenderProcessHandler(ptr unsafe.Pointer) RenderProcessHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFRenderProcessHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &renderProcessHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *renderProcessHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

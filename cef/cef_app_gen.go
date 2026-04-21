@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -91,15 +92,59 @@ func NewApp(impl App) App {
 	return w
 }
 
-// wrapApp wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type appImpl struct {
+	rawPtr *capi.CEFAppT
+}
+
+func (obj *appImpl) OnBeforeCommandLineProcessing(processType string, commandLine CommandLine) {
+	processTypeStr := cefString(processType)
+	defer freeCefString(&processTypeStr)
+	obj.rawPtr.CallOnBeforeCommandLineProcessing(uintptr(unsafe.Pointer(&processTypeStr)), uintptr(extractRawPointer(commandLine)))
+}
+
+func (obj *appImpl) OnRegisterCustomSchemes(registrar SchemeRegistrar) {
+	obj.rawPtr.CallOnRegisterCustomSchemes(uintptr(extractRawPointer(registrar)))
+}
+
+func (obj *appImpl) GetResourceBundleHandler() ResourceBundleHandler {
+	ret := obj.rawPtr.CallGetResourceBundleHandler()
+	return wrapResourceBundleHandler(unsafe.Pointer(ret))
+}
+
+func (obj *appImpl) GetBrowserProcessHandler() BrowserProcessHandler {
+	ret := obj.rawPtr.CallGetBrowserProcessHandler()
+	return wrapBrowserProcessHandler(unsafe.Pointer(ret))
+}
+
+func (obj *appImpl) GetRenderProcessHandler() RenderProcessHandler {
+	ret := obj.rawPtr.CallGetRenderProcessHandler()
+	return wrapRenderProcessHandler(unsafe.Pointer(ret))
+}
+
+func (obj *appImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *appImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapApp wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapApp(ptr unsafe.Pointer) App {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFAppT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &appImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *appImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // GetExitCode This function can optionally be called on the main application thread after CefInitialize to retrieve the initialization exit code. When CefInitialize returns true (1) the exit code will be 0 (CEF_RESULT_CODE_NORMAL_EXIT). Otherwise, see cef_resultcode_t for possible exit code values including browser process initialization errors and normal early exit conditions (such as CEF_RESULT_CODE_NORMAL_EXIT_PROCESS_NOTIFIED for process singleton relaunch behavior).

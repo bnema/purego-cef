@@ -21,7 +21,7 @@ func {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.Pub
 		{{- else if .Return.IsString}}
 	return goStringUserfree(unsafe.Pointer(ret))
 		{{- else if .Return.IsInterface}}
-	return wrap{{.Return.PublicType}}(ret)
+	return {{wrapFuncName .Return.PublicType}}(ret)
 		{{- else if .Return.IsNumeric}}
 	return {{.Return.PublicType}}(ret)
 		{{- else if .Return.IsPointer}}

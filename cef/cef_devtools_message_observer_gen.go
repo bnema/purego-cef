@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -72,13 +73,55 @@ func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObs
 	return w
 }
 
-// wrapDevToolsMessageObserver wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type devToolsMessageObserverImpl struct {
+	rawPtr *capi.CEFDevToolsMessageObserverT
+}
+
+func (obj *devToolsMessageObserverImpl) OnDevToolsMessage(browser Browser, message unsafe.Pointer, messageSize int) int32 {
+	ret := obj.rawPtr.CallOnDevToolsMessage(uintptr(extractRawPointer(browser)), uintptr(message), uintptr(messageSize))
+	return int32(ret)
+}
+
+func (obj *devToolsMessageObserverImpl) OnDevToolsMethodResult(browser Browser, messageID int32, success int32, result unsafe.Pointer, resultSize int) {
+	obj.rawPtr.CallOnDevToolsMethodResult(uintptr(extractRawPointer(browser)), uintptr(messageID), uintptr(success), uintptr(result), uintptr(resultSize))
+}
+
+func (obj *devToolsMessageObserverImpl) OnDevToolsEvent(browser Browser, method string, params unsafe.Pointer, paramsSize int) {
+	methodStr := cefString(method)
+	defer freeCefString(&methodStr)
+	obj.rawPtr.CallOnDevToolsEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&methodStr)), uintptr(params), uintptr(paramsSize))
+}
+
+func (obj *devToolsMessageObserverImpl) OnDevToolsAgentAttached(browser Browser) {
+	obj.rawPtr.CallOnDevToolsAgentAttached(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *devToolsMessageObserverImpl) OnDevToolsAgentDetached(browser Browser) {
+	obj.rawPtr.CallOnDevToolsAgentDetached(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *devToolsMessageObserverImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *devToolsMessageObserverImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapDevToolsMessageObserver wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapDevToolsMessageObserver(ptr unsafe.Pointer) DevToolsMessageObserver {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFDevToolsMessageObserverT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &devToolsMessageObserverImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *devToolsMessageObserverImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -52,13 +53,42 @@ func NewResponseFilter(impl ResponseFilter) ResponseFilter {
 	return w
 }
 
-// wrapResponseFilter wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type responseFilterImpl struct {
+	rawPtr *capi.CEFResponseFilterT
+}
+
+func (obj *responseFilterImpl) InitFilter() int32 {
+	ret := obj.rawPtr.CallInitFilter()
+	return int32(ret)
+}
+
+func (obj *responseFilterImpl) Filter(dataIn unsafe.Pointer, dataInSize int, dataInRead *int, dataOut unsafe.Pointer, dataOutSize int, dataOutWritten *int) ResponseFilterStatus {
+	ret := obj.rawPtr.CallFilter(uintptr(dataIn), uintptr(dataInSize), uintptr(unsafe.Pointer(dataInRead)), uintptr(dataOut), uintptr(dataOutSize), uintptr(unsafe.Pointer(dataOutWritten)))
+	return ResponseFilterStatus(ret)
+}
+
+func (obj *responseFilterImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *responseFilterImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapResponseFilter wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapResponseFilter(ptr unsafe.Pointer) ResponseFilter {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFResponseFilterT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &responseFilterImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *responseFilterImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

@@ -43,15 +43,38 @@ func NewTask(impl Task) Task {
 	return w
 }
 
-// wrapTask wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type taskImpl struct {
+	rawPtr *capi.CEFTaskT
+}
+
+func (obj *taskImpl) Execute() {
+	obj.rawPtr.CallExecute()
+}
+
+func (obj *taskImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *taskImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapTask wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapTask(ptr unsafe.Pointer) Task {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFTaskT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &taskImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *taskImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // TaskRunner Structure that asynchronously executes tasks on the associated thread. It is safe to call the functions of this structure on any thread. CEF maintains multiple internal threads that are used for handling different types of tasks in different processes. The cef_thread_id_t definitions in cef_types.h list the common CEF threads. Task runners are also available for other CEF threads as appropriate (for example, V8 WebWorker threads).

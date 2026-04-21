@@ -141,15 +141,61 @@ func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
 	return w
 }
 
-// wrapUrlrequestClient wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type urlrequestClientImpl struct {
+	rawPtr *capi.CEFUrlrequestClientT
+}
+
+func (obj *urlrequestClientImpl) OnRequestComplete(request Urlrequest) {
+	obj.rawPtr.CallOnRequestComplete(uintptr(extractRawPointer(request)))
+}
+
+func (obj *urlrequestClientImpl) OnUploadProgress(request Urlrequest, current int64, total int64) {
+	obj.rawPtr.CallOnUploadProgress(uintptr(extractRawPointer(request)), uintptr(current), uintptr(total))
+}
+
+func (obj *urlrequestClientImpl) OnDownloadProgress(request Urlrequest, current int64, total int64) {
+	obj.rawPtr.CallOnDownloadProgress(uintptr(extractRawPointer(request)), uintptr(current), uintptr(total))
+}
+
+func (obj *urlrequestClientImpl) OnDownloadData(request Urlrequest, data unsafe.Pointer, dataLength int) {
+	obj.rawPtr.CallOnDownloadData(uintptr(extractRawPointer(request)), uintptr(data), uintptr(dataLength))
+}
+
+func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, port int32, realm string, scheme string, callback AuthCallback) int32 {
+	hostStr := cefString(host)
+	defer freeCefString(&hostStr)
+	realmStr := cefString(realm)
+	defer freeCefString(&realmStr)
+	schemeStr := cefString(scheme)
+	defer freeCefString(&schemeStr)
+	ret := obj.rawPtr.CallGetAuthCredentials(uintptr(isproxy), uintptr(unsafe.Pointer(&hostStr)), uintptr(port), uintptr(unsafe.Pointer(&realmStr)), uintptr(unsafe.Pointer(&schemeStr)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *urlrequestClientImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *urlrequestClientImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapUrlrequestClient wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapUrlrequestClient(ptr unsafe.Pointer) UrlrequestClient {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFUrlrequestClientT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &urlrequestClientImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *urlrequestClientImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // UrlrequestCreate Create a new URL request that is not associated with a specific browser or frame. Use cef_frame_t::CreateURLRequest instead if you want the request to have this association, in which case it may be handled differently (see documentation on that function). A request created with this function may only originate from the browser process, and will behave as follows:   - It may be intercepted by the client via CefResourceRequestHandler or     CefSchemeHandlerFactory.   - POST data may only contain only a single element of type PDE_TYPE_FILE     or PDE_TYPE_BYTES.   - If |request_context| is empty the global request context will be used. The |request| object will be marked as read-only after calling this function.

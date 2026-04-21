@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -48,13 +49,36 @@ func NewFindHandler(impl FindHandler) FindHandler {
 	return w
 }
 
-// wrapFindHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type findHandlerImpl struct {
+	rawPtr *capi.CEFFindHandlerT
+}
+
+func (obj *findHandlerImpl) OnFindResult(browser Browser, identifier int32, count int32, selectionrect *Rect, activematchordinal int32, finalupdate int32) {
+	obj.rawPtr.CallOnFindResult(uintptr(extractRawPointer(browser)), uintptr(identifier), uintptr(count), uintptr(unsafe.Pointer(selectionrect)), uintptr(activematchordinal), uintptr(finalupdate))
+}
+
+func (obj *findHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *findHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapFindHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapFindHandler(ptr unsafe.Pointer) FindHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFFindHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &findHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *findHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

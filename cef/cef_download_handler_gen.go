@@ -149,13 +149,52 @@ func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
 	return w
 }
 
-// wrapDownloadHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type downloadHandlerImpl struct {
+	rawPtr *capi.CEFDownloadHandlerT
+}
+
+func (obj *downloadHandlerImpl) CanDownload(browser Browser, uRL string, requestMethod string) bool {
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	requestMethodStr := cefString(requestMethod)
+	defer freeCefString(&requestMethodStr)
+	ret := obj.rawPtr.CallCanDownload(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&requestMethodStr)))
+	return ret != 0
+}
+
+func (obj *downloadHandlerImpl) OnBeforeDownload(browser Browser, downloadItem DownloadItem, suggestedName string, callback BeforeDownloadCallback) bool {
+	suggestedNameStr := cefString(suggestedName)
+	defer freeCefString(&suggestedNameStr)
+	ret := obj.rawPtr.CallOnBeforeDownload(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(unsafe.Pointer(&suggestedNameStr)), uintptr(extractRawPointer(callback)))
+	return ret != 0
+}
+
+func (obj *downloadHandlerImpl) OnDownloadUpdated(browser Browser, downloadItem DownloadItem, callback DownloadItemCallback) {
+	obj.rawPtr.CallOnDownloadUpdated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(extractRawPointer(callback)))
+}
+
+func (obj *downloadHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *downloadHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapDownloadHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapDownloadHandler(ptr unsafe.Pointer) DownloadHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFDownloadHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &downloadHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *downloadHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

@@ -26,6 +26,16 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		}
 		return "New" + typeName
 	}
+	wrapFuncName := func(typeName string) string {
+		switch typeName {
+		case "RawAudioHandler":
+			return "wrapAudioHandler"
+		case "RawLifeSpanHandler":
+			return "wrapLifeSpanHandler"
+		default:
+			return "wrap" + typeName
+		}
+	}
 	interfaceRawPointerExpr := func(p ParamData) string {
 		if p.IsHandler {
 			return "extractOrWrapRawPointer(" + p.Name + ", func() any { return " + constructorName(p.PublicType) + "(" + p.Name + ") })"
@@ -47,6 +57,8 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			return "uintptr(" + p.Name + ")"
 		case "dataStruct":
 			return "uintptr(unsafe.Pointer(" + p.Name + "))"
+		case "pixelBuffer":
+			return "uintptr(unsafe.Pointer(unsafe.SliceData(" + p.Name + ")))"
 		case "outCount":
 			return "uintptr(unsafe.Pointer(" + p.CountPartnerName + "CountPtr))"
 		case "outSlice", "outObjectSlice":
@@ -71,6 +83,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		// constructorName returns "newRawX" for types with handwritten public
 		// constructors in bridge.go, "NewX" for everything else.
 		"constructorName": constructorName,
+		"wrapFuncName":    wrapFuncName,
 		"zeroVal": func(typ string) string {
 			switch typ {
 			case "bool":
@@ -237,6 +250,8 @@ func EmitPublic(data *PublicFileData) (string, error) {
 					return "uintptr(" + p.Name + ")"
 				case "dataStruct":
 					return "uintptr(unsafe.Pointer(" + p.Name + "))"
+				case "pixelBuffer":
+					return "uintptr(unsafe.Pointer(unsafe.SliceData(" + p.Name + ")))"
 				case "outCount":
 					return "uintptr(unsafe.Pointer(" + p.CountPartnerName + "CountPtr))"
 				case "outSlice", "outObjectSlice":
@@ -371,7 +386,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				if p.PublicType == "unsafe.Pointer" {
 					return "unsafe.Pointer(" + rawName + ")"
 				}
-				return "wrap" + p.PublicType + "(unsafe.Pointer(" + rawName + "))"
+				return wrapFuncName(p.PublicType) + "(unsafe.Pointer(" + rawName + "))"
 			case "string":
 				return "goString(unsafe.Pointer(" + rawName + "))"
 			case "userfreeString":

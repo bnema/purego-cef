@@ -97,6 +97,17 @@ func (d *PublicFileData) HasHandlers() bool {
 	return false
 }
 
+// NeedsRuntime returns true if any generated interface wrapper needs runtime
+// finalizers for ref-counted reverse wrappers.
+func (d *PublicFileData) NeedsRuntime() bool {
+	for _, iface := range d.Interfaces {
+		if !iface.IsScoped {
+			return true
+		}
+	}
+	return false
+}
+
 // NeedsPuregoObjectCalls returns true if any object method needs a typed
 // purego.RegisterFunc binding to preserve float ABI semantics.
 func (d *PublicFileData) NeedsPuregoObjectCalls() bool {

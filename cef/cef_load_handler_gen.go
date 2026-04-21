@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -69,13 +70,52 @@ func NewLoadHandler(impl LoadHandler) LoadHandler {
 	return w
 }
 
-// wrapLoadHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type loadHandlerImpl struct {
+	rawPtr *capi.CEFLoadHandlerT
+}
+
+func (obj *loadHandlerImpl) OnLoadingStateChange(browser Browser, isloading int32, cangoback int32, cangoforward int32) {
+	obj.rawPtr.CallOnLoadingStateChange(uintptr(extractRawPointer(browser)), uintptr(isloading), uintptr(cangoback), uintptr(cangoforward))
+}
+
+func (obj *loadHandlerImpl) OnLoadStart(browser Browser, frame Frame, transitionType TransitionType) {
+	obj.rawPtr.CallOnLoadStart(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(transitionType))
+}
+
+func (obj *loadHandlerImpl) OnLoadEnd(browser Browser, frame Frame, httpstatuscode int32) {
+	obj.rawPtr.CallOnLoadEnd(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(httpstatuscode))
+}
+
+func (obj *loadHandlerImpl) OnLoadError(browser Browser, frame Frame, errorcode Errorcode, errortext string, failedurl string) {
+	errortextStr := cefString(errortext)
+	defer freeCefString(&errortextStr)
+	failedurlStr := cefString(failedurl)
+	defer freeCefString(&failedurlStr)
+	obj.rawPtr.CallOnLoadError(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(errorcode), uintptr(unsafe.Pointer(&errortextStr)), uintptr(unsafe.Pointer(&failedurlStr)))
+}
+
+func (obj *loadHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *loadHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapLoadHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapLoadHandler(ptr unsafe.Pointer) LoadHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFLoadHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &loadHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *loadHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

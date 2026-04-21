@@ -148,15 +148,50 @@ func NewV8Handler(impl V8Handler) V8Handler {
 	return w
 }
 
-// wrapV8Handler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type v8HandlerImpl struct {
+	rawPtr *capi.CEFV8HandlerT
+}
+
+func (obj *v8HandlerImpl) Execute(name string, object V8Value, arguments []V8Value, retval unsafe.Pointer, exception uintptr) int32 {
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	var argumentsRaw []uintptr
+	var argumentsPtr unsafe.Pointer
+	if len(arguments) > 0 {
+		argumentsRaw = make([]uintptr, len(arguments))
+		for i, elem := range arguments {
+			argumentsRaw[i] = uintptr(extractRawPointer(elem))
+		}
+		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
+	}
+	ret := obj.rawPtr.CallExecute(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr), uintptr(retval), exception)
+	return int32(ret)
+}
+
+func (obj *v8HandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *v8HandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapV8Handler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapV8Handler(ptr unsafe.Pointer) V8Handler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFV8HandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &v8HandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *v8HandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // V8Accessor Structure that should be implemented to handle V8 accessor calls. Accessor identifiers are registered by calling cef_v8_value_t::set_value(). The functions of this structure will be called on the thread associated with the V8 accessor.
@@ -201,15 +236,48 @@ func NewV8Accessor(impl V8Accessor) V8Accessor {
 	return w
 }
 
-// wrapV8Accessor wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type v8AccessorImpl struct {
+	rawPtr *capi.CEFV8AccessorT
+}
+
+func (obj *v8AccessorImpl) Get(name string, object V8Value, retval unsafe.Pointer, exception uintptr) int32 {
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	ret := obj.rawPtr.CallGet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
+	return int32(ret)
+}
+
+func (obj *v8AccessorImpl) Set(name string, object V8Value, value V8Value, exception uintptr) int32 {
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	ret := obj.rawPtr.CallSet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
+	return int32(ret)
+}
+
+func (obj *v8AccessorImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *v8AccessorImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapV8Accessor wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapV8Accessor(ptr unsafe.Pointer) V8Accessor {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFV8AccessorT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &v8AccessorImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *v8AccessorImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // V8Interceptor Structure that should be implemented to handle V8 interceptor calls. The functions of this structure will be called on the thread associated with the V8 interceptor. Interceptor's named property handlers (with first argument of type CefString) are called when object is indexed by string. Indexed property handlers (with first argument of type int) are called when object is indexed by integer.
@@ -270,15 +338,58 @@ func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 	return w
 }
 
-// wrapV8Interceptor wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type v8InterceptorImpl struct {
+	rawPtr *capi.CEFV8InterceptorT
+}
+
+func (obj *v8InterceptorImpl) GetByname(name string, object V8Value, retval unsafe.Pointer, exception uintptr) int32 {
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	ret := obj.rawPtr.CallGetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
+	return int32(ret)
+}
+
+func (obj *v8InterceptorImpl) GetByindex(index int32, object V8Value, retval unsafe.Pointer, exception uintptr) int32 {
+	ret := obj.rawPtr.CallGetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(retval), exception)
+	return int32(ret)
+}
+
+func (obj *v8InterceptorImpl) SetByname(name string, object V8Value, value V8Value, exception uintptr) int32 {
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	ret := obj.rawPtr.CallSetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
+	return int32(ret)
+}
+
+func (obj *v8InterceptorImpl) SetByindex(index int32, object V8Value, value V8Value, exception uintptr) int32 {
+	ret := obj.rawPtr.CallSetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
+	return int32(ret)
+}
+
+func (obj *v8InterceptorImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *v8InterceptorImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapV8Interceptor wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapV8Interceptor(ptr unsafe.Pointer) V8Interceptor {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFV8InterceptorT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &v8InterceptorImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *v8InterceptorImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // V8Exception Structure representing a V8 exception. The functions of this structure may be called on any render process thread.
@@ -384,15 +495,38 @@ func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) V8ArrayB
 	return w
 }
 
-// wrapV8ArrayBufferReleaseCallback wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type v8ArrayBufferReleaseCallbackImpl struct {
+	rawPtr *capi.CEFV8ArrayBufferReleaseCallbackT
+}
+
+func (obj *v8ArrayBufferReleaseCallbackImpl) ReleaseBuffer(buffer unsafe.Pointer) {
+	obj.rawPtr.CallReleaseBuffer(uintptr(buffer))
+}
+
+func (obj *v8ArrayBufferReleaseCallbackImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *v8ArrayBufferReleaseCallbackImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapV8ArrayBufferReleaseCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapV8ArrayBufferReleaseCallback(ptr unsafe.Pointer) V8ArrayBufferReleaseCallback {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFV8ArrayBufferReleaseCallbackT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &v8ArrayBufferReleaseCallbackImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *v8ArrayBufferReleaseCallbackImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // V8Value Structure representing a V8 value handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.

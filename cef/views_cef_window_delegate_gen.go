@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -180,13 +181,140 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 	return w
 }
 
-// wrapWindowDelegate wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type windowDelegateImpl struct {
+	rawPtr *capi.CEFWindowDelegateT
+}
+
+func (obj *windowDelegateImpl) OnWindowCreated(window Window) {
+	obj.rawPtr.CallOnWindowCreated(uintptr(extractRawPointer(window)))
+}
+
+func (obj *windowDelegateImpl) OnWindowClosing(window Window) {
+	obj.rawPtr.CallOnWindowClosing(uintptr(extractRawPointer(window)))
+}
+
+func (obj *windowDelegateImpl) OnWindowDestroyed(window Window) {
+	obj.rawPtr.CallOnWindowDestroyed(uintptr(extractRawPointer(window)))
+}
+
+func (obj *windowDelegateImpl) OnWindowActivationChanged(window Window, active int32) {
+	obj.rawPtr.CallOnWindowActivationChanged(uintptr(extractRawPointer(window)), uintptr(active))
+}
+
+func (obj *windowDelegateImpl) OnWindowBoundsChanged(window Window, newBounds *Rect) {
+	obj.rawPtr.CallOnWindowBoundsChanged(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(newBounds)))
+}
+
+func (obj *windowDelegateImpl) OnWindowFullscreenTransition(window Window, isCompleted int32) {
+	obj.rawPtr.CallOnWindowFullscreenTransition(uintptr(extractRawPointer(window)), uintptr(isCompleted))
+}
+
+func (obj *windowDelegateImpl) GetParentWindow(window Window, isMenu *int32, canActivateMenu *int32) Window {
+	ret := obj.rawPtr.CallGetParentWindow(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(isMenu)), uintptr(unsafe.Pointer(canActivateMenu)))
+	return wrapWindow(unsafe.Pointer(ret))
+}
+
+func (obj *windowDelegateImpl) IsWindowModalDialog(window Window) bool {
+	ret := obj.rawPtr.CallIsWindowModalDialog(uintptr(extractRawPointer(window)))
+	return ret != 0
+}
+
+func (obj *windowDelegateImpl) GetInitialBounds(window Window) uintptr {
+	ret := obj.rawPtr.CallGetInitialBounds(uintptr(extractRawPointer(window)))
+	return uintptr(ret)
+}
+
+func (obj *windowDelegateImpl) GetInitialShowState(window Window) ShowState {
+	ret := obj.rawPtr.CallGetInitialShowState(uintptr(extractRawPointer(window)))
+	return ShowState(ret)
+}
+
+func (obj *windowDelegateImpl) IsFrameless(window Window) bool {
+	ret := obj.rawPtr.CallIsFrameless(uintptr(extractRawPointer(window)))
+	return ret != 0
+}
+
+func (obj *windowDelegateImpl) WithStandardWindowButtons(window Window) int32 {
+	ret := obj.rawPtr.CallWithStandardWindowButtons(uintptr(extractRawPointer(window)))
+	return int32(ret)
+}
+
+func (obj *windowDelegateImpl) GetTitlebarHeight(window Window, titlebarHeight *float32) int32 {
+	ret := obj.rawPtr.CallGetTitlebarHeight(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(titlebarHeight)))
+	return int32(ret)
+}
+
+func (obj *windowDelegateImpl) AcceptsFirstMouse(window Window) State {
+	ret := obj.rawPtr.CallAcceptsFirstMouse(uintptr(extractRawPointer(window)))
+	return State(ret)
+}
+
+func (obj *windowDelegateImpl) CanResize(window Window) bool {
+	ret := obj.rawPtr.CallCanResize(uintptr(extractRawPointer(window)))
+	return ret != 0
+}
+
+func (obj *windowDelegateImpl) CanMaximize(window Window) bool {
+	ret := obj.rawPtr.CallCanMaximize(uintptr(extractRawPointer(window)))
+	return ret != 0
+}
+
+func (obj *windowDelegateImpl) CanMinimize(window Window) bool {
+	ret := obj.rawPtr.CallCanMinimize(uintptr(extractRawPointer(window)))
+	return ret != 0
+}
+
+func (obj *windowDelegateImpl) CanClose(window Window) bool {
+	ret := obj.rawPtr.CallCanClose(uintptr(extractRawPointer(window)))
+	return ret != 0
+}
+
+func (obj *windowDelegateImpl) OnAccelerator(window Window, commandID int32) int32 {
+	ret := obj.rawPtr.CallOnAccelerator(uintptr(extractRawPointer(window)), uintptr(commandID))
+	return int32(ret)
+}
+
+func (obj *windowDelegateImpl) OnKeyEvent(window Window, event *KeyEvent) int32 {
+	ret := obj.rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(event)))
+	return int32(ret)
+}
+
+func (obj *windowDelegateImpl) OnThemeColorsChanged(window Window, chromeTheme int32) {
+	obj.rawPtr.CallOnThemeColorsChanged(uintptr(extractRawPointer(window)), uintptr(chromeTheme))
+}
+
+func (obj *windowDelegateImpl) GetWindowRuntimeStyle() RuntimeStyle {
+	ret := obj.rawPtr.CallGetWindowRuntimeStyle()
+	return RuntimeStyle(ret)
+}
+
+func (obj *windowDelegateImpl) GetLinuxWindowProperties(window Window, properties *LinuxWindowProperties) int32 {
+	ret := obj.rawPtr.CallGetLinuxWindowProperties(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(properties)))
+	return int32(ret)
+}
+
+func (obj *windowDelegateImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *windowDelegateImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapWindowDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapWindowDelegate(ptr unsafe.Pointer) WindowDelegate {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFWindowDelegateT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &windowDelegateImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *windowDelegateImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

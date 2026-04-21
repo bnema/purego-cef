@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -100,13 +101,80 @@ func NewViewDelegate(impl ViewDelegate) ViewDelegate {
 	return w
 }
 
-// wrapViewDelegate wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type viewDelegateImpl struct {
+	rawPtr *capi.CEFViewDelegateT
+}
+
+func (obj *viewDelegateImpl) GetPreferredSize(view View) uintptr {
+	ret := obj.rawPtr.CallGetPreferredSize(uintptr(extractRawPointer(view)))
+	return uintptr(ret)
+}
+
+func (obj *viewDelegateImpl) GetMinimumSize(view View) uintptr {
+	ret := obj.rawPtr.CallGetMinimumSize(uintptr(extractRawPointer(view)))
+	return uintptr(ret)
+}
+
+func (obj *viewDelegateImpl) GetMaximumSize(view View) uintptr {
+	ret := obj.rawPtr.CallGetMaximumSize(uintptr(extractRawPointer(view)))
+	return uintptr(ret)
+}
+
+func (obj *viewDelegateImpl) GetHeightForWidth(view View, width int32) int32 {
+	ret := obj.rawPtr.CallGetHeightForWidth(uintptr(extractRawPointer(view)), uintptr(width))
+	return int32(ret)
+}
+
+func (obj *viewDelegateImpl) OnParentViewChanged(view View, added int32, parent View) {
+	obj.rawPtr.CallOnParentViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(parent)))
+}
+
+func (obj *viewDelegateImpl) OnChildViewChanged(view View, added int32, child View) {
+	obj.rawPtr.CallOnChildViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(child)))
+}
+
+func (obj *viewDelegateImpl) OnWindowChanged(view View, added int32) {
+	obj.rawPtr.CallOnWindowChanged(uintptr(extractRawPointer(view)), uintptr(added))
+}
+
+func (obj *viewDelegateImpl) OnLayoutChanged(view View, newBounds *Rect) {
+	obj.rawPtr.CallOnLayoutChanged(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(newBounds)))
+}
+
+func (obj *viewDelegateImpl) OnFocus(view View) {
+	obj.rawPtr.CallOnFocus(uintptr(extractRawPointer(view)))
+}
+
+func (obj *viewDelegateImpl) OnBlur(view View) {
+	obj.rawPtr.CallOnBlur(uintptr(extractRawPointer(view)))
+}
+
+func (obj *viewDelegateImpl) OnThemeChanged(view View) {
+	obj.rawPtr.CallOnThemeChanged(uintptr(extractRawPointer(view)))
+}
+
+func (obj *viewDelegateImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *viewDelegateImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapViewDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapViewDelegate(ptr unsafe.Pointer) ViewDelegate {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFViewDelegateT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &viewDelegateImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *viewDelegateImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

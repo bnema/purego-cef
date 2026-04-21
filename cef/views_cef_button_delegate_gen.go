@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -48,13 +49,40 @@ func NewButtonDelegate(impl ButtonDelegate) ButtonDelegate {
 	return w
 }
 
-// wrapButtonDelegate wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type buttonDelegateImpl struct {
+	rawPtr *capi.CEFButtonDelegateT
+}
+
+func (obj *buttonDelegateImpl) OnButtonPressed(button Button) {
+	obj.rawPtr.CallOnButtonPressed(uintptr(extractRawPointer(button)))
+}
+
+func (obj *buttonDelegateImpl) OnButtonStateChanged(button Button) {
+	obj.rawPtr.CallOnButtonStateChanged(uintptr(extractRawPointer(button)))
+}
+
+func (obj *buttonDelegateImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *buttonDelegateImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapButtonDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapButtonDelegate(ptr unsafe.Pointer) ButtonDelegate {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFButtonDelegateT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &buttonDelegateImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *buttonDelegateImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

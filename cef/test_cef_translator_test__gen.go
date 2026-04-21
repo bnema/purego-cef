@@ -611,15 +611,39 @@ func NewTranslatorTestRefPtrClient(impl TranslatorTestRefPtrClient) TranslatorTe
 	return w
 }
 
-// wrapTranslatorTestRefPtrClient wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type translatorTestRefPtrClientImpl struct {
+	rawPtr *capi.CEFTranslatorTestRefPtrClientT
+}
+
+func (obj *translatorTestRefPtrClientImpl) GetValue() int32 {
+	ret := obj.rawPtr.CallGetValue()
+	return int32(ret)
+}
+
+func (obj *translatorTestRefPtrClientImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *translatorTestRefPtrClientImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapTranslatorTestRefPtrClient wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapTranslatorTestRefPtrClient(ptr unsafe.Pointer) TranslatorTestRefPtrClient {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFTranslatorTestRefPtrClientT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &translatorTestRefPtrClientImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *translatorTestRefPtrClientImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // TranslatorTestRefPtrClientChild Client-side child test object for RefPtr.
@@ -652,15 +676,39 @@ func NewTranslatorTestRefPtrClientChild(impl TranslatorTestRefPtrClientChild) Tr
 	return w
 }
 
-// wrapTranslatorTestRefPtrClientChild wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type translatorTestRefPtrClientChildImpl struct {
+	rawPtr *capi.CEFTranslatorTestRefPtrClientChildT
+}
+
+func (obj *translatorTestRefPtrClientChildImpl) GetOtherValue() int32 {
+	ret := obj.rawPtr.CallGetOtherValue()
+	return int32(ret)
+}
+
+func (obj *translatorTestRefPtrClientChildImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *translatorTestRefPtrClientChildImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapTranslatorTestRefPtrClientChild wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapTranslatorTestRefPtrClientChild(ptr unsafe.Pointer) TranslatorTestRefPtrClientChild {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFTranslatorTestRefPtrClientChildT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &translatorTestRefPtrClientChildImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *translatorTestRefPtrClientChildImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // TranslatorTestScopedLibrary Library-side test object for OwnPtr/RawPtr.
@@ -803,15 +851,25 @@ func NewTranslatorTestScopedClient(impl TranslatorTestScopedClient) TranslatorTe
 	return w
 }
 
-// wrapTranslatorTestScopedClient wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type translatorTestScopedClientImpl struct {
+	rawPtr *capi.CEFTranslatorTestScopedClientT
+}
+
+func (obj *translatorTestScopedClientImpl) GetValue() int32 {
+	ret := obj.rawPtr.CallGetValue()
+	return int32(ret)
+}
+
+func (obj *translatorTestScopedClientImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
 func wrapTranslatorTestScopedClient(ptr unsafe.Pointer) TranslatorTestScopedClient {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFTranslatorTestScopedClientT)(ptr)
+	return &translatorTestScopedClientImpl{rawPtr: r}
 }
 
 // TranslatorTestScopedClientChild Client-side child test object for OwnPtr/RawPtr.
@@ -844,15 +902,39 @@ func NewTranslatorTestScopedClientChild(impl TranslatorTestScopedClientChild) Tr
 	return w
 }
 
-// wrapTranslatorTestScopedClientChild wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type translatorTestScopedClientChildImpl struct {
+	rawPtr *capi.CEFTranslatorTestScopedClientChildT
+}
+
+func (obj *translatorTestScopedClientChildImpl) GetOtherValue() int32 {
+	ret := obj.rawPtr.CallGetOtherValue()
+	return int32(ret)
+}
+
+func (obj *translatorTestScopedClientChildImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *translatorTestScopedClientChildImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapTranslatorTestScopedClientChild wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapTranslatorTestScopedClientChild(ptr unsafe.Pointer) TranslatorTestScopedClientChild {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFTranslatorTestScopedClientChildT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &translatorTestScopedClientChildImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *translatorTestScopedClientChildImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // TranslatorTestCreate Create the test object.

@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -164,13 +165,121 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 	return w
 }
 
-// wrapRenderHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type renderHandlerImpl struct {
+	rawPtr *capi.CEFRenderHandlerT
+}
+
+func (obj *renderHandlerImpl) GetAccessibilityHandler() AccessibilityHandler {
+	ret := obj.rawPtr.CallGetAccessibilityHandler()
+	return wrapAccessibilityHandler(unsafe.Pointer(ret))
+}
+
+func (obj *renderHandlerImpl) GetRootScreenRect(browser Browser, rect *Rect) int32 {
+	ret := obj.rawPtr.CallGetRootScreenRect(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
+	return int32(ret)
+}
+
+func (obj *renderHandlerImpl) GetViewRect(browser Browser, rect *Rect) {
+	obj.rawPtr.CallGetViewRect(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
+}
+
+func (obj *renderHandlerImpl) GetScreenPoint(browser Browser, viewx int32, viewy int32, screenx *int32, screeny *int32) int32 {
+	ret := obj.rawPtr.CallGetScreenPoint(uintptr(extractRawPointer(browser)), uintptr(viewx), uintptr(viewy), uintptr(unsafe.Pointer(screenx)), uintptr(unsafe.Pointer(screeny)))
+	return int32(ret)
+}
+
+func (obj *renderHandlerImpl) GetScreenInfo(browser Browser, screenInfo *ScreenInfo) int32 {
+	ret := obj.rawPtr.CallGetScreenInfo(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(screenInfo)))
+	return int32(ret)
+}
+
+func (obj *renderHandlerImpl) OnPopupShow(browser Browser, show int32) {
+	obj.rawPtr.CallOnPopupShow(uintptr(extractRawPointer(browser)), uintptr(show))
+}
+
+func (obj *renderHandlerImpl) OnPopupSize(browser Browser, rect *Rect) {
+	obj.rawPtr.CallOnPopupSize(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
+}
+
+func (obj *renderHandlerImpl) OnPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, buffer []byte, width int32, height int32) {
+	var dirtyrectsPtr unsafe.Pointer
+	if len(dirtyrects) > 0 {
+		dirtyrectsPtr = unsafe.Pointer(&dirtyrects[0])
+	}
+	obj.rawPtr.CallOnPaint(uintptr(extractRawPointer(browser)), uintptr(type_), uintptr(len(dirtyrects)), uintptr(dirtyrectsPtr), uintptr(unsafe.Pointer(unsafe.SliceData(buffer))), uintptr(width), uintptr(height))
+}
+
+func (obj *renderHandlerImpl) OnAcceleratedPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, info *AcceleratedPaintInfo) {
+	var dirtyrectsPtr unsafe.Pointer
+	if len(dirtyrects) > 0 {
+		dirtyrectsPtr = unsafe.Pointer(&dirtyrects[0])
+	}
+	obj.rawPtr.CallOnAcceleratedPaint(uintptr(extractRawPointer(browser)), uintptr(type_), uintptr(len(dirtyrects)), uintptr(dirtyrectsPtr), uintptr(unsafe.Pointer(info)))
+}
+
+func (obj *renderHandlerImpl) GetTouchHandleSize(browser Browser, orientation HorizontalAlignment, size *Size) {
+	obj.rawPtr.CallGetTouchHandleSize(uintptr(extractRawPointer(browser)), uintptr(orientation), uintptr(unsafe.Pointer(size)))
+}
+
+func (obj *renderHandlerImpl) OnTouchHandleStateChanged(browser Browser, state *TouchHandleState) {
+	obj.rawPtr.CallOnTouchHandleStateChanged(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(state)))
+}
+
+func (obj *renderHandlerImpl) StartDragging(browser Browser, dragData DragData, allowedOps DragOperationsMask, x int32, y int32) int32 {
+	ret := obj.rawPtr.CallStartDragging(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(dragData)), uintptr(allowedOps), uintptr(x), uintptr(y))
+	return int32(ret)
+}
+
+func (obj *renderHandlerImpl) UpdateDragCursor(browser Browser, operation DragOperationsMask) {
+	obj.rawPtr.CallUpdateDragCursor(uintptr(extractRawPointer(browser)), uintptr(operation))
+}
+
+func (obj *renderHandlerImpl) OnScrollOffsetChanged(browser Browser, x float64, y float64) {
+	var fn func(*capi.CEFRenderHandlerT, uintptr, float64, float64)
+	purego.RegisterFunc(&fn, obj.rawPtr.OnScrollOffsetChanged)
+	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), x, y)
+}
+
+func (obj *renderHandlerImpl) OnImeCompositionRangeChanged(browser Browser, selectedRange *Range, characterBounds []Rect) {
+	var characterBoundsPtr unsafe.Pointer
+	if len(characterBounds) > 0 {
+		characterBoundsPtr = unsafe.Pointer(&characterBounds[0])
+	}
+	obj.rawPtr.CallOnImeCompositionRangeChanged(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(selectedRange)), uintptr(len(characterBounds)), uintptr(characterBoundsPtr))
+}
+
+func (obj *renderHandlerImpl) OnTextSelectionChanged(browser Browser, selectedText string, selectedRange *Range) {
+	selectedTextStr := cefString(selectedText)
+	defer freeCefString(&selectedTextStr)
+	obj.rawPtr.CallOnTextSelectionChanged(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&selectedTextStr)), uintptr(unsafe.Pointer(selectedRange)))
+}
+
+func (obj *renderHandlerImpl) OnVirtualKeyboardRequested(browser Browser, inputMode TextInputMode) {
+	obj.rawPtr.CallOnVirtualKeyboardRequested(uintptr(extractRawPointer(browser)), uintptr(inputMode))
+}
+
+func (obj *renderHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *renderHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapRenderHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapRenderHandler(ptr unsafe.Pointer) RenderHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFRenderHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &renderHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *renderHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

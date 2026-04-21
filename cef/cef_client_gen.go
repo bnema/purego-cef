@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -298,13 +299,127 @@ func NewRawClient(impl RawClient) RawClient {
 	return w
 }
 
-// wrapRawClient wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type rawClientImpl struct {
+	rawPtr *capi.CEFClientT
+}
+
+func (obj *rawClientImpl) GetAudioHandler() RawAudioHandler {
+	ret := obj.rawPtr.CallGetAudioHandler()
+	return wrapAudioHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetCommandHandler() CommandHandler {
+	ret := obj.rawPtr.CallGetCommandHandler()
+	return wrapCommandHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetContextMenuHandler() ContextMenuHandler {
+	ret := obj.rawPtr.CallGetContextMenuHandler()
+	return wrapContextMenuHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetDialogHandler() DialogHandler {
+	ret := obj.rawPtr.CallGetDialogHandler()
+	return wrapDialogHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetDisplayHandler() DisplayHandler {
+	ret := obj.rawPtr.CallGetDisplayHandler()
+	return wrapDisplayHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetDownloadHandler() DownloadHandler {
+	ret := obj.rawPtr.CallGetDownloadHandler()
+	return wrapDownloadHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetDragHandler() DragHandler {
+	ret := obj.rawPtr.CallGetDragHandler()
+	return wrapDragHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetFindHandler() FindHandler {
+	ret := obj.rawPtr.CallGetFindHandler()
+	return wrapFindHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetFocusHandler() FocusHandler {
+	ret := obj.rawPtr.CallGetFocusHandler()
+	return wrapFocusHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetFrameHandler() FrameHandler {
+	ret := obj.rawPtr.CallGetFrameHandler()
+	return wrapFrameHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetPermissionHandler() PermissionHandler {
+	ret := obj.rawPtr.CallGetPermissionHandler()
+	return wrapPermissionHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetJsdialogHandler() JsdialogHandler {
+	ret := obj.rawPtr.CallGetJsdialogHandler()
+	return wrapJsdialogHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetKeyboardHandler() KeyboardHandler {
+	ret := obj.rawPtr.CallGetKeyboardHandler()
+	return wrapKeyboardHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetLifeSpanHandler() RawLifeSpanHandler {
+	ret := obj.rawPtr.CallGetLifeSpanHandler()
+	return wrapLifeSpanHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetLoadHandler() LoadHandler {
+	ret := obj.rawPtr.CallGetLoadHandler()
+	return wrapLoadHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetPrintHandler() PrintHandler {
+	ret := obj.rawPtr.CallGetPrintHandler()
+	return wrapPrintHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetRenderHandler() RenderHandler {
+	ret := obj.rawPtr.CallGetRenderHandler()
+	return wrapRenderHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) GetRequestHandler() RequestHandler {
+	ret := obj.rawPtr.CallGetRequestHandler()
+	return wrapRequestHandler(unsafe.Pointer(ret))
+}
+
+func (obj *rawClientImpl) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
+	ret := obj.rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
+	return int32(ret)
+}
+
+func (obj *rawClientImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *rawClientImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapRawClient wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapRawClient(ptr unsafe.Pointer) RawClient {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFClientT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &rawClientImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *rawClientImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

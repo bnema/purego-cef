@@ -70,15 +70,40 @@ func NewPreferenceObserver(impl PreferenceObserver) PreferenceObserver {
 	return w
 }
 
-// wrapPreferenceObserver wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type preferenceObserverImpl struct {
+	rawPtr *capi.CEFPreferenceObserverT
+}
+
+func (obj *preferenceObserverImpl) OnPreferenceChanged(name string) {
+	nameStr := cefString(name)
+	defer freeCefString(&nameStr)
+	obj.rawPtr.CallOnPreferenceChanged(uintptr(unsafe.Pointer(&nameStr)))
+}
+
+func (obj *preferenceObserverImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *preferenceObserverImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapPreferenceObserver wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapPreferenceObserver(ptr unsafe.Pointer) PreferenceObserver {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFPreferenceObserverT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &preferenceObserverImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *preferenceObserverImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // PreferenceManager Manage access to preferences. Many built-in preferences are registered by Chromium. Custom preferences can be registered in cef_browser_process_handler_t::OnRegisterCustomPreferences.

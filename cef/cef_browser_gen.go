@@ -178,15 +178,38 @@ func NewRunFileDialogCallback(impl RunFileDialogCallback) RunFileDialogCallback 
 	return w
 }
 
-// wrapRunFileDialogCallback wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type runFileDialogCallbackImpl struct {
+	rawPtr *capi.CEFRunFileDialogCallbackT
+}
+
+func (obj *runFileDialogCallbackImpl) OnFileDialogDismissed(filePaths StringList) {
+	obj.rawPtr.CallOnFileDialogDismissed(uintptr(filePaths))
+}
+
+func (obj *runFileDialogCallbackImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *runFileDialogCallbackImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapRunFileDialogCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapRunFileDialogCallback(ptr unsafe.Pointer) RunFileDialogCallback {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFRunFileDialogCallbackT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &runFileDialogCallbackImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *runFileDialogCallbackImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // NavigationEntryVisitor Callback structure for cef_browser_host_t::GetNavigationEntries. The functions of this structure will be called on the browser process UI thread.
@@ -223,15 +246,39 @@ func NewNavigationEntryVisitor(impl NavigationEntryVisitor) NavigationEntryVisit
 	return w
 }
 
-// wrapNavigationEntryVisitor wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type navigationEntryVisitorImpl struct {
+	rawPtr *capi.CEFNavigationEntryVisitorT
+}
+
+func (obj *navigationEntryVisitorImpl) Visit(entry NavigationEntry, current int32, index int32, total int32) int32 {
+	ret := obj.rawPtr.CallVisit(uintptr(extractRawPointer(entry)), uintptr(current), uintptr(index), uintptr(total))
+	return int32(ret)
+}
+
+func (obj *navigationEntryVisitorImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *navigationEntryVisitorImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapNavigationEntryVisitor wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapNavigationEntryVisitor(ptr unsafe.Pointer) NavigationEntryVisitor {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFNavigationEntryVisitorT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &navigationEntryVisitorImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *navigationEntryVisitorImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // PdfPrintCallback Callback structure for cef_browser_host_t::PrintToPDF. The functions of this structure will be called on the browser process UI thread.
@@ -266,15 +313,40 @@ func NewPdfPrintCallback(impl PdfPrintCallback) PdfPrintCallback {
 	return w
 }
 
-// wrapPdfPrintCallback wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type pdfPrintCallbackImpl struct {
+	rawPtr *capi.CEFPdfPrintCallbackT
+}
+
+func (obj *pdfPrintCallbackImpl) OnPdfPrintFinished(path string, ok int32) {
+	pathStr := cefString(path)
+	defer freeCefString(&pathStr)
+	obj.rawPtr.CallOnPdfPrintFinished(uintptr(unsafe.Pointer(&pathStr)), uintptr(ok))
+}
+
+func (obj *pdfPrintCallbackImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *pdfPrintCallbackImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapPdfPrintCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapPdfPrintCallback(ptr unsafe.Pointer) PdfPrintCallback {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFPdfPrintCallbackT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &pdfPrintCallbackImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *pdfPrintCallbackImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // DownloadImageCallback Callback structure for cef_browser_host_t::DownloadImage. The functions of this structure will be called on the browser process UI thread.
@@ -310,15 +382,40 @@ func NewDownloadImageCallback(impl DownloadImageCallback) DownloadImageCallback 
 	return w
 }
 
-// wrapDownloadImageCallback wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type downloadImageCallbackImpl struct {
+	rawPtr *capi.CEFDownloadImageCallbackT
+}
+
+func (obj *downloadImageCallbackImpl) OnDownloadImageFinished(imageURL string, httpStatusCode int32, image Image) {
+	imageURLStr := cefString(imageURL)
+	defer freeCefString(&imageURLStr)
+	obj.rawPtr.CallOnDownloadImageFinished(uintptr(unsafe.Pointer(&imageURLStr)), uintptr(httpStatusCode), uintptr(extractRawPointer(image)))
+}
+
+func (obj *downloadImageCallbackImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *downloadImageCallbackImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapDownloadImageCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapDownloadImageCallback(ptr unsafe.Pointer) DownloadImageCallback {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFDownloadImageCallbackT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &downloadImageCallbackImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *downloadImageCallbackImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // BrowserHost Structure used to represent the browser process aspects of a browser. The functions of this structure can only be called in the browser process. They may be called on any thread in that process unless otherwise indicated in the comments.
@@ -371,9 +468,9 @@ func (obj *browserHostImpl) HasView() bool {
 	return ret != 0
 }
 
-func (obj *browserHostImpl) GetClient() unsafe.Pointer {
+func (obj *browserHostImpl) GetClient() RawClient {
 	ret := obj.rawPtr.CallGetClient()
-	return unsafe.Pointer(ret)
+	return wrapRawClient(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) GetRequestContext() RequestContext {

@@ -175,15 +175,66 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	return w
 }
 
-// wrapContextMenuHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type contextMenuHandlerImpl struct {
+	rawPtr *capi.CEFContextMenuHandlerT
+}
+
+func (obj *contextMenuHandlerImpl) OnBeforeContextMenu(browser Browser, frame Frame, params ContextMenuParams, model MenuModel) {
+	obj.rawPtr.CallOnBeforeContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)))
+}
+
+func (obj *contextMenuHandlerImpl) RunContextMenu(browser Browser, frame Frame, params ContextMenuParams, model MenuModel, callback RunContextMenuCallback) int32 {
+	ret := obj.rawPtr.CallRunContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *contextMenuHandlerImpl) OnContextMenuCommand(browser Browser, frame Frame, params ContextMenuParams, commandID int32, eventFlags EventFlags) int32 {
+	ret := obj.rawPtr.CallOnContextMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(commandID), uintptr(eventFlags))
+	return int32(ret)
+}
+
+func (obj *contextMenuHandlerImpl) OnContextMenuDismissed(browser Browser, frame Frame) {
+	obj.rawPtr.CallOnContextMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+}
+
+func (obj *contextMenuHandlerImpl) RunQuickMenu(browser Browser, frame Frame, location *Point, size *Size, editStateFlags QuickMenuEditStateFlags, callback RunQuickMenuCallback) int32 {
+	ret := obj.rawPtr.CallRunQuickMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(location)), uintptr(unsafe.Pointer(size)), uintptr(editStateFlags), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *contextMenuHandlerImpl) OnQuickMenuCommand(browser Browser, frame Frame, commandID int32, eventFlags EventFlags) int32 {
+	ret := obj.rawPtr.CallOnQuickMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(commandID), uintptr(eventFlags))
+	return int32(ret)
+}
+
+func (obj *contextMenuHandlerImpl) OnQuickMenuDismissed(browser Browser, frame Frame) {
+	obj.rawPtr.CallOnQuickMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+}
+
+func (obj *contextMenuHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *contextMenuHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapContextMenuHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapContextMenuHandler(ptr unsafe.Pointer) ContextMenuHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFContextMenuHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &contextMenuHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *contextMenuHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // ContextMenuParams Provides information about the context menu state. The functions of this structure can only be accessed on browser process the UI thread.

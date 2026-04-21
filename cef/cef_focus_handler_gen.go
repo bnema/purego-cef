@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -55,13 +56,45 @@ func NewFocusHandler(impl FocusHandler) FocusHandler {
 	return w
 }
 
-// wrapFocusHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type focusHandlerImpl struct {
+	rawPtr *capi.CEFFocusHandlerT
+}
+
+func (obj *focusHandlerImpl) OnTakeFocus(browser Browser, next int32) {
+	obj.rawPtr.CallOnTakeFocus(uintptr(extractRawPointer(browser)), uintptr(next))
+}
+
+func (obj *focusHandlerImpl) OnSetFocus(browser Browser, source FocusSource) int32 {
+	ret := obj.rawPtr.CallOnSetFocus(uintptr(extractRawPointer(browser)), uintptr(source))
+	return int32(ret)
+}
+
+func (obj *focusHandlerImpl) OnGotFocus(browser Browser) {
+	obj.rawPtr.CallOnGotFocus(uintptr(extractRawPointer(browser)))
+}
+
+func (obj *focusHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *focusHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapFocusHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapFocusHandler(ptr unsafe.Pointer) FocusHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFFocusHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &focusHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *focusHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

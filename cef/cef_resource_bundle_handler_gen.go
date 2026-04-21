@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -59,13 +60,47 @@ func NewResourceBundleHandler(impl ResourceBundleHandler) ResourceBundleHandler 
 	return w
 }
 
-// wrapResourceBundleHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type resourceBundleHandlerImpl struct {
+	rawPtr *capi.CEFResourceBundleHandlerT
+}
+
+func (obj *resourceBundleHandlerImpl) GetLocalizedString(stringID int32, string uintptr) int32 {
+	ret := obj.rawPtr.CallGetLocalizedString(uintptr(stringID), string)
+	return int32(ret)
+}
+
+func (obj *resourceBundleHandlerImpl) GetDataResource(resourceID int32, data unsafe.Pointer, dataSize *int) int32 {
+	ret := obj.rawPtr.CallGetDataResource(uintptr(resourceID), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
+	return int32(ret)
+}
+
+func (obj *resourceBundleHandlerImpl) GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor, data unsafe.Pointer, dataSize *int) int32 {
+	ret := obj.rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
+	return int32(ret)
+}
+
+func (obj *resourceBundleHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *resourceBundleHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapResourceBundleHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapResourceBundleHandler(ptr unsafe.Pointer) ResourceBundleHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFResourceBundleHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &resourceBundleHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *resourceBundleHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -101,13 +102,80 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
 	return w
 }
 
-// wrapBrowserViewDelegate wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type browserViewDelegateImpl struct {
+	rawPtr *capi.CEFBrowserViewDelegateT
+}
+
+func (obj *browserViewDelegateImpl) OnBrowserCreated(browserView BrowserView, browser Browser) {
+	obj.rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(browser)))
+}
+
+func (obj *browserViewDelegateImpl) OnBrowserDestroyed(browserView BrowserView, browser Browser) {
+	obj.rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(browser)))
+}
+
+func (obj *browserViewDelegateImpl) GetDelegateForPopupBrowserView(browserView BrowserView, settings *BrowserSettings, client RawClient, isDevtools int32) BrowserViewDelegate {
+	ret := obj.rawPtr.CallGetDelegateForPopupBrowserView(uintptr(extractRawPointer(browserView)), uintptr(unsafe.Pointer(settings)), uintptr(extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })), uintptr(isDevtools))
+	return wrapBrowserViewDelegate(unsafe.Pointer(ret))
+}
+
+func (obj *browserViewDelegateImpl) OnPopupBrowserViewCreated(browserView BrowserView, popupBrowserView BrowserView, isDevtools int32) int32 {
+	ret := obj.rawPtr.CallOnPopupBrowserViewCreated(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(popupBrowserView)), uintptr(isDevtools))
+	return int32(ret)
+}
+
+func (obj *browserViewDelegateImpl) GetChromeToolbarType(browserView BrowserView) ChromeToolbarType {
+	ret := obj.rawPtr.CallGetChromeToolbarType(uintptr(extractRawPointer(browserView)))
+	return ChromeToolbarType(ret)
+}
+
+func (obj *browserViewDelegateImpl) UseFramelessWindowForPictureInPicture(browserView BrowserView) int32 {
+	ret := obj.rawPtr.CallUseFramelessWindowForPictureInPicture(uintptr(extractRawPointer(browserView)))
+	return int32(ret)
+}
+
+func (obj *browserViewDelegateImpl) OnGestureCommand(browserView BrowserView, gestureCommand GestureCommand) int32 {
+	ret := obj.rawPtr.CallOnGestureCommand(uintptr(extractRawPointer(browserView)), uintptr(gestureCommand))
+	return int32(ret)
+}
+
+func (obj *browserViewDelegateImpl) GetBrowserRuntimeStyle() RuntimeStyle {
+	ret := obj.rawPtr.CallGetBrowserRuntimeStyle()
+	return RuntimeStyle(ret)
+}
+
+func (obj *browserViewDelegateImpl) AllowMoveForPictureInPicture(browserView BrowserView) int32 {
+	ret := obj.rawPtr.CallAllowMoveForPictureInPicture(uintptr(extractRawPointer(browserView)))
+	return int32(ret)
+}
+
+func (obj *browserViewDelegateImpl) AllowPictureInPictureWithoutUserActivation(browserView BrowserView) int32 {
+	ret := obj.rawPtr.CallAllowPictureInPictureWithoutUserActivation(uintptr(extractRawPointer(browserView)))
+	return int32(ret)
+}
+
+func (obj *browserViewDelegateImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *browserViewDelegateImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapBrowserViewDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapBrowserViewDelegate(ptr unsafe.Pointer) BrowserViewDelegate {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFBrowserViewDelegateT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &browserViewDelegateImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *browserViewDelegateImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

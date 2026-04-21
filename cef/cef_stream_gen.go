@@ -64,15 +64,59 @@ func NewReadHandler(impl ReadHandler) ReadHandler {
 	return w
 }
 
-// wrapReadHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type readHandlerImpl struct {
+	rawPtr *capi.CEFReadHandlerT
+}
+
+func (obj *readHandlerImpl) Read(ptr unsafe.Pointer, size int, n int) int {
+	ret := obj.rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
+	return int(ret)
+}
+
+func (obj *readHandlerImpl) SeekOffset(offset int64, whence int32) int32 {
+	ret := obj.rawPtr.CallSeek(uintptr(offset), uintptr(whence))
+	return int32(ret)
+}
+
+func (obj *readHandlerImpl) Tell() int64 {
+	ret := obj.rawPtr.CallTell()
+	return int64(ret)
+}
+
+func (obj *readHandlerImpl) Eof() int32 {
+	ret := obj.rawPtr.CallEof()
+	return int32(ret)
+}
+
+func (obj *readHandlerImpl) MayBlock() int32 {
+	ret := obj.rawPtr.CallMayBlock()
+	return int32(ret)
+}
+
+func (obj *readHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *readHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapReadHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapReadHandler(ptr unsafe.Pointer) ReadHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFReadHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &readHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *readHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // StreamReader Structure used to read data from a stream. The functions of this structure may be called on any thread.
@@ -183,15 +227,59 @@ func NewWriteHandler(impl WriteHandler) WriteHandler {
 	return w
 }
 
-// wrapWriteHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type writeHandlerImpl struct {
+	rawPtr *capi.CEFWriteHandlerT
+}
+
+func (obj *writeHandlerImpl) Write(ptr unsafe.Pointer, size int, n int) int {
+	ret := obj.rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
+	return int(ret)
+}
+
+func (obj *writeHandlerImpl) SeekOffset(offset int64, whence int32) int32 {
+	ret := obj.rawPtr.CallSeek(uintptr(offset), uintptr(whence))
+	return int32(ret)
+}
+
+func (obj *writeHandlerImpl) Tell() int64 {
+	ret := obj.rawPtr.CallTell()
+	return int64(ret)
+}
+
+func (obj *writeHandlerImpl) Flush() int32 {
+	ret := obj.rawPtr.CallFlush()
+	return int32(ret)
+}
+
+func (obj *writeHandlerImpl) MayBlock() int32 {
+	ret := obj.rawPtr.CallMayBlock()
+	return int32(ret)
+}
+
+func (obj *writeHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *writeHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapWriteHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapWriteHandler(ptr unsafe.Pointer) WriteHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFWriteHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &writeHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *writeHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
 
 // StreamWriter Structure used to write data to a stream. The functions of this structure may be called on any thread.

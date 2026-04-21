@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -79,13 +80,57 @@ func NewCommandHandler(impl CommandHandler) CommandHandler {
 	return w
 }
 
-// wrapCommandHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type commandHandlerImpl struct {
+	rawPtr *capi.CEFCommandHandlerT
+}
+
+func (obj *commandHandlerImpl) OnChromeCommand(browser Browser, commandID int32, disposition WindowOpenDisposition) int32 {
+	ret := obj.rawPtr.CallOnChromeCommand(uintptr(extractRawPointer(browser)), uintptr(commandID), uintptr(disposition))
+	return int32(ret)
+}
+
+func (obj *commandHandlerImpl) IsChromeAppMenuItemVisible(browser Browser, commandID int32) bool {
+	ret := obj.rawPtr.CallIsChromeAppMenuItemVisible(uintptr(extractRawPointer(browser)), uintptr(commandID))
+	return ret != 0
+}
+
+func (obj *commandHandlerImpl) IsChromeAppMenuItemEnabled(browser Browser, commandID int32) bool {
+	ret := obj.rawPtr.CallIsChromeAppMenuItemEnabled(uintptr(extractRawPointer(browser)), uintptr(commandID))
+	return ret != 0
+}
+
+func (obj *commandHandlerImpl) IsChromePageActionIconVisible(iconType ChromePageActionIconType) bool {
+	ret := obj.rawPtr.CallIsChromePageActionIconVisible(uintptr(iconType))
+	return ret != 0
+}
+
+func (obj *commandHandlerImpl) IsChromeToolbarButtonVisible(buttonType ChromeToolbarButtonType) bool {
+	ret := obj.rawPtr.CallIsChromeToolbarButtonVisible(uintptr(buttonType))
+	return ret != 0
+}
+
+func (obj *commandHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *commandHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapCommandHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapCommandHandler(ptr unsafe.Pointer) CommandHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFCommandHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &commandHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *commandHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }

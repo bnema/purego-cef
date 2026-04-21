@@ -91,13 +91,41 @@ func NewDialogHandler(impl DialogHandler) DialogHandler {
 	return w
 }
 
-// wrapDialogHandler wraps a CEF handler pointer received from CEF into a Go interface.
-// This is a no-op wrapper since handler pointers from CEF are opaque; the returned
-// interface is a thin facade that cannot call back into the original implementation.
+type dialogHandlerImpl struct {
+	rawPtr *capi.CEFDialogHandlerT
+}
+
+func (obj *dialogHandlerImpl) OnFileDialog(browser Browser, mode FileDialogMode, title string, defaultFilePath string, acceptFilters StringList, acceptExtensions StringList, acceptDescriptions StringList, callback FileDialogCallback) int32 {
+	titleStr := cefString(title)
+	defer freeCefString(&titleStr)
+	defaultFilePathStr := cefString(defaultFilePath)
+	defer freeCefString(&defaultFilePathStr)
+	ret := obj.rawPtr.CallOnFileDialog(uintptr(extractRawPointer(browser)), uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), uintptr(acceptFilters), uintptr(acceptExtensions), uintptr(acceptDescriptions), uintptr(extractRawPointer(callback)))
+	return int32(ret)
+}
+
+func (obj *dialogHandlerImpl) RawPointer() unsafe.Pointer {
+	return unsafe.Pointer(obj.rawPtr)
+}
+
+// Release releases the underlying CEF object.
+func (obj *dialogHandlerImpl) Release() {
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	base.CallRelease()
+}
+
+// wrapDialogHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
 func wrapDialogHandler(ptr unsafe.Pointer) DialogHandler {
-	// Handler pointers returned by CEF cannot be meaningfully wrapped because
-	// the underlying function pointers may be Go callbacks that we cannot call
-	// back through purego.  Return nil for now; callers that need the handler
-	// should keep their own reference.
-	return nil
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFDialogHandlerT)(ptr)
+	base := (*capi.CEFBaseRefCountedT)(ptr)
+	base.CallAddRef()
+	impl := &dialogHandlerImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, func(o *dialogHandlerImpl) {
+		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
+		b.CallRelease()
+	})
+	return impl
 }
