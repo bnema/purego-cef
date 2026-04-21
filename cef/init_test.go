@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/bnema/purego-cef/internal/capi"
 	"github.com/bnema/purego-cef/internal/core"
 	portout "github.com/bnema/purego-cef/internal/ports/out"
 	portoutmocks "github.com/bnema/purego-cef/internal/ports/out/mocks"
@@ -21,6 +22,25 @@ func (subprocessAppStub) OnRegisterCustomSchemes(SchemeRegistrar)           {}
 func (subprocessAppStub) GetResourceBundleHandler() ResourceBundleHandler   { return nil }
 func (subprocessAppStub) GetBrowserProcessHandler() BrowserProcessHandler   { return nil }
 func (subprocessAppStub) GetRenderProcessHandler() RenderProcessHandler     { return nil }
+
+type subprocessCallbackAppStub struct {
+	commandLineCalls int
+	schemeCalls      int
+}
+
+func (a *subprocessCallbackAppStub) OnBeforeCommandLineProcessing(_ string, commandLine CommandLine) {
+	a.commandLineCalls++
+	commandLine.AppendSwitch("from-subprocess-test")
+}
+
+func (a *subprocessCallbackAppStub) OnRegisterCustomSchemes(registrar SchemeRegistrar) {
+	a.schemeCalls++
+	registrar.AddCustomScheme("subprocess-test", 0)
+}
+
+func (*subprocessCallbackAppStub) GetResourceBundleHandler() ResourceBundleHandler { return nil }
+func (*subprocessCallbackAppStub) GetBrowserProcessHandler() BrowserProcessHandler { return nil }
+func (*subprocessCallbackAppStub) GetRenderProcessHandler() RenderProcessHandler   { return nil }
 
 func restoreInitTestDeps() func() {
 	prevOpen := openCEFLibrary
@@ -91,6 +111,7 @@ func TestExecuteSubprocessReturnsExecutedExitCode(t *testing.T) {
 	defer restoreInitTestDeps()()
 
 	m := portoutmocks.NewMockCAPI(t)
+	m.EXPECT().NewCallback(mock.Anything).Maybe().Return(uintptr(0))
 	m.EXPECT().ExecuteProcess(mock.Anything, unsafe.Pointer(nil), unsafe.Pointer(nil)).Return(int32(7)).Once()
 
 	openCEFLibrary = func(string) (uintptr, error) { return 1, nil }
@@ -113,6 +134,7 @@ func TestExecuteSubprocessReturnsContinueStatus(t *testing.T) {
 	defer restoreInitTestDeps()()
 
 	m := portoutmocks.NewMockCAPI(t)
+	m.EXPECT().NewCallback(mock.Anything).Maybe().Return(uintptr(0))
 	m.EXPECT().ExecuteProcess(mock.Anything, unsafe.Pointer(nil), unsafe.Pointer(nil)).Return(int32(-1)).Once()
 
 	openCEFLibrary = func(string) (uintptr, error) { return 1, nil }
@@ -195,10 +217,54 @@ func TestExecuteSubprocessWithAppPassesWrappedAppAndLeavesEngineUntouched(t *tes
 	}
 }
 
+func TestExecuteSubprocessWithAppKeepsEngineAvailableForAppCallbacks(t *testing.T) {
+	defer restoreInitTestDeps()()
+
+	app := &subprocessCallbackAppStub{}
+	m := portoutmocks.NewMockCAPI(t)
+	m.EXPECT().NewCallback(mock.Anything).Maybe().Return(uintptr(0))
+	m.EXPECT().StringSet(mock.Anything, mock.Anything, mock.Anything, int32(1)).Return(int32(1)).Maybe()
+	m.EXPECT().StringClear(mock.Anything).Return().Maybe()
+	m.EXPECT().ExecuteProcess(mock.Anything, mock.Anything, unsafe.Pointer(nil)).
+		RunAndReturn(func(_ unsafe.Pointer, application unsafe.Pointer, _ unsafe.Pointer) int32 {
+			if application == nil {
+				t.Fatal("ExecuteProcess application = nil, want wrapped App pointer")
+			}
+			rawApp := (*capi.CEFAppT)(application)
+			rawCommandLine := &capi.CEFCommandLineT{}
+			rawRegistrar := &capi.CEFSchemeRegistrarT{}
+			rawApp.CallOnBeforeCommandLineProcessing(0, uintptr(unsafe.Pointer(rawCommandLine)))
+			rawApp.CallOnRegisterCustomSchemes(uintptr(unsafe.Pointer(rawRegistrar)))
+			return 5
+		}).Once()
+
+	openCEFLibrary = func(string) (uintptr, error) { return 1, nil }
+	newCAPI = func(uintptr) portout.CAPI { return m }
+	processArgs = func() []string { return []string{"purego-cef-test"} }
+
+	executed, exitCode, err := ExecuteSubprocessWithApp(app)
+	if err != nil {
+		t.Fatalf("ExecuteSubprocessWithApp(...) error = %v, want nil", err)
+	}
+	if !executed {
+		t.Fatal("ExecuteSubprocessWithApp(...) executed = false, want true")
+	}
+	if exitCode != 5 {
+		t.Fatalf("ExecuteSubprocessWithApp(...) exitCode = %d, want 5", exitCode)
+	}
+	if app.commandLineCalls != 1 {
+		t.Fatalf("OnBeforeCommandLineProcessing call count = %d, want 1", app.commandLineCalls)
+	}
+	if app.schemeCalls != 1 {
+		t.Fatalf("OnRegisterCustomSchemes call count = %d, want 1", app.schemeCalls)
+	}
+}
+
 func TestMaybeExitSubprocessExitsOnHandledSubprocess(t *testing.T) {
 	defer restoreInitTestDeps()()
 
 	m := portoutmocks.NewMockCAPI(t)
+	m.EXPECT().NewCallback(mock.Anything).Maybe().Return(uintptr(0))
 	m.EXPECT().ExecuteProcess(mock.Anything, unsafe.Pointer(nil), unsafe.Pointer(nil)).Return(int32(11)).Once()
 
 	openCEFLibrary = func(string) (uintptr, error) { return 1, nil }

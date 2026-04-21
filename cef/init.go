@@ -143,21 +143,32 @@ func ExecuteSubprocessWithApp(app App) (executed bool, exitCode int, err error) 
 		return false, 0, err
 	}
 	api := newCAPI(handle)
+	// ExecuteProcess may invoke App callbacks that use generated helpers like
+	// cefString/freeCefString/goStringUserfree, all of which route through eng.
+	// Keep a lightweight subprocess engine installed for the full callback window,
+	// matching the historical behavior from the pre-v0.10 path.
+	subprocessEngine := core.New(api)
+	subprocessRefs := subprocessEngine.Refs()
+	registerRefManager(subprocessRefs)
+	defer unregisterRefManager(subprocessRefs)
+
+	previousEngine := eng
+	eng = subprocessEngine
+	defer func() {
+		eng = previousEngine
+	}()
 
 	var appPtr unsafe.Pointer
 	var wrapped App
-	if !isNilImpl(app) {
-		tempRefs := core.NewRefManager(api)
-		registerRefManager(tempRefs)
-		defer unregisterRefManager(tempRefs)
-		withCurrentRefManager(tempRefs, func() {
+	args := core.NewMainArgs(processArgs())
+	var code int32
+	withCurrentRefManager(subprocessRefs, func() {
+		if !isNilImpl(app) {
 			wrapped = NewApp(app)
 			appPtr = extractRawPointer(wrapped)
-		})
-	}
-
-	args := core.NewMainArgs(processArgs())
-	code := api.ExecuteProcess(args.Ptr(), appPtr, nil)
+		}
+		code = api.ExecuteProcess(args.Ptr(), appPtr, nil)
+	})
 	runtime.KeepAlive(args)
 	runtime.KeepAlive(wrapped)
 	if code >= 0 {
