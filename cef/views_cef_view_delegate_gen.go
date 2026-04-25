@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,64 +36,64 @@ func NewViewDelegate(impl ViewDelegate) ViewDelegate {
 	r := new(capi.CEFViewDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetPreferredSize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideGetPreferredSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		view := wrapView(unsafe.Pointer(arg0))
 		return uintptr(impl.GetPreferredSize(view))
 	}))
 
-	r.OverrideGetMinimumSize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideGetMinimumSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		view := wrapView(unsafe.Pointer(arg0))
 		return uintptr(impl.GetMinimumSize(view))
 	}))
 
-	r.OverrideGetMaximumSize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideGetMaximumSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		view := wrapView(unsafe.Pointer(arg0))
 		return uintptr(impl.GetMaximumSize(view))
 	}))
 
-	r.OverrideGetHeightForWidth(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideGetHeightForWidth(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		view := wrapView(unsafe.Pointer(arg0))
 		width := int32(arg1)
 		return uintptr(impl.GetHeightForWidth(view, width))
 	}))
 
-	r.OverrideOnParentViewChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnParentViewChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		view := wrapView(unsafe.Pointer(arg0))
 		added := int32(arg1)
 		parent := wrapView(unsafe.Pointer(arg2))
 		impl.OnParentViewChanged(view, added, parent)
 	}))
 
-	r.OverrideOnChildViewChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnChildViewChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		view := wrapView(unsafe.Pointer(arg0))
 		added := int32(arg1)
 		child := wrapView(unsafe.Pointer(arg2))
 		impl.OnChildViewChanged(view, added, child)
 	}))
 
-	r.OverrideOnWindowChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnWindowChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		view := wrapView(unsafe.Pointer(arg0))
 		added := int32(arg1)
 		impl.OnWindowChanged(view, added)
 	}))
 
-	r.OverrideOnLayoutChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnLayoutChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		view := wrapView(unsafe.Pointer(arg0))
 		newBounds := (*Rect)(unsafe.Pointer(arg1))
 		impl.OnLayoutChanged(view, newBounds)
 	}))
 
-	r.OverrideOnFocus(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnFocus(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		view := wrapView(unsafe.Pointer(arg0))
 		impl.OnFocus(view)
 	}))
 
-	r.OverrideOnBlur(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnBlur(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		view := wrapView(unsafe.Pointer(arg0))
 		impl.OnBlur(view)
 	}))
 
-	r.OverrideOnThemeChanged(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnThemeChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		view := wrapView(unsafe.Pointer(arg0))
 		impl.OnThemeChanged(view)
 	}))

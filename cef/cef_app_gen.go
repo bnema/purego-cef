@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,13 +36,13 @@ func NewApp(impl App) App {
 	r := new(capi.CEFAppT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnBeforeCommandLineProcessing(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnBeforeCommandLineProcessing(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		processType := goString(unsafe.Pointer(arg0))
 		commandLine := wrapCommandLine(unsafe.Pointer(arg1))
 		impl.OnBeforeCommandLineProcessing(processType, commandLine)
 	}))
 
-	r.OverrideOnRegisterCustomSchemes(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnRegisterCustomSchemes(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		registrar := wrapSchemeRegistrar(unsafe.Pointer(arg0))
 		impl.OnRegisterCustomSchemes(registrar)
 	}))
@@ -56,7 +54,7 @@ func NewApp(impl App) App {
 			return NewResourceBundleHandler(h)
 		})
 	}
-	r.OverrideGetResourceBundleHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetResourceBundleHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetResourceBundleHandlerPtr != nil {
 			addRef(cachedGetResourceBundleHandlerPtr)
 		}
@@ -70,7 +68,7 @@ func NewApp(impl App) App {
 			return NewBrowserProcessHandler(h)
 		})
 	}
-	r.OverrideGetBrowserProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetBrowserProcessHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetBrowserProcessHandlerPtr != nil {
 			addRef(cachedGetBrowserProcessHandlerPtr)
 		}
@@ -84,7 +82,7 @@ func NewApp(impl App) App {
 			return NewRenderProcessHandler(h)
 		})
 	}
-	r.OverrideGetRenderProcessHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetRenderProcessHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetRenderProcessHandlerPtr != nil {
 			addRef(cachedGetRenderProcessHandlerPtr)
 		}

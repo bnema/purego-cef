@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,19 +36,19 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
 	r := new(capi.CEFBrowserViewDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnBrowserCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnBrowserCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		browser := wrapBrowser(unsafe.Pointer(arg1))
 		impl.OnBrowserCreated(browserView, browser)
 	}))
 
-	r.OverrideOnBrowserDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnBrowserDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		browser := wrapBrowser(unsafe.Pointer(arg1))
 		impl.OnBrowserDestroyed(browserView, browser)
 	}))
 
-	r.OverrideGetDelegateForPopupBrowserView(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideGetDelegateForPopupBrowserView(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		settings := (*BrowserSettings)(unsafe.Pointer(arg1))
 		client := wrapRawClient(unsafe.Pointer(arg2))
@@ -64,39 +62,39 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
 		}))
 	}))
 
-	r.OverrideOnPopupBrowserViewCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideOnPopupBrowserViewCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		popupBrowserView := wrapBrowserView(unsafe.Pointer(arg1))
 		isDevtools := int32(arg2)
 		return uintptr(impl.OnPopupBrowserViewCreated(browserView, popupBrowserView, isDevtools))
 	}))
 
-	r.OverrideGetChromeToolbarType(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideGetChromeToolbarType(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		return uintptr(impl.GetChromeToolbarType(browserView))
 	}))
 
-	r.OverrideUseFramelessWindowForPictureInPicture(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideUseFramelessWindowForPictureInPicture(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		return uintptr(impl.UseFramelessWindowForPictureInPicture(browserView))
 	}))
 
-	r.OverrideOnGestureCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideOnGestureCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		gestureCommand := GestureCommand(arg1)
 		return uintptr(impl.OnGestureCommand(browserView, gestureCommand))
 	}))
 
-	r.OverrideGetBrowserRuntimeStyle(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetBrowserRuntimeStyle(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetBrowserRuntimeStyle())
 	}))
 
-	r.OverrideAllowMoveForPictureInPicture(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideAllowMoveForPictureInPicture(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		return uintptr(impl.AllowMoveForPictureInPicture(browserView))
 	}))
 
-	r.OverrideAllowPictureInPictureWithoutUserActivation(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideAllowPictureInPictureWithoutUserActivation(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		return uintptr(impl.AllowPictureInPictureWithoutUserActivation(browserView))
 	}))

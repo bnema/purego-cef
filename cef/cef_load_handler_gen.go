@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,7 +36,7 @@ func NewLoadHandler(impl LoadHandler) LoadHandler {
 	r := new(capi.CEFLoadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnLoadingStateChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+	r.OverrideOnLoadingStateChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		isloading := int32(arg1)
 		cangoback := int32(arg2)
@@ -46,21 +44,21 @@ func NewLoadHandler(impl LoadHandler) LoadHandler {
 		impl.OnLoadingStateChange(browser, isloading, cangoback, cangoforward)
 	}))
 
-	r.OverrideOnLoadStart(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnLoadStart(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		transitionType := TransitionType(arg2)
 		impl.OnLoadStart(browser, frame, transitionType)
 	}))
 
-	r.OverrideOnLoadEnd(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnLoadEnd(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		httpstatuscode := int32(arg2)
 		impl.OnLoadEnd(browser, frame, httpstatuscode)
 	}))
 
-	r.OverrideOnLoadError(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+	r.OverrideOnLoadError(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		errorcode := Errorcode(arg2)

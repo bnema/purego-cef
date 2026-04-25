@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -156,7 +154,7 @@ func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 	r := new(capi.CEFPermissionHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnRequestMediaAccessPermission(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+	r.OverrideOnRequestMediaAccessPermission(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		requestingOrigin := goString(unsafe.Pointer(arg2))
@@ -165,7 +163,7 @@ func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 		return uintptr(impl.OnRequestMediaAccessPermission(browser, frame, requestingOrigin, requestedPermissions, callback))
 	}))
 
-	r.OverrideOnShowPermissionPrompt(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+	r.OverrideOnShowPermissionPrompt(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		promptID := arg1
 		requestingOrigin := goString(unsafe.Pointer(arg2))
@@ -174,7 +172,7 @@ func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 		return uintptr(impl.OnShowPermissionPrompt(browser, promptID, requestingOrigin, requestedPermissions, callback))
 	}))
 
-	r.OverrideOnDismissPermissionPrompt(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr) {
+	r.OverrideOnDismissPermissionPrompt(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		promptID := arg1
 		result := PermissionRequestResult(arg2)

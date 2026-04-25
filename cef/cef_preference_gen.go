@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -74,7 +72,7 @@ func NewPreferenceObserver(impl PreferenceObserver) PreferenceObserver {
 	r := new(capi.CEFPreferenceObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnPreferenceChanged(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnPreferenceChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		name := goString(unsafe.Pointer(arg0))
 		impl.OnPreferenceChanged(name)
 	}))

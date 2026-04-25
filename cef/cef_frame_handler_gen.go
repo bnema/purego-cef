@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,32 +36,32 @@ func NewFrameHandler(impl FrameHandler) FrameHandler {
 	r := new(capi.CEFFrameHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnFrameCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnFrameCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		impl.OnFrameCreated(browser, frame)
 	}))
 
-	r.OverrideOnFrameDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnFrameDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		impl.OnFrameDestroyed(browser, frame)
 	}))
 
-	r.OverrideOnFrameAttached(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnFrameAttached(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		reattached := int32(arg2)
 		impl.OnFrameAttached(browser, frame, reattached)
 	}))
 
-	r.OverrideOnFrameDetached(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnFrameDetached(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		impl.OnFrameDetached(browser, frame)
 	}))
 
-	r.OverrideOnMainFrameChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnMainFrameChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		oldFrame := wrapFrame(unsafe.Pointer(arg1))
 		newFrame := wrapFrame(unsafe.Pointer(arg2))

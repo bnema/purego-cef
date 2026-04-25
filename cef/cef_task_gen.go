@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,7 +36,7 @@ func NewTask(impl Task) Task {
 	r := new(capi.CEFTaskT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideExecute(purego.NewCallback(func(self uintptr) {
+	r.OverrideExecute(newCEFCallback(unsafe.Pointer(r), func(self uintptr) {
 		impl.Execute()
 	}))
 

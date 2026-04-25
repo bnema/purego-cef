@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -205,29 +203,29 @@ func NewServerHandler(impl ServerHandler) ServerHandler {
 	r := new(capi.CEFServerHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnServerCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnServerCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		server := wrapServer(unsafe.Pointer(arg0))
 		impl.OnServerCreated(server)
 	}))
 
-	r.OverrideOnServerDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnServerDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		server := wrapServer(unsafe.Pointer(arg0))
 		impl.OnServerDestroyed(server)
 	}))
 
-	r.OverrideOnClientConnected(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnClientConnected(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		impl.OnClientConnected(server, connectionID)
 	}))
 
-	r.OverrideOnClientDisconnected(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnClientDisconnected(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		impl.OnClientDisconnected(server, connectionID)
 	}))
 
-	r.OverrideOnHttpRequest(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+	r.OverrideOnHttpRequest(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		clientAddress := goString(unsafe.Pointer(arg2))
@@ -235,7 +233,7 @@ func NewServerHandler(impl ServerHandler) ServerHandler {
 		impl.OnHttpRequest(server, connectionID, clientAddress, request)
 	}))
 
-	r.OverrideOnWebSocketRequest(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+	r.OverrideOnWebSocketRequest(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		clientAddress := goString(unsafe.Pointer(arg2))
@@ -244,13 +242,13 @@ func NewServerHandler(impl ServerHandler) ServerHandler {
 		impl.OnWebSocketRequest(server, connectionID, clientAddress, request, callback)
 	}))
 
-	r.OverrideOnWebSocketConnected(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnWebSocketConnected(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		impl.OnWebSocketConnected(server, connectionID)
 	}))
 
-	r.OverrideOnWebSocketMessage(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+	r.OverrideOnWebSocketMessage(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		data := unsafe.Pointer(arg2)

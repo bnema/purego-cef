@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,7 +36,7 @@ func NewStringVisitor(impl StringVisitor) StringVisitor {
 	r := new(capi.CEFStringVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideVisit(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideVisit(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		string_ := goString(unsafe.Pointer(arg0))
 		impl.Visit(string_)
 	}))

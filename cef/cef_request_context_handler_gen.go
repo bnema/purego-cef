@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,12 +36,12 @@ func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler 
 	r := new(capi.CEFRequestContextHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnRequestContextInitialized(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnRequestContextInitialized(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		requestContext := wrapRequestContext(unsafe.Pointer(arg0))
 		impl.OnRequestContextInitialized(requestContext)
 	}))
 
-	r.OverrideGetResourceRequestHandler(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+	r.OverrideGetResourceRequestHandler(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))

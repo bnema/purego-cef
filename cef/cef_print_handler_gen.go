@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -156,26 +154,26 @@ func NewPrintHandler(impl PrintHandler) PrintHandler {
 	r := new(capi.CEFPrintHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnPrintStart(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnPrintStart(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnPrintStart(browser)
 	}))
 
-	r.OverrideOnPrintSettings(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnPrintSettings(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		settings := wrapPrintSettings(unsafe.Pointer(arg1))
 		getDefaults := int32(arg2)
 		impl.OnPrintSettings(browser, settings, getDefaults)
 	}))
 
-	r.OverrideOnPrintDialog(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideOnPrintDialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		hasSelection := int32(arg1)
 		callback := wrapPrintDialogCallback(unsafe.Pointer(arg2))
 		return uintptr(impl.OnPrintDialog(browser, hasSelection, callback))
 	}))
 
-	r.OverrideOnPrintJob(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideOnPrintJob(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		documentName := goString(unsafe.Pointer(arg1))
 		pdfFilePath := goString(unsafe.Pointer(arg2))
@@ -183,12 +181,12 @@ func NewPrintHandler(impl PrintHandler) PrintHandler {
 		return uintptr(impl.OnPrintJob(browser, documentName, pdfFilePath, callback))
 	}))
 
-	r.OverrideOnPrintReset(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnPrintReset(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnPrintReset(browser)
 	}))
 
-	r.OverrideGetPdfPaperSize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideGetPdfPaperSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		deviceUnitsPerInch := int32(arg1)
 		return uintptr(impl.GetPdfPaperSize(browser, deviceUnitsPerInch))

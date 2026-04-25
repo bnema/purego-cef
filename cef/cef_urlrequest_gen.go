@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -147,33 +145,33 @@ func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
 	r := new(capi.CEFUrlrequestClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnRequestComplete(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnRequestComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
 		impl.OnRequestComplete(request)
 	}))
 
-	r.OverrideOnUploadProgress(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
+	r.OverrideOnUploadProgress(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
 		current := arg1
 		total := arg2
 		impl.OnUploadProgress(request, current, total)
 	}))
 
-	r.OverrideOnDownloadProgress(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
+	r.OverrideOnDownloadProgress(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
 		current := arg1
 		total := arg2
 		impl.OnDownloadProgress(request, current, total)
 	}))
 
-	r.OverrideOnDownloadData(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnDownloadData(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
 		data := unsafe.Pointer(arg1)
 		dataLength := int(arg2)
 		impl.OnDownloadData(request, data, dataLength)
 	}))
 
-	r.OverrideGetAuthCredentials(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+	r.OverrideGetAuthCredentials(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
 		isproxy := int32(arg0)
 		host := goString(unsafe.Pointer(arg1))
 		port := int32(arg2)

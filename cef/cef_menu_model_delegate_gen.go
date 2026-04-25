@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,42 +36,42 @@ func NewMenuModelDelegate(impl MenuModelDelegate) MenuModelDelegate {
 	r := new(capi.CEFMenuModelDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideExecuteCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideExecuteCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
 		commandID := int32(arg1)
 		eventFlags := EventFlags(arg2)
 		impl.ExecuteCommand(menuModel, commandID, eventFlags)
 	}))
 
-	r.OverrideMouseOutsideMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideMouseOutsideMenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
 		screenPoint := (*Point)(unsafe.Pointer(arg1))
 		impl.MouseOutsideMenu(menuModel, screenPoint)
 	}))
 
-	r.OverrideUnhandledOpenSubmenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideUnhandledOpenSubmenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
 		isRtl := int32(arg1)
 		impl.UnhandledOpenSubmenu(menuModel, isRtl)
 	}))
 
-	r.OverrideUnhandledCloseSubmenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideUnhandledCloseSubmenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
 		isRtl := int32(arg1)
 		impl.UnhandledCloseSubmenu(menuModel, isRtl)
 	}))
 
-	r.OverrideMenuWillShow(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideMenuWillShow(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
 		impl.MenuWillShow(menuModel)
 	}))
 
-	r.OverrideMenuClosed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideMenuClosed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
 		impl.MenuClosed(menuModel)
 	}))
 
-	r.OverrideFormatLabel(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideFormatLabel(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
 		label := uintptr(arg1)
 		return uintptr(impl.FormatLabel(menuModel, label))

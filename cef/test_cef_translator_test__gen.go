@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -936,7 +934,7 @@ func NewTranslatorTestRefPtrClient(impl TranslatorTestRefPtrClient) TranslatorTe
 	r := new(capi.CEFTranslatorTestRefPtrClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValue())
 	}))
 
@@ -1023,7 +1021,7 @@ func NewTranslatorTestRefPtrClientChild(impl TranslatorTestRefPtrClientChild) Tr
 	r := new(capi.CEFTranslatorTestRefPtrClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetOtherValue())
 	}))
 
@@ -1280,7 +1278,7 @@ func NewTranslatorTestScopedClient(impl TranslatorTestScopedClient) TranslatorTe
 	r := new(capi.CEFTranslatorTestScopedClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValue())
 	}))
 
@@ -1344,7 +1342,7 @@ func NewTranslatorTestScopedClientChild(impl TranslatorTestScopedClientChild) Tr
 	r := new(capi.CEFTranslatorTestScopedClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetOtherValue())
 	}))
 

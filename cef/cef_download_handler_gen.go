@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -166,7 +164,7 @@ func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
 	r := new(capi.CEFDownloadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideCanDownload(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideCanDownload(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		uRL := goString(unsafe.Pointer(arg1))
 		requestMethod := goString(unsafe.Pointer(arg2))
@@ -176,7 +174,7 @@ func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
 		return 0
 	}))
 
-	r.OverrideOnBeforeDownload(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideOnBeforeDownload(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		downloadItem := wrapDownloadItem(unsafe.Pointer(arg1))
 		suggestedName := goString(unsafe.Pointer(arg2))
@@ -187,7 +185,7 @@ func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
 		return 0
 	}))
 
-	r.OverrideOnDownloadUpdated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnDownloadUpdated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		downloadItem := wrapDownloadItem(unsafe.Pointer(arg1))
 		callback := wrapDownloadItemCallback(unsafe.Pointer(arg2))

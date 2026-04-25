@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -271,7 +269,7 @@ func NewRunFileDialogCallback(impl RunFileDialogCallback) RunFileDialogCallback 
 	r := new(capi.CEFRunFileDialogCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnFileDialogDismissed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnFileDialogDismissed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		filePaths := StringList(arg0)
 		impl.OnFileDialogDismissed(filePaths)
 	}))
@@ -358,7 +356,7 @@ func NewNavigationEntryVisitor(impl NavigationEntryVisitor) NavigationEntryVisit
 	r := new(capi.CEFNavigationEntryVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideVisit(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideVisit(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		entry := wrapNavigationEntry(unsafe.Pointer(arg0))
 		current := int32(arg1)
 		index := int32(arg2)
@@ -449,7 +447,7 @@ func NewPdfPrintCallback(impl PdfPrintCallback) PdfPrintCallback {
 	r := new(capi.CEFPdfPrintCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnPdfPrintFinished(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnPdfPrintFinished(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		path := goString(unsafe.Pointer(arg0))
 		ok := int32(arg1)
 		impl.OnPdfPrintFinished(path, ok)
@@ -539,7 +537,7 @@ func NewDownloadImageCallback(impl DownloadImageCallback) DownloadImageCallback 
 	r := new(capi.CEFDownloadImageCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnDownloadImageFinished(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnDownloadImageFinished(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		imageURL := goString(unsafe.Pointer(arg0))
 		httpStatusCode := int32(arg1)
 		image := wrapImage(unsafe.Pointer(arg2))

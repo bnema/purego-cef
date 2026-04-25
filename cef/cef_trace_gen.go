@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,7 +36,7 @@ func NewEndTracingCallback(impl EndTracingCallback) EndTracingCallback {
 	r := new(capi.CEFEndTracingCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnEndTracingComplete(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnEndTracingComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		tracingFile := goString(unsafe.Pointer(arg0))
 		impl.OnEndTracingComplete(tracingFile)
 	}))

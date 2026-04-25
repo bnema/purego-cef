@@ -153,7 +153,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 	w := &safeLifeSpanHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
-	r.OverrideOnBeforePopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12 uintptr) uintptr {
+	r.OverrideOnBeforePopup(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		popupID := int32(arg2)
@@ -211,11 +211,11 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		return 0
 	}))
 
-	r.OverrideOnBeforePopupAborted(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) {
+	r.OverrideOnBeforePopupAborted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1 uintptr) {
 		impl.OnBeforePopupAborted(wrapBrowser(unsafe.Pointer(arg0)), int32(arg1))
 	}))
 
-	r.OverrideOnBeforeDevToolsPopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5 uintptr) {
+	r.OverrideOnBeforeDevToolsPopup(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		windowInfo := (*WindowInfo)(unsafe.Pointer(arg1))
 		settings := (*BrowserSettings)(unsafe.Pointer(arg3))
@@ -259,18 +259,18 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		}
 	}))
 
-	r.OverrideOnAfterCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnAfterCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		impl.OnAfterCreated(wrapBrowser(unsafe.Pointer(arg0)))
 	}))
 
-	r.OverrideDoClose(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideDoClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		if impl.DoClose(wrapBrowser(unsafe.Pointer(arg0))) {
 			return 1
 		}
 		return 0
 	}))
 
-	r.OverrideOnBeforeClose(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnBeforeClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		impl.OnBeforeClose(wrapBrowser(unsafe.Pointer(arg0)))
 	}))
 
@@ -318,13 +318,13 @@ func NewAudioHandler(impl AudioHandler) RawAudioHandler {
 	w := &audioHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
-	r.OverrideGetAudioParameters(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) uintptr {
+	r.OverrideGetAudioParameters(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		params := (*AudioParameters)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetAudioParameters(browser, params))
 	}))
 
-	r.OverrideOnAudioStreamStarted(purego.NewCallback(func(self uintptr, arg0, arg1, arg2 uintptr) {
+	r.OverrideOnAudioStreamStarted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		params := (*AudioParameters)(unsafe.Pointer(arg1))
 		channels := int32(arg2)
@@ -334,7 +334,7 @@ func NewAudioHandler(impl AudioHandler) RawAudioHandler {
 		impl.OnAudioStreamStarted(browser, params, channels)
 	}))
 
-	r.OverrideOnAudioStreamPacket(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3 uintptr) {
+	r.OverrideOnAudioStreamPacket(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1, arg2, arg3 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frames := int32(arg2)
 		pts := int64(arg3)
@@ -345,11 +345,11 @@ func NewAudioHandler(impl AudioHandler) RawAudioHandler {
 		impl.OnAudioStreamPacket(browser, decoded, frames, pts)
 	}))
 
-	r.OverrideOnAudioStreamStopped(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnAudioStreamStopped(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		impl.OnAudioStreamStopped(wrapBrowser(unsafe.Pointer(arg0)))
 	}))
 
-	r.OverrideOnAudioStreamError(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) {
+	r.OverrideOnAudioStreamError(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1 uintptr) {
 		impl.OnAudioStreamError(wrapBrowser(unsafe.Pointer(arg0)), goString(unsafe.Pointer(arg1)))
 	}))
 
@@ -493,6 +493,14 @@ func mustCurrentRefManager() *core.RefManager {
 // initRefCount wires refcount callbacks into a CEF base struct header.
 func initRefCount(base unsafe.Pointer, size uintptr, owner any) {
 	mustCurrentRefManager().InitRefCount(base, size, owner)
+}
+
+// newCEFCallback creates a per-object callback trampoline and ties its purego
+// slot to the owning CEF object's refcount lifetime.
+func newCEFCallback(base unsafe.Pointer, fn any) uintptr {
+	cb := purego.NewCallback(fn)
+	mustCurrentRefManager().TrackCallback(base, cb)
+	return cb
 }
 
 // addRef increments the refcount for the object at base.

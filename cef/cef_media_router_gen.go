@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -129,7 +127,7 @@ func NewMediaObserver(impl MediaObserver) MediaObserver {
 	r := new(capi.CEFMediaObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnSinks(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnSinks(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		var sinks []MediaSink
 		if arg1 != 0 && arg0 > 0 {
 			sinksPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg1)), int(arg0))
@@ -141,7 +139,7 @@ func NewMediaObserver(impl MediaObserver) MediaObserver {
 		impl.OnSinks(sinks)
 	}))
 
-	r.OverrideOnRoutes(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnRoutes(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		var routes []MediaRoute
 		if arg1 != 0 && arg0 > 0 {
 			routesPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg1)), int(arg0))
@@ -153,13 +151,13 @@ func NewMediaObserver(impl MediaObserver) MediaObserver {
 		impl.OnRoutes(routes)
 	}))
 
-	r.OverrideOnRouteStateChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnRouteStateChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		route := wrapMediaRoute(unsafe.Pointer(arg0))
 		state := MediaRouteConnectionState(arg1)
 		impl.OnRouteStateChanged(route, state)
 	}))
 
-	r.OverrideOnRouteMessageReceived(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnRouteMessageReceived(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		route := wrapMediaRoute(unsafe.Pointer(arg0))
 		message := unsafe.Pointer(arg1)
 		messageSize := int(arg2)
@@ -380,7 +378,7 @@ func NewMediaRouteCreateCallback(impl MediaRouteCreateCallback) MediaRouteCreate
 	r := new(capi.CEFMediaRouteCreateCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnMediaRouteCreateFinished(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnMediaRouteCreateFinished(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		result := MediaRouteCreateResult(arg0)
 		error := goString(unsafe.Pointer(arg1))
 		route := wrapMediaRoute(unsafe.Pointer(arg2))
@@ -580,7 +578,7 @@ func NewMediaSinkDeviceInfoCallback(impl MediaSinkDeviceInfoCallback) MediaSinkD
 	r := new(capi.CEFMediaSinkDeviceInfoCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnMediaSinkDeviceInfo(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnMediaSinkDeviceInfo(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		deviceInfo := (*MediaSinkDeviceInfo)(unsafe.Pointer(arg0))
 		impl.OnMediaSinkDeviceInfo(deviceInfo)
 	}))

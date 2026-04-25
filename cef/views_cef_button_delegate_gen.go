@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,12 +36,12 @@ func NewButtonDelegate(impl ButtonDelegate) ButtonDelegate {
 	r := new(capi.CEFButtonDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnButtonPressed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnButtonPressed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		button := wrapButton(unsafe.Pointer(arg0))
 		impl.OnButtonPressed(button)
 	}))
 
-	r.OverrideOnButtonStateChanged(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnButtonStateChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		button := wrapButton(unsafe.Pointer(arg0))
 		impl.OnButtonStateChanged(button)
 	}))

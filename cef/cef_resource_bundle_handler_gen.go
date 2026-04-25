@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,20 +36,20 @@ func NewResourceBundleHandler(impl ResourceBundleHandler) ResourceBundleHandler 
 	r := new(capi.CEFResourceBundleHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetLocalizedString(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideGetLocalizedString(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		stringID := int32(arg0)
 		string_ := uintptr(arg1)
 		return uintptr(impl.GetLocalizedString(stringID, string_))
 	}))
 
-	r.OverrideGetDataResource(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideGetDataResource(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		resourceID := int32(arg0)
 		data := unsafe.Pointer(arg1)
 		dataSize := (*int)(unsafe.Pointer(arg2))
 		return uintptr(impl.GetDataResource(resourceID, data, dataSize))
 	}))
 
-	r.OverrideGetDataResourceForScale(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideGetDataResourceForScale(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		resourceID := int32(arg0)
 		scaleFactor := ScaleFactor(arg1)
 		data := unsafe.Pointer(arg2)

@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -45,26 +43,26 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 			return NewAccessibilityHandler(h)
 		})
 	}
-	r.OverrideGetAccessibilityHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetAccessibilityHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetAccessibilityHandlerPtr != nil {
 			addRef(cachedGetAccessibilityHandlerPtr)
 		}
 		return uintptr(cachedGetAccessibilityHandlerPtr)
 	}))
 
-	r.OverrideGetRootScreenRect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideGetRootScreenRect(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		rect := (*Rect)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetRootScreenRect(browser, rect))
 	}))
 
-	r.OverrideGetViewRect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideGetViewRect(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		rect := (*Rect)(unsafe.Pointer(arg1))
 		impl.GetViewRect(browser, rect)
 	}))
 
-	r.OverrideGetScreenPoint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+	r.OverrideGetScreenPoint(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		viewx := int32(arg1)
 		viewy := int32(arg2)
@@ -73,25 +71,25 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		return uintptr(impl.GetScreenPoint(browser, viewx, viewy, screenx, screeny))
 	}))
 
-	r.OverrideGetScreenInfo(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideGetScreenInfo(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		screenInfo := (*ScreenInfo)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetScreenInfo(browser, screenInfo))
 	}))
 
-	r.OverrideOnPopupShow(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnPopupShow(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		show := int32(arg1)
 		impl.OnPopupShow(browser, show)
 	}))
 
-	r.OverrideOnPopupSize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnPopupSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		rect := (*Rect)(unsafe.Pointer(arg1))
 		impl.OnPopupSize(browser, rect)
 	}))
 
-	r.OverrideOnPaint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) {
+	r.OverrideOnPaint(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		type_ := PaintElementType(arg1)
 		dirtyrects := decodeSlice[Rect](arg3, int(arg2))
@@ -101,7 +99,7 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		impl.OnPaint(browser, type_, dirtyrects, buffer, width, height)
 	}))
 
-	r.OverrideOnAcceleratedPaint(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+	r.OverrideOnAcceleratedPaint(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		type_ := PaintElementType(arg1)
 		dirtyrects := decodeSlice[Rect](arg3, int(arg2))
@@ -109,20 +107,20 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		impl.OnAcceleratedPaint(browser, type_, dirtyrects, info)
 	}))
 
-	r.OverrideGetTouchHandleSize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideGetTouchHandleSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		orientation := HorizontalAlignment(arg1)
 		size := (*Size)(unsafe.Pointer(arg2))
 		impl.GetTouchHandleSize(browser, orientation, size)
 	}))
 
-	r.OverrideOnTouchHandleStateChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnTouchHandleStateChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		state := (*TouchHandleState)(unsafe.Pointer(arg1))
 		impl.OnTouchHandleStateChanged(browser, state)
 	}))
 
-	r.OverrideStartDragging(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+	r.OverrideStartDragging(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		dragData := wrapDragData(unsafe.Pointer(arg1))
 		allowedOps := DragOperationsMask(arg2)
@@ -131,34 +129,34 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		return uintptr(impl.StartDragging(browser, dragData, allowedOps, x, y))
 	}))
 
-	r.OverrideUpdateDragCursor(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideUpdateDragCursor(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		operation := DragOperationsMask(arg1)
 		impl.UpdateDragCursor(browser, operation)
 	}))
 
-	r.OverrideOnScrollOffsetChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 float64, arg2 float64) {
+	r.OverrideOnScrollOffsetChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 float64, arg2 float64) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		x := arg1
 		y := arg2
 		impl.OnScrollOffsetChanged(browser, x, y)
 	}))
 
-	r.OverrideOnImeCompositionRangeChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+	r.OverrideOnImeCompositionRangeChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		selectedRange := (*Range)(unsafe.Pointer(arg1))
 		characterBounds := decodeSlice[Rect](arg3, int(arg2))
 		impl.OnImeCompositionRangeChanged(browser, selectedRange, characterBounds)
 	}))
 
-	r.OverrideOnTextSelectionChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnTextSelectionChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		selectedText := goString(unsafe.Pointer(arg1))
 		selectedRange := (*Range)(unsafe.Pointer(arg2))
 		impl.OnTextSelectionChanged(browser, selectedText, selectedRange)
 	}))
 
-	r.OverrideOnVirtualKeyboardRequested(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnVirtualKeyboardRequested(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		inputMode := TextInputMode(arg1)
 		impl.OnVirtualKeyboardRequested(browser, inputMode)

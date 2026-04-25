@@ -5,8 +5,8 @@ package capi
 import (
 	"unsafe"
 
-	portout "github.com/bnema/purego-cef/internal/ports/out"
 	"github.com/bnema/purego"
+	portout "github.com/bnema/purego-cef/internal/ports/out"
 )
 
 // Bridge implements portout.CAPI using purego bindings.
@@ -100,6 +100,10 @@ func (b *Bridge) SetNestableTasksAllowed(allowed unsafe.Pointer) {
 
 func (b *Bridge) NewCallback(fn any) uintptr {
 	return purego.NewCallback(fn)
+}
+
+func (b *Bridge) UnrefCallback(cb uintptr) error {
+	return purego.UnrefCallback(cb)
 }
 
 func (b *Bridge) StringSet(src *uint16, srcLen uintptr, output unsafe.Pointer, cp int32) int32 {

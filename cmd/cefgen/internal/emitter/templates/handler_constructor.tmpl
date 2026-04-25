@@ -29,7 +29,7 @@ func {{constructorName .Name}}(impl {{.Name}}) {{.Name}} {
 			return {{constructorName .GetterInterface}}(h)
 		})
 	}
-	r.Override{{.RawFieldName}}(purego.NewCallback(func(_ uintptr) uintptr {
+	r.Override{{.RawFieldName}}(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cached{{.Name}}Ptr != nil {
 			addRef(cached{{.Name}}Ptr)
 		}
@@ -37,7 +37,7 @@ func {{constructorName .Name}}(impl {{.Name}}) {{.Name}} {
 	}))
 	{{- else}}
 	{{- $rawPs := .RawParams}}
-	r.Override{{.RawFieldName}}(purego.NewCallback(func(self uintptr{{range $i, $p := .RawParams}}, {{cbParamName $p $i}} {{if and (eq $p.MarshalKind "numeric") (isTypedCallbackPublicType $p.PublicType)}}{{$p.PublicType}}{{else}}uintptr{{end}}{{end}}) {{if .Return.IsVoid}}{{else}}uintptr{{end}} {
+	r.Override{{.RawFieldName}}(newCEFCallback(unsafe.Pointer(r), func(self uintptr{{range $i, $p := .RawParams}}, {{cbParamName $p $i}} {{if and (eq $p.MarshalKind "numeric") (isTypedCallbackPublicType $p.PublicType)}}{{$p.PublicType}}{{else}}uintptr{{end}}{{end}}) {{if .Return.IsVoid}}{{else}}uintptr{{end}} {
 		{{- range $i, $p := .Params}}
 		{{- if eq $p.MarshalKind "slice"}}
 		{{$p.Name}} := decodeSlice[{{$p.SliceElemType}}]({{slicePtrArg $p $rawPs}}, int({{sliceCountArg $p $rawPs}}))

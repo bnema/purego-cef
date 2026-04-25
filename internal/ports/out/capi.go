@@ -12,6 +12,7 @@ type CAPI interface {
 
 	// Infrastructure — not in parsed CEF headers, handwritten.
 	NewCallback(fn any) uintptr
+	UnrefCallback(cb uintptr) error
 	StringSet(src *uint16, srcLen uintptr, output unsafe.Pointer, copy int32) int32
 	StringClear(s unsafe.Pointer)
 	StringUserfreeFree(s unsafe.Pointer)

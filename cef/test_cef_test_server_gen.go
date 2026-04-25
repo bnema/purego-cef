@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -102,7 +100,7 @@ func NewTestServerHandler(impl TestServerHandler) TestServerHandler {
 	r := new(capi.CEFTestServerHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnTestServerRequest(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideOnTestServerRequest(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		server := wrapTestServer(unsafe.Pointer(arg0))
 		request := wrapRequest(unsafe.Pointer(arg1))
 		connection := wrapTestServerConnection(unsafe.Pointer(arg2))

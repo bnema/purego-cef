@@ -17,10 +17,6 @@ import (
 {{- if or .Interfaces .NeedsUnsafe .HasSizedDataStructs}}
 	"unsafe"
 {{- end}}
-{{- if .HasHandlers}}
-
-	"github.com/bnema/purego"
-{{- end}}
 {{- if .NeedsRaw}}
 
 	"github.com/bnema/purego-cef/internal/capi"

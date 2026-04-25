@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,7 +36,7 @@ func NewDomvisitor(impl Domvisitor) Domvisitor {
 	r := new(capi.CEFDomvisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideVisit(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideVisit(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		document := wrapDomdocument(unsafe.Pointer(arg0))
 		impl.Visit(document)
 	}))

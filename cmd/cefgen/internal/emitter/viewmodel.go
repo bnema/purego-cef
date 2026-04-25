@@ -89,8 +89,7 @@ func (d *PublicFileData) HasObjects() bool {
 	return false
 }
 
-// HasHandlers returns true if there are handler interfaces with methods
-// (which need purego.NewCallback).
+// HasHandlers returns true if there are handler interfaces with methods.
 func (d *PublicFileData) HasHandlers() bool {
 	for _, iface := range d.Interfaces {
 		if iface.Kind == "handler" && len(iface.Methods) > 0 {

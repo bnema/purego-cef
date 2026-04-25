@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,13 +36,13 @@ func NewTextfieldDelegate(impl TextfieldDelegate) TextfieldDelegate {
 	r := new(capi.CEFTextfieldDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideOnKeyEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		textfield := wrapTextfield(unsafe.Pointer(arg0))
 		event := (*KeyEvent)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnKeyEvent(textfield, event))
 	}))
 
-	r.OverrideOnAfterUserAction(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnAfterUserAction(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		textfield := wrapTextfield(unsafe.Pointer(arg0))
 		impl.OnAfterUserAction(textfield)
 	}))

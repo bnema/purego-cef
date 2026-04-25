@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -164,7 +162,7 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	r := new(capi.CEFContextMenuHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnBeforeContextMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+	r.OverrideOnBeforeContextMenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		params := wrapContextMenuParams(unsafe.Pointer(arg2))
@@ -172,7 +170,7 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 		impl.OnBeforeContextMenu(browser, frame, params, model)
 	}))
 
-	r.OverrideRunContextMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+	r.OverrideRunContextMenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		params := wrapContextMenuParams(unsafe.Pointer(arg2))
@@ -181,7 +179,7 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 		return uintptr(impl.RunContextMenu(browser, frame, params, model, callback))
 	}))
 
-	r.OverrideOnContextMenuCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+	r.OverrideOnContextMenuCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		params := wrapContextMenuParams(unsafe.Pointer(arg2))
@@ -190,13 +188,13 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 		return uintptr(impl.OnContextMenuCommand(browser, frame, params, commandID, eventFlags))
 	}))
 
-	r.OverrideOnContextMenuDismissed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnContextMenuDismissed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		impl.OnContextMenuDismissed(browser, frame)
 	}))
 
-	r.OverrideRunQuickMenu(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+	r.OverrideRunQuickMenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		location := (*Point)(unsafe.Pointer(arg2))
@@ -206,7 +204,7 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 		return uintptr(impl.RunQuickMenu(browser, frame, location, size, editStateFlags, callback))
 	}))
 
-	r.OverrideOnQuickMenuCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideOnQuickMenuCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		commandID := int32(arg2)
@@ -214,7 +212,7 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 		return uintptr(impl.OnQuickMenuCommand(browser, frame, commandID, eventFlags))
 	}))
 
-	r.OverrideOnQuickMenuDismissed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnQuickMenuDismissed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		impl.OnQuickMenuDismissed(browser, frame)

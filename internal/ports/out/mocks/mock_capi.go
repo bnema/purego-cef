@@ -698,3 +698,54 @@ func (_c *MockCAPI_StringUserfreeFree_Call) RunAndReturn(run func(s unsafe.Point
 	_c.Run(run)
 	return _c
 }
+
+// UnrefCallback provides a mock function for the type MockCAPI
+func (_mock *MockCAPI) UnrefCallback(cb uintptr) error {
+	ret := _mock.Called(cb)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UnrefCallback")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(uintptr) error); ok {
+		r0 = returnFunc(cb)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockCAPI_UnrefCallback_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UnrefCallback'
+type MockCAPI_UnrefCallback_Call struct {
+	*mock.Call
+}
+
+// UnrefCallback is a helper method to define mock.On call
+//   - cb uintptr
+func (_e *MockCAPI_Expecter) UnrefCallback(cb interface{}) *MockCAPI_UnrefCallback_Call {
+	return &MockCAPI_UnrefCallback_Call{Call: _e.mock.On("UnrefCallback", cb)}
+}
+
+func (_c *MockCAPI_UnrefCallback_Call) Run(run func(cb uintptr)) *MockCAPI_UnrefCallback_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 uintptr
+		if args[0] != nil {
+			arg0 = args[0].(uintptr)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockCAPI_UnrefCallback_Call) Return(err error) *MockCAPI_UnrefCallback_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockCAPI_UnrefCallback_Call) RunAndReturn(run func(cb uintptr) error) *MockCAPI_UnrefCallback_Call {
+	_c.Call.Return(run)
+	return _c
+}

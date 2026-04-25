@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,14 +36,14 @@ func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObs
 	r := new(capi.CEFDevToolsMessageObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnDevToolsMessage(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideOnDevToolsMessage(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		message := unsafe.Pointer(arg1)
 		messageSize := int(arg2)
 		return uintptr(impl.OnDevToolsMessage(browser, message, messageSize))
 	}))
 
-	r.OverrideOnDevToolsMethodResult(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+	r.OverrideOnDevToolsMethodResult(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		messageID := int32(arg1)
 		success := int32(arg2)
@@ -54,7 +52,7 @@ func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObs
 		impl.OnDevToolsMethodResult(browser, messageID, success, result, resultSize)
 	}))
 
-	r.OverrideOnDevToolsEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+	r.OverrideOnDevToolsEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		method := goString(unsafe.Pointer(arg1))
 		params := unsafe.Pointer(arg2)
@@ -62,12 +60,12 @@ func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObs
 		impl.OnDevToolsEvent(browser, method, params, paramsSize)
 	}))
 
-	r.OverrideOnDevToolsAgentAttached(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnDevToolsAgentAttached(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnDevToolsAgentAttached(browser)
 	}))
 
-	r.OverrideOnDevToolsAgentDetached(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnDevToolsAgentDetached(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnDevToolsAgentDetached(browser)
 	}))

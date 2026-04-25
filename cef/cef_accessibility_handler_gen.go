@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,12 +36,12 @@ func NewAccessibilityHandler(impl AccessibilityHandler) AccessibilityHandler {
 	r := new(capi.CEFAccessibilityHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnAccessibilityTreeChange(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnAccessibilityTreeChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		value := wrapValue(unsafe.Pointer(arg0))
 		impl.OnAccessibilityTreeChange(value)
 	}))
 
-	r.OverrideOnAccessibilityLocationChange(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnAccessibilityLocationChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		value := wrapValue(unsafe.Pointer(arg0))
 		impl.OnAccessibilityLocationChange(value)
 	}))

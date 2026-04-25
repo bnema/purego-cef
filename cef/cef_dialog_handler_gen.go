@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -101,7 +99,7 @@ func NewDialogHandler(impl DialogHandler) DialogHandler {
 	r := new(capi.CEFDialogHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnFileDialog(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr) uintptr {
+	r.OverrideOnFileDialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		mode := FileDialogMode(arg1)
 		title := goString(unsafe.Pointer(arg2))

@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,14 +36,14 @@ func NewDragHandler(impl DragHandler) DragHandler {
 	r := new(capi.CEFDragHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnDragEnter(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideOnDragEnter(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		dragdata := wrapDragData(unsafe.Pointer(arg1))
 		mask := DragOperationsMask(arg2)
 		return uintptr(impl.OnDragEnter(browser, dragdata, mask))
 	}))
 
-	r.OverrideOnDraggableRegionsChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+	r.OverrideOnDraggableRegionsChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		regions := decodeSlice[DraggableRegion](arg3, int(arg2))

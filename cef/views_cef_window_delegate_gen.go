@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,47 +36,47 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 	r := new(capi.CEFWindowDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnWindowCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnWindowCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		impl.OnWindowCreated(window)
 	}))
 
-	r.OverrideOnWindowClosing(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnWindowClosing(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		impl.OnWindowClosing(window)
 	}))
 
-	r.OverrideOnWindowDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnWindowDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		impl.OnWindowDestroyed(window)
 	}))
 
-	r.OverrideOnWindowActivationChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnWindowActivationChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		active := int32(arg1)
 		impl.OnWindowActivationChanged(window, active)
 	}))
 
-	r.OverrideOnWindowBoundsChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnWindowBoundsChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		newBounds := (*Rect)(unsafe.Pointer(arg1))
 		impl.OnWindowBoundsChanged(window, newBounds)
 	}))
 
-	r.OverrideOnWindowFullscreenTransition(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnWindowFullscreenTransition(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		isCompleted := int32(arg1)
 		impl.OnWindowFullscreenTransition(window, isCompleted)
 	}))
 
-	r.OverrideGetParentWindow(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideGetParentWindow(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		isMenu := (*int32)(unsafe.Pointer(arg1))
 		canActivateMenu := (*int32)(unsafe.Pointer(arg2))
 		return uintptr(extractRawPointer(impl.GetParentWindow(window, isMenu, canActivateMenu)))
 	}))
 
-	r.OverrideIsWindowModalDialog(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideIsWindowModalDialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		if impl.IsWindowModalDialog(window) {
 			return 1
@@ -86,17 +84,17 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 		return 0
 	}))
 
-	r.OverrideGetInitialBounds(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideGetInitialBounds(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		return uintptr(impl.GetInitialBounds(window))
 	}))
 
-	r.OverrideGetInitialShowState(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideGetInitialShowState(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		return uintptr(impl.GetInitialShowState(window))
 	}))
 
-	r.OverrideIsFrameless(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideIsFrameless(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		if impl.IsFrameless(window) {
 			return 1
@@ -104,23 +102,23 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 		return 0
 	}))
 
-	r.OverrideWithStandardWindowButtons(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideWithStandardWindowButtons(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		return uintptr(impl.WithStandardWindowButtons(window))
 	}))
 
-	r.OverrideGetTitlebarHeight(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideGetTitlebarHeight(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		titlebarHeight := (*float32)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetTitlebarHeight(window, titlebarHeight))
 	}))
 
-	r.OverrideAcceptsFirstMouse(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideAcceptsFirstMouse(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		return uintptr(impl.AcceptsFirstMouse(window))
 	}))
 
-	r.OverrideCanResize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideCanResize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		if impl.CanResize(window) {
 			return 1
@@ -128,7 +126,7 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 		return 0
 	}))
 
-	r.OverrideCanMaximize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideCanMaximize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		if impl.CanMaximize(window) {
 			return 1
@@ -136,7 +134,7 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 		return 0
 	}))
 
-	r.OverrideCanMinimize(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideCanMinimize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		if impl.CanMinimize(window) {
 			return 1
@@ -144,7 +142,7 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 		return 0
 	}))
 
-	r.OverrideCanClose(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideCanClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		if impl.CanClose(window) {
 			return 1
@@ -152,29 +150,29 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 		return 0
 	}))
 
-	r.OverrideOnAccelerator(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideOnAccelerator(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		commandID := int32(arg1)
 		return uintptr(impl.OnAccelerator(window, commandID))
 	}))
 
-	r.OverrideOnKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideOnKeyEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		event := (*KeyEvent)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnKeyEvent(window, event))
 	}))
 
-	r.OverrideOnThemeColorsChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnThemeColorsChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		chromeTheme := int32(arg1)
 		impl.OnThemeColorsChanged(window, chromeTheme)
 	}))
 
-	r.OverrideGetWindowRuntimeStyle(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetWindowRuntimeStyle(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetWindowRuntimeStyle())
 	}))
 
-	r.OverrideGetLinuxWindowProperties(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideGetLinuxWindowProperties(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		window := wrapWindow(unsafe.Pointer(arg0))
 		properties := (*LinuxWindowProperties)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetLinuxWindowProperties(window, properties))

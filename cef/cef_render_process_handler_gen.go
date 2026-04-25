@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,17 +36,17 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 	r := new(capi.CEFRenderProcessHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnWebKitInitialized(purego.NewCallback(func(self uintptr) {
+	r.OverrideOnWebKitInitialized(newCEFCallback(unsafe.Pointer(r), func(self uintptr) {
 		impl.OnWebKitInitialized()
 	}))
 
-	r.OverrideOnBrowserCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnBrowserCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		extraInfo := wrapDictionaryValue(unsafe.Pointer(arg1))
 		impl.OnBrowserCreated(browser, extraInfo)
 	}))
 
-	r.OverrideOnBrowserDestroyed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnBrowserDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnBrowserDestroyed(browser)
 	}))
@@ -60,28 +58,28 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 			return NewLoadHandler(h)
 		})
 	}
-	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetLoadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetLoadHandlerPtr != nil {
 			addRef(cachedGetLoadHandlerPtr)
 		}
 		return uintptr(cachedGetLoadHandlerPtr)
 	}))
 
-	r.OverrideOnContextCreated(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnContextCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		context := wrapV8Context(unsafe.Pointer(arg2))
 		impl.OnContextCreated(browser, frame, context)
 	}))
 
-	r.OverrideOnContextReleased(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnContextReleased(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		context := wrapV8Context(unsafe.Pointer(arg2))
 		impl.OnContextReleased(browser, frame, context)
 	}))
 
-	r.OverrideOnUncaughtException(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+	r.OverrideOnUncaughtException(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		context := wrapV8Context(unsafe.Pointer(arg2))
@@ -90,14 +88,14 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 		impl.OnUncaughtException(browser, frame, context, exception, stacktrace)
 	}))
 
-	r.OverrideOnFocusedNodeChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnFocusedNodeChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		node := wrapDomnode(unsafe.Pointer(arg2))
 		impl.OnFocusedNodeChanged(browser, frame, node)
 	}))
 
-	r.OverrideOnProcessMessageReceived(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideOnProcessMessageReceived(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		sourceProcess := ProcessID(arg2)

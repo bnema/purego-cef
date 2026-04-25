@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -138,7 +136,7 @@ func NewCookieVisitor(impl CookieVisitor) CookieVisitor {
 	r := new(capi.CEFCookieVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideVisit(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideVisit(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		cookie := (*Cookie)(unsafe.Pointer(arg0))
 		count := int32(arg1)
 		total := int32(arg2)
@@ -229,7 +227,7 @@ func NewSetCookieCallback(impl SetCookieCallback) SetCookieCallback {
 	r := new(capi.CEFSetCookieCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnComplete(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		success := int32(arg0)
 		impl.OnComplete(success)
 	}))
@@ -316,7 +314,7 @@ func NewDeleteCookiesCallback(impl DeleteCookiesCallback) DeleteCookiesCallback 
 	r := new(capi.CEFDeleteCookiesCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnComplete(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		numDeleted := int32(arg0)
 		impl.OnComplete(numDeleted)
 	}))

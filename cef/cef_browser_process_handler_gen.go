@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,28 +36,28 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 	r := new(capi.CEFBrowserProcessHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnRegisterCustomPreferences(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnRegisterCustomPreferences(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		type_ := PreferencesType(arg0)
 		registrar := wrapPreferenceRegistrar(unsafe.Pointer(arg1))
 		impl.OnRegisterCustomPreferences(type_, registrar)
 	}))
 
-	r.OverrideOnContextInitialized(purego.NewCallback(func(self uintptr) {
+	r.OverrideOnContextInitialized(newCEFCallback(unsafe.Pointer(r), func(self uintptr) {
 		impl.OnContextInitialized()
 	}))
 
-	r.OverrideOnBeforeChildProcessLaunch(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnBeforeChildProcessLaunch(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		commandLine := wrapCommandLine(unsafe.Pointer(arg0))
 		impl.OnBeforeChildProcessLaunch(commandLine)
 	}))
 
-	r.OverrideOnAlreadyRunningAppRelaunch(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideOnAlreadyRunningAppRelaunch(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		commandLine := wrapCommandLine(unsafe.Pointer(arg0))
 		currentDirectory := goString(unsafe.Pointer(arg1))
 		return uintptr(impl.OnAlreadyRunningAppRelaunch(commandLine, currentDirectory))
 	}))
 
-	r.OverrideOnScheduleMessagePumpWork(purego.NewCallback(func(self uintptr, arg0 int64) {
+	r.OverrideOnScheduleMessagePumpWork(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 int64) {
 		delayMs := arg0
 		impl.OnScheduleMessagePumpWork(delayMs)
 	}))
@@ -71,7 +69,7 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 			return NewRawClient(h)
 		})
 	}
-	r.OverrideGetDefaultClient(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetDefaultClient(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetDefaultClientPtr != nil {
 			addRef(cachedGetDefaultClientPtr)
 		}
@@ -85,7 +83,7 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 			return NewRequestContextHandler(h)
 		})
 	}
-	r.OverrideGetDefaultRequestContextHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetDefaultRequestContextHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetDefaultRequestContextHandlerPtr != nil {
 			addRef(cachedGetDefaultRequestContextHandlerPtr)
 		}

@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,7 +36,7 @@ func NewResolveCallback(impl ResolveCallback) ResolveCallback {
 	r := new(capi.CEFResolveCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnResolveCompleted(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnResolveCompleted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		result := Errorcode(arg0)
 		resolvedIps := StringList(arg1)
 		impl.OnResolveCompleted(result, resolvedIps)
@@ -126,7 +124,7 @@ func NewSettingObserver(impl SettingObserver) SettingObserver {
 	r := new(capi.CEFSettingObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnSettingChanged(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnSettingChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		requestingURL := goString(unsafe.Pointer(arg0))
 		topLevelURL := goString(unsafe.Pointer(arg1))
 		contentType := ContentSettingTypes(arg2)

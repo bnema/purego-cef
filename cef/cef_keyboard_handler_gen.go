@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,7 +36,7 @@ func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
 	r := new(capi.CEFKeyboardHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnPreKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideOnPreKeyEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		event := (*KeyEvent)(unsafe.Pointer(arg1))
 		osEvent := uintptr(arg2)
@@ -46,7 +44,7 @@ func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
 		return uintptr(impl.OnPreKeyEvent(browser, event, osEvent, isKeyboardShortcut))
 	}))
 
-	r.OverrideOnKeyEvent(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideOnKeyEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		event := (*KeyEvent)(unsafe.Pointer(arg1))
 		osEvent := uintptr(arg2)

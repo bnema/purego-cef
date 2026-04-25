@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,7 +36,7 @@ func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 	r := new(capi.CEFLifeSpanHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnBeforePopup(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr, arg8 uintptr, arg9 uintptr, arg10 uintptr, arg11 uintptr, arg12 uintptr) uintptr {
+	r.OverrideOnBeforePopup(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr, arg8 uintptr, arg9 uintptr, arg10 uintptr, arg11 uintptr, arg12 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		popupID := int32(arg2)
@@ -58,13 +56,13 @@ func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 		return 0
 	}))
 
-	r.OverrideOnBeforePopupAborted(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnBeforePopupAborted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		popupID := int32(arg1)
 		impl.OnBeforePopupAborted(browser, popupID)
 	}))
 
-	r.OverrideOnBeforeDevToolsPopup(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
+	r.OverrideOnBeforeDevToolsPopup(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		windowinfo := (*WindowInfo)(unsafe.Pointer(arg1))
 		client := unsafe.Pointer(arg2)
@@ -74,12 +72,12 @@ func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 		impl.OnBeforeDevToolsPopup(browser, windowinfo, client, settings, extraInfo, useDefaultWindow)
 	}))
 
-	r.OverrideOnAfterCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnAfterCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnAfterCreated(browser)
 	}))
 
-	r.OverrideDoClose(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideDoClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		if impl.DoClose(browser) {
 			return 1
@@ -87,7 +85,7 @@ func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 		return 0
 	}))
 
-	r.OverrideOnBeforeClose(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnBeforeClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnBeforeClose(browser)
 	}))

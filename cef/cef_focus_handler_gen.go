@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,19 +36,19 @@ func NewFocusHandler(impl FocusHandler) FocusHandler {
 	r := new(capi.CEFFocusHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnTakeFocus(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnTakeFocus(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		next := int32(arg1)
 		impl.OnTakeFocus(browser, next)
 	}))
 
-	r.OverrideOnSetFocus(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideOnSetFocus(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		source := FocusSource(arg1)
 		return uintptr(impl.OnSetFocus(browser, source))
 	}))
 
-	r.OverrideOnGotFocus(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnGotFocus(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnGotFocus(browser)
 	}))

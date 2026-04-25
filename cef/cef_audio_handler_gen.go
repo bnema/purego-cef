@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,20 +36,20 @@ func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
 	r := new(capi.CEFAudioHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetAudioParameters(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideGetAudioParameters(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		params := (*AudioParameters)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetAudioParameters(browser, params))
 	}))
 
-	r.OverrideOnAudioStreamStarted(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnAudioStreamStarted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		params := (*AudioParameters)(unsafe.Pointer(arg1))
 		channels := int32(arg2)
 		impl.OnAudioStreamStarted(browser, params, channels)
 	}))
 
-	r.OverrideOnAudioStreamPacket(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 int64) {
+	r.OverrideOnAudioStreamPacket(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 int64) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		data := unsafe.Pointer(arg1)
 		frames := int32(arg2)
@@ -59,12 +57,12 @@ func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
 		impl.OnAudioStreamPacket(browser, data, frames, pts)
 	}))
 
-	r.OverrideOnAudioStreamStopped(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnAudioStreamStopped(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnAudioStreamStopped(browser)
 	}))
 
-	r.OverrideOnAudioStreamError(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnAudioStreamError(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		message := goString(unsafe.Pointer(arg1))
 		impl.OnAudioStreamError(browser, message)

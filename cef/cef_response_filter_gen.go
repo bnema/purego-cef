@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,11 +36,11 @@ func NewResponseFilter(impl ResponseFilter) ResponseFilter {
 	r := new(capi.CEFResponseFilterT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideInitFilter(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideInitFilter(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.InitFilter())
 	}))
 
-	r.OverrideFilter(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+	r.OverrideFilter(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
 		dataIn := unsafe.Pointer(arg0)
 		dataInSize := int(arg1)
 		dataInRead := (*int)(unsafe.Pointer(arg2))

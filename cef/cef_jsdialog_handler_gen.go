@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -95,7 +93,7 @@ func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 	r := new(capi.CEFJsdialogHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnJsdialog(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+	r.OverrideOnJsdialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		originURL := goString(unsafe.Pointer(arg1))
 		dialogType := JsdialogType(arg2)
@@ -106,7 +104,7 @@ func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 		return uintptr(impl.OnJsdialog(browser, originURL, dialogType, messageText, defaultPromptText, callback, suppressMessage))
 	}))
 
-	r.OverrideOnBeforeUnloadDialog(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideOnBeforeUnloadDialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		messageText := goString(unsafe.Pointer(arg1))
 		isReload := int32(arg2)
@@ -117,12 +115,12 @@ func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 		return 0
 	}))
 
-	r.OverrideOnResetDialogState(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnResetDialogState(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnResetDialogState(browser)
 	}))
 
-	r.OverrideOnDialogClosed(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnDialogClosed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnDialogClosed(browser)
 	}))

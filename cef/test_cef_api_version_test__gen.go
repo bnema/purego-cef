@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -868,23 +866,23 @@ func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) ApiVersionTe
 	r := new(capi.CEFApiVersionTestRefPtrClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetValueLegacy(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValueLegacy(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValueLegacy())
 	}))
 
-	r.OverrideGetValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValue())
 	}))
 
-	r.OverrideGetValueV1(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValueV1(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValueV1())
 	}))
 
-	r.OverrideGetValueV2(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValueV2(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValueV2())
 	}))
 
-	r.OverrideGetValueExp(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValueExp(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValueExp())
 	}))
 
@@ -1007,11 +1005,11 @@ func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) Ap
 	r := new(capi.CEFApiVersionTestRefPtrClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetOtherValue())
 	}))
 
-	r.OverrideGetOtherValueV1(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetOtherValueV1(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetOtherValueV1())
 	}))
 
@@ -1107,11 +1105,11 @@ func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2
 	r := new(capi.CEFApiVersionTestRefPtrClientChildV2T)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetOtherValue())
 	}))
 
-	r.OverrideGetAnotherValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetAnotherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetAnotherValue())
 	}))
 
@@ -1573,23 +1571,23 @@ func NewApiVersionTestScopedClient(impl ApiVersionTestScopedClient) ApiVersionTe
 	r := new(capi.CEFApiVersionTestScopedClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetValueLegacy(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValueLegacy(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValueLegacy())
 	}))
 
-	r.OverrideGetValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValue())
 	}))
 
-	r.OverrideGetValueV1(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValueV1(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValueV1())
 	}))
 
-	r.OverrideGetValueV2(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValueV2(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValueV2())
 	}))
 
-	r.OverrideGetValueExp(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetValueExp(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetValueExp())
 	}))
 
@@ -1689,11 +1687,11 @@ func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) Ap
 	r := new(capi.CEFApiVersionTestScopedClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetOtherValue())
 	}))
 
-	r.OverrideGetOtherValueV1(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetOtherValueV1(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetOtherValueV1())
 	}))
 
@@ -1789,11 +1787,11 @@ func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2
 	r := new(capi.CEFApiVersionTestScopedClientChildV2T)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetOtherValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetOtherValue())
 	}))
 
-	r.OverrideGetAnotherValue(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideGetAnotherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.GetAnotherValue())
 	}))
 

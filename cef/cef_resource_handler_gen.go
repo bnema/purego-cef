@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -153,34 +151,34 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 	r := new(capi.CEFResourceHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOpen(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideOpen(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		request := wrapRequest(unsafe.Pointer(arg0))
 		handleRequest := (*int32)(unsafe.Pointer(arg1))
 		callback := wrapCallback(unsafe.Pointer(arg2))
 		return uintptr(impl.Open(request, handleRequest, callback))
 	}))
 
-	r.OverrideProcessRequest(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideProcessRequest(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		request := wrapRequest(unsafe.Pointer(arg0))
 		callback := wrapCallback(unsafe.Pointer(arg1))
 		return uintptr(impl.ProcessRequest(request, callback))
 	}))
 
-	r.OverrideGetResponseHeaders(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideGetResponseHeaders(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		response := wrapResponse(unsafe.Pointer(arg0))
 		responseLength := (*int64)(unsafe.Pointer(arg1))
 		redirecturl := uintptr(arg2)
 		impl.GetResponseHeaders(response, responseLength, redirecturl)
 	}))
 
-	r.OverrideSkip(purego.NewCallback(func(self uintptr, arg0 int64, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideSkip(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 int64, arg1 uintptr, arg2 uintptr) uintptr {
 		bytesToSkip := arg0
 		bytesSkipped := (*int64)(unsafe.Pointer(arg1))
 		callback := wrapResourceSkipCallback(unsafe.Pointer(arg2))
 		return uintptr(impl.Skip(bytesToSkip, bytesSkipped, callback))
 	}))
 
-	r.OverrideRead(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideRead(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		dataOut := unsafe.Pointer(arg0)
 		bytesToRead := int32(arg1)
 		bytesRead := (*int32)(unsafe.Pointer(arg2))
@@ -188,7 +186,7 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 		return uintptr(impl.Read(dataOut, bytesToRead, bytesRead, callback))
 	}))
 
-	r.OverrideReadResponse(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideReadResponse(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		dataOut := unsafe.Pointer(arg0)
 		bytesToRead := int32(arg1)
 		bytesRead := (*int32)(unsafe.Pointer(arg2))
@@ -196,7 +194,7 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 		return uintptr(impl.ReadResponse(dataOut, bytesToRead, bytesRead, callback))
 	}))
 
-	r.OverrideCancel(purego.NewCallback(func(self uintptr) {
+	r.OverrideCancel(newCEFCallback(unsafe.Pointer(r), func(self uintptr) {
 		impl.Cancel()
 	}))
 

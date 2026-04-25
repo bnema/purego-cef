@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -182,7 +180,7 @@ func NewV8Handler(impl V8Handler) V8Handler {
 	r := new(capi.CEFV8HandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideExecute(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+	r.OverrideExecute(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
 		name := goString(unsafe.Pointer(arg0))
 		object := wrapV8Value(unsafe.Pointer(arg1))
 		var arguments []V8Value
@@ -292,7 +290,7 @@ func NewV8Accessor(impl V8Accessor) V8Accessor {
 	r := new(capi.CEFV8AccessorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGet(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideGet(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		name := goString(unsafe.Pointer(arg0))
 		object := wrapV8Value(unsafe.Pointer(arg1))
 		retval := unsafe.Pointer(arg2)
@@ -300,7 +298,7 @@ func NewV8Accessor(impl V8Accessor) V8Accessor {
 		return uintptr(impl.Get(name, object, retval, exception))
 	}))
 
-	r.OverrideSet(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideSet(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		name := goString(unsafe.Pointer(arg0))
 		object := wrapV8Value(unsafe.Pointer(arg1))
 		value := wrapV8Value(unsafe.Pointer(arg2))
@@ -404,7 +402,7 @@ func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 	r := new(capi.CEFV8InterceptorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideGetByname(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideGetByname(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		name := goString(unsafe.Pointer(arg0))
 		object := wrapV8Value(unsafe.Pointer(arg1))
 		retval := unsafe.Pointer(arg2)
@@ -412,7 +410,7 @@ func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 		return uintptr(impl.GetByname(name, object, retval, exception))
 	}))
 
-	r.OverrideGetByindex(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideGetByindex(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		index := int32(arg0)
 		object := wrapV8Value(unsafe.Pointer(arg1))
 		retval := unsafe.Pointer(arg2)
@@ -420,7 +418,7 @@ func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 		return uintptr(impl.GetByindex(index, object, retval, exception))
 	}))
 
-	r.OverrideSetByname(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideSetByname(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		name := goString(unsafe.Pointer(arg0))
 		object := wrapV8Value(unsafe.Pointer(arg1))
 		value := wrapV8Value(unsafe.Pointer(arg2))
@@ -428,7 +426,7 @@ func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 		return uintptr(impl.SetByname(name, object, value, exception))
 	}))
 
-	r.OverrideSetByindex(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideSetByindex(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		index := int32(arg0)
 		object := wrapV8Value(unsafe.Pointer(arg1))
 		value := wrapV8Value(unsafe.Pointer(arg2))
@@ -669,7 +667,7 @@ func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) V8ArrayB
 	r := new(capi.CEFV8ArrayBufferReleaseCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideReleaseBuffer(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideReleaseBuffer(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
 		buffer := unsafe.Pointer(arg0)
 		impl.ReleaseBuffer(buffer)
 	}))

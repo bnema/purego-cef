@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,28 +36,28 @@ func NewReadHandler(impl ReadHandler) ReadHandler {
 	r := new(capi.CEFReadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideRead(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideRead(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		ptr := unsafe.Pointer(arg0)
 		size := int(arg1)
 		n := int(arg2)
 		return uintptr(impl.Read(ptr, size, n))
 	}))
 
-	r.OverrideSeek(purego.NewCallback(func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
+	r.OverrideSeek(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
 		offset := arg0
 		whence := int32(arg1)
 		return uintptr(impl.SeekOffset(offset, whence))
 	}))
 
-	r.OverrideTell(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideTell(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.Tell())
 	}))
 
-	r.OverrideEof(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideEof(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.Eof())
 	}))
 
-	r.OverrideMayBlock(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideMayBlock(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.MayBlock())
 	}))
 
@@ -294,28 +292,28 @@ func NewWriteHandler(impl WriteHandler) WriteHandler {
 	r := new(capi.CEFWriteHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideWrite(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideWrite(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		ptr := unsafe.Pointer(arg0)
 		size := int(arg1)
 		n := int(arg2)
 		return uintptr(impl.Write(ptr, size, n))
 	}))
 
-	r.OverrideSeek(purego.NewCallback(func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
+	r.OverrideSeek(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
 		offset := arg0
 		whence := int32(arg1)
 		return uintptr(impl.SeekOffset(offset, whence))
 	}))
 
-	r.OverrideTell(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideTell(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.Tell())
 	}))
 
-	r.OverrideFlush(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideFlush(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.Flush())
 	}))
 
-	r.OverrideMayBlock(purego.NewCallback(func(self uintptr) uintptr {
+	r.OverrideMayBlock(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
 		return uintptr(impl.MayBlock())
 	}))
 

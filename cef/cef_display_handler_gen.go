@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,44 +36,44 @@ func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
 	r := new(capi.CEFDisplayHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnAddressChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnAddressChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		uRL := goString(unsafe.Pointer(arg2))
 		impl.OnAddressChange(browser, frame, uRL)
 	}))
 
-	r.OverrideOnTitleChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnTitleChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		title := goString(unsafe.Pointer(arg1))
 		impl.OnTitleChange(browser, title)
 	}))
 
-	r.OverrideOnFaviconUrlchange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnFaviconUrlchange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		iconUrls := StringList(arg1)
 		impl.OnFaviconUrlchange(browser, iconUrls)
 	}))
 
-	r.OverrideOnFullscreenModeChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnFullscreenModeChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		fullscreen := int32(arg1)
 		impl.OnFullscreenModeChange(browser, fullscreen)
 	}))
 
-	r.OverrideOnTooltip(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideOnTooltip(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		text := uintptr(arg1)
 		return uintptr(impl.OnTooltip(browser, text))
 	}))
 
-	r.OverrideOnStatusMessage(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) {
+	r.OverrideOnStatusMessage(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		value := goString(unsafe.Pointer(arg1))
 		impl.OnStatusMessage(browser, value)
 	}))
 
-	r.OverrideOnConsoleMessage(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+	r.OverrideOnConsoleMessage(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		level := LogSeverity(arg1)
 		message := goString(unsafe.Pointer(arg2))
@@ -84,19 +82,19 @@ func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
 		return uintptr(impl.OnConsoleMessage(browser, level, message, source, line))
 	}))
 
-	r.OverrideOnAutoResize(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideOnAutoResize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		newSize := (*Size)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnAutoResize(browser, newSize))
 	}))
 
-	r.OverrideOnLoadingProgressChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 float64) {
+	r.OverrideOnLoadingProgressChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 float64) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		progress := arg1
 		impl.OnLoadingProgressChange(browser, progress)
 	}))
 
-	r.OverrideOnCursorChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideOnCursorChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		cursor := uintptr(arg1)
 		type_ := CursorType(arg2)
@@ -104,20 +102,20 @@ func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
 		return uintptr(impl.OnCursorChange(browser, cursor, type_, customCursorInfo))
 	}))
 
-	r.OverrideOnMediaAccessChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnMediaAccessChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		hasVideoAccess := int32(arg1)
 		hasAudioAccess := int32(arg2)
 		impl.OnMediaAccessChange(browser, hasVideoAccess, hasAudioAccess)
 	}))
 
-	r.OverrideOnContentsBoundsChange(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideOnContentsBoundsChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		newBounds := (*Rect)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnContentsBoundsChange(browser, newBounds))
 	}))
 
-	r.OverrideGetRootWindowScreenRect(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideGetRootWindowScreenRect(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		rect := (*Rect)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetRootWindowScreenRect(browser, rect))

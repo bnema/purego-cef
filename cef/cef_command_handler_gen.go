@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -38,14 +36,14 @@ func NewCommandHandler(impl CommandHandler) CommandHandler {
 	r := new(capi.CEFCommandHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnChromeCommand(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideOnChromeCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		commandID := int32(arg1)
 		disposition := WindowOpenDisposition(arg2)
 		return uintptr(impl.OnChromeCommand(browser, commandID, disposition))
 	}))
 
-	r.OverrideIsChromeAppMenuItemVisible(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideIsChromeAppMenuItemVisible(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		commandID := int32(arg1)
 		if impl.IsChromeAppMenuItemVisible(browser, commandID) {
@@ -54,7 +52,7 @@ func NewCommandHandler(impl CommandHandler) CommandHandler {
 		return 0
 	}))
 
-	r.OverrideIsChromeAppMenuItemEnabled(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+	r.OverrideIsChromeAppMenuItemEnabled(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		commandID := int32(arg1)
 		if impl.IsChromeAppMenuItemEnabled(browser, commandID) {
@@ -63,7 +61,7 @@ func NewCommandHandler(impl CommandHandler) CommandHandler {
 		return 0
 	}))
 
-	r.OverrideIsChromePageActionIconVisible(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideIsChromePageActionIconVisible(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		iconType := ChromePageActionIconType(arg0)
 		if impl.IsChromePageActionIconVisible(iconType) {
 			return 1
@@ -71,7 +69,7 @@ func NewCommandHandler(impl CommandHandler) CommandHandler {
 		return 0
 	}))
 
-	r.OverrideIsChromeToolbarButtonVisible(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
+	r.OverrideIsChromeToolbarButtonVisible(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
 		buttonType := ChromeToolbarButtonType(arg0)
 		if impl.IsChromeToolbarButtonVisible(buttonType) {
 			return 1

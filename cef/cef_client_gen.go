@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -45,7 +43,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewRawAudioHandler(h)
 		})
 	}
-	r.OverrideGetAudioHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetAudioHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetAudioHandlerPtr != nil {
 			addRef(cachedGetAudioHandlerPtr)
 		}
@@ -59,7 +57,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewCommandHandler(h)
 		})
 	}
-	r.OverrideGetCommandHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetCommandHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetCommandHandlerPtr != nil {
 			addRef(cachedGetCommandHandlerPtr)
 		}
@@ -73,7 +71,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewContextMenuHandler(h)
 		})
 	}
-	r.OverrideGetContextMenuHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetContextMenuHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetContextMenuHandlerPtr != nil {
 			addRef(cachedGetContextMenuHandlerPtr)
 		}
@@ -87,7 +85,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewDialogHandler(h)
 		})
 	}
-	r.OverrideGetDialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetDialogHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetDialogHandlerPtr != nil {
 			addRef(cachedGetDialogHandlerPtr)
 		}
@@ -101,7 +99,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewDisplayHandler(h)
 		})
 	}
-	r.OverrideGetDisplayHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetDisplayHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetDisplayHandlerPtr != nil {
 			addRef(cachedGetDisplayHandlerPtr)
 		}
@@ -115,7 +113,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewDownloadHandler(h)
 		})
 	}
-	r.OverrideGetDownloadHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetDownloadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetDownloadHandlerPtr != nil {
 			addRef(cachedGetDownloadHandlerPtr)
 		}
@@ -129,7 +127,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewDragHandler(h)
 		})
 	}
-	r.OverrideGetDragHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetDragHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetDragHandlerPtr != nil {
 			addRef(cachedGetDragHandlerPtr)
 		}
@@ -143,7 +141,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewFindHandler(h)
 		})
 	}
-	r.OverrideGetFindHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetFindHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetFindHandlerPtr != nil {
 			addRef(cachedGetFindHandlerPtr)
 		}
@@ -157,7 +155,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewFocusHandler(h)
 		})
 	}
-	r.OverrideGetFocusHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetFocusHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetFocusHandlerPtr != nil {
 			addRef(cachedGetFocusHandlerPtr)
 		}
@@ -171,7 +169,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewFrameHandler(h)
 		})
 	}
-	r.OverrideGetFrameHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetFrameHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetFrameHandlerPtr != nil {
 			addRef(cachedGetFrameHandlerPtr)
 		}
@@ -185,7 +183,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewPermissionHandler(h)
 		})
 	}
-	r.OverrideGetPermissionHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetPermissionHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetPermissionHandlerPtr != nil {
 			addRef(cachedGetPermissionHandlerPtr)
 		}
@@ -199,7 +197,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewJsdialogHandler(h)
 		})
 	}
-	r.OverrideGetJsdialogHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetJsdialogHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetJsdialogHandlerPtr != nil {
 			addRef(cachedGetJsdialogHandlerPtr)
 		}
@@ -213,7 +211,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewKeyboardHandler(h)
 		})
 	}
-	r.OverrideGetKeyboardHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetKeyboardHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetKeyboardHandlerPtr != nil {
 			addRef(cachedGetKeyboardHandlerPtr)
 		}
@@ -227,7 +225,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewRawLifeSpanHandler(h)
 		})
 	}
-	r.OverrideGetLifeSpanHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetLifeSpanHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetLifeSpanHandlerPtr != nil {
 			addRef(cachedGetLifeSpanHandlerPtr)
 		}
@@ -241,7 +239,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewLoadHandler(h)
 		})
 	}
-	r.OverrideGetLoadHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetLoadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetLoadHandlerPtr != nil {
 			addRef(cachedGetLoadHandlerPtr)
 		}
@@ -255,7 +253,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewPrintHandler(h)
 		})
 	}
-	r.OverrideGetPrintHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetPrintHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetPrintHandlerPtr != nil {
 			addRef(cachedGetPrintHandlerPtr)
 		}
@@ -269,7 +267,7 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewRenderHandler(h)
 		})
 	}
-	r.OverrideGetRenderHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetRenderHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetRenderHandlerPtr != nil {
 			addRef(cachedGetRenderHandlerPtr)
 		}
@@ -283,14 +281,14 @@ func NewRawClient(impl RawClient) RawClient {
 			return NewRequestHandler(h)
 		})
 	}
-	r.OverrideGetRequestHandler(purego.NewCallback(func(_ uintptr) uintptr {
+	r.OverrideGetRequestHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 		if cachedGetRequestHandlerPtr != nil {
 			addRef(cachedGetRequestHandlerPtr)
 		}
 		return uintptr(cachedGetRequestHandlerPtr)
 	}))
 
-	r.OverrideOnProcessMessageReceived(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+	r.OverrideOnProcessMessageReceived(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		sourceProcess := ProcessID(arg2)

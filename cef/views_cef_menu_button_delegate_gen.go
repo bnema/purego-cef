@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -85,7 +83,7 @@ func NewMenuButtonDelegate(impl MenuButtonDelegate) MenuButtonDelegate {
 	r := new(capi.CEFMenuButtonDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
-	r.OverrideOnMenuButtonPressed(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnMenuButtonPressed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
 		menuButton := wrapMenuButton(unsafe.Pointer(arg0))
 		screenPoint := (*Point)(unsafe.Pointer(arg1))
 		buttonPressedLock := wrapMenuButtonPressedLock(unsafe.Pointer(arg2))
