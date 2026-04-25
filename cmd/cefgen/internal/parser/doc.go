@@ -19,8 +19,7 @@ func extractDocBlocks(raw string) []docBlock {
 	var cur []string
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "///") {
-			text := strings.TrimPrefix(trimmed, "///")
+		if text, ok := strings.CutPrefix(trimmed, "///"); ok {
 			// Strip a single leading space if present.
 			if len(text) > 0 && text[0] == ' ' {
 				text = text[1:]

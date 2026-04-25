@@ -31,6 +31,9 @@ func (w *browserViewDelegateWrapper) RawPointer() unsafe.Pointer {
 
 // NewBrowserViewDelegate creates a CEF handler backed by the given implementation.
 func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFBrowserViewDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

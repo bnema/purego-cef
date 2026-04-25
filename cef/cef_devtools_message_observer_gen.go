@@ -31,6 +31,9 @@ func (w *devToolsMessageObserverWrapper) RawPointer() unsafe.Pointer {
 
 // NewDevToolsMessageObserver creates a CEF handler backed by the given implementation.
 func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObserver {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFDevToolsMessageObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

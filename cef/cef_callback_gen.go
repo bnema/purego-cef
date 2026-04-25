@@ -71,6 +71,9 @@ func (w *completionCallbackWrapper) RawPointer() unsafe.Pointer {
 
 // NewCompletionCallback creates a CEF handler backed by the given implementation.
 func NewCompletionCallback(impl CompletionCallback) CompletionCallback {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFCompletionCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

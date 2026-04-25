@@ -31,6 +31,9 @@ func (w *renderProcessHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewRenderProcessHandler creates a CEF handler backed by the given implementation.
 func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFRenderProcessHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

@@ -31,6 +31,9 @@ func (w *stringVisitorWrapper) RawPointer() unsafe.Pointer {
 
 // NewStringVisitor creates a CEF handler backed by the given implementation.
 func NewStringVisitor(impl StringVisitor) StringVisitor {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFStringVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

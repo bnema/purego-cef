@@ -31,6 +31,9 @@ func (w *resourceRequestHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewResourceRequestHandler creates a CEF handler backed by the given implementation.
 func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFResourceRequestHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -207,6 +210,9 @@ func (w *cookieAccessFilterWrapper) RawPointer() unsafe.Pointer {
 
 // NewCookieAccessFilter creates a CEF handler backed by the given implementation.
 func NewCookieAccessFilter(impl CookieAccessFilter) CookieAccessFilter {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFCookieAccessFilterT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

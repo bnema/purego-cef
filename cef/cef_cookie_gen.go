@@ -96,6 +96,9 @@ func (w *cookieVisitorWrapper) RawPointer() unsafe.Pointer {
 
 // NewCookieVisitor creates a CEF handler backed by the given implementation.
 func NewCookieVisitor(impl CookieVisitor) CookieVisitor {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFCookieVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -165,6 +168,9 @@ func (w *setCookieCallbackWrapper) RawPointer() unsafe.Pointer {
 
 // NewSetCookieCallback creates a CEF handler backed by the given implementation.
 func NewSetCookieCallback(impl SetCookieCallback) SetCookieCallback {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFSetCookieCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -230,6 +236,9 @@ func (w *deleteCookiesCallbackWrapper) RawPointer() unsafe.Pointer {
 
 // NewDeleteCookiesCallback creates a CEF handler backed by the given implementation.
 func NewDeleteCookiesCallback(impl DeleteCookiesCallback) DeleteCookiesCallback {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFDeleteCookiesCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

@@ -31,6 +31,9 @@ func (w *responseFilterWrapper) RawPointer() unsafe.Pointer {
 
 // NewResponseFilter creates a CEF handler backed by the given implementation.
 func NewResponseFilter(impl ResponseFilter) ResponseFilter {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFResponseFilterT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

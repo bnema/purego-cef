@@ -31,6 +31,9 @@ func (w *readHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewReadHandler creates a CEF handler backed by the given implementation.
 func NewReadHandler(impl ReadHandler) ReadHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFReadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -194,6 +197,9 @@ func (w *writeHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewWriteHandler creates a CEF handler backed by the given implementation.
 func NewWriteHandler(impl WriteHandler) WriteHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFWriteHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

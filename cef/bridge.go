@@ -14,18 +14,7 @@ import (
 	"github.com/bnema/purego"
 	"github.com/bnema/purego-cef/internal/capi"
 	"github.com/bnema/purego-cef/internal/core"
-	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
-
-// RawLifeSpanHandler is the low-level/raw lifespan handler interface.
-// End users should usually implement LifeSpanHandler and pass it to
-// NewLifeSpanHandler instead of implementing this directly.
-type RawLifeSpanHandler = portin.RawLifeSpanHandler
-
-// RawAudioHandler is the low-level/raw audio handler interface.
-// End users should usually implement AudioHandler and pass it to
-// NewAudioHandler instead of using this directly.
-type RawAudioHandler = portin.RawAudioHandler
 
 // RawClientWriteSlot provides write-only access to the popup client out-param
 // exposed by CEF popup callbacks.
@@ -90,12 +79,12 @@ func (s *RawClientWriteSlot) rawPointer() unsafe.Pointer {
 // LifeSpanHandler is the user-facing lifespan handler interface with typed
 // out-params.
 //
-// CEF popup callbacks expose the client as a raw handler out-param, but
-// reverse-wrapping an existing CEF client back into a readable Go RawClient is
-// not implemented yet. Handlers that need to replace or clear that client
-// receive a write-only RawClientWriteSlot directly in popup callbacks. That
-// slot may be nil when CEF does not provide a writable client out-param, so
-// handlers must check it before calling Set or Clear.
+// CEF popup callbacks expose the client as a raw handler out-param. The safe
+// API intentionally exposes that out-param as a write-only RawClientWriteSlot:
+// handlers that need to replace or clear the client can do so without retaining
+// a callback-scoped pointer. The slot may be nil when CEF does not provide a
+// writable client out-param, so handlers must check it before calling Set or
+// Clear.
 type LifeSpanHandler interface {
 	OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string,
 		targetDisposition WindowOpenDisposition, userGesture int32, popupFeatures *PopupFeatures,
@@ -118,85 +107,6 @@ type AudioHandler interface {
 	OnAudioStreamStopped(browser Browser)
 	OnAudioStreamError(browser Browser, message string)
 }
-
-// ---------------------------------------------------------------------------
-// LifeSpanHandler constructor
-// ---------------------------------------------------------------------------
-
-type rawLifeSpanHandlerWrapper struct {
-	RawLifeSpanHandler
-	rawPtr *capi.CEFLifeSpanHandlerT
-}
-
-func (w *rawLifeSpanHandlerWrapper) RawPointer() unsafe.Pointer {
-	return unsafe.Pointer(w.rawPtr)
-}
-
-func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFLifeSpanHandlerT)
-	w := &rawLifeSpanHandlerWrapper{rawPtr: r}
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
-
-	r.OverrideOnBeforePopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		popupID := int32(arg2)
-		targetURL := goString(unsafe.Pointer(arg3))
-		targetFrameName := goString(unsafe.Pointer(arg4))
-		targetDisposition := WindowOpenDisposition(arg5)
-		userGesture := int32(arg6)
-		popupFeatures := (*PopupFeatures)(unsafe.Pointer(arg7))
-		windowInfo := (*WindowInfo)(unsafe.Pointer(arg8))
-		settings := (*BrowserSettings)(unsafe.Pointer(arg10))
-
-		blocked := impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName,
-			targetDisposition, userGesture, popupFeatures, windowInfo,
-			unsafe.Pointer(arg9), settings, unsafe.Pointer(arg11), (*int32)(unsafe.Pointer(arg12)))
-
-		if blocked {
-			return 1
-		}
-		return 0
-	}))
-
-	r.OverrideOnBeforePopupAborted(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) {
-		impl.OnBeforePopupAborted(wrapBrowser(unsafe.Pointer(arg0)), int32(arg1))
-	}))
-
-	r.OverrideOnBeforeDevToolsPopup(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5 uintptr) {
-		impl.OnBeforeDevToolsPopup(wrapBrowser(unsafe.Pointer(arg0)),
-			(*WindowInfo)(unsafe.Pointer(arg1)), unsafe.Pointer(arg2),
-			(*BrowserSettings)(unsafe.Pointer(arg3)), unsafe.Pointer(arg4), (*int32)(unsafe.Pointer(arg5)))
-	}))
-
-	r.OverrideOnAfterCreated(purego.NewCallback(func(self uintptr, arg0 uintptr) {
-		impl.OnAfterCreated(wrapBrowser(unsafe.Pointer(arg0)))
-	}))
-
-	r.OverrideDoClose(purego.NewCallback(func(self uintptr, arg0 uintptr) uintptr {
-		if impl.DoClose(wrapBrowser(unsafe.Pointer(arg0))) {
-			return 1
-		}
-		return 0
-	}))
-
-	r.OverrideOnBeforeClose(purego.NewCallback(func(self uintptr, arg0 uintptr) {
-		impl.OnBeforeClose(wrapBrowser(unsafe.Pointer(arg0)))
-	}))
-
-	w.RawLifeSpanHandler = impl
-	return w
-}
-
-// wrapLifeSpanHandler is a placeholder for reverse-wrapping a CEF life span
-// handler pointer into a RawLifeSpanHandler. It returns nil today because
-// reverse-wrapping callback-backed handler pointers is not implemented yet.
-// TODO: implement this to return a RawLifeSpanHandler facade for a C pointer
-// when RawLifeSpanHandler reverse-wrapping is required.
-func wrapLifeSpanHandler(_ unsafe.Pointer) RawLifeSpanHandler { return nil }
 
 // ---------------------------------------------------------------------------
 // Safe lifespan handler adapter
@@ -444,66 +354,6 @@ func NewAudioHandler(impl AudioHandler) RawAudioHandler {
 	}))
 
 	return w
-}
-
-// newRawAudioHandler creates a CEF handler from the low-level raw audio handler
-// interface. Most users should prefer NewAudioHandler.
-func newRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
-	r := new(capi.CEFAudioHandlerT)
-	w := &rawAudioHandlerWrapper{impl: impl, rawPtr: r}
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
-
-	r.OverrideGetAudioParameters(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) uintptr {
-		return uintptr(impl.GetAudioParameters(wrapBrowser(unsafe.Pointer(arg0)), (*AudioParameters)(unsafe.Pointer(arg1))))
-	}))
-	r.OverrideOnAudioStreamStarted(purego.NewCallback(func(self uintptr, arg0, arg1, arg2 uintptr) {
-		impl.OnAudioStreamStarted(wrapBrowser(unsafe.Pointer(arg0)), (*AudioParameters)(unsafe.Pointer(arg1)), int32(arg2))
-	}))
-	r.OverrideOnAudioStreamPacket(purego.NewCallback(func(self uintptr, arg0, arg1, arg2, arg3 uintptr) {
-		impl.OnAudioStreamPacket(wrapBrowser(unsafe.Pointer(arg0)), unsafe.Pointer(arg1), int32(arg2), int64(arg3))
-	}))
-	r.OverrideOnAudioStreamStopped(purego.NewCallback(func(self uintptr, arg0 uintptr) {
-		impl.OnAudioStreamStopped(wrapBrowser(unsafe.Pointer(arg0)))
-	}))
-	r.OverrideOnAudioStreamError(purego.NewCallback(func(self uintptr, arg0, arg1 uintptr) {
-		impl.OnAudioStreamError(wrapBrowser(unsafe.Pointer(arg0)), goString(unsafe.Pointer(arg1)))
-	}))
-
-	return w
-}
-
-type rawAudioHandlerWrapper struct {
-	impl   RawAudioHandler
-	rawPtr *capi.CEFAudioHandlerT
-}
-
-func (w *rawAudioHandlerWrapper) RawPointer() unsafe.Pointer { return unsafe.Pointer(w.rawPtr) }
-func (w *rawAudioHandlerWrapper) GetAudioParameters(b Browser, p *AudioParameters) int32 {
-	return w.impl.GetAudioParameters(b, p)
-}
-func (w *rawAudioHandlerWrapper) OnAudioStreamStarted(b Browser, p *AudioParameters, c int32) {
-	w.impl.OnAudioStreamStarted(b, p, c)
-}
-func (w *rawAudioHandlerWrapper) OnAudioStreamPacket(b Browser, d unsafe.Pointer, f int32, p int64) {
-	w.impl.OnAudioStreamPacket(b, d, f, p)
-}
-func (w *rawAudioHandlerWrapper) OnAudioStreamStopped(b Browser) { w.impl.OnAudioStreamStopped(b) }
-func (w *rawAudioHandlerWrapper) OnAudioStreamError(b Browser, m string) {
-	w.impl.OnAudioStreamError(b, m)
-}
-
-// wrapAudioHandler is an intentional placeholder for reverse-wrapping a CEF
-// audio handler pointer into a RawAudioHandler. It returns nil for now because
-// audio handler reverse-wrapping is not implemented yet.
-func wrapAudioHandler(_ unsafe.Pointer) RawAudioHandler { return nil }
-
-// NewRawAudioHandler exposes the low-level raw audio handler constructor for
-// advanced callers. Most users should prefer NewAudioHandler.
-func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	return newRawAudioHandler(impl)
 }
 
 // ---------------------------------------------------------------------------

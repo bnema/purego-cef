@@ -31,6 +31,9 @@ func (w *textfieldDelegateWrapper) RawPointer() unsafe.Pointer {
 
 // NewTextfieldDelegate creates a CEF handler backed by the given implementation.
 func NewTextfieldDelegate(impl TextfieldDelegate) TextfieldDelegate {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFTextfieldDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

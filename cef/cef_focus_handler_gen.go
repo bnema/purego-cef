@@ -31,6 +31,9 @@ func (w *focusHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewFocusHandler creates a CEF handler backed by the given implementation.
 func NewFocusHandler(impl FocusHandler) FocusHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFFocusHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

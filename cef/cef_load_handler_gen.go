@@ -31,6 +31,9 @@ func (w *loadHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewLoadHandler creates a CEF handler backed by the given implementation.
 func NewLoadHandler(impl LoadHandler) LoadHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFLoadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

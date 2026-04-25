@@ -57,6 +57,9 @@ func (w *schemeHandlerFactoryWrapper) RawPointer() unsafe.Pointer {
 
 // NewSchemeHandlerFactory creates a CEF handler backed by the given implementation.
 func NewSchemeHandlerFactory(impl SchemeHandlerFactory) SchemeHandlerFactory {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFSchemeHandlerFactoryT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

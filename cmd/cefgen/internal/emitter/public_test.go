@@ -225,6 +225,112 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 	}
 }
 
+func TestEmitPublicRawAudioHandlerEmitsReverseWrapper(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{}}
+	audio := model.Struct{
+		CName:         "cef_audio_handler_t",
+		GoName:        "CEFAudioHandlerT",
+		Kind:          "handler",
+		InterfaceName: "AudioHandler",
+		Fields: []model.Field{
+			{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+			{
+				CName:       "get_audio_parameters",
+				GoName:      "GetAudioParameters",
+				IsFunction:  true,
+				ReturnCType: "int",
+				Params: []model.Param{
+					{CName: "self", GoName: "self", CType: "struct _cef_audio_handler_t*"},
+					{CName: "browser", GoName: "browser", CType: "struct _cef_browser_t*"},
+					{CName: "params", GoName: "params", CType: "struct _cef_audio_parameters_t*"},
+				},
+			},
+		},
+	}
+	browser := model.Struct{CName: "_cef_browser_t", GoName: "CEFBrowserT", Kind: "object", InterfaceName: "Browser"}
+	params := model.Struct{CName: "_cef_audio_parameters_t", GoName: "CEFAudioParametersT", Kind: "data", InterfaceName: "AudioParameters"}
+	header.Structs = append(header.Structs, audio, browser, params)
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []struct {
+		desc string
+		want string
+	}{
+		{"raw alias", "type RawAudioHandler = portin.RawAudioHandler"},
+		{"raw constructor", "func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler"},
+		{"reverse wrapper name", "func wrapAudioHandler(ptr unsafe.Pointer) RawAudioHandler"},
+		{"reverse wrapper delegates", "return int32(ret)"},
+	}
+	for _, c := range checks {
+		if !strings.Contains(code, c.want) {
+			t.Errorf("missing %s: want %q in output:\n%s", c.desc, c.want, code)
+		}
+	}
+	if strings.Contains(code, "func wrapRawAudioHandler") {
+		t.Fatalf("expected custom wrapAudioHandler name, got generated raw-name wrapper:\n%s", code)
+	}
+}
+
+func TestEmitPublicRawLifeSpanHandlerEmitsReverseWrapper(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{}}
+	lifeSpan := model.Struct{
+		CName:         "cef_life_span_handler_t",
+		GoName:        "CEFLifeSpanHandlerT",
+		Kind:          "handler",
+		InterfaceName: "LifeSpanHandler",
+		Fields: []model.Field{
+			{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+			{
+				CName:       "do_close",
+				GoName:      "DoClose",
+				IsFunction:  true,
+				ReturnCType: "int",
+				Params: []model.Param{
+					{CName: "self", GoName: "self", CType: "struct _cef_life_span_handler_t*"},
+					{CName: "browser", GoName: "browser", CType: "struct _cef_browser_t*"},
+				},
+			},
+		},
+	}
+	browser := model.Struct{CName: "_cef_browser_t", GoName: "CEFBrowserT", Kind: "object", InterfaceName: "Browser"}
+	header.Structs = append(header.Structs, lifeSpan, browser)
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []struct {
+		desc string
+		want string
+	}{
+		{"raw alias", "type RawLifeSpanHandler = portin.RawLifeSpanHandler"},
+		{"raw constructor", "func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler"},
+		{"reverse wrapper name", "func wrapLifeSpanHandler(ptr unsafe.Pointer) RawLifeSpanHandler"},
+		{"bool reverse wrapper return", "return ret != 0"},
+	}
+	for _, c := range checks {
+		if !strings.Contains(code, c.want) {
+			t.Errorf("missing %s: want %q in output:\n%s", c.desc, c.want, code)
+		}
+	}
+	if strings.Contains(code, "func wrapRawLifeSpanHandler") {
+		t.Fatalf("expected custom wrapLifeSpanHandler name, got generated raw-name wrapper:\n%s", code)
+	}
+}
+
 func TestEmitPublicHandlerInterface_UsesTypedFloatCallbackParams(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{{

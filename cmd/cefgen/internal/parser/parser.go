@@ -126,7 +126,7 @@ func stripComments(data []byte) []byte {
 
 	// Collect simple #define NAME INTEGER constants.
 	defines := map[string]string{}
-	for _, line := range bytes.Split(data, []byte("\n")) {
+	for line := range bytes.SplitSeq(data, []byte("\n")) {
 		if m := defineRE.FindSubmatch(bytes.TrimSpace(line)); m != nil {
 			defines[string(m[1])] = string(m[2])
 		}
@@ -198,7 +198,7 @@ func joinLines(data []byte) []byte {
 
 func parseStruct(body, name string) (model.Struct, error) {
 	result := model.Struct{CName: name, GoName: goName(name)}
-	for _, raw := range strings.Split(body, ";") {
+	for raw := range strings.SplitSeq(body, ";") {
 		line := strings.TrimSpace(raw)
 		if line == "" {
 			continue
@@ -250,12 +250,16 @@ func parseParams(raw string) []model.Param {
 		// The last token is the parameter name (may start with * for pointer)
 		name := fields[len(fields)-1]
 		// Strip leading * from the name (they belong to the type)
-		stars := ""
-		for strings.HasPrefix(name, "*") {
-			stars += "*"
-			name = name[1:]
+		starCount := 0
+		for {
+			trimmed, ok := strings.CutPrefix(name, "*")
+			if !ok {
+				break
+			}
+			starCount++
+			name = trimmed
 		}
-		ctype := strings.TrimSpace(strings.Join(fields[:len(fields)-1], " ")) + stars
+		ctype := strings.TrimSpace(strings.Join(fields[:len(fields)-1], " ")) + strings.Repeat("*", starCount)
 		params = append(params, model.Param{
 			CName:   name,
 			GoName:  goName(name),
@@ -307,7 +311,7 @@ func parseEnum(name, body string) model.Enum {
 	nameToVal := map[string]int{}
 	seen := map[string]bool{}
 
-	for _, line := range strings.Split(body, ",") {
+	for line := range strings.SplitSeq(body, ",") {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue

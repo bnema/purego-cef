@@ -31,6 +31,9 @@ func (w *accessibilityHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewAccessibilityHandler creates a CEF handler backed by the given implementation.
 func NewAccessibilityHandler(impl AccessibilityHandler) AccessibilityHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFAccessibilityHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

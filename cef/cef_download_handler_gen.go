@@ -113,6 +113,9 @@ func (w *downloadHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewDownloadHandler creates a CEF handler backed by the given implementation.
 func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFDownloadHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

@@ -559,6 +559,9 @@ func (w *apiVersionTestRefPtrClientWrapper) RawPointer() unsafe.Pointer {
 
 // NewApiVersionTestRefPtrClient creates a CEF handler backed by the given implementation.
 func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) ApiVersionTestRefPtrClient {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFApiVersionTestRefPtrClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -660,6 +663,9 @@ func (w *apiVersionTestRefPtrClientChildWrapper) RawPointer() unsafe.Pointer {
 
 // NewApiVersionTestRefPtrClientChild creates a CEF handler backed by the given implementation.
 func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) ApiVersionTestRefPtrClientChild {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFApiVersionTestRefPtrClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -734,6 +740,9 @@ func (w *apiVersionTestRefPtrClientChildV2Wrapper) RawPointer() unsafe.Pointer {
 
 // NewApiVersionTestRefPtrClientChildV2 creates a CEF handler backed by the given implementation.
 func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2) ApiVersionTestRefPtrClientChildV2 {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFApiVersionTestRefPtrClientChildV2T)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -1036,6 +1045,9 @@ func (w *apiVersionTestScopedClientWrapper) RawPointer() unsafe.Pointer {
 
 // NewApiVersionTestScopedClient creates a CEF handler backed by the given implementation.
 func NewApiVersionTestScopedClient(impl ApiVersionTestScopedClient) ApiVersionTestScopedClient {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFApiVersionTestScopedClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -1123,6 +1135,9 @@ func (w *apiVersionTestScopedClientChildWrapper) RawPointer() unsafe.Pointer {
 
 // NewApiVersionTestScopedClientChild creates a CEF handler backed by the given implementation.
 func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) ApiVersionTestScopedClientChild {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFApiVersionTestScopedClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -1197,6 +1212,9 @@ func (w *apiVersionTestScopedClientChildV2Wrapper) RawPointer() unsafe.Pointer {
 
 // NewApiVersionTestScopedClientChildV2 creates a CEF handler backed by the given implementation.
 func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2) ApiVersionTestScopedClientChildV2 {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFApiVersionTestScopedClientChildV2T)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

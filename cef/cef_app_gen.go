@@ -31,6 +31,9 @@ func (w *appWrapper) RawPointer() unsafe.Pointer {
 
 // NewApp creates a CEF handler backed by the given implementation.
 func NewApp(impl App) App {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFAppT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

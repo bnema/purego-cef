@@ -31,6 +31,9 @@ func (w *menuModelDelegateWrapper) RawPointer() unsafe.Pointer {
 
 // NewMenuModelDelegate creates a CEF handler backed by the given implementation.
 func NewMenuModelDelegate(impl MenuModelDelegate) MenuModelDelegate {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFMenuModelDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

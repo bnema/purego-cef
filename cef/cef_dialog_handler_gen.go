@@ -71,6 +71,9 @@ func (w *dialogHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewDialogHandler creates a CEF handler backed by the given implementation.
 func NewDialogHandler(impl DialogHandler) DialogHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFDialogHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

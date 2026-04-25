@@ -31,6 +31,9 @@ func (w *dragHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewDragHandler creates a CEF handler backed by the given implementation.
 func NewDragHandler(impl DragHandler) DragHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFDragHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

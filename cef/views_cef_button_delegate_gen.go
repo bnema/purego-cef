@@ -31,6 +31,9 @@ func (w *buttonDelegateWrapper) RawPointer() unsafe.Pointer {
 
 // NewButtonDelegate creates a CEF handler backed by the given implementation.
 func NewButtonDelegate(impl ButtonDelegate) ButtonDelegate {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFButtonDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

@@ -57,6 +57,9 @@ func (w *preferenceObserverWrapper) RawPointer() unsafe.Pointer {
 
 // NewPreferenceObserver creates a CEF handler backed by the given implementation.
 func NewPreferenceObserver(impl PreferenceObserver) PreferenceObserver {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFPreferenceObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

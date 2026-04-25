@@ -97,6 +97,9 @@ func (w *urlrequestClientWrapper) RawPointer() unsafe.Pointer {
 
 // NewUrlrequestClient creates a CEF handler backed by the given implementation.
 func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFUrlrequestClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

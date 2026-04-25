@@ -107,6 +107,9 @@ func (w *permissionHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewPermissionHandler creates a CEF handler backed by the given implementation.
 func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFPermissionHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

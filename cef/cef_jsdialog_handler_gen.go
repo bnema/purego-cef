@@ -69,6 +69,9 @@ func (w *jsdialogHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewJsdialogHandler creates a CEF handler backed by the given implementation.
 func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFJsdialogHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

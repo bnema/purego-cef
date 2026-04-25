@@ -31,6 +31,9 @@ func (w *displayHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewDisplayHandler creates a CEF handler backed by the given implementation.
 func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFDisplayHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

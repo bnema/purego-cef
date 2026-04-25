@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -144,13 +145,7 @@ func TestDiscoverRegisterNamesFromRawDir(t *testing.T) {
 	}
 
 	for name, shouldExist := range want {
-		found := false
-		for _, gotName := range got {
-			if gotName == name {
-				found = true
-				break
-			}
-		}
+		found := slices.Contains(got, name)
 		if found != shouldExist {
 			t.Fatalf("register %s present=%v, want %v; got=%v", name, found, shouldExist, got)
 		}

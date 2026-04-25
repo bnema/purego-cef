@@ -14,6 +14,9 @@ func (w *{{lower .Name}}Wrapper) RawPointer() unsafe.Pointer {
 
 // {{constructorName .Name}} creates a CEF handler backed by the given implementation.
 func {{constructorName .Name}}(impl {{.Name}}) {{.Name}} {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.{{.RawGoName}})
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -158,7 +161,7 @@ func (obj *{{lower .Name}}Impl) RawPointer() unsafe.Pointer {
 }
 
 {{if .IsScoped}}
-func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+func {{wrapFuncName .Name}}(ptr unsafe.Pointer) {{.Name}} {
 	if ptr == nil {
 		return nil
 	}
@@ -172,8 +175,8 @@ func (obj *{{lower .Name}}Impl) Release() {
 	base.CallRelease()
 }
 
-// wrap{{.Name}} wraps a CEF handler pointer received from CEF into a thin Go façade.
-func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
+// {{wrapFuncName .Name}} wraps a CEF handler pointer received from CEF into a thin Go façade.
+func {{wrapFuncName .Name}}(ptr unsafe.Pointer) {{.Name}} {
 	if ptr == nil {
 		return nil
 	}

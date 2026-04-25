@@ -31,6 +31,9 @@ func (w *resolveCallbackWrapper) RawPointer() unsafe.Pointer {
 
 // NewResolveCallback creates a CEF handler backed by the given implementation.
 func NewResolveCallback(impl ResolveCallback) ResolveCallback {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFResolveCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -97,6 +100,9 @@ func (w *settingObserverWrapper) RawPointer() unsafe.Pointer {
 
 // NewSettingObserver creates a CEF handler backed by the given implementation.
 func NewSettingObserver(impl SettingObserver) SettingObserver {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFSettingObserverT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

@@ -31,6 +31,9 @@ func (w *rawClientWrapper) RawPointer() unsafe.Pointer {
 
 // NewRawClient creates a CEF handler backed by the given implementation.
 func NewRawClient(impl RawClient) RawClient {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

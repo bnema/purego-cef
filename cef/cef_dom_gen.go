@@ -31,6 +31,9 @@ func (w *domvisitorWrapper) RawPointer() unsafe.Pointer {
 
 // NewDomvisitor creates a CEF handler backed by the given implementation.
 func NewDomvisitor(impl Domvisitor) Domvisitor {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFDomvisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

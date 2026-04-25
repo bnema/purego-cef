@@ -29,6 +29,9 @@ func (w *panelDelegateWrapper) RawPointer() unsafe.Pointer {
 
 // NewPanelDelegate creates a CEF handler backed by the given implementation.
 func NewPanelDelegate(impl PanelDelegate) PanelDelegate {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFPanelDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

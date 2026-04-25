@@ -126,6 +126,9 @@ func (w *serverHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewServerHandler creates a CEF handler backed by the given implementation.
 func NewServerHandler(impl ServerHandler) ServerHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFServerHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

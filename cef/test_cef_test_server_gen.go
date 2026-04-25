@@ -72,6 +72,9 @@ func (w *testServerHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewTestServerHandler creates a CEF handler backed by the given implementation.
 func NewTestServerHandler(impl TestServerHandler) TestServerHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFTestServerHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

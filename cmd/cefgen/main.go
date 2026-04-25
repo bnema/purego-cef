@@ -179,10 +179,10 @@ func run(cfg config) error {
 func registerName(base string) string {
 	name := base
 	// Strip suffix: try _capi.h first, then .h
-	if strings.HasSuffix(name, "_capi.h") {
-		name = strings.TrimSuffix(name, "_capi.h")
-	} else {
-		name = strings.TrimSuffix(name, ".h")
+	if trimmed, ok := strings.CutSuffix(name, "_capi.h"); ok {
+		name = trimmed
+	} else if trimmed, ok := strings.CutSuffix(name, ".h"); ok {
+		name = trimmed
 	}
 	// Strip cef_ prefix
 	name = strings.TrimPrefix(name, "cef_")

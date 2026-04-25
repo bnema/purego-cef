@@ -31,6 +31,9 @@ func (w *findHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewFindHandler creates a CEF handler backed by the given implementation.
 func NewFindHandler(impl FindHandler) FindHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFFindHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

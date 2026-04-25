@@ -26,9 +26,6 @@ var skipPublicTypes = map[string]bool{
 	"DisplayConvertScreenPointFromPixels": true,
 	"DisplayConvertScreenRectToPixels":    true,
 	"DisplayConvertScreenRectFromPixels":  true,
-	// These raw handlers still use handwritten wrappers in cef/bridge.go.
-	"RawAudioHandler":    true,
-	"RawLifeSpanHandler": true,
 }
 
 // ParamOverride specifies the public type and marshal kind for a specific
@@ -529,7 +526,7 @@ func mergeCountPointerParams(params []ParamData, registry *TypeRegistry, allowOu
 
 	var merged []ParamData
 	skip := false
-	for i := 0; i < len(params); i++ {
+	for i := range params {
 		if skip {
 			skip = false
 			continue
@@ -588,8 +585,8 @@ func inferCountedSliceParam(ptrP ParamData, registry *TypeRegistry) (elemType st
 	case "objectSlice":
 		return strings.TrimPrefix(ptrP.PublicType, "[]"), "objectSlice", true
 	case "dataStruct":
-		if strings.HasPrefix(ptrP.PublicType, "*") {
-			return strings.TrimPrefix(ptrP.PublicType, "*"), "slice", true
+		if elemType, ok := strings.CutPrefix(ptrP.PublicType, "*"); ok {
+			return elemType, "slice", true
 		}
 	}
 
@@ -601,8 +598,8 @@ func inferCountedSliceParam(ptrP ParamData, registry *TypeRegistry) (elemType st
 	switch ptrCount {
 	case 1:
 		pub := registry.ResolvePublicType(ct)
-		if strings.HasPrefix(pub, "*") {
-			return strings.TrimPrefix(pub, "*"), "slice", true
+		if elemType, ok := strings.CutPrefix(pub, "*"); ok {
+			return elemType, "slice", true
 		}
 	case 2:
 		if pub, ok := registry.resolveStructPointer(base + "*"); ok && pub != "unsafe.Pointer" && !strings.HasPrefix(pub, "*") {
@@ -625,8 +622,8 @@ func inferCountedOutputSliceParam(ptrP ParamData, registry *TypeRegistry) (elemT
 	switch ptrCount {
 	case 1:
 		pub := registry.ResolvePublicType(ct)
-		if strings.HasPrefix(pub, "*") {
-			return strings.TrimPrefix(pub, "*"), "outSlice", true
+		if elemType, ok := strings.CutPrefix(pub, "*"); ok {
+			return elemType, "outSlice", true
 		}
 	case 2:
 		if pub, ok := registry.resolveStructPointer(base + "*"); ok && pub != "unsafe.Pointer" && !strings.HasPrefix(pub, "*") {

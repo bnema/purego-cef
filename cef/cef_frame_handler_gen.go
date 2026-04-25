@@ -31,6 +31,9 @@ func (w *frameHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewFrameHandler creates a CEF handler backed by the given implementation.
 func NewFrameHandler(impl FrameHandler) FrameHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFFrameHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

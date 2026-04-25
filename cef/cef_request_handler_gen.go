@@ -67,6 +67,9 @@ func (w *requestHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewRequestHandler creates a CEF handler backed by the given implementation.
 func NewRequestHandler(impl RequestHandler) RequestHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFRequestHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

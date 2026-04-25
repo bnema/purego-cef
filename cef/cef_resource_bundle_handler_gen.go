@@ -31,6 +31,9 @@ func (w *resourceBundleHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewResourceBundleHandler creates a CEF handler backed by the given implementation.
 func NewResourceBundleHandler(impl ResourceBundleHandler) ResourceBundleHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFResourceBundleHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

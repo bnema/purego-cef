@@ -31,6 +31,9 @@ func (w *endTracingCallbackWrapper) RawPointer() unsafe.Pointer {
 
 // NewEndTracingCallback creates a CEF handler backed by the given implementation.
 func NewEndTracingCallback(impl EndTracingCallback) EndTracingCallback {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFEndTracingCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

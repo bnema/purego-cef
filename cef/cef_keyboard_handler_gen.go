@@ -31,6 +31,9 @@ func (w *keyboardHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewKeyboardHandler creates a CEF handler backed by the given implementation.
 func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFKeyboardHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

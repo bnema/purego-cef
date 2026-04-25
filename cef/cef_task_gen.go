@@ -31,6 +31,9 @@ func (w *taskWrapper) RawPointer() unsafe.Pointer {
 
 // NewTask creates a CEF handler backed by the given implementation.
 func NewTask(impl Task) Task {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFTaskT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

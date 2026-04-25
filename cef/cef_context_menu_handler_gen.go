@@ -111,6 +111,9 @@ func (w *contextMenuHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewContextMenuHandler creates a CEF handler backed by the given implementation.
 func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFContextMenuHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

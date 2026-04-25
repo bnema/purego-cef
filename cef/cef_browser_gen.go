@@ -165,6 +165,9 @@ func (w *runFileDialogCallbackWrapper) RawPointer() unsafe.Pointer {
 
 // NewRunFileDialogCallback creates a CEF handler backed by the given implementation.
 func NewRunFileDialogCallback(impl RunFileDialogCallback) RunFileDialogCallback {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFRunFileDialogCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -230,6 +233,9 @@ func (w *navigationEntryVisitorWrapper) RawPointer() unsafe.Pointer {
 
 // NewNavigationEntryVisitor creates a CEF handler backed by the given implementation.
 func NewNavigationEntryVisitor(impl NavigationEntryVisitor) NavigationEntryVisitor {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFNavigationEntryVisitorT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -299,6 +305,9 @@ func (w *pdfPrintCallbackWrapper) RawPointer() unsafe.Pointer {
 
 // NewPdfPrintCallback creates a CEF handler backed by the given implementation.
 func NewPdfPrintCallback(impl PdfPrintCallback) PdfPrintCallback {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFPdfPrintCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -367,6 +376,9 @@ func (w *downloadImageCallbackWrapper) RawPointer() unsafe.Pointer {
 
 // NewDownloadImageCallback creates a CEF handler backed by the given implementation.
 func NewDownloadImageCallback(impl DownloadImageCallback) DownloadImageCallback {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFDownloadImageCallbackT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

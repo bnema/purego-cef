@@ -1,6 +1,9 @@
 package emitter
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 // PublicFileData holds all data needed to render the public API file for one header.
 type PublicFileData struct {
@@ -115,10 +118,8 @@ func (d *PublicFileData) NeedsPuregoObjectCalls() bool {
 		if iface.Kind != "object" {
 			continue
 		}
-		for _, m := range iface.Methods {
-			if methodNeedsTypedObjectCall(m) {
-				return true
-			}
+		if slices.ContainsFunc(iface.Methods, methodNeedsTypedObjectCall) {
+			return true
 		}
 	}
 	return false

@@ -599,6 +599,9 @@ func (w *translatorTestRefPtrClientWrapper) RawPointer() unsafe.Pointer {
 
 // NewTranslatorTestRefPtrClient creates a CEF handler backed by the given implementation.
 func NewTranslatorTestRefPtrClient(impl TranslatorTestRefPtrClient) TranslatorTestRefPtrClient {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFTranslatorTestRefPtrClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -664,6 +667,9 @@ func (w *translatorTestRefPtrClientChildWrapper) RawPointer() unsafe.Pointer {
 
 // NewTranslatorTestRefPtrClientChild creates a CEF handler backed by the given implementation.
 func NewTranslatorTestRefPtrClientChild(impl TranslatorTestRefPtrClientChild) TranslatorTestRefPtrClientChild {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFTranslatorTestRefPtrClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -839,6 +845,9 @@ func (w *translatorTestScopedClientWrapper) RawPointer() unsafe.Pointer {
 
 // NewTranslatorTestScopedClient creates a CEF handler backed by the given implementation.
 func NewTranslatorTestScopedClient(impl TranslatorTestScopedClient) TranslatorTestScopedClient {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFTranslatorTestScopedClientT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
@@ -890,6 +899,9 @@ func (w *translatorTestScopedClientChildWrapper) RawPointer() unsafe.Pointer {
 
 // NewTranslatorTestScopedClientChild creates a CEF handler backed by the given implementation.
 func NewTranslatorTestScopedClientChild(impl TranslatorTestScopedClientChild) TranslatorTestScopedClientChild {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFTranslatorTestScopedClientChildT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

@@ -103,6 +103,9 @@ func (w *resourceHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewResourceHandler creates a CEF handler backed by the given implementation.
 func NewResourceHandler(impl ResourceHandler) ResourceHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFResourceHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

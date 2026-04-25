@@ -31,6 +31,9 @@ func (w *commandHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewCommandHandler creates a CEF handler backed by the given implementation.
 func NewCommandHandler(impl CommandHandler) CommandHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFCommandHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

@@ -31,6 +31,9 @@ func (w *windowDelegateWrapper) RawPointer() unsafe.Pointer {
 
 // NewWindowDelegate creates a CEF handler backed by the given implementation.
 func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFWindowDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

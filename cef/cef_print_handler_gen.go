@@ -107,6 +107,9 @@ func (w *printHandlerWrapper) RawPointer() unsafe.Pointer {
 
 // NewPrintHandler creates a CEF handler backed by the given implementation.
 func NewPrintHandler(impl PrintHandler) PrintHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFPrintHandlerT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 

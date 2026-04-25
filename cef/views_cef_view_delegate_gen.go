@@ -31,6 +31,9 @@ func (w *viewDelegateWrapper) RawPointer() unsafe.Pointer {
 
 // NewViewDelegate creates a CEF handler backed by the given implementation.
 func NewViewDelegate(impl ViewDelegate) ViewDelegate {
+	if isNilImpl(impl) {
+		return nil
+	}
 	r := new(capi.CEFViewDelegateT)
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
