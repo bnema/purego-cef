@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,149 +16,246 @@ import (
 type Window = portin.Window
 
 type windowImpl struct {
-	rawPtr *capi.CEFWindowT
+	rawPtr      *capi.CEFWindowT
+	releaseOnce sync.Once
 }
 
 func (obj *windowImpl) Show() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallShow()
 }
 
 func (obj *windowImpl) ShowAsBrowserModalDialog(browserView BrowserView) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallShowAsBrowserModalDialog(uintptr(extractRawPointer(browserView)))
 }
 
 func (obj *windowImpl) Hide() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallHide()
 }
 
 func (obj *windowImpl) CenterWindow(size *Size) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCenterWindow(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *windowImpl) Close() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallClose()
 }
 
 func (obj *windowImpl) IsClosed() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsClosed()
 	return ret != 0
 }
 
 func (obj *windowImpl) Activate() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallActivate()
 }
 
 func (obj *windowImpl) Deactivate() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallDeactivate()
 }
 
 func (obj *windowImpl) IsActive() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsActive()
 	return ret != 0
 }
 
 func (obj *windowImpl) BringToTop() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallBringToTop()
 }
 
 func (obj *windowImpl) SetAlwaysOnTop(onTop int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetAlwaysOnTop(uintptr(onTop))
 }
 
 func (obj *windowImpl) IsAlwaysOnTop() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsAlwaysOnTop()
 	return ret != 0
 }
 
 func (obj *windowImpl) Maximize() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallMaximize()
 }
 
 func (obj *windowImpl) Minimize() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallMinimize()
 }
 
 func (obj *windowImpl) Restore() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallRestore()
 }
 
 func (obj *windowImpl) SetFullscreen(fullscreen int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetFullscreen(uintptr(fullscreen))
 }
 
 func (obj *windowImpl) IsMaximized() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsMaximized()
 	return ret != 0
 }
 
 func (obj *windowImpl) IsMinimized() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsMinimized()
 	return ret != 0
 }
 
 func (obj *windowImpl) IsFullscreen() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsFullscreen()
 	return ret != 0
 }
 
 func (obj *windowImpl) GetFocusedView() View {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFocusedView()
 	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) SetTitle(title string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
 	obj.rawPtr.CallSetTitle(uintptr(unsafe.Pointer(&titleStr)))
 }
 
 func (obj *windowImpl) GetTitle() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetTitle()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) SetWindowIcon(image Image) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetWindowIcon(uintptr(extractRawPointer(image)))
 }
 
 func (obj *windowImpl) GetWindowIcon() Image {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetWindowIcon()
 	return wrapImage(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) SetWindowAppIcon(image Image) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetWindowAppIcon(uintptr(extractRawPointer(image)))
 }
 
 func (obj *windowImpl) GetWindowAppIcon() Image {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetWindowAppIcon()
 	return wrapImage(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) AddOverlayView(view View, dockingMode DockingMode, canActivate int32) OverlayController {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAddOverlayView(uintptr(extractRawPointer(view)), uintptr(dockingMode), uintptr(canActivate))
 	return wrapOverlayController(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anchorPosition MenuAnchorPosition) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
 }
 
 func (obj *windowImpl) CancelMenu() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCancelMenu()
 }
 
 func (obj *windowImpl) GetDisplay() Display {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDisplay()
 	return wrapDisplay(unsafe.Pointer(ret))
 }
 
 func (obj *windowImpl) GetClientAreaBoundsInScreen() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetClientAreaBoundsInScreen()
 	return uintptr(ret)
 }
 
 func (obj *windowImpl) SetDraggableRegions(regions []DraggableRegion) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	var regionsPtr unsafe.Pointer
 	if len(regions) > 0 {
 		regionsPtr = unsafe.Pointer(&regions[0])
@@ -166,61 +264,99 @@ func (obj *windowImpl) SetDraggableRegions(regions []DraggableRegion) {
 }
 
 func (obj *windowImpl) GetWindowHandle() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetWindowHandle()
 	return uintptr(ret)
 }
 
 func (obj *windowImpl) SendKeyPress(keyCode int32, eventFlags uint32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendKeyPress(uintptr(keyCode), uintptr(eventFlags))
 }
 
 func (obj *windowImpl) SendMouseMove(screenX int32, screenY int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendMouseMove(uintptr(screenX), uintptr(screenY))
 }
 
 func (obj *windowImpl) SendMouseEvents(button MouseButtonType, mouseDown int32, mouseUp int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendMouseEvents(uintptr(button), uintptr(mouseDown), uintptr(mouseUp))
 }
 
 func (obj *windowImpl) SetAccelerator(commandID int32, keyCode int32, shiftPressed int32, ctrlPressed int32, altPressed int32, highPriority int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetAccelerator(uintptr(commandID), uintptr(keyCode), uintptr(shiftPressed), uintptr(ctrlPressed), uintptr(altPressed), uintptr(highPriority))
 }
 
 func (obj *windowImpl) RemoveAccelerator(commandID int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallRemoveAccelerator(uintptr(commandID))
 }
 
 func (obj *windowImpl) RemoveAllAccelerators() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallRemoveAllAccelerators()
 }
 
 func (obj *windowImpl) SetThemeColor(colorID int32, color uintptr) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetThemeColor(uintptr(colorID), color)
 }
 
 func (obj *windowImpl) ThemeChanged() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallThemeChanged()
 }
 
 func (obj *windowImpl) GetRuntimeStyle() RuntimeStyle {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRuntimeStyle()
 	return RuntimeStyle(ret)
 }
 
 func (obj *windowImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *windowImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapWindow(ptr unsafe.Pointer) Window {

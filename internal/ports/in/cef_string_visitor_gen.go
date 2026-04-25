@@ -4,5 +4,5 @@ package in
 
 // StringVisitor defines the inbound port interface.
 type StringVisitor interface {
-	Visit(string string)
+	Visit(string_ string)
 }

@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,23 +18,32 @@ import (
 type MenuButtonPressedLock = portin.MenuButtonPressedLock
 
 type menuButtonPressedLockImpl struct {
-	rawPtr *capi.CEFMenuButtonPressedLockT
+	rawPtr      *capi.CEFMenuButtonPressedLockT
+	releaseOnce sync.Once
 }
 
 func (obj *menuButtonPressedLockImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *menuButtonPressedLockImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapMenuButtonPressedLock(ptr unsafe.Pointer) MenuButtonPressedLock {
@@ -85,27 +95,39 @@ func NewMenuButtonDelegate(impl MenuButtonDelegate) MenuButtonDelegate {
 }
 
 type menuButtonDelegateImpl struct {
-	rawPtr *capi.CEFMenuButtonDelegateT
+	rawPtr      *capi.CEFMenuButtonDelegateT
+	releaseOnce sync.Once
 }
 
 func (obj *menuButtonDelegateImpl) OnMenuButtonPressed(menuButton MenuButton, screenPoint *Point, buttonPressedLock MenuButtonPressedLock) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnMenuButtonPressed(uintptr(extractRawPointer(menuButton)), uintptr(unsafe.Pointer(screenPoint)), uintptr(extractRawPointer(buttonPressedLock)))
 }
 
 func (obj *menuButtonDelegateImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *menuButtonDelegateImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapMenuButtonDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.

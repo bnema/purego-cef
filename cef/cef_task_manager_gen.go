@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,15 +16,28 @@ import (
 type TaskManager = portin.TaskManager
 
 type taskManagerImpl struct {
-	rawPtr *capi.CEFTaskManagerT
+	rawPtr                    *capi.CEFTaskManagerT
+	releaseOnce               sync.Once
+	getTaskInfoOnce           sync.Once
+	getTaskInfoFunc           func(*capi.CEFTaskManagerT, int64, uintptr) uintptr
+	killTaskOnce              sync.Once
+	killTaskFunc              func(*capi.CEFTaskManagerT, int64) uintptr
+	getTaskIDForBrowserIDOnce sync.Once
+	getTaskIDForBrowserIDFunc func(*capi.CEFTaskManagerT, uintptr) int64
 }
 
 func (obj *taskManagerImpl) GetTasksCount() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetTasksCount()
 	return int(ret)
 }
 
 func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds []int64) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var taskIdsPtr unsafe.Pointer
 	taskIdsCountPtr := taskIdscount
 	if taskIdsCountPtr == nil {
@@ -40,40 +54,60 @@ func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds []int64) i
 }
 
 func (obj *taskManagerImpl) GetTaskInfo(taskID int64, info *TaskInfo) int32 {
-	var fn func(*capi.CEFTaskManagerT, int64, uintptr) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.GetTaskInfo)
-	ret := fn(obj.rawPtr, taskID, uintptr(unsafe.Pointer(info)))
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getTaskInfoOnce.Do(func() {
+		registerTypedCallback(&obj.getTaskInfoFunc, obj.rawPtr.GetTaskInfo)
+	})
+	ret := obj.getTaskInfoFunc(obj.rawPtr, taskID, uintptr(unsafe.Pointer(info)))
 	return int32(ret)
 }
 
 func (obj *taskManagerImpl) KillTask(taskID int64) int32 {
-	var fn func(*capi.CEFTaskManagerT, int64) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.KillTask)
-	ret := fn(obj.rawPtr, taskID)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.killTaskOnce.Do(func() {
+		registerTypedCallback(&obj.killTaskFunc, obj.rawPtr.KillTask)
+	})
+	ret := obj.killTaskFunc(obj.rawPtr, taskID)
 	return int32(ret)
 }
 
 func (obj *taskManagerImpl) GetTaskIDForBrowserID(browserID int32) int64 {
-	var fn func(*capi.CEFTaskManagerT, uintptr) int64
-	registerTypedCallback(&fn, obj.rawPtr.GetTaskIDForBrowserID)
-	ret := fn(obj.rawPtr, uintptr(browserID))
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getTaskIDForBrowserIDOnce.Do(func() {
+		registerTypedCallback(&obj.getTaskIDForBrowserIDFunc, obj.rawPtr.GetTaskIDForBrowserID)
+	})
+	ret := obj.getTaskIDForBrowserIDFunc(obj.rawPtr, uintptr(browserID))
 	return int64(ret)
 }
 
 func (obj *taskManagerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *taskManagerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTaskManager(ptr unsafe.Pointer) TaskManager {

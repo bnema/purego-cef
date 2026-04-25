@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,29 +18,44 @@ import (
 type ResourceSkipCallback = portin.ResourceSkipCallback
 
 type resourceSkipCallbackImpl struct {
-	rawPtr *capi.CEFResourceSkipCallbackT
+	rawPtr      *capi.CEFResourceSkipCallbackT
+	releaseOnce sync.Once
+	contOnce    sync.Once
+	contFunc    func(*capi.CEFResourceSkipCallbackT, int64)
 }
 
 func (obj *resourceSkipCallbackImpl) Cont(bytesSkipped int64) {
-	var fn func(*capi.CEFResourceSkipCallbackT, int64)
-	registerTypedCallback(&fn, obj.rawPtr.Cont)
-	fn(obj.rawPtr, bytesSkipped)
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
+	obj.contOnce.Do(func() {
+		registerTypedCallback(&obj.contFunc, obj.rawPtr.Cont)
+	})
+	obj.contFunc(obj.rawPtr, bytesSkipped)
 }
 
 func (obj *resourceSkipCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *resourceSkipCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapResourceSkipCallback(ptr unsafe.Pointer) ResourceSkipCallback {
@@ -58,27 +74,39 @@ func wrapResourceSkipCallback(ptr unsafe.Pointer) ResourceSkipCallback {
 type ResourceReadCallback = portin.ResourceReadCallback
 
 type resourceReadCallbackImpl struct {
-	rawPtr *capi.CEFResourceReadCallbackT
+	rawPtr      *capi.CEFResourceReadCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *resourceReadCallbackImpl) Cont(bytesRead int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCont(uintptr(bytesRead))
 }
 
 func (obj *resourceReadCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *resourceReadCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapResourceReadCallback(ptr unsafe.Pointer) ResourceReadCallback {
@@ -170,58 +198,91 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 }
 
 type resourceHandlerImpl struct {
-	rawPtr *capi.CEFResourceHandlerT
+	rawPtr      *capi.CEFResourceHandlerT
+	releaseOnce sync.Once
+	skipOnce    sync.Once
+	skipFunc    func(*capi.CEFResourceHandlerT, int64, uintptr, uintptr) uintptr
 }
 
 func (obj *resourceHandlerImpl) Open(request Request, handleRequest *int32, callback Callback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOpen(uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(handleRequest)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *resourceHandlerImpl) ProcessRequest(request Request, callback Callback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallProcessRequest(uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *resourceHandlerImpl) GetResponseHeaders(response Response, responseLength *int64, redirecturl uintptr) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetResponseHeaders(uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(responseLength)), redirecturl)
 }
 
 func (obj *resourceHandlerImpl) Skip(bytesToSkip int64, bytesSkipped *int64, callback ResourceSkipCallback) int32 {
-	var fn func(*capi.CEFResourceHandlerT, int64, uintptr, uintptr) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.Skip)
-	ret := fn(obj.rawPtr, bytesToSkip, uintptr(unsafe.Pointer(bytesSkipped)), uintptr(extractRawPointer(callback)))
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.skipOnce.Do(func() {
+		registerTypedCallback(&obj.skipFunc, obj.rawPtr.Skip)
+	})
+	ret := obj.skipFunc(obj.rawPtr, bytesToSkip, uintptr(unsafe.Pointer(bytesSkipped)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *resourceHandlerImpl) Read(dataOut unsafe.Pointer, bytesToRead int32, bytesRead *int32, callback ResourceReadCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallRead(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *resourceHandlerImpl) ReadResponse(dataOut unsafe.Pointer, bytesToRead int32, bytesRead *int32, callback Callback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallReadResponse(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *resourceHandlerImpl) Cancel() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCancel()
 }
 
 func (obj *resourceHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *resourceHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapResourceHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

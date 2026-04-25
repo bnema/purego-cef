@@ -111,6 +111,20 @@ func (d *PublicFileData) NeedsRuntime() bool {
 	return false
 }
 
+// NeedsSync returns true if generated wrappers need sync.Once for release guards
+// or cached typed callback bindings.
+func (d *PublicFileData) NeedsSync() bool {
+	if d.NeedsRuntime() {
+		return true
+	}
+	for _, iface := range d.Interfaces {
+		if slices.ContainsFunc(iface.Methods, methodNeedsTypedObjectCall) {
+			return true
+		}
+	}
+	return false
+}
+
 // NeedsPuregoObjectCalls returns true if any object method needs a typed
 // purego.RegisterFunc binding to preserve float ABI semantics.
 func (d *PublicFileData) NeedsPuregoObjectCalls() bool {

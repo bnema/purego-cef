@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,31 +18,46 @@ import (
 type PrintDialogCallback = portin.PrintDialogCallback
 
 type printDialogCallbackImpl struct {
-	rawPtr *capi.CEFPrintDialogCallbackT
+	rawPtr      *capi.CEFPrintDialogCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *printDialogCallbackImpl) Cont(settings PrintSettings) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCont(uintptr(extractRawPointer(settings)))
 }
 
 func (obj *printDialogCallbackImpl) Cancel() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCancel()
 }
 
 func (obj *printDialogCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *printDialogCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapPrintDialogCallback(ptr unsafe.Pointer) PrintDialogCallback {
@@ -60,27 +76,39 @@ func wrapPrintDialogCallback(ptr unsafe.Pointer) PrintDialogCallback {
 type PrintJobCallback = portin.PrintJobCallback
 
 type printJobCallbackImpl struct {
-	rawPtr *capi.CEFPrintJobCallbackT
+	rawPtr      *capi.CEFPrintJobCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *printJobCallbackImpl) Cont() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCont()
 }
 
 func (obj *printJobCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *printJobCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapPrintJobCallback(ptr unsafe.Pointer) PrintJobCallback {
@@ -163,23 +191,36 @@ func NewPrintHandler(impl PrintHandler) PrintHandler {
 }
 
 type printHandlerImpl struct {
-	rawPtr *capi.CEFPrintHandlerT
+	rawPtr      *capi.CEFPrintHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *printHandlerImpl) OnPrintStart(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnPrintStart(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *printHandlerImpl) OnPrintSettings(browser Browser, settings PrintSettings, getDefaults int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnPrintSettings(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(settings)), uintptr(getDefaults))
 }
 
 func (obj *printHandlerImpl) OnPrintDialog(browser Browser, hasSelection int32, callback PrintDialogCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnPrintDialog(uintptr(extractRawPointer(browser)), uintptr(hasSelection), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *printHandlerImpl) OnPrintJob(browser Browser, documentName string, pdfFilePath string, callback PrintJobCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	documentNameStr := cefString(documentName)
 	defer freeCefString(&documentNameStr)
 	pdfFilePathStr := cefString(pdfFilePath)
@@ -189,28 +230,42 @@ func (obj *printHandlerImpl) OnPrintJob(browser Browser, documentName string, pd
 }
 
 func (obj *printHandlerImpl) OnPrintReset(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnPrintReset(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *printHandlerImpl) GetPdfPaperSize(browser Browser, deviceUnitsPerInch int32) uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPdfPaperSize(uintptr(extractRawPointer(browser)), uintptr(deviceUnitsPerInch))
 	return uintptr(ret)
 }
 
 func (obj *printHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *printHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapPrintHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,29 +18,41 @@ import (
 type JsdialogCallback = portin.JsdialogCallback
 
 type jsdialogCallbackImpl struct {
-	rawPtr *capi.CEFJsdialogCallbackT
+	rawPtr      *capi.CEFJsdialogCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *jsdialogCallbackImpl) Cont(success int32, userInput string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	userInputStr := cefString(userInput)
 	defer freeCefString(&userInputStr)
 	obj.rawPtr.CallCont(uintptr(success), uintptr(unsafe.Pointer(&userInputStr)))
 }
 
 func (obj *jsdialogCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *jsdialogCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapJsdialogCallback(ptr unsafe.Pointer) JsdialogCallback {
@@ -116,10 +129,14 @@ func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 }
 
 type jsdialogHandlerImpl struct {
-	rawPtr *capi.CEFJsdialogHandlerT
+	rawPtr      *capi.CEFJsdialogHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *jsdialogHandlerImpl) OnJsdialog(browser Browser, originURL string, dialogType JsdialogType, messageText string, defaultPromptText string, callback JsdialogCallback, suppressMessage *int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	originURLStr := cefString(originURL)
 	defer freeCefString(&originURLStr)
 	messageTextStr := cefString(messageText)
@@ -131,6 +148,9 @@ func (obj *jsdialogHandlerImpl) OnJsdialog(browser Browser, originURL string, di
 }
 
 func (obj *jsdialogHandlerImpl) OnBeforeUnloadDialog(browser Browser, messageText string, isReload int32, callback JsdialogCallback) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	messageTextStr := cefString(messageText)
 	defer freeCefString(&messageTextStr)
 	ret := obj.rawPtr.CallOnBeforeUnloadDialog(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&messageTextStr)), uintptr(isReload), uintptr(extractRawPointer(callback)))
@@ -138,27 +158,41 @@ func (obj *jsdialogHandlerImpl) OnBeforeUnloadDialog(browser Browser, messageTex
 }
 
 func (obj *jsdialogHandlerImpl) OnResetDialogState(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnResetDialogState(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *jsdialogHandlerImpl) OnDialogClosed(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnDialogClosed(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *jsdialogHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *jsdialogHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapJsdialogHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

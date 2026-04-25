@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,32 +18,47 @@ import (
 type TestServer = portin.TestServer
 
 type testServerImpl struct {
-	rawPtr *capi.CEFTestServerT
+	rawPtr      *capi.CEFTestServerT
+	releaseOnce sync.Once
 }
 
 func (obj *testServerImpl) Stop() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallStop()
 }
 
 func (obj *testServerImpl) GetOrigin() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetOrigin()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *testServerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *testServerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTestServer(ptr unsafe.Pointer) TestServer {
@@ -94,28 +110,40 @@ func NewTestServerHandler(impl TestServerHandler) TestServerHandler {
 }
 
 type testServerHandlerImpl struct {
-	rawPtr *capi.CEFTestServerHandlerT
+	rawPtr      *capi.CEFTestServerHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *testServerHandlerImpl) OnTestServerRequest(server TestServer, request Request, connection TestServerConnection) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnTestServerRequest(uintptr(extractRawPointer(server)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(connection)))
 	return int32(ret)
 }
 
 func (obj *testServerHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *testServerHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapTestServerHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -135,45 +163,66 @@ func wrapTestServerHandler(ptr unsafe.Pointer) TestServerHandler {
 type TestServerConnection = portin.TestServerConnection
 
 type testServerConnectionImpl struct {
-	rawPtr *capi.CEFTestServerConnectionT
+	rawPtr      *capi.CEFTestServerConnectionT
+	releaseOnce sync.Once
 }
 
 func (obj *testServerConnectionImpl) SendHttp200Response(contentType string, data unsafe.Pointer, dataSize int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
 	obj.rawPtr.CallSendHttp200Response(uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *testServerConnectionImpl) SendHttp404Response() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendHttp404Response()
 }
 
 func (obj *testServerConnectionImpl) SendHttp500Response(errorMessage string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	errorMessageStr := cefString(errorMessage)
 	defer freeCefString(&errorMessageStr)
 	obj.rawPtr.CallSendHttp500Response(uintptr(unsafe.Pointer(&errorMessageStr)))
 }
 
 func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders StringMultimap) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
 	obj.rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), uintptr(extraHeaders))
 }
 
 func (obj *testServerConnectionImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *testServerConnectionImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTestServerConnection(ptr unsafe.Pointer) TestServerConnection {

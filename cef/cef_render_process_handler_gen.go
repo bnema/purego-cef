@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -110,61 +111,97 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 }
 
 type renderProcessHandlerImpl struct {
-	rawPtr *capi.CEFRenderProcessHandlerT
+	rawPtr      *capi.CEFRenderProcessHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *renderProcessHandlerImpl) OnWebKitInitialized() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWebKitInitialized()
 }
 
 func (obj *renderProcessHandlerImpl) OnBrowserCreated(browser Browser, extraInfo DictionaryValue) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(extraInfo)))
 }
 
 func (obj *renderProcessHandlerImpl) OnBrowserDestroyed(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *renderProcessHandlerImpl) GetLoadHandler() LoadHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetLoadHandler()
 	return wrapLoadHandler(unsafe.Pointer(ret))
 }
 
 func (obj *renderProcessHandlerImpl) OnContextCreated(browser Browser, frame Frame, context V8Context) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnContextCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
 }
 
 func (obj *renderProcessHandlerImpl) OnContextReleased(browser Browser, frame Frame, context V8Context) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnContextReleased(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
 }
 
 func (obj *renderProcessHandlerImpl) OnUncaughtException(browser Browser, frame Frame, context V8Context, exception V8Exception, stacktrace V8StackTrace) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnUncaughtException(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)), uintptr(extractRawPointer(exception)), uintptr(extractRawPointer(stacktrace)))
 }
 
 func (obj *renderProcessHandlerImpl) OnFocusedNodeChanged(browser Browser, frame Frame, node Domnode) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFocusedNodeChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(node)))
 }
 
 func (obj *renderProcessHandlerImpl) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
 	return int32(ret)
 }
 
 func (obj *renderProcessHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *renderProcessHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapRenderProcessHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

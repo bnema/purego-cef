@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,88 +18,139 @@ import (
 type Server = portin.Server
 
 type serverImpl struct {
-	rawPtr *capi.CEFServerT
+	rawPtr               *capi.CEFServerT
+	releaseOnce          sync.Once
+	sendHttpResponseOnce sync.Once
+	sendHttpResponseFunc func(*capi.CEFServerT, uintptr, uintptr, uintptr, int64, uintptr)
 }
 
 func (obj *serverImpl) GetTaskRunner() TaskRunner {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetTaskRunner()
 	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
 func (obj *serverImpl) Shutdown() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallShutdown()
 }
 
 func (obj *serverImpl) IsRunning() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsRunning()
 	return ret != 0
 }
 
 func (obj *serverImpl) GetAddress() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetAddress()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *serverImpl) HasConnection() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasConnection()
 	return ret != 0
 }
 
 func (obj *serverImpl) IsValidConnection(connectionID int32) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValidConnection(uintptr(connectionID))
 	return ret != 0
 }
 
 func (obj *serverImpl) SendHttp200Response(connectionID int32, contentType string, data unsafe.Pointer, dataSize int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
 	obj.rawPtr.CallSendHttp200Response(uintptr(connectionID), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *serverImpl) SendHttp404Response(connectionID int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendHttp404Response(uintptr(connectionID))
 }
 
 func (obj *serverImpl) SendHttp500Response(connectionID int32, errorMessage string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	errorMessageStr := cefString(errorMessage)
 	defer freeCefString(&errorMessageStr)
 	obj.rawPtr.CallSendHttp500Response(uintptr(connectionID), uintptr(unsafe.Pointer(&errorMessageStr)))
 }
 
 func (obj *serverImpl) SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders StringMultimap) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
-	var fn func(*capi.CEFServerT, uintptr, uintptr, uintptr, int64, uintptr)
-	registerTypedCallback(&fn, obj.rawPtr.SendHttpResponse)
-	fn(obj.rawPtr, uintptr(connectionID), uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), contentLength, uintptr(extraHeaders))
+	obj.sendHttpResponseOnce.Do(func() {
+		registerTypedCallback(&obj.sendHttpResponseFunc, obj.rawPtr.SendHttpResponse)
+	})
+	obj.sendHttpResponseFunc(obj.rawPtr, uintptr(connectionID), uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), contentLength, uintptr(extraHeaders))
 }
 
 func (obj *serverImpl) SendRawData(connectionID int32, data unsafe.Pointer, dataSize int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendRawData(uintptr(connectionID), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *serverImpl) CloseConnection(connectionID int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCloseConnection(uintptr(connectionID))
 }
 
 func (obj *serverImpl) SendWebSocketMessage(connectionID int32, data unsafe.Pointer, dataSize int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendWebSocketMessage(uintptr(connectionID), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *serverImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *serverImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapServer(ptr unsafe.Pointer) Server {
@@ -196,59 +248,92 @@ func NewServerHandler(impl ServerHandler) ServerHandler {
 }
 
 type serverHandlerImpl struct {
-	rawPtr *capi.CEFServerHandlerT
+	rawPtr      *capi.CEFServerHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *serverHandlerImpl) OnServerCreated(server Server) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnServerCreated(uintptr(extractRawPointer(server)))
 }
 
 func (obj *serverHandlerImpl) OnServerDestroyed(server Server) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnServerDestroyed(uintptr(extractRawPointer(server)))
 }
 
 func (obj *serverHandlerImpl) OnClientConnected(server Server, connectionID int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnClientConnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
 }
 
 func (obj *serverHandlerImpl) OnClientDisconnected(server Server, connectionID int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnClientDisconnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
 }
 
 func (obj *serverHandlerImpl) OnHttpRequest(server Server, connectionID int32, clientAddress string, request Request) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	clientAddressStr := cefString(clientAddress)
 	defer freeCefString(&clientAddressStr)
 	obj.rawPtr.CallOnHttpRequest(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(unsafe.Pointer(&clientAddressStr)), uintptr(extractRawPointer(request)))
 }
 
 func (obj *serverHandlerImpl) OnWebSocketRequest(server Server, connectionID int32, clientAddress string, request Request, callback Callback) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	clientAddressStr := cefString(clientAddress)
 	defer freeCefString(&clientAddressStr)
 	obj.rawPtr.CallOnWebSocketRequest(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(unsafe.Pointer(&clientAddressStr)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
 }
 
 func (obj *serverHandlerImpl) OnWebSocketConnected(server Server, connectionID int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWebSocketConnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
 }
 
 func (obj *serverHandlerImpl) OnWebSocketMessage(server Server, connectionID int32, data unsafe.Pointer, dataSize int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWebSocketMessage(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *serverHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *serverHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapServerHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

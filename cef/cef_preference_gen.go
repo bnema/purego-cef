@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -21,6 +22,9 @@ type preferenceRegistrarImpl struct {
 }
 
 func (obj *preferenceRegistrarImpl) AddPreference(name string, defaultValue Value) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallAddPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(defaultValue)))
@@ -28,6 +32,9 @@ func (obj *preferenceRegistrarImpl) AddPreference(name string, defaultValue Valu
 }
 
 func (obj *preferenceRegistrarImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -74,29 +81,41 @@ func NewPreferenceObserver(impl PreferenceObserver) PreferenceObserver {
 }
 
 type preferenceObserverImpl struct {
-	rawPtr *capi.CEFPreferenceObserverT
+	rawPtr      *capi.CEFPreferenceObserverT
+	releaseOnce sync.Once
 }
 
 func (obj *preferenceObserverImpl) OnPreferenceChanged(name string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	obj.rawPtr.CallOnPreferenceChanged(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *preferenceObserverImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *preferenceObserverImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapPreferenceObserver wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -116,10 +135,14 @@ func wrapPreferenceObserver(ptr unsafe.Pointer) PreferenceObserver {
 type PreferenceManager = portin.PreferenceManager
 
 type preferenceManagerImpl struct {
-	rawPtr *capi.CEFPreferenceManagerT
+	rawPtr      *capi.CEFPreferenceManagerT
+	releaseOnce sync.Once
 }
 
 func (obj *preferenceManagerImpl) HasPreference(name string) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallHasPreference(uintptr(unsafe.Pointer(&nameStr)))
@@ -127,6 +150,9 @@ func (obj *preferenceManagerImpl) HasPreference(name string) bool {
 }
 
 func (obj *preferenceManagerImpl) GetPreference(name string) Value {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallGetPreference(uintptr(unsafe.Pointer(&nameStr)))
@@ -134,11 +160,17 @@ func (obj *preferenceManagerImpl) GetPreference(name string) Value {
 }
 
 func (obj *preferenceManagerImpl) GetAllPreferences(includeDefaults int32) DictionaryValue {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetAllPreferences(uintptr(includeDefaults))
 	return wrapDictionaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *preferenceManagerImpl) CanSetPreference(name string) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallCanSetPreference(uintptr(unsafe.Pointer(&nameStr)))
@@ -146,6 +178,9 @@ func (obj *preferenceManagerImpl) CanSetPreference(name string) bool {
 }
 
 func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallSetPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(value)), error)
@@ -153,6 +188,9 @@ func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error 
 }
 
 func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer PreferenceObserver) Registration {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractOrWrapRawPointer(observer, func() any { return NewPreferenceObserver(observer) })))
@@ -160,19 +198,27 @@ func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer Pr
 }
 
 func (obj *preferenceManagerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *preferenceManagerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapPreferenceManager(ptr unsafe.Pointer) PreferenceManager {

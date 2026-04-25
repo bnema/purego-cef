@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -57,33 +58,48 @@ func NewResponseFilter(impl ResponseFilter) ResponseFilter {
 }
 
 type responseFilterImpl struct {
-	rawPtr *capi.CEFResponseFilterT
+	rawPtr      *capi.CEFResponseFilterT
+	releaseOnce sync.Once
 }
 
 func (obj *responseFilterImpl) InitFilter() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallInitFilter()
 	return int32(ret)
 }
 
 func (obj *responseFilterImpl) Filter(dataIn unsafe.Pointer, dataInSize int, dataInRead *int, dataOut unsafe.Pointer, dataOutSize int, dataOutWritten *int) ResponseFilterStatus {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallFilter(uintptr(dataIn), uintptr(dataInSize), uintptr(unsafe.Pointer(dataInRead)), uintptr(dataOut), uintptr(dataOutSize), uintptr(unsafe.Pointer(dataOutWritten)))
 	return ResponseFilterStatus(ret)
 }
 
 func (obj *responseFilterImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *responseFilterImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapResponseFilter wraps a CEF handler pointer received from CEF into a thin Go façade.

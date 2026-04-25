@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,31 +16,46 @@ import (
 type MenuButton = portin.MenuButton
 
 type menuButtonImpl struct {
-	rawPtr *capi.CEFMenuButtonT
+	rawPtr      *capi.CEFMenuButtonT
+	releaseOnce sync.Once
 }
 
 func (obj *menuButtonImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anchorPosition MenuAnchorPosition) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
 }
 
 func (obj *menuButtonImpl) TriggerMenu() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallTriggerMenu()
 }
 
 func (obj *menuButtonImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *menuButtonImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapMenuButton(ptr unsafe.Pointer) MenuButton {

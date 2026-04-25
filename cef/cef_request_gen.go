@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,70 +16,112 @@ import (
 type Request = portin.Request
 
 type requestImpl struct {
-	rawPtr *capi.CEFRequestT
+	rawPtr            *capi.CEFRequestT
+	releaseOnce       sync.Once
+	getIdentifierOnce sync.Once
+	getIdentifierFunc func(*capi.CEFRequestT) uint64
 }
 
 func (obj *requestImpl) IsReadOnly() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
 func (obj *requestImpl) GetURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *requestImpl) SetURL(uRL string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	obj.rawPtr.CallSetURL(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *requestImpl) GetMethod() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetMethod()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *requestImpl) SetMethod(method string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
 	obj.rawPtr.CallSetMethod(uintptr(unsafe.Pointer(&methodStr)))
 }
 
 func (obj *requestImpl) SetReferrer(referrerURL string, policy ReferrerPolicy) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	referrerURLStr := cefString(referrerURL)
 	defer freeCefString(&referrerURLStr)
 	obj.rawPtr.CallSetReferrer(uintptr(unsafe.Pointer(&referrerURLStr)), uintptr(policy))
 }
 
 func (obj *requestImpl) GetReferrerURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetReferrerURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *requestImpl) GetReferrerPolicy() ReferrerPolicy {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetReferrerPolicy()
 	return ReferrerPolicy(ret)
 }
 
 func (obj *requestImpl) GetPostData() PostData {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetPostData()
 	return wrapPostData(unsafe.Pointer(ret))
 }
 
 func (obj *requestImpl) SetPostData(postdata PostData) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetPostData(uintptr(extractRawPointer(postdata)))
 }
 
 func (obj *requestImpl) GetHeaderMap(headermap StringMultimap) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetHeaderMap(uintptr(headermap))
 }
 
 func (obj *requestImpl) SetHeaderMap(headermap StringMultimap) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetHeaderMap(uintptr(headermap))
 }
 
 func (obj *requestImpl) GetHeaderByName(name string) string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallGetHeaderByName(uintptr(unsafe.Pointer(&nameStr)))
@@ -86,6 +129,9 @@ func (obj *requestImpl) GetHeaderByName(name string) string {
 }
 
 func (obj *requestImpl) SetHeaderByName(name string, value string, overwrite int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	valueStr := cefString(value)
@@ -94,6 +140,9 @@ func (obj *requestImpl) SetHeaderByName(name string, value string, overwrite int
 }
 
 func (obj *requestImpl) Set(uRL string, method string, postdata PostData, headermap StringMultimap) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	methodStr := cefString(method)
@@ -102,56 +151,86 @@ func (obj *requestImpl) Set(uRL string, method string, postdata PostData, header
 }
 
 func (obj *requestImpl) GetFlags() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetFlags()
 	return int32(ret)
 }
 
 func (obj *requestImpl) SetFlags(flags int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetFlags(uintptr(flags))
 }
 
 func (obj *requestImpl) GetFirstPartyForCookies() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetFirstPartyForCookies()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *requestImpl) SetFirstPartyForCookies(uRL string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	obj.rawPtr.CallSetFirstPartyForCookies(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *requestImpl) GetResourceType() ResourceType {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetResourceType()
 	return ResourceType(ret)
 }
 
 func (obj *requestImpl) GetTransitionType() TransitionType {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetTransitionType()
 	return TransitionType(ret)
 }
 
 func (obj *requestImpl) GetIdentifier() uint64 {
-	var fn func(*capi.CEFRequestT) uint64
-	registerTypedCallback(&fn, obj.rawPtr.GetIdentifier)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getIdentifierOnce.Do(func() {
+		registerTypedCallback(&obj.getIdentifierFunc, obj.rawPtr.GetIdentifier)
+	})
+	ret := obj.getIdentifierFunc(obj.rawPtr)
 	return uint64(ret)
 }
 
 func (obj *requestImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *requestImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapRequest(ptr unsafe.Pointer) Request {
@@ -170,25 +249,38 @@ func wrapRequest(ptr unsafe.Pointer) Request {
 type PostData = portin.PostData
 
 type postDataImpl struct {
-	rawPtr *capi.CEFPostDataT
+	rawPtr      *capi.CEFPostDataT
+	releaseOnce sync.Once
 }
 
 func (obj *postDataImpl) IsReadOnly() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
 func (obj *postDataImpl) HasExcludedElements() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasExcludedElements()
 	return ret != 0
 }
 
 func (obj *postDataImpl) GetElementCount() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetElementCount()
 	return int(ret)
 }
 
 func (obj *postDataImpl) GetElements(elementscount *int, elements []PostDataElement) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	var elementsRaw []uintptr
 	var elementsPtr unsafe.Pointer
 	elementsCountPtr := elementscount
@@ -215,33 +307,50 @@ func (obj *postDataImpl) GetElements(elementscount *int, elements []PostDataElem
 }
 
 func (obj *postDataImpl) RemoveElement(element PostDataElement) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallRemoveElement(uintptr(extractRawPointer(element)))
 	return int32(ret)
 }
 
 func (obj *postDataImpl) AddElement(element PostDataElement) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallAddElement(uintptr(extractRawPointer(element)))
 	return int32(ret)
 }
 
 func (obj *postDataImpl) RemoveElements() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallRemoveElements()
 }
 
 func (obj *postDataImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *postDataImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapPostData(ptr unsafe.Pointer) PostData {
@@ -260,62 +369,95 @@ func wrapPostData(ptr unsafe.Pointer) PostData {
 type PostDataElement = portin.PostDataElement
 
 type postDataElementImpl struct {
-	rawPtr *capi.CEFPostDataElementT
+	rawPtr      *capi.CEFPostDataElementT
+	releaseOnce sync.Once
 }
 
 func (obj *postDataElementImpl) IsReadOnly() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
 func (obj *postDataElementImpl) SetToEmpty() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetToEmpty()
 }
 
 func (obj *postDataElementImpl) SetToFile(filename string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	filenameStr := cefString(filename)
 	defer freeCefString(&filenameStr)
 	obj.rawPtr.CallSetToFile(uintptr(unsafe.Pointer(&filenameStr)))
 }
 
 func (obj *postDataElementImpl) SetToBytes(size int, bytes unsafe.Pointer) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetToBytes(uintptr(size), uintptr(bytes))
 }
 
 func (obj *postDataElementImpl) GetType() PostdataelementType {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetType()
 	return PostdataelementType(ret)
 }
 
 func (obj *postDataElementImpl) GetFile() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetFile()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *postDataElementImpl) GetBytesCount() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBytesCount()
 	return int(ret)
 }
 
 func (obj *postDataElementImpl) GetBytes(size int, bytes unsafe.Pointer) int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBytes(uintptr(size), uintptr(bytes))
 	return int(ret)
 }
 
 func (obj *postDataElementImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *postDataElementImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapPostDataElement(ptr unsafe.Pointer) PostDataElement {

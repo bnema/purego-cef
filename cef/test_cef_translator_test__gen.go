@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,73 +18,119 @@ import (
 type TranslatorTest = portin.TranslatorTest
 
 type translatorTestImpl struct {
-	rawPtr *capi.CEFTranslatorTestT
+	rawPtr        *capi.CEFTranslatorTestT
+	releaseOnce   sync.Once
+	getDoubleOnce sync.Once
+	getDoubleFunc func(*capi.CEFTranslatorTestT) float64
+	setDoubleOnce sync.Once
+	setDoubleFunc func(*capi.CEFTranslatorTestT, float64) uintptr
 }
 
 func (obj *translatorTestImpl) GetVoid() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetVoid()
 }
 
 func (obj *translatorTestImpl) GetBool() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBool()
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) GetInt() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetInt()
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) GetDouble() float64 {
-	var fn func(*capi.CEFTranslatorTestT) float64
-	registerTypedCallback(&fn, obj.rawPtr.GetDouble)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getDoubleOnce.Do(func() {
+		registerTypedCallback(&obj.getDoubleFunc, obj.rawPtr.GetDouble)
+	})
+	ret := obj.getDoubleFunc(obj.rawPtr)
 	return ret
 }
 
 func (obj *translatorTestImpl) GetLong() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetLong()
 	return uintptr(ret)
 }
 
 func (obj *translatorTestImpl) GetSizet() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetSizet()
 	return int(ret)
 }
 
 func (obj *translatorTestImpl) SetVoid() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetVoid()
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetBool(val int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetBool(uintptr(val))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetInt(val int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetInt(uintptr(val))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetDouble(val float64) int32 {
-	var fn func(*capi.CEFTranslatorTestT, float64) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.SetDouble)
-	ret := fn(obj.rawPtr, val)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.setDoubleOnce.Do(func() {
+		registerTypedCallback(&obj.setDoubleFunc, obj.rawPtr.SetDouble)
+	})
+	ret := obj.setDoubleFunc(obj.rawPtr, val)
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetLong(val uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetLong(val)
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetSizet(val int) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetSizet(uintptr(val))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetIntList(val []int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
 		valPtr = unsafe.Pointer(&val[0])
@@ -93,6 +140,9 @@ func (obj *translatorTestImpl) SetIntList(val []int32) int32 {
 }
 
 func (obj *translatorTestImpl) GetIntListByRef(valcount *int, val []int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valPtr unsafe.Pointer
 	valCountPtr := valcount
 	if valCountPtr == nil {
@@ -109,16 +159,25 @@ func (obj *translatorTestImpl) GetIntListByRef(valcount *int, val []int32) int32
 }
 
 func (obj *translatorTestImpl) GetIntListSize() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetIntListSize()
 	return int(ret)
 }
 
 func (obj *translatorTestImpl) GetString() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetString()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetString(val string) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	valStr := cefString(val)
 	defer freeCefString(&valStr)
 	ret := obj.rawPtr.CallSetString(uintptr(unsafe.Pointer(&valStr)))
@@ -126,54 +185,87 @@ func (obj *translatorTestImpl) SetString(val string) int32 {
 }
 
 func (obj *translatorTestImpl) GetStringByRef(val uintptr) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetStringByRef(val)
 }
 
 func (obj *translatorTestImpl) SetStringList(val StringList) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetStringList(uintptr(val))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) GetStringListByRef(val StringList) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetStringListByRef(uintptr(val))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetStringMap(val StringMap) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetStringMap(uintptr(val))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) GetStringMapByRef(val StringMap) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetStringMapByRef(uintptr(val))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetStringMultimap(val StringMultimap) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetStringMultimap(uintptr(val))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) GetStringMultimapByRef(val StringMultimap) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetStringMultimapByRef(uintptr(val))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) GetPoint() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPoint()
 	return uintptr(ret)
 }
 
 func (obj *translatorTestImpl) SetPoint(val *Point) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetPoint(uintptr(unsafe.Pointer(val)))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) GetPointByRef(val *Point) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetPointByRef(uintptr(unsafe.Pointer(val)))
 }
 
 func (obj *translatorTestImpl) SetPointList(val []Point) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
 		valPtr = unsafe.Pointer(&val[0])
@@ -183,6 +275,9 @@ func (obj *translatorTestImpl) SetPointList(val []Point) int32 {
 }
 
 func (obj *translatorTestImpl) GetPointListByRef(valcount *int, val []Point) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valPtr unsafe.Pointer
 	valCountPtr := valcount
 	if valCountPtr == nil {
@@ -199,36 +294,57 @@ func (obj *translatorTestImpl) GetPointListByRef(valcount *int, val []Point) int
 }
 
 func (obj *translatorTestImpl) GetPointListSize() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPointListSize()
 	return int(ret)
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibrary(val int32) TranslatorTestRefPtrLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetRefPtrLibrary(uintptr(val))
 	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetRefPtrLibrary(val TranslatorTestRefPtrLibrary) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetRefPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetRefPtrLibraryAndReturn(val TranslatorTestRefPtrLibrary) TranslatorTestRefPtrLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetRefPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
 	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetChildRefPtrLibrary(val TranslatorTestRefPtrLibraryChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetChildRefPtrLibraryAndReturnParent(val TranslatorTestRefPtrLibraryChild) TranslatorTestRefPtrLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
 	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetRefPtrLibraryList(val []TranslatorTestRefPtrLibrary, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -243,6 +359,9 @@ func (obj *translatorTestImpl) SetRefPtrLibraryList(val []TranslatorTestRefPtrLi
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibraryListByRef(valcount *int, val []TranslatorTestRefPtrLibrary, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	valCountPtr := valcount
@@ -270,31 +389,49 @@ func (obj *translatorTestImpl) GetRefPtrLibraryListByRef(valcount *int, val []Tr
 }
 
 func (obj *translatorTestImpl) GetRefPtrLibraryListSize() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRefPtrLibraryListSize()
 	return int(ret)
 }
 
 func (obj *translatorTestImpl) SetRefPtrClient(val TranslatorTestRefPtrClient) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClient(val) })))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetRefPtrClientAndReturn(val TranslatorTestRefPtrClient) TranslatorTestRefPtrClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetRefPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClient(val) })))
 	return wrapTranslatorTestRefPtrClient(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetChildRefPtrClient(val TranslatorTestRefPtrClientChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClientChild(val) })))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetChildRefPtrClientAndReturnParent(val TranslatorTestRefPtrClientChild) TranslatorTestRefPtrClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClientChild(val) })))
 	return wrapTranslatorTestRefPtrClient(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetRefPtrClientList(val []TranslatorTestRefPtrClient, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -309,6 +446,9 @@ func (obj *translatorTestImpl) SetRefPtrClientList(val []TranslatorTestRefPtrCli
 }
 
 func (obj *translatorTestImpl) GetRefPtrClientListByRef(valcount *int, val []TranslatorTestRefPtrClient, val1 TranslatorTestRefPtrClient, val2 TranslatorTestRefPtrClient) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	valCountPtr := valcount
@@ -336,66 +476,105 @@ func (obj *translatorTestImpl) GetRefPtrClientListByRef(valcount *int, val []Tra
 }
 
 func (obj *translatorTestImpl) GetRefPtrClientListSize() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRefPtrClientListSize()
 	return int(ret)
 }
 
 func (obj *translatorTestImpl) GetOwnPtrLibrary(val int32) TranslatorTestScopedLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetOwnPtrLibrary(uintptr(val))
 	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetOwnPtrLibrary(val TranslatorTestScopedLibrary) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetOwnPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetOwnPtrLibraryAndReturn(val TranslatorTestScopedLibrary) TranslatorTestScopedLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetOwnPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
 	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetChildOwnPtrLibrary(val TranslatorTestScopedLibraryChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetChildOwnPtrLibraryAndReturnParent(val TranslatorTestScopedLibraryChild) TranslatorTestScopedLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
 	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetOwnPtrClient(val TranslatorTestScopedClient) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClient(val) })))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetOwnPtrClientAndReturn(val TranslatorTestScopedClient) TranslatorTestScopedClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetOwnPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClient(val) })))
 	return wrapTranslatorTestScopedClient(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetChildOwnPtrClient(val TranslatorTestScopedClientChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClientChild(val) })))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetChildOwnPtrClientAndReturnParent(val TranslatorTestScopedClientChild) TranslatorTestScopedClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClientChild(val) })))
 	return wrapTranslatorTestScopedClient(unsafe.Pointer(ret))
 }
 
 func (obj *translatorTestImpl) SetRawPtrLibrary(val TranslatorTestScopedLibrary) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetRawPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetChildRawPtrLibrary(val TranslatorTestScopedLibraryChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRawPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetRawPtrLibraryList(val []TranslatorTestScopedLibrary, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -410,16 +589,25 @@ func (obj *translatorTestImpl) SetRawPtrLibraryList(val []TranslatorTestScopedLi
 }
 
 func (obj *translatorTestImpl) SetRawPtrClient(val TranslatorTestScopedClient) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClient(val) })))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetChildRawPtrClient(val TranslatorTestScopedClientChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClientChild(val) })))
 	return int32(ret)
 }
 
 func (obj *translatorTestImpl) SetRawPtrClientList(val []TranslatorTestScopedClient, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -434,19 +622,27 @@ func (obj *translatorTestImpl) SetRawPtrClientList(val []TranslatorTestScopedCli
 }
 
 func (obj *translatorTestImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTranslatorTest(ptr unsafe.Pointer) TranslatorTest {
@@ -465,32 +661,47 @@ func wrapTranslatorTest(ptr unsafe.Pointer) TranslatorTest {
 type TranslatorTestRefPtrLibrary = portin.TranslatorTestRefPtrLibrary
 
 type translatorTestRefPtrLibraryImpl struct {
-	rawPtr *capi.CEFTranslatorTestRefPtrLibraryT
+	rawPtr      *capi.CEFTranslatorTestRefPtrLibraryT
+	releaseOnce sync.Once
 }
 
 func (obj *translatorTestRefPtrLibraryImpl) GetValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestRefPtrLibraryImpl) SetValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValue(uintptr(value))
 }
 
 func (obj *translatorTestRefPtrLibraryImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrLibraryImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTranslatorTestRefPtrLibrary(ptr unsafe.Pointer) TranslatorTestRefPtrLibrary {
@@ -509,32 +720,47 @@ func wrapTranslatorTestRefPtrLibrary(ptr unsafe.Pointer) TranslatorTestRefPtrLib
 type TranslatorTestRefPtrLibraryChild = portin.TranslatorTestRefPtrLibraryChild
 
 type translatorTestRefPtrLibraryChildImpl struct {
-	rawPtr *capi.CEFTranslatorTestRefPtrLibraryChildT
+	rawPtr      *capi.CEFTranslatorTestRefPtrLibraryChildT
+	releaseOnce sync.Once
 }
 
 func (obj *translatorTestRefPtrLibraryChildImpl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestRefPtrLibraryChildImpl) SetOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
 func (obj *translatorTestRefPtrLibraryChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrLibraryChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTranslatorTestRefPtrLibraryChild(ptr unsafe.Pointer) TranslatorTestRefPtrLibraryChild {
@@ -553,32 +779,47 @@ func wrapTranslatorTestRefPtrLibraryChild(ptr unsafe.Pointer) TranslatorTestRefP
 type TranslatorTestRefPtrLibraryChildChild = portin.TranslatorTestRefPtrLibraryChildChild
 
 type translatorTestRefPtrLibraryChildChildImpl struct {
-	rawPtr *capi.CEFTranslatorTestRefPtrLibraryChildChildT
+	rawPtr      *capi.CEFTranslatorTestRefPtrLibraryChildChildT
+	releaseOnce sync.Once
 }
 
 func (obj *translatorTestRefPtrLibraryChildChildImpl) GetOtherOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestRefPtrLibraryChildChildImpl) SetOtherOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *translatorTestRefPtrLibraryChildChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrLibraryChildChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTranslatorTestRefPtrLibraryChildChild(ptr unsafe.Pointer) TranslatorTestRefPtrLibraryChildChild {
@@ -627,28 +868,40 @@ func NewTranslatorTestRefPtrClient(impl TranslatorTestRefPtrClient) TranslatorTe
 }
 
 type translatorTestRefPtrClientImpl struct {
-	rawPtr *capi.CEFTranslatorTestRefPtrClientT
+	rawPtr      *capi.CEFTranslatorTestRefPtrClientT
+	releaseOnce sync.Once
 }
 
 func (obj *translatorTestRefPtrClientImpl) GetValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestRefPtrClientImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrClientImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapTranslatorTestRefPtrClient wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -698,28 +951,40 @@ func NewTranslatorTestRefPtrClientChild(impl TranslatorTestRefPtrClientChild) Tr
 }
 
 type translatorTestRefPtrClientChildImpl struct {
-	rawPtr *capi.CEFTranslatorTestRefPtrClientChildT
+	rawPtr      *capi.CEFTranslatorTestRefPtrClientChildT
+	releaseOnce sync.Once
 }
 
 func (obj *translatorTestRefPtrClientChildImpl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestRefPtrClientChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrClientChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapTranslatorTestRefPtrClientChild wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -743,15 +1008,24 @@ type translatorTestScopedLibraryImpl struct {
 }
 
 func (obj *translatorTestScopedLibraryImpl) GetValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestScopedLibraryImpl) SetValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValue(uintptr(value))
 }
 
 func (obj *translatorTestScopedLibraryImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -767,32 +1041,47 @@ func wrapTranslatorTestScopedLibrary(ptr unsafe.Pointer) TranslatorTestScopedLib
 type TranslatorTestScopedLibraryChild = portin.TranslatorTestScopedLibraryChild
 
 type translatorTestScopedLibraryChildImpl struct {
-	rawPtr *capi.CEFTranslatorTestScopedLibraryChildT
+	rawPtr      *capi.CEFTranslatorTestScopedLibraryChildT
+	releaseOnce sync.Once
 }
 
 func (obj *translatorTestScopedLibraryChildImpl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestScopedLibraryChildImpl) SetOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
 func (obj *translatorTestScopedLibraryChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestScopedLibraryChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTranslatorTestScopedLibraryChild(ptr unsafe.Pointer) TranslatorTestScopedLibraryChild {
@@ -811,32 +1100,47 @@ func wrapTranslatorTestScopedLibraryChild(ptr unsafe.Pointer) TranslatorTestScop
 type TranslatorTestScopedLibraryChildChild = portin.TranslatorTestScopedLibraryChildChild
 
 type translatorTestScopedLibraryChildChildImpl struct {
-	rawPtr *capi.CEFTranslatorTestScopedLibraryChildChildT
+	rawPtr      *capi.CEFTranslatorTestScopedLibraryChildChildT
+	releaseOnce sync.Once
 }
 
 func (obj *translatorTestScopedLibraryChildChildImpl) GetOtherOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestScopedLibraryChildChildImpl) SetOtherOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *translatorTestScopedLibraryChildChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestScopedLibraryChildChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTranslatorTestScopedLibraryChildChild(ptr unsafe.Pointer) TranslatorTestScopedLibraryChildChild {
@@ -889,11 +1193,17 @@ type translatorTestScopedClientImpl struct {
 }
 
 func (obj *translatorTestScopedClientImpl) GetValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestScopedClientImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -939,28 +1249,40 @@ func NewTranslatorTestScopedClientChild(impl TranslatorTestScopedClientChild) Tr
 }
 
 type translatorTestScopedClientChildImpl struct {
-	rawPtr *capi.CEFTranslatorTestScopedClientChildT
+	rawPtr      *capi.CEFTranslatorTestScopedClientChildT
+	releaseOnce sync.Once
 }
 
 func (obj *translatorTestScopedClientChildImpl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *translatorTestScopedClientChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestScopedClientChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapTranslatorTestScopedClientChild wraps a CEF handler pointer received from CEF into a thin Go façade.

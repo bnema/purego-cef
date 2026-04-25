@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,31 +16,46 @@ import (
 type BoxLayout = portin.BoxLayout
 
 type boxLayoutImpl struct {
-	rawPtr *capi.CEFBoxLayoutT
+	rawPtr      *capi.CEFBoxLayoutT
+	releaseOnce sync.Once
 }
 
 func (obj *boxLayoutImpl) SetFlexForView(view View, flex int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetFlexForView(uintptr(extractRawPointer(view)), uintptr(flex))
 }
 
 func (obj *boxLayoutImpl) ClearFlexForView(view View) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallClearFlexForView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *boxLayoutImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *boxLayoutImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapBoxLayout(ptr unsafe.Pointer) BoxLayout {

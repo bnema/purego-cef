@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,69 +16,115 @@ import (
 type Frame = portin.Frame
 
 type frameImpl struct {
-	rawPtr *capi.CEFFrameT
+	rawPtr      *capi.CEFFrameT
+	releaseOnce sync.Once
 }
 
 func (obj *frameImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *frameImpl) Undo() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallUndo()
 }
 
 func (obj *frameImpl) Redo() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallRedo()
 }
 
 func (obj *frameImpl) Cut() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCut()
 }
 
 func (obj *frameImpl) Copy() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCopy()
 }
 
 func (obj *frameImpl) Paste() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallPaste()
 }
 
 func (obj *frameImpl) PasteAndMatchStyle() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallPasteAndMatchStyle()
 }
 
 func (obj *frameImpl) Del() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallDel()
 }
 
 func (obj *frameImpl) SelectAll() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSelectAll()
 }
 
 func (obj *frameImpl) ViewSource() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallViewSource()
 }
 
 func (obj *frameImpl) GetSource(visitor StringVisitor) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetSource(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
 }
 
 func (obj *frameImpl) GetText(visitor StringVisitor) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetText(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
 }
 
 func (obj *frameImpl) LoadRequest(request Request) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallLoadRequest(uintptr(extractRawPointer(request)))
 }
 
 func (obj *frameImpl) LoadURL(uRL string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	obj.rawPtr.CallLoadURL(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *frameImpl) ExecuteJavaScript(code string, scriptURL string, startLine int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	codeStr := cefString(code)
 	defer freeCefString(&codeStr)
 	scriptURLStr := cefString(scriptURL)
@@ -86,72 +133,113 @@ func (obj *frameImpl) ExecuteJavaScript(code string, scriptURL string, startLine
 }
 
 func (obj *frameImpl) IsMain() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsMain()
 	return ret != 0
 }
 
 func (obj *frameImpl) IsFocused() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsFocused()
 	return ret != 0
 }
 
 func (obj *frameImpl) GetName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetIdentifier() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetIdentifier()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetParent() Frame {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetParent()
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetBrowser() Browser {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetBrowser()
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) GetV8Context() V8Context {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetV8Context()
 	return wrapV8Context(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) VisitDom(visitor Domvisitor) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallVisitDom(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewDomvisitor(visitor) })))
 }
 
 func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient) Urlrequest {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })))
 	return wrapUrlrequest(unsafe.Pointer(ret))
 }
 
 func (obj *frameImpl) SendProcessMessage(targetProcess ProcessID, message ProcessMessage) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendProcessMessage(uintptr(targetProcess), uintptr(extractRawPointer(message)))
 }
 
 func (obj *frameImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *frameImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapFrame(ptr unsafe.Pointer) Frame {

@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,77 +16,122 @@ import (
 type Panel = portin.Panel
 
 type panelImpl struct {
-	rawPtr *capi.CEFPanelT
+	rawPtr      *capi.CEFPanelT
+	releaseOnce sync.Once
 }
 
 func (obj *panelImpl) AsWindow() Window {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAsWindow()
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
 func (obj *panelImpl) SetToFillLayout() FillLayout {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetToFillLayout()
 	return wrapFillLayout(unsafe.Pointer(ret))
 }
 
 func (obj *panelImpl) SetToBoxLayout(settings *BoxLayoutSettings) BoxLayout {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetToBoxLayout(uintptr(unsafe.Pointer(settings)))
 	return wrapBoxLayout(unsafe.Pointer(ret))
 }
 
 func (obj *panelImpl) GetLayout() Layout {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetLayout()
 	return wrapLayout(unsafe.Pointer(ret))
 }
 
 func (obj *panelImpl) Layout() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallLayout()
 }
 
 func (obj *panelImpl) AddChildView(view View) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallAddChildView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *panelImpl) AddChildViewAt(view View, index int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallAddChildViewAt(uintptr(extractRawPointer(view)), uintptr(index))
 }
 
 func (obj *panelImpl) ReorderChildView(view View, index int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallReorderChildView(uintptr(extractRawPointer(view)), uintptr(index))
 }
 
 func (obj *panelImpl) RemoveChildView(view View) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallRemoveChildView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *panelImpl) RemoveAllChildViews() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallRemoveAllChildViews()
 }
 
 func (obj *panelImpl) GetChildViewCount() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetChildViewCount()
 	return int(ret)
 }
 
 func (obj *panelImpl) GetChildViewAt(index int32) View {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetChildViewAt(uintptr(index))
 	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *panelImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *panelImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapPanel(ptr unsafe.Pointer) Panel {

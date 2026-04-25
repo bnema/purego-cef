@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -105,71 +106,113 @@ func NewViewDelegate(impl ViewDelegate) ViewDelegate {
 }
 
 type viewDelegateImpl struct {
-	rawPtr *capi.CEFViewDelegateT
+	rawPtr      *capi.CEFViewDelegateT
+	releaseOnce sync.Once
 }
 
 func (obj *viewDelegateImpl) GetPreferredSize(view View) uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPreferredSize(uintptr(extractRawPointer(view)))
 	return uintptr(ret)
 }
 
 func (obj *viewDelegateImpl) GetMinimumSize(view View) uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetMinimumSize(uintptr(extractRawPointer(view)))
 	return uintptr(ret)
 }
 
 func (obj *viewDelegateImpl) GetMaximumSize(view View) uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetMaximumSize(uintptr(extractRawPointer(view)))
 	return uintptr(ret)
 }
 
 func (obj *viewDelegateImpl) GetHeightForWidth(view View, width int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetHeightForWidth(uintptr(extractRawPointer(view)), uintptr(width))
 	return int32(ret)
 }
 
 func (obj *viewDelegateImpl) OnParentViewChanged(view View, added int32, parent View) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnParentViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(parent)))
 }
 
 func (obj *viewDelegateImpl) OnChildViewChanged(view View, added int32, child View) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnChildViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(child)))
 }
 
 func (obj *viewDelegateImpl) OnWindowChanged(view View, added int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWindowChanged(uintptr(extractRawPointer(view)), uintptr(added))
 }
 
 func (obj *viewDelegateImpl) OnLayoutChanged(view View, newBounds *Rect) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnLayoutChanged(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(newBounds)))
 }
 
 func (obj *viewDelegateImpl) OnFocus(view View) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFocus(uintptr(extractRawPointer(view)))
 }
 
 func (obj *viewDelegateImpl) OnBlur(view View) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnBlur(uintptr(extractRawPointer(view)))
 }
 
 func (obj *viewDelegateImpl) OnThemeChanged(view View) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnThemeChanged(uintptr(extractRawPointer(view)))
 }
 
 func (obj *viewDelegateImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *viewDelegateImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapViewDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.

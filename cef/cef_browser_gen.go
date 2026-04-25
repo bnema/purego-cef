@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,85 +18,137 @@ import (
 type Browser = portin.Browser
 
 type browserImpl struct {
-	rawPtr *capi.CEFBrowserT
+	rawPtr      *capi.CEFBrowserT
+	releaseOnce sync.Once
 }
 
 func (obj *browserImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *browserImpl) GetHost() BrowserHost {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetHost()
 	return wrapBrowserHost(unsafe.Pointer(ret))
 }
 
 func (obj *browserImpl) CanGoBack() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanGoBack()
 	return ret != 0
 }
 
 func (obj *browserImpl) GoBack() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGoBack()
 }
 
 func (obj *browserImpl) CanGoForward() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanGoForward()
 	return ret != 0
 }
 
 func (obj *browserImpl) GoForward() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGoForward()
 }
 
 func (obj *browserImpl) IsLoading() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsLoading()
 	return ret != 0
 }
 
 func (obj *browserImpl) Reload() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallReload()
 }
 
 func (obj *browserImpl) ReloadIgnoreCache() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallReloadIgnoreCache()
 }
 
 func (obj *browserImpl) StopLoad() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallStopLoad()
 }
 
 func (obj *browserImpl) GetIdentifier() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetIdentifier()
 	return int32(ret)
 }
 
 func (obj *browserImpl) IsSame(that Browser) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
 func (obj *browserImpl) IsPopup() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsPopup()
 	return ret != 0
 }
 
 func (obj *browserImpl) HasDocument() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasDocument()
 	return ret != 0
 }
 
 func (obj *browserImpl) GetMainFrame() Frame {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetMainFrame()
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *browserImpl) GetFocusedFrame() Frame {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFocusedFrame()
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *browserImpl) GetFrameByIdentifier(identifier string) Frame {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	identifierStr := cefString(identifier)
 	defer freeCefString(&identifierStr)
 	ret := obj.rawPtr.CallGetFrameByIdentifier(uintptr(unsafe.Pointer(&identifierStr)))
@@ -103,6 +156,9 @@ func (obj *browserImpl) GetFrameByIdentifier(identifier string) Frame {
 }
 
 func (obj *browserImpl) GetFrameByName(name string) Frame {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallGetFrameByName(uintptr(unsafe.Pointer(&nameStr)))
@@ -110,32 +166,49 @@ func (obj *browserImpl) GetFrameByName(name string) Frame {
 }
 
 func (obj *browserImpl) GetFrameCount() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetFrameCount()
 	return int(ret)
 }
 
 func (obj *browserImpl) GetFrameIdentifiers(identifiers StringList) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetFrameIdentifiers(uintptr(identifiers))
 }
 
 func (obj *browserImpl) GetFrameNames(names StringList) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetFrameNames(uintptr(names))
 }
 
 func (obj *browserImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *browserImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapBrowser(ptr unsafe.Pointer) Browser {
@@ -185,27 +258,39 @@ func NewRunFileDialogCallback(impl RunFileDialogCallback) RunFileDialogCallback 
 }
 
 type runFileDialogCallbackImpl struct {
-	rawPtr *capi.CEFRunFileDialogCallbackT
+	rawPtr      *capi.CEFRunFileDialogCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *runFileDialogCallbackImpl) OnFileDialogDismissed(filePaths StringList) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFileDialogDismissed(uintptr(filePaths))
 }
 
 func (obj *runFileDialogCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *runFileDialogCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapRunFileDialogCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -259,28 +344,40 @@ func NewNavigationEntryVisitor(impl NavigationEntryVisitor) NavigationEntryVisit
 }
 
 type navigationEntryVisitorImpl struct {
-	rawPtr *capi.CEFNavigationEntryVisitorT
+	rawPtr      *capi.CEFNavigationEntryVisitorT
+	releaseOnce sync.Once
 }
 
 func (obj *navigationEntryVisitorImpl) Visit(entry NavigationEntry, current int32, index int32, total int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallVisit(uintptr(extractRawPointer(entry)), uintptr(current), uintptr(index), uintptr(total))
 	return int32(ret)
 }
 
 func (obj *navigationEntryVisitorImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *navigationEntryVisitorImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapNavigationEntryVisitor wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -332,29 +429,41 @@ func NewPdfPrintCallback(impl PdfPrintCallback) PdfPrintCallback {
 }
 
 type pdfPrintCallbackImpl struct {
-	rawPtr *capi.CEFPdfPrintCallbackT
+	rawPtr      *capi.CEFPdfPrintCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *pdfPrintCallbackImpl) OnPdfPrintFinished(path string, ok int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	pathStr := cefString(path)
 	defer freeCefString(&pathStr)
 	obj.rawPtr.CallOnPdfPrintFinished(uintptr(unsafe.Pointer(&pathStr)), uintptr(ok))
 }
 
 func (obj *pdfPrintCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *pdfPrintCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapPdfPrintCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -407,29 +516,41 @@ func NewDownloadImageCallback(impl DownloadImageCallback) DownloadImageCallback 
 }
 
 type downloadImageCallbackImpl struct {
-	rawPtr *capi.CEFDownloadImageCallbackT
+	rawPtr      *capi.CEFDownloadImageCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *downloadImageCallbackImpl) OnDownloadImageFinished(imageURL string, httpStatusCode int32, image Image) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	imageURLStr := cefString(imageURL)
 	defer freeCefString(&imageURLStr)
 	obj.rawPtr.CallOnDownloadImageFinished(uintptr(unsafe.Pointer(&imageURLStr)), uintptr(httpStatusCode), uintptr(extractRawPointer(image)))
 }
 
 func (obj *downloadImageCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *downloadImageCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapDownloadImageCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -449,92 +570,153 @@ func wrapDownloadImageCallback(ptr unsafe.Pointer) DownloadImageCallback {
 type BrowserHost = portin.BrowserHost
 
 type browserHostImpl struct {
-	rawPtr *capi.CEFBrowserHostT
+	rawPtr                  *capi.CEFBrowserHostT
+	releaseOnce             sync.Once
+	getDefaultZoomLevelOnce sync.Once
+	getDefaultZoomLevelFunc func(*capi.CEFBrowserHostT) float64
+	getZoomLevelOnce        sync.Once
+	getZoomLevelFunc        func(*capi.CEFBrowserHostT) float64
+	setZoomLevelOnce        sync.Once
+	setZoomLevelFunc        func(*capi.CEFBrowserHostT, float64)
 }
 
 func (obj *browserHostImpl) GetBrowser() Browser {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetBrowser()
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) CloseBrowser(forceClose int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCloseBrowser(uintptr(forceClose))
 }
 
 func (obj *browserHostImpl) TryCloseBrowser() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallTryCloseBrowser()
 	return int32(ret)
 }
 
 func (obj *browserHostImpl) IsReadyToBeClosed() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsReadyToBeClosed()
 	return ret != 0
 }
 
 func (obj *browserHostImpl) SetFocus(focus int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetFocus(uintptr(focus))
 }
 
 func (obj *browserHostImpl) GetWindowHandle() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetWindowHandle()
 	return uintptr(ret)
 }
 
 func (obj *browserHostImpl) GetOpenerWindowHandle() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOpenerWindowHandle()
 	return uintptr(ret)
 }
 
 func (obj *browserHostImpl) GetOpenerIdentifier() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOpenerIdentifier()
 	return int32(ret)
 }
 
 func (obj *browserHostImpl) HasView() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasView()
 	return ret != 0
 }
 
 func (obj *browserHostImpl) GetClient() RawClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetClient()
 	return wrapRawClient(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) GetRequestContext() RequestContext {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetRequestContext()
 	return wrapRequestContext(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) CanZoom(command ZoomCommand) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanZoom(uintptr(command))
 	return ret != 0
 }
 
 func (obj *browserHostImpl) Zoom(command ZoomCommand) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallZoom(uintptr(command))
 }
 
 func (obj *browserHostImpl) GetDefaultZoomLevel() float64 {
-	var fn func(*capi.CEFBrowserHostT) float64
-	registerTypedCallback(&fn, obj.rawPtr.GetDefaultZoomLevel)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getDefaultZoomLevelOnce.Do(func() {
+		registerTypedCallback(&obj.getDefaultZoomLevelFunc, obj.rawPtr.GetDefaultZoomLevel)
+	})
+	ret := obj.getDefaultZoomLevelFunc(obj.rawPtr)
 	return ret
 }
 
 func (obj *browserHostImpl) GetZoomLevel() float64 {
-	var fn func(*capi.CEFBrowserHostT) float64
-	registerTypedCallback(&fn, obj.rawPtr.GetZoomLevel)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getZoomLevelOnce.Do(func() {
+		registerTypedCallback(&obj.getZoomLevelFunc, obj.rawPtr.GetZoomLevel)
+	})
+	ret := obj.getZoomLevelFunc(obj.rawPtr)
 	return ret
 }
 
 func (obj *browserHostImpl) SetZoomLevel(zoomlevel float64) {
-	var fn func(*capi.CEFBrowserHostT, float64)
-	registerTypedCallback(&fn, obj.rawPtr.SetZoomLevel)
-	fn(obj.rawPtr, zoomlevel)
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
+	obj.setZoomLevelOnce.Do(func() {
+		registerTypedCallback(&obj.setZoomLevelFunc, obj.rawPtr.SetZoomLevel)
+	})
+	obj.setZoomLevelFunc(obj.rawPtr, zoomlevel)
 }
 
 func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, defaultFilePath string, acceptFilters StringList, callback RunFileDialogCallback) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
 	defaultFilePathStr := cefString(defaultFilePath)
@@ -543,56 +725,89 @@ func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, def
 }
 
 func (obj *browserHostImpl) StartDownload(uRL string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	obj.rawPtr.CallStartDownload(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *browserHostImpl) DownloadImage(imageURL string, isFavicon int32, maxImageSize uint32, bypassCache int32, callback DownloadImageCallback) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	imageURLStr := cefString(imageURL)
 	defer freeCefString(&imageURLStr)
 	obj.rawPtr.CallDownloadImage(uintptr(unsafe.Pointer(&imageURLStr)), uintptr(isFavicon), uintptr(maxImageSize), uintptr(bypassCache), uintptr(extractOrWrapRawPointer(callback, func() any { return NewDownloadImageCallback(callback) })))
 }
 
 func (obj *browserHostImpl) Print() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallPrint()
 }
 
 func (obj *browserHostImpl) PrintToPdf(path string, settings *PdfPrintSettings, callback PdfPrintCallback) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	pathStr := cefString(path)
 	defer freeCefString(&pathStr)
 	obj.rawPtr.CallPrintToPdf(uintptr(unsafe.Pointer(&pathStr)), uintptr(unsafe.Pointer(settings)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewPdfPrintCallback(callback) })))
 }
 
 func (obj *browserHostImpl) Find(searchtext string, forward int32, matchcase int32, findnext int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	searchtextStr := cefString(searchtext)
 	defer freeCefString(&searchtextStr)
 	obj.rawPtr.CallFind(uintptr(unsafe.Pointer(&searchtextStr)), uintptr(forward), uintptr(matchcase), uintptr(findnext))
 }
 
 func (obj *browserHostImpl) StopFinding(clearselection int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallStopFinding(uintptr(clearselection))
 }
 
 func (obj *browserHostImpl) ShowDevTools(windowinfo *WindowInfo, client RawClient, settings *BrowserSettings, inspectElementAt *Point) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallShowDevTools(uintptr(unsafe.Pointer(windowinfo)), uintptr(extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })), uintptr(unsafe.Pointer(settings)), uintptr(unsafe.Pointer(inspectElementAt)))
 }
 
 func (obj *browserHostImpl) CloseDevTools() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCloseDevTools()
 }
 
 func (obj *browserHostImpl) HasDevTools() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasDevTools()
 	return ret != 0
 }
 
 func (obj *browserHostImpl) SendDevToolsMessage(message unsafe.Pointer, messageSize int) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSendDevToolsMessage(uintptr(message), uintptr(messageSize))
 	return int32(ret)
 }
 
 func (obj *browserHostImpl) ExecuteDevToolsMethod(messageID int32, method string, params DictionaryValue) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
 	ret := obj.rawPtr.CallExecuteDevToolsMethod(uintptr(messageID), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(params)))
@@ -600,89 +815,149 @@ func (obj *browserHostImpl) ExecuteDevToolsMethod(messageID int32, method string
 }
 
 func (obj *browserHostImpl) AddDevToolsMessageObserver(observer DevToolsMessageObserver) Registration {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAddDevToolsMessageObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewDevToolsMessageObserver(observer) })))
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) GetNavigationEntries(visitor NavigationEntryVisitor, currentOnly int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetNavigationEntries(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewNavigationEntryVisitor(visitor) })), uintptr(currentOnly))
 }
 
 func (obj *browserHostImpl) ReplaceMisspelling(word string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	wordStr := cefString(word)
 	defer freeCefString(&wordStr)
 	obj.rawPtr.CallReplaceMisspelling(uintptr(unsafe.Pointer(&wordStr)))
 }
 
 func (obj *browserHostImpl) AddWordToDictionary(word string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	wordStr := cefString(word)
 	defer freeCefString(&wordStr)
 	obj.rawPtr.CallAddWordToDictionary(uintptr(unsafe.Pointer(&wordStr)))
 }
 
 func (obj *browserHostImpl) IsWindowRenderingDisabled() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsWindowRenderingDisabled()
 	return ret != 0
 }
 
 func (obj *browserHostImpl) WasResized() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallWasResized()
 }
 
 func (obj *browserHostImpl) WasHidden(hidden int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallWasHidden(uintptr(hidden))
 }
 
 func (obj *browserHostImpl) NotifyScreenInfoChanged() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallNotifyScreenInfoChanged()
 }
 
 func (obj *browserHostImpl) Invalidate(type_ PaintElementType) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallInvalidate(uintptr(type_))
 }
 
 func (obj *browserHostImpl) SendExternalBeginFrame() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendExternalBeginFrame()
 }
 
 func (obj *browserHostImpl) SendKeyEvent(event *KeyEvent) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendKeyEvent(uintptr(unsafe.Pointer(event)))
 }
 
 func (obj *browserHostImpl) SendMouseClickEvent(event *MouseEvent, type_ MouseButtonType, mouseup int32, clickcount int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendMouseClickEvent(uintptr(unsafe.Pointer(event)), uintptr(type_), uintptr(mouseup), uintptr(clickcount))
 }
 
 func (obj *browserHostImpl) SendMouseMoveEvent(event *MouseEvent, mouseleave int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendMouseMoveEvent(uintptr(unsafe.Pointer(event)), uintptr(mouseleave))
 }
 
 func (obj *browserHostImpl) SendMouseWheelEvent(event *MouseEvent, deltax int32, deltay int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendMouseWheelEvent(uintptr(unsafe.Pointer(event)), uintptr(deltax), uintptr(deltay))
 }
 
 func (obj *browserHostImpl) SendTouchEvent(event *TouchEvent) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendTouchEvent(uintptr(unsafe.Pointer(event)))
 }
 
 func (obj *browserHostImpl) SendCaptureLostEvent() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendCaptureLostEvent()
 }
 
 func (obj *browserHostImpl) NotifyMoveOrResizeStarted() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallNotifyMoveOrResizeStarted()
 }
 
 func (obj *browserHostImpl) GetWindowlessFrameRate() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetWindowlessFrameRate()
 	return int32(ret)
 }
 
 func (obj *browserHostImpl) SetWindowlessFrameRate(frameRate int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetWindowlessFrameRate(uintptr(frameRate))
 }
 
 func (obj *browserHostImpl) ImeSetComposition(text string, underlines []CompositionUnderline, replacementRange *Range, selectionRange *Range) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
 	var underlinesPtr unsafe.Pointer
@@ -693,107 +968,175 @@ func (obj *browserHostImpl) ImeSetComposition(text string, underlines []Composit
 }
 
 func (obj *browserHostImpl) ImeCommitText(text string, replacementRange *Range, relativeCursorPos int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
 	obj.rawPtr.CallImeCommitText(uintptr(unsafe.Pointer(&textStr)), uintptr(unsafe.Pointer(replacementRange)), uintptr(relativeCursorPos))
 }
 
 func (obj *browserHostImpl) ImeFinishComposingText(keepSelection int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallImeFinishComposingText(uintptr(keepSelection))
 }
 
 func (obj *browserHostImpl) ImeCancelComposition() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallImeCancelComposition()
 }
 
 func (obj *browserHostImpl) DragTargetDragEnter(dragData DragData, event *MouseEvent, allowedOps DragOperationsMask) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallDragTargetDragEnter(uintptr(extractRawPointer(dragData)), uintptr(unsafe.Pointer(event)), uintptr(allowedOps))
 }
 
 func (obj *browserHostImpl) DragTargetDragOver(event *MouseEvent, allowedOps DragOperationsMask) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallDragTargetDragOver(uintptr(unsafe.Pointer(event)), uintptr(allowedOps))
 }
 
 func (obj *browserHostImpl) DragTargetDragLeave() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallDragTargetDragLeave()
 }
 
 func (obj *browserHostImpl) DragTargetDrop(event *MouseEvent) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallDragTargetDrop(uintptr(unsafe.Pointer(event)))
 }
 
 func (obj *browserHostImpl) DragSourceEndedAt(x int32, y int32, op DragOperationsMask) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallDragSourceEndedAt(uintptr(x), uintptr(y), uintptr(op))
 }
 
 func (obj *browserHostImpl) DragSourceSystemDragEnded() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallDragSourceSystemDragEnded()
 }
 
 func (obj *browserHostImpl) GetVisibleNavigationEntry() NavigationEntry {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetVisibleNavigationEntry()
 	return wrapNavigationEntry(unsafe.Pointer(ret))
 }
 
 func (obj *browserHostImpl) SetAccessibilityState(accessibilityState State) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetAccessibilityState(uintptr(accessibilityState))
 }
 
 func (obj *browserHostImpl) SetAutoResizeEnabled(enabled int32, minSize *Size, maxSize *Size) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetAutoResizeEnabled(uintptr(enabled), uintptr(unsafe.Pointer(minSize)), uintptr(unsafe.Pointer(maxSize)))
 }
 
 func (obj *browserHostImpl) SetAudioMuted(mute int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetAudioMuted(uintptr(mute))
 }
 
 func (obj *browserHostImpl) IsAudioMuted() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsAudioMuted()
 	return ret != 0
 }
 
 func (obj *browserHostImpl) IsFullscreen() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsFullscreen()
 	return ret != 0
 }
 
 func (obj *browserHostImpl) ExitFullscreen(willCauseResize int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallExitFullscreen(uintptr(willCauseResize))
 }
 
 func (obj *browserHostImpl) CanExecuteChromeCommand(commandID int32) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanExecuteChromeCommand(uintptr(commandID))
 	return ret != 0
 }
 
 func (obj *browserHostImpl) ExecuteChromeCommand(commandID int32, disposition WindowOpenDisposition) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallExecuteChromeCommand(uintptr(commandID), uintptr(disposition))
 }
 
 func (obj *browserHostImpl) IsRenderProcessUnresponsive() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsRenderProcessUnresponsive()
 	return ret != 0
 }
 
 func (obj *browserHostImpl) GetRuntimeStyle() RuntimeStyle {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRuntimeStyle()
 	return RuntimeStyle(ret)
 }
 
 func (obj *browserHostImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *browserHostImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapBrowserHost(ptr unsafe.Pointer) BrowserHost {

@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,74 +16,116 @@ import (
 type LabelButton = portin.LabelButton
 
 type labelButtonImpl struct {
-	rawPtr *capi.CEFLabelButtonT
+	rawPtr      *capi.CEFLabelButtonT
+	releaseOnce sync.Once
 }
 
 func (obj *labelButtonImpl) AsMenuButton() MenuButton {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAsMenuButton()
 	return wrapMenuButton(unsafe.Pointer(ret))
 }
 
 func (obj *labelButtonImpl) SetText(text string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
 	obj.rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *labelButtonImpl) GetText() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetImage(uintptr(buttonState), uintptr(extractRawPointer(image)))
 }
 
 func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetImage(uintptr(buttonState))
 	return wrapImage(unsafe.Pointer(ret))
 }
 
 func (obj *labelButtonImpl) SetTextColor(forState ButtonState, color uintptr) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetTextColor(uintptr(forState), color)
 }
 
 func (obj *labelButtonImpl) SetEnabledTextColors(color uintptr) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetEnabledTextColors(color)
 }
 
 func (obj *labelButtonImpl) SetFontList(fontList string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
 	obj.rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
 }
 
 func (obj *labelButtonImpl) SetHorizontalAlignment(alignment HorizontalAlignment) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetHorizontalAlignment(uintptr(alignment))
 }
 
 func (obj *labelButtonImpl) SetMinimumSize(size *Size) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetMinimumSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetMaximumSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *labelButtonImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *labelButtonImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapLabelButton(ptr unsafe.Pointer) LabelButton {

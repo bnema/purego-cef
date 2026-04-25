@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -97,10 +98,14 @@ func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 }
 
 type rawLifeSpanHandlerImpl struct {
-	rawPtr *capi.CEFLifeSpanHandlerT
+	rawPtr      *capi.CEFLifeSpanHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *rawLifeSpanHandlerImpl) OnBeforePopup(browser Browser, frame Frame, popupID int32, targetURL string, targetFrameName string, targetDisposition WindowOpenDisposition, userGesture int32, popupfeatures *PopupFeatures, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, noJavascriptAccess *int32) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	targetURLStr := cefString(targetURL)
 	defer freeCefString(&targetURLStr)
 	targetFrameNameStr := cefString(targetFrameName)
@@ -110,40 +115,63 @@ func (obj *rawLifeSpanHandlerImpl) OnBeforePopup(browser Browser, frame Frame, p
 }
 
 func (obj *rawLifeSpanHandlerImpl) OnBeforePopupAborted(browser Browser, popupID int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnBeforePopupAborted(uintptr(extractRawPointer(browser)), uintptr(popupID))
 }
 
 func (obj *rawLifeSpanHandlerImpl) OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow *int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnBeforeDevToolsPopup(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(windowinfo)), uintptr(client), uintptr(unsafe.Pointer(settings)), uintptr(extraInfo), uintptr(unsafe.Pointer(useDefaultWindow)))
 }
 
 func (obj *rawLifeSpanHandlerImpl) OnAfterCreated(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnAfterCreated(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *rawLifeSpanHandlerImpl) DoClose(browser Browser) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallDoClose(uintptr(extractRawPointer(browser)))
 	return ret != 0
 }
 
 func (obj *rawLifeSpanHandlerImpl) OnBeforeClose(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnBeforeClose(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *rawLifeSpanHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *rawLifeSpanHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapLifeSpanHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,50 +18,78 @@ import (
 type V8Context = portin.V8Context
 
 type v8ContextImpl struct {
-	rawPtr *capi.CEFV8ContextT
+	rawPtr      *capi.CEFV8ContextT
+	releaseOnce sync.Once
 }
 
 func (obj *v8ContextImpl) GetTaskRunner() TaskRunner {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetTaskRunner()
 	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
 func (obj *v8ContextImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *v8ContextImpl) GetBrowser() Browser {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetBrowser()
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
 func (obj *v8ContextImpl) GetFrame() Frame {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFrame()
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
 func (obj *v8ContextImpl) GetGlobal() V8Value {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetGlobal()
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
 func (obj *v8ContextImpl) Enter() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallEnter()
 	return int32(ret)
 }
 
 func (obj *v8ContextImpl) Exit() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallExit()
 	return int32(ret)
 }
 
 func (obj *v8ContextImpl) IsSame(that V8Context) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
 func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, retval unsafe.Pointer, exception unsafe.Pointer) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	codeStr := cefString(code)
 	defer freeCefString(&codeStr)
 	scriptURLStr := cefString(scriptURL)
@@ -82,19 +111,27 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 }
 
 func (obj *v8ContextImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *v8ContextImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapV8Context(ptr unsafe.Pointer) V8Context {
@@ -155,10 +192,14 @@ func NewV8Handler(impl V8Handler) V8Handler {
 }
 
 type v8HandlerImpl struct {
-	rawPtr *capi.CEFV8HandlerT
+	rawPtr      *capi.CEFV8HandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *v8HandlerImpl) Execute(name string, object V8Value, arguments []V8Value, retval unsafe.Pointer, exception uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	var argumentsRaw []uintptr
@@ -175,19 +216,27 @@ func (obj *v8HandlerImpl) Execute(name string, object V8Value, arguments []V8Val
 }
 
 func (obj *v8HandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *v8HandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapV8Handler wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -249,10 +298,14 @@ func NewV8Accessor(impl V8Accessor) V8Accessor {
 }
 
 type v8AccessorImpl struct {
-	rawPtr *capi.CEFV8AccessorT
+	rawPtr      *capi.CEFV8AccessorT
+	releaseOnce sync.Once
 }
 
 func (obj *v8AccessorImpl) Get(name string, object V8Value, retval unsafe.Pointer, exception uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallGet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
@@ -260,6 +313,9 @@ func (obj *v8AccessorImpl) Get(name string, object V8Value, retval unsafe.Pointe
 }
 
 func (obj *v8AccessorImpl) Set(name string, object V8Value, value V8Value, exception uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallSet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
@@ -267,19 +323,27 @@ func (obj *v8AccessorImpl) Set(name string, object V8Value, value V8Value, excep
 }
 
 func (obj *v8AccessorImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *v8AccessorImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapV8Accessor wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -357,10 +421,14 @@ func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 }
 
 type v8InterceptorImpl struct {
-	rawPtr *capi.CEFV8InterceptorT
+	rawPtr      *capi.CEFV8InterceptorT
+	releaseOnce sync.Once
 }
 
 func (obj *v8InterceptorImpl) GetByname(name string, object V8Value, retval unsafe.Pointer, exception uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallGetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
@@ -368,11 +436,17 @@ func (obj *v8InterceptorImpl) GetByname(name string, object V8Value, retval unsa
 }
 
 func (obj *v8InterceptorImpl) GetByindex(index int32, object V8Value, retval unsafe.Pointer, exception uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(retval), exception)
 	return int32(ret)
 }
 
 func (obj *v8InterceptorImpl) SetByname(name string, object V8Value, value V8Value, exception uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallSetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
@@ -380,24 +454,35 @@ func (obj *v8InterceptorImpl) SetByname(name string, object V8Value, value V8Val
 }
 
 func (obj *v8InterceptorImpl) SetByindex(index int32, object V8Value, value V8Value, exception uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
 	return int32(ret)
 }
 
 func (obj *v8InterceptorImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *v8InterceptorImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapV8Interceptor wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -417,63 +502,96 @@ func wrapV8Interceptor(ptr unsafe.Pointer) V8Interceptor {
 type V8Exception = portin.V8Exception
 
 type v8ExceptionImpl struct {
-	rawPtr *capi.CEFV8ExceptionT
+	rawPtr      *capi.CEFV8ExceptionT
+	releaseOnce sync.Once
 }
 
 func (obj *v8ExceptionImpl) GetMessage() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetMessage()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ExceptionImpl) GetSourceLine() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetSourceLine()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ExceptionImpl) GetScriptResourceName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetScriptResourceName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ExceptionImpl) GetLineNumber() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetLineNumber()
 	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) GetStartPosition() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetStartPosition()
 	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) GetEndPosition() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetEndPosition()
 	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) GetStartColumn() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetStartColumn()
 	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) GetEndColumn() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetEndColumn()
 	return int32(ret)
 }
 
 func (obj *v8ExceptionImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *v8ExceptionImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapV8Exception(ptr unsafe.Pointer) V8Exception {
@@ -523,27 +641,39 @@ func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) V8ArrayB
 }
 
 type v8ArrayBufferReleaseCallbackImpl struct {
-	rawPtr *capi.CEFV8ArrayBufferReleaseCallbackT
+	rawPtr      *capi.CEFV8ArrayBufferReleaseCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *v8ArrayBufferReleaseCallbackImpl) ReleaseBuffer(buffer unsafe.Pointer) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallReleaseBuffer(uintptr(buffer))
 }
 
 func (obj *v8ArrayBufferReleaseCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *v8ArrayBufferReleaseCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapV8ArrayBufferReleaseCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -563,147 +693,235 @@ func wrapV8ArrayBufferReleaseCallback(ptr unsafe.Pointer) V8ArrayBufferReleaseCa
 type V8Value = portin.V8Value
 
 type v8ValueImpl struct {
-	rawPtr *capi.CEFV8ValueT
+	rawPtr             *capi.CEFV8ValueT
+	releaseOnce        sync.Once
+	getDoubleValueOnce sync.Once
+	getDoubleValueFunc func(*capi.CEFV8ValueT) float64
 }
 
 func (obj *v8ValueImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsUndefined() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsUndefined()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsNull() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsNull()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsBool() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsBool()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsInt() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsInt()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsUint() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsUint()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsDouble() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsDouble()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsDate() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsDate()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsString() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsString()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsObject() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsObject()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsArray() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsArray()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsArrayBuffer() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsArrayBuffer()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsFunction() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsFunction()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsPromise() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsPromise()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) IsSame(that V8Value) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) GetBoolValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBoolValue()
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetIntValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetIntValue()
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetUintValue() uint32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetUintValue()
 	return uint32(ret)
 }
 
 func (obj *v8ValueImpl) GetDoubleValue() float64 {
-	var fn func(*capi.CEFV8ValueT) float64
-	registerTypedCallback(&fn, obj.rawPtr.GetDoubleValue)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getDoubleValueOnce.Do(func() {
+		registerTypedCallback(&obj.getDoubleValueFunc, obj.rawPtr.GetDoubleValue)
+	})
+	ret := obj.getDoubleValueFunc(obj.rawPtr)
 	return ret
 }
 
 func (obj *v8ValueImpl) GetDateValue() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetDateValue()
 	return uintptr(ret)
 }
 
 func (obj *v8ValueImpl) GetStringValue() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetStringValue()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) IsUserCreated() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsUserCreated()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) HasException() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasException()
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) GetException() V8Exception {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetException()
 	return wrapV8Exception(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) ClearException() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallClearException()
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) WillRethrowExceptions() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallWillRethrowExceptions()
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) SetRethrowExceptions(rethrow int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetRethrowExceptions(uintptr(rethrow))
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) HasValueBykey(key string) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := obj.rawPtr.CallHasValueBykey(uintptr(unsafe.Pointer(&keyStr)))
@@ -711,11 +929,17 @@ func (obj *v8ValueImpl) HasValueBykey(key string) bool {
 }
 
 func (obj *v8ValueImpl) HasValueByindex(index int32) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasValueByindex(uintptr(index))
 	return ret != 0
 }
 
 func (obj *v8ValueImpl) DeleteValueBykey(key string) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := obj.rawPtr.CallDeleteValueBykey(uintptr(unsafe.Pointer(&keyStr)))
@@ -723,11 +947,17 @@ func (obj *v8ValueImpl) DeleteValueBykey(key string) int32 {
 }
 
 func (obj *v8ValueImpl) DeleteValueByindex(index int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallDeleteValueByindex(uintptr(index))
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetValueBykey(key string) V8Value {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := obj.rawPtr.CallGetValueBykey(uintptr(unsafe.Pointer(&keyStr)))
@@ -735,11 +965,17 @@ func (obj *v8ValueImpl) GetValueBykey(key string) V8Value {
 }
 
 func (obj *v8ValueImpl) GetValueByindex(index int32) V8Value {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetValueByindex(uintptr(index))
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) SetValueBykey(key string, value V8Value, attribute V8Propertyattribute) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := obj.rawPtr.CallSetValueBykey(uintptr(unsafe.Pointer(&keyStr)), uintptr(extractRawPointer(value)), uintptr(attribute))
@@ -747,11 +983,17 @@ func (obj *v8ValueImpl) SetValueBykey(key string, value V8Value, attribute V8Pro
 }
 
 func (obj *v8ValueImpl) SetValueByindex(index int32, value V8Value) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetValueByindex(uintptr(index), uintptr(extractRawPointer(value)))
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattribute) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := obj.rawPtr.CallSetValueByaccessor(uintptr(unsafe.Pointer(&keyStr)), uintptr(attribute))
@@ -759,66 +1001,105 @@ func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattri
 }
 
 func (obj *v8ValueImpl) GetKeys(keys StringList) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetKeys(uintptr(keys))
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) SetUserData(userData *BaseRefCounted) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetUserData(uintptr(unsafe.Pointer(userData)))
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetUserData() *BaseRefCounted {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetUserData()
 	return (*BaseRefCounted)(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) GetExternallyAllocatedMemory() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetExternallyAllocatedMemory()
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) AdjustExternallyAllocatedMemory(changeInBytes int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(changeInBytes))
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetArrayLength() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetArrayLength()
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetArrayBufferReleaseCallback() V8ArrayBufferReleaseCallback {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetArrayBufferReleaseCallback()
 	return wrapV8ArrayBufferReleaseCallback(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) NeuterArrayBuffer() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallNeuterArrayBuffer()
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) GetArrayBufferByteLength() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetArrayBufferByteLength()
 	return int(ret)
 }
 
 func (obj *v8ValueImpl) GetArrayBufferData() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetArrayBufferData()
 	return unsafe.Pointer(ret)
 }
 
 func (obj *v8ValueImpl) GetFunctionName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetFunctionName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) GetFunctionHandler() V8Handler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFunctionHandler()
 	return wrapV8Handler(unsafe.Pointer(ret))
 }
 
 func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8Value {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	var argumentsRaw []uintptr
 	var argumentsPtr unsafe.Pointer
 	if len(arguments) > 0 {
@@ -833,6 +1114,9 @@ func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8V
 }
 
 func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8Value, arguments []V8Value) V8Value {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	var argumentsRaw []uintptr
 	var argumentsPtr unsafe.Pointer
 	if len(arguments) > 0 {
@@ -847,11 +1131,17 @@ func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8V
 }
 
 func (obj *v8ValueImpl) ResolvePromise(arg V8Value) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallResolvePromise(uintptr(extractRawPointer(arg)))
 	return int32(ret)
 }
 
 func (obj *v8ValueImpl) RejectPromise(errormsg string) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	errormsgStr := cefString(errormsg)
 	defer freeCefString(&errormsgStr)
 	ret := obj.rawPtr.CallRejectPromise(uintptr(unsafe.Pointer(&errormsgStr)))
@@ -859,19 +1149,27 @@ func (obj *v8ValueImpl) RejectPromise(errormsg string) int32 {
 }
 
 func (obj *v8ValueImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *v8ValueImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapV8Value(ptr unsafe.Pointer) V8Value {
@@ -890,38 +1188,56 @@ func wrapV8Value(ptr unsafe.Pointer) V8Value {
 type V8StackTrace = portin.V8StackTrace
 
 type v8StackTraceImpl struct {
-	rawPtr *capi.CEFV8StackTraceT
+	rawPtr      *capi.CEFV8StackTraceT
+	releaseOnce sync.Once
 }
 
 func (obj *v8StackTraceImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *v8StackTraceImpl) GetFrameCount() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetFrameCount()
 	return int32(ret)
 }
 
 func (obj *v8StackTraceImpl) GetFrame(index int32) V8StackFrame {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFrame(uintptr(index))
 	return wrapV8StackFrame(unsafe.Pointer(ret))
 }
 
 func (obj *v8StackTraceImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *v8StackTraceImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapV8StackTrace(ptr unsafe.Pointer) V8StackTrace {
@@ -940,63 +1256,96 @@ func wrapV8StackTrace(ptr unsafe.Pointer) V8StackTrace {
 type V8StackFrame = portin.V8StackFrame
 
 type v8StackFrameImpl struct {
-	rawPtr *capi.CEFV8StackFrameT
+	rawPtr      *capi.CEFV8StackFrameT
+	releaseOnce sync.Once
 }
 
 func (obj *v8StackFrameImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *v8StackFrameImpl) GetScriptName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetScriptName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8StackFrameImpl) GetScriptNameOrSourceURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetScriptNameOrSourceURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8StackFrameImpl) GetFunctionName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetFunctionName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *v8StackFrameImpl) GetLineNumber() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetLineNumber()
 	return int32(ret)
 }
 
 func (obj *v8StackFrameImpl) GetColumn() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetColumn()
 	return int32(ret)
 }
 
 func (obj *v8StackFrameImpl) IsEval() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsEval()
 	return ret != 0
 }
 
 func (obj *v8StackFrameImpl) IsConstructor() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsConstructor()
 	return ret != 0
 }
 
 func (obj *v8StackFrameImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *v8StackFrameImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapV8StackFrame(ptr unsafe.Pointer) V8StackFrame {

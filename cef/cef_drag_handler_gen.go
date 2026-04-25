@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -57,15 +58,22 @@ func NewDragHandler(impl DragHandler) DragHandler {
 }
 
 type dragHandlerImpl struct {
-	rawPtr *capi.CEFDragHandlerT
+	rawPtr      *capi.CEFDragHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *dragHandlerImpl) OnDragEnter(browser Browser, dragdata DragData, mask DragOperationsMask) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnDragEnter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(dragdata)), uintptr(mask))
 	return int32(ret)
 }
 
 func (obj *dragHandlerImpl) OnDraggableRegionsChanged(browser Browser, frame Frame, regions []DraggableRegion) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	var regionsPtr unsafe.Pointer
 	if len(regions) > 0 {
 		regionsPtr = unsafe.Pointer(&regions[0])
@@ -74,19 +82,27 @@ func (obj *dragHandlerImpl) OnDraggableRegionsChanged(browser Browser, frame Fra
 }
 
 func (obj *dragHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *dragHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapDragHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

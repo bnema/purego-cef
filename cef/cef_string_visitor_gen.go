@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -38,8 +39,8 @@ func NewStringVisitor(impl StringVisitor) StringVisitor {
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
 
 	r.OverrideVisit(purego.NewCallback(func(self uintptr, arg0 uintptr) {
-		string := goString(unsafe.Pointer(arg0))
-		impl.Visit(string)
+		string_ := goString(unsafe.Pointer(arg0))
+		impl.Visit(string_)
 	}))
 
 	w := &stringVisitorWrapper{rawPtr: r}
@@ -48,29 +49,41 @@ func NewStringVisitor(impl StringVisitor) StringVisitor {
 }
 
 type stringVisitorImpl struct {
-	rawPtr *capi.CEFStringVisitorT
+	rawPtr      *capi.CEFStringVisitorT
+	releaseOnce sync.Once
 }
 
-func (obj *stringVisitorImpl) Visit(string string) {
-	stringStr := cefString(string)
-	defer freeCefString(&stringStr)
-	obj.rawPtr.CallVisit(uintptr(unsafe.Pointer(&stringStr)))
+func (obj *stringVisitorImpl) Visit(string_ string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
+	string_Str := cefString(string_)
+	defer freeCefString(&string_Str)
+	obj.rawPtr.CallVisit(uintptr(unsafe.Pointer(&string_Str)))
 }
 
 func (obj *stringVisitorImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *stringVisitorImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapStringVisitor wraps a CEF handler pointer received from CEF into a thin Go façade.

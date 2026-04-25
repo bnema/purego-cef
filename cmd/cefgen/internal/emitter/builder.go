@@ -397,6 +397,8 @@ var goKeywords = map[string]bool{
 	"import": true, "interface": true, "map": true, "package": true,
 	"range": true, "return": true, "select": true, "struct": true,
 	"switch": true, "type": true, "var": true,
+	// Avoid shadowing predeclared identifiers when CEF uses names like "string".
+	"string": true,
 }
 
 // paramName converts a C parameter name to a Go-idiomatic name.

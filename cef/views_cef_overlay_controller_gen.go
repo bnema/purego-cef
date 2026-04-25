@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,111 +16,177 @@ import (
 type OverlayController = portin.OverlayController
 
 type overlayControllerImpl struct {
-	rawPtr *capi.CEFOverlayControllerT
+	rawPtr      *capi.CEFOverlayControllerT
+	releaseOnce sync.Once
 }
 
 func (obj *overlayControllerImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *overlayControllerImpl) IsSame(that OverlayController) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
 func (obj *overlayControllerImpl) GetContentsView() View {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetContentsView()
 	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *overlayControllerImpl) GetWindow() Window {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetWindow()
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
 func (obj *overlayControllerImpl) GetDockingMode() DockingMode {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetDockingMode()
 	return DockingMode(ret)
 }
 
 func (obj *overlayControllerImpl) Destroy() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallDestroy()
 }
 
 func (obj *overlayControllerImpl) SetBounds(bounds *Rect) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
 }
 
 func (obj *overlayControllerImpl) GetBounds() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBounds()
 	return uintptr(ret)
 }
 
 func (obj *overlayControllerImpl) GetBoundsInScreen() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBoundsInScreen()
 	return uintptr(ret)
 }
 
 func (obj *overlayControllerImpl) SetSize(size *Size) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *overlayControllerImpl) GetSize() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetSize()
 	return uintptr(ret)
 }
 
 func (obj *overlayControllerImpl) SetPosition(position *Point) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
 }
 
 func (obj *overlayControllerImpl) GetPosition() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPosition()
 	return uintptr(ret)
 }
 
 func (obj *overlayControllerImpl) SetInsets(insets *Insets) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
 }
 
 func (obj *overlayControllerImpl) GetInsets() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetInsets()
 	return uintptr(ret)
 }
 
 func (obj *overlayControllerImpl) SizeToPreferredSize() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSizeToPreferredSize()
 }
 
 func (obj *overlayControllerImpl) SetVisible(visible int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetVisible(uintptr(visible))
 }
 
 func (obj *overlayControllerImpl) IsVisible() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsVisible()
 	return ret != 0
 }
 
 func (obj *overlayControllerImpl) IsDrawn() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsDrawn()
 	return ret != 0
 }
 
 func (obj *overlayControllerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *overlayControllerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapOverlayController(ptr unsafe.Pointer) OverlayController {

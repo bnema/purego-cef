@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,48 +16,72 @@ import (
 type Sslstatus = portin.Sslstatus
 
 type sslstatusImpl struct {
-	rawPtr *capi.CEFSslstatusT
+	rawPtr      *capi.CEFSslstatusT
+	releaseOnce sync.Once
 }
 
 func (obj *sslstatusImpl) IsSecureConnection() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSecureConnection()
 	return ret != 0
 }
 
 func (obj *sslstatusImpl) GetCertStatus() CertStatus {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetCertStatus()
 	return CertStatus(ret)
 }
 
 func (obj *sslstatusImpl) GetSslversion() SslVersion {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetSslversion()
 	return SslVersion(ret)
 }
 
 func (obj *sslstatusImpl) GetContentStatus() SslContentStatus {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetContentStatus()
 	return SslContentStatus(ret)
 }
 
 func (obj *sslstatusImpl) GetX509Certificate() X509Certificate {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetX509Certificate()
 	return wrapX509Certificate(unsafe.Pointer(ret))
 }
 
 func (obj *sslstatusImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *sslstatusImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapSslstatus(ptr unsafe.Pointer) Sslstatus {

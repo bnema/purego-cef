@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,15 +18,22 @@ import (
 type CookieManager = portin.CookieManager
 
 type cookieManagerImpl struct {
-	rawPtr *capi.CEFCookieManagerT
+	rawPtr      *capi.CEFCookieManagerT
+	releaseOnce sync.Once
 }
 
 func (obj *cookieManagerImpl) VisitAllCookies(visitor CookieVisitor) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallVisitAllCookies(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
 	return int32(ret)
 }
 
 func (obj *cookieManagerImpl) VisitURLCookies(uRL string, includehttponly int32, visitor CookieVisitor) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	ret := obj.rawPtr.CallVisitURLCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(includehttponly), uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
@@ -33,6 +41,9 @@ func (obj *cookieManagerImpl) VisitURLCookies(uRL string, includehttponly int32,
 }
 
 func (obj *cookieManagerImpl) SetCookie(uRL string, cookie *Cookie, callback SetCookieCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	ret := obj.rawPtr.CallSetCookie(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(cookie)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewSetCookieCallback(callback) })))
@@ -40,6 +51,9 @@ func (obj *cookieManagerImpl) SetCookie(uRL string, cookie *Cookie, callback Set
 }
 
 func (obj *cookieManagerImpl) DeleteCookies(uRL string, cookieName string, callback DeleteCookiesCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	cookieNameStr := cefString(cookieName)
@@ -49,24 +63,35 @@ func (obj *cookieManagerImpl) DeleteCookies(uRL string, cookieName string, callb
 }
 
 func (obj *cookieManagerImpl) FlushStore(callback CompletionCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallFlushStore(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 	return int32(ret)
 }
 
 func (obj *cookieManagerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *cookieManagerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapCookieManager(ptr unsafe.Pointer) CookieManager {
@@ -119,28 +144,40 @@ func NewCookieVisitor(impl CookieVisitor) CookieVisitor {
 }
 
 type cookieVisitorImpl struct {
-	rawPtr *capi.CEFCookieVisitorT
+	rawPtr      *capi.CEFCookieVisitorT
+	releaseOnce sync.Once
 }
 
 func (obj *cookieVisitorImpl) Visit(cookie *Cookie, count int32, total int32, deletecookie *int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallVisit(uintptr(unsafe.Pointer(cookie)), uintptr(count), uintptr(total), uintptr(unsafe.Pointer(deletecookie)))
 	return int32(ret)
 }
 
 func (obj *cookieVisitorImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *cookieVisitorImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapCookieVisitor wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -191,27 +228,39 @@ func NewSetCookieCallback(impl SetCookieCallback) SetCookieCallback {
 }
 
 type setCookieCallbackImpl struct {
-	rawPtr *capi.CEFSetCookieCallbackT
+	rawPtr      *capi.CEFSetCookieCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *setCookieCallbackImpl) OnComplete(success int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnComplete(uintptr(success))
 }
 
 func (obj *setCookieCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *setCookieCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapSetCookieCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -262,27 +311,39 @@ func NewDeleteCookiesCallback(impl DeleteCookiesCallback) DeleteCookiesCallback 
 }
 
 type deleteCookiesCallbackImpl struct {
-	rawPtr *capi.CEFDeleteCookiesCallbackT
+	rawPtr      *capi.CEFDeleteCookiesCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *deleteCookiesCallbackImpl) OnComplete(numDeleted int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnComplete(uintptr(numDeleted))
 }
 
 func (obj *deleteCookiesCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *deleteCookiesCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapDeleteCookiesCallback wraps a CEF handler pointer received from CEF into a thin Go façade.

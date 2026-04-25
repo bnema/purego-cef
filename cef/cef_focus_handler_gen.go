@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -60,36 +61,54 @@ func NewFocusHandler(impl FocusHandler) FocusHandler {
 }
 
 type focusHandlerImpl struct {
-	rawPtr *capi.CEFFocusHandlerT
+	rawPtr      *capi.CEFFocusHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *focusHandlerImpl) OnTakeFocus(browser Browser, next int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnTakeFocus(uintptr(extractRawPointer(browser)), uintptr(next))
 }
 
 func (obj *focusHandlerImpl) OnSetFocus(browser Browser, source FocusSource) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnSetFocus(uintptr(extractRawPointer(browser)), uintptr(source))
 	return int32(ret)
 }
 
 func (obj *focusHandlerImpl) OnGotFocus(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnGotFocus(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *focusHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *focusHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapFocusHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,35 +18,54 @@ import (
 type ApiVersionTest = portin.ApiVersionTest
 
 type apiVersionTestImpl struct {
-	rawPtr *capi.CEFApiVersionTestT
+	rawPtr      *capi.CEFApiVersionTestT
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibrary(val int32) ApiVersionTestRefPtrLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetRefPtrLibrary(uintptr(val))
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrLibrary(val ApiVersionTestRefPtrLibrary) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetRefPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrLibraryAndReturn(val ApiVersionTestRefPtrLibrary) ApiVersionTestRefPtrLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetRefPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrLibrary(val ApiVersionTestRefPtrLibraryChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrLibraryAndReturnParent(val ApiVersionTestRefPtrLibraryChild) ApiVersionTestRefPtrLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrLibraryList(val []ApiVersionTestRefPtrLibrary, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -60,6 +80,9 @@ func (obj *apiVersionTestImpl) SetRefPtrLibraryList(val []ApiVersionTestRefPtrLi
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibraryListByRef(valcount *int, val []ApiVersionTestRefPtrLibrary, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	valCountPtr := valcount
@@ -87,31 +110,49 @@ func (obj *apiVersionTestImpl) GetRefPtrLibraryListByRef(valcount *int, val []Ap
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrLibraryListSize() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRefPtrLibraryListSize()
 	return int(ret)
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrClient(val ApiVersionTestRefPtrClient) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClient(val) })))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrClientAndReturn(val ApiVersionTestRefPtrClient) ApiVersionTestRefPtrClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetRefPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClient(val) })))
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrClient(val ApiVersionTestRefPtrClientChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChild(val) })))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrClientAndReturnParent(val ApiVersionTestRefPtrClientChild) ApiVersionTestRefPtrClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChild(val) })))
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetRefPtrClientList(val []ApiVersionTestRefPtrClient, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -126,6 +167,9 @@ func (obj *apiVersionTestImpl) SetRefPtrClientList(val []ApiVersionTestRefPtrCli
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrClientListByRef(valcount *int, val []ApiVersionTestRefPtrClient, val1 ApiVersionTestRefPtrClient, val2 ApiVersionTestRefPtrClient) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	valCountPtr := valcount
@@ -153,66 +197,105 @@ func (obj *apiVersionTestImpl) GetRefPtrClientListByRef(valcount *int, val []Api
 }
 
 func (obj *apiVersionTestImpl) GetRefPtrClientListSize() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRefPtrClientListSize()
 	return int(ret)
 }
 
 func (obj *apiVersionTestImpl) GetOwnPtrLibrary(val int32) ApiVersionTestScopedLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetOwnPtrLibrary(uintptr(val))
 	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetOwnPtrLibrary(val ApiVersionTestScopedLibrary) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetOwnPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetOwnPtrLibraryAndReturn(val ApiVersionTestScopedLibrary) ApiVersionTestScopedLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetOwnPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
 	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrLibrary(val ApiVersionTestScopedLibraryChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrLibraryAndReturnParent(val ApiVersionTestScopedLibraryChild) ApiVersionTestScopedLibrary {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
 	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetOwnPtrClient(val ApiVersionTestScopedClient) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetOwnPtrClientAndReturn(val ApiVersionTestScopedClient) ApiVersionTestScopedClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetOwnPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
 	return wrapApiVersionTestScopedClient(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrClient(val ApiVersionTestScopedClientChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrClientAndReturnParent(val ApiVersionTestScopedClientChild) ApiVersionTestScopedClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
 	return wrapApiVersionTestScopedClient(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetRawPtrLibrary(val ApiVersionTestScopedLibrary) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetRawPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetChildRawPtrLibrary(val ApiVersionTestScopedLibraryChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRawPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetRawPtrLibraryList(val []ApiVersionTestScopedLibrary, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -227,16 +310,25 @@ func (obj *apiVersionTestImpl) SetRawPtrLibraryList(val []ApiVersionTestScopedLi
 }
 
 func (obj *apiVersionTestImpl) SetRawPtrClient(val ApiVersionTestScopedClient) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetChildRawPtrClient(val ApiVersionTestScopedClientChild) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetRawPtrClientList(val []ApiVersionTestScopedClient, val1 int32, val2 int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -251,44 +343,67 @@ func (obj *apiVersionTestImpl) SetRawPtrClientList(val []ApiVersionTestScopedCli
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrClientV2(val ApiVersionTestRefPtrClientChildV2) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChildV2(val) })))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetChildRefPtrClientAndReturnParentV2(val ApiVersionTestRefPtrClientChildV2) ApiVersionTestRefPtrClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildRefPtrClientAndReturnParentV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChildV2(val) })))
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrClientV2(val ApiVersionTestScopedClientChildV2) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) SetChildOwnPtrClientAndReturnParentV2(val ApiVersionTestScopedClientChildV2) ApiVersionTestScopedClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallSetChildOwnPtrClientAndReturnParentV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
 	return wrapApiVersionTestScopedClient(unsafe.Pointer(ret))
 }
 
 func (obj *apiVersionTestImpl) SetChildRawPtrClientV2(val ApiVersionTestScopedClientChildV2) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSetChildRawPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
 	return int32(ret)
 }
 
 func (obj *apiVersionTestImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTest(ptr unsafe.Pointer) ApiVersionTest {
@@ -307,68 +422,107 @@ func wrapApiVersionTest(ptr unsafe.Pointer) ApiVersionTest {
 type ApiVersionTestRefPtrLibrary = portin.ApiVersionTestRefPtrLibrary
 
 type apiVersionTestRefPtrLibraryImpl struct {
-	rawPtr *capi.CEFApiVersionTestRefPtrLibraryT
+	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryT
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueLegacy() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueLegacy()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValueLegacy(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValueLegacy(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV1() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueV1()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV1(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValueV1(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV2() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueV2()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV2(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValueV2(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueExp() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueExp()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) SetValueExp(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValueExp(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTestRefPtrLibrary(ptr unsafe.Pointer) ApiVersionTestRefPtrLibrary {
@@ -387,32 +541,47 @@ func wrapApiVersionTestRefPtrLibrary(ptr unsafe.Pointer) ApiVersionTestRefPtrLib
 type ApiVersionTestRefPtrLibraryChild = portin.ApiVersionTestRefPtrLibraryChild
 
 type apiVersionTestRefPtrLibraryChildImpl struct {
-	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildT
+	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryChildT
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildImpl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildImpl) SetOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTestRefPtrLibraryChild(ptr unsafe.Pointer) ApiVersionTestRefPtrLibraryChild {
@@ -431,32 +600,47 @@ func wrapApiVersionTestRefPtrLibraryChild(ptr unsafe.Pointer) ApiVersionTestRefP
 type ApiVersionTestRefPtrLibraryChildChild = portin.ApiVersionTestRefPtrLibraryChildChild
 
 type apiVersionTestRefPtrLibraryChildChildImpl struct {
-	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildChildT
+	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryChildChildT
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildImpl) GetOtherOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildImpl) SetOtherOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryChildChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTestRefPtrLibraryChildChild(ptr unsafe.Pointer) ApiVersionTestRefPtrLibraryChildChild {
@@ -475,32 +659,47 @@ func wrapApiVersionTestRefPtrLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 type ApiVersionTestRefPtrLibraryChildChildV1 = portin.ApiVersionTestRefPtrLibraryChildChildV1
 
 type apiVersionTestRefPtrLibraryChildChildV1Impl struct {
-	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildChildV1T
+	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryChildChildV1T
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) GetOtherOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) SetOtherOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTestRefPtrLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionTestRefPtrLibraryChildChildV1 {
@@ -519,32 +718,47 @@ func wrapApiVersionTestRefPtrLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 type ApiVersionTestRefPtrLibraryChildChildV2 = portin.ApiVersionTestRefPtrLibraryChildChildV2
 
 type apiVersionTestRefPtrLibraryChildChildV2Impl struct {
-	rawPtr *capi.CEFApiVersionTestRefPtrLibraryChildChildV2T
+	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryChildChildV2T
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) GetOtherOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) SetOtherOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTestRefPtrLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionTestRefPtrLibraryChildChildV2 {
@@ -609,48 +823,72 @@ func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) ApiVersionTe
 }
 
 type apiVersionTestRefPtrClientImpl struct {
-	rawPtr *capi.CEFApiVersionTestRefPtrClientT
+	rawPtr      *capi.CEFApiVersionTestRefPtrClientT
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestRefPtrClientImpl) GetValueLegacy() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueLegacy()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrClientImpl) GetValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrClientImpl) GetValueV1() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueV1()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrClientImpl) GetValueV2() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueV2()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrClientImpl) GetValueExp() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueExp()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrClientImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrClientImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapApiVersionTestRefPtrClient wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -704,33 +942,48 @@ func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) Ap
 }
 
 type apiVersionTestRefPtrClientChildImpl struct {
-	rawPtr *capi.CEFApiVersionTestRefPtrClientChildT
+	rawPtr      *capi.CEFApiVersionTestRefPtrClientChildT
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestRefPtrClientChildImpl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrClientChildImpl) GetOtherValueV1() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValueV1()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrClientChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrClientChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapApiVersionTestRefPtrClientChild wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -784,33 +1037,48 @@ func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2
 }
 
 type apiVersionTestRefPtrClientChildV2Impl struct {
-	rawPtr *capi.CEFApiVersionTestRefPtrClientChildV2T
+	rawPtr      *capi.CEFApiVersionTestRefPtrClientChildV2T
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestRefPtrClientChildV2Impl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrClientChildV2Impl) GetAnotherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetAnotherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestRefPtrClientChildV2Impl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrClientChildV2Impl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapApiVersionTestRefPtrClientChildV2 wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -834,51 +1102,84 @@ type apiVersionTestScopedLibraryImpl struct {
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueLegacy() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueLegacy()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValueLegacy(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValueLegacy(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueV1() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueV1()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValueV1(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValueV1(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueV2() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueV2()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValueV2(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValueV2(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueExp() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueExp()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) SetValueExp(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetValueExp(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -894,32 +1195,47 @@ func wrapApiVersionTestScopedLibrary(ptr unsafe.Pointer) ApiVersionTestScopedLib
 type ApiVersionTestScopedLibraryChild = portin.ApiVersionTestScopedLibraryChild
 
 type apiVersionTestScopedLibraryChildImpl struct {
-	rawPtr *capi.CEFApiVersionTestScopedLibraryChildT
+	rawPtr      *capi.CEFApiVersionTestScopedLibraryChildT
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestScopedLibraryChildImpl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedLibraryChildImpl) SetOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedLibraryChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTestScopedLibraryChild(ptr unsafe.Pointer) ApiVersionTestScopedLibraryChild {
@@ -938,32 +1254,47 @@ func wrapApiVersionTestScopedLibraryChild(ptr unsafe.Pointer) ApiVersionTestScop
 type ApiVersionTestScopedLibraryChildChild = portin.ApiVersionTestScopedLibraryChildChild
 
 type apiVersionTestScopedLibraryChildChildImpl struct {
-	rawPtr *capi.CEFApiVersionTestScopedLibraryChildChildT
+	rawPtr      *capi.CEFApiVersionTestScopedLibraryChildChildT
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildImpl) GetOtherOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildImpl) SetOtherOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedLibraryChildChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTestScopedLibraryChildChild(ptr unsafe.Pointer) ApiVersionTestScopedLibraryChildChild {
@@ -982,32 +1313,47 @@ func wrapApiVersionTestScopedLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 type ApiVersionTestScopedLibraryChildChildV1 = portin.ApiVersionTestScopedLibraryChildChildV1
 
 type apiVersionTestScopedLibraryChildChildV1Impl struct {
-	rawPtr *capi.CEFApiVersionTestScopedLibraryChildChildV1T
+	rawPtr      *capi.CEFApiVersionTestScopedLibraryChildChildV1T
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV1Impl) GetOtherOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV1Impl) SetOtherOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV1Impl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedLibraryChildChildV1Impl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTestScopedLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionTestScopedLibraryChildChildV1 {
@@ -1026,32 +1372,47 @@ func wrapApiVersionTestScopedLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 type ApiVersionTestScopedLibraryChildChildV2 = portin.ApiVersionTestScopedLibraryChildChildV2
 
 type apiVersionTestScopedLibraryChildChildV2Impl struct {
-	rawPtr *capi.CEFApiVersionTestScopedLibraryChildChildV2T
+	rawPtr      *capi.CEFApiVersionTestScopedLibraryChildChildV2T
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV2Impl) GetOtherOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV2Impl) SetOtherOtherValue(value int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV2Impl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedLibraryChildChildV2Impl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapApiVersionTestScopedLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionTestScopedLibraryChildChildV2 {
@@ -1120,31 +1481,49 @@ type apiVersionTestScopedClientImpl struct {
 }
 
 func (obj *apiVersionTestScopedClientImpl) GetValueLegacy() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueLegacy()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedClientImpl) GetValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedClientImpl) GetValueV1() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueV1()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedClientImpl) GetValueV2() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueV2()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedClientImpl) GetValueExp() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValueExp()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedClientImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -1194,33 +1573,48 @@ func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) Ap
 }
 
 type apiVersionTestScopedClientChildImpl struct {
-	rawPtr *capi.CEFApiVersionTestScopedClientChildT
+	rawPtr      *capi.CEFApiVersionTestScopedClientChildT
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestScopedClientChildImpl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedClientChildImpl) GetOtherValueV1() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValueV1()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedClientChildImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedClientChildImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapApiVersionTestScopedClientChild wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -1274,33 +1668,48 @@ func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2
 }
 
 type apiVersionTestScopedClientChildV2Impl struct {
-	rawPtr *capi.CEFApiVersionTestScopedClientChildV2T
+	rawPtr      *capi.CEFApiVersionTestScopedClientChildV2T
+	releaseOnce sync.Once
 }
 
 func (obj *apiVersionTestScopedClientChildV2Impl) GetOtherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedClientChildV2Impl) GetAnotherValue() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetAnotherValue()
 	return int32(ret)
 }
 
 func (obj *apiVersionTestScopedClientChildV2Impl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedClientChildV2Impl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapApiVersionTestScopedClientChildV2 wraps a CEF handler pointer received from CEF into a thin Go façade.

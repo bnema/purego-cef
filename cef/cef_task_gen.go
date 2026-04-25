@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -47,27 +48,39 @@ func NewTask(impl Task) Task {
 }
 
 type taskImpl struct {
-	rawPtr *capi.CEFTaskT
+	rawPtr      *capi.CEFTaskT
+	releaseOnce sync.Once
 }
 
 func (obj *taskImpl) Execute() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallExecute()
 }
 
 func (obj *taskImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *taskImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapTask wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -87,50 +100,77 @@ func wrapTask(ptr unsafe.Pointer) Task {
 type TaskRunner = portin.TaskRunner
 
 type taskRunnerImpl struct {
-	rawPtr *capi.CEFTaskRunnerT
+	rawPtr              *capi.CEFTaskRunnerT
+	releaseOnce         sync.Once
+	postDelayedTaskOnce sync.Once
+	postDelayedTaskFunc func(*capi.CEFTaskRunnerT, uintptr, int64) uintptr
 }
 
 func (obj *taskRunnerImpl) IsSame(that TaskRunner) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
 func (obj *taskRunnerImpl) BelongsToCurrentThread() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallBelongsToCurrentThread()
 	return int32(ret)
 }
 
 func (obj *taskRunnerImpl) BelongsToThread(threadid ThreadID) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallBelongsToThread(uintptr(threadid))
 	return int32(ret)
 }
 
 func (obj *taskRunnerImpl) PostTask(task Task) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallPostTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })))
 	return int32(ret)
 }
 
 func (obj *taskRunnerImpl) PostDelayedTask(task Task, delayMs int64) int32 {
-	var fn func(*capi.CEFTaskRunnerT, uintptr, int64) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.PostDelayedTask)
-	ret := fn(obj.rawPtr, uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), delayMs)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.postDelayedTaskOnce.Do(func() {
+		registerTypedCallback(&obj.postDelayedTaskFunc, obj.rawPtr.PostDelayedTask)
+	})
+	ret := obj.postDelayedTaskFunc(obj.rawPtr, uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), delayMs)
 	return int32(ret)
 }
 
 func (obj *taskRunnerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *taskRunnerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapTaskRunner(ptr unsafe.Pointer) TaskRunner {

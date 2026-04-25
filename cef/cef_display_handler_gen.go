@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -128,41 +129,65 @@ func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
 }
 
 type displayHandlerImpl struct {
-	rawPtr *capi.CEFDisplayHandlerT
+	rawPtr                      *capi.CEFDisplayHandlerT
+	releaseOnce                 sync.Once
+	onLoadingProgressChangeOnce sync.Once
+	onLoadingProgressChangeFunc func(*capi.CEFDisplayHandlerT, uintptr, float64)
 }
 
 func (obj *displayHandlerImpl) OnAddressChange(browser Browser, frame Frame, uRL string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	obj.rawPtr.CallOnAddressChange(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *displayHandlerImpl) OnTitleChange(browser Browser, title string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
 	obj.rawPtr.CallOnTitleChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&titleStr)))
 }
 
 func (obj *displayHandlerImpl) OnFaviconUrlchange(browser Browser, iconUrls StringList) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFaviconUrlchange(uintptr(extractRawPointer(browser)), uintptr(iconUrls))
 }
 
 func (obj *displayHandlerImpl) OnFullscreenModeChange(browser Browser, fullscreen int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFullscreenModeChange(uintptr(extractRawPointer(browser)), uintptr(fullscreen))
 }
 
 func (obj *displayHandlerImpl) OnTooltip(browser Browser, text uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnTooltip(uintptr(extractRawPointer(browser)), text)
 	return int32(ret)
 }
 
 func (obj *displayHandlerImpl) OnStatusMessage(browser Browser, value string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
 	obj.rawPtr.CallOnStatusMessage(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&valueStr)))
 }
 
 func (obj *displayHandlerImpl) OnConsoleMessage(browser Browser, level LogSeverity, message string, source string, line int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	messageStr := cefString(message)
 	defer freeCefString(&messageStr)
 	sourceStr := cefString(source)
@@ -172,49 +197,76 @@ func (obj *displayHandlerImpl) OnConsoleMessage(browser Browser, level LogSeveri
 }
 
 func (obj *displayHandlerImpl) OnAutoResize(browser Browser, newSize *Size) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnAutoResize(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newSize)))
 	return int32(ret)
 }
 
 func (obj *displayHandlerImpl) OnLoadingProgressChange(browser Browser, progress float64) {
-	var fn func(*capi.CEFDisplayHandlerT, uintptr, float64)
-	registerTypedCallback(&fn, obj.rawPtr.OnLoadingProgressChange)
-	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), progress)
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
+	obj.onLoadingProgressChangeOnce.Do(func() {
+		registerTypedCallback(&obj.onLoadingProgressChangeFunc, obj.rawPtr.OnLoadingProgressChange)
+	})
+	obj.onLoadingProgressChangeFunc(obj.rawPtr, uintptr(extractRawPointer(browser)), progress)
 }
 
 func (obj *displayHandlerImpl) OnCursorChange(browser Browser, cursor uintptr, type_ CursorType, customCursorInfo *CursorInfo) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnCursorChange(uintptr(extractRawPointer(browser)), cursor, uintptr(type_), uintptr(unsafe.Pointer(customCursorInfo)))
 	return int32(ret)
 }
 
 func (obj *displayHandlerImpl) OnMediaAccessChange(browser Browser, hasVideoAccess int32, hasAudioAccess int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnMediaAccessChange(uintptr(extractRawPointer(browser)), uintptr(hasVideoAccess), uintptr(hasAudioAccess))
 }
 
 func (obj *displayHandlerImpl) OnContentsBoundsChange(browser Browser, newBounds *Rect) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnContentsBoundsChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newBounds)))
 	return int32(ret)
 }
 
 func (obj *displayHandlerImpl) GetRootWindowScreenRect(browser Browser, rect *Rect) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRootWindowScreenRect(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
 	return int32(ret)
 }
 
 func (obj *displayHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *displayHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapDisplayHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

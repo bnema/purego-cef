@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,56 +16,86 @@ import (
 type X509CertPrincipal = portin.X509CertPrincipal
 
 type x509CertPrincipalImpl struct {
-	rawPtr *capi.CEFX509CertPrincipalT
+	rawPtr      *capi.CEFX509CertPrincipalT
+	releaseOnce sync.Once
 }
 
 func (obj *x509CertPrincipalImpl) GetDisplayName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetDisplayName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetCommonName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetCommonName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetLocalityName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetLocalityName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetStateOrProvinceName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetStateOrProvinceName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetCountryName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetCountryName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertPrincipalImpl) GetOrganizationNames(names StringList) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetOrganizationNames(uintptr(names))
 }
 
 func (obj *x509CertPrincipalImpl) GetOrganizationUnitNames(names StringList) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetOrganizationUnitNames(uintptr(names))
 }
 
 func (obj *x509CertPrincipalImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *x509CertPrincipalImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapX509CertPrincipal(ptr unsafe.Pointer) X509CertPrincipal {
@@ -83,50 +114,78 @@ func wrapX509CertPrincipal(ptr unsafe.Pointer) X509CertPrincipal {
 type X509Certificate = portin.X509Certificate
 
 type x509CertificateImpl struct {
-	rawPtr *capi.CEFX509CertificateT
+	rawPtr      *capi.CEFX509CertificateT
+	releaseOnce sync.Once
 }
 
 func (obj *x509CertificateImpl) GetSubject() X509CertPrincipal {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetSubject()
 	return wrapX509CertPrincipal(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetIssuer() X509CertPrincipal {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetIssuer()
 	return wrapX509CertPrincipal(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetSerialNumber() BinaryValue {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetSerialNumber()
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetValidStart() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValidStart()
 	return uintptr(ret)
 }
 
 func (obj *x509CertificateImpl) GetValidExpiry() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetValidExpiry()
 	return uintptr(ret)
 }
 
 func (obj *x509CertificateImpl) GetDerencoded() BinaryValue {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDerencoded()
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetPemencoded() BinaryValue {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetPemencoded()
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *x509CertificateImpl) GetIssuerChainSize() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetIssuerChainSize()
 	return int(ret)
 }
 
 func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain []BinaryValue) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	var chainRaw []uintptr
 	var chainPtr unsafe.Pointer
 	chainCountPtr := chaincount
@@ -153,6 +212,9 @@ func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain 
 }
 
 func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain []BinaryValue) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	var chainRaw []uintptr
 	var chainPtr unsafe.Pointer
 	chainCountPtr := chaincount
@@ -179,19 +241,27 @@ func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain 
 }
 
 func (obj *x509CertificateImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *x509CertificateImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapX509Certificate(ptr unsafe.Pointer) X509Certificate {

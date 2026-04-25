@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -48,29 +49,41 @@ func NewEndTracingCallback(impl EndTracingCallback) EndTracingCallback {
 }
 
 type endTracingCallbackImpl struct {
-	rawPtr *capi.CEFEndTracingCallbackT
+	rawPtr      *capi.CEFEndTracingCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *endTracingCallbackImpl) OnEndTracingComplete(tracingFile string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	tracingFileStr := cefString(tracingFile)
 	defer freeCefString(&tracingFileStr)
 	obj.rawPtr.CallOnEndTracingComplete(uintptr(unsafe.Pointer(&tracingFileStr)))
 }
 
 func (obj *endTracingCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *endTracingCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapEndTracingCallback wraps a CEF handler pointer received from CEF into a thin Go façade.

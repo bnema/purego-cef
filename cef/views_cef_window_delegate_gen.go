@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -185,131 +186,209 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 }
 
 type windowDelegateImpl struct {
-	rawPtr *capi.CEFWindowDelegateT
+	rawPtr      *capi.CEFWindowDelegateT
+	releaseOnce sync.Once
 }
 
 func (obj *windowDelegateImpl) OnWindowCreated(window Window) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWindowCreated(uintptr(extractRawPointer(window)))
 }
 
 func (obj *windowDelegateImpl) OnWindowClosing(window Window) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWindowClosing(uintptr(extractRawPointer(window)))
 }
 
 func (obj *windowDelegateImpl) OnWindowDestroyed(window Window) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWindowDestroyed(uintptr(extractRawPointer(window)))
 }
 
 func (obj *windowDelegateImpl) OnWindowActivationChanged(window Window, active int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWindowActivationChanged(uintptr(extractRawPointer(window)), uintptr(active))
 }
 
 func (obj *windowDelegateImpl) OnWindowBoundsChanged(window Window, newBounds *Rect) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWindowBoundsChanged(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(newBounds)))
 }
 
 func (obj *windowDelegateImpl) OnWindowFullscreenTransition(window Window, isCompleted int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnWindowFullscreenTransition(uintptr(extractRawPointer(window)), uintptr(isCompleted))
 }
 
 func (obj *windowDelegateImpl) GetParentWindow(window Window, isMenu *int32, canActivateMenu *int32) Window {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetParentWindow(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(isMenu)), uintptr(unsafe.Pointer(canActivateMenu)))
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
 func (obj *windowDelegateImpl) IsWindowModalDialog(window Window) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsWindowModalDialog(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
 func (obj *windowDelegateImpl) GetInitialBounds(window Window) uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetInitialBounds(uintptr(extractRawPointer(window)))
 	return uintptr(ret)
 }
 
 func (obj *windowDelegateImpl) GetInitialShowState(window Window) ShowState {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetInitialShowState(uintptr(extractRawPointer(window)))
 	return ShowState(ret)
 }
 
 func (obj *windowDelegateImpl) IsFrameless(window Window) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsFrameless(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
 func (obj *windowDelegateImpl) WithStandardWindowButtons(window Window) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallWithStandardWindowButtons(uintptr(extractRawPointer(window)))
 	return int32(ret)
 }
 
 func (obj *windowDelegateImpl) GetTitlebarHeight(window Window, titlebarHeight *float32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetTitlebarHeight(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(titlebarHeight)))
 	return int32(ret)
 }
 
 func (obj *windowDelegateImpl) AcceptsFirstMouse(window Window) State {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallAcceptsFirstMouse(uintptr(extractRawPointer(window)))
 	return State(ret)
 }
 
 func (obj *windowDelegateImpl) CanResize(window Window) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanResize(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
 func (obj *windowDelegateImpl) CanMaximize(window Window) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanMaximize(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
 func (obj *windowDelegateImpl) CanMinimize(window Window) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanMinimize(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
 func (obj *windowDelegateImpl) CanClose(window Window) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanClose(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
 func (obj *windowDelegateImpl) OnAccelerator(window Window, commandID int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnAccelerator(uintptr(extractRawPointer(window)), uintptr(commandID))
 	return int32(ret)
 }
 
 func (obj *windowDelegateImpl) OnKeyEvent(window Window, event *KeyEvent) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(event)))
 	return int32(ret)
 }
 
 func (obj *windowDelegateImpl) OnThemeColorsChanged(window Window, chromeTheme int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnThemeColorsChanged(uintptr(extractRawPointer(window)), uintptr(chromeTheme))
 }
 
 func (obj *windowDelegateImpl) GetWindowRuntimeStyle() RuntimeStyle {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetWindowRuntimeStyle()
 	return RuntimeStyle(ret)
 }
 
 func (obj *windowDelegateImpl) GetLinuxWindowProperties(window Window, properties *LinuxWindowProperties) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetLinuxWindowProperties(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(properties)))
 	return int32(ret)
 }
 
 func (obj *windowDelegateImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *windowDelegateImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapWindowDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.

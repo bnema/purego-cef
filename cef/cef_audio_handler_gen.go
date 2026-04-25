@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -75,48 +76,75 @@ func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
 }
 
 type rawAudioHandlerImpl struct {
-	rawPtr *capi.CEFAudioHandlerT
+	rawPtr                  *capi.CEFAudioHandlerT
+	releaseOnce             sync.Once
+	onAudioStreamPacketOnce sync.Once
+	onAudioStreamPacketFunc func(*capi.CEFAudioHandlerT, uintptr, uintptr, uintptr, int64)
 }
 
 func (obj *rawAudioHandlerImpl) GetAudioParameters(browser Browser, params *AudioParameters) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetAudioParameters(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(params)))
 	return int32(ret)
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamStarted(browser Browser, params *AudioParameters, channels int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnAudioStreamStarted(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(params)), uintptr(channels))
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamPacket(browser Browser, data unsafe.Pointer, frames int32, pts int64) {
-	var fn func(*capi.CEFAudioHandlerT, uintptr, uintptr, uintptr, int64)
-	registerTypedCallback(&fn, obj.rawPtr.OnAudioStreamPacket)
-	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), uintptr(data), uintptr(frames), pts)
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
+	obj.onAudioStreamPacketOnce.Do(func() {
+		registerTypedCallback(&obj.onAudioStreamPacketFunc, obj.rawPtr.OnAudioStreamPacket)
+	})
+	obj.onAudioStreamPacketFunc(obj.rawPtr, uintptr(extractRawPointer(browser)), uintptr(data), uintptr(frames), pts)
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamStopped(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnAudioStreamStopped(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamError(browser Browser, message string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	messageStr := cefString(message)
 	defer freeCefString(&messageStr)
 	obj.rawPtr.CallOnAudioStreamError(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&messageStr)))
 }
 
 func (obj *rawAudioHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *rawAudioHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapAudioHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

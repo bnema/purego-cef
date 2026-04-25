@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,53 +16,80 @@ import (
 type ProcessMessage = portin.ProcessMessage
 
 type processMessageImpl struct {
-	rawPtr *capi.CEFProcessMessageT
+	rawPtr      *capi.CEFProcessMessageT
+	releaseOnce sync.Once
 }
 
 func (obj *processMessageImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *processMessageImpl) IsReadOnly() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
 func (obj *processMessageImpl) Copy() ProcessMessage {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallCopy()
 	return wrapProcessMessage(unsafe.Pointer(ret))
 }
 
 func (obj *processMessageImpl) GetName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *processMessageImpl) GetArgumentList() ListValue {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetArgumentList()
 	return wrapListValue(unsafe.Pointer(ret))
 }
 
 func (obj *processMessageImpl) GetSharedMemoryRegion() SharedMemoryRegion {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetSharedMemoryRegion()
 	return wrapSharedMemoryRegion(unsafe.Pointer(ret))
 }
 
 func (obj *processMessageImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *processMessageImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapProcessMessage(ptr unsafe.Pointer) ProcessMessage {

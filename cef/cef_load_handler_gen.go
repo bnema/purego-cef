@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -74,22 +75,35 @@ func NewLoadHandler(impl LoadHandler) LoadHandler {
 }
 
 type loadHandlerImpl struct {
-	rawPtr *capi.CEFLoadHandlerT
+	rawPtr      *capi.CEFLoadHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *loadHandlerImpl) OnLoadingStateChange(browser Browser, isloading int32, cangoback int32, cangoforward int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnLoadingStateChange(uintptr(extractRawPointer(browser)), uintptr(isloading), uintptr(cangoback), uintptr(cangoforward))
 }
 
 func (obj *loadHandlerImpl) OnLoadStart(browser Browser, frame Frame, transitionType TransitionType) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnLoadStart(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(transitionType))
 }
 
 func (obj *loadHandlerImpl) OnLoadEnd(browser Browser, frame Frame, httpstatuscode int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnLoadEnd(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(httpstatuscode))
 }
 
 func (obj *loadHandlerImpl) OnLoadError(browser Browser, frame Frame, errorcode Errorcode, errortext string, failedurl string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	errortextStr := cefString(errortext)
 	defer freeCefString(&errortextStr)
 	failedurlStr := cefString(failedurl)
@@ -98,19 +112,27 @@ func (obj *loadHandlerImpl) OnLoadError(browser Browser, frame Frame, errorcode 
 }
 
 func (obj *loadHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *loadHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapLoadHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

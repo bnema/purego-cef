@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,42 +16,63 @@ import (
 type Thread = portin.Thread
 
 type threadImpl struct {
-	rawPtr *capi.CEFThreadT
+	rawPtr      *capi.CEFThreadT
+	releaseOnce sync.Once
 }
 
 func (obj *threadImpl) GetTaskRunner() TaskRunner {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetTaskRunner()
 	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
 func (obj *threadImpl) GetPlatformThreadID() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPlatformThreadID()
 	return uintptr(ret)
 }
 
 func (obj *threadImpl) Stop() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallStop()
 }
 
 func (obj *threadImpl) IsRunning() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsRunning()
 	return ret != 0
 }
 
 func (obj *threadImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *threadImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapThread(ptr unsafe.Pointer) Thread {

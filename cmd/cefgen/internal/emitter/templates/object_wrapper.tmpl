@@ -1,10 +1,26 @@
 {{define "object_wrapper.tmpl"}}
 type {{lower .Name}}Impl struct {
 	rawPtr *capi.{{.RawGoName}}
+{{- if not .IsScoped}}
+	releaseOnce sync.Once
+{{- end}}
+{{- range .Methods}}
+{{- if needsTypedObjectCall .}}
+	{{lower .Name}}Once sync.Once
+	{{lower .Name}}Func {{typedObjectFuncSig $.RawGoName .}}
+{{- end}}
+{{- end}}
 }
 
 {{range .Methods}}
 func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+	if obj == nil || obj.rawPtr == nil {
+		{{- if .Return.IsVoid}}
+		return
+		{{- else}}
+		return {{zeroReturn .Return}}
+		{{- end}}
+	}
 	{{- range .Params}}
 	{{- $pre := marshalPreamble .}}
 	{{- if $pre}}
@@ -15,15 +31,16 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 {{.}}{{- end}}
 	{{- $hasPost := hasMarshalPostamble .Params}}
 	{{- if needsTypedObjectCall .}}
-	var fn {{typedObjectFuncSig $.RawGoName .}}
-	registerTypedCallback(&fn, obj.rawPtr.{{.RawFieldName}})
+	obj.{{lower .Name}}Once.Do(func() {
+		registerTypedCallback(&obj.{{lower .Name}}Func, obj.rawPtr.{{.RawFieldName}})
+	})
 	{{- if .Return.IsVoid}}
-	fn({{typedObjectCallArgs .}})
+	obj.{{lower .Name}}Func({{typedObjectCallArgs .}})
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
 	{{- else}}
-	ret := fn({{typedObjectCallArgs .}})
+	ret := obj.{{lower .Name}}Func({{typedObjectCallArgs .}})
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
@@ -81,6 +98,9 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 {{end}}
 
 func (obj *{{lower .Name}}Impl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -95,14 +115,19 @@ func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
 {{else}}
 // Release releases the underlying CEF object.
 func (obj *{{lower .Name}}Impl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {

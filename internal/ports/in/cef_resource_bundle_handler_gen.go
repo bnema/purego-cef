@@ -8,7 +8,7 @@ import (
 
 // ResourceBundleHandler defines the inbound port interface.
 type ResourceBundleHandler interface {
-	GetLocalizedString(stringID int32, string uintptr) int32
+	GetLocalizedString(stringID int32, string_ uintptr) int32
 	GetDataResource(resourceID int32, data unsafe.Pointer, dataSize *int) int32
 	GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor, data unsafe.Pointer, dataSize *int) int32
 }

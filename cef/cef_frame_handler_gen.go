@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -75,43 +76,67 @@ func NewFrameHandler(impl FrameHandler) FrameHandler {
 }
 
 type frameHandlerImpl struct {
-	rawPtr *capi.CEFFrameHandlerT
+	rawPtr      *capi.CEFFrameHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *frameHandlerImpl) OnFrameCreated(browser Browser, frame Frame) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFrameCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *frameHandlerImpl) OnFrameDestroyed(browser Browser, frame Frame) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFrameDestroyed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *frameHandlerImpl) OnFrameAttached(browser Browser, frame Frame, reattached int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFrameAttached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(reattached))
 }
 
 func (obj *frameHandlerImpl) OnFrameDetached(browser Browser, frame Frame) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFrameDetached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *frameHandlerImpl) OnMainFrameChanged(browser Browser, oldFrame Frame, newFrame Frame) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnMainFrameChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(oldFrame)), uintptr(extractRawPointer(newFrame)))
 }
 
 func (obj *frameHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *frameHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapFrameHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

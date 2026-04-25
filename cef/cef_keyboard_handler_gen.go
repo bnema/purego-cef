@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -58,33 +59,48 @@ func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
 }
 
 type keyboardHandlerImpl struct {
-	rawPtr *capi.CEFKeyboardHandlerT
+	rawPtr      *capi.CEFKeyboardHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *keyboardHandlerImpl) OnPreKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr, isKeyboardShortcut *int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnPreKeyEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(event)), osEvent, uintptr(unsafe.Pointer(isKeyboardShortcut)))
 	return int32(ret)
 }
 
 func (obj *keyboardHandlerImpl) OnKeyEvent(browser Browser, event *KeyEvent, osEvent uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(event)), osEvent)
 	return int32(ret)
 }
 
 func (obj *keyboardHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *keyboardHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapKeyboardHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

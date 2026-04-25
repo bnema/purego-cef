@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -84,48 +85,72 @@ func NewCommandHandler(impl CommandHandler) CommandHandler {
 }
 
 type commandHandlerImpl struct {
-	rawPtr *capi.CEFCommandHandlerT
+	rawPtr      *capi.CEFCommandHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *commandHandlerImpl) OnChromeCommand(browser Browser, commandID int32, disposition WindowOpenDisposition) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnChromeCommand(uintptr(extractRawPointer(browser)), uintptr(commandID), uintptr(disposition))
 	return int32(ret)
 }
 
 func (obj *commandHandlerImpl) IsChromeAppMenuItemVisible(browser Browser, commandID int32) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsChromeAppMenuItemVisible(uintptr(extractRawPointer(browser)), uintptr(commandID))
 	return ret != 0
 }
 
 func (obj *commandHandlerImpl) IsChromeAppMenuItemEnabled(browser Browser, commandID int32) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsChromeAppMenuItemEnabled(uintptr(extractRawPointer(browser)), uintptr(commandID))
 	return ret != 0
 }
 
 func (obj *commandHandlerImpl) IsChromePageActionIconVisible(iconType ChromePageActionIconType) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsChromePageActionIconVisible(uintptr(iconType))
 	return ret != 0
 }
 
 func (obj *commandHandlerImpl) IsChromeToolbarButtonVisible(buttonType ChromeToolbarButtonType) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsChromeToolbarButtonVisible(uintptr(buttonType))
 	return ret != 0
 }
 
 func (obj *commandHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *commandHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapCommandHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

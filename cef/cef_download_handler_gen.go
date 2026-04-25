@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,29 +18,41 @@ import (
 type BeforeDownloadCallback = portin.BeforeDownloadCallback
 
 type beforeDownloadCallbackImpl struct {
-	rawPtr *capi.CEFBeforeDownloadCallbackT
+	rawPtr      *capi.CEFBeforeDownloadCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *beforeDownloadCallbackImpl) Cont(downloadPath string, showDialog int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	downloadPathStr := cefString(downloadPath)
 	defer freeCefString(&downloadPathStr)
 	obj.rawPtr.CallCont(uintptr(unsafe.Pointer(&downloadPathStr)), uintptr(showDialog))
 }
 
 func (obj *beforeDownloadCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *beforeDownloadCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapBeforeDownloadCallback(ptr unsafe.Pointer) BeforeDownloadCallback {
@@ -58,35 +71,53 @@ func wrapBeforeDownloadCallback(ptr unsafe.Pointer) BeforeDownloadCallback {
 type DownloadItemCallback = portin.DownloadItemCallback
 
 type downloadItemCallbackImpl struct {
-	rawPtr *capi.CEFDownloadItemCallbackT
+	rawPtr      *capi.CEFDownloadItemCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *downloadItemCallbackImpl) Cancel() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCancel()
 }
 
 func (obj *downloadItemCallbackImpl) Pause() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallPause()
 }
 
 func (obj *downloadItemCallbackImpl) Resume() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallResume()
 }
 
 func (obj *downloadItemCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *downloadItemCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapDownloadItemCallback(ptr unsafe.Pointer) DownloadItemCallback {
@@ -159,10 +190,14 @@ func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
 }
 
 type downloadHandlerImpl struct {
-	rawPtr *capi.CEFDownloadHandlerT
+	rawPtr      *capi.CEFDownloadHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *downloadHandlerImpl) CanDownload(browser Browser, uRL string, requestMethod string) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	requestMethodStr := cefString(requestMethod)
@@ -172,6 +207,9 @@ func (obj *downloadHandlerImpl) CanDownload(browser Browser, uRL string, request
 }
 
 func (obj *downloadHandlerImpl) OnBeforeDownload(browser Browser, downloadItem DownloadItem, suggestedName string, callback BeforeDownloadCallback) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	suggestedNameStr := cefString(suggestedName)
 	defer freeCefString(&suggestedNameStr)
 	ret := obj.rawPtr.CallOnBeforeDownload(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(unsafe.Pointer(&suggestedNameStr)), uintptr(extractRawPointer(callback)))
@@ -179,23 +217,34 @@ func (obj *downloadHandlerImpl) OnBeforeDownload(browser Browser, downloadItem D
 }
 
 func (obj *downloadHandlerImpl) OnDownloadUpdated(browser Browser, downloadItem DownloadItem, callback DownloadItemCallback) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnDownloadUpdated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(extractRawPointer(callback)))
 }
 
 func (obj *downloadHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *downloadHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapDownloadHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

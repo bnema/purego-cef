@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -126,62 +127,98 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 }
 
 type resourceRequestHandlerImpl struct {
-	rawPtr *capi.CEFResourceRequestHandlerT
+	rawPtr                     *capi.CEFResourceRequestHandlerT
+	releaseOnce                sync.Once
+	onResourceLoadCompleteOnce sync.Once
+	onResourceLoadCompleteFunc func(*capi.CEFResourceRequestHandlerT, uintptr, uintptr, uintptr, uintptr, uintptr, int64)
 }
 
 func (obj *resourceRequestHandlerImpl) GetCookieAccessFilter(browser Browser, frame Frame, request Request) CookieAccessFilter {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetCookieAccessFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
 	return wrapCookieAccessFilter(unsafe.Pointer(ret))
 }
 
 func (obj *resourceRequestHandlerImpl) OnBeforeResourceLoad(browser Browser, frame Frame, request Request, callback Callback) ReturnValue {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnBeforeResourceLoad(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
 	return ReturnValue(ret)
 }
 
 func (obj *resourceRequestHandlerImpl) GetResourceHandler(browser Browser, frame Frame, request Request) ResourceHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetResourceHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
 	return wrapResourceHandler(unsafe.Pointer(ret))
 }
 
 func (obj *resourceRequestHandlerImpl) OnResourceRedirect(browser Browser, frame Frame, request Request, response Response, newURL uintptr) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnResourceRedirect(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), newURL)
 }
 
 func (obj *resourceRequestHandlerImpl) OnResourceResponse(browser Browser, frame Frame, request Request, response Response) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnResourceResponse(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
 	return int32(ret)
 }
 
 func (obj *resourceRequestHandlerImpl) GetResourceResponseFilter(browser Browser, frame Frame, request Request, response Response) ResponseFilter {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetResourceResponseFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
 	return wrapResponseFilter(unsafe.Pointer(ret))
 }
 
 func (obj *resourceRequestHandlerImpl) OnResourceLoadComplete(browser Browser, frame Frame, request Request, response Response, status UrlrequestStatus, receivedContentLength int64) {
-	var fn func(*capi.CEFResourceRequestHandlerT, uintptr, uintptr, uintptr, uintptr, uintptr, int64)
-	registerTypedCallback(&fn, obj.rawPtr.OnResourceLoadComplete)
-	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(status), receivedContentLength)
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
+	obj.onResourceLoadCompleteOnce.Do(func() {
+		registerTypedCallback(&obj.onResourceLoadCompleteFunc, obj.rawPtr.OnResourceLoadComplete)
+	})
+	obj.onResourceLoadCompleteFunc(obj.rawPtr, uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(status), receivedContentLength)
 }
 
 func (obj *resourceRequestHandlerImpl) OnProtocolExecution(browser Browser, frame Frame, request Request, allowOsExecution *int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnProtocolExecution(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(allowOsExecution)))
 }
 
 func (obj *resourceRequestHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *resourceRequestHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapResourceRequestHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -250,33 +287,48 @@ func NewCookieAccessFilter(impl CookieAccessFilter) CookieAccessFilter {
 }
 
 type cookieAccessFilterImpl struct {
-	rawPtr *capi.CEFCookieAccessFilterT
+	rawPtr      *capi.CEFCookieAccessFilterT
+	releaseOnce sync.Once
 }
 
 func (obj *cookieAccessFilterImpl) CanSendCookie(browser Browser, frame Frame, request Request, cookie *Cookie) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanSendCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(cookie)))
 	return ret != 0
 }
 
 func (obj *cookieAccessFilterImpl) CanSaveCookie(browser Browser, frame Frame, request Request, response Response, cookie *Cookie) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallCanSaveCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(cookie)))
 	return ret != 0
 }
 
 func (obj *cookieAccessFilterImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *cookieAccessFilterImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapCookieAccessFilter wraps a CEF handler pointer received from CEF into a thin Go façade.

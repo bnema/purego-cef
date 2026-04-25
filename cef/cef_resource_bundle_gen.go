@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,38 +16,56 @@ import (
 type ResourceBundle = portin.ResourceBundle
 
 type resourceBundleImpl struct {
-	rawPtr *capi.CEFResourceBundleT
+	rawPtr      *capi.CEFResourceBundleT
+	releaseOnce sync.Once
 }
 
 func (obj *resourceBundleImpl) GetLocalizedString(stringID int32) string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetLocalizedString(uintptr(stringID))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *resourceBundleImpl) GetDataResource(resourceID int32) BinaryValue {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDataResource(uintptr(resourceID))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *resourceBundleImpl) GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor) BinaryValue {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *resourceBundleImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *resourceBundleImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapResourceBundle(ptr unsafe.Pointer) ResourceBundle {

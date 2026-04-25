@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,33 +16,48 @@ import (
 type Sslinfo = portin.Sslinfo
 
 type sslinfoImpl struct {
-	rawPtr *capi.CEFSslinfoT
+	rawPtr      *capi.CEFSslinfoT
+	releaseOnce sync.Once
 }
 
 func (obj *sslinfoImpl) GetCertStatus() CertStatus {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetCertStatus()
 	return CertStatus(ret)
 }
 
 func (obj *sslinfoImpl) GetX509Certificate() X509Certificate {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetX509Certificate()
 	return wrapX509Certificate(unsafe.Pointer(ret))
 }
 
 func (obj *sslinfoImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *sslinfoImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapSslinfo(ptr unsafe.Pointer) Sslinfo {

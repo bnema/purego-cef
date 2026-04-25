@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -65,14 +66,21 @@ func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler 
 }
 
 type requestContextHandlerImpl struct {
-	rawPtr *capi.CEFRequestContextHandlerT
+	rawPtr      *capi.CEFRequestContextHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *requestContextHandlerImpl) OnRequestContextInitialized(requestContext RequestContext) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnRequestContextInitialized(uintptr(extractRawPointer(requestContext)))
 }
 
 func (obj *requestContextHandlerImpl) GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling *int32) ResourceRequestHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	requestInitiatorStr := cefString(requestInitiator)
 	defer freeCefString(&requestInitiatorStr)
 	ret := obj.rawPtr.CallGetResourceRequestHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(isNavigation), uintptr(isDownload), uintptr(unsafe.Pointer(&requestInitiatorStr)), uintptr(unsafe.Pointer(disableDefaultHandling)))
@@ -80,19 +88,27 @@ func (obj *requestContextHandlerImpl) GetResourceRequestHandler(browser Browser,
 }
 
 func (obj *requestContextHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *requestContextHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapRequestContextHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

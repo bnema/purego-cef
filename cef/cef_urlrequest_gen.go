@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,57 +18,87 @@ import (
 type Urlrequest = portin.Urlrequest
 
 type urlrequestImpl struct {
-	rawPtr *capi.CEFUrlrequestT
+	rawPtr      *capi.CEFUrlrequestT
+	releaseOnce sync.Once
 }
 
 func (obj *urlrequestImpl) GetRequest() Request {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetRequest()
 	return wrapRequest(unsafe.Pointer(ret))
 }
 
 func (obj *urlrequestImpl) GetClient() UrlrequestClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetClient()
 	return wrapUrlrequestClient(unsafe.Pointer(ret))
 }
 
 func (obj *urlrequestImpl) GetRequestStatus() UrlrequestStatus {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRequestStatus()
 	return UrlrequestStatus(ret)
 }
 
 func (obj *urlrequestImpl) GetRequestError() Errorcode {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRequestError()
 	return Errorcode(ret)
 }
 
 func (obj *urlrequestImpl) GetResponse() Response {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetResponse()
 	return wrapResponse(unsafe.Pointer(ret))
 }
 
 func (obj *urlrequestImpl) ResponseWasCached() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallResponseWasCached()
 	return int32(ret)
 }
 
 func (obj *urlrequestImpl) Cancel() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCancel()
 }
 
 func (obj *urlrequestImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *urlrequestImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapUrlrequest(ptr unsafe.Pointer) Urlrequest {
@@ -148,30 +179,52 @@ func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
 }
 
 type urlrequestClientImpl struct {
-	rawPtr *capi.CEFUrlrequestClientT
+	rawPtr                 *capi.CEFUrlrequestClientT
+	releaseOnce            sync.Once
+	onUploadProgressOnce   sync.Once
+	onUploadProgressFunc   func(*capi.CEFUrlrequestClientT, uintptr, int64, int64)
+	onDownloadProgressOnce sync.Once
+	onDownloadProgressFunc func(*capi.CEFUrlrequestClientT, uintptr, int64, int64)
 }
 
 func (obj *urlrequestClientImpl) OnRequestComplete(request Urlrequest) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnRequestComplete(uintptr(extractRawPointer(request)))
 }
 
 func (obj *urlrequestClientImpl) OnUploadProgress(request Urlrequest, current int64, total int64) {
-	var fn func(*capi.CEFUrlrequestClientT, uintptr, int64, int64)
-	registerTypedCallback(&fn, obj.rawPtr.OnUploadProgress)
-	fn(obj.rawPtr, uintptr(extractRawPointer(request)), current, total)
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
+	obj.onUploadProgressOnce.Do(func() {
+		registerTypedCallback(&obj.onUploadProgressFunc, obj.rawPtr.OnUploadProgress)
+	})
+	obj.onUploadProgressFunc(obj.rawPtr, uintptr(extractRawPointer(request)), current, total)
 }
 
 func (obj *urlrequestClientImpl) OnDownloadProgress(request Urlrequest, current int64, total int64) {
-	var fn func(*capi.CEFUrlrequestClientT, uintptr, int64, int64)
-	registerTypedCallback(&fn, obj.rawPtr.OnDownloadProgress)
-	fn(obj.rawPtr, uintptr(extractRawPointer(request)), current, total)
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
+	obj.onDownloadProgressOnce.Do(func() {
+		registerTypedCallback(&obj.onDownloadProgressFunc, obj.rawPtr.OnDownloadProgress)
+	})
+	obj.onDownloadProgressFunc(obj.rawPtr, uintptr(extractRawPointer(request)), current, total)
 }
 
 func (obj *urlrequestClientImpl) OnDownloadData(request Urlrequest, data unsafe.Pointer, dataLength int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnDownloadData(uintptr(extractRawPointer(request)), uintptr(data), uintptr(dataLength))
 }
 
 func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, port int32, realm string, scheme string, callback AuthCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	hostStr := cefString(host)
 	defer freeCefString(&hostStr)
 	realmStr := cefString(realm)
@@ -183,19 +236,27 @@ func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, 
 }
 
 func (obj *urlrequestClientImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *urlrequestClientImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapUrlrequestClient wraps a CEF handler pointer received from CEF into a thin Go façade.

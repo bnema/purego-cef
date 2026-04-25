@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -53,31 +54,46 @@ func NewButtonDelegate(impl ButtonDelegate) ButtonDelegate {
 }
 
 type buttonDelegateImpl struct {
-	rawPtr *capi.CEFButtonDelegateT
+	rawPtr      *capi.CEFButtonDelegateT
+	releaseOnce sync.Once
 }
 
 func (obj *buttonDelegateImpl) OnButtonPressed(button Button) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnButtonPressed(uintptr(extractRawPointer(button)))
 }
 
 func (obj *buttonDelegateImpl) OnButtonStateChanged(button Button) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnButtonStateChanged(uintptr(extractRawPointer(button)))
 }
 
 func (obj *buttonDelegateImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *buttonDelegateImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapButtonDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.

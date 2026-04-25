@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,57 +16,87 @@ import (
 type ScrollView = portin.ScrollView
 
 type scrollViewImpl struct {
-	rawPtr *capi.CEFScrollViewT
+	rawPtr      *capi.CEFScrollViewT
+	releaseOnce sync.Once
 }
 
 func (obj *scrollViewImpl) SetContentView(view View) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetContentView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *scrollViewImpl) GetContentView() View {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetContentView()
 	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *scrollViewImpl) GetVisibleContentRect() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetVisibleContentRect()
 	return uintptr(ret)
 }
 
 func (obj *scrollViewImpl) HasHorizontalScrollbar() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasHorizontalScrollbar()
 	return ret != 0
 }
 
 func (obj *scrollViewImpl) GetHorizontalScrollbarHeight() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetHorizontalScrollbarHeight()
 	return int32(ret)
 }
 
 func (obj *scrollViewImpl) HasVerticalScrollbar() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasVerticalScrollbar()
 	return ret != 0
 }
 
 func (obj *scrollViewImpl) GetVerticalScrollbarWidth() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetVerticalScrollbarWidth()
 	return int32(ret)
 }
 
 func (obj *scrollViewImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *scrollViewImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapScrollView(ptr unsafe.Pointer) ScrollView {

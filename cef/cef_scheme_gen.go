@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -21,6 +22,9 @@ type schemeRegistrarImpl struct {
 }
 
 func (obj *schemeRegistrarImpl) AddCustomScheme(schemeName string, options int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	schemeNameStr := cefString(schemeName)
 	defer freeCefString(&schemeNameStr)
 	ret := obj.rawPtr.CallAddCustomScheme(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(options))
@@ -28,6 +32,9 @@ func (obj *schemeRegistrarImpl) AddCustomScheme(schemeName string, options int32
 }
 
 func (obj *schemeRegistrarImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
@@ -83,10 +90,14 @@ func NewSchemeHandlerFactory(impl SchemeHandlerFactory) SchemeHandlerFactory {
 }
 
 type schemeHandlerFactoryImpl struct {
-	rawPtr *capi.CEFSchemeHandlerFactoryT
+	rawPtr      *capi.CEFSchemeHandlerFactoryT
+	releaseOnce sync.Once
 }
 
 func (obj *schemeHandlerFactoryImpl) Create(browser Browser, frame Frame, schemeName string, request Request) ResourceHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	schemeNameStr := cefString(schemeName)
 	defer freeCefString(&schemeNameStr)
 	ret := obj.rawPtr.CallCreate(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(extractRawPointer(request)))
@@ -94,19 +105,27 @@ func (obj *schemeHandlerFactoryImpl) Create(browser Browser, frame Frame, scheme
 }
 
 func (obj *schemeHandlerFactoryImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *schemeHandlerFactoryImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapSchemeHandlerFactory wraps a CEF handler pointer received from CEF into a thin Go façade.

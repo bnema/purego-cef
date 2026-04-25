@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -97,22 +98,37 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 }
 
 type browserProcessHandlerImpl struct {
-	rawPtr *capi.CEFBrowserProcessHandlerT
+	rawPtr                        *capi.CEFBrowserProcessHandlerT
+	releaseOnce                   sync.Once
+	onScheduleMessagePumpWorkOnce sync.Once
+	onScheduleMessagePumpWorkFunc func(*capi.CEFBrowserProcessHandlerT, int64)
 }
 
 func (obj *browserProcessHandlerImpl) OnRegisterCustomPreferences(type_ PreferencesType, registrar PreferenceRegistrar) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnRegisterCustomPreferences(uintptr(type_), uintptr(extractRawPointer(registrar)))
 }
 
 func (obj *browserProcessHandlerImpl) OnContextInitialized() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnContextInitialized()
 }
 
 func (obj *browserProcessHandlerImpl) OnBeforeChildProcessLaunch(commandLine CommandLine) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnBeforeChildProcessLaunch(uintptr(extractRawPointer(commandLine)))
 }
 
 func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine CommandLine, currentDirectory string) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	currentDirectoryStr := cefString(currentDirectory)
 	defer freeCefString(&currentDirectoryStr)
 	ret := obj.rawPtr.CallOnAlreadyRunningAppRelaunch(uintptr(extractRawPointer(commandLine)), uintptr(unsafe.Pointer(&currentDirectoryStr)))
@@ -120,35 +136,53 @@ func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine Co
 }
 
 func (obj *browserProcessHandlerImpl) OnScheduleMessagePumpWork(delayMs int64) {
-	var fn func(*capi.CEFBrowserProcessHandlerT, int64)
-	registerTypedCallback(&fn, obj.rawPtr.OnScheduleMessagePumpWork)
-	fn(obj.rawPtr, delayMs)
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
+	obj.onScheduleMessagePumpWorkOnce.Do(func() {
+		registerTypedCallback(&obj.onScheduleMessagePumpWorkFunc, obj.rawPtr.OnScheduleMessagePumpWork)
+	})
+	obj.onScheduleMessagePumpWorkFunc(obj.rawPtr, delayMs)
 }
 
 func (obj *browserProcessHandlerImpl) GetDefaultClient() RawClient {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDefaultClient()
 	return wrapRawClient(unsafe.Pointer(ret))
 }
 
 func (obj *browserProcessHandlerImpl) GetDefaultRequestContextHandler() RequestContextHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDefaultRequestContextHandler()
 	return wrapRequestContextHandler(unsafe.Pointer(ret))
 }
 
 func (obj *browserProcessHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *browserProcessHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapBrowserProcessHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

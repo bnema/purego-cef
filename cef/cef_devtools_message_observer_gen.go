@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -77,46 +78,70 @@ func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObs
 }
 
 type devToolsMessageObserverImpl struct {
-	rawPtr *capi.CEFDevToolsMessageObserverT
+	rawPtr      *capi.CEFDevToolsMessageObserverT
+	releaseOnce sync.Once
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsMessage(browser Browser, message unsafe.Pointer, messageSize int) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnDevToolsMessage(uintptr(extractRawPointer(browser)), uintptr(message), uintptr(messageSize))
 	return int32(ret)
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsMethodResult(browser Browser, messageID int32, success int32, result unsafe.Pointer, resultSize int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnDevToolsMethodResult(uintptr(extractRawPointer(browser)), uintptr(messageID), uintptr(success), uintptr(result), uintptr(resultSize))
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsEvent(browser Browser, method string, params unsafe.Pointer, paramsSize int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
 	obj.rawPtr.CallOnDevToolsEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&methodStr)), uintptr(params), uintptr(paramsSize))
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentAttached(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnDevToolsAgentAttached(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentDetached(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnDevToolsAgentDetached(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *devToolsMessageObserverImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *devToolsMessageObserverImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapDevToolsMessageObserver wraps a CEF handler pointer received from CEF into a thin Go façade.

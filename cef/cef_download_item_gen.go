@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,129 +16,207 @@ import (
 type DownloadItem = portin.DownloadItem
 
 type downloadItemImpl struct {
-	rawPtr *capi.CEFDownloadItemT
+	rawPtr               *capi.CEFDownloadItemT
+	releaseOnce          sync.Once
+	getCurrentSpeedOnce  sync.Once
+	getCurrentSpeedFunc  func(*capi.CEFDownloadItemT) int64
+	getTotalBytesOnce    sync.Once
+	getTotalBytesFunc    func(*capi.CEFDownloadItemT) int64
+	getReceivedBytesOnce sync.Once
+	getReceivedBytesFunc func(*capi.CEFDownloadItemT) int64
 }
 
 func (obj *downloadItemImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *downloadItemImpl) IsInProgress() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsInProgress()
 	return ret != 0
 }
 
 func (obj *downloadItemImpl) IsComplete() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsComplete()
 	return ret != 0
 }
 
 func (obj *downloadItemImpl) IsCanceled() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsCanceled()
 	return ret != 0
 }
 
 func (obj *downloadItemImpl) IsInterrupted() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsInterrupted()
 	return ret != 0
 }
 
 func (obj *downloadItemImpl) GetInterruptReason() DownloadInterruptReason {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetInterruptReason()
 	return DownloadInterruptReason(ret)
 }
 
 func (obj *downloadItemImpl) GetCurrentSpeed() int64 {
-	var fn func(*capi.CEFDownloadItemT) int64
-	registerTypedCallback(&fn, obj.rawPtr.GetCurrentSpeed)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getCurrentSpeedOnce.Do(func() {
+		registerTypedCallback(&obj.getCurrentSpeedFunc, obj.rawPtr.GetCurrentSpeed)
+	})
+	ret := obj.getCurrentSpeedFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *downloadItemImpl) GetPercentComplete() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPercentComplete()
 	return int32(ret)
 }
 
 func (obj *downloadItemImpl) GetTotalBytes() int64 {
-	var fn func(*capi.CEFDownloadItemT) int64
-	registerTypedCallback(&fn, obj.rawPtr.GetTotalBytes)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getTotalBytesOnce.Do(func() {
+		registerTypedCallback(&obj.getTotalBytesFunc, obj.rawPtr.GetTotalBytes)
+	})
+	ret := obj.getTotalBytesFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *downloadItemImpl) GetReceivedBytes() int64 {
-	var fn func(*capi.CEFDownloadItemT) int64
-	registerTypedCallback(&fn, obj.rawPtr.GetReceivedBytes)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getReceivedBytesOnce.Do(func() {
+		registerTypedCallback(&obj.getReceivedBytesFunc, obj.rawPtr.GetReceivedBytes)
+	})
+	ret := obj.getReceivedBytesFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *downloadItemImpl) GetStartTime() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetStartTime()
 	return uintptr(ret)
 }
 
 func (obj *downloadItemImpl) GetEndTime() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetEndTime()
 	return uintptr(ret)
 }
 
 func (obj *downloadItemImpl) GetFullPath() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetFullPath()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetID() uint32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetID()
 	return uint32(ret)
 }
 
 func (obj *downloadItemImpl) GetURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetOriginalURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetOriginalURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetSuggestedFileName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetSuggestedFileName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetContentDisposition() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetContentDisposition()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) GetMimeType() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetMimeType()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *downloadItemImpl) IsPaused() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsPaused()
 	return ret != 0
 }
 
 func (obj *downloadItemImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *downloadItemImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapDownloadItem(ptr unsafe.Pointer) DownloadItem {

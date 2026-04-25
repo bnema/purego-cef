@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,53 +16,80 @@ import (
 type Button = portin.Button
 
 type buttonImpl struct {
-	rawPtr *capi.CEFButtonT
+	rawPtr      *capi.CEFButtonT
+	releaseOnce sync.Once
 }
 
 func (obj *buttonImpl) AsLabelButton() LabelButton {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAsLabelButton()
 	return wrapLabelButton(unsafe.Pointer(ret))
 }
 
 func (obj *buttonImpl) SetState(state ButtonState) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetState(uintptr(state))
 }
 
 func (obj *buttonImpl) GetState() ButtonState {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetState()
 	return ButtonState(ret)
 }
 
 func (obj *buttonImpl) SetInkDropEnabled(enabled int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetInkDropEnabled(uintptr(enabled))
 }
 
 func (obj *buttonImpl) SetTooltipText(tooltipText string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	tooltipTextStr := cefString(tooltipText)
 	defer freeCefString(&tooltipTextStr)
 	obj.rawPtr.CallSetTooltipText(uintptr(unsafe.Pointer(&tooltipTextStr)))
 }
 
 func (obj *buttonImpl) SetAccessibleName(name string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	obj.rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *buttonImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *buttonImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapButton(ptr unsafe.Pointer) Button {

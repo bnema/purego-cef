@@ -11,6 +11,9 @@ import (
 {{- if .NeedsRuntime}}
 	"runtime"
 {{- end}}
+{{- if .NeedsSync}}
+	"sync"
+{{- end}}
 {{- if or .Interfaces .NeedsUnsafe .HasSizedDataStructs}}
 	"unsafe"
 {{- end}}

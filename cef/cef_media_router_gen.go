@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,15 +18,22 @@ import (
 type MediaRouter = portin.MediaRouter
 
 type mediaRouterImpl struct {
-	rawPtr *capi.CEFMediaRouterT
+	rawPtr      *capi.CEFMediaRouterT
+	releaseOnce sync.Once
 }
 
 func (obj *mediaRouterImpl) AddObserver(observer MediaObserver) Registration {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAddObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) })))
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
 func (obj *mediaRouterImpl) GetSource(urn string) MediaSource {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	urnStr := cefString(urn)
 	defer freeCefString(&urnStr)
 	ret := obj.rawPtr.CallGetSource(uintptr(unsafe.Pointer(&urnStr)))
@@ -33,31 +41,48 @@ func (obj *mediaRouterImpl) GetSource(urn string) MediaSource {
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentSinks() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallNotifyCurrentSinks()
 }
 
 func (obj *mediaRouterImpl) CreateRoute(source MediaSource, sink MediaSink, callback MediaRouteCreateCallback) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCreateRoute(uintptr(extractRawPointer(source)), uintptr(extractRawPointer(sink)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaRouteCreateCallback(callback) })))
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallNotifyCurrentRoutes()
 }
 
 func (obj *mediaRouterImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *mediaRouterImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapMediaRouter(ptr unsafe.Pointer) MediaRouter {
@@ -139,10 +164,14 @@ func NewMediaObserver(impl MediaObserver) MediaObserver {
 }
 
 type mediaObserverImpl struct {
-	rawPtr *capi.CEFMediaObserverT
+	rawPtr      *capi.CEFMediaObserverT
+	releaseOnce sync.Once
 }
 
 func (obj *mediaObserverImpl) OnSinks(sinks []MediaSink) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	var sinksRaw []uintptr
 	var sinksPtr unsafe.Pointer
 	if len(sinks) > 0 {
@@ -156,6 +185,9 @@ func (obj *mediaObserverImpl) OnSinks(sinks []MediaSink) {
 }
 
 func (obj *mediaObserverImpl) OnRoutes(routes []MediaRoute) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	var routesRaw []uintptr
 	var routesPtr unsafe.Pointer
 	if len(routes) > 0 {
@@ -169,27 +201,41 @@ func (obj *mediaObserverImpl) OnRoutes(routes []MediaRoute) {
 }
 
 func (obj *mediaObserverImpl) OnRouteStateChanged(route MediaRoute, state MediaRouteConnectionState) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnRouteStateChanged(uintptr(extractRawPointer(route)), uintptr(state))
 }
 
 func (obj *mediaObserverImpl) OnRouteMessageReceived(route MediaRoute, message unsafe.Pointer, messageSize int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnRouteMessageReceived(uintptr(extractRawPointer(route)), uintptr(message), uintptr(messageSize))
 }
 
 func (obj *mediaObserverImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *mediaObserverImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapMediaObserver wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -209,46 +255,70 @@ func wrapMediaObserver(ptr unsafe.Pointer) MediaObserver {
 type MediaRoute = portin.MediaRoute
 
 type mediaRouteImpl struct {
-	rawPtr *capi.CEFMediaRouteT
+	rawPtr      *capi.CEFMediaRouteT
+	releaseOnce sync.Once
 }
 
 func (obj *mediaRouteImpl) GetID() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetID()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *mediaRouteImpl) GetSource() MediaSource {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetSource()
 	return wrapMediaSource(unsafe.Pointer(ret))
 }
 
 func (obj *mediaRouteImpl) GetSink() MediaSink {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetSink()
 	return wrapMediaSink(unsafe.Pointer(ret))
 }
 
 func (obj *mediaRouteImpl) SendRouteMessage(message unsafe.Pointer, messageSize int) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSendRouteMessage(uintptr(message), uintptr(messageSize))
 }
 
 func (obj *mediaRouteImpl) Terminate() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallTerminate()
 }
 
 func (obj *mediaRouteImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *mediaRouteImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapMediaRoute(ptr unsafe.Pointer) MediaRoute {
@@ -300,29 +370,41 @@ func NewMediaRouteCreateCallback(impl MediaRouteCreateCallback) MediaRouteCreate
 }
 
 type mediaRouteCreateCallbackImpl struct {
-	rawPtr *capi.CEFMediaRouteCreateCallbackT
+	rawPtr      *capi.CEFMediaRouteCreateCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *mediaRouteCreateCallbackImpl) OnMediaRouteCreateFinished(result MediaRouteCreateResult, error string, route MediaRoute) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	errorStr := cefString(error)
 	defer freeCefString(&errorStr)
 	obj.rawPtr.CallOnMediaRouteCreateFinished(uintptr(result), uintptr(unsafe.Pointer(&errorStr)), uintptr(extractRawPointer(route)))
 }
 
 func (obj *mediaRouteCreateCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *mediaRouteCreateCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapMediaRouteCreateCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -342,57 +424,87 @@ func wrapMediaRouteCreateCallback(ptr unsafe.Pointer) MediaRouteCreateCallback {
 type MediaSink = portin.MediaSink
 
 type mediaSinkImpl struct {
-	rawPtr *capi.CEFMediaSinkT
+	rawPtr      *capi.CEFMediaSinkT
+	releaseOnce sync.Once
 }
 
 func (obj *mediaSinkImpl) GetID() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetID()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *mediaSinkImpl) GetName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *mediaSinkImpl) GetIconType() MediaSinkIconType {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetIconType()
 	return MediaSinkIconType(ret)
 }
 
 func (obj *mediaSinkImpl) GetDeviceInfo(callback MediaSinkDeviceInfoCallback) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetDeviceInfo(uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaSinkDeviceInfoCallback(callback) })))
 }
 
 func (obj *mediaSinkImpl) IsCastSink() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsCastSink()
 	return ret != 0
 }
 
 func (obj *mediaSinkImpl) IsDialSink() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsDialSink()
 	return ret != 0
 }
 
 func (obj *mediaSinkImpl) IsCompatibleWith(source MediaSource) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsCompatibleWith(uintptr(extractRawPointer(source)))
 	return ret != 0
 }
 
 func (obj *mediaSinkImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *mediaSinkImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapMediaSink(ptr unsafe.Pointer) MediaSink {
@@ -442,27 +554,39 @@ func NewMediaSinkDeviceInfoCallback(impl MediaSinkDeviceInfoCallback) MediaSinkD
 }
 
 type mediaSinkDeviceInfoCallbackImpl struct {
-	rawPtr *capi.CEFMediaSinkDeviceInfoCallbackT
+	rawPtr      *capi.CEFMediaSinkDeviceInfoCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *mediaSinkDeviceInfoCallbackImpl) OnMediaSinkDeviceInfo(deviceInfo *MediaSinkDeviceInfo) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnMediaSinkDeviceInfo(uintptr(unsafe.Pointer(deviceInfo)))
 }
 
 func (obj *mediaSinkDeviceInfoCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *mediaSinkDeviceInfoCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapMediaSinkDeviceInfoCallback wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -482,38 +606,56 @@ func wrapMediaSinkDeviceInfoCallback(ptr unsafe.Pointer) MediaSinkDeviceInfoCall
 type MediaSource = portin.MediaSource
 
 type mediaSourceImpl struct {
-	rawPtr *capi.CEFMediaSourceT
+	rawPtr      *capi.CEFMediaSourceT
+	releaseOnce sync.Once
 }
 
 func (obj *mediaSourceImpl) GetID() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetID()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *mediaSourceImpl) IsCastSource() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsCastSource()
 	return ret != 0
 }
 
 func (obj *mediaSourceImpl) IsDialSource() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsDialSource()
 	return ret != 0
 }
 
 func (obj *mediaSourceImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *mediaSourceImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapMediaSource(ptr unsafe.Pointer) MediaSource {

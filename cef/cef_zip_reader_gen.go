@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,20 +16,34 @@ import (
 type ZipReader = portin.ZipReader
 
 type zipReaderImpl struct {
-	rawPtr *capi.CEFZipReaderT
+	rawPtr          *capi.CEFZipReaderT
+	releaseOnce     sync.Once
+	getFileSizeOnce sync.Once
+	getFileSizeFunc func(*capi.CEFZipReaderT) int64
+	tellOnce        sync.Once
+	tellFunc        func(*capi.CEFZipReaderT) int64
 }
 
 func (obj *zipReaderImpl) MoveToFirstFile() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallMoveToFirstFile()
 	return int32(ret)
 }
 
 func (obj *zipReaderImpl) MoveToNextFile() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallMoveToNextFile()
 	return int32(ret)
 }
 
 func (obj *zipReaderImpl) MoveToFile(filename string, casesensitive int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	filenameStr := cefString(filename)
 	defer freeCefString(&filenameStr)
 	ret := obj.rawPtr.CallMoveToFile(uintptr(unsafe.Pointer(&filenameStr)), uintptr(casesensitive))
@@ -36,28 +51,44 @@ func (obj *zipReaderImpl) MoveToFile(filename string, casesensitive int32) int32
 }
 
 func (obj *zipReaderImpl) Close() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallClose()
 	return int32(ret)
 }
 
 func (obj *zipReaderImpl) GetFileName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetFileName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *zipReaderImpl) GetFileSize() int64 {
-	var fn func(*capi.CEFZipReaderT) int64
-	registerTypedCallback(&fn, obj.rawPtr.GetFileSize)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getFileSizeOnce.Do(func() {
+		registerTypedCallback(&obj.getFileSizeFunc, obj.rawPtr.GetFileSize)
+	})
+	ret := obj.getFileSizeFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *zipReaderImpl) GetFileLastModified() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetFileLastModified()
 	return uintptr(ret)
 }
 
 func (obj *zipReaderImpl) OpenFile(password string) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	passwordStr := cefString(password)
 	defer freeCefString(&passwordStr)
 	ret := obj.rawPtr.CallOpenFile(uintptr(unsafe.Pointer(&passwordStr)))
@@ -65,41 +96,62 @@ func (obj *zipReaderImpl) OpenFile(password string) int32 {
 }
 
 func (obj *zipReaderImpl) CloseFile() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallCloseFile()
 	return int32(ret)
 }
 
 func (obj *zipReaderImpl) ReadFile(buffer unsafe.Pointer, buffersize int) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallReadFile(uintptr(buffer), uintptr(buffersize))
 	return int32(ret)
 }
 
 func (obj *zipReaderImpl) Tell() int64 {
-	var fn func(*capi.CEFZipReaderT) int64
-	registerTypedCallback(&fn, obj.rawPtr.Tell)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.tellOnce.Do(func() {
+		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+	})
+	ret := obj.tellFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *zipReaderImpl) Eof() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallEof()
 	return int32(ret)
 }
 
 func (obj *zipReaderImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *zipReaderImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapZipReader(ptr unsafe.Pointer) ZipReader {

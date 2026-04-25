@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,64 +16,101 @@ import (
 type CommandLine = portin.CommandLine
 
 type commandLineImpl struct {
-	rawPtr *capi.CEFCommandLineT
+	rawPtr      *capi.CEFCommandLineT
+	releaseOnce sync.Once
 }
 
 func (obj *commandLineImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *commandLineImpl) IsReadOnly() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
 func (obj *commandLineImpl) Copy() CommandLine {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallCopy()
 	return wrapCommandLine(unsafe.Pointer(ret))
 }
 
 func (obj *commandLineImpl) InitFromArgv(argc int32, argv unsafe.Pointer) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallInitFromArgv(uintptr(argc), uintptr(argv))
 }
 
 func (obj *commandLineImpl) InitFromString(commandLine string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	commandLineStr := cefString(commandLine)
 	defer freeCefString(&commandLineStr)
 	obj.rawPtr.CallInitFromString(uintptr(unsafe.Pointer(&commandLineStr)))
 }
 
 func (obj *commandLineImpl) Reset() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallReset()
 }
 
 func (obj *commandLineImpl) GetArgv(argv StringList) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetArgv(uintptr(argv))
 }
 
 func (obj *commandLineImpl) GetCommandLineString() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetCommandLineString()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *commandLineImpl) GetProgram() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetProgram()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *commandLineImpl) SetProgram(program string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	programStr := cefString(program)
 	defer freeCefString(&programStr)
 	obj.rawPtr.CallSetProgram(uintptr(unsafe.Pointer(&programStr)))
 }
 
 func (obj *commandLineImpl) HasSwitches() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasSwitches()
 	return ret != 0
 }
 
 func (obj *commandLineImpl) HasSwitch(name string) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallHasSwitch(uintptr(unsafe.Pointer(&nameStr)))
@@ -80,6 +118,9 @@ func (obj *commandLineImpl) HasSwitch(name string) bool {
 }
 
 func (obj *commandLineImpl) GetSwitchValue(name string) string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := obj.rawPtr.CallGetSwitchValue(uintptr(unsafe.Pointer(&nameStr)))
@@ -87,16 +128,25 @@ func (obj *commandLineImpl) GetSwitchValue(name string) string {
 }
 
 func (obj *commandLineImpl) GetSwitches(switches StringMap) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetSwitches(uintptr(switches))
 }
 
 func (obj *commandLineImpl) AppendSwitch(name string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	obj.rawPtr.CallAppendSwitch(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *commandLineImpl) AppendSwitchWithValue(name string, value string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	valueStr := cefString(value)
@@ -105,46 +155,69 @@ func (obj *commandLineImpl) AppendSwitchWithValue(name string, value string) {
 }
 
 func (obj *commandLineImpl) HasArguments() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasArguments()
 	return ret != 0
 }
 
 func (obj *commandLineImpl) GetArguments(arguments StringList) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetArguments(uintptr(arguments))
 }
 
 func (obj *commandLineImpl) AppendArgument(argument string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	argumentStr := cefString(argument)
 	defer freeCefString(&argumentStr)
 	obj.rawPtr.CallAppendArgument(uintptr(unsafe.Pointer(&argumentStr)))
 }
 
 func (obj *commandLineImpl) PrependWrapper(wrapper string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	wrapperStr := cefString(wrapper)
 	defer freeCefString(&wrapperStr)
 	obj.rawPtr.CallPrependWrapper(uintptr(unsafe.Pointer(&wrapperStr)))
 }
 
 func (obj *commandLineImpl) RemoveSwitch(name string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	obj.rawPtr.CallRemoveSwitch(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *commandLineImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *commandLineImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapCommandLine(ptr unsafe.Pointer) CommandLine {

@@ -397,10 +397,35 @@ func goStringUserfree(ptr unsafe.Pointer) string {
 	return mustEng().GoStringUserfree(ptr)
 }
 
+type typedCallbackKey struct {
+	raw uintptr
+	typ reflect.Type
+}
+
+var typedCallbackCache sync.Map
+
 // registerTypedCallback binds a raw CEF function pointer to a typed Go function.
 // Generated wrappers use this when ABI correctness requires non-uintptr arguments
 // such as float64 or int64.
-func registerTypedCallback(fn any, raw uintptr) { purego.RegisterFunc(fn, raw) }
+func registerTypedCallback(fn any, raw uintptr) {
+	v := reflect.ValueOf(fn)
+	if v.Kind() != reflect.Pointer || v.Elem().Kind() != reflect.Func {
+		purego.RegisterFunc(fn, raw)
+		return
+	}
+
+	key := typedCallbackKey{raw: raw, typ: v.Elem().Type()}
+	if cached, ok := typedCallbackCache.Load(key); ok {
+		v.Elem().Set(reflect.ValueOf(cached))
+		return
+	}
+
+	purego.RegisterFunc(fn, raw)
+	actual, loaded := typedCallbackCache.LoadOrStore(key, v.Elem().Interface())
+	if loaded {
+		v.Elem().Set(reflect.ValueOf(actual))
+	}
+}
 
 func setCurrentRefManager(rm *core.RefManager) {
 	refManagerMu.Lock()

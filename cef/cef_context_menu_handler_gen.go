@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,31 +18,46 @@ import (
 type RunContextMenuCallback = portin.RunContextMenuCallback
 
 type runContextMenuCallbackImpl struct {
-	rawPtr *capi.CEFRunContextMenuCallbackT
+	rawPtr      *capi.CEFRunContextMenuCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *runContextMenuCallbackImpl) Cont(commandID int32, eventFlags EventFlags) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
 }
 
 func (obj *runContextMenuCallbackImpl) Cancel() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCancel()
 }
 
 func (obj *runContextMenuCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *runContextMenuCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapRunContextMenuCallback(ptr unsafe.Pointer) RunContextMenuCallback {
@@ -60,31 +76,46 @@ func wrapRunContextMenuCallback(ptr unsafe.Pointer) RunContextMenuCallback {
 type RunQuickMenuCallback = portin.RunQuickMenuCallback
 
 type runQuickMenuCallbackImpl struct {
-	rawPtr *capi.CEFRunQuickMenuCallbackT
+	rawPtr      *capi.CEFRunQuickMenuCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *runQuickMenuCallbackImpl) Cont(commandID int32, eventFlags EventFlags) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
 }
 
 func (obj *runQuickMenuCallbackImpl) Cancel() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCancel()
 }
 
 func (obj *runQuickMenuCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *runQuickMenuCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapRunQuickMenuCallback(ptr unsafe.Pointer) RunQuickMenuCallback {
@@ -185,55 +216,85 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 }
 
 type contextMenuHandlerImpl struct {
-	rawPtr *capi.CEFContextMenuHandlerT
+	rawPtr      *capi.CEFContextMenuHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *contextMenuHandlerImpl) OnBeforeContextMenu(browser Browser, frame Frame, params ContextMenuParams, model MenuModel) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnBeforeContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)))
 }
 
 func (obj *contextMenuHandlerImpl) RunContextMenu(browser Browser, frame Frame, params ContextMenuParams, model MenuModel, callback RunContextMenuCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallRunContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *contextMenuHandlerImpl) OnContextMenuCommand(browser Browser, frame Frame, params ContextMenuParams, commandID int32, eventFlags EventFlags) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnContextMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(commandID), uintptr(eventFlags))
 	return int32(ret)
 }
 
 func (obj *contextMenuHandlerImpl) OnContextMenuDismissed(browser Browser, frame Frame) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnContextMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *contextMenuHandlerImpl) RunQuickMenu(browser Browser, frame Frame, location *Point, size *Size, editStateFlags QuickMenuEditStateFlags, callback RunQuickMenuCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallRunQuickMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(location)), uintptr(unsafe.Pointer(size)), uintptr(editStateFlags), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *contextMenuHandlerImpl) OnQuickMenuCommand(browser Browser, frame Frame, commandID int32, eventFlags EventFlags) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnQuickMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(commandID), uintptr(eventFlags))
 	return int32(ret)
 }
 
 func (obj *contextMenuHandlerImpl) OnQuickMenuDismissed(browser Browser, frame Frame) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnQuickMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *contextMenuHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *contextMenuHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapContextMenuHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -253,123 +314,192 @@ func wrapContextMenuHandler(ptr unsafe.Pointer) ContextMenuHandler {
 type ContextMenuParams = portin.ContextMenuParams
 
 type contextMenuParamsImpl struct {
-	rawPtr *capi.CEFContextMenuParamsT
+	rawPtr      *capi.CEFContextMenuParamsT
+	releaseOnce sync.Once
 }
 
 func (obj *contextMenuParamsImpl) GetXcoord() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetXcoord()
 	return int32(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetYcoord() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetYcoord()
 	return int32(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetTypeFlags() ContextMenuTypeFlags {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetTypeFlags()
 	return ContextMenuTypeFlags(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetLinkURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetLinkURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetUnfilteredLinkURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetUnfilteredLinkURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetSourceURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetSourceURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) HasImageContents() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasImageContents()
 	return ret != 0
 }
 
 func (obj *contextMenuParamsImpl) GetTitleText() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetTitleText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetPageURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetPageURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetFrameURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetFrameURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetFrameCharset() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetFrameCharset()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetMediaType() ContextMenuMediaType {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetMediaType()
 	return ContextMenuMediaType(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetMediaStateFlags() ContextMenuMediaStateFlags {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetMediaStateFlags()
 	return ContextMenuMediaStateFlags(ret)
 }
 
 func (obj *contextMenuParamsImpl) GetSelectionText() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetSelectionText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetMisspelledWord() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetMisspelledWord()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions StringList) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetDictionarySuggestions(uintptr(suggestions))
 	return int32(ret)
 }
 
 func (obj *contextMenuParamsImpl) IsEditable() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsEditable()
 	return ret != 0
 }
 
 func (obj *contextMenuParamsImpl) IsSpellCheckEnabled() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSpellCheckEnabled()
 	return ret != 0
 }
 
 func (obj *contextMenuParamsImpl) GetEditStateFlags() ContextMenuEditStateFlags {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetEditStateFlags()
 	return ContextMenuEditStateFlags(ret)
 }
 
 func (obj *contextMenuParamsImpl) IsCustomMenu() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsCustomMenu()
 	return ret != 0
 }
 
 func (obj *contextMenuParamsImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *contextMenuParamsImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapContextMenuParams(ptr unsafe.Pointer) ContextMenuParams {

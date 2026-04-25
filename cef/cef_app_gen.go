@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -96,48 +97,72 @@ func NewApp(impl App) App {
 }
 
 type appImpl struct {
-	rawPtr *capi.CEFAppT
+	rawPtr      *capi.CEFAppT
+	releaseOnce sync.Once
 }
 
 func (obj *appImpl) OnBeforeCommandLineProcessing(processType string, commandLine CommandLine) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	processTypeStr := cefString(processType)
 	defer freeCefString(&processTypeStr)
 	obj.rawPtr.CallOnBeforeCommandLineProcessing(uintptr(unsafe.Pointer(&processTypeStr)), uintptr(extractRawPointer(commandLine)))
 }
 
 func (obj *appImpl) OnRegisterCustomSchemes(registrar SchemeRegistrar) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnRegisterCustomSchemes(uintptr(extractRawPointer(registrar)))
 }
 
 func (obj *appImpl) GetResourceBundleHandler() ResourceBundleHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetResourceBundleHandler()
 	return wrapResourceBundleHandler(unsafe.Pointer(ret))
 }
 
 func (obj *appImpl) GetBrowserProcessHandler() BrowserProcessHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetBrowserProcessHandler()
 	return wrapBrowserProcessHandler(unsafe.Pointer(ret))
 }
 
 func (obj *appImpl) GetRenderProcessHandler() RenderProcessHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetRenderProcessHandler()
 	return wrapRenderProcessHandler(unsafe.Pointer(ret))
 }
 
 func (obj *appImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *appImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapApp wraps a CEF handler pointer received from CEF into a thin Go façade.

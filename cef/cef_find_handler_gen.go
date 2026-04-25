@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -53,27 +54,39 @@ func NewFindHandler(impl FindHandler) FindHandler {
 }
 
 type findHandlerImpl struct {
-	rawPtr *capi.CEFFindHandlerT
+	rawPtr      *capi.CEFFindHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *findHandlerImpl) OnFindResult(browser Browser, identifier int32, count int32, selectionrect *Rect, activematchordinal int32, finalupdate int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnFindResult(uintptr(extractRawPointer(browser)), uintptr(identifier), uintptr(count), uintptr(unsafe.Pointer(selectionrect)), uintptr(activematchordinal), uintptr(finalupdate))
 }
 
 func (obj *findHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *findHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapFindHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

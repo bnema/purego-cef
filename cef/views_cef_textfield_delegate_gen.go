@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -54,32 +55,47 @@ func NewTextfieldDelegate(impl TextfieldDelegate) TextfieldDelegate {
 }
 
 type textfieldDelegateImpl struct {
-	rawPtr *capi.CEFTextfieldDelegateT
+	rawPtr      *capi.CEFTextfieldDelegateT
+	releaseOnce sync.Once
 }
 
 func (obj *textfieldDelegateImpl) OnKeyEvent(textfield Textfield, event *KeyEvent) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(textfield)), uintptr(unsafe.Pointer(event)))
 	return int32(ret)
 }
 
 func (obj *textfieldDelegateImpl) OnAfterUserAction(textfield Textfield) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnAfterUserAction(uintptr(extractRawPointer(textfield)))
 }
 
 func (obj *textfieldDelegateImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *textfieldDelegateImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapTextfieldDelegate wraps a CEF handler pointer received from CEF into a thin Go façade.

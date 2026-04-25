@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -48,27 +49,39 @@ func NewDomvisitor(impl Domvisitor) Domvisitor {
 }
 
 type domvisitorImpl struct {
-	rawPtr *capi.CEFDomvisitorT
+	rawPtr      *capi.CEFDomvisitorT
+	releaseOnce sync.Once
 }
 
 func (obj *domvisitorImpl) Visit(document Domdocument) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallVisit(uintptr(extractRawPointer(document)))
 }
 
 func (obj *domvisitorImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *domvisitorImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapDomvisitor wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -88,35 +101,54 @@ func wrapDomvisitor(ptr unsafe.Pointer) Domvisitor {
 type Domdocument = portin.Domdocument
 
 type domdocumentImpl struct {
-	rawPtr *capi.CEFDomdocumentT
+	rawPtr      *capi.CEFDomdocumentT
+	releaseOnce sync.Once
 }
 
 func (obj *domdocumentImpl) GetType() DomDocumentType {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetType()
 	return DomDocumentType(ret)
 }
 
 func (obj *domdocumentImpl) GetDocument() Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDocument()
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
 func (obj *domdocumentImpl) GetBody() Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetBody()
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
 func (obj *domdocumentImpl) GetHead() Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetHead()
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
 func (obj *domdocumentImpl) GetTitle() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetTitle()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *domdocumentImpl) GetElementByID(iD string) Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	iDStr := cefString(iD)
 	defer freeCefString(&iDStr)
 	ret := obj.rawPtr.CallGetElementByID(uintptr(unsafe.Pointer(&iDStr)))
@@ -124,41 +156,65 @@ func (obj *domdocumentImpl) GetElementByID(iD string) Domnode {
 }
 
 func (obj *domdocumentImpl) GetFocusedNode() Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFocusedNode()
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
 func (obj *domdocumentImpl) HasSelection() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasSelection()
 	return ret != 0
 }
 
 func (obj *domdocumentImpl) GetSelectionStartOffset() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetSelectionStartOffset()
 	return int32(ret)
 }
 
 func (obj *domdocumentImpl) GetSelectionEndOffset() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetSelectionEndOffset()
 	return int32(ret)
 }
 
 func (obj *domdocumentImpl) GetSelectionAsMarkup() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetSelectionAsMarkup()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *domdocumentImpl) GetSelectionAsText() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetSelectionAsText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *domdocumentImpl) GetBaseURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetBaseURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *domdocumentImpl) GetCompleteURL(partialurl string) string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	partialurlStr := cefString(partialurl)
 	defer freeCefString(&partialurlStr)
 	ret := obj.rawPtr.CallGetCompleteURL(uintptr(unsafe.Pointer(&partialurlStr)))
@@ -166,19 +222,27 @@ func (obj *domdocumentImpl) GetCompleteURL(partialurl string) string {
 }
 
 func (obj *domdocumentImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *domdocumentImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapDomdocument(ptr unsafe.Pointer) Domdocument {
@@ -197,55 +261,86 @@ func wrapDomdocument(ptr unsafe.Pointer) Domdocument {
 type Domnode = portin.Domnode
 
 type domnodeImpl struct {
-	rawPtr *capi.CEFDomnodeT
+	rawPtr      *capi.CEFDomnodeT
+	releaseOnce sync.Once
 }
 
 func (obj *domnodeImpl) GetType() DomNodeType {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetType()
 	return DomNodeType(ret)
 }
 
 func (obj *domnodeImpl) IsText() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsText()
 	return ret != 0
 }
 
 func (obj *domnodeImpl) IsElement() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsElement()
 	return ret != 0
 }
 
 func (obj *domnodeImpl) IsEditable() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsEditable()
 	return ret != 0
 }
 
 func (obj *domnodeImpl) IsFormControlElement() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsFormControlElement()
 	return ret != 0
 }
 
 func (obj *domnodeImpl) GetFormControlElementType() DomFormControlType {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetFormControlElementType()
 	return DomFormControlType(ret)
 }
 
 func (obj *domnodeImpl) IsSame(that Domnode) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
 func (obj *domnodeImpl) GetName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) GetValue() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetValue()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) SetValue(value string) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
 	ret := obj.rawPtr.CallSetValue(uintptr(unsafe.Pointer(&valueStr)))
@@ -253,56 +348,89 @@ func (obj *domnodeImpl) SetValue(value string) int32 {
 }
 
 func (obj *domnodeImpl) GetAsMarkup() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetAsMarkup()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) GetDocument() Domdocument {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDocument()
 	return wrapDomdocument(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) GetParent() Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetParent()
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) GetPreviousSibling() Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetPreviousSibling()
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) GetNextSibling() Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetNextSibling()
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) HasChildren() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasChildren()
 	return ret != 0
 }
 
 func (obj *domnodeImpl) GetFirstChild() Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFirstChild()
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) GetLastChild() Domnode {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetLastChild()
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) GetElementTagName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetElementTagName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) HasElementAttributes() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasElementAttributes()
 	return ret != 0
 }
 
 func (obj *domnodeImpl) HasElementAttribute(attrname string) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	attrnameStr := cefString(attrname)
 	defer freeCefString(&attrnameStr)
 	ret := obj.rawPtr.CallHasElementAttribute(uintptr(unsafe.Pointer(&attrnameStr)))
@@ -310,6 +438,9 @@ func (obj *domnodeImpl) HasElementAttribute(attrname string) bool {
 }
 
 func (obj *domnodeImpl) GetElementAttribute(attrname string) string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	attrnameStr := cefString(attrname)
 	defer freeCefString(&attrnameStr)
 	ret := obj.rawPtr.CallGetElementAttribute(uintptr(unsafe.Pointer(&attrnameStr)))
@@ -317,10 +448,16 @@ func (obj *domnodeImpl) GetElementAttribute(attrname string) string {
 }
 
 func (obj *domnodeImpl) GetElementAttributes(attrmap StringMap) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallGetElementAttributes(uintptr(attrmap))
 }
 
 func (obj *domnodeImpl) SetElementAttribute(attrname string, value string) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	attrnameStr := cefString(attrname)
 	defer freeCefString(&attrnameStr)
 	valueStr := cefString(value)
@@ -330,29 +467,43 @@ func (obj *domnodeImpl) SetElementAttribute(attrname string, value string) int32
 }
 
 func (obj *domnodeImpl) GetElementInnerText() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetElementInnerText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *domnodeImpl) GetElementBounds() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetElementBounds()
 	return uintptr(ret)
 }
 
 func (obj *domnodeImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *domnodeImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapDomnode(ptr unsafe.Pointer) Domnode {

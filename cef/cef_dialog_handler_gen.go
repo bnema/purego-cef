@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,31 +18,46 @@ import (
 type FileDialogCallback = portin.FileDialogCallback
 
 type fileDialogCallbackImpl struct {
-	rawPtr *capi.CEFFileDialogCallbackT
+	rawPtr      *capi.CEFFileDialogCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *fileDialogCallbackImpl) Cont(filePaths StringList) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCont(uintptr(filePaths))
 }
 
 func (obj *fileDialogCallbackImpl) Cancel() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCancel()
 }
 
 func (obj *fileDialogCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *fileDialogCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapFileDialogCallback(ptr unsafe.Pointer) FileDialogCallback {
@@ -98,10 +114,14 @@ func NewDialogHandler(impl DialogHandler) DialogHandler {
 }
 
 type dialogHandlerImpl struct {
-	rawPtr *capi.CEFDialogHandlerT
+	rawPtr      *capi.CEFDialogHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *dialogHandlerImpl) OnFileDialog(browser Browser, mode FileDialogMode, title string, defaultFilePath string, acceptFilters StringList, acceptExtensions StringList, acceptDescriptions StringList, callback FileDialogCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
 	defaultFilePathStr := cefString(defaultFilePath)
@@ -111,19 +131,27 @@ func (obj *dialogHandlerImpl) OnFileDialog(browser Browser, mode FileDialogMode,
 }
 
 func (obj *dialogHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *dialogHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapDialogHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

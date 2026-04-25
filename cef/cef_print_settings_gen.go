@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,53 +16,84 @@ import (
 type PrintSettings = portin.PrintSettings
 
 type printSettingsImpl struct {
-	rawPtr *capi.CEFPrintSettingsT
+	rawPtr      *capi.CEFPrintSettingsT
+	releaseOnce sync.Once
 }
 
 func (obj *printSettingsImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *printSettingsImpl) IsReadOnly() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
 func (obj *printSettingsImpl) SetOrientation(landscape int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetOrientation(uintptr(landscape))
 }
 
 func (obj *printSettingsImpl) IsLandscape() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsLandscape()
 	return ret != 0
 }
 
 func (obj *printSettingsImpl) SetPrinterPrintableArea(physicalSizeDeviceUnits *Size, printableAreaDeviceUnits *Rect, landscapeNeedsFlip int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetPrinterPrintableArea(uintptr(unsafe.Pointer(physicalSizeDeviceUnits)), uintptr(unsafe.Pointer(printableAreaDeviceUnits)), uintptr(landscapeNeedsFlip))
 }
 
 func (obj *printSettingsImpl) SetDeviceName(name string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	obj.rawPtr.CallSetDeviceName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *printSettingsImpl) GetDeviceName() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetDeviceName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *printSettingsImpl) SetDpi(dpi int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetDpi(uintptr(dpi))
 }
 
 func (obj *printSettingsImpl) GetDpi() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetDpi()
 	return int32(ret)
 }
 
 func (obj *printSettingsImpl) SetPageRanges(ranges []Range) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	var rangesPtr unsafe.Pointer
 	if len(ranges) > 0 {
 		rangesPtr = unsafe.Pointer(&ranges[0])
@@ -70,11 +102,17 @@ func (obj *printSettingsImpl) SetPageRanges(ranges []Range) {
 }
 
 func (obj *printSettingsImpl) GetPageRangesCount() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPageRangesCount()
 	return int(ret)
 }
 
 func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges []Range) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	var rangesPtr unsafe.Pointer
 	rangesCountPtr := rangescount
 	if rangesCountPtr == nil {
@@ -90,64 +128,102 @@ func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges []Range) {
 }
 
 func (obj *printSettingsImpl) SetSelectionOnly(selectionOnly int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetSelectionOnly(uintptr(selectionOnly))
 }
 
 func (obj *printSettingsImpl) IsSelectionOnly() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSelectionOnly()
 	return ret != 0
 }
 
 func (obj *printSettingsImpl) SetCollate(collate int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetCollate(uintptr(collate))
 }
 
 func (obj *printSettingsImpl) WillCollate() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallWillCollate()
 	return int32(ret)
 }
 
 func (obj *printSettingsImpl) SetColorModel(model ColorModel) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetColorModel(uintptr(model))
 }
 
 func (obj *printSettingsImpl) GetColorModel() ColorModel {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetColorModel()
 	return ColorModel(ret)
 }
 
 func (obj *printSettingsImpl) SetCopies(copies int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetCopies(uintptr(copies))
 }
 
 func (obj *printSettingsImpl) GetCopies() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetCopies()
 	return int32(ret)
 }
 
 func (obj *printSettingsImpl) SetDuplexMode(mode DuplexMode) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetDuplexMode(uintptr(mode))
 }
 
 func (obj *printSettingsImpl) GetDuplexMode() DuplexMode {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetDuplexMode()
 	return DuplexMode(ret)
 }
 
 func (obj *printSettingsImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *printSettingsImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapPrintSettings(ptr unsafe.Pointer) PrintSettings {

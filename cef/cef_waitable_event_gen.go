@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,47 +16,74 @@ import (
 type WaitableEvent = portin.WaitableEvent
 
 type waitableEventImpl struct {
-	rawPtr *capi.CEFWaitableEventT
+	rawPtr        *capi.CEFWaitableEventT
+	releaseOnce   sync.Once
+	timedWaitOnce sync.Once
+	timedWaitFunc func(*capi.CEFWaitableEventT, int64) uintptr
 }
 
 func (obj *waitableEventImpl) Reset() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallReset()
 }
 
 func (obj *waitableEventImpl) Signal() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSignal()
 }
 
 func (obj *waitableEventImpl) IsSignaled() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSignaled()
 	return ret != 0
 }
 
 func (obj *waitableEventImpl) Wait() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallWait()
 }
 
 func (obj *waitableEventImpl) TimedWait(maxMs int64) int32 {
-	var fn func(*capi.CEFWaitableEventT, int64) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.TimedWait)
-	ret := fn(obj.rawPtr, maxMs)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.timedWaitOnce.Do(func() {
+		registerTypedCallback(&obj.timedWaitFunc, obj.rawPtr.TimedWait)
+	})
+	ret := obj.timedWaitFunc(obj.rawPtr, maxMs)
 	return int32(ret)
 }
 
 func (obj *waitableEventImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *waitableEventImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapWaitableEvent(ptr unsafe.Pointer) WaitableEvent {

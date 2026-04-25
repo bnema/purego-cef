@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,270 +16,435 @@ import (
 type View = portin.View
 
 type viewImpl struct {
-	rawPtr *capi.CEFViewT
+	rawPtr      *capi.CEFViewT
+	releaseOnce sync.Once
 }
 
 func (obj *viewImpl) AsBrowserView() BrowserView {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAsBrowserView()
 	return wrapBrowserView(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) AsButton() Button {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAsButton()
 	return wrapButton(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) AsPanel() Panel {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAsPanel()
 	return wrapPanel(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) AsScrollView() ScrollView {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAsScrollView()
 	return wrapScrollView(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) AsTextfield() Textfield {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallAsTextfield()
 	return wrapTextfield(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) GetTypeString() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetTypeString()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) ToString(includeChildren int32) string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallToString(uintptr(includeChildren))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *viewImpl) IsAttached() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsAttached()
 	return ret != 0
 }
 
 func (obj *viewImpl) IsSame(that View) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
 func (obj *viewImpl) GetDelegate() ViewDelegate {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDelegate()
 	return wrapViewDelegate(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) GetWindow() Window {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetWindow()
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) GetID() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetID()
 	return int32(ret)
 }
 
 func (obj *viewImpl) SetID(iD int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetID(uintptr(iD))
 }
 
 func (obj *viewImpl) GetGroupID() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetGroupID()
 	return int32(ret)
 }
 
 func (obj *viewImpl) SetGroupID(groupID int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetGroupID(uintptr(groupID))
 }
 
 func (obj *viewImpl) GetParentView() View {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetParentView()
 	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) GetViewForID(iD int32) View {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetViewForID(uintptr(iD))
 	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *viewImpl) SetBounds(bounds *Rect) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
 }
 
 func (obj *viewImpl) GetBounds() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBounds()
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) GetBoundsInScreen() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBoundsInScreen()
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) SetSize(size *Size) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *viewImpl) GetSize() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetSize()
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) SetPosition(position *Point) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
 }
 
 func (obj *viewImpl) GetPosition() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPosition()
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) SetInsets(insets *Insets) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
 }
 
 func (obj *viewImpl) GetInsets() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetInsets()
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) GetPreferredSize() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetPreferredSize()
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) SizeToPreferredSize() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSizeToPreferredSize()
 }
 
 func (obj *viewImpl) GetMinimumSize() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetMinimumSize()
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) GetMaximumSize() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetMaximumSize()
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) GetHeightForWidth(width int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetHeightForWidth(uintptr(width))
 	return int32(ret)
 }
 
 func (obj *viewImpl) InvalidateLayout() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallInvalidateLayout()
 }
 
 func (obj *viewImpl) SetVisible(visible int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetVisible(uintptr(visible))
 }
 
 func (obj *viewImpl) IsVisible() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsVisible()
 	return ret != 0
 }
 
 func (obj *viewImpl) IsDrawn() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsDrawn()
 	return ret != 0
 }
 
 func (obj *viewImpl) SetEnabled(enabled int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetEnabled(uintptr(enabled))
 }
 
 func (obj *viewImpl) IsEnabled() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsEnabled()
 	return ret != 0
 }
 
 func (obj *viewImpl) SetFocusable(focusable int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetFocusable(uintptr(focusable))
 }
 
 func (obj *viewImpl) IsFocusable() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsFocusable()
 	return ret != 0
 }
 
 func (obj *viewImpl) IsAccessibilityFocusable() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsAccessibilityFocusable()
 	return ret != 0
 }
 
 func (obj *viewImpl) HasFocus() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasFocus()
 	return ret != 0
 }
 
 func (obj *viewImpl) RequestFocus() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallRequestFocus()
 }
 
 func (obj *viewImpl) SetBackgroundColor(color uintptr) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetBackgroundColor(color)
 }
 
 func (obj *viewImpl) GetBackgroundColor() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBackgroundColor()
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) GetThemeColor(colorID int32) uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetThemeColor(uintptr(colorID))
 	return uintptr(ret)
 }
 
 func (obj *viewImpl) ConvertPointToScreen(point *Point) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallConvertPointToScreen(uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
 func (obj *viewImpl) ConvertPointFromScreen(point *Point) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallConvertPointFromScreen(uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
 func (obj *viewImpl) ConvertPointToWindow(point *Point) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallConvertPointToWindow(uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
 func (obj *viewImpl) ConvertPointFromWindow(point *Point) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallConvertPointFromWindow(uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
 func (obj *viewImpl) ConvertPointToView(view View, point *Point) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallConvertPointToView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
 func (obj *viewImpl) ConvertPointFromView(view View, point *Point) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallConvertPointFromView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
 func (obj *viewImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *viewImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapView(ptr unsafe.Pointer) View {

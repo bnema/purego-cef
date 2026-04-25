@@ -103,6 +103,20 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return "nil"
 			}
 		},
+		"zeroReturn": func(ret ReturnData) string {
+			switch {
+			case ret.IsBool:
+				return "false"
+			case ret.IsString:
+				return `""`
+			case ret.IsEnum, ret.IsNumeric:
+				return "0"
+			case ret.IsPointer, ret.IsInterface, ret.IsHandler, ret.IsDataStruct:
+				return "nil"
+			default:
+				return "nil"
+			}
+		},
 		"isEnumReturn": func(ret ReturnData) bool {
 			return ret.IsEnum
 		},

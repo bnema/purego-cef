@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,10 +16,14 @@ import (
 type AuthCallback = portin.AuthCallback
 
 type authCallbackImpl struct {
-	rawPtr *capi.CEFAuthCallbackT
+	rawPtr      *capi.CEFAuthCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *authCallbackImpl) Cont(username string, password string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	usernameStr := cefString(username)
 	defer freeCefString(&usernameStr)
 	passwordStr := cefString(password)
@@ -27,23 +32,34 @@ func (obj *authCallbackImpl) Cont(username string, password string) {
 }
 
 func (obj *authCallbackImpl) Cancel() {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallCancel()
 }
 
 func (obj *authCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *authCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapAuthCallback(ptr unsafe.Pointer) AuthCallback {

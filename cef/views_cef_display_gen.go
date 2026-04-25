@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,60 +16,96 @@ import (
 type Display = portin.Display
 
 type displayImpl struct {
-	rawPtr *capi.CEFDisplayT
+	rawPtr                   *capi.CEFDisplayT
+	releaseOnce              sync.Once
+	getIDOnce                sync.Once
+	getIDFunc                func(*capi.CEFDisplayT) int64
+	getDeviceScaleFactorOnce sync.Once
+	getDeviceScaleFactorFunc func(*capi.CEFDisplayT) float32
 }
 
 func (obj *displayImpl) GetID() int64 {
-	var fn func(*capi.CEFDisplayT) int64
-	registerTypedCallback(&fn, obj.rawPtr.GetID)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getIDOnce.Do(func() {
+		registerTypedCallback(&obj.getIDFunc, obj.rawPtr.GetID)
+	})
+	ret := obj.getIDFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *displayImpl) GetDeviceScaleFactor() float32 {
-	var fn func(*capi.CEFDisplayT) float32
-	registerTypedCallback(&fn, obj.rawPtr.GetDeviceScaleFactor)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.getDeviceScaleFactorOnce.Do(func() {
+		registerTypedCallback(&obj.getDeviceScaleFactorFunc, obj.rawPtr.GetDeviceScaleFactor)
+	})
+	ret := obj.getDeviceScaleFactorFunc(obj.rawPtr)
 	return ret
 }
 
 func (obj *displayImpl) ConvertPointToPixels(point *Point) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallConvertPointToPixels(uintptr(unsafe.Pointer(point)))
 }
 
 func (obj *displayImpl) ConvertPointFromPixels(point *Point) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallConvertPointFromPixels(uintptr(unsafe.Pointer(point)))
 }
 
 func (obj *displayImpl) GetBounds() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetBounds()
 	return uintptr(ret)
 }
 
 func (obj *displayImpl) GetWorkArea() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetWorkArea()
 	return uintptr(ret)
 }
 
 func (obj *displayImpl) GetRotation() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRotation()
 	return int32(ret)
 }
 
 func (obj *displayImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *displayImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapDisplay(ptr unsafe.Pointer) Display {

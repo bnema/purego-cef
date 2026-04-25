@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,42 +16,63 @@ import (
 type BrowserView = portin.BrowserView
 
 type browserViewImpl struct {
-	rawPtr *capi.CEFBrowserViewT
+	rawPtr      *capi.CEFBrowserViewT
+	releaseOnce sync.Once
 }
 
 func (obj *browserViewImpl) GetBrowser() Browser {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetBrowser()
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
 func (obj *browserViewImpl) GetChromeToolbar() View {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetChromeToolbar()
 	return wrapView(unsafe.Pointer(ret))
 }
 
 func (obj *browserViewImpl) SetPreferAccelerators(preferAccelerators int32) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSetPreferAccelerators(uintptr(preferAccelerators))
 }
 
 func (obj *browserViewImpl) GetRuntimeStyle() RuntimeStyle {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetRuntimeStyle()
 	return RuntimeStyle(ret)
 }
 
 func (obj *browserViewImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *browserViewImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapBrowserView(ptr unsafe.Pointer) BrowserView {

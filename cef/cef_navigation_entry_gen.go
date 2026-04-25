@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,73 +16,112 @@ import (
 type NavigationEntry = portin.NavigationEntry
 
 type navigationEntryImpl struct {
-	rawPtr *capi.CEFNavigationEntryT
+	rawPtr      *capi.CEFNavigationEntryT
+	releaseOnce sync.Once
 }
 
 func (obj *navigationEntryImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *navigationEntryImpl) GetURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) GetDisplayURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetDisplayURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) GetOriginalURL() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetOriginalURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) GetTitle() string {
+	if obj == nil || obj.rawPtr == nil {
+		return ""
+	}
 	ret := obj.rawPtr.CallGetTitle()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) GetTransitionType() TransitionType {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetTransitionType()
 	return TransitionType(ret)
 }
 
 func (obj *navigationEntryImpl) HasPostData() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallHasPostData()
 	return ret != 0
 }
 
 func (obj *navigationEntryImpl) GetCompletionTime() uintptr {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetCompletionTime()
 	return uintptr(ret)
 }
 
 func (obj *navigationEntryImpl) GetHttpStatusCode() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetHttpStatusCode()
 	return int32(ret)
 }
 
 func (obj *navigationEntryImpl) GetSslstatus() Sslstatus {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetSslstatus()
 	return wrapSslstatus(unsafe.Pointer(ret))
 }
 
 func (obj *navigationEntryImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *navigationEntryImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapNavigationEntry(ptr unsafe.Pointer) NavigationEntry {

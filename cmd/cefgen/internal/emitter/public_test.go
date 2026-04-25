@@ -110,10 +110,10 @@ func TestEmitPublicObjectInterface_UsesTypedPuregoForFloatMethods(t *testing.T) 
 	}
 
 	checks := []string{
-		`var fn func(*capi.CEFBrowserHostT) float64`,
-		`registerTypedCallback(&fn, obj.rawPtr.GetZoomLevel)`,
-		`var fn func(*capi.CEFBrowserHostT, float64)`,
-		`registerTypedCallback(&fn, obj.rawPtr.SetZoomLevel)`,
+		`getZoomLevelFunc func(*capi.CEFBrowserHostT) float64`,
+		`registerTypedCallback(&obj.getZoomLevelFunc, obj.rawPtr.GetZoomLevel)`,
+		`setZoomLevelFunc func(*capi.CEFBrowserHostT, float64)`,
+		`registerTypedCallback(&obj.setZoomLevelFunc, obj.rawPtr.SetZoomLevel)`,
 	}
 
 	for _, want := range checks {
@@ -445,7 +445,7 @@ func TestEmitPublicHandlerInterface_UsesTypedInt64CallbackParams(t *testing.T) {
 	}
 
 	checks := []string{
-		"registerTypedCallback(&fn, obj.rawPtr.",
+		"registerTypedCallback(&obj.onAudioStreamPacketFunc, obj.rawPtr.",
 		"func(self uintptr, arg0 int64)",
 	}
 	for _, want := range checks {

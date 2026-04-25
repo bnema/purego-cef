@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -17,27 +18,39 @@ import (
 type SelectClientCertificateCallback = portin.SelectClientCertificateCallback
 
 type selectClientCertificateCallbackImpl struct {
-	rawPtr *capi.CEFSelectClientCertificateCallbackT
+	rawPtr      *capi.CEFSelectClientCertificateCallbackT
+	releaseOnce sync.Once
 }
 
 func (obj *selectClientCertificateCallbackImpl) Select(cert X509Certificate) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallSelect(uintptr(extractRawPointer(cert)))
 }
 
 func (obj *selectClientCertificateCallbackImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *selectClientCertificateCallbackImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapSelectClientCertificateCallback(ptr unsafe.Pointer) SelectClientCertificateCallback {
@@ -187,15 +200,22 @@ func NewRequestHandler(impl RequestHandler) RequestHandler {
 }
 
 type requestHandlerImpl struct {
-	rawPtr *capi.CEFRequestHandlerT
+	rawPtr      *capi.CEFRequestHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *requestHandlerImpl) OnBeforeBrowse(browser Browser, frame Frame, request Request, userGesture int32, isRedirect int32) bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallOnBeforeBrowse(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(userGesture), uintptr(isRedirect))
 	return ret != 0
 }
 
 func (obj *requestHandlerImpl) OnOpenUrlfromTab(browser Browser, frame Frame, targetURL string, targetDisposition WindowOpenDisposition, userGesture int32) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	targetURLStr := cefString(targetURL)
 	defer freeCefString(&targetURLStr)
 	ret := obj.rawPtr.CallOnOpenUrlfromTab(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&targetURLStr)), uintptr(targetDisposition), uintptr(userGesture))
@@ -203,6 +223,9 @@ func (obj *requestHandlerImpl) OnOpenUrlfromTab(browser Browser, frame Frame, ta
 }
 
 func (obj *requestHandlerImpl) GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling *int32) ResourceRequestHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	requestInitiatorStr := cefString(requestInitiator)
 	defer freeCefString(&requestInitiatorStr)
 	ret := obj.rawPtr.CallGetResourceRequestHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(isNavigation), uintptr(isDownload), uintptr(unsafe.Pointer(&requestInitiatorStr)), uintptr(unsafe.Pointer(disableDefaultHandling)))
@@ -210,6 +233,9 @@ func (obj *requestHandlerImpl) GetResourceRequestHandler(browser Browser, frame 
 }
 
 func (obj *requestHandlerImpl) GetAuthCredentials(browser Browser, originURL string, isproxy int32, host string, port int32, realm string, scheme string, callback AuthCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	originURLStr := cefString(originURL)
 	defer freeCefString(&originURLStr)
 	hostStr := cefString(host)
@@ -223,6 +249,9 @@ func (obj *requestHandlerImpl) GetAuthCredentials(browser Browser, originURL str
 }
 
 func (obj *requestHandlerImpl) OnCertificateError(browser Browser, certError Errorcode, requestURL string, sslInfo Sslinfo, callback Callback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	requestURLStr := cefString(requestURL)
 	defer freeCefString(&requestURLStr)
 	ret := obj.rawPtr.CallOnCertificateError(uintptr(extractRawPointer(browser)), uintptr(certError), uintptr(unsafe.Pointer(&requestURLStr)), uintptr(extractRawPointer(sslInfo)), uintptr(extractRawPointer(callback)))
@@ -230,6 +259,9 @@ func (obj *requestHandlerImpl) OnCertificateError(browser Browser, certError Err
 }
 
 func (obj *requestHandlerImpl) OnSelectClientCertificate(browser Browser, isproxy int32, host string, port int32, certificates []X509Certificate, callback SelectClientCertificateCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	hostStr := cefString(host)
 	defer freeCefString(&hostStr)
 	var certificatesRaw []uintptr
@@ -246,42 +278,65 @@ func (obj *requestHandlerImpl) OnSelectClientCertificate(browser Browser, isprox
 }
 
 func (obj *requestHandlerImpl) OnRenderViewReady(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnRenderViewReady(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *requestHandlerImpl) OnRenderProcessUnresponsive(browser Browser, callback UnresponsiveProcessCallback) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnRenderProcessUnresponsive(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *requestHandlerImpl) OnRenderProcessResponsive(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnRenderProcessResponsive(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *requestHandlerImpl) OnRenderProcessTerminated(browser Browser, status TerminationStatus, errorCode int32, errorString string) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	errorStringStr := cefString(errorString)
 	defer freeCefString(&errorStringStr)
 	obj.rawPtr.CallOnRenderProcessTerminated(uintptr(extractRawPointer(browser)), uintptr(status), uintptr(errorCode), uintptr(unsafe.Pointer(&errorStringStr)))
 }
 
 func (obj *requestHandlerImpl) OnDocumentAvailableInMainFrame(browser Browser) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnDocumentAvailableInMainFrame(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *requestHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *requestHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapRequestHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

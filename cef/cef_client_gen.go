@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -303,118 +304,184 @@ func NewRawClient(impl RawClient) RawClient {
 }
 
 type rawClientImpl struct {
-	rawPtr *capi.CEFClientT
+	rawPtr      *capi.CEFClientT
+	releaseOnce sync.Once
 }
 
 func (obj *rawClientImpl) GetAudioHandler() RawAudioHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetAudioHandler()
 	return wrapAudioHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetCommandHandler() CommandHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetCommandHandler()
 	return wrapCommandHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetContextMenuHandler() ContextMenuHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetContextMenuHandler()
 	return wrapContextMenuHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetDialogHandler() DialogHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDialogHandler()
 	return wrapDialogHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetDisplayHandler() DisplayHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDisplayHandler()
 	return wrapDisplayHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetDownloadHandler() DownloadHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDownloadHandler()
 	return wrapDownloadHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetDragHandler() DragHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetDragHandler()
 	return wrapDragHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetFindHandler() FindHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFindHandler()
 	return wrapFindHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetFocusHandler() FocusHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFocusHandler()
 	return wrapFocusHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetFrameHandler() FrameHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetFrameHandler()
 	return wrapFrameHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetPermissionHandler() PermissionHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetPermissionHandler()
 	return wrapPermissionHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetJsdialogHandler() JsdialogHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetJsdialogHandler()
 	return wrapJsdialogHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetKeyboardHandler() KeyboardHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetKeyboardHandler()
 	return wrapKeyboardHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetLifeSpanHandler() RawLifeSpanHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetLifeSpanHandler()
 	return wrapLifeSpanHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetLoadHandler() LoadHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetLoadHandler()
 	return wrapLoadHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetPrintHandler() PrintHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetPrintHandler()
 	return wrapPrintHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetRenderHandler() RenderHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetRenderHandler()
 	return wrapRenderHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) GetRequestHandler() RequestHandler {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallGetRequestHandler()
 	return wrapRequestHandler(unsafe.Pointer(ret))
 }
 
 func (obj *rawClientImpl) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
 	return int32(ret)
 }
 
 func (obj *rawClientImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *rawClientImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapRawClient wraps a CEF handler pointer received from CEF into a thin Go façade.

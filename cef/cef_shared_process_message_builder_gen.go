@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -15,43 +16,64 @@ import (
 type SharedProcessMessageBuilder = portin.SharedProcessMessageBuilder
 
 type sharedProcessMessageBuilderImpl struct {
-	rawPtr *capi.CEFSharedProcessMessageBuilderT
+	rawPtr      *capi.CEFSharedProcessMessageBuilderT
+	releaseOnce sync.Once
 }
 
 func (obj *sharedProcessMessageBuilderImpl) IsValid() bool {
+	if obj == nil || obj.rawPtr == nil {
+		return false
+	}
 	ret := obj.rawPtr.CallIsValid()
 	return ret != 0
 }
 
 func (obj *sharedProcessMessageBuilderImpl) Size() int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallSize()
 	return int(ret)
 }
 
 func (obj *sharedProcessMessageBuilderImpl) Memory() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallMemory()
 	return unsafe.Pointer(ret)
 }
 
 func (obj *sharedProcessMessageBuilderImpl) Build() ProcessMessage {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	ret := obj.rawPtr.CallBuild()
 	return wrapProcessMessage(unsafe.Pointer(ret))
 }
 
 func (obj *sharedProcessMessageBuilderImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *sharedProcessMessageBuilderImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapSharedProcessMessageBuilder(ptr unsafe.Pointer) SharedProcessMessageBuilder {

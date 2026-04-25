@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -53,31 +54,46 @@ func NewAccessibilityHandler(impl AccessibilityHandler) AccessibilityHandler {
 }
 
 type accessibilityHandlerImpl struct {
-	rawPtr *capi.CEFAccessibilityHandlerT
+	rawPtr      *capi.CEFAccessibilityHandlerT
+	releaseOnce sync.Once
 }
 
 func (obj *accessibilityHandlerImpl) OnAccessibilityTreeChange(value Value) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnAccessibilityTreeChange(uintptr(extractRawPointer(value)))
 }
 
 func (obj *accessibilityHandlerImpl) OnAccessibilityLocationChange(value Value) {
+	if obj == nil || obj.rawPtr == nil {
+		return
+	}
 	obj.rawPtr.CallOnAccessibilityLocationChange(uintptr(extractRawPointer(value)))
 }
 
 func (obj *accessibilityHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *accessibilityHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapAccessibilityHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -39,8 +40,8 @@ func NewResourceBundleHandler(impl ResourceBundleHandler) ResourceBundleHandler 
 
 	r.OverrideGetLocalizedString(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		stringID := int32(arg0)
-		string := uintptr(arg1)
-		return uintptr(impl.GetLocalizedString(stringID, string))
+		string_ := uintptr(arg1)
+		return uintptr(impl.GetLocalizedString(stringID, string_))
 	}))
 
 	r.OverrideGetDataResource(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
@@ -64,38 +65,56 @@ func NewResourceBundleHandler(impl ResourceBundleHandler) ResourceBundleHandler 
 }
 
 type resourceBundleHandlerImpl struct {
-	rawPtr *capi.CEFResourceBundleHandlerT
+	rawPtr      *capi.CEFResourceBundleHandlerT
+	releaseOnce sync.Once
 }
 
-func (obj *resourceBundleHandlerImpl) GetLocalizedString(stringID int32, string uintptr) int32 {
-	ret := obj.rawPtr.CallGetLocalizedString(uintptr(stringID), string)
+func (obj *resourceBundleHandlerImpl) GetLocalizedString(stringID int32, string_ uintptr) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	ret := obj.rawPtr.CallGetLocalizedString(uintptr(stringID), string_)
 	return int32(ret)
 }
 
 func (obj *resourceBundleHandlerImpl) GetDataResource(resourceID int32, data unsafe.Pointer, dataSize *int) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetDataResource(uintptr(resourceID), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
 	return int32(ret)
 }
 
 func (obj *resourceBundleHandlerImpl) GetDataResourceForScale(resourceID int32, scaleFactor ScaleFactor, data unsafe.Pointer, dataSize *int) int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
 	return int32(ret)
 }
 
 func (obj *resourceBundleHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *resourceBundleHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapResourceBundleHandler wraps a CEF handler pointer received from CEF into a thin Go façade.

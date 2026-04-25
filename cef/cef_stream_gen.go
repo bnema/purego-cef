@@ -4,6 +4,7 @@ package cef
 
 import (
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"github.com/bnema/purego"
@@ -68,52 +69,82 @@ func NewReadHandler(impl ReadHandler) ReadHandler {
 }
 
 type readHandlerImpl struct {
-	rawPtr *capi.CEFReadHandlerT
+	rawPtr         *capi.CEFReadHandlerT
+	releaseOnce    sync.Once
+	seekOffsetOnce sync.Once
+	seekOffsetFunc func(*capi.CEFReadHandlerT, int64, uintptr) uintptr
+	tellOnce       sync.Once
+	tellFunc       func(*capi.CEFReadHandlerT) int64
 }
 
 func (obj *readHandlerImpl) Read(ptr unsafe.Pointer, size int, n int) int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
 	return int(ret)
 }
 
 func (obj *readHandlerImpl) SeekOffset(offset int64, whence int32) int32 {
-	var fn func(*capi.CEFReadHandlerT, int64, uintptr) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.Seek)
-	ret := fn(obj.rawPtr, offset, uintptr(whence))
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.seekOffsetOnce.Do(func() {
+		registerTypedCallback(&obj.seekOffsetFunc, obj.rawPtr.Seek)
+	})
+	ret := obj.seekOffsetFunc(obj.rawPtr, offset, uintptr(whence))
 	return int32(ret)
 }
 
 func (obj *readHandlerImpl) Tell() int64 {
-	var fn func(*capi.CEFReadHandlerT) int64
-	registerTypedCallback(&fn, obj.rawPtr.Tell)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.tellOnce.Do(func() {
+		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+	})
+	ret := obj.tellFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *readHandlerImpl) Eof() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallEof()
 	return int32(ret)
 }
 
 func (obj *readHandlerImpl) MayBlock() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallMayBlock()
 	return int32(ret)
 }
 
 func (obj *readHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *readHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapReadHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -133,52 +164,82 @@ func wrapReadHandler(ptr unsafe.Pointer) ReadHandler {
 type StreamReader = portin.StreamReader
 
 type streamReaderImpl struct {
-	rawPtr *capi.CEFStreamReaderT
+	rawPtr         *capi.CEFStreamReaderT
+	releaseOnce    sync.Once
+	seekOffsetOnce sync.Once
+	seekOffsetFunc func(*capi.CEFStreamReaderT, int64, uintptr) uintptr
+	tellOnce       sync.Once
+	tellFunc       func(*capi.CEFStreamReaderT) int64
 }
 
 func (obj *streamReaderImpl) Read(ptr unsafe.Pointer, size int, n int) int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
 	return int(ret)
 }
 
 func (obj *streamReaderImpl) SeekOffset(offset int64, whence int32) int32 {
-	var fn func(*capi.CEFStreamReaderT, int64, uintptr) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.Seek)
-	ret := fn(obj.rawPtr, offset, uintptr(whence))
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.seekOffsetOnce.Do(func() {
+		registerTypedCallback(&obj.seekOffsetFunc, obj.rawPtr.Seek)
+	})
+	ret := obj.seekOffsetFunc(obj.rawPtr, offset, uintptr(whence))
 	return int32(ret)
 }
 
 func (obj *streamReaderImpl) Tell() int64 {
-	var fn func(*capi.CEFStreamReaderT) int64
-	registerTypedCallback(&fn, obj.rawPtr.Tell)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.tellOnce.Do(func() {
+		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+	})
+	ret := obj.tellFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *streamReaderImpl) Eof() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallEof()
 	return int32(ret)
 }
 
 func (obj *streamReaderImpl) MayBlock() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallMayBlock()
 	return int32(ret)
 }
 
 func (obj *streamReaderImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *streamReaderImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapStreamReader(ptr unsafe.Pointer) StreamReader {
@@ -248,52 +309,82 @@ func NewWriteHandler(impl WriteHandler) WriteHandler {
 }
 
 type writeHandlerImpl struct {
-	rawPtr *capi.CEFWriteHandlerT
+	rawPtr         *capi.CEFWriteHandlerT
+	releaseOnce    sync.Once
+	seekOffsetOnce sync.Once
+	seekOffsetFunc func(*capi.CEFWriteHandlerT, int64, uintptr) uintptr
+	tellOnce       sync.Once
+	tellFunc       func(*capi.CEFWriteHandlerT) int64
 }
 
 func (obj *writeHandlerImpl) Write(ptr unsafe.Pointer, size int, n int) int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
 	return int(ret)
 }
 
 func (obj *writeHandlerImpl) SeekOffset(offset int64, whence int32) int32 {
-	var fn func(*capi.CEFWriteHandlerT, int64, uintptr) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.Seek)
-	ret := fn(obj.rawPtr, offset, uintptr(whence))
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.seekOffsetOnce.Do(func() {
+		registerTypedCallback(&obj.seekOffsetFunc, obj.rawPtr.Seek)
+	})
+	ret := obj.seekOffsetFunc(obj.rawPtr, offset, uintptr(whence))
 	return int32(ret)
 }
 
 func (obj *writeHandlerImpl) Tell() int64 {
-	var fn func(*capi.CEFWriteHandlerT) int64
-	registerTypedCallback(&fn, obj.rawPtr.Tell)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.tellOnce.Do(func() {
+		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+	})
+	ret := obj.tellFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *writeHandlerImpl) Flush() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallFlush()
 	return int32(ret)
 }
 
 func (obj *writeHandlerImpl) MayBlock() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallMayBlock()
 	return int32(ret)
 }
 
 func (obj *writeHandlerImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *writeHandlerImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 // wrapWriteHandler wraps a CEF handler pointer received from CEF into a thin Go façade.
@@ -313,52 +404,82 @@ func wrapWriteHandler(ptr unsafe.Pointer) WriteHandler {
 type StreamWriter = portin.StreamWriter
 
 type streamWriterImpl struct {
-	rawPtr *capi.CEFStreamWriterT
+	rawPtr         *capi.CEFStreamWriterT
+	releaseOnce    sync.Once
+	seekOffsetOnce sync.Once
+	seekOffsetFunc func(*capi.CEFStreamWriterT, int64, uintptr) uintptr
+	tellOnce       sync.Once
+	tellFunc       func(*capi.CEFStreamWriterT) int64
 }
 
 func (obj *streamWriterImpl) Write(ptr unsafe.Pointer, size int, n int) int {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
 	return int(ret)
 }
 
 func (obj *streamWriterImpl) SeekOffset(offset int64, whence int32) int32 {
-	var fn func(*capi.CEFStreamWriterT, int64, uintptr) uintptr
-	registerTypedCallback(&fn, obj.rawPtr.Seek)
-	ret := fn(obj.rawPtr, offset, uintptr(whence))
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.seekOffsetOnce.Do(func() {
+		registerTypedCallback(&obj.seekOffsetFunc, obj.rawPtr.Seek)
+	})
+	ret := obj.seekOffsetFunc(obj.rawPtr, offset, uintptr(whence))
 	return int32(ret)
 }
 
 func (obj *streamWriterImpl) Tell() int64 {
-	var fn func(*capi.CEFStreamWriterT) int64
-	registerTypedCallback(&fn, obj.rawPtr.Tell)
-	ret := fn(obj.rawPtr)
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
+	obj.tellOnce.Do(func() {
+		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+	})
+	ret := obj.tellFunc(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *streamWriterImpl) Flush() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallFlush()
 	return int32(ret)
 }
 
 func (obj *streamWriterImpl) MayBlock() int32 {
+	if obj == nil || obj.rawPtr == nil {
+		return 0
+	}
 	ret := obj.rawPtr.CallMayBlock()
 	return int32(ret)
 }
 
 func (obj *streamWriterImpl) RawPointer() unsafe.Pointer {
+	if obj == nil || obj.rawPtr == nil {
+		return nil
+	}
 	return unsafe.Pointer(obj.rawPtr)
 }
 
 // Release releases the underlying CEF object.
 func (obj *streamWriterImpl) Release() {
-	if obj.rawPtr == nil {
+	if obj == nil {
 		return
 	}
-	rawPtr := obj.rawPtr
-	obj.rawPtr = nil
-	runtime.SetFinalizer(obj, nil)
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
-	base.CallRelease()
+	obj.releaseOnce.Do(func() {
+		if obj.rawPtr == nil {
+			return
+		}
+		rawPtr := obj.rawPtr
+		obj.rawPtr = nil
+		runtime.SetFinalizer(obj, nil)
+		base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
+		base.CallRelease()
+	})
 }
 
 func wrapStreamWriter(ptr unsafe.Pointer) StreamWriter {
