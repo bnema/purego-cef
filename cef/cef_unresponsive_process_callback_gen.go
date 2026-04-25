@@ -32,7 +32,13 @@ func (obj *unresponsiveProcessCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *unresponsiveProcessCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -44,9 +50,6 @@ func wrapUnresponsiveProcessCallback(ptr unsafe.Pointer) UnresponsiveProcessCall
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &unresponsiveProcessCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *unresponsiveProcessCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*unresponsiveProcessCallbackImpl).Release)
 	return impl
 }

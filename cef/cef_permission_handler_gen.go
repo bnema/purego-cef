@@ -34,7 +34,13 @@ func (obj *mediaAccessCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *mediaAccessCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -46,10 +52,7 @@ func wrapMediaAccessCallback(ptr unsafe.Pointer) MediaAccessCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &mediaAccessCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *mediaAccessCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*mediaAccessCallbackImpl).Release)
 	return impl
 }
 
@@ -70,7 +73,13 @@ func (obj *permissionPromptCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *permissionPromptCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -82,10 +91,7 @@ func wrapPermissionPromptCallback(ptr unsafe.Pointer) PermissionPromptCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &permissionPromptCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *permissionPromptCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*permissionPromptCallbackImpl).Release)
 	return impl
 }
 
@@ -122,7 +128,7 @@ func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 		return uintptr(impl.OnRequestMediaAccessPermission(browser, frame, requestingOrigin, requestedPermissions, callback))
 	}))
 
-	r.OverrideOnShowPermissionPrompt(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+	r.OverrideOnShowPermissionPrompt(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		promptID := uint64(arg1)
 		requestingOrigin := goString(unsafe.Pointer(arg2))
@@ -131,7 +137,7 @@ func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 		return uintptr(impl.OnShowPermissionPrompt(browser, promptID, requestingOrigin, requestedPermissions, callback))
 	}))
 
-	r.OverrideOnDismissPermissionPrompt(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+	r.OverrideOnDismissPermissionPrompt(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		promptID := uint64(arg1)
 		result := PermissionRequestResult(arg2)
@@ -157,12 +163,16 @@ func (obj *permissionHandlerImpl) OnRequestMediaAccessPermission(browser Browser
 func (obj *permissionHandlerImpl) OnShowPermissionPrompt(browser Browser, promptID uint64, requestingOrigin string, requestedPermissions uint32, callback PermissionPromptCallback) int32 {
 	requestingOriginStr := cefString(requestingOrigin)
 	defer freeCefString(&requestingOriginStr)
-	ret := obj.rawPtr.CallOnShowPermissionPrompt(uintptr(extractRawPointer(browser)), uintptr(promptID), uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
+	var fn func(*capi.CEFPermissionHandlerT, uintptr, uint64, uintptr, uintptr, uintptr) uintptr
+	registerTypedCallback(&fn, obj.rawPtr.OnShowPermissionPrompt)
+	ret := fn(obj.rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
 func (obj *permissionHandlerImpl) OnDismissPermissionPrompt(browser Browser, promptID uint64, result PermissionRequestResult) {
-	obj.rawPtr.CallOnDismissPermissionPrompt(uintptr(extractRawPointer(browser)), uintptr(promptID), uintptr(result))
+	var fn func(*capi.CEFPermissionHandlerT, uintptr, uint64, uintptr)
+	registerTypedCallback(&fn, obj.rawPtr.OnDismissPermissionPrompt)
+	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(result))
 }
 
 func (obj *permissionHandlerImpl) RawPointer() unsafe.Pointer {
@@ -171,7 +181,13 @@ func (obj *permissionHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *permissionHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -184,9 +200,6 @@ func wrapPermissionHandler(ptr unsafe.Pointer) PermissionHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &permissionHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *permissionHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*permissionHandlerImpl).Release)
 	return impl
 }

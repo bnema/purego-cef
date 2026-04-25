@@ -89,7 +89,13 @@ func (obj *preferenceObserverImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *preferenceObserverImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -102,10 +108,7 @@ func wrapPreferenceObserver(ptr unsafe.Pointer) PreferenceObserver {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &preferenceObserverImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *preferenceObserverImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*preferenceObserverImpl).Release)
 	return impl
 }
 
@@ -162,7 +165,13 @@ func (obj *preferenceManagerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *preferenceManagerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -174,10 +183,7 @@ func wrapPreferenceManager(ptr unsafe.Pointer) PreferenceManager {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &preferenceManagerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *preferenceManagerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*preferenceManagerImpl).Release)
 	return impl
 }
 

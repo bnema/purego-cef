@@ -36,7 +36,9 @@ func (obj *waitableEventImpl) Wait() {
 }
 
 func (obj *waitableEventImpl) TimedWait(maxMs int64) int32 {
-	ret := obj.rawPtr.CallTimedWait(uintptr(maxMs))
+	var fn func(*capi.CEFWaitableEventT, int64) uintptr
+	registerTypedCallback(&fn, obj.rawPtr.TimedWait)
+	ret := fn(obj.rawPtr, maxMs)
 	return int32(ret)
 }
 
@@ -46,7 +48,13 @@ func (obj *waitableEventImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *waitableEventImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -58,10 +66,7 @@ func wrapWaitableEvent(ptr unsafe.Pointer) WaitableEvent {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &waitableEventImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *waitableEventImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*waitableEventImpl).Release)
 	return impl
 }
 

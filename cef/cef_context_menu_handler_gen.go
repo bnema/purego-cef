@@ -34,7 +34,13 @@ func (obj *runContextMenuCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *runContextMenuCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -46,10 +52,7 @@ func wrapRunContextMenuCallback(ptr unsafe.Pointer) RunContextMenuCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &runContextMenuCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *runContextMenuCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*runContextMenuCallbackImpl).Release)
 	return impl
 }
 
@@ -74,7 +77,13 @@ func (obj *runQuickMenuCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *runQuickMenuCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -86,10 +95,7 @@ func wrapRunQuickMenuCallback(ptr unsafe.Pointer) RunQuickMenuCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &runQuickMenuCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *runQuickMenuCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*runQuickMenuCallbackImpl).Release)
 	return impl
 }
 
@@ -220,7 +226,13 @@ func (obj *contextMenuHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *contextMenuHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -233,10 +245,7 @@ func wrapContextMenuHandler(ptr unsafe.Pointer) ContextMenuHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &contextMenuHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *contextMenuHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*contextMenuHandlerImpl).Release)
 	return impl
 }
 
@@ -353,7 +362,13 @@ func (obj *contextMenuParamsImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *contextMenuParamsImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -365,9 +380,6 @@ func wrapContextMenuParams(ptr unsafe.Pointer) ContextMenuParams {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &contextMenuParamsImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *contextMenuParamsImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*contextMenuParamsImpl).Release)
 	return impl
 }

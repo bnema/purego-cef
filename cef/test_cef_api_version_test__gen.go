@@ -281,7 +281,13 @@ func (obj *apiVersionTestImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -293,10 +299,7 @@ func wrapApiVersionTest(ptr unsafe.Pointer) ApiVersionTest {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestImpl).Release)
 	return impl
 }
 
@@ -358,7 +361,13 @@ func (obj *apiVersionTestRefPtrLibraryImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -370,10 +379,7 @@ func wrapApiVersionTestRefPtrLibrary(ptr unsafe.Pointer) ApiVersionTestRefPtrLib
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestRefPtrLibraryImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrLibraryImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrLibraryImpl).Release)
 	return impl
 }
 
@@ -399,7 +405,13 @@ func (obj *apiVersionTestRefPtrLibraryChildImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -411,10 +423,7 @@ func wrapApiVersionTestRefPtrLibraryChild(ptr unsafe.Pointer) ApiVersionTestRefP
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestRefPtrLibraryChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrLibraryChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrLibraryChildImpl).Release)
 	return impl
 }
 
@@ -440,7 +449,13 @@ func (obj *apiVersionTestRefPtrLibraryChildChildImpl) RawPointer() unsafe.Pointe
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryChildChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -452,10 +467,7 @@ func wrapApiVersionTestRefPtrLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestRefPtrLibraryChildChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrLibraryChildChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrLibraryChildChildImpl).Release)
 	return impl
 }
 
@@ -481,7 +493,13 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) RawPointer() unsafe.Poin
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -493,10 +511,7 @@ func wrapApiVersionTestRefPtrLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestRefPtrLibraryChildChildV1Impl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrLibraryChildChildV1Impl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrLibraryChildChildV1Impl).Release)
 	return impl
 }
 
@@ -522,7 +537,13 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) RawPointer() unsafe.Poin
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -534,10 +555,7 @@ func wrapApiVersionTestRefPtrLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionT
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestRefPtrLibraryChildChildV2Impl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrLibraryChildChildV2Impl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrLibraryChildChildV2Impl).Release)
 	return impl
 }
 
@@ -625,7 +643,13 @@ func (obj *apiVersionTestRefPtrClientImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrClientImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -638,10 +662,7 @@ func wrapApiVersionTestRefPtrClient(ptr unsafe.Pointer) ApiVersionTestRefPtrClie
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestRefPtrClientImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrClientImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrClientImpl).Release)
 	return impl
 }
 
@@ -702,7 +723,13 @@ func (obj *apiVersionTestRefPtrClientChildImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrClientChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -715,10 +742,7 @@ func wrapApiVersionTestRefPtrClientChild(ptr unsafe.Pointer) ApiVersionTestRefPt
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestRefPtrClientChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrClientChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrClientChildImpl).Release)
 	return impl
 }
 
@@ -779,7 +803,13 @@ func (obj *apiVersionTestRefPtrClientChildV2Impl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestRefPtrClientChildV2Impl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -792,10 +822,7 @@ func wrapApiVersionTestRefPtrClientChildV2(ptr unsafe.Pointer) ApiVersionTestRef
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestRefPtrClientChildV2Impl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestRefPtrClientChildV2Impl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrClientChildV2Impl).Release)
 	return impl
 }
 
@@ -885,7 +912,13 @@ func (obj *apiVersionTestScopedLibraryChildImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedLibraryChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -897,10 +930,7 @@ func wrapApiVersionTestScopedLibraryChild(ptr unsafe.Pointer) ApiVersionTestScop
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestScopedLibraryChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestScopedLibraryChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestScopedLibraryChildImpl).Release)
 	return impl
 }
 
@@ -926,7 +956,13 @@ func (obj *apiVersionTestScopedLibraryChildChildImpl) RawPointer() unsafe.Pointe
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedLibraryChildChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -938,10 +974,7 @@ func wrapApiVersionTestScopedLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestScopedLibraryChildChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestScopedLibraryChildChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestScopedLibraryChildChildImpl).Release)
 	return impl
 }
 
@@ -967,7 +1000,13 @@ func (obj *apiVersionTestScopedLibraryChildChildV1Impl) RawPointer() unsafe.Poin
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedLibraryChildChildV1Impl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -979,10 +1018,7 @@ func wrapApiVersionTestScopedLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestScopedLibraryChildChildV1Impl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestScopedLibraryChildChildV1Impl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestScopedLibraryChildChildV1Impl).Release)
 	return impl
 }
 
@@ -1008,7 +1044,13 @@ func (obj *apiVersionTestScopedLibraryChildChildV2Impl) RawPointer() unsafe.Poin
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedLibraryChildChildV2Impl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -1020,10 +1062,7 @@ func wrapApiVersionTestScopedLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionT
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestScopedLibraryChildChildV2Impl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestScopedLibraryChildChildV2Impl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestScopedLibraryChildChildV2Impl).Release)
 	return impl
 }
 
@@ -1174,7 +1213,13 @@ func (obj *apiVersionTestScopedClientChildImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedClientChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -1187,10 +1232,7 @@ func wrapApiVersionTestScopedClientChild(ptr unsafe.Pointer) ApiVersionTestScope
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestScopedClientChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestScopedClientChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestScopedClientChildImpl).Release)
 	return impl
 }
 
@@ -1251,7 +1293,13 @@ func (obj *apiVersionTestScopedClientChildV2Impl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *apiVersionTestScopedClientChildV2Impl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -1264,10 +1312,7 @@ func wrapApiVersionTestScopedClientChildV2(ptr unsafe.Pointer) ApiVersionTestSco
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &apiVersionTestScopedClientChildV2Impl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *apiVersionTestScopedClientChildV2Impl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*apiVersionTestScopedClientChildV2Impl).Release)
 	return impl
 }
 

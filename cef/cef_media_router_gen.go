@@ -50,7 +50,13 @@ func (obj *mediaRouterImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *mediaRouterImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -62,10 +68,7 @@ func wrapMediaRouter(ptr unsafe.Pointer) MediaRouter {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &mediaRouterImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *mediaRouterImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*mediaRouterImpl).Release)
 	return impl
 }
 
@@ -179,7 +182,13 @@ func (obj *mediaObserverImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *mediaObserverImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -192,10 +201,7 @@ func wrapMediaObserver(ptr unsafe.Pointer) MediaObserver {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &mediaObserverImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *mediaObserverImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*mediaObserverImpl).Release)
 	return impl
 }
 
@@ -235,7 +241,13 @@ func (obj *mediaRouteImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *mediaRouteImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -247,10 +259,7 @@ func wrapMediaRoute(ptr unsafe.Pointer) MediaRoute {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &mediaRouteImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *mediaRouteImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*mediaRouteImpl).Release)
 	return impl
 }
 
@@ -306,7 +315,13 @@ func (obj *mediaRouteCreateCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *mediaRouteCreateCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -319,10 +334,7 @@ func wrapMediaRouteCreateCallback(ptr unsafe.Pointer) MediaRouteCreateCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &mediaRouteCreateCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *mediaRouteCreateCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*mediaRouteCreateCallbackImpl).Release)
 	return impl
 }
 
@@ -373,7 +385,13 @@ func (obj *mediaSinkImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *mediaSinkImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -385,10 +403,7 @@ func wrapMediaSink(ptr unsafe.Pointer) MediaSink {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &mediaSinkImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *mediaSinkImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*mediaSinkImpl).Release)
 	return impl
 }
 
@@ -440,7 +455,13 @@ func (obj *mediaSinkDeviceInfoCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *mediaSinkDeviceInfoCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -453,10 +474,7 @@ func wrapMediaSinkDeviceInfoCallback(ptr unsafe.Pointer) MediaSinkDeviceInfoCall
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &mediaSinkDeviceInfoCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *mediaSinkDeviceInfoCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*mediaSinkDeviceInfoCallbackImpl).Release)
 	return impl
 }
 
@@ -488,7 +506,13 @@ func (obj *mediaSourceImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *mediaSourceImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -500,10 +524,7 @@ func wrapMediaSource(ptr unsafe.Pointer) MediaSource {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &mediaSourceImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *mediaSourceImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*mediaSourceImpl).Release)
 	return impl
 }
 

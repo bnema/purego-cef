@@ -34,7 +34,13 @@ func (obj *fileDialogCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *fileDialogCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -46,10 +52,7 @@ func wrapFileDialogCallback(ptr unsafe.Pointer) FileDialogCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &fileDialogCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *fileDialogCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*fileDialogCallbackImpl).Release)
 	return impl
 }
 
@@ -113,7 +116,13 @@ func (obj *dialogHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *dialogHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -126,9 +135,6 @@ func wrapDialogHandler(ptr unsafe.Pointer) DialogHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &dialogHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *dialogHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*dialogHandlerImpl).Release)
 	return impl
 }

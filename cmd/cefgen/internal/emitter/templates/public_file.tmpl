@@ -14,7 +14,7 @@ import (
 {{- if or .Interfaces .NeedsUnsafe .HasSizedDataStructs}}
 	"unsafe"
 {{- end}}
-{{- if or .HasHandlers .NeedsPuregoObjectCalls}}
+{{- if .HasHandlers}}
 
 	"github.com/bnema/purego"
 {{- end}}

@@ -49,7 +49,9 @@ func (obj *downloadItemImpl) GetInterruptReason() DownloadInterruptReason {
 }
 
 func (obj *downloadItemImpl) GetCurrentSpeed() int64 {
-	ret := obj.rawPtr.CallGetCurrentSpeed()
+	var fn func(*capi.CEFDownloadItemT) int64
+	registerTypedCallback(&fn, obj.rawPtr.GetCurrentSpeed)
+	ret := fn(obj.rawPtr)
 	return int64(ret)
 }
 
@@ -59,12 +61,16 @@ func (obj *downloadItemImpl) GetPercentComplete() int32 {
 }
 
 func (obj *downloadItemImpl) GetTotalBytes() int64 {
-	ret := obj.rawPtr.CallGetTotalBytes()
+	var fn func(*capi.CEFDownloadItemT) int64
+	registerTypedCallback(&fn, obj.rawPtr.GetTotalBytes)
+	ret := fn(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *downloadItemImpl) GetReceivedBytes() int64 {
-	ret := obj.rawPtr.CallGetReceivedBytes()
+	var fn func(*capi.CEFDownloadItemT) int64
+	registerTypedCallback(&fn, obj.rawPtr.GetReceivedBytes)
+	ret := fn(obj.rawPtr)
 	return int64(ret)
 }
 
@@ -124,7 +130,13 @@ func (obj *downloadItemImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *downloadItemImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -136,9 +148,6 @@ func wrapDownloadItem(ptr unsafe.Pointer) DownloadItem {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &downloadItemImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *downloadItemImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*downloadItemImpl).Release)
 	return impl
 }

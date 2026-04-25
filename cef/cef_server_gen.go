@@ -68,7 +68,9 @@ func (obj *serverImpl) SendHttp500Response(connectionID int32, errorMessage stri
 func (obj *serverImpl) SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders StringMultimap) {
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
-	obj.rawPtr.CallSendHttpResponse(uintptr(connectionID), uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(contentLength), uintptr(extraHeaders))
+	var fn func(*capi.CEFServerT, uintptr, uintptr, uintptr, int64, uintptr)
+	registerTypedCallback(&fn, obj.rawPtr.SendHttpResponse)
+	fn(obj.rawPtr, uintptr(connectionID), uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), contentLength, uintptr(extraHeaders))
 }
 
 func (obj *serverImpl) SendRawData(connectionID int32, data unsafe.Pointer, dataSize int) {
@@ -89,7 +91,13 @@ func (obj *serverImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *serverImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -101,10 +109,7 @@ func wrapServer(ptr unsafe.Pointer) Server {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &serverImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *serverImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*serverImpl).Release)
 	return impl
 }
 
@@ -236,7 +241,13 @@ func (obj *serverHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *serverHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -249,10 +260,7 @@ func wrapServerHandler(ptr unsafe.Pointer) ServerHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &serverHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *serverHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*serverHandlerImpl).Release)
 	return impl
 }
 

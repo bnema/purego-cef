@@ -209,7 +209,11 @@ func (obj *renderHandlerImpl) OnPaint(browser Browser, type_ PaintElementType, d
 	if len(dirtyrects) > 0 {
 		dirtyrectsPtr = unsafe.Pointer(&dirtyrects[0])
 	}
-	obj.rawPtr.CallOnPaint(uintptr(extractRawPointer(browser)), uintptr(type_), uintptr(len(dirtyrects)), uintptr(dirtyrectsPtr), uintptr(unsafe.Pointer(unsafe.SliceData(buffer))), uintptr(width), uintptr(height))
+	var bufferPtr unsafe.Pointer
+	if len(buffer) > 0 {
+		bufferPtr = unsafe.Pointer(&buffer[0])
+	}
+	obj.rawPtr.CallOnPaint(uintptr(extractRawPointer(browser)), uintptr(type_), uintptr(len(dirtyrects)), uintptr(dirtyrectsPtr), uintptr(bufferPtr), uintptr(width), uintptr(height))
 }
 
 func (obj *renderHandlerImpl) OnAcceleratedPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, info *AcceleratedPaintInfo) {
@@ -239,7 +243,7 @@ func (obj *renderHandlerImpl) UpdateDragCursor(browser Browser, operation DragOp
 
 func (obj *renderHandlerImpl) OnScrollOffsetChanged(browser Browser, x float64, y float64) {
 	var fn func(*capi.CEFRenderHandlerT, uintptr, float64, float64)
-	purego.RegisterFunc(&fn, obj.rawPtr.OnScrollOffsetChanged)
+	registerTypedCallback(&fn, obj.rawPtr.OnScrollOffsetChanged)
 	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), x, y)
 }
 
@@ -267,7 +271,13 @@ func (obj *renderHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *renderHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -280,9 +290,6 @@ func wrapRenderHandler(ptr unsafe.Pointer) RenderHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &renderHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *renderHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*renderHandlerImpl).Release)
 	return impl
 }

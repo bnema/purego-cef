@@ -132,7 +132,9 @@ func (obj *requestImpl) GetTransitionType() TransitionType {
 }
 
 func (obj *requestImpl) GetIdentifier() uint64 {
-	ret := obj.rawPtr.CallGetIdentifier()
+	var fn func(*capi.CEFRequestT) uint64
+	registerTypedCallback(&fn, obj.rawPtr.GetIdentifier)
+	ret := fn(obj.rawPtr)
 	return uint64(ret)
 }
 
@@ -142,7 +144,13 @@ func (obj *requestImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *requestImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -154,10 +162,7 @@ func wrapRequest(ptr unsafe.Pointer) Request {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &requestImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *requestImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*requestImpl).Release)
 	return impl
 }
 
@@ -229,7 +234,13 @@ func (obj *postDataImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *postDataImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -241,10 +252,7 @@ func wrapPostData(ptr unsafe.Pointer) PostData {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &postDataImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *postDataImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*postDataImpl).Release)
 	return impl
 }
 
@@ -300,7 +308,13 @@ func (obj *postDataElementImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *postDataElementImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -312,10 +326,7 @@ func wrapPostDataElement(ptr unsafe.Pointer) PostDataElement {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &postDataElementImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *postDataElementImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*postDataElementImpl).Release)
 	return impl
 }
 

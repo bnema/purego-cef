@@ -58,7 +58,7 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 		return uintptr(impl.OnAlreadyRunningAppRelaunch(commandLine, currentDirectory))
 	}))
 
-	r.OverrideOnScheduleMessagePumpWork(purego.NewCallback(func(self uintptr, arg0 uintptr) {
+	r.OverrideOnScheduleMessagePumpWork(purego.NewCallback(func(self uintptr, arg0 int64) {
 		delayMs := int64(arg0)
 		impl.OnScheduleMessagePumpWork(delayMs)
 	}))
@@ -120,7 +120,9 @@ func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine Co
 }
 
 func (obj *browserProcessHandlerImpl) OnScheduleMessagePumpWork(delayMs int64) {
-	obj.rawPtr.CallOnScheduleMessagePumpWork(uintptr(delayMs))
+	var fn func(*capi.CEFBrowserProcessHandlerT, int64)
+	registerTypedCallback(&fn, obj.rawPtr.OnScheduleMessagePumpWork)
+	fn(obj.rawPtr, delayMs)
 }
 
 func (obj *browserProcessHandlerImpl) GetDefaultClient() RawClient {
@@ -139,7 +141,13 @@ func (obj *browserProcessHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *browserProcessHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -152,9 +160,6 @@ func wrapBrowserProcessHandler(ptr unsafe.Pointer) BrowserProcessHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &browserProcessHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *browserProcessHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*browserProcessHandlerImpl).Release)
 	return impl
 }

@@ -60,7 +60,13 @@ func (obj *taskImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *taskImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -73,10 +79,7 @@ func wrapTask(ptr unsafe.Pointer) Task {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &taskImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *taskImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*taskImpl).Release)
 	return impl
 }
 
@@ -108,7 +111,9 @@ func (obj *taskRunnerImpl) PostTask(task Task) int32 {
 }
 
 func (obj *taskRunnerImpl) PostDelayedTask(task Task, delayMs int64) int32 {
-	ret := obj.rawPtr.CallPostDelayedTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), uintptr(delayMs))
+	var fn func(*capi.CEFTaskRunnerT, uintptr, int64) uintptr
+	registerTypedCallback(&fn, obj.rawPtr.PostDelayedTask)
+	ret := fn(obj.rawPtr, uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), delayMs)
 	return int32(ret)
 }
 
@@ -118,7 +123,13 @@ func (obj *taskRunnerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *taskRunnerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -130,10 +141,7 @@ func wrapTaskRunner(ptr unsafe.Pointer) TaskRunner {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &taskRunnerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *taskRunnerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*taskRunnerImpl).Release)
 	return impl
 }
 

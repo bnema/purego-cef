@@ -16,7 +16,7 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	{{- $hasPost := hasMarshalPostamble .Params}}
 	{{- if needsTypedObjectCall .}}
 	var fn {{typedObjectFuncSig $.RawGoName .}}
-	purego.RegisterFunc(&fn, obj.rawPtr.{{.RawFieldName}})
+	registerTypedCallback(&fn, obj.rawPtr.{{.RawFieldName}})
 	{{- if .Return.IsVoid}}
 	fn({{typedObjectCallArgs .}})
 	{{- range .Params}}{{with marshalPostamble .}}
@@ -95,7 +95,13 @@ func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
 {{else}}
 // Release releases the underlying CEF object.
 func (obj *{{lower .Name}}Impl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -107,10 +113,7 @@ func wrap{{.Name}}(ptr unsafe.Pointer) {{.Name}} {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &{{lower .Name}}Impl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *{{lower .Name}}Impl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*{{lower .Name}}Impl).Release)
 	return impl
 }
 {{end}}

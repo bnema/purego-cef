@@ -6,8 +6,6 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -67,7 +65,7 @@ func (obj *valueImpl) GetInt() int32 {
 
 func (obj *valueImpl) GetDouble() float64 {
 	var fn func(*capi.CEFValueT) float64
-	purego.RegisterFunc(&fn, obj.rawPtr.GetDouble)
+	registerTypedCallback(&fn, obj.rawPtr.GetDouble)
 	ret := fn(obj.rawPtr)
 	return ret
 }
@@ -109,7 +107,7 @@ func (obj *valueImpl) SetInt(value int32) int32 {
 
 func (obj *valueImpl) SetDouble(value float64) int32 {
 	var fn func(*capi.CEFValueT, float64) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.SetDouble)
+	registerTypedCallback(&fn, obj.rawPtr.SetDouble)
 	ret := fn(obj.rawPtr, value)
 	return int32(ret)
 }
@@ -142,7 +140,13 @@ func (obj *valueImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *valueImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -154,10 +158,7 @@ func wrapValue(ptr unsafe.Pointer) Value {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &valueImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *valueImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*valueImpl).Release)
 	return impl
 }
 
@@ -214,7 +215,13 @@ func (obj *binaryValueImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *binaryValueImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -226,10 +233,7 @@ func wrapBinaryValue(ptr unsafe.Pointer) BinaryValue {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &binaryValueImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *binaryValueImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*binaryValueImpl).Release)
 	return impl
 }
 
@@ -331,7 +335,7 @@ func (obj *dictionaryValueImpl) GetDouble(key string) float64 {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	var fn func(*capi.CEFDictionaryValueT, uintptr) float64
-	purego.RegisterFunc(&fn, obj.rawPtr.GetDouble)
+	registerTypedCallback(&fn, obj.rawPtr.GetDouble)
 	ret := fn(obj.rawPtr, uintptr(unsafe.Pointer(&keyStr)))
 	return ret
 }
@@ -396,7 +400,7 @@ func (obj *dictionaryValueImpl) SetDouble(key string, value float64) int32 {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	var fn func(*capi.CEFDictionaryValueT, uintptr, float64) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.SetDouble)
+	registerTypedCallback(&fn, obj.rawPtr.SetDouble)
 	ret := fn(obj.rawPtr, uintptr(unsafe.Pointer(&keyStr)), value)
 	return int32(ret)
 }
@@ -437,7 +441,13 @@ func (obj *dictionaryValueImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *dictionaryValueImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -449,10 +459,7 @@ func wrapDictionaryValue(ptr unsafe.Pointer) DictionaryValue {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &dictionaryValueImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *dictionaryValueImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*dictionaryValueImpl).Release)
 	return impl
 }
 
@@ -535,7 +542,7 @@ func (obj *listValueImpl) GetInt(index int) int32 {
 
 func (obj *listValueImpl) GetDouble(index int) float64 {
 	var fn func(*capi.CEFListValueT, uintptr) float64
-	purego.RegisterFunc(&fn, obj.rawPtr.GetDouble)
+	registerTypedCallback(&fn, obj.rawPtr.GetDouble)
 	ret := fn(obj.rawPtr, uintptr(index))
 	return ret
 }
@@ -582,7 +589,7 @@ func (obj *listValueImpl) SetInt(index int, value int32) int32 {
 
 func (obj *listValueImpl) SetDouble(index int, value float64) int32 {
 	var fn func(*capi.CEFListValueT, uintptr, float64) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.SetDouble)
+	registerTypedCallback(&fn, obj.rawPtr.SetDouble)
 	ret := fn(obj.rawPtr, uintptr(index), value)
 	return int32(ret)
 }
@@ -615,7 +622,13 @@ func (obj *listValueImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *listValueImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -627,10 +640,7 @@ func wrapListValue(ptr unsafe.Pointer) ListValue {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &listValueImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *listValueImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*listValueImpl).Release)
 	return impl
 }
 

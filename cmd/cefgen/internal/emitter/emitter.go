@@ -58,7 +58,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		case "dataStruct":
 			return "uintptr(unsafe.Pointer(" + p.Name + "))"
 		case "pixelBuffer":
-			return "uintptr(unsafe.Pointer(unsafe.SliceData(" + p.Name + ")))"
+			return "uintptr(" + p.Name + "Ptr)"
 		case "outCount":
 			return "uintptr(unsafe.Pointer(" + p.CountPartnerName + "CountPtr))"
 		case "outSlice", "outObjectSlice":
@@ -106,7 +106,8 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		"isEnumReturn": func(ret ReturnData) bool {
 			return ret.IsEnum
 		},
-		"isFloatPublicType": isFloatPublicType,
+		"isFloatPublicType":         isFloatPublicType,
+		"isTypedCallbackPublicType": isTypedCallbackPublicType,
 		"needsTypedObjectCall": func(m MethodData) bool {
 			return methodNeedsTypedObjectCall(m)
 		},
@@ -116,7 +117,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				switch {
 				case p.MarshalKind == "slice", p.MarshalKind == "objectSlice":
 					parts = append(parts, "uintptr", "uintptr")
-				case p.MarshalKind == "numeric" && isFloatPublicType(p.PublicType):
+				case p.MarshalKind == "numeric" && isTypedCallbackPublicType(p.PublicType):
 					parts = append(parts, p.PublicType)
 				default:
 					parts = append(parts, "uintptr")
@@ -124,7 +125,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			}
 			sig := "func(" + strings.Join(parts, ", ") + ")"
 			if !m.Return.IsVoid {
-				if m.Return.IsNumeric && isFloatPublicType(m.Return.PublicType) {
+				if m.Return.IsNumeric && isTypedCallbackPublicType(m.Return.PublicType) {
 					sig += " " + m.Return.PublicType
 				} else {
 					sig += " uintptr"
@@ -139,7 +140,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 					args = append(args, "uintptr(len("+p.Name+"))", "uintptr("+p.Name+"Ptr)")
 					continue
 				}
-				if p.MarshalKind == "numeric" && isFloatPublicType(p.PublicType) {
+				if p.MarshalKind == "numeric" && isTypedCallbackPublicType(p.PublicType) {
 					args = append(args, p.Name)
 					continue
 				}
@@ -189,6 +190,8 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return "var " + p.Name + "Ptr unsafe.Pointer\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "[0])\n\t}"
 			case "objectSlice":
 				return "var " + p.Name + "Raw []uintptr\n\tvar " + p.Name + "Ptr unsafe.Pointer\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Raw = make([]uintptr, len(" + p.Name + "))\n\t\tfor i, elem := range " + p.Name + " {\n\t\t\t" + p.Name + "Raw[i] = uintptr(extractRawPointer(elem))\n\t\t}\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "Raw[0])\n\t}"
+			case "pixelBuffer":
+				return "var " + p.Name + "Ptr unsafe.Pointer\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "[0])\n\t}"
 			case "outSlice":
 				return "var " + p.Name + "Ptr unsafe.Pointer\n\t" + p.Name + "CountPtr := " + p.CountParamName + "\n\tif " + p.Name + "CountPtr == nil {\n\t\t" + p.Name + "CountScratch := len(" + p.Name + ")\n\t\t" + p.Name + "CountPtr = &" + p.Name + "CountScratch\n\t} else {\n\t\t*" + p.Name + "CountPtr = len(" + p.Name + ")\n\t}\n\tif len(" + p.Name + ") > 0 {\n\t\t" + p.Name + "Ptr = unsafe.Pointer(&" + p.Name + "[0])\n\t}"
 			case "outObjectSlice":
@@ -251,7 +254,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				case "dataStruct":
 					return "uintptr(unsafe.Pointer(" + p.Name + "))"
 				case "pixelBuffer":
-					return "uintptr(unsafe.Pointer(unsafe.SliceData(" + p.Name + ")))"
+					return "uintptr(" + p.Name + "Ptr)"
 				case "outCount":
 					return "uintptr(unsafe.Pointer(" + p.CountPartnerName + "CountPtr))"
 				case "outSlice", "outObjectSlice":
@@ -334,6 +337,8 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				return "uintptr(" + p.Name + ")"
 			case "dataStruct":
 				return "uintptr(unsafe.Pointer(" + p.Name + "))"
+			case "pixelBuffer":
+				return "uintptr(" + p.Name + "Ptr)"
 			case "outCount":
 				return "uintptr(unsafe.Pointer(" + p.CountPartnerName + "CountPtr))"
 			case "outSlice", "outObjectSlice":

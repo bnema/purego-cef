@@ -57,7 +57,13 @@ func (obj *x509CertPrincipalImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *x509CertPrincipalImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -69,10 +75,7 @@ func wrapX509CertPrincipal(ptr unsafe.Pointer) X509CertPrincipal {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &x509CertPrincipalImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *x509CertPrincipalImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*x509CertPrincipalImpl).Release)
 	return impl
 }
 
@@ -181,7 +184,13 @@ func (obj *x509CertificateImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *x509CertificateImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -193,9 +202,6 @@ func wrapX509Certificate(ptr unsafe.Pointer) X509Certificate {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &x509CertificateImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *x509CertificateImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*x509CertificateImpl).Release)
 	return impl
 }

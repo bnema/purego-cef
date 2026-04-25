@@ -40,17 +40,23 @@ func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds []int64) i
 }
 
 func (obj *taskManagerImpl) GetTaskInfo(taskID int64, info *TaskInfo) int32 {
-	ret := obj.rawPtr.CallGetTaskInfo(uintptr(taskID), uintptr(unsafe.Pointer(info)))
+	var fn func(*capi.CEFTaskManagerT, int64, uintptr) uintptr
+	registerTypedCallback(&fn, obj.rawPtr.GetTaskInfo)
+	ret := fn(obj.rawPtr, taskID, uintptr(unsafe.Pointer(info)))
 	return int32(ret)
 }
 
 func (obj *taskManagerImpl) KillTask(taskID int64) int32 {
-	ret := obj.rawPtr.CallKillTask(uintptr(taskID))
+	var fn func(*capi.CEFTaskManagerT, int64) uintptr
+	registerTypedCallback(&fn, obj.rawPtr.KillTask)
+	ret := fn(obj.rawPtr, taskID)
 	return int32(ret)
 }
 
 func (obj *taskManagerImpl) GetTaskIDForBrowserID(browserID int32) int64 {
-	ret := obj.rawPtr.CallGetTaskIDForBrowserID(uintptr(browserID))
+	var fn func(*capi.CEFTaskManagerT, uintptr) int64
+	registerTypedCallback(&fn, obj.rawPtr.GetTaskIDForBrowserID)
+	ret := fn(obj.rawPtr, uintptr(browserID))
 	return int64(ret)
 }
 
@@ -60,7 +66,13 @@ func (obj *taskManagerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *taskManagerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -72,10 +84,7 @@ func wrapTaskManager(ptr unsafe.Pointer) TaskManager {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &taskManagerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *taskManagerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*taskManagerImpl).Release)
 	return impl
 }
 

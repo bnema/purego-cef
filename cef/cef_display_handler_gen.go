@@ -178,7 +178,7 @@ func (obj *displayHandlerImpl) OnAutoResize(browser Browser, newSize *Size) int3
 
 func (obj *displayHandlerImpl) OnLoadingProgressChange(browser Browser, progress float64) {
 	var fn func(*capi.CEFDisplayHandlerT, uintptr, float64)
-	purego.RegisterFunc(&fn, obj.rawPtr.OnLoadingProgressChange)
+	registerTypedCallback(&fn, obj.rawPtr.OnLoadingProgressChange)
 	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), progress)
 }
 
@@ -207,7 +207,13 @@ func (obj *displayHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *displayHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -220,9 +226,6 @@ func wrapDisplayHandler(ptr unsafe.Pointer) DisplayHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &displayHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *displayHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*displayHandlerImpl).Release)
 	return impl
 }

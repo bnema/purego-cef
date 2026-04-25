@@ -46,7 +46,9 @@ func (obj *zipReaderImpl) GetFileName() string {
 }
 
 func (obj *zipReaderImpl) GetFileSize() int64 {
-	ret := obj.rawPtr.CallGetFileSize()
+	var fn func(*capi.CEFZipReaderT) int64
+	registerTypedCallback(&fn, obj.rawPtr.GetFileSize)
+	ret := fn(obj.rawPtr)
 	return int64(ret)
 }
 
@@ -73,7 +75,9 @@ func (obj *zipReaderImpl) ReadFile(buffer unsafe.Pointer, buffersize int) int32 
 }
 
 func (obj *zipReaderImpl) Tell() int64 {
-	ret := obj.rawPtr.CallTell()
+	var fn func(*capi.CEFZipReaderT) int64
+	registerTypedCallback(&fn, obj.rawPtr.Tell)
+	ret := fn(obj.rawPtr)
 	return int64(ret)
 }
 
@@ -88,7 +92,13 @@ func (obj *zipReaderImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *zipReaderImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -100,10 +110,7 @@ func wrapZipReader(ptr unsafe.Pointer) ZipReader {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &zipReaderImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *zipReaderImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*zipReaderImpl).Release)
 	return impl
 }
 

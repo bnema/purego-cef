@@ -87,7 +87,13 @@ func (obj *v8ContextImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *v8ContextImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -99,10 +105,7 @@ func wrapV8Context(ptr unsafe.Pointer) V8Context {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &v8ContextImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *v8ContextImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*v8ContextImpl).Release)
 	return impl
 }
 
@@ -177,7 +180,13 @@ func (obj *v8HandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *v8HandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -190,10 +199,7 @@ func wrapV8Handler(ptr unsafe.Pointer) V8Handler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &v8HandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *v8HandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*v8HandlerImpl).Release)
 	return impl
 }
 
@@ -266,7 +272,13 @@ func (obj *v8AccessorImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *v8AccessorImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -279,10 +291,7 @@ func wrapV8Accessor(ptr unsafe.Pointer) V8Accessor {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &v8AccessorImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *v8AccessorImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*v8AccessorImpl).Release)
 	return impl
 }
 
@@ -381,7 +390,13 @@ func (obj *v8InterceptorImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *v8InterceptorImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -394,10 +409,7 @@ func wrapV8Interceptor(ptr unsafe.Pointer) V8Interceptor {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &v8InterceptorImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *v8InterceptorImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*v8InterceptorImpl).Release)
 	return impl
 }
 
@@ -454,7 +466,13 @@ func (obj *v8ExceptionImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *v8ExceptionImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -466,10 +484,7 @@ func wrapV8Exception(ptr unsafe.Pointer) V8Exception {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &v8ExceptionImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *v8ExceptionImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*v8ExceptionImpl).Release)
 	return impl
 }
 
@@ -521,7 +536,13 @@ func (obj *v8ArrayBufferReleaseCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *v8ArrayBufferReleaseCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -534,10 +555,7 @@ func wrapV8ArrayBufferReleaseCallback(ptr unsafe.Pointer) V8ArrayBufferReleaseCa
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &v8ArrayBufferReleaseCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *v8ArrayBufferReleaseCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*v8ArrayBufferReleaseCallbackImpl).Release)
 	return impl
 }
 
@@ -640,7 +658,7 @@ func (obj *v8ValueImpl) GetUintValue() uint32 {
 
 func (obj *v8ValueImpl) GetDoubleValue() float64 {
 	var fn func(*capi.CEFV8ValueT) float64
-	purego.RegisterFunc(&fn, obj.rawPtr.GetDoubleValue)
+	registerTypedCallback(&fn, obj.rawPtr.GetDoubleValue)
 	ret := fn(obj.rawPtr)
 	return ret
 }
@@ -846,7 +864,13 @@ func (obj *v8ValueImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *v8ValueImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -858,10 +882,7 @@ func wrapV8Value(ptr unsafe.Pointer) V8Value {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &v8ValueImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *v8ValueImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*v8ValueImpl).Release)
 	return impl
 }
 
@@ -893,7 +914,13 @@ func (obj *v8StackTraceImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *v8StackTraceImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -905,10 +932,7 @@ func wrapV8StackTrace(ptr unsafe.Pointer) V8StackTrace {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &v8StackTraceImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *v8StackTraceImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*v8StackTraceImpl).Release)
 	return impl
 }
 
@@ -965,7 +989,13 @@ func (obj *v8StackFrameImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *v8StackFrameImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -977,10 +1007,7 @@ func wrapV8StackFrame(ptr unsafe.Pointer) V8StackFrame {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &v8StackFrameImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *v8StackFrameImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*v8StackFrameImpl).Release)
 	return impl
 }
 

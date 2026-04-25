@@ -26,7 +26,13 @@ func (obj *menuButtonPressedLockImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *menuButtonPressedLockImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -38,10 +44,7 @@ func wrapMenuButtonPressedLock(ptr unsafe.Pointer) MenuButtonPressedLock {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &menuButtonPressedLockImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *menuButtonPressedLockImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*menuButtonPressedLockImpl).Release)
 	return impl
 }
 
@@ -95,7 +98,13 @@ func (obj *menuButtonDelegateImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *menuButtonDelegateImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -108,9 +117,6 @@ func wrapMenuButtonDelegate(ptr unsafe.Pointer) MenuButtonDelegate {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &menuButtonDelegateImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *menuButtonDelegateImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*menuButtonDelegateImpl).Release)
 	return impl
 }

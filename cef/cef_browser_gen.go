@@ -128,7 +128,13 @@ func (obj *browserImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *browserImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -140,10 +146,7 @@ func wrapBrowser(ptr unsafe.Pointer) Browser {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &browserImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *browserImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*browserImpl).Release)
 	return impl
 }
 
@@ -195,7 +198,13 @@ func (obj *runFileDialogCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *runFileDialogCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -208,10 +217,7 @@ func wrapRunFileDialogCallback(ptr unsafe.Pointer) RunFileDialogCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &runFileDialogCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *runFileDialogCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*runFileDialogCallbackImpl).Release)
 	return impl
 }
 
@@ -267,7 +273,13 @@ func (obj *navigationEntryVisitorImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *navigationEntryVisitorImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -280,10 +292,7 @@ func wrapNavigationEntryVisitor(ptr unsafe.Pointer) NavigationEntryVisitor {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &navigationEntryVisitorImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *navigationEntryVisitorImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*navigationEntryVisitorImpl).Release)
 	return impl
 }
 
@@ -338,7 +347,13 @@ func (obj *pdfPrintCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *pdfPrintCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -351,10 +366,7 @@ func wrapPdfPrintCallback(ptr unsafe.Pointer) PdfPrintCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &pdfPrintCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *pdfPrintCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*pdfPrintCallbackImpl).Release)
 	return impl
 }
 
@@ -410,7 +422,13 @@ func (obj *downloadImageCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *downloadImageCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -423,10 +441,7 @@ func wrapDownloadImageCallback(ptr unsafe.Pointer) DownloadImageCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &downloadImageCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *downloadImageCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*downloadImageCallbackImpl).Release)
 	return impl
 }
 
@@ -501,21 +516,21 @@ func (obj *browserHostImpl) Zoom(command ZoomCommand) {
 
 func (obj *browserHostImpl) GetDefaultZoomLevel() float64 {
 	var fn func(*capi.CEFBrowserHostT) float64
-	purego.RegisterFunc(&fn, obj.rawPtr.GetDefaultZoomLevel)
+	registerTypedCallback(&fn, obj.rawPtr.GetDefaultZoomLevel)
 	ret := fn(obj.rawPtr)
 	return ret
 }
 
 func (obj *browserHostImpl) GetZoomLevel() float64 {
 	var fn func(*capi.CEFBrowserHostT) float64
-	purego.RegisterFunc(&fn, obj.rawPtr.GetZoomLevel)
+	registerTypedCallback(&fn, obj.rawPtr.GetZoomLevel)
 	ret := fn(obj.rawPtr)
 	return ret
 }
 
 func (obj *browserHostImpl) SetZoomLevel(zoomlevel float64) {
 	var fn func(*capi.CEFBrowserHostT, float64)
-	purego.RegisterFunc(&fn, obj.rawPtr.SetZoomLevel)
+	registerTypedCallback(&fn, obj.rawPtr.SetZoomLevel)
 	fn(obj.rawPtr, zoomlevel)
 }
 
@@ -771,7 +786,13 @@ func (obj *browserHostImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *browserHostImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -783,10 +804,7 @@ func wrapBrowserHost(ptr unsafe.Pointer) BrowserHost {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &browserHostImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *browserHostImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*browserHostImpl).Release)
 	return impl
 }
 

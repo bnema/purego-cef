@@ -145,13 +145,17 @@ func isFloatPublicType(typ string) bool {
 	return typ == "float32" || typ == "float64"
 }
 
+func isTypedCallbackPublicType(typ string) bool {
+	return isFloatPublicType(typ) || typ == "int64" || typ == "uint64"
+}
+
 func methodNeedsTypedObjectCall(m MethodData) bool {
 	for _, p := range m.Params {
-		if p.MarshalKind == "numeric" && isFloatPublicType(p.PublicType) {
+		if p.MarshalKind == "numeric" && isTypedCallbackPublicType(p.PublicType) {
 			return true
 		}
 	}
-	return m.Return.IsNumeric && isFloatPublicType(m.Return.PublicType)
+	return m.Return.IsNumeric && isTypedCallbackPublicType(m.Return.PublicType)
 }
 
 // InterfaceData represents a handler or object interface.

@@ -21,7 +21,9 @@ type resourceSkipCallbackImpl struct {
 }
 
 func (obj *resourceSkipCallbackImpl) Cont(bytesSkipped int64) {
-	obj.rawPtr.CallCont(uintptr(bytesSkipped))
+	var fn func(*capi.CEFResourceSkipCallbackT, int64)
+	registerTypedCallback(&fn, obj.rawPtr.Cont)
+	fn(obj.rawPtr, bytesSkipped)
 }
 
 func (obj *resourceSkipCallbackImpl) RawPointer() unsafe.Pointer {
@@ -30,7 +32,13 @@ func (obj *resourceSkipCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *resourceSkipCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -42,10 +50,7 @@ func wrapResourceSkipCallback(ptr unsafe.Pointer) ResourceSkipCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &resourceSkipCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *resourceSkipCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*resourceSkipCallbackImpl).Release)
 	return impl
 }
 
@@ -66,7 +71,13 @@ func (obj *resourceReadCallbackImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *resourceReadCallbackImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -78,10 +89,7 @@ func wrapResourceReadCallback(ptr unsafe.Pointer) ResourceReadCallback {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &resourceReadCallbackImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *resourceReadCallbackImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*resourceReadCallbackImpl).Release)
 	return impl
 }
 
@@ -129,7 +137,7 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 		impl.GetResponseHeaders(response, responseLength, redirecturl)
 	}))
 
-	r.OverrideSkip(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+	r.OverrideSkip(purego.NewCallback(func(self uintptr, arg0 int64, arg1 uintptr, arg2 uintptr) uintptr {
 		bytesToSkip := int64(arg0)
 		bytesSkipped := (*int64)(unsafe.Pointer(arg1))
 		callback := wrapResourceSkipCallback(unsafe.Pointer(arg2))
@@ -180,7 +188,9 @@ func (obj *resourceHandlerImpl) GetResponseHeaders(response Response, responseLe
 }
 
 func (obj *resourceHandlerImpl) Skip(bytesToSkip int64, bytesSkipped *int64, callback ResourceSkipCallback) int32 {
-	ret := obj.rawPtr.CallSkip(uintptr(bytesToSkip), uintptr(unsafe.Pointer(bytesSkipped)), uintptr(extractRawPointer(callback)))
+	var fn func(*capi.CEFResourceHandlerT, int64, uintptr, uintptr) uintptr
+	registerTypedCallback(&fn, obj.rawPtr.Skip)
+	ret := fn(obj.rawPtr, bytesToSkip, uintptr(unsafe.Pointer(bytesSkipped)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -204,7 +214,13 @@ func (obj *resourceHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *resourceHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -217,9 +233,6 @@ func wrapResourceHandler(ptr unsafe.Pointer) ResourceHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &resourceHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *resourceHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*resourceHandlerImpl).Release)
 	return impl
 }

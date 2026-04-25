@@ -6,8 +6,6 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -21,13 +19,15 @@ type displayImpl struct {
 }
 
 func (obj *displayImpl) GetID() int64 {
-	ret := obj.rawPtr.CallGetID()
+	var fn func(*capi.CEFDisplayT) int64
+	registerTypedCallback(&fn, obj.rawPtr.GetID)
+	ret := fn(obj.rawPtr)
 	return int64(ret)
 }
 
 func (obj *displayImpl) GetDeviceScaleFactor() float32 {
 	var fn func(*capi.CEFDisplayT) float32
-	purego.RegisterFunc(&fn, obj.rawPtr.GetDeviceScaleFactor)
+	registerTypedCallback(&fn, obj.rawPtr.GetDeviceScaleFactor)
 	ret := fn(obj.rawPtr)
 	return ret
 }
@@ -61,7 +61,13 @@ func (obj *displayImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *displayImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -73,10 +79,7 @@ func wrapDisplay(ptr unsafe.Pointer) Display {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &displayImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *displayImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*displayImpl).Release)
 	return impl
 }
 

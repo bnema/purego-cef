@@ -36,7 +36,7 @@ func (obj *translatorTestImpl) GetInt() int32 {
 
 func (obj *translatorTestImpl) GetDouble() float64 {
 	var fn func(*capi.CEFTranslatorTestT) float64
-	purego.RegisterFunc(&fn, obj.rawPtr.GetDouble)
+	registerTypedCallback(&fn, obj.rawPtr.GetDouble)
 	ret := fn(obj.rawPtr)
 	return ret
 }
@@ -68,7 +68,7 @@ func (obj *translatorTestImpl) SetInt(val int32) int32 {
 
 func (obj *translatorTestImpl) SetDouble(val float64) int32 {
 	var fn func(*capi.CEFTranslatorTestT, float64) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.SetDouble)
+	registerTypedCallback(&fn, obj.rawPtr.SetDouble)
 	ret := fn(obj.rawPtr, val)
 	return int32(ret)
 }
@@ -439,7 +439,13 @@ func (obj *translatorTestImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -451,10 +457,7 @@ func wrapTranslatorTest(ptr unsafe.Pointer) TranslatorTest {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &translatorTestImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *translatorTestImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*translatorTestImpl).Release)
 	return impl
 }
 
@@ -480,7 +483,13 @@ func (obj *translatorTestRefPtrLibraryImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrLibraryImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -492,10 +501,7 @@ func wrapTranslatorTestRefPtrLibrary(ptr unsafe.Pointer) TranslatorTestRefPtrLib
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &translatorTestRefPtrLibraryImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *translatorTestRefPtrLibraryImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*translatorTestRefPtrLibraryImpl).Release)
 	return impl
 }
 
@@ -521,7 +527,13 @@ func (obj *translatorTestRefPtrLibraryChildImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrLibraryChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -533,10 +545,7 @@ func wrapTranslatorTestRefPtrLibraryChild(ptr unsafe.Pointer) TranslatorTestRefP
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &translatorTestRefPtrLibraryChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *translatorTestRefPtrLibraryChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*translatorTestRefPtrLibraryChildImpl).Release)
 	return impl
 }
 
@@ -562,7 +571,13 @@ func (obj *translatorTestRefPtrLibraryChildChildImpl) RawPointer() unsafe.Pointe
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrLibraryChildChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -574,10 +589,7 @@ func wrapTranslatorTestRefPtrLibraryChildChild(ptr unsafe.Pointer) TranslatorTes
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &translatorTestRefPtrLibraryChildChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *translatorTestRefPtrLibraryChildChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*translatorTestRefPtrLibraryChildChildImpl).Release)
 	return impl
 }
 
@@ -629,7 +641,13 @@ func (obj *translatorTestRefPtrClientImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrClientImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -642,10 +660,7 @@ func wrapTranslatorTestRefPtrClient(ptr unsafe.Pointer) TranslatorTestRefPtrClie
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &translatorTestRefPtrClientImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *translatorTestRefPtrClientImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*translatorTestRefPtrClientImpl).Release)
 	return impl
 }
 
@@ -697,7 +712,13 @@ func (obj *translatorTestRefPtrClientChildImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestRefPtrClientChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -710,10 +731,7 @@ func wrapTranslatorTestRefPtrClientChild(ptr unsafe.Pointer) TranslatorTestRefPt
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &translatorTestRefPtrClientChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *translatorTestRefPtrClientChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*translatorTestRefPtrClientChildImpl).Release)
 	return impl
 }
 
@@ -767,7 +785,13 @@ func (obj *translatorTestScopedLibraryChildImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestScopedLibraryChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -779,10 +803,7 @@ func wrapTranslatorTestScopedLibraryChild(ptr unsafe.Pointer) TranslatorTestScop
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &translatorTestScopedLibraryChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *translatorTestScopedLibraryChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*translatorTestScopedLibraryChildImpl).Release)
 	return impl
 }
 
@@ -808,7 +829,13 @@ func (obj *translatorTestScopedLibraryChildChildImpl) RawPointer() unsafe.Pointe
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestScopedLibraryChildChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -820,10 +847,7 @@ func wrapTranslatorTestScopedLibraryChildChild(ptr unsafe.Pointer) TranslatorTes
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &translatorTestScopedLibraryChildChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *translatorTestScopedLibraryChildChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*translatorTestScopedLibraryChildChildImpl).Release)
 	return impl
 }
 
@@ -929,7 +953,13 @@ func (obj *translatorTestScopedClientChildImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *translatorTestScopedClientChildImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -942,10 +972,7 @@ func wrapTranslatorTestScopedClientChild(ptr unsafe.Pointer) TranslatorTestScope
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &translatorTestScopedClientChildImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *translatorTestScopedClientChildImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*translatorTestScopedClientChildImpl).Release)
 	return impl
 }
 

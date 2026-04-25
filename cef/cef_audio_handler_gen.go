@@ -50,7 +50,7 @@ func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
 		impl.OnAudioStreamStarted(browser, params, channels)
 	}))
 
-	r.OverrideOnAudioStreamPacket(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+	r.OverrideOnAudioStreamPacket(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 int64) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		data := unsafe.Pointer(arg1)
 		frames := int32(arg2)
@@ -88,7 +88,9 @@ func (obj *rawAudioHandlerImpl) OnAudioStreamStarted(browser Browser, params *Au
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamPacket(browser Browser, data unsafe.Pointer, frames int32, pts int64) {
-	obj.rawPtr.CallOnAudioStreamPacket(uintptr(extractRawPointer(browser)), uintptr(data), uintptr(frames), uintptr(pts))
+	var fn func(*capi.CEFAudioHandlerT, uintptr, uintptr, uintptr, int64)
+	registerTypedCallback(&fn, obj.rawPtr.OnAudioStreamPacket)
+	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), uintptr(data), uintptr(frames), pts)
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamStopped(browser Browser) {
@@ -107,7 +109,13 @@ func (obj *rawAudioHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *rawAudioHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -120,9 +128,6 @@ func wrapAudioHandler(ptr unsafe.Pointer) RawAudioHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &rawAudioHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *rawAudioHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*rawAudioHandlerImpl).Release)
 	return impl
 }

@@ -6,8 +6,6 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/bnema/purego"
-
 	"github.com/bnema/purego-cef/internal/capi"
 
 	portin "github.com/bnema/purego-cef/internal/ports/in"
@@ -32,21 +30,21 @@ func (obj *imageImpl) IsSame(that Image) bool {
 
 func (obj *imageImpl) AddBitmap(scaleFactor float32, pixelWidth int32, pixelHeight int32, colorType ColorType, alphaType AlphaType, pixelData unsafe.Pointer, pixelDataSize int) int32 {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr, uintptr, uintptr, uintptr) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.AddBitmap)
+	registerTypedCallback(&fn, obj.rawPtr.AddBitmap)
 	ret := fn(obj.rawPtr, scaleFactor, uintptr(pixelWidth), uintptr(pixelHeight), uintptr(colorType), uintptr(alphaType), uintptr(pixelData), uintptr(pixelDataSize))
 	return int32(ret)
 }
 
 func (obj *imageImpl) AddPng(scaleFactor float32, pngData unsafe.Pointer, pngDataSize int) int32 {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.AddPng)
+	registerTypedCallback(&fn, obj.rawPtr.AddPng)
 	ret := fn(obj.rawPtr, scaleFactor, uintptr(pngData), uintptr(pngDataSize))
 	return int32(ret)
 }
 
 func (obj *imageImpl) AddJpeg(scaleFactor float32, jpegData unsafe.Pointer, jpegDataSize int) int32 {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.AddJpeg)
+	registerTypedCallback(&fn, obj.rawPtr.AddJpeg)
 	ret := fn(obj.rawPtr, scaleFactor, uintptr(jpegData), uintptr(jpegDataSize))
 	return int32(ret)
 }
@@ -63,42 +61,42 @@ func (obj *imageImpl) GetHeight() int {
 
 func (obj *imageImpl) HasRepresentation(scaleFactor float32) bool {
 	var fn func(*capi.CEFImageT, float32) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.HasRepresentation)
+	registerTypedCallback(&fn, obj.rawPtr.HasRepresentation)
 	ret := fn(obj.rawPtr, scaleFactor)
 	return ret != 0
 }
 
 func (obj *imageImpl) RemoveRepresentation(scaleFactor float32) int32 {
 	var fn func(*capi.CEFImageT, float32) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.RemoveRepresentation)
+	registerTypedCallback(&fn, obj.rawPtr.RemoveRepresentation)
 	ret := fn(obj.rawPtr, scaleFactor)
 	return int32(ret)
 }
 
 func (obj *imageImpl) GetRepresentationInfo(scaleFactor float32, actualScaleFactor *float32, pixelWidth *int32, pixelHeight *int32) int32 {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.GetRepresentationInfo)
+	registerTypedCallback(&fn, obj.rawPtr.GetRepresentationInfo)
 	ret := fn(obj.rawPtr, scaleFactor, uintptr(unsafe.Pointer(actualScaleFactor)), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
 	return int32(ret)
 }
 
 func (obj *imageImpl) GetAsBitmap(scaleFactor float32, colorType ColorType, alphaType AlphaType, pixelWidth *int32, pixelHeight *int32) BinaryValue {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr, uintptr) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.GetAsBitmap)
+	registerTypedCallback(&fn, obj.rawPtr.GetAsBitmap)
 	ret := fn(obj.rawPtr, scaleFactor, uintptr(colorType), uintptr(alphaType), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *imageImpl) GetAsPng(scaleFactor float32, withTransparency int32, pixelWidth *int32, pixelHeight *int32) BinaryValue {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.GetAsPng)
+	registerTypedCallback(&fn, obj.rawPtr.GetAsPng)
 	ret := fn(obj.rawPtr, scaleFactor, uintptr(withTransparency), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
 func (obj *imageImpl) GetAsJpeg(scaleFactor float32, quality int32, pixelWidth *int32, pixelHeight *int32) BinaryValue {
 	var fn func(*capi.CEFImageT, float32, uintptr, uintptr, uintptr) uintptr
-	purego.RegisterFunc(&fn, obj.rawPtr.GetAsJpeg)
+	registerTypedCallback(&fn, obj.rawPtr.GetAsJpeg)
 	ret := fn(obj.rawPtr, scaleFactor, uintptr(quality), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
@@ -109,7 +107,13 @@ func (obj *imageImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *imageImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -121,10 +125,7 @@ func wrapImage(ptr unsafe.Pointer) Image {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &imageImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *imageImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*imageImpl).Release)
 	return impl
 }
 

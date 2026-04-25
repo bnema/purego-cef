@@ -110,11 +110,10 @@ func TestEmitPublicObjectInterface_UsesTypedPuregoForFloatMethods(t *testing.T) 
 	}
 
 	checks := []string{
-		`"github.com/bnema/purego"`,
 		`var fn func(*capi.CEFBrowserHostT) float64`,
-		`purego.RegisterFunc(&fn, obj.rawPtr.GetZoomLevel)`,
+		`registerTypedCallback(&fn, obj.rawPtr.GetZoomLevel)`,
 		`var fn func(*capi.CEFBrowserHostT, float64)`,
-		`purego.RegisterFunc(&fn, obj.rawPtr.SetZoomLevel)`,
+		`registerTypedCallback(&fn, obj.rawPtr.SetZoomLevel)`,
 	}
 
 	for _, want := range checks {
@@ -175,6 +174,46 @@ func TestEmitPublicObjectInterface_GetClientReturnsWrappedRawClient(t *testing.T
 	}
 }
 
+func TestEmitPublicObjectInterface_ReleaseIsIdempotent(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "_cef_page_t",
+			GoName:        "CEFPageT",
+			Kind:          "object",
+			InterfaceName: "Page",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "get_id",
+					GoName:      "GetID",
+					IsFunction:  true,
+					ReturnCType: "int",
+					Params:      []model.Param{{CName: "self", GoName: "self", CType: "struct _cef_page_t*"}},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []string{
+		"if obj.rawPtr == nil {",
+		"runtime.SetFinalizer(obj, nil)",
+		"runtime.SetFinalizer(impl, (*pageImpl).Release)",
+	}
+	for _, want := range checks {
+		if !strings.Contains(code, want) {
+			t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
+	}
+}
+
 func TestEmitPublicHandlerInterface(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{{
@@ -216,6 +255,9 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 		{"constructor function", "func NewFocusHandler(impl FocusHandler) FocusHandler"},
 		{"initRefCount call", "initRefCount(unsafe.Pointer(r)"},
 		{"purego.NewCallback", "purego.NewCallback"},
+		{"idempotent release guard", "if obj.rawPtr == nil {"},
+		{"release clears finalizer", "runtime.SetFinalizer(obj, nil)"},
+		{"release finalizer", "runtime.SetFinalizer(impl, (*focusHandlerImpl).Release)"},
 	}
 
 	for _, c := range checks {
@@ -368,6 +410,52 @@ func TestEmitPublicHandlerInterface_UsesTypedFloatCallbackParams(t *testing.T) {
 
 	if strings.Contains(code, "math.Float64frombits") {
 		t.Fatalf("expected callback float parameter to avoid math.Float64frombits, got:\n%s", code)
+	}
+}
+
+func TestEmitPublicHandlerInterface_UsesTypedInt64CallbackParams(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:         "cef_audio_stream_handler_t",
+			GoName:        "CEFAudioStreamHandlerT",
+			Kind:          "handler",
+			InterfaceName: "AudioStreamHandler",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				{
+					CName:       "on_audio_stream_packet",
+					GoName:      "OnAudioStreamPacket",
+					IsFunction:  true,
+					ReturnCType: "void",
+					Params: []model.Param{
+						{CName: "self", GoName: "self", CType: "struct _cef_audio_stream_handler_t*"},
+						{CName: "pts", GoName: "pts", CType: "int64_t"},
+					},
+				},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []string{
+		"registerTypedCallback(&fn, obj.rawPtr.",
+		"func(self uintptr, arg0 int64)",
+	}
+	for _, want := range checks {
+		if !strings.Contains(code, want) {
+			t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
+	}
+
+	if strings.Contains(code, "uintptr(pts)") {
+		t.Fatalf("expected int64 callback arg to avoid uintptr(pts), got:\n%s", code)
 	}
 }
 
@@ -752,12 +840,20 @@ func TestEmitPixelBufferOverride(t *testing.T) {
 		want string
 	}{
 		{"unsafe.Slice in unmarshal", "unsafe.Slice((*byte)(unsafe.Pointer("},
+		{"bufferPtr declaration", "var bufferPtr unsafe.Pointer"},
+		{"bufferPtr nil/empty guard", "if len(buffer) > 0 {"},
+		{"bufferPtr first element address", "bufferPtr = unsafe.Pointer(&buffer[0])"},
+		{"bufferPtr passed as uintptr", "uintptr(bufferPtr)"},
 	}
 
 	for _, c := range checks {
 		if !strings.Contains(code, c.want) {
 			t.Errorf("missing %s: want %q in output", c.desc, c.want)
 		}
+	}
+
+	if strings.Contains(code, "unsafe.SliceData(buffer)") {
+		t.Fatalf("expected CallOnPaint to avoid unsafe.SliceData(buffer), got:\n%s", code)
 	}
 }
 

@@ -102,7 +102,7 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		}))
 	}))
 
-	r.OverrideOnResourceLoadComplete(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
+	r.OverrideOnResourceLoadComplete(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 int64) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -159,7 +159,9 @@ func (obj *resourceRequestHandlerImpl) GetResourceResponseFilter(browser Browser
 }
 
 func (obj *resourceRequestHandlerImpl) OnResourceLoadComplete(browser Browser, frame Frame, request Request, response Response, status UrlrequestStatus, receivedContentLength int64) {
-	obj.rawPtr.CallOnResourceLoadComplete(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(status), uintptr(receivedContentLength))
+	var fn func(*capi.CEFResourceRequestHandlerT, uintptr, uintptr, uintptr, uintptr, uintptr, int64)
+	registerTypedCallback(&fn, obj.rawPtr.OnResourceLoadComplete)
+	fn(obj.rawPtr, uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(status), receivedContentLength)
 }
 
 func (obj *resourceRequestHandlerImpl) OnProtocolExecution(browser Browser, frame Frame, request Request, allowOsExecution *int32) {
@@ -172,7 +174,13 @@ func (obj *resourceRequestHandlerImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *resourceRequestHandlerImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -185,10 +193,7 @@ func wrapResourceRequestHandler(ptr unsafe.Pointer) ResourceRequestHandler {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &resourceRequestHandlerImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *resourceRequestHandlerImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*resourceRequestHandlerImpl).Release)
 	return impl
 }
 
@@ -264,7 +269,13 @@ func (obj *cookieAccessFilterImpl) RawPointer() unsafe.Pointer {
 
 // Release releases the underlying CEF object.
 func (obj *cookieAccessFilterImpl) Release() {
-	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(obj.rawPtr))
+	if obj.rawPtr == nil {
+		return
+	}
+	rawPtr := obj.rawPtr
+	obj.rawPtr = nil
+	runtime.SetFinalizer(obj, nil)
+	base := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(rawPtr))
 	base.CallRelease()
 }
 
@@ -277,9 +288,6 @@ func wrapCookieAccessFilter(ptr unsafe.Pointer) CookieAccessFilter {
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
 	impl := &cookieAccessFilterImpl{rawPtr: r}
-	runtime.SetFinalizer(impl, func(o *cookieAccessFilterImpl) {
-		b := (*capi.CEFBaseRefCountedT)(unsafe.Pointer(o.rawPtr))
-		b.CallRelease()
-	})
+	runtime.SetFinalizer(impl, (*cookieAccessFilterImpl).Release)
 	return impl
 }
