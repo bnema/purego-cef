@@ -15,6 +15,9 @@ import (
 // ResourceBundle Structure used for retrieving resources from the resource bundle (*.pak) files loaded by CEF during startup or via the cef_resource_bundle_handler_t returned from cef_app_t::GetResourceBundleHandler. See CefSettings for additional options related to resource bundle loading. The functions of this structure may be called on any thread unless otherwise indicated.
 type ResourceBundle = portin.ResourceBundle
 
+// resourceBundleImpl is a reverse wrapper for a CEF-owned ResourceBundle pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type resourceBundleImpl struct {
 	rawPtr      *capi.CEFResourceBundleT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *resourceBundleImpl) GetLocalizedString(stringID int32) string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetLocalizedString(uintptr(stringID))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLocalizedString(uintptr(stringID))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -32,7 +36,8 @@ func (obj *resourceBundleImpl) GetDataResource(resourceID int32) BinaryValue {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDataResource(uintptr(resourceID))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDataResource(uintptr(resourceID))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
@@ -40,7 +45,8 @@ func (obj *resourceBundleImpl) GetDataResourceForScale(resourceID int32, scaleFa
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 

@@ -53,6 +53,9 @@ func NewFindHandler(impl FindHandler) FindHandler {
 	return w
 }
 
+// findHandlerImpl is a reverse wrapper for a CEF-owned FindHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type findHandlerImpl struct {
 	rawPtr      *capi.CEFFindHandlerT
 	releaseOnce sync.Once
@@ -62,7 +65,8 @@ func (obj *findHandlerImpl) OnFindResult(browser Browser, identifier int32, coun
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnFindResult(uintptr(extractRawPointer(browser)), uintptr(identifier), uintptr(count), uintptr(unsafe.Pointer(selectionrect)), uintptr(activematchordinal), uintptr(finalupdate))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnFindResult(uintptr(extractRawPointer(browser)), uintptr(identifier), uintptr(count), uintptr(unsafe.Pointer(selectionrect)), uintptr(activematchordinal), uintptr(finalupdate))
 }
 
 func (obj *findHandlerImpl) RawPointer() unsafe.Pointer {

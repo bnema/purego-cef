@@ -76,6 +76,9 @@ func {{constructorName .Name}}(impl {{.Name}}) {{.Name}} {
 	return w
 }
 
+// {{lower .Name}}Impl is a reverse wrapper for a CEF-owned {{.Name}} pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type {{lower .Name}}Impl struct {
 	rawPtr *capi.{{.RawGoName}}
 {{- if not .IsScoped}}
@@ -98,6 +101,7 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 		return {{zeroReturn .Return}}
 		{{- end}}
 	}
+	rawPtr := obj.rawPtr
 	{{- range .Params}}
 	{{- $pre := marshalPreamble .}}
 	{{- if $pre}}
@@ -108,7 +112,7 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 {{.}}{{- end}}
 	{{- if needsTypedObjectCall .}}
 	obj.{{lower .Name}}Once.Do(func() {
-		registerTypedCallback(&obj.{{lower .Name}}Func, obj.rawPtr.{{.RawFieldName}})
+		registerTypedCallback(&obj.{{lower .Name}}Func, rawPtr.{{.RawFieldName}})
 	})
 	{{- if .Return.IsVoid}}
 	obj.{{lower .Name}}Func({{typedObjectCallArgs .}})
@@ -143,12 +147,12 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 		{{- end}}
 	{{- end}}
 	{{- else if .Return.IsVoid}}
-	obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
+	rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
 	{{- else}}
-	ret := obj.rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
+	ret := rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}

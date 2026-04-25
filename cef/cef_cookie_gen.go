@@ -17,6 +17,9 @@ import (
 // CookieManager Structure used for managing cookies. The functions of this structure may be called on any thread unless otherwise indicated.
 type CookieManager = portin.CookieManager
 
+// cookieManagerImpl is a reverse wrapper for a CEF-owned CookieManager pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type cookieManagerImpl struct {
 	rawPtr      *capi.CEFCookieManagerT
 	releaseOnce sync.Once
@@ -26,7 +29,8 @@ func (obj *cookieManagerImpl) VisitAllCookies(visitor CookieVisitor) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallVisitAllCookies(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallVisitAllCookies(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
 	return int32(ret)
 }
 
@@ -34,9 +38,10 @@ func (obj *cookieManagerImpl) VisitURLCookies(uRL string, includehttponly int32,
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	ret := obj.rawPtr.CallVisitURLCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(includehttponly), uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
+	ret := rawPtr.CallVisitURLCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(includehttponly), uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
 	return int32(ret)
 }
 
@@ -44,9 +49,10 @@ func (obj *cookieManagerImpl) SetCookie(uRL string, cookie *Cookie, callback Set
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	ret := obj.rawPtr.CallSetCookie(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(cookie)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewSetCookieCallback(callback) })))
+	ret := rawPtr.CallSetCookie(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(cookie)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewSetCookieCallback(callback) })))
 	return int32(ret)
 }
 
@@ -54,11 +60,12 @@ func (obj *cookieManagerImpl) DeleteCookies(uRL string, cookieName string, callb
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	cookieNameStr := cefString(cookieName)
 	defer freeCefString(&cookieNameStr)
-	ret := obj.rawPtr.CallDeleteCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&cookieNameStr)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewDeleteCookiesCallback(callback) })))
+	ret := rawPtr.CallDeleteCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&cookieNameStr)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewDeleteCookiesCallback(callback) })))
 	return int32(ret)
 }
 
@@ -66,7 +73,8 @@ func (obj *cookieManagerImpl) FlushStore(callback CompletionCallback) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallFlushStore(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallFlushStore(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 	return int32(ret)
 }
 
@@ -143,6 +151,9 @@ func NewCookieVisitor(impl CookieVisitor) CookieVisitor {
 	return w
 }
 
+// cookieVisitorImpl is a reverse wrapper for a CEF-owned CookieVisitor pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type cookieVisitorImpl struct {
 	rawPtr      *capi.CEFCookieVisitorT
 	releaseOnce sync.Once
@@ -152,7 +163,8 @@ func (obj *cookieVisitorImpl) Visit(cookie *Cookie, count int32, total int32, de
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallVisit(uintptr(unsafe.Pointer(cookie)), uintptr(count), uintptr(total), uintptr(unsafe.Pointer(deletecookie)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallVisit(uintptr(unsafe.Pointer(cookie)), uintptr(count), uintptr(total), uintptr(unsafe.Pointer(deletecookie)))
 	return int32(ret)
 }
 
@@ -227,6 +239,9 @@ func NewSetCookieCallback(impl SetCookieCallback) SetCookieCallback {
 	return w
 }
 
+// setCookieCallbackImpl is a reverse wrapper for a CEF-owned SetCookieCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type setCookieCallbackImpl struct {
 	rawPtr      *capi.CEFSetCookieCallbackT
 	releaseOnce sync.Once
@@ -236,7 +251,8 @@ func (obj *setCookieCallbackImpl) OnComplete(success int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnComplete(uintptr(success))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnComplete(uintptr(success))
 }
 
 func (obj *setCookieCallbackImpl) RawPointer() unsafe.Pointer {
@@ -310,6 +326,9 @@ func NewDeleteCookiesCallback(impl DeleteCookiesCallback) DeleteCookiesCallback 
 	return w
 }
 
+// deleteCookiesCallbackImpl is a reverse wrapper for a CEF-owned DeleteCookiesCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type deleteCookiesCallbackImpl struct {
 	rawPtr      *capi.CEFDeleteCookiesCallbackT
 	releaseOnce sync.Once
@@ -319,7 +338,8 @@ func (obj *deleteCookiesCallbackImpl) OnComplete(numDeleted int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnComplete(uintptr(numDeleted))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnComplete(uintptr(numDeleted))
 }
 
 func (obj *deleteCookiesCallbackImpl) RawPointer() unsafe.Pointer {

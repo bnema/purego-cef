@@ -15,6 +15,9 @@ import (
 // AuthCallback Callback structure used for asynchronous continuation of authentication requests.
 type AuthCallback = portin.AuthCallback
 
+// authCallbackImpl is a reverse wrapper for a CEF-owned AuthCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type authCallbackImpl struct {
 	rawPtr      *capi.CEFAuthCallbackT
 	releaseOnce sync.Once
@@ -24,18 +27,20 @@ func (obj *authCallbackImpl) Cont(username string, password string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	usernameStr := cefString(username)
 	defer freeCefString(&usernameStr)
 	passwordStr := cefString(password)
 	defer freeCefString(&passwordStr)
-	obj.rawPtr.CallCont(uintptr(unsafe.Pointer(&usernameStr)), uintptr(unsafe.Pointer(&passwordStr)))
+	rawPtr.CallCont(uintptr(unsafe.Pointer(&usernameStr)), uintptr(unsafe.Pointer(&passwordStr)))
 }
 
 func (obj *authCallbackImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *authCallbackImpl) RawPointer() unsafe.Pointer {

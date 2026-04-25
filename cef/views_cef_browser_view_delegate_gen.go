@@ -106,6 +106,9 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
 	return w
 }
 
+// browserViewDelegateImpl is a reverse wrapper for a CEF-owned BrowserViewDelegate pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type browserViewDelegateImpl struct {
 	rawPtr      *capi.CEFBrowserViewDelegateT
 	releaseOnce sync.Once
@@ -115,21 +118,24 @@ func (obj *browserViewDelegateImpl) OnBrowserCreated(browserView BrowserView, br
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(browser)))
 }
 
 func (obj *browserViewDelegateImpl) OnBrowserDestroyed(browserView BrowserView, browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(browser)))
 }
 
 func (obj *browserViewDelegateImpl) GetDelegateForPopupBrowserView(browserView BrowserView, settings *BrowserSettings, client RawClient, isDevtools int32) BrowserViewDelegate {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDelegateForPopupBrowserView(uintptr(extractRawPointer(browserView)), uintptr(unsafe.Pointer(settings)), uintptr(extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })), uintptr(isDevtools))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDelegateForPopupBrowserView(uintptr(extractRawPointer(browserView)), uintptr(unsafe.Pointer(settings)), uintptr(extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })), uintptr(isDevtools))
 	return wrapBrowserViewDelegate(unsafe.Pointer(ret))
 }
 
@@ -137,7 +143,8 @@ func (obj *browserViewDelegateImpl) OnPopupBrowserViewCreated(browserView Browse
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnPopupBrowserViewCreated(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(popupBrowserView)), uintptr(isDevtools))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnPopupBrowserViewCreated(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(popupBrowserView)), uintptr(isDevtools))
 	return int32(ret)
 }
 
@@ -145,7 +152,8 @@ func (obj *browserViewDelegateImpl) GetChromeToolbarType(browserView BrowserView
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetChromeToolbarType(uintptr(extractRawPointer(browserView)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetChromeToolbarType(uintptr(extractRawPointer(browserView)))
 	return ChromeToolbarType(ret)
 }
 
@@ -153,7 +161,8 @@ func (obj *browserViewDelegateImpl) UseFramelessWindowForPictureInPicture(browse
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallUseFramelessWindowForPictureInPicture(uintptr(extractRawPointer(browserView)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallUseFramelessWindowForPictureInPicture(uintptr(extractRawPointer(browserView)))
 	return int32(ret)
 }
 
@@ -161,7 +170,8 @@ func (obj *browserViewDelegateImpl) OnGestureCommand(browserView BrowserView, ge
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnGestureCommand(uintptr(extractRawPointer(browserView)), uintptr(gestureCommand))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnGestureCommand(uintptr(extractRawPointer(browserView)), uintptr(gestureCommand))
 	return int32(ret)
 }
 
@@ -169,7 +179,8 @@ func (obj *browserViewDelegateImpl) GetBrowserRuntimeStyle() RuntimeStyle {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetBrowserRuntimeStyle()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBrowserRuntimeStyle()
 	return RuntimeStyle(ret)
 }
 
@@ -177,7 +188,8 @@ func (obj *browserViewDelegateImpl) AllowMoveForPictureInPicture(browserView Bro
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallAllowMoveForPictureInPicture(uintptr(extractRawPointer(browserView)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAllowMoveForPictureInPicture(uintptr(extractRawPointer(browserView)))
 	return int32(ret)
 }
 
@@ -185,7 +197,8 @@ func (obj *browserViewDelegateImpl) AllowPictureInPictureWithoutUserActivation(b
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallAllowPictureInPictureWithoutUserActivation(uintptr(extractRawPointer(browserView)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAllowPictureInPictureWithoutUserActivation(uintptr(extractRawPointer(browserView)))
 	return int32(ret)
 }
 

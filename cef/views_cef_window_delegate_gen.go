@@ -185,6 +185,9 @@ func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 	return w
 }
 
+// windowDelegateImpl is a reverse wrapper for a CEF-owned WindowDelegate pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type windowDelegateImpl struct {
 	rawPtr      *capi.CEFWindowDelegateT
 	releaseOnce sync.Once
@@ -194,49 +197,56 @@ func (obj *windowDelegateImpl) OnWindowCreated(window Window) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnWindowCreated(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnWindowCreated(uintptr(extractRawPointer(window)))
 }
 
 func (obj *windowDelegateImpl) OnWindowClosing(window Window) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnWindowClosing(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnWindowClosing(uintptr(extractRawPointer(window)))
 }
 
 func (obj *windowDelegateImpl) OnWindowDestroyed(window Window) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnWindowDestroyed(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnWindowDestroyed(uintptr(extractRawPointer(window)))
 }
 
 func (obj *windowDelegateImpl) OnWindowActivationChanged(window Window, active int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnWindowActivationChanged(uintptr(extractRawPointer(window)), uintptr(active))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnWindowActivationChanged(uintptr(extractRawPointer(window)), uintptr(active))
 }
 
 func (obj *windowDelegateImpl) OnWindowBoundsChanged(window Window, newBounds *Rect) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnWindowBoundsChanged(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(newBounds)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnWindowBoundsChanged(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(newBounds)))
 }
 
 func (obj *windowDelegateImpl) OnWindowFullscreenTransition(window Window, isCompleted int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnWindowFullscreenTransition(uintptr(extractRawPointer(window)), uintptr(isCompleted))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnWindowFullscreenTransition(uintptr(extractRawPointer(window)), uintptr(isCompleted))
 }
 
 func (obj *windowDelegateImpl) GetParentWindow(window Window, isMenu *int32, canActivateMenu *int32) Window {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetParentWindow(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(isMenu)), uintptr(unsafe.Pointer(canActivateMenu)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetParentWindow(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(isMenu)), uintptr(unsafe.Pointer(canActivateMenu)))
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
@@ -244,7 +254,8 @@ func (obj *windowDelegateImpl) IsWindowModalDialog(window Window) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsWindowModalDialog(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsWindowModalDialog(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
@@ -252,7 +263,8 @@ func (obj *windowDelegateImpl) GetInitialBounds(window Window) uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetInitialBounds(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetInitialBounds(uintptr(extractRawPointer(window)))
 	return uintptr(ret)
 }
 
@@ -260,7 +272,8 @@ func (obj *windowDelegateImpl) GetInitialShowState(window Window) ShowState {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetInitialShowState(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetInitialShowState(uintptr(extractRawPointer(window)))
 	return ShowState(ret)
 }
 
@@ -268,7 +281,8 @@ func (obj *windowDelegateImpl) IsFrameless(window Window) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsFrameless(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsFrameless(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
@@ -276,7 +290,8 @@ func (obj *windowDelegateImpl) WithStandardWindowButtons(window Window) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallWithStandardWindowButtons(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallWithStandardWindowButtons(uintptr(extractRawPointer(window)))
 	return int32(ret)
 }
 
@@ -284,7 +299,8 @@ func (obj *windowDelegateImpl) GetTitlebarHeight(window Window, titlebarHeight *
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetTitlebarHeight(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(titlebarHeight)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTitlebarHeight(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(titlebarHeight)))
 	return int32(ret)
 }
 
@@ -292,7 +308,8 @@ func (obj *windowDelegateImpl) AcceptsFirstMouse(window Window) State {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallAcceptsFirstMouse(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAcceptsFirstMouse(uintptr(extractRawPointer(window)))
 	return State(ret)
 }
 
@@ -300,7 +317,8 @@ func (obj *windowDelegateImpl) CanResize(window Window) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallCanResize(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallCanResize(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
@@ -308,7 +326,8 @@ func (obj *windowDelegateImpl) CanMaximize(window Window) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallCanMaximize(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallCanMaximize(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
@@ -316,7 +335,8 @@ func (obj *windowDelegateImpl) CanMinimize(window Window) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallCanMinimize(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallCanMinimize(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
@@ -324,7 +344,8 @@ func (obj *windowDelegateImpl) CanClose(window Window) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallCanClose(uintptr(extractRawPointer(window)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallCanClose(uintptr(extractRawPointer(window)))
 	return ret != 0
 }
 
@@ -332,7 +353,8 @@ func (obj *windowDelegateImpl) OnAccelerator(window Window, commandID int32) int
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnAccelerator(uintptr(extractRawPointer(window)), uintptr(commandID))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnAccelerator(uintptr(extractRawPointer(window)), uintptr(commandID))
 	return int32(ret)
 }
 
@@ -340,7 +362,8 @@ func (obj *windowDelegateImpl) OnKeyEvent(window Window, event *KeyEvent) int32 
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(event)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(event)))
 	return int32(ret)
 }
 
@@ -348,14 +371,16 @@ func (obj *windowDelegateImpl) OnThemeColorsChanged(window Window, chromeTheme i
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnThemeColorsChanged(uintptr(extractRawPointer(window)), uintptr(chromeTheme))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnThemeColorsChanged(uintptr(extractRawPointer(window)), uintptr(chromeTheme))
 }
 
 func (obj *windowDelegateImpl) GetWindowRuntimeStyle() RuntimeStyle {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetWindowRuntimeStyle()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetWindowRuntimeStyle()
 	return RuntimeStyle(ret)
 }
 
@@ -363,7 +388,8 @@ func (obj *windowDelegateImpl) GetLinuxWindowProperties(window Window, propertie
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetLinuxWindowProperties(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(properties)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLinuxWindowProperties(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(properties)))
 	return int32(ret)
 }
 

@@ -15,6 +15,9 @@ import (
 // Sslstatus Structure representing the SSL information for a navigation entry.
 type Sslstatus = portin.Sslstatus
 
+// sslstatusImpl is a reverse wrapper for a CEF-owned Sslstatus pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type sslstatusImpl struct {
 	rawPtr      *capi.CEFSslstatusT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *sslstatusImpl) IsSecureConnection() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSecureConnection()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSecureConnection()
 	return ret != 0
 }
 
@@ -32,7 +36,8 @@ func (obj *sslstatusImpl) GetCertStatus() CertStatus {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetCertStatus()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetCertStatus()
 	return CertStatus(ret)
 }
 
@@ -40,7 +45,8 @@ func (obj *sslstatusImpl) GetSslversion() SslVersion {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetSslversion()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSslversion()
 	return SslVersion(ret)
 }
 
@@ -48,7 +54,8 @@ func (obj *sslstatusImpl) GetContentStatus() SslContentStatus {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetContentStatus()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetContentStatus()
 	return SslContentStatus(ret)
 }
 
@@ -56,7 +63,8 @@ func (obj *sslstatusImpl) GetX509Certificate() X509Certificate {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetX509Certificate()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetX509Certificate()
 	return wrapX509Certificate(unsafe.Pointer(ret))
 }
 

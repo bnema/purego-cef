@@ -15,6 +15,9 @@ import (
 // Layout A Layout handles the sizing of the children of a Panel according to implementation-specific heuristics. Methods must be called on the browser process UI thread unless otherwise indicated.
 type Layout = portin.Layout
 
+// layoutImpl is a reverse wrapper for a CEF-owned Layout pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type layoutImpl struct {
 	rawPtr      *capi.CEFLayoutT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *layoutImpl) AsBoxLayout() BoxLayout {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsBoxLayout()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsBoxLayout()
 	return wrapBoxLayout(unsafe.Pointer(ret))
 }
 
@@ -32,7 +36,8 @@ func (obj *layoutImpl) AsFillLayout() FillLayout {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsFillLayout()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsFillLayout()
 	return wrapFillLayout(unsafe.Pointer(ret))
 }
 
@@ -40,7 +45,8 @@ func (obj *layoutImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 

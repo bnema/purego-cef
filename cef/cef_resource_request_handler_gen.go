@@ -109,7 +109,7 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		request := wrapRequest(unsafe.Pointer(arg2))
 		response := wrapResponse(unsafe.Pointer(arg3))
 		status := UrlrequestStatus(arg4)
-		receivedContentLength := int64(arg5)
+		receivedContentLength := arg5
 		impl.OnResourceLoadComplete(browser, frame, request, response, status, receivedContentLength)
 	}))
 
@@ -126,6 +126,9 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 	return w
 }
 
+// resourceRequestHandlerImpl is a reverse wrapper for a CEF-owned ResourceRequestHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type resourceRequestHandlerImpl struct {
 	rawPtr                     *capi.CEFResourceRequestHandlerT
 	releaseOnce                sync.Once
@@ -137,7 +140,8 @@ func (obj *resourceRequestHandlerImpl) GetCookieAccessFilter(browser Browser, fr
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetCookieAccessFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetCookieAccessFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
 	return wrapCookieAccessFilter(unsafe.Pointer(ret))
 }
 
@@ -145,7 +149,8 @@ func (obj *resourceRequestHandlerImpl) OnBeforeResourceLoad(browser Browser, fra
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnBeforeResourceLoad(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnBeforeResourceLoad(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
 	return ReturnValue(ret)
 }
 
@@ -153,7 +158,8 @@ func (obj *resourceRequestHandlerImpl) GetResourceHandler(browser Browser, frame
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetResourceHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetResourceHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
 	return wrapResourceHandler(unsafe.Pointer(ret))
 }
 
@@ -161,14 +167,16 @@ func (obj *resourceRequestHandlerImpl) OnResourceRedirect(browser Browser, frame
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnResourceRedirect(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), newURL)
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnResourceRedirect(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), newURL)
 }
 
 func (obj *resourceRequestHandlerImpl) OnResourceResponse(browser Browser, frame Frame, request Request, response Response) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnResourceResponse(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnResourceResponse(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
 	return int32(ret)
 }
 
@@ -176,7 +184,8 @@ func (obj *resourceRequestHandlerImpl) GetResourceResponseFilter(browser Browser
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetResourceResponseFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetResourceResponseFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
 	return wrapResponseFilter(unsafe.Pointer(ret))
 }
 
@@ -184,17 +193,19 @@ func (obj *resourceRequestHandlerImpl) OnResourceLoadComplete(browser Browser, f
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	obj.onResourceLoadCompleteOnce.Do(func() {
-		registerTypedCallback(&obj.onResourceLoadCompleteFunc, obj.rawPtr.OnResourceLoadComplete)
+		registerTypedCallback(&obj.onResourceLoadCompleteFunc, rawPtr.OnResourceLoadComplete)
 	})
-	obj.onResourceLoadCompleteFunc(obj.rawPtr, uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(status), receivedContentLength)
+	obj.onResourceLoadCompleteFunc(rawPtr, uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(status), receivedContentLength)
 }
 
 func (obj *resourceRequestHandlerImpl) OnProtocolExecution(browser Browser, frame Frame, request Request, allowOsExecution *int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnProtocolExecution(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(allowOsExecution)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnProtocolExecution(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(allowOsExecution)))
 }
 
 func (obj *resourceRequestHandlerImpl) RawPointer() unsafe.Pointer {
@@ -286,6 +297,9 @@ func NewCookieAccessFilter(impl CookieAccessFilter) CookieAccessFilter {
 	return w
 }
 
+// cookieAccessFilterImpl is a reverse wrapper for a CEF-owned CookieAccessFilter pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type cookieAccessFilterImpl struct {
 	rawPtr      *capi.CEFCookieAccessFilterT
 	releaseOnce sync.Once
@@ -295,7 +309,8 @@ func (obj *cookieAccessFilterImpl) CanSendCookie(browser Browser, frame Frame, r
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallCanSendCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(cookie)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallCanSendCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(cookie)))
 	return ret != 0
 }
 
@@ -303,7 +318,8 @@ func (obj *cookieAccessFilterImpl) CanSaveCookie(browser Browser, frame Frame, r
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallCanSaveCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(cookie)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallCanSaveCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(cookie)))
 	return ret != 0
 }
 

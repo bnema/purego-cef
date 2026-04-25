@@ -111,9 +111,9 @@ func TestEmitPublicObjectInterface_UsesTypedPuregoForFloatMethods(t *testing.T) 
 
 	checks := []string{
 		`getZoomLevelFunc func(*capi.CEFBrowserHostT) float64`,
-		`registerTypedCallback(&obj.getZoomLevelFunc, obj.rawPtr.GetZoomLevel)`,
+		`registerTypedCallback(&obj.getZoomLevelFunc, rawPtr.GetZoomLevel)`,
 		`setZoomLevelFunc func(*capi.CEFBrowserHostT, float64)`,
-		`registerTypedCallback(&obj.setZoomLevelFunc, obj.rawPtr.SetZoomLevel)`,
+		`registerTypedCallback(&obj.setZoomLevelFunc, rawPtr.SetZoomLevel)`,
 	}
 
 	for _, want := range checks {
@@ -445,7 +445,7 @@ func TestEmitPublicHandlerInterface_UsesTypedInt64CallbackParams(t *testing.T) {
 	}
 
 	checks := []string{
-		"registerTypedCallback(&obj.onAudioStreamPacketFunc, obj.rawPtr.",
+		"registerTypedCallback(&obj.onAudioStreamPacketFunc, rawPtr.",
 		"func(self uintptr, arg0 int64)",
 	}
 	for _, want := range checks {
@@ -1158,7 +1158,7 @@ func TestEmitObjectMethodOutputObjectSliceBuffer(t *testing.T) {
 		"func (obj *postDataImpl) GetElements(elementsCount *int, elements []PostDataElement) {",
 		"elementsCountPtr := elementsCount",
 		"elementsRaw = make([]uintptr, len(elements))",
-		"obj.rawPtr.CallGetElements(uintptr(unsafe.Pointer(elementsCountPtr)), uintptr(elementsPtr))",
+		"rawPtr.CallGetElements(uintptr(unsafe.Pointer(elementsCountPtr)), uintptr(elementsPtr))",
 		"elements[i] = wrapPostDataElement(unsafe.Pointer(elementsRaw[i]))",
 	}
 	for _, want := range checks {
@@ -1204,7 +1204,7 @@ func TestEmitObjectMethodOutputNumericSliceBuffer(t *testing.T) {
 		"func (obj *taskManagerImpl) GetTaskIdsList(task_idsCount *int, task_ids []int64) int32 {",
 		"task_idsCountPtr := task_idsCount",
 		"task_idsPtr = unsafe.Pointer(&task_ids[0])",
-		"ret := obj.rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(task_idsCountPtr)), uintptr(task_idsPtr))",
+		"ret := rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(task_idsCountPtr)), uintptr(task_idsPtr))",
 	}
 	for _, want := range checks {
 		if !strings.Contains(code, want) {

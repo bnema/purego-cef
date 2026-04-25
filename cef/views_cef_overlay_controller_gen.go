@@ -15,6 +15,9 @@ import (
 // OverlayController Controller for an overlay that contains a contents View added via cef_window_t::AddOverlayView. Methods exposed by this controller should be called in preference to functions of the same name exposed by the contents View unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
 type OverlayController = portin.OverlayController
 
+// overlayControllerImpl is a reverse wrapper for a CEF-owned OverlayController pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type overlayControllerImpl struct {
 	rawPtr      *capi.CEFOverlayControllerT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *overlayControllerImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -32,7 +36,8 @@ func (obj *overlayControllerImpl) IsSame(that OverlayController) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
@@ -40,7 +45,8 @@ func (obj *overlayControllerImpl) GetContentsView() View {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetContentsView()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetContentsView()
 	return wrapView(unsafe.Pointer(ret))
 }
 
@@ -48,7 +54,8 @@ func (obj *overlayControllerImpl) GetWindow() Window {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetWindow()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetWindow()
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
@@ -56,7 +63,8 @@ func (obj *overlayControllerImpl) GetDockingMode() DockingMode {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetDockingMode()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDockingMode()
 	return DockingMode(ret)
 }
 
@@ -64,21 +72,24 @@ func (obj *overlayControllerImpl) Destroy() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallDestroy()
+	rawPtr := obj.rawPtr
+	rawPtr.CallDestroy()
 }
 
 func (obj *overlayControllerImpl) SetBounds(bounds *Rect) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
 }
 
 func (obj *overlayControllerImpl) GetBounds() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetBounds()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBounds()
 	return uintptr(ret)
 }
 
@@ -86,7 +97,8 @@ func (obj *overlayControllerImpl) GetBoundsInScreen() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetBoundsInScreen()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBoundsInScreen()
 	return uintptr(ret)
 }
 
@@ -94,14 +106,16 @@ func (obj *overlayControllerImpl) SetSize(size *Size) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *overlayControllerImpl) GetSize() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetSize()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSize()
 	return uintptr(ret)
 }
 
@@ -109,14 +123,16 @@ func (obj *overlayControllerImpl) SetPosition(position *Point) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
 }
 
 func (obj *overlayControllerImpl) GetPosition() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetPosition()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPosition()
 	return uintptr(ret)
 }
 
@@ -124,14 +140,16 @@ func (obj *overlayControllerImpl) SetInsets(insets *Insets) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
 }
 
 func (obj *overlayControllerImpl) GetInsets() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetInsets()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetInsets()
 	return uintptr(ret)
 }
 
@@ -139,21 +157,24 @@ func (obj *overlayControllerImpl) SizeToPreferredSize() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSizeToPreferredSize()
+	rawPtr := obj.rawPtr
+	rawPtr.CallSizeToPreferredSize()
 }
 
 func (obj *overlayControllerImpl) SetVisible(visible int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetVisible(uintptr(visible))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetVisible(uintptr(visible))
 }
 
 func (obj *overlayControllerImpl) IsVisible() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsVisible()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsVisible()
 	return ret != 0
 }
 
@@ -161,7 +182,8 @@ func (obj *overlayControllerImpl) IsDrawn() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsDrawn()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsDrawn()
 	return ret != 0
 }
 

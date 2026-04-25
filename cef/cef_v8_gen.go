@@ -17,6 +17,9 @@ import (
 // V8Context Structure representing a V8 context handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
 type V8Context = portin.V8Context
 
+// v8ContextImpl is a reverse wrapper for a CEF-owned V8Context pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type v8ContextImpl struct {
 	rawPtr      *capi.CEFV8ContextT
 	releaseOnce sync.Once
@@ -26,7 +29,8 @@ func (obj *v8ContextImpl) GetTaskRunner() TaskRunner {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetTaskRunner()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTaskRunner()
 	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
@@ -34,7 +38,8 @@ func (obj *v8ContextImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -42,7 +47,8 @@ func (obj *v8ContextImpl) GetBrowser() Browser {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetBrowser()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBrowser()
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
@@ -50,7 +56,8 @@ func (obj *v8ContextImpl) GetFrame() Frame {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetFrame()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFrame()
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
@@ -58,7 +65,8 @@ func (obj *v8ContextImpl) GetGlobal() V8Value {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetGlobal()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetGlobal()
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -66,7 +74,8 @@ func (obj *v8ContextImpl) Enter() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallEnter()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallEnter()
 	return int32(ret)
 }
 
@@ -74,7 +83,8 @@ func (obj *v8ContextImpl) Exit() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallExit()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallExit()
 	return int32(ret)
 }
 
@@ -82,7 +92,8 @@ func (obj *v8ContextImpl) IsSame(that V8Context) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
@@ -90,6 +101,7 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	codeStr := cefString(code)
 	defer freeCefString(&codeStr)
 	scriptURLStr := cefString(scriptURL)
@@ -106,7 +118,7 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 		exception = unsafe.Pointer(&scratch)
 	}
 
-	ret := obj.rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception))
+	ret := rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception))
 	return int32(ret)
 }
 
@@ -191,6 +203,9 @@ func NewV8Handler(impl V8Handler) V8Handler {
 	return w
 }
 
+// v8HandlerImpl is a reverse wrapper for a CEF-owned V8Handler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type v8HandlerImpl struct {
 	rawPtr      *capi.CEFV8HandlerT
 	releaseOnce sync.Once
@@ -200,6 +215,7 @@ func (obj *v8HandlerImpl) Execute(name string, object V8Value, arguments []V8Val
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	var argumentsRaw []uintptr
@@ -211,7 +227,7 @@ func (obj *v8HandlerImpl) Execute(name string, object V8Value, arguments []V8Val
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	ret := obj.rawPtr.CallExecute(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr), uintptr(retval), exception)
+	ret := rawPtr.CallExecute(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr), uintptr(retval), exception)
 	return int32(ret)
 }
 
@@ -297,6 +313,9 @@ func NewV8Accessor(impl V8Accessor) V8Accessor {
 	return w
 }
 
+// v8AccessorImpl is a reverse wrapper for a CEF-owned V8Accessor pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type v8AccessorImpl struct {
 	rawPtr      *capi.CEFV8AccessorT
 	releaseOnce sync.Once
@@ -306,9 +325,10 @@ func (obj *v8AccessorImpl) Get(name string, object V8Value, retval unsafe.Pointe
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallGet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
+	ret := rawPtr.CallGet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
 	return int32(ret)
 }
 
@@ -316,9 +336,10 @@ func (obj *v8AccessorImpl) Set(name string, object V8Value, value V8Value, excep
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallSet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
+	ret := rawPtr.CallSet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
 	return int32(ret)
 }
 
@@ -420,6 +441,9 @@ func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 	return w
 }
 
+// v8InterceptorImpl is a reverse wrapper for a CEF-owned V8Interceptor pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type v8InterceptorImpl struct {
 	rawPtr      *capi.CEFV8InterceptorT
 	releaseOnce sync.Once
@@ -429,9 +453,10 @@ func (obj *v8InterceptorImpl) GetByname(name string, object V8Value, retval unsa
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallGetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
+	ret := rawPtr.CallGetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
 	return int32(ret)
 }
 
@@ -439,7 +464,8 @@ func (obj *v8InterceptorImpl) GetByindex(index int32, object V8Value, retval uns
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(retval), exception)
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(retval), exception)
 	return int32(ret)
 }
 
@@ -447,9 +473,10 @@ func (obj *v8InterceptorImpl) SetByname(name string, object V8Value, value V8Val
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallSetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
+	ret := rawPtr.CallSetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
 	return int32(ret)
 }
 
@@ -457,7 +484,8 @@ func (obj *v8InterceptorImpl) SetByindex(index int32, object V8Value, value V8Va
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
 	return int32(ret)
 }
 
@@ -501,6 +529,9 @@ func wrapV8Interceptor(ptr unsafe.Pointer) V8Interceptor {
 // V8Exception Structure representing a V8 exception. The functions of this structure may be called on any render process thread.
 type V8Exception = portin.V8Exception
 
+// v8ExceptionImpl is a reverse wrapper for a CEF-owned V8Exception pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type v8ExceptionImpl struct {
 	rawPtr      *capi.CEFV8ExceptionT
 	releaseOnce sync.Once
@@ -510,7 +541,8 @@ func (obj *v8ExceptionImpl) GetMessage() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetMessage()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMessage()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -518,7 +550,8 @@ func (obj *v8ExceptionImpl) GetSourceLine() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetSourceLine()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSourceLine()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -526,7 +559,8 @@ func (obj *v8ExceptionImpl) GetScriptResourceName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetScriptResourceName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetScriptResourceName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -534,7 +568,8 @@ func (obj *v8ExceptionImpl) GetLineNumber() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetLineNumber()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLineNumber()
 	return int32(ret)
 }
 
@@ -542,7 +577,8 @@ func (obj *v8ExceptionImpl) GetStartPosition() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetStartPosition()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetStartPosition()
 	return int32(ret)
 }
 
@@ -550,7 +586,8 @@ func (obj *v8ExceptionImpl) GetEndPosition() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetEndPosition()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetEndPosition()
 	return int32(ret)
 }
 
@@ -558,7 +595,8 @@ func (obj *v8ExceptionImpl) GetStartColumn() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetStartColumn()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetStartColumn()
 	return int32(ret)
 }
 
@@ -566,7 +604,8 @@ func (obj *v8ExceptionImpl) GetEndColumn() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetEndColumn()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetEndColumn()
 	return int32(ret)
 }
 
@@ -640,6 +679,9 @@ func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) V8ArrayB
 	return w
 }
 
+// v8ArrayBufferReleaseCallbackImpl is a reverse wrapper for a CEF-owned V8ArrayBufferReleaseCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type v8ArrayBufferReleaseCallbackImpl struct {
 	rawPtr      *capi.CEFV8ArrayBufferReleaseCallbackT
 	releaseOnce sync.Once
@@ -649,7 +691,8 @@ func (obj *v8ArrayBufferReleaseCallbackImpl) ReleaseBuffer(buffer unsafe.Pointer
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallReleaseBuffer(uintptr(buffer))
+	rawPtr := obj.rawPtr
+	rawPtr.CallReleaseBuffer(uintptr(buffer))
 }
 
 func (obj *v8ArrayBufferReleaseCallbackImpl) RawPointer() unsafe.Pointer {
@@ -692,6 +735,9 @@ func wrapV8ArrayBufferReleaseCallback(ptr unsafe.Pointer) V8ArrayBufferReleaseCa
 // V8Value Structure representing a V8 value handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
 type V8Value = portin.V8Value
 
+// v8ValueImpl is a reverse wrapper for a CEF-owned V8Value pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type v8ValueImpl struct {
 	rawPtr             *capi.CEFV8ValueT
 	releaseOnce        sync.Once
@@ -703,7 +749,8 @@ func (obj *v8ValueImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -711,7 +758,8 @@ func (obj *v8ValueImpl) IsUndefined() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsUndefined()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsUndefined()
 	return ret != 0
 }
 
@@ -719,7 +767,8 @@ func (obj *v8ValueImpl) IsNull() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsNull()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsNull()
 	return ret != 0
 }
 
@@ -727,7 +776,8 @@ func (obj *v8ValueImpl) IsBool() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsBool()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsBool()
 	return ret != 0
 }
 
@@ -735,7 +785,8 @@ func (obj *v8ValueImpl) IsInt() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsInt()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsInt()
 	return ret != 0
 }
 
@@ -743,7 +794,8 @@ func (obj *v8ValueImpl) IsUint() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsUint()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsUint()
 	return ret != 0
 }
 
@@ -751,7 +803,8 @@ func (obj *v8ValueImpl) IsDouble() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsDouble()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsDouble()
 	return ret != 0
 }
 
@@ -759,7 +812,8 @@ func (obj *v8ValueImpl) IsDate() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsDate()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsDate()
 	return ret != 0
 }
 
@@ -767,7 +821,8 @@ func (obj *v8ValueImpl) IsString() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsString()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsString()
 	return ret != 0
 }
 
@@ -775,7 +830,8 @@ func (obj *v8ValueImpl) IsObject() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsObject()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsObject()
 	return ret != 0
 }
 
@@ -783,7 +839,8 @@ func (obj *v8ValueImpl) IsArray() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsArray()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsArray()
 	return ret != 0
 }
 
@@ -791,7 +848,8 @@ func (obj *v8ValueImpl) IsArrayBuffer() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsArrayBuffer()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsArrayBuffer()
 	return ret != 0
 }
 
@@ -799,7 +857,8 @@ func (obj *v8ValueImpl) IsFunction() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsFunction()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsFunction()
 	return ret != 0
 }
 
@@ -807,7 +866,8 @@ func (obj *v8ValueImpl) IsPromise() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsPromise()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsPromise()
 	return ret != 0
 }
 
@@ -815,7 +875,8 @@ func (obj *v8ValueImpl) IsSame(that V8Value) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
@@ -823,7 +884,8 @@ func (obj *v8ValueImpl) GetBoolValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetBoolValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBoolValue()
 	return int32(ret)
 }
 
@@ -831,7 +893,8 @@ func (obj *v8ValueImpl) GetIntValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetIntValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetIntValue()
 	return int32(ret)
 }
 
@@ -839,7 +902,8 @@ func (obj *v8ValueImpl) GetUintValue() uint32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetUintValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetUintValue()
 	return uint32(ret)
 }
 
@@ -847,10 +911,11 @@ func (obj *v8ValueImpl) GetDoubleValue() float64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getDoubleValueOnce.Do(func() {
-		registerTypedCallback(&obj.getDoubleValueFunc, obj.rawPtr.GetDoubleValue)
+		registerTypedCallback(&obj.getDoubleValueFunc, rawPtr.GetDoubleValue)
 	})
-	ret := obj.getDoubleValueFunc(obj.rawPtr)
+	ret := obj.getDoubleValueFunc(rawPtr)
 	return ret
 }
 
@@ -858,7 +923,8 @@ func (obj *v8ValueImpl) GetDateValue() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetDateValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDateValue()
 	return uintptr(ret)
 }
 
@@ -866,7 +932,8 @@ func (obj *v8ValueImpl) GetStringValue() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetStringValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetStringValue()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -874,7 +941,8 @@ func (obj *v8ValueImpl) IsUserCreated() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsUserCreated()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsUserCreated()
 	return ret != 0
 }
 
@@ -882,7 +950,8 @@ func (obj *v8ValueImpl) HasException() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasException()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasException()
 	return ret != 0
 }
 
@@ -890,7 +959,8 @@ func (obj *v8ValueImpl) GetException() V8Exception {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetException()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetException()
 	return wrapV8Exception(unsafe.Pointer(ret))
 }
 
@@ -898,7 +968,8 @@ func (obj *v8ValueImpl) ClearException() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallClearException()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallClearException()
 	return int32(ret)
 }
 
@@ -906,7 +977,8 @@ func (obj *v8ValueImpl) WillRethrowExceptions() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallWillRethrowExceptions()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallWillRethrowExceptions()
 	return int32(ret)
 }
 
@@ -914,7 +986,8 @@ func (obj *v8ValueImpl) SetRethrowExceptions(rethrow int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetRethrowExceptions(uintptr(rethrow))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetRethrowExceptions(uintptr(rethrow))
 	return int32(ret)
 }
 
@@ -922,9 +995,10 @@ func (obj *v8ValueImpl) HasValueBykey(key string) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
+	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := obj.rawPtr.CallHasValueBykey(uintptr(unsafe.Pointer(&keyStr)))
+	ret := rawPtr.CallHasValueBykey(uintptr(unsafe.Pointer(&keyStr)))
 	return ret != 0
 }
 
@@ -932,7 +1006,8 @@ func (obj *v8ValueImpl) HasValueByindex(index int32) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasValueByindex(uintptr(index))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasValueByindex(uintptr(index))
 	return ret != 0
 }
 
@@ -940,9 +1015,10 @@ func (obj *v8ValueImpl) DeleteValueBykey(key string) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := obj.rawPtr.CallDeleteValueBykey(uintptr(unsafe.Pointer(&keyStr)))
+	ret := rawPtr.CallDeleteValueBykey(uintptr(unsafe.Pointer(&keyStr)))
 	return int32(ret)
 }
 
@@ -950,7 +1026,8 @@ func (obj *v8ValueImpl) DeleteValueByindex(index int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallDeleteValueByindex(uintptr(index))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallDeleteValueByindex(uintptr(index))
 	return int32(ret)
 }
 
@@ -958,9 +1035,10 @@ func (obj *v8ValueImpl) GetValueBykey(key string) V8Value {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := obj.rawPtr.CallGetValueBykey(uintptr(unsafe.Pointer(&keyStr)))
+	ret := rawPtr.CallGetValueBykey(uintptr(unsafe.Pointer(&keyStr)))
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -968,7 +1046,8 @@ func (obj *v8ValueImpl) GetValueByindex(index int32) V8Value {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetValueByindex(uintptr(index))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueByindex(uintptr(index))
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -976,9 +1055,10 @@ func (obj *v8ValueImpl) SetValueBykey(key string, value V8Value, attribute V8Pro
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := obj.rawPtr.CallSetValueBykey(uintptr(unsafe.Pointer(&keyStr)), uintptr(extractRawPointer(value)), uintptr(attribute))
+	ret := rawPtr.CallSetValueBykey(uintptr(unsafe.Pointer(&keyStr)), uintptr(extractRawPointer(value)), uintptr(attribute))
 	return int32(ret)
 }
 
@@ -986,7 +1066,8 @@ func (obj *v8ValueImpl) SetValueByindex(index int32, value V8Value) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetValueByindex(uintptr(index), uintptr(extractRawPointer(value)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetValueByindex(uintptr(index), uintptr(extractRawPointer(value)))
 	return int32(ret)
 }
 
@@ -994,9 +1075,10 @@ func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattri
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := obj.rawPtr.CallSetValueByaccessor(uintptr(unsafe.Pointer(&keyStr)), uintptr(attribute))
+	ret := rawPtr.CallSetValueByaccessor(uintptr(unsafe.Pointer(&keyStr)), uintptr(attribute))
 	return int32(ret)
 }
 
@@ -1004,7 +1086,8 @@ func (obj *v8ValueImpl) GetKeys(keys StringList) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetKeys(uintptr(keys))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetKeys(uintptr(keys))
 	return int32(ret)
 }
 
@@ -1012,7 +1095,8 @@ func (obj *v8ValueImpl) SetUserData(userData *BaseRefCounted) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetUserData(uintptr(unsafe.Pointer(userData)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetUserData(uintptr(unsafe.Pointer(userData)))
 	return int32(ret)
 }
 
@@ -1020,7 +1104,8 @@ func (obj *v8ValueImpl) GetUserData() *BaseRefCounted {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetUserData()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetUserData()
 	return (*BaseRefCounted)(unsafe.Pointer(ret))
 }
 
@@ -1028,7 +1113,8 @@ func (obj *v8ValueImpl) GetExternallyAllocatedMemory() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetExternallyAllocatedMemory()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetExternallyAllocatedMemory()
 	return int32(ret)
 }
 
@@ -1036,7 +1122,8 @@ func (obj *v8ValueImpl) AdjustExternallyAllocatedMemory(changeInBytes int32) int
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(changeInBytes))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(changeInBytes))
 	return int32(ret)
 }
 
@@ -1044,7 +1131,8 @@ func (obj *v8ValueImpl) GetArrayLength() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetArrayLength()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetArrayLength()
 	return int32(ret)
 }
 
@@ -1052,7 +1140,8 @@ func (obj *v8ValueImpl) GetArrayBufferReleaseCallback() V8ArrayBufferReleaseCall
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetArrayBufferReleaseCallback()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetArrayBufferReleaseCallback()
 	return wrapV8ArrayBufferReleaseCallback(unsafe.Pointer(ret))
 }
 
@@ -1060,7 +1149,8 @@ func (obj *v8ValueImpl) NeuterArrayBuffer() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallNeuterArrayBuffer()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallNeuterArrayBuffer()
 	return int32(ret)
 }
 
@@ -1068,7 +1158,8 @@ func (obj *v8ValueImpl) GetArrayBufferByteLength() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetArrayBufferByteLength()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetArrayBufferByteLength()
 	return int(ret)
 }
 
@@ -1076,7 +1167,8 @@ func (obj *v8ValueImpl) GetArrayBufferData() unsafe.Pointer {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetArrayBufferData()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetArrayBufferData()
 	return unsafe.Pointer(ret)
 }
 
@@ -1084,7 +1176,8 @@ func (obj *v8ValueImpl) GetFunctionName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFunctionName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFunctionName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -1092,7 +1185,8 @@ func (obj *v8ValueImpl) GetFunctionHandler() V8Handler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetFunctionHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFunctionHandler()
 	return wrapV8Handler(unsafe.Pointer(ret))
 }
 
@@ -1100,6 +1194,7 @@ func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8V
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	var argumentsRaw []uintptr
 	var argumentsPtr unsafe.Pointer
 	if len(arguments) > 0 {
@@ -1109,7 +1204,7 @@ func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8V
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	ret := obj.rawPtr.CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
+	ret := rawPtr.CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1117,6 +1212,7 @@ func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8V
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	var argumentsRaw []uintptr
 	var argumentsPtr unsafe.Pointer
 	if len(arguments) > 0 {
@@ -1126,7 +1222,7 @@ func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8V
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	ret := obj.rawPtr.CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
+	ret := rawPtr.CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1134,7 +1230,8 @@ func (obj *v8ValueImpl) ResolvePromise(arg V8Value) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallResolvePromise(uintptr(extractRawPointer(arg)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallResolvePromise(uintptr(extractRawPointer(arg)))
 	return int32(ret)
 }
 
@@ -1142,9 +1239,10 @@ func (obj *v8ValueImpl) RejectPromise(errormsg string) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	errormsgStr := cefString(errormsg)
 	defer freeCefString(&errormsgStr)
-	ret := obj.rawPtr.CallRejectPromise(uintptr(unsafe.Pointer(&errormsgStr)))
+	ret := rawPtr.CallRejectPromise(uintptr(unsafe.Pointer(&errormsgStr)))
 	return int32(ret)
 }
 
@@ -1187,6 +1285,9 @@ func wrapV8Value(ptr unsafe.Pointer) V8Value {
 // V8StackTrace Structure representing a V8 stack trace handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
 type V8StackTrace = portin.V8StackTrace
 
+// v8StackTraceImpl is a reverse wrapper for a CEF-owned V8StackTrace pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type v8StackTraceImpl struct {
 	rawPtr      *capi.CEFV8StackTraceT
 	releaseOnce sync.Once
@@ -1196,7 +1297,8 @@ func (obj *v8StackTraceImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -1204,7 +1306,8 @@ func (obj *v8StackTraceImpl) GetFrameCount() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetFrameCount()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFrameCount()
 	return int32(ret)
 }
 
@@ -1212,7 +1315,8 @@ func (obj *v8StackTraceImpl) GetFrame(index int32) V8StackFrame {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetFrame(uintptr(index))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFrame(uintptr(index))
 	return wrapV8StackFrame(unsafe.Pointer(ret))
 }
 
@@ -1255,6 +1359,9 @@ func wrapV8StackTrace(ptr unsafe.Pointer) V8StackTrace {
 // V8StackFrame Structure representing a V8 stack frame handle. V8 handles can only be accessed from the thread on which they are created. Valid threads for creating a V8 handle include the render process main thread (TID_RENDERER) and WebWorker threads. A task runner for posting tasks on the associated thread can be retrieved via the cef_v8_context_t::get_task_runner() function.
 type V8StackFrame = portin.V8StackFrame
 
+// v8StackFrameImpl is a reverse wrapper for a CEF-owned V8StackFrame pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type v8StackFrameImpl struct {
 	rawPtr      *capi.CEFV8StackFrameT
 	releaseOnce sync.Once
@@ -1264,7 +1371,8 @@ func (obj *v8StackFrameImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -1272,7 +1380,8 @@ func (obj *v8StackFrameImpl) GetScriptName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetScriptName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetScriptName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -1280,7 +1389,8 @@ func (obj *v8StackFrameImpl) GetScriptNameOrSourceURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetScriptNameOrSourceURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetScriptNameOrSourceURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -1288,7 +1398,8 @@ func (obj *v8StackFrameImpl) GetFunctionName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFunctionName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFunctionName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -1296,7 +1407,8 @@ func (obj *v8StackFrameImpl) GetLineNumber() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetLineNumber()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLineNumber()
 	return int32(ret)
 }
 
@@ -1304,7 +1416,8 @@ func (obj *v8StackFrameImpl) GetColumn() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetColumn()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetColumn()
 	return int32(ret)
 }
 
@@ -1312,7 +1425,8 @@ func (obj *v8StackFrameImpl) IsEval() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsEval()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsEval()
 	return ret != 0
 }
 
@@ -1320,7 +1434,8 @@ func (obj *v8StackFrameImpl) IsConstructor() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsConstructor()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsConstructor()
 	return ret != 0
 }
 

@@ -15,6 +15,9 @@ import (
 // ProcessMessage Structure representing a message. Can be used on any process and thread.
 type ProcessMessage = portin.ProcessMessage
 
+// processMessageImpl is a reverse wrapper for a CEF-owned ProcessMessage pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type processMessageImpl struct {
 	rawPtr      *capi.CEFProcessMessageT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *processMessageImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -32,7 +36,8 @@ func (obj *processMessageImpl) IsReadOnly() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsReadOnly()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
@@ -40,7 +45,8 @@ func (obj *processMessageImpl) Copy() ProcessMessage {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallCopy()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallCopy()
 	return wrapProcessMessage(unsafe.Pointer(ret))
 }
 
@@ -48,7 +54,8 @@ func (obj *processMessageImpl) GetName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -56,7 +63,8 @@ func (obj *processMessageImpl) GetArgumentList() ListValue {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetArgumentList()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetArgumentList()
 	return wrapListValue(unsafe.Pointer(ret))
 }
 
@@ -64,7 +72,8 @@ func (obj *processMessageImpl) GetSharedMemoryRegion() SharedMemoryRegion {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetSharedMemoryRegion()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSharedMemoryRegion()
 	return wrapSharedMemoryRegion(unsafe.Pointer(ret))
 }
 

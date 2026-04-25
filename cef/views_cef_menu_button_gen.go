@@ -15,6 +15,9 @@ import (
 // MenuButton MenuButton is a button with optional text, icon and/or menu marker that shows a menu when clicked with the left mouse button. All size and position values are in density independent pixels (DIP) unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
 type MenuButton = portin.MenuButton
 
+// menuButtonImpl is a reverse wrapper for a CEF-owned MenuButton pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type menuButtonImpl struct {
 	rawPtr      *capi.CEFMenuButtonT
 	releaseOnce sync.Once
@@ -24,14 +27,16 @@ func (obj *menuButtonImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anc
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
+	rawPtr := obj.rawPtr
+	rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
 }
 
 func (obj *menuButtonImpl) TriggerMenu() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallTriggerMenu()
+	rawPtr := obj.rawPtr
+	rawPtr.CallTriggerMenu()
 }
 
 func (obj *menuButtonImpl) RawPointer() unsafe.Pointer {

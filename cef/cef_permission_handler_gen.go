@@ -17,6 +17,9 @@ import (
 // MediaAccessCallback Callback structure used for asynchronous continuation of media access permission requests.
 type MediaAccessCallback = portin.MediaAccessCallback
 
+// mediaAccessCallbackImpl is a reverse wrapper for a CEF-owned MediaAccessCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type mediaAccessCallbackImpl struct {
 	rawPtr      *capi.CEFMediaAccessCallbackT
 	releaseOnce sync.Once
@@ -26,14 +29,16 @@ func (obj *mediaAccessCallbackImpl) Cont(allowedPermissions uint32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCont(uintptr(allowedPermissions))
+	rawPtr := obj.rawPtr
+	rawPtr.CallCont(uintptr(allowedPermissions))
 }
 
 func (obj *mediaAccessCallbackImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *mediaAccessCallbackImpl) RawPointer() unsafe.Pointer {
@@ -75,6 +80,9 @@ func wrapMediaAccessCallback(ptr unsafe.Pointer) MediaAccessCallback {
 // PermissionPromptCallback Callback structure used for asynchronous continuation of permission prompts.
 type PermissionPromptCallback = portin.PermissionPromptCallback
 
+// permissionPromptCallbackImpl is a reverse wrapper for a CEF-owned PermissionPromptCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type permissionPromptCallbackImpl struct {
 	rawPtr      *capi.CEFPermissionPromptCallbackT
 	releaseOnce sync.Once
@@ -84,7 +92,8 @@ func (obj *permissionPromptCallbackImpl) Cont(result PermissionRequestResult) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCont(uintptr(result))
+	rawPtr := obj.rawPtr
+	rawPtr.CallCont(uintptr(result))
 }
 
 func (obj *permissionPromptCallbackImpl) RawPointer() unsafe.Pointer {
@@ -158,7 +167,7 @@ func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 
 	r.OverrideOnShowPermissionPrompt(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		promptID := uint64(arg1)
+		promptID := arg1
 		requestingOrigin := goString(unsafe.Pointer(arg2))
 		requestedPermissions := uint32(arg3)
 		callback := wrapPermissionPromptCallback(unsafe.Pointer(arg4))
@@ -167,7 +176,7 @@ func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 
 	r.OverrideOnDismissPermissionPrompt(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr) {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
-		promptID := uint64(arg1)
+		promptID := arg1
 		result := PermissionRequestResult(arg2)
 		impl.OnDismissPermissionPrompt(browser, promptID, result)
 	}))
@@ -177,6 +186,9 @@ func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
 	return w
 }
 
+// permissionHandlerImpl is a reverse wrapper for a CEF-owned PermissionHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type permissionHandlerImpl struct {
 	rawPtr                        *capi.CEFPermissionHandlerT
 	releaseOnce                   sync.Once
@@ -190,9 +202,10 @@ func (obj *permissionHandlerImpl) OnRequestMediaAccessPermission(browser Browser
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	requestingOriginStr := cefString(requestingOrigin)
 	defer freeCefString(&requestingOriginStr)
-	ret := obj.rawPtr.CallOnRequestMediaAccessPermission(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnRequestMediaAccessPermission(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -200,12 +213,13 @@ func (obj *permissionHandlerImpl) OnShowPermissionPrompt(browser Browser, prompt
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	requestingOriginStr := cefString(requestingOrigin)
 	defer freeCefString(&requestingOriginStr)
 	obj.onShowPermissionPromptOnce.Do(func() {
-		registerTypedCallback(&obj.onShowPermissionPromptFunc, obj.rawPtr.OnShowPermissionPrompt)
+		registerTypedCallback(&obj.onShowPermissionPromptFunc, rawPtr.OnShowPermissionPrompt)
 	})
-	ret := obj.onShowPermissionPromptFunc(obj.rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
+	ret := obj.onShowPermissionPromptFunc(rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -213,10 +227,11 @@ func (obj *permissionHandlerImpl) OnDismissPermissionPrompt(browser Browser, pro
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	obj.onDismissPermissionPromptOnce.Do(func() {
-		registerTypedCallback(&obj.onDismissPermissionPromptFunc, obj.rawPtr.OnDismissPermissionPrompt)
+		registerTypedCallback(&obj.onDismissPermissionPromptFunc, rawPtr.OnDismissPermissionPrompt)
 	})
-	obj.onDismissPermissionPromptFunc(obj.rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(result))
+	obj.onDismissPermissionPromptFunc(rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(result))
 }
 
 func (obj *permissionHandlerImpl) RawPointer() unsafe.Pointer {

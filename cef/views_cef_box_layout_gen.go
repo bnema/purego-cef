@@ -15,6 +15,9 @@ import (
 // BoxLayout A Layout manager that arranges child views vertically or horizontally in a side-by-side fashion with spacing around and between the child views. The child views are always sized according to their preferred size. If the host's bounds provide insufficient space, child views will be clamped. Excess space will not be distributed. Methods must be called on the browser process UI thread unless otherwise indicated.
 type BoxLayout = portin.BoxLayout
 
+// boxLayoutImpl is a reverse wrapper for a CEF-owned BoxLayout pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type boxLayoutImpl struct {
 	rawPtr      *capi.CEFBoxLayoutT
 	releaseOnce sync.Once
@@ -24,14 +27,16 @@ func (obj *boxLayoutImpl) SetFlexForView(view View, flex int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetFlexForView(uintptr(extractRawPointer(view)), uintptr(flex))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetFlexForView(uintptr(extractRawPointer(view)), uintptr(flex))
 }
 
 func (obj *boxLayoutImpl) ClearFlexForView(view View) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallClearFlexForView(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallClearFlexForView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *boxLayoutImpl) RawPointer() unsafe.Pointer {

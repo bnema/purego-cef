@@ -41,6 +41,9 @@ func NewPanelDelegate(impl PanelDelegate) PanelDelegate {
 	return w
 }
 
+// panelDelegateImpl is a reverse wrapper for a CEF-owned PanelDelegate pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type panelDelegateImpl struct {
 	rawPtr      *capi.CEFPanelDelegateT
 	releaseOnce sync.Once

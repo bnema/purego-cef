@@ -46,7 +46,7 @@ func NewReadHandler(impl ReadHandler) ReadHandler {
 	}))
 
 	r.OverrideSeek(purego.NewCallback(func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
-		offset := int64(arg0)
+		offset := arg0
 		whence := int32(arg1)
 		return uintptr(impl.SeekOffset(offset, whence))
 	}))
@@ -68,6 +68,9 @@ func NewReadHandler(impl ReadHandler) ReadHandler {
 	return w
 }
 
+// readHandlerImpl is a reverse wrapper for a CEF-owned ReadHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type readHandlerImpl struct {
 	rawPtr         *capi.CEFReadHandlerT
 	releaseOnce    sync.Once
@@ -81,7 +84,8 @@ func (obj *readHandlerImpl) Read(ptr unsafe.Pointer, size int, n int) int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
 	return int(ret)
 }
 
@@ -89,10 +93,11 @@ func (obj *readHandlerImpl) SeekOffset(offset int64, whence int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.seekOffsetOnce.Do(func() {
-		registerTypedCallback(&obj.seekOffsetFunc, obj.rawPtr.Seek)
+		registerTypedCallback(&obj.seekOffsetFunc, rawPtr.Seek)
 	})
-	ret := obj.seekOffsetFunc(obj.rawPtr, offset, uintptr(whence))
+	ret := obj.seekOffsetFunc(rawPtr, offset, uintptr(whence))
 	return int32(ret)
 }
 
@@ -100,10 +105,11 @@ func (obj *readHandlerImpl) Tell() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.tellOnce.Do(func() {
-		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
-	ret := obj.tellFunc(obj.rawPtr)
+	ret := obj.tellFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -111,7 +117,8 @@ func (obj *readHandlerImpl) Eof() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallEof()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallEof()
 	return int32(ret)
 }
 
@@ -119,7 +126,8 @@ func (obj *readHandlerImpl) MayBlock() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMayBlock()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMayBlock()
 	return int32(ret)
 }
 
@@ -163,6 +171,9 @@ func wrapReadHandler(ptr unsafe.Pointer) ReadHandler {
 // StreamReader Structure used to read data from a stream. The functions of this structure may be called on any thread.
 type StreamReader = portin.StreamReader
 
+// streamReaderImpl is a reverse wrapper for a CEF-owned StreamReader pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type streamReaderImpl struct {
 	rawPtr         *capi.CEFStreamReaderT
 	releaseOnce    sync.Once
@@ -176,7 +187,8 @@ func (obj *streamReaderImpl) Read(ptr unsafe.Pointer, size int, n int) int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
 	return int(ret)
 }
 
@@ -184,10 +196,11 @@ func (obj *streamReaderImpl) SeekOffset(offset int64, whence int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.seekOffsetOnce.Do(func() {
-		registerTypedCallback(&obj.seekOffsetFunc, obj.rawPtr.Seek)
+		registerTypedCallback(&obj.seekOffsetFunc, rawPtr.Seek)
 	})
-	ret := obj.seekOffsetFunc(obj.rawPtr, offset, uintptr(whence))
+	ret := obj.seekOffsetFunc(rawPtr, offset, uintptr(whence))
 	return int32(ret)
 }
 
@@ -195,10 +208,11 @@ func (obj *streamReaderImpl) Tell() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.tellOnce.Do(func() {
-		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
-	ret := obj.tellFunc(obj.rawPtr)
+	ret := obj.tellFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -206,7 +220,8 @@ func (obj *streamReaderImpl) Eof() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallEof()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallEof()
 	return int32(ret)
 }
 
@@ -214,7 +229,8 @@ func (obj *streamReaderImpl) MayBlock() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMayBlock()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMayBlock()
 	return int32(ret)
 }
 
@@ -286,7 +302,7 @@ func NewWriteHandler(impl WriteHandler) WriteHandler {
 	}))
 
 	r.OverrideSeek(purego.NewCallback(func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
-		offset := int64(arg0)
+		offset := arg0
 		whence := int32(arg1)
 		return uintptr(impl.SeekOffset(offset, whence))
 	}))
@@ -308,6 +324,9 @@ func NewWriteHandler(impl WriteHandler) WriteHandler {
 	return w
 }
 
+// writeHandlerImpl is a reverse wrapper for a CEF-owned WriteHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type writeHandlerImpl struct {
 	rawPtr         *capi.CEFWriteHandlerT
 	releaseOnce    sync.Once
@@ -321,7 +340,8 @@ func (obj *writeHandlerImpl) Write(ptr unsafe.Pointer, size int, n int) int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
 	return int(ret)
 }
 
@@ -329,10 +349,11 @@ func (obj *writeHandlerImpl) SeekOffset(offset int64, whence int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.seekOffsetOnce.Do(func() {
-		registerTypedCallback(&obj.seekOffsetFunc, obj.rawPtr.Seek)
+		registerTypedCallback(&obj.seekOffsetFunc, rawPtr.Seek)
 	})
-	ret := obj.seekOffsetFunc(obj.rawPtr, offset, uintptr(whence))
+	ret := obj.seekOffsetFunc(rawPtr, offset, uintptr(whence))
 	return int32(ret)
 }
 
@@ -340,10 +361,11 @@ func (obj *writeHandlerImpl) Tell() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.tellOnce.Do(func() {
-		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
-	ret := obj.tellFunc(obj.rawPtr)
+	ret := obj.tellFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -351,7 +373,8 @@ func (obj *writeHandlerImpl) Flush() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallFlush()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallFlush()
 	return int32(ret)
 }
 
@@ -359,7 +382,8 @@ func (obj *writeHandlerImpl) MayBlock() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMayBlock()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMayBlock()
 	return int32(ret)
 }
 
@@ -403,6 +427,9 @@ func wrapWriteHandler(ptr unsafe.Pointer) WriteHandler {
 // StreamWriter Structure used to write data to a stream. The functions of this structure may be called on any thread.
 type StreamWriter = portin.StreamWriter
 
+// streamWriterImpl is a reverse wrapper for a CEF-owned StreamWriter pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type streamWriterImpl struct {
 	rawPtr         *capi.CEFStreamWriterT
 	releaseOnce    sync.Once
@@ -416,7 +443,8 @@ func (obj *streamWriterImpl) Write(ptr unsafe.Pointer, size int, n int) int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
 	return int(ret)
 }
 
@@ -424,10 +452,11 @@ func (obj *streamWriterImpl) SeekOffset(offset int64, whence int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.seekOffsetOnce.Do(func() {
-		registerTypedCallback(&obj.seekOffsetFunc, obj.rawPtr.Seek)
+		registerTypedCallback(&obj.seekOffsetFunc, rawPtr.Seek)
 	})
-	ret := obj.seekOffsetFunc(obj.rawPtr, offset, uintptr(whence))
+	ret := obj.seekOffsetFunc(rawPtr, offset, uintptr(whence))
 	return int32(ret)
 }
 
@@ -435,10 +464,11 @@ func (obj *streamWriterImpl) Tell() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.tellOnce.Do(func() {
-		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
-	ret := obj.tellFunc(obj.rawPtr)
+	ret := obj.tellFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -446,7 +476,8 @@ func (obj *streamWriterImpl) Flush() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallFlush()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallFlush()
 	return int32(ret)
 }
 
@@ -454,7 +485,8 @@ func (obj *streamWriterImpl) MayBlock() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMayBlock()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMayBlock()
 	return int32(ret)
 }
 

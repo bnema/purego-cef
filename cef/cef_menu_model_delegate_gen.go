@@ -84,6 +84,9 @@ func NewMenuModelDelegate(impl MenuModelDelegate) MenuModelDelegate {
 	return w
 }
 
+// menuModelDelegateImpl is a reverse wrapper for a CEF-owned MenuModelDelegate pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type menuModelDelegateImpl struct {
 	rawPtr      *capi.CEFMenuModelDelegateT
 	releaseOnce sync.Once
@@ -93,49 +96,56 @@ func (obj *menuModelDelegateImpl) ExecuteCommand(menuModel MenuModel, commandID 
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallExecuteCommand(uintptr(extractRawPointer(menuModel)), uintptr(commandID), uintptr(eventFlags))
+	rawPtr := obj.rawPtr
+	rawPtr.CallExecuteCommand(uintptr(extractRawPointer(menuModel)), uintptr(commandID), uintptr(eventFlags))
 }
 
 func (obj *menuModelDelegateImpl) MouseOutsideMenu(menuModel MenuModel, screenPoint *Point) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallMouseOutsideMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallMouseOutsideMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)))
 }
 
 func (obj *menuModelDelegateImpl) UnhandledOpenSubmenu(menuModel MenuModel, isRtl int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallUnhandledOpenSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
+	rawPtr := obj.rawPtr
+	rawPtr.CallUnhandledOpenSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
 }
 
 func (obj *menuModelDelegateImpl) UnhandledCloseSubmenu(menuModel MenuModel, isRtl int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallUnhandledCloseSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
+	rawPtr := obj.rawPtr
+	rawPtr.CallUnhandledCloseSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
 }
 
 func (obj *menuModelDelegateImpl) MenuWillShow(menuModel MenuModel) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallMenuWillShow(uintptr(extractRawPointer(menuModel)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallMenuWillShow(uintptr(extractRawPointer(menuModel)))
 }
 
 func (obj *menuModelDelegateImpl) MenuClosed(menuModel MenuModel) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallMenuClosed(uintptr(extractRawPointer(menuModel)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallMenuClosed(uintptr(extractRawPointer(menuModel)))
 }
 
 func (obj *menuModelDelegateImpl) FormatLabel(menuModel MenuModel, label uintptr) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallFormatLabel(uintptr(extractRawPointer(menuModel)), label)
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallFormatLabel(uintptr(extractRawPointer(menuModel)), label)
 	return int32(ret)
 }
 

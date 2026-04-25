@@ -75,6 +75,9 @@ func NewFrameHandler(impl FrameHandler) FrameHandler {
 	return w
 }
 
+// frameHandlerImpl is a reverse wrapper for a CEF-owned FrameHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type frameHandlerImpl struct {
 	rawPtr      *capi.CEFFrameHandlerT
 	releaseOnce sync.Once
@@ -84,35 +87,40 @@ func (obj *frameHandlerImpl) OnFrameCreated(browser Browser, frame Frame) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnFrameCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnFrameCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *frameHandlerImpl) OnFrameDestroyed(browser Browser, frame Frame) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnFrameDestroyed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnFrameDestroyed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *frameHandlerImpl) OnFrameAttached(browser Browser, frame Frame, reattached int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnFrameAttached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(reattached))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnFrameAttached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(reattached))
 }
 
 func (obj *frameHandlerImpl) OnFrameDetached(browser Browser, frame Frame) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnFrameDetached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnFrameDetached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *frameHandlerImpl) OnMainFrameChanged(browser Browser, oldFrame Frame, newFrame Frame) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnMainFrameChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(oldFrame)), uintptr(extractRawPointer(newFrame)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnMainFrameChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(oldFrame)), uintptr(extractRawPointer(newFrame)))
 }
 
 func (obj *frameHandlerImpl) RawPointer() unsafe.Pointer {

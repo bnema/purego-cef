@@ -15,6 +15,9 @@ import (
 // Textfield A Textfield supports editing of text. This control is custom rendered with no platform-specific code. Methods must be called on the browser process UI thread unless otherwise indicated.
 type Textfield = portin.Textfield
 
+// textfieldImpl is a reverse wrapper for a CEF-owned Textfield pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type textfieldImpl struct {
 	rawPtr      *capi.CEFTextfieldT
 	releaseOnce sync.Once
@@ -24,14 +27,16 @@ func (obj *textfieldImpl) SetPasswordInput(passwordInput int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetPasswordInput(uintptr(passwordInput))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetPasswordInput(uintptr(passwordInput))
 }
 
 func (obj *textfieldImpl) IsPasswordInput() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsPasswordInput()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsPasswordInput()
 	return ret != 0
 }
 
@@ -39,14 +44,16 @@ func (obj *textfieldImpl) SetReadOnly(readOnly int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetReadOnly(uintptr(readOnly))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetReadOnly(uintptr(readOnly))
 }
 
 func (obj *textfieldImpl) IsReadOnly() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsReadOnly()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
@@ -54,7 +61,8 @@ func (obj *textfieldImpl) GetText() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetText()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -62,34 +70,38 @@ func (obj *textfieldImpl) SetText(text string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	obj.rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *textfieldImpl) AppendText(text string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	obj.rawPtr.CallAppendText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallAppendText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *textfieldImpl) InsertOrReplaceText(text string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	obj.rawPtr.CallInsertOrReplaceText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallInsertOrReplaceText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *textfieldImpl) HasSelection() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasSelection()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasSelection()
 	return ret != 0
 }
 
@@ -97,7 +109,8 @@ func (obj *textfieldImpl) GetSelectedText() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetSelectedText()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSelectedText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -105,21 +118,24 @@ func (obj *textfieldImpl) SelectAll(reversed int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSelectAll(uintptr(reversed))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSelectAll(uintptr(reversed))
 }
 
 func (obj *textfieldImpl) ClearSelection() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallClearSelection()
+	rawPtr := obj.rawPtr
+	rawPtr.CallClearSelection()
 }
 
 func (obj *textfieldImpl) GetSelectedRange() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetSelectedRange()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSelectedRange()
 	return uintptr(ret)
 }
 
@@ -127,14 +143,16 @@ func (obj *textfieldImpl) SelectRange(range_ *Range) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSelectRange(uintptr(unsafe.Pointer(range_)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSelectRange(uintptr(unsafe.Pointer(range_)))
 }
 
 func (obj *textfieldImpl) GetCursorPosition() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetCursorPosition()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetCursorPosition()
 	return int(ret)
 }
 
@@ -142,14 +160,16 @@ func (obj *textfieldImpl) SetTextColor(color uintptr) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetTextColor(color)
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetTextColor(color)
 }
 
 func (obj *textfieldImpl) GetTextColor() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetTextColor()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTextColor()
 	return uintptr(ret)
 }
 
@@ -157,14 +177,16 @@ func (obj *textfieldImpl) SetSelectionTextColor(color uintptr) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetSelectionTextColor(color)
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetSelectionTextColor(color)
 }
 
 func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetSelectionTextColor()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSelectionTextColor()
 	return uintptr(ret)
 }
 
@@ -172,14 +194,16 @@ func (obj *textfieldImpl) SetSelectionBackgroundColor(color uintptr) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetSelectionBackgroundColor(color)
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetSelectionBackgroundColor(color)
 }
 
 func (obj *textfieldImpl) GetSelectionBackgroundColor() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetSelectionBackgroundColor()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSelectionBackgroundColor()
 	return uintptr(ret)
 }
 
@@ -187,30 +211,34 @@ func (obj *textfieldImpl) SetFontList(fontList string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
-	obj.rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
+	rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
 }
 
 func (obj *textfieldImpl) ApplyTextColor(color uintptr, range_ *Range) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallApplyTextColor(color, uintptr(unsafe.Pointer(range_)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallApplyTextColor(color, uintptr(unsafe.Pointer(range_)))
 }
 
 func (obj *textfieldImpl) ApplyTextStyle(style TextStyle, add int32, range_ *Range) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallApplyTextStyle(uintptr(style), uintptr(add), uintptr(unsafe.Pointer(range_)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallApplyTextStyle(uintptr(style), uintptr(add), uintptr(unsafe.Pointer(range_)))
 }
 
 func (obj *textfieldImpl) IsCommandEnabled(commandID TextFieldCommands) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsCommandEnabled(uintptr(commandID))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsCommandEnabled(uintptr(commandID))
 	return ret != 0
 }
 
@@ -218,30 +246,34 @@ func (obj *textfieldImpl) ExecuteCommand(commandID TextFieldCommands) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallExecuteCommand(uintptr(commandID))
+	rawPtr := obj.rawPtr
+	rawPtr.CallExecuteCommand(uintptr(commandID))
 }
 
 func (obj *textfieldImpl) ClearEditHistory() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallClearEditHistory()
+	rawPtr := obj.rawPtr
+	rawPtr.CallClearEditHistory()
 }
 
 func (obj *textfieldImpl) SetPlaceholderText(text string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	obj.rawPtr.CallSetPlaceholderText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallSetPlaceholderText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *textfieldImpl) GetPlaceholderText() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetPlaceholderText()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPlaceholderText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -249,16 +281,18 @@ func (obj *textfieldImpl) SetPlaceholderTextColor(color uintptr) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetPlaceholderTextColor(color)
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetPlaceholderTextColor(color)
 }
 
 func (obj *textfieldImpl) SetAccessibleName(name string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	obj.rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
+	rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *textfieldImpl) RawPointer() unsafe.Pointer {

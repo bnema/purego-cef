@@ -15,6 +15,9 @@ import (
 // DownloadItem Structure used to represent a download item.
 type DownloadItem = portin.DownloadItem
 
+// downloadItemImpl is a reverse wrapper for a CEF-owned DownloadItem pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type downloadItemImpl struct {
 	rawPtr               *capi.CEFDownloadItemT
 	releaseOnce          sync.Once
@@ -30,7 +33,8 @@ func (obj *downloadItemImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -38,7 +42,8 @@ func (obj *downloadItemImpl) IsInProgress() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsInProgress()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsInProgress()
 	return ret != 0
 }
 
@@ -46,7 +51,8 @@ func (obj *downloadItemImpl) IsComplete() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsComplete()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsComplete()
 	return ret != 0
 }
 
@@ -54,7 +60,8 @@ func (obj *downloadItemImpl) IsCanceled() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsCanceled()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsCanceled()
 	return ret != 0
 }
 
@@ -62,7 +69,8 @@ func (obj *downloadItemImpl) IsInterrupted() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsInterrupted()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsInterrupted()
 	return ret != 0
 }
 
@@ -70,7 +78,8 @@ func (obj *downloadItemImpl) GetInterruptReason() DownloadInterruptReason {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetInterruptReason()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetInterruptReason()
 	return DownloadInterruptReason(ret)
 }
 
@@ -78,10 +87,11 @@ func (obj *downloadItemImpl) GetCurrentSpeed() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getCurrentSpeedOnce.Do(func() {
-		registerTypedCallback(&obj.getCurrentSpeedFunc, obj.rawPtr.GetCurrentSpeed)
+		registerTypedCallback(&obj.getCurrentSpeedFunc, rawPtr.GetCurrentSpeed)
 	})
-	ret := obj.getCurrentSpeedFunc(obj.rawPtr)
+	ret := obj.getCurrentSpeedFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -89,7 +99,8 @@ func (obj *downloadItemImpl) GetPercentComplete() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetPercentComplete()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPercentComplete()
 	return int32(ret)
 }
 
@@ -97,10 +108,11 @@ func (obj *downloadItemImpl) GetTotalBytes() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getTotalBytesOnce.Do(func() {
-		registerTypedCallback(&obj.getTotalBytesFunc, obj.rawPtr.GetTotalBytes)
+		registerTypedCallback(&obj.getTotalBytesFunc, rawPtr.GetTotalBytes)
 	})
-	ret := obj.getTotalBytesFunc(obj.rawPtr)
+	ret := obj.getTotalBytesFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -108,10 +120,11 @@ func (obj *downloadItemImpl) GetReceivedBytes() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getReceivedBytesOnce.Do(func() {
-		registerTypedCallback(&obj.getReceivedBytesFunc, obj.rawPtr.GetReceivedBytes)
+		registerTypedCallback(&obj.getReceivedBytesFunc, rawPtr.GetReceivedBytes)
 	})
-	ret := obj.getReceivedBytesFunc(obj.rawPtr)
+	ret := obj.getReceivedBytesFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -119,7 +132,8 @@ func (obj *downloadItemImpl) GetStartTime() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetStartTime()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetStartTime()
 	return uintptr(ret)
 }
 
@@ -127,7 +141,8 @@ func (obj *downloadItemImpl) GetEndTime() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetEndTime()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetEndTime()
 	return uintptr(ret)
 }
 
@@ -135,7 +150,8 @@ func (obj *downloadItemImpl) GetFullPath() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFullPath()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFullPath()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -143,7 +159,8 @@ func (obj *downloadItemImpl) GetID() uint32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetID()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetID()
 	return uint32(ret)
 }
 
@@ -151,7 +168,8 @@ func (obj *downloadItemImpl) GetURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -159,7 +177,8 @@ func (obj *downloadItemImpl) GetOriginalURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetOriginalURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOriginalURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -167,7 +186,8 @@ func (obj *downloadItemImpl) GetSuggestedFileName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetSuggestedFileName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSuggestedFileName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -175,7 +195,8 @@ func (obj *downloadItemImpl) GetContentDisposition() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetContentDisposition()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetContentDisposition()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -183,7 +204,8 @@ func (obj *downloadItemImpl) GetMimeType() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetMimeType()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMimeType()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -191,7 +213,8 @@ func (obj *downloadItemImpl) IsPaused() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsPaused()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsPaused()
 	return ret != 0
 }
 

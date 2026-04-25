@@ -17,6 +17,9 @@ import (
 // RunContextMenuCallback Callback structure used for continuation of custom context menu display.
 type RunContextMenuCallback = portin.RunContextMenuCallback
 
+// runContextMenuCallbackImpl is a reverse wrapper for a CEF-owned RunContextMenuCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type runContextMenuCallbackImpl struct {
 	rawPtr      *capi.CEFRunContextMenuCallbackT
 	releaseOnce sync.Once
@@ -26,14 +29,16 @@ func (obj *runContextMenuCallbackImpl) Cont(commandID int32, eventFlags EventFla
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
+	rawPtr := obj.rawPtr
+	rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
 }
 
 func (obj *runContextMenuCallbackImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *runContextMenuCallbackImpl) RawPointer() unsafe.Pointer {
@@ -75,6 +80,9 @@ func wrapRunContextMenuCallback(ptr unsafe.Pointer) RunContextMenuCallback {
 // RunQuickMenuCallback Callback structure used for continuation of custom quick menu display.
 type RunQuickMenuCallback = portin.RunQuickMenuCallback
 
+// runQuickMenuCallbackImpl is a reverse wrapper for a CEF-owned RunQuickMenuCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type runQuickMenuCallbackImpl struct {
 	rawPtr      *capi.CEFRunQuickMenuCallbackT
 	releaseOnce sync.Once
@@ -84,14 +92,16 @@ func (obj *runQuickMenuCallbackImpl) Cont(commandID int32, eventFlags EventFlags
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
+	rawPtr := obj.rawPtr
+	rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
 }
 
 func (obj *runQuickMenuCallbackImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *runQuickMenuCallbackImpl) RawPointer() unsafe.Pointer {
@@ -215,6 +225,9 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 	return w
 }
 
+// contextMenuHandlerImpl is a reverse wrapper for a CEF-owned ContextMenuHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type contextMenuHandlerImpl struct {
 	rawPtr      *capi.CEFContextMenuHandlerT
 	releaseOnce sync.Once
@@ -224,14 +237,16 @@ func (obj *contextMenuHandlerImpl) OnBeforeContextMenu(browser Browser, frame Fr
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBeforeContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBeforeContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)))
 }
 
 func (obj *contextMenuHandlerImpl) RunContextMenu(browser Browser, frame Frame, params ContextMenuParams, model MenuModel, callback RunContextMenuCallback) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallRunContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)), uintptr(extractRawPointer(callback)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallRunContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -239,7 +254,8 @@ func (obj *contextMenuHandlerImpl) OnContextMenuCommand(browser Browser, frame F
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnContextMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(commandID), uintptr(eventFlags))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnContextMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(commandID), uintptr(eventFlags))
 	return int32(ret)
 }
 
@@ -247,14 +263,16 @@ func (obj *contextMenuHandlerImpl) OnContextMenuDismissed(browser Browser, frame
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnContextMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnContextMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *contextMenuHandlerImpl) RunQuickMenu(browser Browser, frame Frame, location *Point, size *Size, editStateFlags QuickMenuEditStateFlags, callback RunQuickMenuCallback) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallRunQuickMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(location)), uintptr(unsafe.Pointer(size)), uintptr(editStateFlags), uintptr(extractRawPointer(callback)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallRunQuickMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(location)), uintptr(unsafe.Pointer(size)), uintptr(editStateFlags), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -262,7 +280,8 @@ func (obj *contextMenuHandlerImpl) OnQuickMenuCommand(browser Browser, frame Fra
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnQuickMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(commandID), uintptr(eventFlags))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnQuickMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(commandID), uintptr(eventFlags))
 	return int32(ret)
 }
 
@@ -270,7 +289,8 @@ func (obj *contextMenuHandlerImpl) OnQuickMenuDismissed(browser Browser, frame F
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnQuickMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnQuickMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
 }
 
 func (obj *contextMenuHandlerImpl) RawPointer() unsafe.Pointer {
@@ -313,6 +333,9 @@ func wrapContextMenuHandler(ptr unsafe.Pointer) ContextMenuHandler {
 // ContextMenuParams Provides information about the context menu state. The functions of this structure can only be accessed on browser process the UI thread.
 type ContextMenuParams = portin.ContextMenuParams
 
+// contextMenuParamsImpl is a reverse wrapper for a CEF-owned ContextMenuParams pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type contextMenuParamsImpl struct {
 	rawPtr      *capi.CEFContextMenuParamsT
 	releaseOnce sync.Once
@@ -322,7 +345,8 @@ func (obj *contextMenuParamsImpl) GetXcoord() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetXcoord()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetXcoord()
 	return int32(ret)
 }
 
@@ -330,7 +354,8 @@ func (obj *contextMenuParamsImpl) GetYcoord() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetYcoord()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetYcoord()
 	return int32(ret)
 }
 
@@ -338,7 +363,8 @@ func (obj *contextMenuParamsImpl) GetTypeFlags() ContextMenuTypeFlags {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetTypeFlags()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTypeFlags()
 	return ContextMenuTypeFlags(ret)
 }
 
@@ -346,7 +372,8 @@ func (obj *contextMenuParamsImpl) GetLinkURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetLinkURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLinkURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -354,7 +381,8 @@ func (obj *contextMenuParamsImpl) GetUnfilteredLinkURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetUnfilteredLinkURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetUnfilteredLinkURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -362,7 +390,8 @@ func (obj *contextMenuParamsImpl) GetSourceURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetSourceURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSourceURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -370,7 +399,8 @@ func (obj *contextMenuParamsImpl) HasImageContents() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasImageContents()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasImageContents()
 	return ret != 0
 }
 
@@ -378,7 +408,8 @@ func (obj *contextMenuParamsImpl) GetTitleText() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetTitleText()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTitleText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -386,7 +417,8 @@ func (obj *contextMenuParamsImpl) GetPageURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetPageURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPageURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -394,7 +426,8 @@ func (obj *contextMenuParamsImpl) GetFrameURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFrameURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFrameURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -402,7 +435,8 @@ func (obj *contextMenuParamsImpl) GetFrameCharset() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFrameCharset()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFrameCharset()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -410,7 +444,8 @@ func (obj *contextMenuParamsImpl) GetMediaType() ContextMenuMediaType {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetMediaType()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMediaType()
 	return ContextMenuMediaType(ret)
 }
 
@@ -418,7 +453,8 @@ func (obj *contextMenuParamsImpl) GetMediaStateFlags() ContextMenuMediaStateFlag
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetMediaStateFlags()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMediaStateFlags()
 	return ContextMenuMediaStateFlags(ret)
 }
 
@@ -426,7 +462,8 @@ func (obj *contextMenuParamsImpl) GetSelectionText() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetSelectionText()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSelectionText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -434,7 +471,8 @@ func (obj *contextMenuParamsImpl) GetMisspelledWord() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetMisspelledWord()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMisspelledWord()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -442,7 +480,8 @@ func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions StringLis
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetDictionarySuggestions(uintptr(suggestions))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDictionarySuggestions(uintptr(suggestions))
 	return int32(ret)
 }
 
@@ -450,7 +489,8 @@ func (obj *contextMenuParamsImpl) IsEditable() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsEditable()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsEditable()
 	return ret != 0
 }
 
@@ -458,7 +498,8 @@ func (obj *contextMenuParamsImpl) IsSpellCheckEnabled() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSpellCheckEnabled()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSpellCheckEnabled()
 	return ret != 0
 }
 
@@ -466,7 +507,8 @@ func (obj *contextMenuParamsImpl) GetEditStateFlags() ContextMenuEditStateFlags 
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetEditStateFlags()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetEditStateFlags()
 	return ContextMenuEditStateFlags(ret)
 }
 
@@ -474,7 +516,8 @@ func (obj *contextMenuParamsImpl) IsCustomMenu() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsCustomMenu()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsCustomMenu()
 	return ret != 0
 }
 

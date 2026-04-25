@@ -15,6 +15,9 @@ import (
 // Registration Generic callback structure used for managing the lifespan of a registration.
 type Registration = portin.Registration
 
+// registrationImpl is a reverse wrapper for a CEF-owned Registration pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type registrationImpl struct {
 	rawPtr      *capi.CEFRegistrationT
 	releaseOnce sync.Once

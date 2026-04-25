@@ -64,6 +64,9 @@ func NewResourceBundleHandler(impl ResourceBundleHandler) ResourceBundleHandler 
 	return w
 }
 
+// resourceBundleHandlerImpl is a reverse wrapper for a CEF-owned ResourceBundleHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type resourceBundleHandlerImpl struct {
 	rawPtr      *capi.CEFResourceBundleHandlerT
 	releaseOnce sync.Once
@@ -73,7 +76,8 @@ func (obj *resourceBundleHandlerImpl) GetLocalizedString(stringID int32, string_
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetLocalizedString(uintptr(stringID), string_)
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLocalizedString(uintptr(stringID), string_)
 	return int32(ret)
 }
 
@@ -81,7 +85,8 @@ func (obj *resourceBundleHandlerImpl) GetDataResource(resourceID int32, data uns
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetDataResource(uintptr(resourceID), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDataResource(uintptr(resourceID), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
 	return int32(ret)
 }
 
@@ -89,7 +94,8 @@ func (obj *resourceBundleHandlerImpl) GetDataResourceForScale(resourceID int32, 
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
 	return int32(ret)
 }
 

@@ -15,6 +15,9 @@ import (
 // SharedProcessMessageBuilder Structure that builds a cef_process_message_t containing a shared memory region. This structure is not thread-safe but may be used exclusively on a different thread from the one which constructed it.
 type SharedProcessMessageBuilder = portin.SharedProcessMessageBuilder
 
+// sharedProcessMessageBuilderImpl is a reverse wrapper for a CEF-owned SharedProcessMessageBuilder pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type sharedProcessMessageBuilderImpl struct {
 	rawPtr      *capi.CEFSharedProcessMessageBuilderT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *sharedProcessMessageBuilderImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -32,7 +36,8 @@ func (obj *sharedProcessMessageBuilderImpl) Size() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSize()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSize()
 	return int(ret)
 }
 
@@ -40,7 +45,8 @@ func (obj *sharedProcessMessageBuilderImpl) Memory() unsafe.Pointer {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallMemory()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMemory()
 	return unsafe.Pointer(ret)
 }
 
@@ -48,7 +54,8 @@ func (obj *sharedProcessMessageBuilderImpl) Build() ProcessMessage {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallBuild()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallBuild()
 	return wrapProcessMessage(unsafe.Pointer(ret))
 }
 

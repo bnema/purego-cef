@@ -17,6 +17,9 @@ import (
 // ApiVersionTest Structure for testing versioned object transfer.
 type ApiVersionTest = portin.ApiVersionTest
 
+// apiVersionTestImpl is a reverse wrapper for a CEF-owned ApiVersionTest pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestImpl struct {
 	rawPtr      *capi.CEFApiVersionTestT
 	releaseOnce sync.Once
@@ -26,7 +29,8 @@ func (obj *apiVersionTestImpl) GetRefPtrLibrary(val int32) ApiVersionTestRefPtrL
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetRefPtrLibrary(uintptr(val))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRefPtrLibrary(uintptr(val))
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
@@ -34,7 +38,8 @@ func (obj *apiVersionTestImpl) SetRefPtrLibrary(val ApiVersionTestRefPtrLibrary)
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetRefPtrLibrary(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetRefPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
@@ -42,7 +47,8 @@ func (obj *apiVersionTestImpl) SetRefPtrLibraryAndReturn(val ApiVersionTestRefPt
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetRefPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetRefPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
@@ -50,7 +56,8 @@ func (obj *apiVersionTestImpl) SetChildRefPtrLibrary(val ApiVersionTestRefPtrLib
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetChildRefPtrLibrary(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildRefPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
@@ -58,7 +65,8 @@ func (obj *apiVersionTestImpl) SetChildRefPtrLibraryAndReturnParent(val ApiVersi
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
@@ -66,6 +74,7 @@ func (obj *apiVersionTestImpl) SetRefPtrLibraryList(val []ApiVersionTestRefPtrLi
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -75,7 +84,7 @@ func (obj *apiVersionTestImpl) SetRefPtrLibraryList(val []ApiVersionTestRefPtrLi
 		}
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
-	ret := obj.rawPtr.CallSetRefPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
+	ret := rawPtr.CallSetRefPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
 	return int32(ret)
 }
 
@@ -83,6 +92,7 @@ func (obj *apiVersionTestImpl) GetRefPtrLibraryListByRef(valcount *int, val []Ap
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	valCountPtr := valcount
@@ -96,7 +106,7 @@ func (obj *apiVersionTestImpl) GetRefPtrLibraryListByRef(valcount *int, val []Ap
 		valRaw = make([]uintptr, len(val))
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
-	ret := obj.rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valCountPtr)), uintptr(valPtr), uintptr(val1), uintptr(val2))
+	ret := rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valCountPtr)), uintptr(valPtr), uintptr(val1), uintptr(val2))
 	if len(val) > 0 {
 		n := len(val)
 		if *valCountPtr < n {
@@ -113,7 +123,8 @@ func (obj *apiVersionTestImpl) GetRefPtrLibraryListSize() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetRefPtrLibraryListSize()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRefPtrLibraryListSize()
 	return int(ret)
 }
 
@@ -121,7 +132,8 @@ func (obj *apiVersionTestImpl) SetRefPtrClient(val ApiVersionTestRefPtrClient) i
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClient(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClient(val) })))
 	return int32(ret)
 }
 
@@ -129,7 +141,8 @@ func (obj *apiVersionTestImpl) SetRefPtrClientAndReturn(val ApiVersionTestRefPtr
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetRefPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClient(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetRefPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClient(val) })))
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(ret))
 }
 
@@ -137,7 +150,8 @@ func (obj *apiVersionTestImpl) SetChildRefPtrClient(val ApiVersionTestRefPtrClie
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetChildRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChild(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChild(val) })))
 	return int32(ret)
 }
 
@@ -145,7 +159,8 @@ func (obj *apiVersionTestImpl) SetChildRefPtrClientAndReturnParent(val ApiVersio
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChild(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChild(val) })))
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(ret))
 }
 
@@ -153,6 +168,7 @@ func (obj *apiVersionTestImpl) SetRefPtrClientList(val []ApiVersionTestRefPtrCli
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -162,7 +178,7 @@ func (obj *apiVersionTestImpl) SetRefPtrClientList(val []ApiVersionTestRefPtrCli
 		}
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
-	ret := obj.rawPtr.CallSetRefPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
+	ret := rawPtr.CallSetRefPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
 	return int32(ret)
 }
 
@@ -170,6 +186,7 @@ func (obj *apiVersionTestImpl) GetRefPtrClientListByRef(valcount *int, val []Api
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	valCountPtr := valcount
@@ -183,7 +200,7 @@ func (obj *apiVersionTestImpl) GetRefPtrClientListByRef(valcount *int, val []Api
 		valRaw = make([]uintptr, len(val))
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
-	ret := obj.rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valCountPtr)), uintptr(valPtr), uintptr(extractOrWrapRawPointer(val1, func() any { return NewApiVersionTestRefPtrClient(val1) })), uintptr(extractOrWrapRawPointer(val2, func() any { return NewApiVersionTestRefPtrClient(val2) })))
+	ret := rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valCountPtr)), uintptr(valPtr), uintptr(extractOrWrapRawPointer(val1, func() any { return NewApiVersionTestRefPtrClient(val1) })), uintptr(extractOrWrapRawPointer(val2, func() any { return NewApiVersionTestRefPtrClient(val2) })))
 	if len(val) > 0 {
 		n := len(val)
 		if *valCountPtr < n {
@@ -200,7 +217,8 @@ func (obj *apiVersionTestImpl) GetRefPtrClientListSize() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetRefPtrClientListSize()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRefPtrClientListSize()
 	return int(ret)
 }
 
@@ -208,7 +226,8 @@ func (obj *apiVersionTestImpl) GetOwnPtrLibrary(val int32) ApiVersionTestScopedL
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetOwnPtrLibrary(uintptr(val))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOwnPtrLibrary(uintptr(val))
 	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(ret))
 }
 
@@ -216,7 +235,8 @@ func (obj *apiVersionTestImpl) SetOwnPtrLibrary(val ApiVersionTestScopedLibrary)
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetOwnPtrLibrary(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetOwnPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
@@ -224,7 +244,8 @@ func (obj *apiVersionTestImpl) SetOwnPtrLibraryAndReturn(val ApiVersionTestScope
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetOwnPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetOwnPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
 	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(ret))
 }
 
@@ -232,7 +253,8 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrLibrary(val ApiVersionTestScopedLib
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetChildOwnPtrLibrary(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildOwnPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
@@ -240,7 +262,8 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrLibraryAndReturnParent(val ApiVersi
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
 	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(ret))
 }
 
@@ -248,7 +271,8 @@ func (obj *apiVersionTestImpl) SetOwnPtrClient(val ApiVersionTestScopedClient) i
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
 	return int32(ret)
 }
 
@@ -256,7 +280,8 @@ func (obj *apiVersionTestImpl) SetOwnPtrClientAndReturn(val ApiVersionTestScoped
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetOwnPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetOwnPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
 	return wrapApiVersionTestScopedClient(unsafe.Pointer(ret))
 }
 
@@ -264,7 +289,8 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrClient(val ApiVersionTestScopedClie
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetChildOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
 	return int32(ret)
 }
 
@@ -272,7 +298,8 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrClientAndReturnParent(val ApiVersio
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetChildOwnPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildOwnPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
 	return wrapApiVersionTestScopedClient(unsafe.Pointer(ret))
 }
 
@@ -280,7 +307,8 @@ func (obj *apiVersionTestImpl) SetRawPtrLibrary(val ApiVersionTestScopedLibrary)
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetRawPtrLibrary(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetRawPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
@@ -288,7 +316,8 @@ func (obj *apiVersionTestImpl) SetChildRawPtrLibrary(val ApiVersionTestScopedLib
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetChildRawPtrLibrary(uintptr(extractRawPointer(val)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildRawPtrLibrary(uintptr(extractRawPointer(val)))
 	return int32(ret)
 }
 
@@ -296,6 +325,7 @@ func (obj *apiVersionTestImpl) SetRawPtrLibraryList(val []ApiVersionTestScopedLi
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -305,7 +335,7 @@ func (obj *apiVersionTestImpl) SetRawPtrLibraryList(val []ApiVersionTestScopedLi
 		}
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
-	ret := obj.rawPtr.CallSetRawPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
+	ret := rawPtr.CallSetRawPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
 	return int32(ret)
 }
 
@@ -313,7 +343,8 @@ func (obj *apiVersionTestImpl) SetRawPtrClient(val ApiVersionTestScopedClient) i
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
 	return int32(ret)
 }
 
@@ -321,7 +352,8 @@ func (obj *apiVersionTestImpl) SetChildRawPtrClient(val ApiVersionTestScopedClie
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetChildRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
 	return int32(ret)
 }
 
@@ -329,6 +361,7 @@ func (obj *apiVersionTestImpl) SetRawPtrClientList(val []ApiVersionTestScopedCli
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	if len(val) > 0 {
@@ -338,7 +371,7 @@ func (obj *apiVersionTestImpl) SetRawPtrClientList(val []ApiVersionTestScopedCli
 		}
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
-	ret := obj.rawPtr.CallSetRawPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
+	ret := rawPtr.CallSetRawPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
 	return int32(ret)
 }
 
@@ -346,7 +379,8 @@ func (obj *apiVersionTestImpl) SetChildRefPtrClientV2(val ApiVersionTestRefPtrCl
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetChildRefPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChildV2(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildRefPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChildV2(val) })))
 	return int32(ret)
 }
 
@@ -354,7 +388,8 @@ func (obj *apiVersionTestImpl) SetChildRefPtrClientAndReturnParentV2(val ApiVers
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetChildRefPtrClientAndReturnParentV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChildV2(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildRefPtrClientAndReturnParentV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChildV2(val) })))
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(ret))
 }
 
@@ -362,7 +397,8 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrClientV2(val ApiVersionTestScopedCl
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetChildOwnPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildOwnPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
 	return int32(ret)
 }
 
@@ -370,7 +406,8 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrClientAndReturnParentV2(val ApiVers
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetChildOwnPtrClientAndReturnParentV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildOwnPtrClientAndReturnParentV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
 	return wrapApiVersionTestScopedClient(unsafe.Pointer(ret))
 }
 
@@ -378,7 +415,8 @@ func (obj *apiVersionTestImpl) SetChildRawPtrClientV2(val ApiVersionTestScopedCl
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSetChildRawPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetChildRawPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
 	return int32(ret)
 }
 
@@ -421,6 +459,9 @@ func wrapApiVersionTest(ptr unsafe.Pointer) ApiVersionTest {
 // ApiVersionTestRefPtrLibrary Library-side test object for RefPtr.
 type ApiVersionTestRefPtrLibrary = portin.ApiVersionTestRefPtrLibrary
 
+// apiVersionTestRefPtrLibraryImpl is a reverse wrapper for a CEF-owned ApiVersionTestRefPtrLibrary pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestRefPtrLibraryImpl struct {
 	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryT
 	releaseOnce sync.Once
@@ -430,7 +471,8 @@ func (obj *apiVersionTestRefPtrLibraryImpl) GetValueLegacy() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueLegacy()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueLegacy()
 	return int32(ret)
 }
 
@@ -438,14 +480,16 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueLegacy(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValueLegacy(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValueLegacy(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValue()
 	return int32(ret)
 }
 
@@ -453,14 +497,16 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValue(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV1() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueV1()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueV1()
 	return int32(ret)
 }
 
@@ -468,14 +514,16 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV1(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValueV1(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValueV1(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV2() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueV2()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueV2()
 	return int32(ret)
 }
 
@@ -483,14 +531,16 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV2(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValueV2(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValueV2(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueExp() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueExp()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueExp()
 	return int32(ret)
 }
 
@@ -498,7 +548,8 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueExp(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValueExp(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValueExp(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) RawPointer() unsafe.Pointer {
@@ -540,6 +591,9 @@ func wrapApiVersionTestRefPtrLibrary(ptr unsafe.Pointer) ApiVersionTestRefPtrLib
 // ApiVersionTestRefPtrLibraryChild Library-side child test object for RefPtr.
 type ApiVersionTestRefPtrLibraryChild = portin.ApiVersionTestRefPtrLibraryChild
 
+// apiVersionTestRefPtrLibraryChildImpl is a reverse wrapper for a CEF-owned ApiVersionTestRefPtrLibraryChild pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestRefPtrLibraryChildImpl struct {
 	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryChildT
 	releaseOnce sync.Once
@@ -549,7 +603,8 @@ func (obj *apiVersionTestRefPtrLibraryChildImpl) GetOtherValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
@@ -557,7 +612,8 @@ func (obj *apiVersionTestRefPtrLibraryChildImpl) SetOtherValue(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetOtherValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildImpl) RawPointer() unsafe.Pointer {
@@ -599,6 +655,9 @@ func wrapApiVersionTestRefPtrLibraryChild(ptr unsafe.Pointer) ApiVersionTestRefP
 // ApiVersionTestRefPtrLibraryChildChild Another library-side child test object for RefPtr. This is replaced by cef_api_version_test_ref_ptr_library_child_child_v1_t in version 13301.
 type ApiVersionTestRefPtrLibraryChildChild = portin.ApiVersionTestRefPtrLibraryChildChild
 
+// apiVersionTestRefPtrLibraryChildChildImpl is a reverse wrapper for a CEF-owned ApiVersionTestRefPtrLibraryChildChild pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestRefPtrLibraryChildChildImpl struct {
 	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryChildChildT
 	releaseOnce sync.Once
@@ -608,7 +667,8 @@ func (obj *apiVersionTestRefPtrLibraryChildChildImpl) GetOtherOtherValue() int32
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
@@ -616,7 +676,8 @@ func (obj *apiVersionTestRefPtrLibraryChildChildImpl) SetOtherOtherValue(value i
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildImpl) RawPointer() unsafe.Pointer {
@@ -658,6 +719,9 @@ func wrapApiVersionTestRefPtrLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 // ApiVersionTestRefPtrLibraryChildChildV1 Another library-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_library_child_child_t in version 13301 and is replaced by cef_api_version_test_ref_ptr_library_child_child_v2_t in version 13302.
 type ApiVersionTestRefPtrLibraryChildChildV1 = portin.ApiVersionTestRefPtrLibraryChildChildV1
 
+// apiVersionTestRefPtrLibraryChildChildV1Impl is a reverse wrapper for a CEF-owned ApiVersionTestRefPtrLibraryChildChildV1 pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestRefPtrLibraryChildChildV1Impl struct {
 	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryChildChildV1T
 	releaseOnce sync.Once
@@ -667,7 +731,8 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) GetOtherOtherValue() int
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
@@ -675,7 +740,8 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) SetOtherOtherValue(value
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) RawPointer() unsafe.Pointer {
@@ -717,6 +783,9 @@ func wrapApiVersionTestRefPtrLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 // ApiVersionTestRefPtrLibraryChildChildV2 Another library-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_library_child_child_v1_t in version 13302.
 type ApiVersionTestRefPtrLibraryChildChildV2 = portin.ApiVersionTestRefPtrLibraryChildChildV2
 
+// apiVersionTestRefPtrLibraryChildChildV2Impl is a reverse wrapper for a CEF-owned ApiVersionTestRefPtrLibraryChildChildV2 pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestRefPtrLibraryChildChildV2Impl struct {
 	rawPtr      *capi.CEFApiVersionTestRefPtrLibraryChildChildV2T
 	releaseOnce sync.Once
@@ -726,7 +795,8 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) GetOtherOtherValue() int
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
@@ -734,7 +804,8 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) SetOtherOtherValue(value
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) RawPointer() unsafe.Pointer {
@@ -822,6 +893,9 @@ func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) ApiVersionTe
 	return w
 }
 
+// apiVersionTestRefPtrClientImpl is a reverse wrapper for a CEF-owned ApiVersionTestRefPtrClient pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestRefPtrClientImpl struct {
 	rawPtr      *capi.CEFApiVersionTestRefPtrClientT
 	releaseOnce sync.Once
@@ -831,7 +905,8 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValueLegacy() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueLegacy()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueLegacy()
 	return int32(ret)
 }
 
@@ -839,7 +914,8 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValue()
 	return int32(ret)
 }
 
@@ -847,7 +923,8 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValueV1() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueV1()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueV1()
 	return int32(ret)
 }
 
@@ -855,7 +932,8 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValueV2() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueV2()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueV2()
 	return int32(ret)
 }
 
@@ -863,7 +941,8 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValueExp() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueExp()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueExp()
 	return int32(ret)
 }
 
@@ -941,6 +1020,9 @@ func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) Ap
 	return w
 }
 
+// apiVersionTestRefPtrClientChildImpl is a reverse wrapper for a CEF-owned ApiVersionTestRefPtrClientChild pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestRefPtrClientChildImpl struct {
 	rawPtr      *capi.CEFApiVersionTestRefPtrClientChildT
 	releaseOnce sync.Once
@@ -950,7 +1032,8 @@ func (obj *apiVersionTestRefPtrClientChildImpl) GetOtherValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
@@ -958,7 +1041,8 @@ func (obj *apiVersionTestRefPtrClientChildImpl) GetOtherValueV1() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherValueV1()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherValueV1()
 	return int32(ret)
 }
 
@@ -1036,6 +1120,9 @@ func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2
 	return w
 }
 
+// apiVersionTestRefPtrClientChildV2Impl is a reverse wrapper for a CEF-owned ApiVersionTestRefPtrClientChildV2 pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestRefPtrClientChildV2Impl struct {
 	rawPtr      *capi.CEFApiVersionTestRefPtrClientChildV2T
 	releaseOnce sync.Once
@@ -1045,7 +1132,8 @@ func (obj *apiVersionTestRefPtrClientChildV2Impl) GetOtherValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
@@ -1053,7 +1141,8 @@ func (obj *apiVersionTestRefPtrClientChildV2Impl) GetAnotherValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetAnotherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetAnotherValue()
 	return int32(ret)
 }
 
@@ -1097,6 +1186,9 @@ func wrapApiVersionTestRefPtrClientChildV2(ptr unsafe.Pointer) ApiVersionTestRef
 // ApiVersionTestScopedLibrary Library-side test object for OwnPtr/RawPtr.
 type ApiVersionTestScopedLibrary = portin.ApiVersionTestScopedLibrary
 
+// apiVersionTestScopedLibraryImpl is a reverse wrapper for a CEF-owned ApiVersionTestScopedLibrary pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestScopedLibraryImpl struct {
 	rawPtr *capi.CEFApiVersionTestScopedLibraryT
 }
@@ -1105,7 +1197,8 @@ func (obj *apiVersionTestScopedLibraryImpl) GetValueLegacy() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueLegacy()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueLegacy()
 	return int32(ret)
 }
 
@@ -1113,14 +1206,16 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValueLegacy(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValueLegacy(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValueLegacy(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValue()
 	return int32(ret)
 }
 
@@ -1128,14 +1223,16 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValue(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueV1() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueV1()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueV1()
 	return int32(ret)
 }
 
@@ -1143,14 +1240,16 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValueV1(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValueV1(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValueV1(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueV2() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueV2()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueV2()
 	return int32(ret)
 }
 
@@ -1158,14 +1257,16 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValueV2(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValueV2(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValueV2(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) GetValueExp() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueExp()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueExp()
 	return int32(ret)
 }
 
@@ -1173,7 +1274,8 @@ func (obj *apiVersionTestScopedLibraryImpl) SetValueExp(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetValueExp(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetValueExp(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryImpl) RawPointer() unsafe.Pointer {
@@ -1194,6 +1296,9 @@ func wrapApiVersionTestScopedLibrary(ptr unsafe.Pointer) ApiVersionTestScopedLib
 // ApiVersionTestScopedLibraryChild Library-side child test object for OwnPtr/RawPtr.
 type ApiVersionTestScopedLibraryChild = portin.ApiVersionTestScopedLibraryChild
 
+// apiVersionTestScopedLibraryChildImpl is a reverse wrapper for a CEF-owned ApiVersionTestScopedLibraryChild pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestScopedLibraryChildImpl struct {
 	rawPtr      *capi.CEFApiVersionTestScopedLibraryChildT
 	releaseOnce sync.Once
@@ -1203,7 +1308,8 @@ func (obj *apiVersionTestScopedLibraryChildImpl) GetOtherValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
@@ -1211,7 +1317,8 @@ func (obj *apiVersionTestScopedLibraryChildImpl) SetOtherValue(value int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetOtherValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryChildImpl) RawPointer() unsafe.Pointer {
@@ -1253,6 +1360,9 @@ func wrapApiVersionTestScopedLibraryChild(ptr unsafe.Pointer) ApiVersionTestScop
 // ApiVersionTestScopedLibraryChildChild Another library-side child test object for OwnPtr/RawPtr. This is replaced by cef_api_version_test_scoped_library_child_child_v1_t in version 13301.
 type ApiVersionTestScopedLibraryChildChild = portin.ApiVersionTestScopedLibraryChildChild
 
+// apiVersionTestScopedLibraryChildChildImpl is a reverse wrapper for a CEF-owned ApiVersionTestScopedLibraryChildChild pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestScopedLibraryChildChildImpl struct {
 	rawPtr      *capi.CEFApiVersionTestScopedLibraryChildChildT
 	releaseOnce sync.Once
@@ -1262,7 +1372,8 @@ func (obj *apiVersionTestScopedLibraryChildChildImpl) GetOtherOtherValue() int32
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
@@ -1270,7 +1381,8 @@ func (obj *apiVersionTestScopedLibraryChildChildImpl) SetOtherOtherValue(value i
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildImpl) RawPointer() unsafe.Pointer {
@@ -1312,6 +1424,9 @@ func wrapApiVersionTestScopedLibraryChildChild(ptr unsafe.Pointer) ApiVersionTes
 // ApiVersionTestScopedLibraryChildChildV1 Another library-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_library_child_child_t in version 13301 and is replaced by cef_api_version_test_scoped_library_child_child_v2_t in version 13302.
 type ApiVersionTestScopedLibraryChildChildV1 = portin.ApiVersionTestScopedLibraryChildChildV1
 
+// apiVersionTestScopedLibraryChildChildV1Impl is a reverse wrapper for a CEF-owned ApiVersionTestScopedLibraryChildChildV1 pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestScopedLibraryChildChildV1Impl struct {
 	rawPtr      *capi.CEFApiVersionTestScopedLibraryChildChildV1T
 	releaseOnce sync.Once
@@ -1321,7 +1436,8 @@ func (obj *apiVersionTestScopedLibraryChildChildV1Impl) GetOtherOtherValue() int
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
@@ -1329,7 +1445,8 @@ func (obj *apiVersionTestScopedLibraryChildChildV1Impl) SetOtherOtherValue(value
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV1Impl) RawPointer() unsafe.Pointer {
@@ -1371,6 +1488,9 @@ func wrapApiVersionTestScopedLibraryChildChildV1(ptr unsafe.Pointer) ApiVersionT
 // ApiVersionTestScopedLibraryChildChildV2 Another library-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_library_child_child_v1_t in version 13302.
 type ApiVersionTestScopedLibraryChildChildV2 = portin.ApiVersionTestScopedLibraryChildChildV2
 
+// apiVersionTestScopedLibraryChildChildV2Impl is a reverse wrapper for a CEF-owned ApiVersionTestScopedLibraryChildChildV2 pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestScopedLibraryChildChildV2Impl struct {
 	rawPtr      *capi.CEFApiVersionTestScopedLibraryChildChildV2T
 	releaseOnce sync.Once
@@ -1380,7 +1500,8 @@ func (obj *apiVersionTestScopedLibraryChildChildV2Impl) GetOtherOtherValue() int
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherOtherValue()
 	return int32(ret)
 }
 
@@ -1388,7 +1509,8 @@ func (obj *apiVersionTestScopedLibraryChildChildV2Impl) SetOtherOtherValue(value
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetOtherOtherValue(uintptr(value))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetOtherOtherValue(uintptr(value))
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV2Impl) RawPointer() unsafe.Pointer {
@@ -1476,6 +1598,9 @@ func NewApiVersionTestScopedClient(impl ApiVersionTestScopedClient) ApiVersionTe
 	return w
 }
 
+// apiVersionTestScopedClientImpl is a reverse wrapper for a CEF-owned ApiVersionTestScopedClient pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestScopedClientImpl struct {
 	rawPtr *capi.CEFApiVersionTestScopedClientT
 }
@@ -1484,7 +1609,8 @@ func (obj *apiVersionTestScopedClientImpl) GetValueLegacy() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueLegacy()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueLegacy()
 	return int32(ret)
 }
 
@@ -1492,7 +1618,8 @@ func (obj *apiVersionTestScopedClientImpl) GetValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValue()
 	return int32(ret)
 }
 
@@ -1500,7 +1627,8 @@ func (obj *apiVersionTestScopedClientImpl) GetValueV1() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueV1()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueV1()
 	return int32(ret)
 }
 
@@ -1508,7 +1636,8 @@ func (obj *apiVersionTestScopedClientImpl) GetValueV2() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueV2()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueV2()
 	return int32(ret)
 }
 
@@ -1516,7 +1645,8 @@ func (obj *apiVersionTestScopedClientImpl) GetValueExp() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetValueExp()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValueExp()
 	return int32(ret)
 }
 
@@ -1572,6 +1702,9 @@ func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) Ap
 	return w
 }
 
+// apiVersionTestScopedClientChildImpl is a reverse wrapper for a CEF-owned ApiVersionTestScopedClientChild pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestScopedClientChildImpl struct {
 	rawPtr      *capi.CEFApiVersionTestScopedClientChildT
 	releaseOnce sync.Once
@@ -1581,7 +1714,8 @@ func (obj *apiVersionTestScopedClientChildImpl) GetOtherValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
@@ -1589,7 +1723,8 @@ func (obj *apiVersionTestScopedClientChildImpl) GetOtherValueV1() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherValueV1()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherValueV1()
 	return int32(ret)
 }
 
@@ -1667,6 +1802,9 @@ func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2
 	return w
 }
 
+// apiVersionTestScopedClientChildV2Impl is a reverse wrapper for a CEF-owned ApiVersionTestScopedClientChildV2 pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type apiVersionTestScopedClientChildV2Impl struct {
 	rawPtr      *capi.CEFApiVersionTestScopedClientChildV2T
 	releaseOnce sync.Once
@@ -1676,7 +1814,8 @@ func (obj *apiVersionTestScopedClientChildV2Impl) GetOtherValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetOtherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOtherValue()
 	return int32(ret)
 }
 
@@ -1684,7 +1823,8 @@ func (obj *apiVersionTestScopedClientChildV2Impl) GetAnotherValue() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetAnotherValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetAnotherValue()
 	return int32(ret)
 }
 

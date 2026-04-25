@@ -57,6 +57,9 @@ func NewResponseFilter(impl ResponseFilter) ResponseFilter {
 	return w
 }
 
+// responseFilterImpl is a reverse wrapper for a CEF-owned ResponseFilter pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type responseFilterImpl struct {
 	rawPtr      *capi.CEFResponseFilterT
 	releaseOnce sync.Once
@@ -66,7 +69,8 @@ func (obj *responseFilterImpl) InitFilter() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallInitFilter()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallInitFilter()
 	return int32(ret)
 }
 
@@ -74,7 +78,8 @@ func (obj *responseFilterImpl) Filter(dataIn unsafe.Pointer, dataInSize int, dat
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallFilter(uintptr(dataIn), uintptr(dataInSize), uintptr(unsafe.Pointer(dataInRead)), uintptr(dataOut), uintptr(dataOutSize), uintptr(unsafe.Pointer(dataOutWritten)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallFilter(uintptr(dataIn), uintptr(dataInSize), uintptr(unsafe.Pointer(dataInRead)), uintptr(dataOut), uintptr(dataOutSize), uintptr(unsafe.Pointer(dataOutWritten)))
 	return ResponseFilterStatus(ret)
 }
 

@@ -15,6 +15,9 @@ import (
 // NavigationEntry Structure used to represent an entry in navigation history.
 type NavigationEntry = portin.NavigationEntry
 
+// navigationEntryImpl is a reverse wrapper for a CEF-owned NavigationEntry pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type navigationEntryImpl struct {
 	rawPtr      *capi.CEFNavigationEntryT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *navigationEntryImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -32,7 +36,8 @@ func (obj *navigationEntryImpl) GetURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -40,7 +45,8 @@ func (obj *navigationEntryImpl) GetDisplayURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetDisplayURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDisplayURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -48,7 +54,8 @@ func (obj *navigationEntryImpl) GetOriginalURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetOriginalURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOriginalURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -56,7 +63,8 @@ func (obj *navigationEntryImpl) GetTitle() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetTitle()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTitle()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -64,7 +72,8 @@ func (obj *navigationEntryImpl) GetTransitionType() TransitionType {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetTransitionType()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTransitionType()
 	return TransitionType(ret)
 }
 
@@ -72,7 +81,8 @@ func (obj *navigationEntryImpl) HasPostData() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasPostData()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasPostData()
 	return ret != 0
 }
 
@@ -80,7 +90,8 @@ func (obj *navigationEntryImpl) GetCompletionTime() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetCompletionTime()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetCompletionTime()
 	return uintptr(ret)
 }
 
@@ -88,7 +99,8 @@ func (obj *navigationEntryImpl) GetHttpStatusCode() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetHttpStatusCode()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetHttpStatusCode()
 	return int32(ret)
 }
 
@@ -96,7 +108,8 @@ func (obj *navigationEntryImpl) GetSslstatus() Sslstatus {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetSslstatus()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSslstatus()
 	return wrapSslstatus(unsafe.Pointer(ret))
 }
 

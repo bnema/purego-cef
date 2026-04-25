@@ -15,6 +15,9 @@ import (
 // FillLayout A simple Layout that causes the associated Panel's one child to be sized to match the bounds of its parent. Methods must be called on the browser process UI thread unless otherwise indicated.
 type FillLayout = portin.FillLayout
 
+// fillLayoutImpl is a reverse wrapper for a CEF-owned FillLayout pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type fillLayoutImpl struct {
 	rawPtr      *capi.CEFFillLayoutT
 	releaseOnce sync.Once

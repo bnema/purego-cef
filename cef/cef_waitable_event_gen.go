@@ -15,6 +15,9 @@ import (
 // WaitableEvent WaitableEvent is a thread synchronization tool that allows one thread to wait for another thread to finish some work. This is equivalent to using a Lock+ConditionVariable to protect a simple boolean value. However, using WaitableEvent in conjunction with a Lock to wait for a more complex state change (e.g., for an item to be added to a queue) is not recommended. In that case consider using a ConditionVariable instead of a WaitableEvent. It is safe to create and/or signal a WaitableEvent from any thread. Blocking on a WaitableEvent by calling the *wait() functions is not allowed on the browser process UI or IO threads.
 type WaitableEvent = portin.WaitableEvent
 
+// waitableEventImpl is a reverse wrapper for a CEF-owned WaitableEvent pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type waitableEventImpl struct {
 	rawPtr        *capi.CEFWaitableEventT
 	releaseOnce   sync.Once
@@ -26,21 +29,24 @@ func (obj *waitableEventImpl) Reset() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallReset()
+	rawPtr := obj.rawPtr
+	rawPtr.CallReset()
 }
 
 func (obj *waitableEventImpl) Signal() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSignal()
+	rawPtr := obj.rawPtr
+	rawPtr.CallSignal()
 }
 
 func (obj *waitableEventImpl) IsSignaled() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSignaled()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSignaled()
 	return ret != 0
 }
 
@@ -48,17 +54,19 @@ func (obj *waitableEventImpl) Wait() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallWait()
+	rawPtr := obj.rawPtr
+	rawPtr.CallWait()
 }
 
 func (obj *waitableEventImpl) TimedWait(maxMs int64) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.timedWaitOnce.Do(func() {
-		registerTypedCallback(&obj.timedWaitFunc, obj.rawPtr.TimedWait)
+		registerTypedCallback(&obj.timedWaitFunc, rawPtr.TimedWait)
 	})
-	ret := obj.timedWaitFunc(obj.rawPtr, maxMs)
+	ret := obj.timedWaitFunc(rawPtr, maxMs)
 	return int32(ret)
 }
 

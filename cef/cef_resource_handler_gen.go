@@ -17,6 +17,9 @@ import (
 // ResourceSkipCallback Callback for asynchronous continuation of cef_resource_handler_t::skip().
 type ResourceSkipCallback = portin.ResourceSkipCallback
 
+// resourceSkipCallbackImpl is a reverse wrapper for a CEF-owned ResourceSkipCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type resourceSkipCallbackImpl struct {
 	rawPtr      *capi.CEFResourceSkipCallbackT
 	releaseOnce sync.Once
@@ -28,10 +31,11 @@ func (obj *resourceSkipCallbackImpl) Cont(bytesSkipped int64) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	obj.contOnce.Do(func() {
-		registerTypedCallback(&obj.contFunc, obj.rawPtr.Cont)
+		registerTypedCallback(&obj.contFunc, rawPtr.Cont)
 	})
-	obj.contFunc(obj.rawPtr, bytesSkipped)
+	obj.contFunc(rawPtr, bytesSkipped)
 }
 
 func (obj *resourceSkipCallbackImpl) RawPointer() unsafe.Pointer {
@@ -73,6 +77,9 @@ func wrapResourceSkipCallback(ptr unsafe.Pointer) ResourceSkipCallback {
 // ResourceReadCallback Callback for asynchronous continuation of cef_resource_handler_t::read().
 type ResourceReadCallback = portin.ResourceReadCallback
 
+// resourceReadCallbackImpl is a reverse wrapper for a CEF-owned ResourceReadCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type resourceReadCallbackImpl struct {
 	rawPtr      *capi.CEFResourceReadCallbackT
 	releaseOnce sync.Once
@@ -82,7 +89,8 @@ func (obj *resourceReadCallbackImpl) Cont(bytesRead int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCont(uintptr(bytesRead))
+	rawPtr := obj.rawPtr
+	rawPtr.CallCont(uintptr(bytesRead))
 }
 
 func (obj *resourceReadCallbackImpl) RawPointer() unsafe.Pointer {
@@ -166,7 +174,7 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 	}))
 
 	r.OverrideSkip(purego.NewCallback(func(self uintptr, arg0 int64, arg1 uintptr, arg2 uintptr) uintptr {
-		bytesToSkip := int64(arg0)
+		bytesToSkip := arg0
 		bytesSkipped := (*int64)(unsafe.Pointer(arg1))
 		callback := wrapResourceSkipCallback(unsafe.Pointer(arg2))
 		return uintptr(impl.Skip(bytesToSkip, bytesSkipped, callback))
@@ -197,6 +205,9 @@ func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 	return w
 }
 
+// resourceHandlerImpl is a reverse wrapper for a CEF-owned ResourceHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type resourceHandlerImpl struct {
 	rawPtr      *capi.CEFResourceHandlerT
 	releaseOnce sync.Once
@@ -208,7 +219,8 @@ func (obj *resourceHandlerImpl) Open(request Request, handleRequest *int32, call
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOpen(uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(handleRequest)), uintptr(extractRawPointer(callback)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOpen(uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(handleRequest)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -216,7 +228,8 @@ func (obj *resourceHandlerImpl) ProcessRequest(request Request, callback Callbac
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallProcessRequest(uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallProcessRequest(uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -224,17 +237,19 @@ func (obj *resourceHandlerImpl) GetResponseHeaders(response Response, responseLe
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallGetResponseHeaders(uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(responseLength)), redirecturl)
+	rawPtr := obj.rawPtr
+	rawPtr.CallGetResponseHeaders(uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(responseLength)), redirecturl)
 }
 
 func (obj *resourceHandlerImpl) Skip(bytesToSkip int64, bytesSkipped *int64, callback ResourceSkipCallback) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.skipOnce.Do(func() {
-		registerTypedCallback(&obj.skipFunc, obj.rawPtr.Skip)
+		registerTypedCallback(&obj.skipFunc, rawPtr.Skip)
 	})
-	ret := obj.skipFunc(obj.rawPtr, bytesToSkip, uintptr(unsafe.Pointer(bytesSkipped)), uintptr(extractRawPointer(callback)))
+	ret := obj.skipFunc(rawPtr, bytesToSkip, uintptr(unsafe.Pointer(bytesSkipped)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -242,7 +257,8 @@ func (obj *resourceHandlerImpl) Read(dataOut unsafe.Pointer, bytesToRead int32, 
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallRead(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallRead(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -250,7 +266,8 @@ func (obj *resourceHandlerImpl) ReadResponse(dataOut unsafe.Pointer, bytesToRead
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallReadResponse(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallReadResponse(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -258,7 +275,8 @@ func (obj *resourceHandlerImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *resourceHandlerImpl) RawPointer() unsafe.Pointer {

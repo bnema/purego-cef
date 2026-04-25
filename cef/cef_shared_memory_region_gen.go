@@ -15,6 +15,9 @@ import (
 // SharedMemoryRegion Structure that wraps platform-dependent share memory region mapping.
 type SharedMemoryRegion = portin.SharedMemoryRegion
 
+// sharedMemoryRegionImpl is a reverse wrapper for a CEF-owned SharedMemoryRegion pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type sharedMemoryRegionImpl struct {
 	rawPtr      *capi.CEFSharedMemoryRegionT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *sharedMemoryRegionImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -32,7 +36,8 @@ func (obj *sharedMemoryRegionImpl) Size() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallSize()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSize()
 	return int(ret)
 }
 
@@ -40,7 +45,8 @@ func (obj *sharedMemoryRegionImpl) Memory() unsafe.Pointer {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallMemory()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMemory()
 	return unsafe.Pointer(ret)
 }
 

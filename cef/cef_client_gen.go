@@ -303,6 +303,9 @@ func NewRawClient(impl RawClient) RawClient {
 	return w
 }
 
+// rawClientImpl is a reverse wrapper for a CEF-owned RawClient pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type rawClientImpl struct {
 	rawPtr      *capi.CEFClientT
 	releaseOnce sync.Once
@@ -312,7 +315,8 @@ func (obj *rawClientImpl) GetAudioHandler() RawAudioHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetAudioHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetAudioHandler()
 	return wrapAudioHandler(unsafe.Pointer(ret))
 }
 
@@ -320,7 +324,8 @@ func (obj *rawClientImpl) GetCommandHandler() CommandHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetCommandHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetCommandHandler()
 	return wrapCommandHandler(unsafe.Pointer(ret))
 }
 
@@ -328,7 +333,8 @@ func (obj *rawClientImpl) GetContextMenuHandler() ContextMenuHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetContextMenuHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetContextMenuHandler()
 	return wrapContextMenuHandler(unsafe.Pointer(ret))
 }
 
@@ -336,7 +342,8 @@ func (obj *rawClientImpl) GetDialogHandler() DialogHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDialogHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDialogHandler()
 	return wrapDialogHandler(unsafe.Pointer(ret))
 }
 
@@ -344,7 +351,8 @@ func (obj *rawClientImpl) GetDisplayHandler() DisplayHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDisplayHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDisplayHandler()
 	return wrapDisplayHandler(unsafe.Pointer(ret))
 }
 
@@ -352,7 +360,8 @@ func (obj *rawClientImpl) GetDownloadHandler() DownloadHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDownloadHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDownloadHandler()
 	return wrapDownloadHandler(unsafe.Pointer(ret))
 }
 
@@ -360,7 +369,8 @@ func (obj *rawClientImpl) GetDragHandler() DragHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDragHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDragHandler()
 	return wrapDragHandler(unsafe.Pointer(ret))
 }
 
@@ -368,7 +378,8 @@ func (obj *rawClientImpl) GetFindHandler() FindHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetFindHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFindHandler()
 	return wrapFindHandler(unsafe.Pointer(ret))
 }
 
@@ -376,7 +387,8 @@ func (obj *rawClientImpl) GetFocusHandler() FocusHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetFocusHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFocusHandler()
 	return wrapFocusHandler(unsafe.Pointer(ret))
 }
 
@@ -384,7 +396,8 @@ func (obj *rawClientImpl) GetFrameHandler() FrameHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetFrameHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFrameHandler()
 	return wrapFrameHandler(unsafe.Pointer(ret))
 }
 
@@ -392,7 +405,8 @@ func (obj *rawClientImpl) GetPermissionHandler() PermissionHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetPermissionHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPermissionHandler()
 	return wrapPermissionHandler(unsafe.Pointer(ret))
 }
 
@@ -400,7 +414,8 @@ func (obj *rawClientImpl) GetJsdialogHandler() JsdialogHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetJsdialogHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetJsdialogHandler()
 	return wrapJsdialogHandler(unsafe.Pointer(ret))
 }
 
@@ -408,7 +423,8 @@ func (obj *rawClientImpl) GetKeyboardHandler() KeyboardHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetKeyboardHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetKeyboardHandler()
 	return wrapKeyboardHandler(unsafe.Pointer(ret))
 }
 
@@ -416,7 +432,8 @@ func (obj *rawClientImpl) GetLifeSpanHandler() RawLifeSpanHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetLifeSpanHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLifeSpanHandler()
 	return wrapLifeSpanHandler(unsafe.Pointer(ret))
 }
 
@@ -424,7 +441,8 @@ func (obj *rawClientImpl) GetLoadHandler() LoadHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetLoadHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLoadHandler()
 	return wrapLoadHandler(unsafe.Pointer(ret))
 }
 
@@ -432,7 +450,8 @@ func (obj *rawClientImpl) GetPrintHandler() PrintHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetPrintHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPrintHandler()
 	return wrapPrintHandler(unsafe.Pointer(ret))
 }
 
@@ -440,7 +459,8 @@ func (obj *rawClientImpl) GetRenderHandler() RenderHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetRenderHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRenderHandler()
 	return wrapRenderHandler(unsafe.Pointer(ret))
 }
 
@@ -448,7 +468,8 @@ func (obj *rawClientImpl) GetRequestHandler() RequestHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetRequestHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRequestHandler()
 	return wrapRequestHandler(unsafe.Pointer(ret))
 }
 
@@ -456,7 +477,8 @@ func (obj *rawClientImpl) OnProcessMessageReceived(browser Browser, frame Frame,
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
 	return int32(ret)
 }
 

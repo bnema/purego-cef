@@ -65,6 +65,9 @@ func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler 
 	return w
 }
 
+// requestContextHandlerImpl is a reverse wrapper for a CEF-owned RequestContextHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type requestContextHandlerImpl struct {
 	rawPtr      *capi.CEFRequestContextHandlerT
 	releaseOnce sync.Once
@@ -74,16 +77,18 @@ func (obj *requestContextHandlerImpl) OnRequestContextInitialized(requestContext
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnRequestContextInitialized(uintptr(extractRawPointer(requestContext)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnRequestContextInitialized(uintptr(extractRawPointer(requestContext)))
 }
 
 func (obj *requestContextHandlerImpl) GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling *int32) ResourceRequestHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	requestInitiatorStr := cefString(requestInitiator)
 	defer freeCefString(&requestInitiatorStr)
-	ret := obj.rawPtr.CallGetResourceRequestHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(isNavigation), uintptr(isDownload), uintptr(unsafe.Pointer(&requestInitiatorStr)), uintptr(unsafe.Pointer(disableDefaultHandling)))
+	ret := rawPtr.CallGetResourceRequestHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(isNavigation), uintptr(isDownload), uintptr(unsafe.Pointer(&requestInitiatorStr)), uintptr(unsafe.Pointer(disableDefaultHandling)))
 	return wrapResourceRequestHandler(unsafe.Pointer(ret))
 }
 

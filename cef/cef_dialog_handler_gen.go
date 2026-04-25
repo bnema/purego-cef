@@ -17,6 +17,9 @@ import (
 // FileDialogCallback Callback structure for asynchronous continuation of file dialog requests.
 type FileDialogCallback = portin.FileDialogCallback
 
+// fileDialogCallbackImpl is a reverse wrapper for a CEF-owned FileDialogCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type fileDialogCallbackImpl struct {
 	rawPtr      *capi.CEFFileDialogCallbackT
 	releaseOnce sync.Once
@@ -26,14 +29,16 @@ func (obj *fileDialogCallbackImpl) Cont(filePaths StringList) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCont(uintptr(filePaths))
+	rawPtr := obj.rawPtr
+	rawPtr.CallCont(uintptr(filePaths))
 }
 
 func (obj *fileDialogCallbackImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *fileDialogCallbackImpl) RawPointer() unsafe.Pointer {
@@ -113,6 +118,9 @@ func NewDialogHandler(impl DialogHandler) DialogHandler {
 	return w
 }
 
+// dialogHandlerImpl is a reverse wrapper for a CEF-owned DialogHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type dialogHandlerImpl struct {
 	rawPtr      *capi.CEFDialogHandlerT
 	releaseOnce sync.Once
@@ -122,11 +130,12 @@ func (obj *dialogHandlerImpl) OnFileDialog(browser Browser, mode FileDialogMode,
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
 	defaultFilePathStr := cefString(defaultFilePath)
 	defer freeCefString(&defaultFilePathStr)
-	ret := obj.rawPtr.CallOnFileDialog(uintptr(extractRawPointer(browser)), uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), uintptr(acceptFilters), uintptr(acceptExtensions), uintptr(acceptDescriptions), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnFileDialog(uintptr(extractRawPointer(browser)), uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), uintptr(acceptFilters), uintptr(acceptExtensions), uintptr(acceptDescriptions), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 

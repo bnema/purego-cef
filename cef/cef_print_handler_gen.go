@@ -17,6 +17,9 @@ import (
 // PrintDialogCallback Callback structure for asynchronous continuation of print dialog requests.
 type PrintDialogCallback = portin.PrintDialogCallback
 
+// printDialogCallbackImpl is a reverse wrapper for a CEF-owned PrintDialogCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type printDialogCallbackImpl struct {
 	rawPtr      *capi.CEFPrintDialogCallbackT
 	releaseOnce sync.Once
@@ -26,14 +29,16 @@ func (obj *printDialogCallbackImpl) Cont(settings PrintSettings) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCont(uintptr(extractRawPointer(settings)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallCont(uintptr(extractRawPointer(settings)))
 }
 
 func (obj *printDialogCallbackImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *printDialogCallbackImpl) RawPointer() unsafe.Pointer {
@@ -75,6 +80,9 @@ func wrapPrintDialogCallback(ptr unsafe.Pointer) PrintDialogCallback {
 // PrintJobCallback Callback structure for asynchronous continuation of print job requests.
 type PrintJobCallback = portin.PrintJobCallback
 
+// printJobCallbackImpl is a reverse wrapper for a CEF-owned PrintJobCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type printJobCallbackImpl struct {
 	rawPtr      *capi.CEFPrintJobCallbackT
 	releaseOnce sync.Once
@@ -84,7 +92,8 @@ func (obj *printJobCallbackImpl) Cont() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCont()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCont()
 }
 
 func (obj *printJobCallbackImpl) RawPointer() unsafe.Pointer {
@@ -190,6 +199,9 @@ func NewPrintHandler(impl PrintHandler) PrintHandler {
 	return w
 }
 
+// printHandlerImpl is a reverse wrapper for a CEF-owned PrintHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type printHandlerImpl struct {
 	rawPtr      *capi.CEFPrintHandlerT
 	releaseOnce sync.Once
@@ -199,21 +211,24 @@ func (obj *printHandlerImpl) OnPrintStart(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnPrintStart(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnPrintStart(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *printHandlerImpl) OnPrintSettings(browser Browser, settings PrintSettings, getDefaults int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnPrintSettings(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(settings)), uintptr(getDefaults))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnPrintSettings(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(settings)), uintptr(getDefaults))
 }
 
 func (obj *printHandlerImpl) OnPrintDialog(browser Browser, hasSelection int32, callback PrintDialogCallback) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnPrintDialog(uintptr(extractRawPointer(browser)), uintptr(hasSelection), uintptr(extractRawPointer(callback)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnPrintDialog(uintptr(extractRawPointer(browser)), uintptr(hasSelection), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -221,11 +236,12 @@ func (obj *printHandlerImpl) OnPrintJob(browser Browser, documentName string, pd
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	documentNameStr := cefString(documentName)
 	defer freeCefString(&documentNameStr)
 	pdfFilePathStr := cefString(pdfFilePath)
 	defer freeCefString(&pdfFilePathStr)
-	ret := obj.rawPtr.CallOnPrintJob(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&documentNameStr)), uintptr(unsafe.Pointer(&pdfFilePathStr)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnPrintJob(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&documentNameStr)), uintptr(unsafe.Pointer(&pdfFilePathStr)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 
@@ -233,14 +249,16 @@ func (obj *printHandlerImpl) OnPrintReset(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnPrintReset(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnPrintReset(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *printHandlerImpl) GetPdfPaperSize(browser Browser, deviceUnitsPerInch int32) uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetPdfPaperSize(uintptr(extractRawPointer(browser)), uintptr(deviceUnitsPerInch))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPdfPaperSize(uintptr(extractRawPointer(browser)), uintptr(deviceUnitsPerInch))
 	return uintptr(ret)
 }
 

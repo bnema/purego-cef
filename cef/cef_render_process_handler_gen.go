@@ -110,6 +110,9 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 	return w
 }
 
+// renderProcessHandlerImpl is a reverse wrapper for a CEF-owned RenderProcessHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type renderProcessHandlerImpl struct {
 	rawPtr      *capi.CEFRenderProcessHandlerT
 	releaseOnce sync.Once
@@ -119,28 +122,32 @@ func (obj *renderProcessHandlerImpl) OnWebKitInitialized() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnWebKitInitialized()
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnWebKitInitialized()
 }
 
 func (obj *renderProcessHandlerImpl) OnBrowserCreated(browser Browser, extraInfo DictionaryValue) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(extraInfo)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(extraInfo)))
 }
 
 func (obj *renderProcessHandlerImpl) OnBrowserDestroyed(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *renderProcessHandlerImpl) GetLoadHandler() LoadHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetLoadHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLoadHandler()
 	return wrapLoadHandler(unsafe.Pointer(ret))
 }
 
@@ -148,35 +155,40 @@ func (obj *renderProcessHandlerImpl) OnContextCreated(browser Browser, frame Fra
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnContextCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnContextCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
 }
 
 func (obj *renderProcessHandlerImpl) OnContextReleased(browser Browser, frame Frame, context V8Context) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnContextReleased(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnContextReleased(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
 }
 
 func (obj *renderProcessHandlerImpl) OnUncaughtException(browser Browser, frame Frame, context V8Context, exception V8Exception, stacktrace V8StackTrace) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnUncaughtException(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)), uintptr(extractRawPointer(exception)), uintptr(extractRawPointer(stacktrace)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnUncaughtException(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)), uintptr(extractRawPointer(exception)), uintptr(extractRawPointer(stacktrace)))
 }
 
 func (obj *renderProcessHandlerImpl) OnFocusedNodeChanged(browser Browser, frame Frame, node Domnode) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnFocusedNodeChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(node)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnFocusedNodeChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(node)))
 }
 
 func (obj *renderProcessHandlerImpl) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
 	return int32(ret)
 }
 

@@ -97,6 +97,9 @@ func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 	return w
 }
 
+// rawLifeSpanHandlerImpl is a reverse wrapper for a CEF-owned RawLifeSpanHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type rawLifeSpanHandlerImpl struct {
 	rawPtr      *capi.CEFLifeSpanHandlerT
 	releaseOnce sync.Once
@@ -106,11 +109,12 @@ func (obj *rawLifeSpanHandlerImpl) OnBeforePopup(browser Browser, frame Frame, p
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
+	rawPtr := obj.rawPtr
 	targetURLStr := cefString(targetURL)
 	defer freeCefString(&targetURLStr)
 	targetFrameNameStr := cefString(targetFrameName)
 	defer freeCefString(&targetFrameNameStr)
-	ret := obj.rawPtr.CallOnBeforePopup(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(popupID), uintptr(unsafe.Pointer(&targetURLStr)), uintptr(unsafe.Pointer(&targetFrameNameStr)), uintptr(targetDisposition), uintptr(userGesture), uintptr(unsafe.Pointer(popupfeatures)), uintptr(unsafe.Pointer(windowinfo)), uintptr(client), uintptr(unsafe.Pointer(settings)), uintptr(extraInfo), uintptr(unsafe.Pointer(noJavascriptAccess)))
+	ret := rawPtr.CallOnBeforePopup(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(popupID), uintptr(unsafe.Pointer(&targetURLStr)), uintptr(unsafe.Pointer(&targetFrameNameStr)), uintptr(targetDisposition), uintptr(userGesture), uintptr(unsafe.Pointer(popupfeatures)), uintptr(unsafe.Pointer(windowinfo)), uintptr(client), uintptr(unsafe.Pointer(settings)), uintptr(extraInfo), uintptr(unsafe.Pointer(noJavascriptAccess)))
 	return ret != 0
 }
 
@@ -118,28 +122,32 @@ func (obj *rawLifeSpanHandlerImpl) OnBeforePopupAborted(browser Browser, popupID
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBeforePopupAborted(uintptr(extractRawPointer(browser)), uintptr(popupID))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBeforePopupAborted(uintptr(extractRawPointer(browser)), uintptr(popupID))
 }
 
 func (obj *rawLifeSpanHandlerImpl) OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow *int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBeforeDevToolsPopup(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(windowinfo)), uintptr(client), uintptr(unsafe.Pointer(settings)), uintptr(extraInfo), uintptr(unsafe.Pointer(useDefaultWindow)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBeforeDevToolsPopup(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(windowinfo)), uintptr(client), uintptr(unsafe.Pointer(settings)), uintptr(extraInfo), uintptr(unsafe.Pointer(useDefaultWindow)))
 }
 
 func (obj *rawLifeSpanHandlerImpl) OnAfterCreated(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnAfterCreated(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnAfterCreated(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *rawLifeSpanHandlerImpl) DoClose(browser Browser) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallDoClose(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallDoClose(uintptr(extractRawPointer(browser)))
 	return ret != 0
 }
 
@@ -147,7 +155,8 @@ func (obj *rawLifeSpanHandlerImpl) OnBeforeClose(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBeforeClose(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBeforeClose(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *rawLifeSpanHandlerImpl) RawPointer() unsafe.Pointer {

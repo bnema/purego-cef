@@ -47,6 +47,9 @@ func NewTask(impl Task) Task {
 	return w
 }
 
+// taskImpl is a reverse wrapper for a CEF-owned Task pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type taskImpl struct {
 	rawPtr      *capi.CEFTaskT
 	releaseOnce sync.Once
@@ -56,7 +59,8 @@ func (obj *taskImpl) Execute() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallExecute()
+	rawPtr := obj.rawPtr
+	rawPtr.CallExecute()
 }
 
 func (obj *taskImpl) RawPointer() unsafe.Pointer {
@@ -99,6 +103,9 @@ func wrapTask(ptr unsafe.Pointer) Task {
 // TaskRunner Structure that asynchronously executes tasks on the associated thread. It is safe to call the functions of this structure on any thread. CEF maintains multiple internal threads that are used for handling different types of tasks in different processes. The cef_thread_id_t definitions in cef_types.h list the common CEF threads. Task runners are also available for other CEF threads as appropriate (for example, V8 WebWorker threads).
 type TaskRunner = portin.TaskRunner
 
+// taskRunnerImpl is a reverse wrapper for a CEF-owned TaskRunner pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type taskRunnerImpl struct {
 	rawPtr              *capi.CEFTaskRunnerT
 	releaseOnce         sync.Once
@@ -110,7 +117,8 @@ func (obj *taskRunnerImpl) IsSame(that TaskRunner) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
@@ -118,7 +126,8 @@ func (obj *taskRunnerImpl) BelongsToCurrentThread() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallBelongsToCurrentThread()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallBelongsToCurrentThread()
 	return int32(ret)
 }
 
@@ -126,7 +135,8 @@ func (obj *taskRunnerImpl) BelongsToThread(threadid ThreadID) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallBelongsToThread(uintptr(threadid))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallBelongsToThread(uintptr(threadid))
 	return int32(ret)
 }
 
@@ -134,7 +144,8 @@ func (obj *taskRunnerImpl) PostTask(task Task) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallPostTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallPostTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })))
 	return int32(ret)
 }
 
@@ -142,10 +153,11 @@ func (obj *taskRunnerImpl) PostDelayedTask(task Task, delayMs int64) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.postDelayedTaskOnce.Do(func() {
-		registerTypedCallback(&obj.postDelayedTaskFunc, obj.rawPtr.PostDelayedTask)
+		registerTypedCallback(&obj.postDelayedTaskFunc, rawPtr.PostDelayedTask)
 	})
-	ret := obj.postDelayedTaskFunc(obj.rawPtr, uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), delayMs)
+	ret := obj.postDelayedTaskFunc(rawPtr, uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), delayMs)
 	return int32(ret)
 }
 

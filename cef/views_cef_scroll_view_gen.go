@@ -15,6 +15,9 @@ import (
 // ScrollView A ScrollView will show horizontal and/or vertical scrollbars when necessary based on the size of the attached content view. Methods must be called on the browser process UI thread unless otherwise indicated.
 type ScrollView = portin.ScrollView
 
+// scrollViewImpl is a reverse wrapper for a CEF-owned ScrollView pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type scrollViewImpl struct {
 	rawPtr      *capi.CEFScrollViewT
 	releaseOnce sync.Once
@@ -24,14 +27,16 @@ func (obj *scrollViewImpl) SetContentView(view View) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetContentView(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetContentView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *scrollViewImpl) GetContentView() View {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetContentView()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetContentView()
 	return wrapView(unsafe.Pointer(ret))
 }
 
@@ -39,7 +44,8 @@ func (obj *scrollViewImpl) GetVisibleContentRect() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetVisibleContentRect()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetVisibleContentRect()
 	return uintptr(ret)
 }
 
@@ -47,7 +53,8 @@ func (obj *scrollViewImpl) HasHorizontalScrollbar() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasHorizontalScrollbar()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasHorizontalScrollbar()
 	return ret != 0
 }
 
@@ -55,7 +62,8 @@ func (obj *scrollViewImpl) GetHorizontalScrollbarHeight() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetHorizontalScrollbarHeight()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetHorizontalScrollbarHeight()
 	return int32(ret)
 }
 
@@ -63,7 +71,8 @@ func (obj *scrollViewImpl) HasVerticalScrollbar() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasVerticalScrollbar()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasVerticalScrollbar()
 	return ret != 0
 }
 
@@ -71,7 +80,8 @@ func (obj *scrollViewImpl) GetVerticalScrollbarWidth() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetVerticalScrollbarWidth()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetVerticalScrollbarWidth()
 	return int32(ret)
 }
 

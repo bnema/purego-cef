@@ -15,6 +15,9 @@ import (
 // PrintSettings Structure representing print settings.
 type PrintSettings = portin.PrintSettings
 
+// printSettingsImpl is a reverse wrapper for a CEF-owned PrintSettings pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type printSettingsImpl struct {
 	rawPtr      *capi.CEFPrintSettingsT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *printSettingsImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -32,7 +36,8 @@ func (obj *printSettingsImpl) IsReadOnly() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsReadOnly()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
@@ -40,14 +45,16 @@ func (obj *printSettingsImpl) SetOrientation(landscape int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetOrientation(uintptr(landscape))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetOrientation(uintptr(landscape))
 }
 
 func (obj *printSettingsImpl) IsLandscape() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsLandscape()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsLandscape()
 	return ret != 0
 }
 
@@ -55,23 +62,26 @@ func (obj *printSettingsImpl) SetPrinterPrintableArea(physicalSizeDeviceUnits *S
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetPrinterPrintableArea(uintptr(unsafe.Pointer(physicalSizeDeviceUnits)), uintptr(unsafe.Pointer(printableAreaDeviceUnits)), uintptr(landscapeNeedsFlip))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetPrinterPrintableArea(uintptr(unsafe.Pointer(physicalSizeDeviceUnits)), uintptr(unsafe.Pointer(printableAreaDeviceUnits)), uintptr(landscapeNeedsFlip))
 }
 
 func (obj *printSettingsImpl) SetDeviceName(name string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	obj.rawPtr.CallSetDeviceName(uintptr(unsafe.Pointer(&nameStr)))
+	rawPtr.CallSetDeviceName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *printSettingsImpl) GetDeviceName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetDeviceName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDeviceName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -79,14 +89,16 @@ func (obj *printSettingsImpl) SetDpi(dpi int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetDpi(uintptr(dpi))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetDpi(uintptr(dpi))
 }
 
 func (obj *printSettingsImpl) GetDpi() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetDpi()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDpi()
 	return int32(ret)
 }
 
@@ -94,18 +106,20 @@ func (obj *printSettingsImpl) SetPageRanges(ranges []Range) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	var rangesPtr unsafe.Pointer
 	if len(ranges) > 0 {
 		rangesPtr = unsafe.Pointer(&ranges[0])
 	}
-	obj.rawPtr.CallSetPageRanges(uintptr(len(ranges)), uintptr(rangesPtr))
+	rawPtr.CallSetPageRanges(uintptr(len(ranges)), uintptr(rangesPtr))
 }
 
 func (obj *printSettingsImpl) GetPageRangesCount() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetPageRangesCount()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPageRangesCount()
 	return int(ret)
 }
 
@@ -113,6 +127,7 @@ func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges []Range) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	var rangesPtr unsafe.Pointer
 	rangesCountPtr := rangescount
 	if rangesCountPtr == nil {
@@ -124,21 +139,23 @@ func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges []Range) {
 	if len(ranges) > 0 {
 		rangesPtr = unsafe.Pointer(&ranges[0])
 	}
-	obj.rawPtr.CallGetPageRanges(uintptr(unsafe.Pointer(rangesCountPtr)), uintptr(rangesPtr))
+	rawPtr.CallGetPageRanges(uintptr(unsafe.Pointer(rangesCountPtr)), uintptr(rangesPtr))
 }
 
 func (obj *printSettingsImpl) SetSelectionOnly(selectionOnly int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetSelectionOnly(uintptr(selectionOnly))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetSelectionOnly(uintptr(selectionOnly))
 }
 
 func (obj *printSettingsImpl) IsSelectionOnly() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSelectionOnly()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSelectionOnly()
 	return ret != 0
 }
 
@@ -146,14 +163,16 @@ func (obj *printSettingsImpl) SetCollate(collate int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetCollate(uintptr(collate))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetCollate(uintptr(collate))
 }
 
 func (obj *printSettingsImpl) WillCollate() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallWillCollate()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallWillCollate()
 	return int32(ret)
 }
 
@@ -161,14 +180,16 @@ func (obj *printSettingsImpl) SetColorModel(model ColorModel) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetColorModel(uintptr(model))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetColorModel(uintptr(model))
 }
 
 func (obj *printSettingsImpl) GetColorModel() ColorModel {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetColorModel()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetColorModel()
 	return ColorModel(ret)
 }
 
@@ -176,14 +197,16 @@ func (obj *printSettingsImpl) SetCopies(copies int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetCopies(uintptr(copies))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetCopies(uintptr(copies))
 }
 
 func (obj *printSettingsImpl) GetCopies() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetCopies()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetCopies()
 	return int32(ret)
 }
 
@@ -191,14 +214,16 @@ func (obj *printSettingsImpl) SetDuplexMode(mode DuplexMode) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetDuplexMode(uintptr(mode))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetDuplexMode(uintptr(mode))
 }
 
 func (obj *printSettingsImpl) GetDuplexMode() DuplexMode {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetDuplexMode()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDuplexMode()
 	return DuplexMode(ret)
 }
 

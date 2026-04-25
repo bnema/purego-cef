@@ -53,6 +53,9 @@ func NewButtonDelegate(impl ButtonDelegate) ButtonDelegate {
 	return w
 }
 
+// buttonDelegateImpl is a reverse wrapper for a CEF-owned ButtonDelegate pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type buttonDelegateImpl struct {
 	rawPtr      *capi.CEFButtonDelegateT
 	releaseOnce sync.Once
@@ -62,14 +65,16 @@ func (obj *buttonDelegateImpl) OnButtonPressed(button Button) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnButtonPressed(uintptr(extractRawPointer(button)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnButtonPressed(uintptr(extractRawPointer(button)))
 }
 
 func (obj *buttonDelegateImpl) OnButtonStateChanged(button Button) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnButtonStateChanged(uintptr(extractRawPointer(button)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnButtonStateChanged(uintptr(extractRawPointer(button)))
 }
 
 func (obj *buttonDelegateImpl) RawPointer() unsafe.Pointer {

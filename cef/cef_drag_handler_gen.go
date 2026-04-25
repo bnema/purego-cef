@@ -57,6 +57,9 @@ func NewDragHandler(impl DragHandler) DragHandler {
 	return w
 }
 
+// dragHandlerImpl is a reverse wrapper for a CEF-owned DragHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type dragHandlerImpl struct {
 	rawPtr      *capi.CEFDragHandlerT
 	releaseOnce sync.Once
@@ -66,7 +69,8 @@ func (obj *dragHandlerImpl) OnDragEnter(browser Browser, dragdata DragData, mask
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnDragEnter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(dragdata)), uintptr(mask))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnDragEnter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(dragdata)), uintptr(mask))
 	return int32(ret)
 }
 
@@ -74,11 +78,12 @@ func (obj *dragHandlerImpl) OnDraggableRegionsChanged(browser Browser, frame Fra
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	var regionsPtr unsafe.Pointer
 	if len(regions) > 0 {
 		regionsPtr = unsafe.Pointer(&regions[0])
 	}
-	obj.rawPtr.CallOnDraggableRegionsChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(len(regions)), uintptr(regionsPtr))
+	rawPtr.CallOnDraggableRegionsChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(len(regions)), uintptr(regionsPtr))
 }
 
 func (obj *dragHandlerImpl) RawPointer() unsafe.Pointer {

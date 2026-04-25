@@ -96,6 +96,9 @@ func NewApp(impl App) App {
 	return w
 }
 
+// appImpl is a reverse wrapper for a CEF-owned App pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type appImpl struct {
 	rawPtr      *capi.CEFAppT
 	releaseOnce sync.Once
@@ -105,23 +108,26 @@ func (obj *appImpl) OnBeforeCommandLineProcessing(processType string, commandLin
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	processTypeStr := cefString(processType)
 	defer freeCefString(&processTypeStr)
-	obj.rawPtr.CallOnBeforeCommandLineProcessing(uintptr(unsafe.Pointer(&processTypeStr)), uintptr(extractRawPointer(commandLine)))
+	rawPtr.CallOnBeforeCommandLineProcessing(uintptr(unsafe.Pointer(&processTypeStr)), uintptr(extractRawPointer(commandLine)))
 }
 
 func (obj *appImpl) OnRegisterCustomSchemes(registrar SchemeRegistrar) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnRegisterCustomSchemes(uintptr(extractRawPointer(registrar)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnRegisterCustomSchemes(uintptr(extractRawPointer(registrar)))
 }
 
 func (obj *appImpl) GetResourceBundleHandler() ResourceBundleHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetResourceBundleHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetResourceBundleHandler()
 	return wrapResourceBundleHandler(unsafe.Pointer(ret))
 }
 
@@ -129,7 +135,8 @@ func (obj *appImpl) GetBrowserProcessHandler() BrowserProcessHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetBrowserProcessHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBrowserProcessHandler()
 	return wrapBrowserProcessHandler(unsafe.Pointer(ret))
 }
 
@@ -137,7 +144,8 @@ func (obj *appImpl) GetRenderProcessHandler() RenderProcessHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetRenderProcessHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRenderProcessHandler()
 	return wrapRenderProcessHandler(unsafe.Pointer(ret))
 }
 

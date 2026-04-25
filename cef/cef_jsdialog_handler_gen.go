@@ -17,6 +17,9 @@ import (
 // JsdialogCallback Callback structure used for asynchronous continuation of JavaScript dialog requests.
 type JsdialogCallback = portin.JsdialogCallback
 
+// jsdialogCallbackImpl is a reverse wrapper for a CEF-owned JsdialogCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type jsdialogCallbackImpl struct {
 	rawPtr      *capi.CEFJsdialogCallbackT
 	releaseOnce sync.Once
@@ -26,9 +29,10 @@ func (obj *jsdialogCallbackImpl) Cont(success int32, userInput string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	userInputStr := cefString(userInput)
 	defer freeCefString(&userInputStr)
-	obj.rawPtr.CallCont(uintptr(success), uintptr(unsafe.Pointer(&userInputStr)))
+	rawPtr.CallCont(uintptr(success), uintptr(unsafe.Pointer(&userInputStr)))
 }
 
 func (obj *jsdialogCallbackImpl) RawPointer() unsafe.Pointer {
@@ -128,6 +132,9 @@ func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 	return w
 }
 
+// jsdialogHandlerImpl is a reverse wrapper for a CEF-owned JsdialogHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type jsdialogHandlerImpl struct {
 	rawPtr      *capi.CEFJsdialogHandlerT
 	releaseOnce sync.Once
@@ -137,13 +144,14 @@ func (obj *jsdialogHandlerImpl) OnJsdialog(browser Browser, originURL string, di
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	originURLStr := cefString(originURL)
 	defer freeCefString(&originURLStr)
 	messageTextStr := cefString(messageText)
 	defer freeCefString(&messageTextStr)
 	defaultPromptTextStr := cefString(defaultPromptText)
 	defer freeCefString(&defaultPromptTextStr)
-	ret := obj.rawPtr.CallOnJsdialog(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&originURLStr)), uintptr(dialogType), uintptr(unsafe.Pointer(&messageTextStr)), uintptr(unsafe.Pointer(&defaultPromptTextStr)), uintptr(extractRawPointer(callback)), uintptr(unsafe.Pointer(suppressMessage)))
+	ret := rawPtr.CallOnJsdialog(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&originURLStr)), uintptr(dialogType), uintptr(unsafe.Pointer(&messageTextStr)), uintptr(unsafe.Pointer(&defaultPromptTextStr)), uintptr(extractRawPointer(callback)), uintptr(unsafe.Pointer(suppressMessage)))
 	return int32(ret)
 }
 
@@ -151,9 +159,10 @@ func (obj *jsdialogHandlerImpl) OnBeforeUnloadDialog(browser Browser, messageTex
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
+	rawPtr := obj.rawPtr
 	messageTextStr := cefString(messageText)
 	defer freeCefString(&messageTextStr)
-	ret := obj.rawPtr.CallOnBeforeUnloadDialog(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&messageTextStr)), uintptr(isReload), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnBeforeUnloadDialog(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&messageTextStr)), uintptr(isReload), uintptr(extractRawPointer(callback)))
 	return ret != 0
 }
 
@@ -161,14 +170,16 @@ func (obj *jsdialogHandlerImpl) OnResetDialogState(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnResetDialogState(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnResetDialogState(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *jsdialogHandlerImpl) OnDialogClosed(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnDialogClosed(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnDialogClosed(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *jsdialogHandlerImpl) RawPointer() unsafe.Pointer {

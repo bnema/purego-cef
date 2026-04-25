@@ -49,6 +49,9 @@ func NewResolveCallback(impl ResolveCallback) ResolveCallback {
 	return w
 }
 
+// resolveCallbackImpl is a reverse wrapper for a CEF-owned ResolveCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type resolveCallbackImpl struct {
 	rawPtr      *capi.CEFResolveCallbackT
 	releaseOnce sync.Once
@@ -58,7 +61,8 @@ func (obj *resolveCallbackImpl) OnResolveCompleted(result Errorcode, resolvedIps
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnResolveCompleted(uintptr(result), uintptr(resolvedIps))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnResolveCompleted(uintptr(result), uintptr(resolvedIps))
 }
 
 func (obj *resolveCallbackImpl) RawPointer() unsafe.Pointer {
@@ -134,6 +138,9 @@ func NewSettingObserver(impl SettingObserver) SettingObserver {
 	return w
 }
 
+// settingObserverImpl is a reverse wrapper for a CEF-owned SettingObserver pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type settingObserverImpl struct {
 	rawPtr      *capi.CEFSettingObserverT
 	releaseOnce sync.Once
@@ -143,11 +150,12 @@ func (obj *settingObserverImpl) OnSettingChanged(requestingURL string, topLevelU
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	requestingURLStr := cefString(requestingURL)
 	defer freeCefString(&requestingURLStr)
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
-	obj.rawPtr.CallOnSettingChanged(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
+	rawPtr.CallOnSettingChanged(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
 }
 
 func (obj *settingObserverImpl) RawPointer() unsafe.Pointer {
@@ -190,6 +198,9 @@ func wrapSettingObserver(ptr unsafe.Pointer) SettingObserver {
 // RequestContext A request context provides request handling for a set of related browser or URL request objects. A request context can be specified when creating a new browser via the cef_browser_host_t static factory functions or when creating a new URL request via the cef_urlrequest_t static factory functions. Browser objects with different request contexts will never be hosted in the same render process. Browser objects with the same request context may or may not be hosted in the same render process depending on the process model. Browser objects created indirectly via the JavaScript window.open function or targeted links will share the same render process and the same request context as the source browser. When running in single-process mode there is only a single render process (the main process) and so all browsers created in single-process mode will share the same request context. This will be the first request context passed into a cef_browser_host_t static factory function and all other request context objects will be ignored.
 type RequestContext = portin.RequestContext
 
+// requestContextImpl is a reverse wrapper for a CEF-owned RequestContext pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type requestContextImpl struct {
 	rawPtr      *capi.CEFRequestContextT
 	releaseOnce sync.Once
@@ -199,7 +210,8 @@ func (obj *requestContextImpl) IsSame(other RequestContext) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(other)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(other)))
 	return ret != 0
 }
 
@@ -207,7 +219,8 @@ func (obj *requestContextImpl) IsSharingWith(other RequestContext) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSharingWith(uintptr(extractRawPointer(other)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSharingWith(uintptr(extractRawPointer(other)))
 	return ret != 0
 }
 
@@ -215,7 +228,8 @@ func (obj *requestContextImpl) IsGlobal() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsGlobal()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsGlobal()
 	return ret != 0
 }
 
@@ -223,7 +237,8 @@ func (obj *requestContextImpl) GetHandler() RequestContextHandler {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetHandler()
 	return wrapRequestContextHandler(unsafe.Pointer(ret))
 }
 
@@ -231,7 +246,8 @@ func (obj *requestContextImpl) GetCachePath() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetCachePath()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetCachePath()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -239,7 +255,8 @@ func (obj *requestContextImpl) GetCookieManager(callback CompletionCallback) Coo
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetCookieManager(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetCookieManager(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 	return wrapCookieManager(unsafe.Pointer(ret))
 }
 
@@ -247,11 +264,12 @@ func (obj *requestContextImpl) RegisterSchemeHandlerFactory(schemeName string, d
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	schemeNameStr := cefString(schemeName)
 	defer freeCefString(&schemeNameStr)
 	domainNameStr := cefString(domainName)
 	defer freeCefString(&domainNameStr)
-	ret := obj.rawPtr.CallRegisterSchemeHandlerFactory(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(unsafe.Pointer(&domainNameStr)), uintptr(extractOrWrapRawPointer(factory, func() any { return NewSchemeHandlerFactory(factory) })))
+	ret := rawPtr.CallRegisterSchemeHandlerFactory(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(unsafe.Pointer(&domainNameStr)), uintptr(extractOrWrapRawPointer(factory, func() any { return NewSchemeHandlerFactory(factory) })))
 	return int32(ret)
 }
 
@@ -259,7 +277,8 @@ func (obj *requestContextImpl) ClearSchemeHandlerFactories() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallClearSchemeHandlerFactories()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallClearSchemeHandlerFactories()
 	return int32(ret)
 }
 
@@ -267,37 +286,42 @@ func (obj *requestContextImpl) ClearCertificateExceptions(callback CompletionCal
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallClearCertificateExceptions(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	rawPtr := obj.rawPtr
+	rawPtr.CallClearCertificateExceptions(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 }
 
 func (obj *requestContextImpl) ClearHttpAuthCredentials(callback CompletionCallback) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallClearHttpAuthCredentials(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	rawPtr := obj.rawPtr
+	rawPtr.CallClearHttpAuthCredentials(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 }
 
 func (obj *requestContextImpl) CloseAllConnections(callback CompletionCallback) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCloseAllConnections(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	rawPtr := obj.rawPtr
+	rawPtr.CallCloseAllConnections(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 }
 
 func (obj *requestContextImpl) ResolveHost(origin string, callback ResolveCallback) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	originStr := cefString(origin)
 	defer freeCefString(&originStr)
-	obj.rawPtr.CallResolveHost(uintptr(unsafe.Pointer(&originStr)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewResolveCallback(callback) })))
+	rawPtr.CallResolveHost(uintptr(unsafe.Pointer(&originStr)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewResolveCallback(callback) })))
 }
 
 func (obj *requestContextImpl) GetMediaRouter(callback CompletionCallback) MediaRouter {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetMediaRouter(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMediaRouter(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 	return wrapMediaRouter(unsafe.Pointer(ret))
 }
 
@@ -305,11 +329,12 @@ func (obj *requestContextImpl) GetWebsiteSetting(requestingURL string, topLevelU
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	requestingURLStr := cefString(requestingURL)
 	defer freeCefString(&requestingURLStr)
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
-	ret := obj.rawPtr.CallGetWebsiteSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
+	ret := rawPtr.CallGetWebsiteSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
 	return wrapValue(unsafe.Pointer(ret))
 }
 
@@ -317,22 +342,24 @@ func (obj *requestContextImpl) SetWebsiteSetting(requestingURL string, topLevelU
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	requestingURLStr := cefString(requestingURL)
 	defer freeCefString(&requestingURLStr)
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
-	obj.rawPtr.CallSetWebsiteSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType), uintptr(extractRawPointer(value)))
+	rawPtr.CallSetWebsiteSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType), uintptr(extractRawPointer(value)))
 }
 
 func (obj *requestContextImpl) GetContentSetting(requestingURL string, topLevelURL string, contentType ContentSettingTypes) ContentSettingValues {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	requestingURLStr := cefString(requestingURL)
 	defer freeCefString(&requestingURLStr)
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
-	ret := obj.rawPtr.CallGetContentSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
+	ret := rawPtr.CallGetContentSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
 	return ContentSettingValues(ret)
 }
 
@@ -340,25 +367,28 @@ func (obj *requestContextImpl) SetContentSetting(requestingURL string, topLevelU
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	requestingURLStr := cefString(requestingURL)
 	defer freeCefString(&requestingURLStr)
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
-	obj.rawPtr.CallSetContentSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType), uintptr(value))
+	rawPtr.CallSetContentSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType), uintptr(value))
 }
 
 func (obj *requestContextImpl) SetChromeColorScheme(variant ColorVariant, userColor uintptr) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetChromeColorScheme(uintptr(variant), userColor)
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetChromeColorScheme(uintptr(variant), userColor)
 }
 
 func (obj *requestContextImpl) GetChromeColorSchemeMode() ColorVariant {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetChromeColorSchemeMode()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetChromeColorSchemeMode()
 	return ColorVariant(ret)
 }
 
@@ -366,7 +396,8 @@ func (obj *requestContextImpl) GetChromeColorSchemeColor() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetChromeColorSchemeColor()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetChromeColorSchemeColor()
 	return uintptr(ret)
 }
 
@@ -374,7 +405,8 @@ func (obj *requestContextImpl) GetChromeColorSchemeVariant() ColorVariant {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetChromeColorSchemeVariant()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetChromeColorSchemeVariant()
 	return ColorVariant(ret)
 }
 
@@ -382,7 +414,8 @@ func (obj *requestContextImpl) AddSettingObserver(observer SettingObserver) Regi
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAddSettingObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewSettingObserver(observer) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAddSettingObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewSettingObserver(observer) })))
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
@@ -390,7 +423,8 @@ func (obj *requestContextImpl) ClearHttpCache(callback CompletionCallback) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallClearHttpCache(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	rawPtr := obj.rawPtr
+	rawPtr.CallClearHttpCache(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
 }
 
 func (obj *requestContextImpl) RawPointer() unsafe.Pointer {

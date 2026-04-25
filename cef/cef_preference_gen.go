@@ -17,6 +17,9 @@ import (
 // PreferenceRegistrar Structure that manages custom preference registrations.
 type PreferenceRegistrar = portin.PreferenceRegistrar
 
+// preferenceRegistrarImpl is a reverse wrapper for a CEF-owned PreferenceRegistrar pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type preferenceRegistrarImpl struct {
 	rawPtr *capi.CEFPreferenceRegistrarT
 }
@@ -25,9 +28,10 @@ func (obj *preferenceRegistrarImpl) AddPreference(name string, defaultValue Valu
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallAddPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(defaultValue)))
+	ret := rawPtr.CallAddPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(defaultValue)))
 	return int32(ret)
 }
 
@@ -80,6 +84,9 @@ func NewPreferenceObserver(impl PreferenceObserver) PreferenceObserver {
 	return w
 }
 
+// preferenceObserverImpl is a reverse wrapper for a CEF-owned PreferenceObserver pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type preferenceObserverImpl struct {
 	rawPtr      *capi.CEFPreferenceObserverT
 	releaseOnce sync.Once
@@ -89,9 +96,10 @@ func (obj *preferenceObserverImpl) OnPreferenceChanged(name string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	obj.rawPtr.CallOnPreferenceChanged(uintptr(unsafe.Pointer(&nameStr)))
+	rawPtr.CallOnPreferenceChanged(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *preferenceObserverImpl) RawPointer() unsafe.Pointer {
@@ -134,6 +142,9 @@ func wrapPreferenceObserver(ptr unsafe.Pointer) PreferenceObserver {
 // PreferenceManager Manage access to preferences. Many built-in preferences are registered by Chromium. Custom preferences can be registered in cef_browser_process_handler_t::OnRegisterCustomPreferences.
 type PreferenceManager = portin.PreferenceManager
 
+// preferenceManagerImpl is a reverse wrapper for a CEF-owned PreferenceManager pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type preferenceManagerImpl struct {
 	rawPtr      *capi.CEFPreferenceManagerT
 	releaseOnce sync.Once
@@ -143,9 +154,10 @@ func (obj *preferenceManagerImpl) HasPreference(name string) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallHasPreference(uintptr(unsafe.Pointer(&nameStr)))
+	ret := rawPtr.CallHasPreference(uintptr(unsafe.Pointer(&nameStr)))
 	return ret != 0
 }
 
@@ -153,9 +165,10 @@ func (obj *preferenceManagerImpl) GetPreference(name string) Value {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallGetPreference(uintptr(unsafe.Pointer(&nameStr)))
+	ret := rawPtr.CallGetPreference(uintptr(unsafe.Pointer(&nameStr)))
 	return wrapValue(unsafe.Pointer(ret))
 }
 
@@ -163,7 +176,8 @@ func (obj *preferenceManagerImpl) GetAllPreferences(includeDefaults int32) Dicti
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetAllPreferences(uintptr(includeDefaults))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetAllPreferences(uintptr(includeDefaults))
 	return wrapDictionaryValue(unsafe.Pointer(ret))
 }
 
@@ -171,9 +185,10 @@ func (obj *preferenceManagerImpl) CanSetPreference(name string) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallCanSetPreference(uintptr(unsafe.Pointer(&nameStr)))
+	ret := rawPtr.CallCanSetPreference(uintptr(unsafe.Pointer(&nameStr)))
 	return ret != 0
 }
 
@@ -181,9 +196,10 @@ func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error 
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallSetPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(value)), error)
+	ret := rawPtr.CallSetPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(value)), error)
 	return int32(ret)
 }
 
@@ -191,9 +207,10 @@ func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer Pr
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := obj.rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractOrWrapRawPointer(observer, func() any { return NewPreferenceObserver(observer) })))
+	ret := rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractOrWrapRawPointer(observer, func() any { return NewPreferenceObserver(observer) })))
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 

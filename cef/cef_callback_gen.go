@@ -17,6 +17,9 @@ import (
 // Callback Generic callback structure used for asynchronous continuation.
 type Callback = portin.Callback
 
+// callbackImpl is a reverse wrapper for a CEF-owned Callback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type callbackImpl struct {
 	rawPtr      *capi.CEFCallbackT
 	releaseOnce sync.Once
@@ -26,14 +29,16 @@ func (obj *callbackImpl) Cont() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCont()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCont()
 }
 
 func (obj *callbackImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *callbackImpl) RawPointer() unsafe.Pointer {
@@ -105,6 +110,9 @@ func NewCompletionCallback(impl CompletionCallback) CompletionCallback {
 	return w
 }
 
+// completionCallbackImpl is a reverse wrapper for a CEF-owned CompletionCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type completionCallbackImpl struct {
 	rawPtr      *capi.CEFCompletionCallbackT
 	releaseOnce sync.Once
@@ -114,7 +122,8 @@ func (obj *completionCallbackImpl) OnComplete() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnComplete()
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnComplete()
 }
 
 func (obj *completionCallbackImpl) RawPointer() unsafe.Pointer {

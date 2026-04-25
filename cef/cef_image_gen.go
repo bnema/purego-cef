@@ -15,6 +15,9 @@ import (
 // Image Container for a single image represented at different scale factors. All image representations should be the same size in density independent pixel (DIP) units. For example, if the image at scale factor 1.0 is 100x100 pixels then the image at scale factor 2.0 should be 200x200 pixels -- both images will display with a DIP size of 100x100 units. The functions of this structure can be called on any browser process thread.
 type Image = portin.Image
 
+// imageImpl is a reverse wrapper for a CEF-owned Image pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type imageImpl struct {
 	rawPtr                    *capi.CEFImageT
 	releaseOnce               sync.Once
@@ -42,7 +45,8 @@ func (obj *imageImpl) IsEmpty() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsEmpty()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsEmpty()
 	return ret != 0
 }
 
@@ -50,7 +54,8 @@ func (obj *imageImpl) IsSame(that Image) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
@@ -58,10 +63,11 @@ func (obj *imageImpl) AddBitmap(scaleFactor float32, pixelWidth int32, pixelHeig
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.addBitmapOnce.Do(func() {
-		registerTypedCallback(&obj.addBitmapFunc, obj.rawPtr.AddBitmap)
+		registerTypedCallback(&obj.addBitmapFunc, rawPtr.AddBitmap)
 	})
-	ret := obj.addBitmapFunc(obj.rawPtr, scaleFactor, uintptr(pixelWidth), uintptr(pixelHeight), uintptr(colorType), uintptr(alphaType), uintptr(pixelData), uintptr(pixelDataSize))
+	ret := obj.addBitmapFunc(rawPtr, scaleFactor, uintptr(pixelWidth), uintptr(pixelHeight), uintptr(colorType), uintptr(alphaType), uintptr(pixelData), uintptr(pixelDataSize))
 	return int32(ret)
 }
 
@@ -69,10 +75,11 @@ func (obj *imageImpl) AddPng(scaleFactor float32, pngData unsafe.Pointer, pngDat
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.addPngOnce.Do(func() {
-		registerTypedCallback(&obj.addPngFunc, obj.rawPtr.AddPng)
+		registerTypedCallback(&obj.addPngFunc, rawPtr.AddPng)
 	})
-	ret := obj.addPngFunc(obj.rawPtr, scaleFactor, uintptr(pngData), uintptr(pngDataSize))
+	ret := obj.addPngFunc(rawPtr, scaleFactor, uintptr(pngData), uintptr(pngDataSize))
 	return int32(ret)
 }
 
@@ -80,10 +87,11 @@ func (obj *imageImpl) AddJpeg(scaleFactor float32, jpegData unsafe.Pointer, jpeg
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.addJpegOnce.Do(func() {
-		registerTypedCallback(&obj.addJpegFunc, obj.rawPtr.AddJpeg)
+		registerTypedCallback(&obj.addJpegFunc, rawPtr.AddJpeg)
 	})
-	ret := obj.addJpegFunc(obj.rawPtr, scaleFactor, uintptr(jpegData), uintptr(jpegDataSize))
+	ret := obj.addJpegFunc(rawPtr, scaleFactor, uintptr(jpegData), uintptr(jpegDataSize))
 	return int32(ret)
 }
 
@@ -91,7 +99,8 @@ func (obj *imageImpl) GetWidth() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetWidth()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetWidth()
 	return int(ret)
 }
 
@@ -99,7 +108,8 @@ func (obj *imageImpl) GetHeight() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetHeight()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetHeight()
 	return int(ret)
 }
 
@@ -107,10 +117,11 @@ func (obj *imageImpl) HasRepresentation(scaleFactor float32) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
+	rawPtr := obj.rawPtr
 	obj.hasRepresentationOnce.Do(func() {
-		registerTypedCallback(&obj.hasRepresentationFunc, obj.rawPtr.HasRepresentation)
+		registerTypedCallback(&obj.hasRepresentationFunc, rawPtr.HasRepresentation)
 	})
-	ret := obj.hasRepresentationFunc(obj.rawPtr, scaleFactor)
+	ret := obj.hasRepresentationFunc(rawPtr, scaleFactor)
 	return ret != 0
 }
 
@@ -118,10 +129,11 @@ func (obj *imageImpl) RemoveRepresentation(scaleFactor float32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.removeRepresentationOnce.Do(func() {
-		registerTypedCallback(&obj.removeRepresentationFunc, obj.rawPtr.RemoveRepresentation)
+		registerTypedCallback(&obj.removeRepresentationFunc, rawPtr.RemoveRepresentation)
 	})
-	ret := obj.removeRepresentationFunc(obj.rawPtr, scaleFactor)
+	ret := obj.removeRepresentationFunc(rawPtr, scaleFactor)
 	return int32(ret)
 }
 
@@ -129,10 +141,11 @@ func (obj *imageImpl) GetRepresentationInfo(scaleFactor float32, actualScaleFact
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getRepresentationInfoOnce.Do(func() {
-		registerTypedCallback(&obj.getRepresentationInfoFunc, obj.rawPtr.GetRepresentationInfo)
+		registerTypedCallback(&obj.getRepresentationInfoFunc, rawPtr.GetRepresentationInfo)
 	})
-	ret := obj.getRepresentationInfoFunc(obj.rawPtr, scaleFactor, uintptr(unsafe.Pointer(actualScaleFactor)), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
+	ret := obj.getRepresentationInfoFunc(rawPtr, scaleFactor, uintptr(unsafe.Pointer(actualScaleFactor)), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
 	return int32(ret)
 }
 
@@ -140,10 +153,11 @@ func (obj *imageImpl) GetAsBitmap(scaleFactor float32, colorType ColorType, alph
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	obj.getAsBitmapOnce.Do(func() {
-		registerTypedCallback(&obj.getAsBitmapFunc, obj.rawPtr.GetAsBitmap)
+		registerTypedCallback(&obj.getAsBitmapFunc, rawPtr.GetAsBitmap)
 	})
-	ret := obj.getAsBitmapFunc(obj.rawPtr, scaleFactor, uintptr(colorType), uintptr(alphaType), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
+	ret := obj.getAsBitmapFunc(rawPtr, scaleFactor, uintptr(colorType), uintptr(alphaType), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
@@ -151,10 +165,11 @@ func (obj *imageImpl) GetAsPng(scaleFactor float32, withTransparency int32, pixe
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	obj.getAsPngOnce.Do(func() {
-		registerTypedCallback(&obj.getAsPngFunc, obj.rawPtr.GetAsPng)
+		registerTypedCallback(&obj.getAsPngFunc, rawPtr.GetAsPng)
 	})
-	ret := obj.getAsPngFunc(obj.rawPtr, scaleFactor, uintptr(withTransparency), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
+	ret := obj.getAsPngFunc(rawPtr, scaleFactor, uintptr(withTransparency), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
@@ -162,10 +177,11 @@ func (obj *imageImpl) GetAsJpeg(scaleFactor float32, quality int32, pixelWidth *
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	obj.getAsJpegOnce.Do(func() {
-		registerTypedCallback(&obj.getAsJpegFunc, obj.rawPtr.GetAsJpeg)
+		registerTypedCallback(&obj.getAsJpegFunc, rawPtr.GetAsJpeg)
 	})
-	ret := obj.getAsJpegFunc(obj.rawPtr, scaleFactor, uintptr(quality), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
+	ret := obj.getAsJpegFunc(rawPtr, scaleFactor, uintptr(quality), uintptr(unsafe.Pointer(pixelWidth)), uintptr(unsafe.Pointer(pixelHeight)))
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 

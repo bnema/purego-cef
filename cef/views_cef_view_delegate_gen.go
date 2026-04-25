@@ -105,6 +105,9 @@ func NewViewDelegate(impl ViewDelegate) ViewDelegate {
 	return w
 }
 
+// viewDelegateImpl is a reverse wrapper for a CEF-owned ViewDelegate pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type viewDelegateImpl struct {
 	rawPtr      *capi.CEFViewDelegateT
 	releaseOnce sync.Once
@@ -114,7 +117,8 @@ func (obj *viewDelegateImpl) GetPreferredSize(view View) uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetPreferredSize(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPreferredSize(uintptr(extractRawPointer(view)))
 	return uintptr(ret)
 }
 
@@ -122,7 +126,8 @@ func (obj *viewDelegateImpl) GetMinimumSize(view View) uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetMinimumSize(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMinimumSize(uintptr(extractRawPointer(view)))
 	return uintptr(ret)
 }
 
@@ -130,7 +135,8 @@ func (obj *viewDelegateImpl) GetMaximumSize(view View) uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetMaximumSize(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMaximumSize(uintptr(extractRawPointer(view)))
 	return uintptr(ret)
 }
 
@@ -138,7 +144,8 @@ func (obj *viewDelegateImpl) GetHeightForWidth(view View, width int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetHeightForWidth(uintptr(extractRawPointer(view)), uintptr(width))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetHeightForWidth(uintptr(extractRawPointer(view)), uintptr(width))
 	return int32(ret)
 }
 
@@ -146,49 +153,56 @@ func (obj *viewDelegateImpl) OnParentViewChanged(view View, added int32, parent 
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnParentViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(parent)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnParentViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(parent)))
 }
 
 func (obj *viewDelegateImpl) OnChildViewChanged(view View, added int32, child View) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnChildViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(child)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnChildViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(child)))
 }
 
 func (obj *viewDelegateImpl) OnWindowChanged(view View, added int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnWindowChanged(uintptr(extractRawPointer(view)), uintptr(added))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnWindowChanged(uintptr(extractRawPointer(view)), uintptr(added))
 }
 
 func (obj *viewDelegateImpl) OnLayoutChanged(view View, newBounds *Rect) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnLayoutChanged(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(newBounds)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnLayoutChanged(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(newBounds)))
 }
 
 func (obj *viewDelegateImpl) OnFocus(view View) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnFocus(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnFocus(uintptr(extractRawPointer(view)))
 }
 
 func (obj *viewDelegateImpl) OnBlur(view View) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBlur(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBlur(uintptr(extractRawPointer(view)))
 }
 
 func (obj *viewDelegateImpl) OnThemeChanged(view View) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnThemeChanged(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnThemeChanged(uintptr(extractRawPointer(view)))
 }
 
 func (obj *viewDelegateImpl) RawPointer() unsafe.Pointer {

@@ -17,6 +17,9 @@ import (
 // TestServer Structure representing an embedded test server that supports HTTP/HTTPS requests. This is a basic server providing only an essential subset of the HTTP/1.1 protocol. Especially, it assumes that the request syntax is correct. It *does not* support a Chunked Transfer Encoding. Server capacity is limited and is intended to handle only a small number of simultaneous connections (e.g. for communicating between applications on localhost). The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.
 type TestServer = portin.TestServer
 
+// testServerImpl is a reverse wrapper for a CEF-owned TestServer pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type testServerImpl struct {
 	rawPtr      *capi.CEFTestServerT
 	releaseOnce sync.Once
@@ -26,14 +29,16 @@ func (obj *testServerImpl) Stop() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallStop()
+	rawPtr := obj.rawPtr
+	rawPtr.CallStop()
 }
 
 func (obj *testServerImpl) GetOrigin() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetOrigin()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOrigin()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -109,6 +114,9 @@ func NewTestServerHandler(impl TestServerHandler) TestServerHandler {
 	return w
 }
 
+// testServerHandlerImpl is a reverse wrapper for a CEF-owned TestServerHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type testServerHandlerImpl struct {
 	rawPtr      *capi.CEFTestServerHandlerT
 	releaseOnce sync.Once
@@ -118,7 +126,8 @@ func (obj *testServerHandlerImpl) OnTestServerRequest(server TestServer, request
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnTestServerRequest(uintptr(extractRawPointer(server)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(connection)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnTestServerRequest(uintptr(extractRawPointer(server)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(connection)))
 	return int32(ret)
 }
 
@@ -162,6 +171,9 @@ func wrapTestServerHandler(ptr unsafe.Pointer) TestServerHandler {
 // TestServerConnection Structure representing a test server connection. The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.
 type TestServerConnection = portin.TestServerConnection
 
+// testServerConnectionImpl is a reverse wrapper for a CEF-owned TestServerConnection pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type testServerConnectionImpl struct {
 	rawPtr      *capi.CEFTestServerConnectionT
 	releaseOnce sync.Once
@@ -171,34 +183,38 @@ func (obj *testServerConnectionImpl) SendHttp200Response(contentType string, dat
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
-	obj.rawPtr.CallSendHttp200Response(uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize))
+	rawPtr.CallSendHttp200Response(uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize))
 }
 
 func (obj *testServerConnectionImpl) SendHttp404Response() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSendHttp404Response()
+	rawPtr := obj.rawPtr
+	rawPtr.CallSendHttp404Response()
 }
 
 func (obj *testServerConnectionImpl) SendHttp500Response(errorMessage string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	errorMessageStr := cefString(errorMessage)
 	defer freeCefString(&errorMessageStr)
-	obj.rawPtr.CallSendHttp500Response(uintptr(unsafe.Pointer(&errorMessageStr)))
+	rawPtr.CallSendHttp500Response(uintptr(unsafe.Pointer(&errorMessageStr)))
 }
 
 func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders StringMultimap) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
-	obj.rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), uintptr(extraHeaders))
+	rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), uintptr(extraHeaders))
 }
 
 func (obj *testServerConnectionImpl) RawPointer() unsafe.Pointer {

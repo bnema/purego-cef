@@ -17,6 +17,9 @@ import (
 // MenuButtonPressedLock MenuButton pressed lock is released when this object is destroyed.
 type MenuButtonPressedLock = portin.MenuButtonPressedLock
 
+// menuButtonPressedLockImpl is a reverse wrapper for a CEF-owned MenuButtonPressedLock pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type menuButtonPressedLockImpl struct {
 	rawPtr      *capi.CEFMenuButtonPressedLockT
 	releaseOnce sync.Once
@@ -94,6 +97,9 @@ func NewMenuButtonDelegate(impl MenuButtonDelegate) MenuButtonDelegate {
 	return w
 }
 
+// menuButtonDelegateImpl is a reverse wrapper for a CEF-owned MenuButtonDelegate pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type menuButtonDelegateImpl struct {
 	rawPtr      *capi.CEFMenuButtonDelegateT
 	releaseOnce sync.Once
@@ -103,7 +109,8 @@ func (obj *menuButtonDelegateImpl) OnMenuButtonPressed(menuButton MenuButton, sc
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnMenuButtonPressed(uintptr(extractRawPointer(menuButton)), uintptr(unsafe.Pointer(screenPoint)), uintptr(extractRawPointer(buttonPressedLock)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnMenuButtonPressed(uintptr(extractRawPointer(menuButton)), uintptr(unsafe.Pointer(screenPoint)), uintptr(extractRawPointer(buttonPressedLock)))
 }
 
 func (obj *menuButtonDelegateImpl) RawPointer() unsafe.Pointer {

@@ -17,6 +17,9 @@ import (
 // BeforeDownloadCallback Callback structure used to asynchronously continue a download.
 type BeforeDownloadCallback = portin.BeforeDownloadCallback
 
+// beforeDownloadCallbackImpl is a reverse wrapper for a CEF-owned BeforeDownloadCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type beforeDownloadCallbackImpl struct {
 	rawPtr      *capi.CEFBeforeDownloadCallbackT
 	releaseOnce sync.Once
@@ -26,9 +29,10 @@ func (obj *beforeDownloadCallbackImpl) Cont(downloadPath string, showDialog int3
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	downloadPathStr := cefString(downloadPath)
 	defer freeCefString(&downloadPathStr)
-	obj.rawPtr.CallCont(uintptr(unsafe.Pointer(&downloadPathStr)), uintptr(showDialog))
+	rawPtr.CallCont(uintptr(unsafe.Pointer(&downloadPathStr)), uintptr(showDialog))
 }
 
 func (obj *beforeDownloadCallbackImpl) RawPointer() unsafe.Pointer {
@@ -70,6 +74,9 @@ func wrapBeforeDownloadCallback(ptr unsafe.Pointer) BeforeDownloadCallback {
 // DownloadItemCallback Callback structure used to asynchronously cancel a download.
 type DownloadItemCallback = portin.DownloadItemCallback
 
+// downloadItemCallbackImpl is a reverse wrapper for a CEF-owned DownloadItemCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type downloadItemCallbackImpl struct {
 	rawPtr      *capi.CEFDownloadItemCallbackT
 	releaseOnce sync.Once
@@ -79,21 +86,24 @@ func (obj *downloadItemCallbackImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *downloadItemCallbackImpl) Pause() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallPause()
+	rawPtr := obj.rawPtr
+	rawPtr.CallPause()
 }
 
 func (obj *downloadItemCallbackImpl) Resume() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallResume()
+	rawPtr := obj.rawPtr
+	rawPtr.CallResume()
 }
 
 func (obj *downloadItemCallbackImpl) RawPointer() unsafe.Pointer {
@@ -189,6 +199,9 @@ func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
 	return w
 }
 
+// downloadHandlerImpl is a reverse wrapper for a CEF-owned DownloadHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type downloadHandlerImpl struct {
 	rawPtr      *capi.CEFDownloadHandlerT
 	releaseOnce sync.Once
@@ -198,11 +211,12 @@ func (obj *downloadHandlerImpl) CanDownload(browser Browser, uRL string, request
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
+	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	requestMethodStr := cefString(requestMethod)
 	defer freeCefString(&requestMethodStr)
-	ret := obj.rawPtr.CallCanDownload(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&requestMethodStr)))
+	ret := rawPtr.CallCanDownload(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&requestMethodStr)))
 	return ret != 0
 }
 
@@ -210,9 +224,10 @@ func (obj *downloadHandlerImpl) OnBeforeDownload(browser Browser, downloadItem D
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
+	rawPtr := obj.rawPtr
 	suggestedNameStr := cefString(suggestedName)
 	defer freeCefString(&suggestedNameStr)
-	ret := obj.rawPtr.CallOnBeforeDownload(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(unsafe.Pointer(&suggestedNameStr)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnBeforeDownload(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(unsafe.Pointer(&suggestedNameStr)), uintptr(extractRawPointer(callback)))
 	return ret != 0
 }
 
@@ -220,7 +235,8 @@ func (obj *downloadHandlerImpl) OnDownloadUpdated(browser Browser, downloadItem 
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnDownloadUpdated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(extractRawPointer(callback)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnDownloadUpdated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(extractRawPointer(callback)))
 }
 
 func (obj *downloadHandlerImpl) RawPointer() unsafe.Pointer {

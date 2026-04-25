@@ -84,6 +84,9 @@ func NewCommandHandler(impl CommandHandler) CommandHandler {
 	return w
 }
 
+// commandHandlerImpl is a reverse wrapper for a CEF-owned CommandHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type commandHandlerImpl struct {
 	rawPtr      *capi.CEFCommandHandlerT
 	releaseOnce sync.Once
@@ -93,7 +96,8 @@ func (obj *commandHandlerImpl) OnChromeCommand(browser Browser, commandID int32,
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnChromeCommand(uintptr(extractRawPointer(browser)), uintptr(commandID), uintptr(disposition))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnChromeCommand(uintptr(extractRawPointer(browser)), uintptr(commandID), uintptr(disposition))
 	return int32(ret)
 }
 
@@ -101,7 +105,8 @@ func (obj *commandHandlerImpl) IsChromeAppMenuItemVisible(browser Browser, comma
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsChromeAppMenuItemVisible(uintptr(extractRawPointer(browser)), uintptr(commandID))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsChromeAppMenuItemVisible(uintptr(extractRawPointer(browser)), uintptr(commandID))
 	return ret != 0
 }
 
@@ -109,7 +114,8 @@ func (obj *commandHandlerImpl) IsChromeAppMenuItemEnabled(browser Browser, comma
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsChromeAppMenuItemEnabled(uintptr(extractRawPointer(browser)), uintptr(commandID))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsChromeAppMenuItemEnabled(uintptr(extractRawPointer(browser)), uintptr(commandID))
 	return ret != 0
 }
 
@@ -117,7 +123,8 @@ func (obj *commandHandlerImpl) IsChromePageActionIconVisible(iconType ChromePage
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsChromePageActionIconVisible(uintptr(iconType))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsChromePageActionIconVisible(uintptr(iconType))
 	return ret != 0
 }
 
@@ -125,7 +132,8 @@ func (obj *commandHandlerImpl) IsChromeToolbarButtonVisible(buttonType ChromeToo
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsChromeToolbarButtonVisible(uintptr(buttonType))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsChromeToolbarButtonVisible(uintptr(buttonType))
 	return ret != 0
 }
 

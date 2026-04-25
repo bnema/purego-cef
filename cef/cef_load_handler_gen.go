@@ -74,6 +74,9 @@ func NewLoadHandler(impl LoadHandler) LoadHandler {
 	return w
 }
 
+// loadHandlerImpl is a reverse wrapper for a CEF-owned LoadHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type loadHandlerImpl struct {
 	rawPtr      *capi.CEFLoadHandlerT
 	releaseOnce sync.Once
@@ -83,32 +86,36 @@ func (obj *loadHandlerImpl) OnLoadingStateChange(browser Browser, isloading int3
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnLoadingStateChange(uintptr(extractRawPointer(browser)), uintptr(isloading), uintptr(cangoback), uintptr(cangoforward))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnLoadingStateChange(uintptr(extractRawPointer(browser)), uintptr(isloading), uintptr(cangoback), uintptr(cangoforward))
 }
 
 func (obj *loadHandlerImpl) OnLoadStart(browser Browser, frame Frame, transitionType TransitionType) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnLoadStart(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(transitionType))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnLoadStart(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(transitionType))
 }
 
 func (obj *loadHandlerImpl) OnLoadEnd(browser Browser, frame Frame, httpstatuscode int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnLoadEnd(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(httpstatuscode))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnLoadEnd(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(httpstatuscode))
 }
 
 func (obj *loadHandlerImpl) OnLoadError(browser Browser, frame Frame, errorcode Errorcode, errortext string, failedurl string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	errortextStr := cefString(errortext)
 	defer freeCefString(&errortextStr)
 	failedurlStr := cefString(failedurl)
 	defer freeCefString(&failedurlStr)
-	obj.rawPtr.CallOnLoadError(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(errorcode), uintptr(unsafe.Pointer(&errortextStr)), uintptr(unsafe.Pointer(&failedurlStr)))
+	rawPtr.CallOnLoadError(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(errorcode), uintptr(unsafe.Pointer(&errortextStr)), uintptr(unsafe.Pointer(&failedurlStr)))
 }
 
 func (obj *loadHandlerImpl) RawPointer() unsafe.Pointer {

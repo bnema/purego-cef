@@ -17,6 +17,9 @@ import (
 // Urlrequest Structure used to make a URL request. URL requests are not associated with a browser instance so no cef_client_t callbacks will be executed. URL requests can be created on any valid CEF thread in either the browser or render process. Once created the functions of the URL request object must be accessed on the same thread that created it.
 type Urlrequest = portin.Urlrequest
 
+// urlrequestImpl is a reverse wrapper for a CEF-owned Urlrequest pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type urlrequestImpl struct {
 	rawPtr      *capi.CEFUrlrequestT
 	releaseOnce sync.Once
@@ -26,7 +29,8 @@ func (obj *urlrequestImpl) GetRequest() Request {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetRequest()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRequest()
 	return wrapRequest(unsafe.Pointer(ret))
 }
 
@@ -34,7 +38,8 @@ func (obj *urlrequestImpl) GetClient() UrlrequestClient {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetClient()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetClient()
 	return wrapUrlrequestClient(unsafe.Pointer(ret))
 }
 
@@ -42,7 +47,8 @@ func (obj *urlrequestImpl) GetRequestStatus() UrlrequestStatus {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetRequestStatus()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRequestStatus()
 	return UrlrequestStatus(ret)
 }
 
@@ -50,7 +56,8 @@ func (obj *urlrequestImpl) GetRequestError() Errorcode {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetRequestError()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRequestError()
 	return Errorcode(ret)
 }
 
@@ -58,7 +65,8 @@ func (obj *urlrequestImpl) GetResponse() Response {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetResponse()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetResponse()
 	return wrapResponse(unsafe.Pointer(ret))
 }
 
@@ -66,7 +74,8 @@ func (obj *urlrequestImpl) ResponseWasCached() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallResponseWasCached()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallResponseWasCached()
 	return int32(ret)
 }
 
@@ -74,7 +83,8 @@ func (obj *urlrequestImpl) Cancel() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCancel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCancel()
 }
 
 func (obj *urlrequestImpl) RawPointer() unsafe.Pointer {
@@ -144,15 +154,15 @@ func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
 
 	r.OverrideOnUploadProgress(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
-		current := int64(arg1)
-		total := int64(arg2)
+		current := arg1
+		total := arg2
 		impl.OnUploadProgress(request, current, total)
 	}))
 
 	r.OverrideOnDownloadProgress(purego.NewCallback(func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
-		current := int64(arg1)
-		total := int64(arg2)
+		current := arg1
+		total := arg2
 		impl.OnDownloadProgress(request, current, total)
 	}))
 
@@ -178,6 +188,9 @@ func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
 	return w
 }
 
+// urlrequestClientImpl is a reverse wrapper for a CEF-owned UrlrequestClient pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type urlrequestClientImpl struct {
 	rawPtr                 *capi.CEFUrlrequestClientT
 	releaseOnce            sync.Once
@@ -191,47 +204,52 @@ func (obj *urlrequestClientImpl) OnRequestComplete(request Urlrequest) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnRequestComplete(uintptr(extractRawPointer(request)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnRequestComplete(uintptr(extractRawPointer(request)))
 }
 
 func (obj *urlrequestClientImpl) OnUploadProgress(request Urlrequest, current int64, total int64) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	obj.onUploadProgressOnce.Do(func() {
-		registerTypedCallback(&obj.onUploadProgressFunc, obj.rawPtr.OnUploadProgress)
+		registerTypedCallback(&obj.onUploadProgressFunc, rawPtr.OnUploadProgress)
 	})
-	obj.onUploadProgressFunc(obj.rawPtr, uintptr(extractRawPointer(request)), current, total)
+	obj.onUploadProgressFunc(rawPtr, uintptr(extractRawPointer(request)), current, total)
 }
 
 func (obj *urlrequestClientImpl) OnDownloadProgress(request Urlrequest, current int64, total int64) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	obj.onDownloadProgressOnce.Do(func() {
-		registerTypedCallback(&obj.onDownloadProgressFunc, obj.rawPtr.OnDownloadProgress)
+		registerTypedCallback(&obj.onDownloadProgressFunc, rawPtr.OnDownloadProgress)
 	})
-	obj.onDownloadProgressFunc(obj.rawPtr, uintptr(extractRawPointer(request)), current, total)
+	obj.onDownloadProgressFunc(rawPtr, uintptr(extractRawPointer(request)), current, total)
 }
 
 func (obj *urlrequestClientImpl) OnDownloadData(request Urlrequest, data unsafe.Pointer, dataLength int) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnDownloadData(uintptr(extractRawPointer(request)), uintptr(data), uintptr(dataLength))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnDownloadData(uintptr(extractRawPointer(request)), uintptr(data), uintptr(dataLength))
 }
 
 func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, port int32, realm string, scheme string, callback AuthCallback) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	hostStr := cefString(host)
 	defer freeCefString(&hostStr)
 	realmStr := cefString(realm)
 	defer freeCefString(&realmStr)
 	schemeStr := cefString(scheme)
 	defer freeCefString(&schemeStr)
-	ret := obj.rawPtr.CallGetAuthCredentials(uintptr(isproxy), uintptr(unsafe.Pointer(&hostStr)), uintptr(port), uintptr(unsafe.Pointer(&realmStr)), uintptr(unsafe.Pointer(&schemeStr)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallGetAuthCredentials(uintptr(isproxy), uintptr(unsafe.Pointer(&hostStr)), uintptr(port), uintptr(unsafe.Pointer(&realmStr)), uintptr(unsafe.Pointer(&schemeStr)), uintptr(extractRawPointer(callback)))
 	return int32(ret)
 }
 

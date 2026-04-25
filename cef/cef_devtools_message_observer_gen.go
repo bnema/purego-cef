@@ -77,6 +77,9 @@ func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObs
 	return w
 }
 
+// devToolsMessageObserverImpl is a reverse wrapper for a CEF-owned DevToolsMessageObserver pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type devToolsMessageObserverImpl struct {
 	rawPtr      *capi.CEFDevToolsMessageObserverT
 	releaseOnce sync.Once
@@ -86,7 +89,8 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsMessage(browser Browser, messa
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnDevToolsMessage(uintptr(extractRawPointer(browser)), uintptr(message), uintptr(messageSize))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnDevToolsMessage(uintptr(extractRawPointer(browser)), uintptr(message), uintptr(messageSize))
 	return int32(ret)
 }
 
@@ -94,30 +98,34 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsMethodResult(browser Browser, 
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnDevToolsMethodResult(uintptr(extractRawPointer(browser)), uintptr(messageID), uintptr(success), uintptr(result), uintptr(resultSize))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnDevToolsMethodResult(uintptr(extractRawPointer(browser)), uintptr(messageID), uintptr(success), uintptr(result), uintptr(resultSize))
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsEvent(browser Browser, method string, params unsafe.Pointer, paramsSize int) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
-	obj.rawPtr.CallOnDevToolsEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&methodStr)), uintptr(params), uintptr(paramsSize))
+	rawPtr.CallOnDevToolsEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&methodStr)), uintptr(params), uintptr(paramsSize))
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentAttached(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnDevToolsAgentAttached(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnDevToolsAgentAttached(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentDetached(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnDevToolsAgentDetached(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnDevToolsAgentDetached(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *devToolsMessageObserverImpl) RawPointer() unsafe.Pointer {

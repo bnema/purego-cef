@@ -15,6 +15,9 @@ import (
 // UnresponsiveProcessCallback Callback structure for asynchronous handling of an unresponsive process.
 type UnresponsiveProcessCallback = portin.UnresponsiveProcessCallback
 
+// unresponsiveProcessCallbackImpl is a reverse wrapper for a CEF-owned UnresponsiveProcessCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type unresponsiveProcessCallbackImpl struct {
 	rawPtr      *capi.CEFUnresponsiveProcessCallbackT
 	releaseOnce sync.Once
@@ -24,14 +27,16 @@ func (obj *unresponsiveProcessCallbackImpl) Wait() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallWait()
+	rawPtr := obj.rawPtr
+	rawPtr.CallWait()
 }
 
 func (obj *unresponsiveProcessCallbackImpl) Terminate() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallTerminate()
+	rawPtr := obj.rawPtr
+	rawPtr.CallTerminate()
 }
 
 func (obj *unresponsiveProcessCallbackImpl) RawPointer() unsafe.Pointer {

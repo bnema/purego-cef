@@ -128,6 +128,9 @@ func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
 	return w
 }
 
+// displayHandlerImpl is a reverse wrapper for a CEF-owned DisplayHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type displayHandlerImpl struct {
 	rawPtr                      *capi.CEFDisplayHandlerT
 	releaseOnce                 sync.Once
@@ -139,39 +142,44 @@ func (obj *displayHandlerImpl) OnAddressChange(browser Browser, frame Frame, uRL
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	obj.rawPtr.CallOnAddressChange(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&uRLStr)))
+	rawPtr.CallOnAddressChange(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *displayHandlerImpl) OnTitleChange(browser Browser, title string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
-	obj.rawPtr.CallOnTitleChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&titleStr)))
+	rawPtr.CallOnTitleChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&titleStr)))
 }
 
 func (obj *displayHandlerImpl) OnFaviconUrlchange(browser Browser, iconUrls StringList) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnFaviconUrlchange(uintptr(extractRawPointer(browser)), uintptr(iconUrls))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnFaviconUrlchange(uintptr(extractRawPointer(browser)), uintptr(iconUrls))
 }
 
 func (obj *displayHandlerImpl) OnFullscreenModeChange(browser Browser, fullscreen int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnFullscreenModeChange(uintptr(extractRawPointer(browser)), uintptr(fullscreen))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnFullscreenModeChange(uintptr(extractRawPointer(browser)), uintptr(fullscreen))
 }
 
 func (obj *displayHandlerImpl) OnTooltip(browser Browser, text uintptr) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnTooltip(uintptr(extractRawPointer(browser)), text)
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnTooltip(uintptr(extractRawPointer(browser)), text)
 	return int32(ret)
 }
 
@@ -179,20 +187,22 @@ func (obj *displayHandlerImpl) OnStatusMessage(browser Browser, value string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
-	obj.rawPtr.CallOnStatusMessage(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&valueStr)))
+	rawPtr.CallOnStatusMessage(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&valueStr)))
 }
 
 func (obj *displayHandlerImpl) OnConsoleMessage(browser Browser, level LogSeverity, message string, source string, line int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	messageStr := cefString(message)
 	defer freeCefString(&messageStr)
 	sourceStr := cefString(source)
 	defer freeCefString(&sourceStr)
-	ret := obj.rawPtr.CallOnConsoleMessage(uintptr(extractRawPointer(browser)), uintptr(level), uintptr(unsafe.Pointer(&messageStr)), uintptr(unsafe.Pointer(&sourceStr)), uintptr(line))
+	ret := rawPtr.CallOnConsoleMessage(uintptr(extractRawPointer(browser)), uintptr(level), uintptr(unsafe.Pointer(&messageStr)), uintptr(unsafe.Pointer(&sourceStr)), uintptr(line))
 	return int32(ret)
 }
 
@@ -200,7 +210,8 @@ func (obj *displayHandlerImpl) OnAutoResize(browser Browser, newSize *Size) int3
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnAutoResize(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newSize)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnAutoResize(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newSize)))
 	return int32(ret)
 }
 
@@ -208,17 +219,19 @@ func (obj *displayHandlerImpl) OnLoadingProgressChange(browser Browser, progress
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	obj.onLoadingProgressChangeOnce.Do(func() {
-		registerTypedCallback(&obj.onLoadingProgressChangeFunc, obj.rawPtr.OnLoadingProgressChange)
+		registerTypedCallback(&obj.onLoadingProgressChangeFunc, rawPtr.OnLoadingProgressChange)
 	})
-	obj.onLoadingProgressChangeFunc(obj.rawPtr, uintptr(extractRawPointer(browser)), progress)
+	obj.onLoadingProgressChangeFunc(rawPtr, uintptr(extractRawPointer(browser)), progress)
 }
 
 func (obj *displayHandlerImpl) OnCursorChange(browser Browser, cursor uintptr, type_ CursorType, customCursorInfo *CursorInfo) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnCursorChange(uintptr(extractRawPointer(browser)), cursor, uintptr(type_), uintptr(unsafe.Pointer(customCursorInfo)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnCursorChange(uintptr(extractRawPointer(browser)), cursor, uintptr(type_), uintptr(unsafe.Pointer(customCursorInfo)))
 	return int32(ret)
 }
 
@@ -226,14 +239,16 @@ func (obj *displayHandlerImpl) OnMediaAccessChange(browser Browser, hasVideoAcce
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnMediaAccessChange(uintptr(extractRawPointer(browser)), uintptr(hasVideoAccess), uintptr(hasAudioAccess))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnMediaAccessChange(uintptr(extractRawPointer(browser)), uintptr(hasVideoAccess), uintptr(hasAudioAccess))
 }
 
 func (obj *displayHandlerImpl) OnContentsBoundsChange(browser Browser, newBounds *Rect) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnContentsBoundsChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newBounds)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnContentsBoundsChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newBounds)))
 	return int32(ret)
 }
 
@@ -241,7 +256,8 @@ func (obj *displayHandlerImpl) GetRootWindowScreenRect(browser Browser, rect *Re
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetRootWindowScreenRect(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRootWindowScreenRect(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
 	return int32(ret)
 }
 

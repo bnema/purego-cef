@@ -60,7 +60,7 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 	}))
 
 	r.OverrideOnScheduleMessagePumpWork(purego.NewCallback(func(self uintptr, arg0 int64) {
-		delayMs := int64(arg0)
+		delayMs := arg0
 		impl.OnScheduleMessagePumpWork(delayMs)
 	}))
 
@@ -97,6 +97,9 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 	return w
 }
 
+// browserProcessHandlerImpl is a reverse wrapper for a CEF-owned BrowserProcessHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type browserProcessHandlerImpl struct {
 	rawPtr                        *capi.CEFBrowserProcessHandlerT
 	releaseOnce                   sync.Once
@@ -108,30 +111,34 @@ func (obj *browserProcessHandlerImpl) OnRegisterCustomPreferences(type_ Preferen
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnRegisterCustomPreferences(uintptr(type_), uintptr(extractRawPointer(registrar)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnRegisterCustomPreferences(uintptr(type_), uintptr(extractRawPointer(registrar)))
 }
 
 func (obj *browserProcessHandlerImpl) OnContextInitialized() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnContextInitialized()
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnContextInitialized()
 }
 
 func (obj *browserProcessHandlerImpl) OnBeforeChildProcessLaunch(commandLine CommandLine) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnBeforeChildProcessLaunch(uintptr(extractRawPointer(commandLine)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnBeforeChildProcessLaunch(uintptr(extractRawPointer(commandLine)))
 }
 
 func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine CommandLine, currentDirectory string) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	currentDirectoryStr := cefString(currentDirectory)
 	defer freeCefString(&currentDirectoryStr)
-	ret := obj.rawPtr.CallOnAlreadyRunningAppRelaunch(uintptr(extractRawPointer(commandLine)), uintptr(unsafe.Pointer(&currentDirectoryStr)))
+	ret := rawPtr.CallOnAlreadyRunningAppRelaunch(uintptr(extractRawPointer(commandLine)), uintptr(unsafe.Pointer(&currentDirectoryStr)))
 	return int32(ret)
 }
 
@@ -139,17 +146,19 @@ func (obj *browserProcessHandlerImpl) OnScheduleMessagePumpWork(delayMs int64) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	obj.onScheduleMessagePumpWorkOnce.Do(func() {
-		registerTypedCallback(&obj.onScheduleMessagePumpWorkFunc, obj.rawPtr.OnScheduleMessagePumpWork)
+		registerTypedCallback(&obj.onScheduleMessagePumpWorkFunc, rawPtr.OnScheduleMessagePumpWork)
 	})
-	obj.onScheduleMessagePumpWorkFunc(obj.rawPtr, delayMs)
+	obj.onScheduleMessagePumpWorkFunc(rawPtr, delayMs)
 }
 
 func (obj *browserProcessHandlerImpl) GetDefaultClient() RawClient {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDefaultClient()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDefaultClient()
 	return wrapRawClient(unsafe.Pointer(ret))
 }
 
@@ -157,7 +166,8 @@ func (obj *browserProcessHandlerImpl) GetDefaultRequestContextHandler() RequestC
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDefaultRequestContextHandler()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDefaultRequestContextHandler()
 	return wrapRequestContextHandler(unsafe.Pointer(ret))
 }
 

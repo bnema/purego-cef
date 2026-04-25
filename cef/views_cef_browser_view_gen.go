@@ -15,6 +15,9 @@ import (
 // BrowserView A View hosting a cef_browser_t instance. Methods must be called on the browser process UI thread unless otherwise indicated.
 type BrowserView = portin.BrowserView
 
+// browserViewImpl is a reverse wrapper for a CEF-owned BrowserView pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type browserViewImpl struct {
 	rawPtr      *capi.CEFBrowserViewT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *browserViewImpl) GetBrowser() Browser {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetBrowser()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBrowser()
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
@@ -32,7 +36,8 @@ func (obj *browserViewImpl) GetChromeToolbar() View {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetChromeToolbar()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetChromeToolbar()
 	return wrapView(unsafe.Pointer(ret))
 }
 
@@ -40,14 +45,16 @@ func (obj *browserViewImpl) SetPreferAccelerators(preferAccelerators int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetPreferAccelerators(uintptr(preferAccelerators))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetPreferAccelerators(uintptr(preferAccelerators))
 }
 
 func (obj *browserViewImpl) GetRuntimeStyle() RuntimeStyle {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetRuntimeStyle()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRuntimeStyle()
 	return RuntimeStyle(ret)
 }
 

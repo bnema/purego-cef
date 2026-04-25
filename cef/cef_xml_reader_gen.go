@@ -15,6 +15,9 @@ import (
 // XmlReader Structure that supports the reading of XML data via the libxml streaming API. The functions of this structure should only be called on the thread that creates the object.
 type XmlReader = portin.XmlReader
 
+// xmlReaderImpl is a reverse wrapper for a CEF-owned XmlReader pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type xmlReaderImpl struct {
 	rawPtr      *capi.CEFXmlReaderT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *xmlReaderImpl) MoveToNextNode() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMoveToNextNode()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMoveToNextNode()
 	return int32(ret)
 }
 
@@ -32,7 +36,8 @@ func (obj *xmlReaderImpl) Close() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallClose()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallClose()
 	return int32(ret)
 }
 
@@ -40,7 +45,8 @@ func (obj *xmlReaderImpl) HasError() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasError()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasError()
 	return ret != 0
 }
 
@@ -48,7 +54,8 @@ func (obj *xmlReaderImpl) GetError() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetError()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetError()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -56,7 +63,8 @@ func (obj *xmlReaderImpl) GetType() XmlNodeType {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetType()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetType()
 	return XmlNodeType(ret)
 }
 
@@ -64,7 +72,8 @@ func (obj *xmlReaderImpl) GetDepth() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetDepth()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDepth()
 	return int32(ret)
 }
 
@@ -72,7 +81,8 @@ func (obj *xmlReaderImpl) GetLocalName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetLocalName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLocalName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -80,7 +90,8 @@ func (obj *xmlReaderImpl) GetPrefix() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetPrefix()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPrefix()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -88,7 +99,8 @@ func (obj *xmlReaderImpl) GetQualifiedName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetQualifiedName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetQualifiedName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -96,7 +108,8 @@ func (obj *xmlReaderImpl) GetNamespaceUri() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetNamespaceUri()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetNamespaceUri()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -104,7 +117,8 @@ func (obj *xmlReaderImpl) GetBaseUri() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetBaseUri()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBaseUri()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -112,7 +126,8 @@ func (obj *xmlReaderImpl) GetXmlLang() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetXmlLang()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetXmlLang()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -120,7 +135,8 @@ func (obj *xmlReaderImpl) IsEmptyElement() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsEmptyElement()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsEmptyElement()
 	return ret != 0
 }
 
@@ -128,7 +144,8 @@ func (obj *xmlReaderImpl) HasValue() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasValue()
 	return ret != 0
 }
 
@@ -136,7 +153,8 @@ func (obj *xmlReaderImpl) GetValue() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetValue()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetValue()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -144,7 +162,8 @@ func (obj *xmlReaderImpl) HasAttributes() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasAttributes()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasAttributes()
 	return ret != 0
 }
 
@@ -152,7 +171,8 @@ func (obj *xmlReaderImpl) GetAttributeCount() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetAttributeCount()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetAttributeCount()
 	return int(ret)
 }
 
@@ -160,7 +180,8 @@ func (obj *xmlReaderImpl) GetAttributeByindex(index int32) string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetAttributeByindex(uintptr(index))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetAttributeByindex(uintptr(index))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -168,9 +189,10 @@ func (obj *xmlReaderImpl) GetAttributeByqname(qualifiedname string) string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
+	rawPtr := obj.rawPtr
 	qualifiednameStr := cefString(qualifiedname)
 	defer freeCefString(&qualifiednameStr)
-	ret := obj.rawPtr.CallGetAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr)))
+	ret := rawPtr.CallGetAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr)))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -178,11 +200,12 @@ func (obj *xmlReaderImpl) GetAttributeBylname(localname string, namespaceuri str
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
+	rawPtr := obj.rawPtr
 	localnameStr := cefString(localname)
 	defer freeCefString(&localnameStr)
 	namespaceuriStr := cefString(namespaceuri)
 	defer freeCefString(&namespaceuriStr)
-	ret := obj.rawPtr.CallGetAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr)))
+	ret := rawPtr.CallGetAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr)))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -190,7 +213,8 @@ func (obj *xmlReaderImpl) GetInnerXml() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetInnerXml()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetInnerXml()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -198,7 +222,8 @@ func (obj *xmlReaderImpl) GetOuterXml() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetOuterXml()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetOuterXml()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -206,7 +231,8 @@ func (obj *xmlReaderImpl) GetLineNumber() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetLineNumber()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLineNumber()
 	return int32(ret)
 }
 
@@ -214,7 +240,8 @@ func (obj *xmlReaderImpl) MoveToAttributeByindex(index int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMoveToAttributeByindex(uintptr(index))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMoveToAttributeByindex(uintptr(index))
 	return int32(ret)
 }
 
@@ -222,9 +249,10 @@ func (obj *xmlReaderImpl) MoveToAttributeByqname(qualifiedname string) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	qualifiednameStr := cefString(qualifiedname)
 	defer freeCefString(&qualifiednameStr)
-	ret := obj.rawPtr.CallMoveToAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr)))
+	ret := rawPtr.CallMoveToAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr)))
 	return int32(ret)
 }
 
@@ -232,11 +260,12 @@ func (obj *xmlReaderImpl) MoveToAttributeBylname(localname string, namespaceuri 
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	localnameStr := cefString(localname)
 	defer freeCefString(&localnameStr)
 	namespaceuriStr := cefString(namespaceuri)
 	defer freeCefString(&namespaceuriStr)
-	ret := obj.rawPtr.CallMoveToAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr)))
+	ret := rawPtr.CallMoveToAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr)))
 	return int32(ret)
 }
 
@@ -244,7 +273,8 @@ func (obj *xmlReaderImpl) MoveToFirstAttribute() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMoveToFirstAttribute()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMoveToFirstAttribute()
 	return int32(ret)
 }
 
@@ -252,7 +282,8 @@ func (obj *xmlReaderImpl) MoveToNextAttribute() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMoveToNextAttribute()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMoveToNextAttribute()
 	return int32(ret)
 }
 
@@ -260,7 +291,8 @@ func (obj *xmlReaderImpl) MoveToCarryingElement() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMoveToCarryingElement()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMoveToCarryingElement()
 	return int32(ret)
 }
 

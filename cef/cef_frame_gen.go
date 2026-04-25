@@ -15,6 +15,9 @@ import (
 // Frame Structure used to represent a frame in the browser window. When used in the browser process the functions of this structure may be called on any thread unless otherwise indicated in the comments. When used in the render process the functions of this structure may only be called on the main thread.
 type Frame = portin.Frame
 
+// frameImpl is a reverse wrapper for a CEF-owned Frame pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type frameImpl struct {
 	rawPtr      *capi.CEFFrameT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *frameImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -32,111 +36,126 @@ func (obj *frameImpl) Undo() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallUndo()
+	rawPtr := obj.rawPtr
+	rawPtr.CallUndo()
 }
 
 func (obj *frameImpl) Redo() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallRedo()
+	rawPtr := obj.rawPtr
+	rawPtr.CallRedo()
 }
 
 func (obj *frameImpl) Cut() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCut()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCut()
 }
 
 func (obj *frameImpl) Copy() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCopy()
+	rawPtr := obj.rawPtr
+	rawPtr.CallCopy()
 }
 
 func (obj *frameImpl) Paste() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallPaste()
+	rawPtr := obj.rawPtr
+	rawPtr.CallPaste()
 }
 
 func (obj *frameImpl) PasteAndMatchStyle() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallPasteAndMatchStyle()
+	rawPtr := obj.rawPtr
+	rawPtr.CallPasteAndMatchStyle()
 }
 
 func (obj *frameImpl) Del() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallDel()
+	rawPtr := obj.rawPtr
+	rawPtr.CallDel()
 }
 
 func (obj *frameImpl) SelectAll() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSelectAll()
+	rawPtr := obj.rawPtr
+	rawPtr.CallSelectAll()
 }
 
 func (obj *frameImpl) ViewSource() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallViewSource()
+	rawPtr := obj.rawPtr
+	rawPtr.CallViewSource()
 }
 
 func (obj *frameImpl) GetSource(visitor StringVisitor) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallGetSource(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
+	rawPtr := obj.rawPtr
+	rawPtr.CallGetSource(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
 }
 
 func (obj *frameImpl) GetText(visitor StringVisitor) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallGetText(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
+	rawPtr := obj.rawPtr
+	rawPtr.CallGetText(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
 }
 
 func (obj *frameImpl) LoadRequest(request Request) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallLoadRequest(uintptr(extractRawPointer(request)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallLoadRequest(uintptr(extractRawPointer(request)))
 }
 
 func (obj *frameImpl) LoadURL(uRL string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	obj.rawPtr.CallLoadURL(uintptr(unsafe.Pointer(&uRLStr)))
+	rawPtr.CallLoadURL(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *frameImpl) ExecuteJavaScript(code string, scriptURL string, startLine int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	codeStr := cefString(code)
 	defer freeCefString(&codeStr)
 	scriptURLStr := cefString(scriptURL)
 	defer freeCefString(&scriptURLStr)
-	obj.rawPtr.CallExecuteJavaScript(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine))
+	rawPtr.CallExecuteJavaScript(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine))
 }
 
 func (obj *frameImpl) IsMain() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsMain()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsMain()
 	return ret != 0
 }
 
@@ -144,7 +163,8 @@ func (obj *frameImpl) IsFocused() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsFocused()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsFocused()
 	return ret != 0
 }
 
@@ -152,7 +172,8 @@ func (obj *frameImpl) GetName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -160,7 +181,8 @@ func (obj *frameImpl) GetIdentifier() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetIdentifier()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetIdentifier()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -168,7 +190,8 @@ func (obj *frameImpl) GetParent() Frame {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetParent()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetParent()
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
@@ -176,7 +199,8 @@ func (obj *frameImpl) GetURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -184,7 +208,8 @@ func (obj *frameImpl) GetBrowser() Browser {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetBrowser()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBrowser()
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
@@ -192,7 +217,8 @@ func (obj *frameImpl) GetV8Context() V8Context {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetV8Context()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetV8Context()
 	return wrapV8Context(unsafe.Pointer(ret))
 }
 
@@ -200,14 +226,16 @@ func (obj *frameImpl) VisitDom(visitor Domvisitor) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallVisitDom(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewDomvisitor(visitor) })))
+	rawPtr := obj.rawPtr
+	rawPtr.CallVisitDom(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewDomvisitor(visitor) })))
 }
 
 func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient) Urlrequest {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })))
 	return wrapUrlrequest(unsafe.Pointer(ret))
 }
 
@@ -215,7 +243,8 @@ func (obj *frameImpl) SendProcessMessage(targetProcess ProcessID, message Proces
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSendProcessMessage(uintptr(targetProcess), uintptr(extractRawPointer(message)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSendProcessMessage(uintptr(targetProcess), uintptr(extractRawPointer(message)))
 }
 
 func (obj *frameImpl) RawPointer() unsafe.Pointer {

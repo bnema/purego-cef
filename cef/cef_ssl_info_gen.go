@@ -15,6 +15,9 @@ import (
 // Sslinfo Structure representing SSL information.
 type Sslinfo = portin.Sslinfo
 
+// sslinfoImpl is a reverse wrapper for a CEF-owned Sslinfo pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type sslinfoImpl struct {
 	rawPtr      *capi.CEFSslinfoT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *sslinfoImpl) GetCertStatus() CertStatus {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetCertStatus()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetCertStatus()
 	return CertStatus(ret)
 }
 
@@ -32,7 +36,8 @@ func (obj *sslinfoImpl) GetX509Certificate() X509Certificate {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetX509Certificate()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetX509Certificate()
 	return wrapX509Certificate(unsafe.Pointer(ret))
 }
 

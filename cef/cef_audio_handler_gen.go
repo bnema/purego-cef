@@ -55,7 +55,7 @@ func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		data := unsafe.Pointer(arg1)
 		frames := int32(arg2)
-		pts := int64(arg3)
+		pts := arg3
 		impl.OnAudioStreamPacket(browser, data, frames, pts)
 	}))
 
@@ -75,6 +75,9 @@ func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
 	return w
 }
 
+// rawAudioHandlerImpl is a reverse wrapper for a CEF-owned RawAudioHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type rawAudioHandlerImpl struct {
 	rawPtr                  *capi.CEFAudioHandlerT
 	releaseOnce             sync.Once
@@ -86,7 +89,8 @@ func (obj *rawAudioHandlerImpl) GetAudioParameters(browser Browser, params *Audi
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetAudioParameters(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(params)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetAudioParameters(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(params)))
 	return int32(ret)
 }
 
@@ -94,33 +98,37 @@ func (obj *rawAudioHandlerImpl) OnAudioStreamStarted(browser Browser, params *Au
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnAudioStreamStarted(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(params)), uintptr(channels))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnAudioStreamStarted(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(params)), uintptr(channels))
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamPacket(browser Browser, data unsafe.Pointer, frames int32, pts int64) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	obj.onAudioStreamPacketOnce.Do(func() {
-		registerTypedCallback(&obj.onAudioStreamPacketFunc, obj.rawPtr.OnAudioStreamPacket)
+		registerTypedCallback(&obj.onAudioStreamPacketFunc, rawPtr.OnAudioStreamPacket)
 	})
-	obj.onAudioStreamPacketFunc(obj.rawPtr, uintptr(extractRawPointer(browser)), uintptr(data), uintptr(frames), pts)
+	obj.onAudioStreamPacketFunc(rawPtr, uintptr(extractRawPointer(browser)), uintptr(data), uintptr(frames), pts)
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamStopped(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnAudioStreamStopped(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnAudioStreamStopped(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamError(browser Browser, message string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	messageStr := cefString(message)
 	defer freeCefString(&messageStr)
-	obj.rawPtr.CallOnAudioStreamError(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&messageStr)))
+	rawPtr.CallOnAudioStreamError(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&messageStr)))
 }
 
 func (obj *rawAudioHandlerImpl) RawPointer() unsafe.Pointer {

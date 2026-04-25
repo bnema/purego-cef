@@ -15,6 +15,9 @@ import (
 // Button A View representing a button. Depending on the specific type, the button could be implemented by a native control or custom rendered. Methods must be called on the browser process UI thread unless otherwise indicated.
 type Button = portin.Button
 
+// buttonImpl is a reverse wrapper for a CEF-owned Button pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type buttonImpl struct {
 	rawPtr      *capi.CEFButtonT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *buttonImpl) AsLabelButton() LabelButton {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsLabelButton()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsLabelButton()
 	return wrapLabelButton(unsafe.Pointer(ret))
 }
 
@@ -32,14 +36,16 @@ func (obj *buttonImpl) SetState(state ButtonState) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetState(uintptr(state))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetState(uintptr(state))
 }
 
 func (obj *buttonImpl) GetState() ButtonState {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetState()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetState()
 	return ButtonState(ret)
 }
 
@@ -47,25 +53,28 @@ func (obj *buttonImpl) SetInkDropEnabled(enabled int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetInkDropEnabled(uintptr(enabled))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetInkDropEnabled(uintptr(enabled))
 }
 
 func (obj *buttonImpl) SetTooltipText(tooltipText string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	tooltipTextStr := cefString(tooltipText)
 	defer freeCefString(&tooltipTextStr)
-	obj.rawPtr.CallSetTooltipText(uintptr(unsafe.Pointer(&tooltipTextStr)))
+	rawPtr.CallSetTooltipText(uintptr(unsafe.Pointer(&tooltipTextStr)))
 }
 
 func (obj *buttonImpl) SetAccessibleName(name string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	obj.rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
+	rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
 }
 
 func (obj *buttonImpl) RawPointer() unsafe.Pointer {

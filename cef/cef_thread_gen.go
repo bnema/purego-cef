@@ -15,6 +15,9 @@ import (
 // Thread A simple thread abstraction that establishes a message loop on a new thread. The consumer uses cef_task_runner_t to execute code on the thread's message loop. The thread is terminated when the cef_thread_t object is destroyed or stop() is called. All pending tasks queued on the thread's message loop will run to completion before the thread is terminated. cef_thread_create() can be called on any valid CEF thread in either the browser or render process. This structure should only be used for tasks that require a dedicated thread. In most cases you can post tasks to an existing CEF thread instead of creating a new one; see cef_task.h for details.
 type Thread = portin.Thread
 
+// threadImpl is a reverse wrapper for a CEF-owned Thread pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type threadImpl struct {
 	rawPtr      *capi.CEFThreadT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *threadImpl) GetTaskRunner() TaskRunner {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetTaskRunner()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTaskRunner()
 	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
@@ -32,7 +36,8 @@ func (obj *threadImpl) GetPlatformThreadID() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetPlatformThreadID()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPlatformThreadID()
 	return uintptr(ret)
 }
 
@@ -40,14 +45,16 @@ func (obj *threadImpl) Stop() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallStop()
+	rawPtr := obj.rawPtr
+	rawPtr.CallStop()
 }
 
 func (obj *threadImpl) IsRunning() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsRunning()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsRunning()
 	return ret != 0
 }
 

@@ -14,9 +14,12 @@ func SetAsWindowless(windowInfo *WindowInfo, parentWindow WindowHandle, sharedTe
 	}
 	windowInfo.ParentWindow = parentWindow
 	windowInfo.WindowlessRenderingEnabled = 1
-	if sharedTexture {
-		windowInfo.SharedTextureEnabled = 1
-	} else {
-		windowInfo.SharedTextureEnabled = 0
+	windowInfo.SharedTextureEnabled = boolToInt32(sharedTexture)
+}
+
+func boolToInt32(v bool) int32 {
+	if v {
+		return 1
 	}
+	return 0
 }

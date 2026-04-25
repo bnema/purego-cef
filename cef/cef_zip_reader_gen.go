@@ -15,6 +15,9 @@ import (
 // ZipReader Structure that supports the reading of zip archives via the zlib unzip API. The functions of this structure should only be called on the thread that creates the object.
 type ZipReader = portin.ZipReader
 
+// zipReaderImpl is a reverse wrapper for a CEF-owned ZipReader pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type zipReaderImpl struct {
 	rawPtr          *capi.CEFZipReaderT
 	releaseOnce     sync.Once
@@ -28,7 +31,8 @@ func (obj *zipReaderImpl) MoveToFirstFile() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMoveToFirstFile()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMoveToFirstFile()
 	return int32(ret)
 }
 
@@ -36,7 +40,8 @@ func (obj *zipReaderImpl) MoveToNextFile() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallMoveToNextFile()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallMoveToNextFile()
 	return int32(ret)
 }
 
@@ -44,9 +49,10 @@ func (obj *zipReaderImpl) MoveToFile(filename string, casesensitive int32) int32
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	filenameStr := cefString(filename)
 	defer freeCefString(&filenameStr)
-	ret := obj.rawPtr.CallMoveToFile(uintptr(unsafe.Pointer(&filenameStr)), uintptr(casesensitive))
+	ret := rawPtr.CallMoveToFile(uintptr(unsafe.Pointer(&filenameStr)), uintptr(casesensitive))
 	return int32(ret)
 }
 
@@ -54,7 +60,8 @@ func (obj *zipReaderImpl) Close() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallClose()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallClose()
 	return int32(ret)
 }
 
@@ -62,7 +69,8 @@ func (obj *zipReaderImpl) GetFileName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFileName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFileName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -70,10 +78,11 @@ func (obj *zipReaderImpl) GetFileSize() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getFileSizeOnce.Do(func() {
-		registerTypedCallback(&obj.getFileSizeFunc, obj.rawPtr.GetFileSize)
+		registerTypedCallback(&obj.getFileSizeFunc, rawPtr.GetFileSize)
 	})
-	ret := obj.getFileSizeFunc(obj.rawPtr)
+	ret := obj.getFileSizeFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -81,7 +90,8 @@ func (obj *zipReaderImpl) GetFileLastModified() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetFileLastModified()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFileLastModified()
 	return uintptr(ret)
 }
 
@@ -89,9 +99,10 @@ func (obj *zipReaderImpl) OpenFile(password string) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	passwordStr := cefString(password)
 	defer freeCefString(&passwordStr)
-	ret := obj.rawPtr.CallOpenFile(uintptr(unsafe.Pointer(&passwordStr)))
+	ret := rawPtr.CallOpenFile(uintptr(unsafe.Pointer(&passwordStr)))
 	return int32(ret)
 }
 
@@ -99,7 +110,8 @@ func (obj *zipReaderImpl) CloseFile() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallCloseFile()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallCloseFile()
 	return int32(ret)
 }
 
@@ -107,7 +119,8 @@ func (obj *zipReaderImpl) ReadFile(buffer unsafe.Pointer, buffersize int) int32 
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallReadFile(uintptr(buffer), uintptr(buffersize))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallReadFile(uintptr(buffer), uintptr(buffersize))
 	return int32(ret)
 }
 
@@ -115,10 +128,11 @@ func (obj *zipReaderImpl) Tell() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.tellOnce.Do(func() {
-		registerTypedCallback(&obj.tellFunc, obj.rawPtr.Tell)
+		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
-	ret := obj.tellFunc(obj.rawPtr)
+	ret := obj.tellFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -126,7 +140,8 @@ func (obj *zipReaderImpl) Eof() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallEof()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallEof()
 	return int32(ret)
 }
 

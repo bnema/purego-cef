@@ -48,6 +48,9 @@ func NewEndTracingCallback(impl EndTracingCallback) EndTracingCallback {
 	return w
 }
 
+// endTracingCallbackImpl is a reverse wrapper for a CEF-owned EndTracingCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type endTracingCallbackImpl struct {
 	rawPtr      *capi.CEFEndTracingCallbackT
 	releaseOnce sync.Once
@@ -57,9 +60,10 @@ func (obj *endTracingCallbackImpl) OnEndTracingComplete(tracingFile string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	tracingFileStr := cefString(tracingFile)
 	defer freeCefString(&tracingFileStr)
-	obj.rawPtr.CallOnEndTracingComplete(uintptr(unsafe.Pointer(&tracingFileStr)))
+	rawPtr.CallOnEndTracingComplete(uintptr(unsafe.Pointer(&tracingFileStr)))
 }
 
 func (obj *endTracingCallbackImpl) RawPointer() unsafe.Pointer {

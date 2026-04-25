@@ -15,6 +15,9 @@ import (
 // TaskManager Structure that facilitates managing the browser-related tasks. The functions of this structure may only be called on the UI thread.
 type TaskManager = portin.TaskManager
 
+// taskManagerImpl is a reverse wrapper for a CEF-owned TaskManager pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type taskManagerImpl struct {
 	rawPtr                    *capi.CEFTaskManagerT
 	releaseOnce               sync.Once
@@ -30,7 +33,8 @@ func (obj *taskManagerImpl) GetTasksCount() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetTasksCount()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTasksCount()
 	return int(ret)
 }
 
@@ -38,6 +42,7 @@ func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds []int64) i
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	var taskIdsPtr unsafe.Pointer
 	taskIdsCountPtr := taskIdscount
 	if taskIdsCountPtr == nil {
@@ -49,7 +54,7 @@ func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds []int64) i
 	if len(taskIds) > 0 {
 		taskIdsPtr = unsafe.Pointer(&taskIds[0])
 	}
-	ret := obj.rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(taskIdsCountPtr)), uintptr(taskIdsPtr))
+	ret := rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(taskIdsCountPtr)), uintptr(taskIdsPtr))
 	return int32(ret)
 }
 
@@ -57,10 +62,11 @@ func (obj *taskManagerImpl) GetTaskInfo(taskID int64, info *TaskInfo) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getTaskInfoOnce.Do(func() {
-		registerTypedCallback(&obj.getTaskInfoFunc, obj.rawPtr.GetTaskInfo)
+		registerTypedCallback(&obj.getTaskInfoFunc, rawPtr.GetTaskInfo)
 	})
-	ret := obj.getTaskInfoFunc(obj.rawPtr, taskID, uintptr(unsafe.Pointer(info)))
+	ret := obj.getTaskInfoFunc(rawPtr, taskID, uintptr(unsafe.Pointer(info)))
 	return int32(ret)
 }
 
@@ -68,10 +74,11 @@ func (obj *taskManagerImpl) KillTask(taskID int64) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.killTaskOnce.Do(func() {
-		registerTypedCallback(&obj.killTaskFunc, obj.rawPtr.KillTask)
+		registerTypedCallback(&obj.killTaskFunc, rawPtr.KillTask)
 	})
-	ret := obj.killTaskFunc(obj.rawPtr, taskID)
+	ret := obj.killTaskFunc(rawPtr, taskID)
 	return int32(ret)
 }
 
@@ -79,10 +86,11 @@ func (obj *taskManagerImpl) GetTaskIDForBrowserID(browserID int32) int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getTaskIDForBrowserIDOnce.Do(func() {
-		registerTypedCallback(&obj.getTaskIDForBrowserIDFunc, obj.rawPtr.GetTaskIDForBrowserID)
+		registerTypedCallback(&obj.getTaskIDForBrowserIDFunc, rawPtr.GetTaskIDForBrowserID)
 	})
-	ret := obj.getTaskIDForBrowserIDFunc(obj.rawPtr, uintptr(browserID))
+	ret := obj.getTaskIDForBrowserIDFunc(rawPtr, uintptr(browserID))
 	return int64(ret)
 }
 

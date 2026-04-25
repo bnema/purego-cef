@@ -60,6 +60,9 @@ func NewFocusHandler(impl FocusHandler) FocusHandler {
 	return w
 }
 
+// focusHandlerImpl is a reverse wrapper for a CEF-owned FocusHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type focusHandlerImpl struct {
 	rawPtr      *capi.CEFFocusHandlerT
 	releaseOnce sync.Once
@@ -69,14 +72,16 @@ func (obj *focusHandlerImpl) OnTakeFocus(browser Browser, next int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnTakeFocus(uintptr(extractRawPointer(browser)), uintptr(next))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnTakeFocus(uintptr(extractRawPointer(browser)), uintptr(next))
 }
 
 func (obj *focusHandlerImpl) OnSetFocus(browser Browser, source FocusSource) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnSetFocus(uintptr(extractRawPointer(browser)), uintptr(source))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnSetFocus(uintptr(extractRawPointer(browser)), uintptr(source))
 	return int32(ret)
 }
 
@@ -84,7 +89,8 @@ func (obj *focusHandlerImpl) OnGotFocus(browser Browser) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnGotFocus(uintptr(extractRawPointer(browser)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnGotFocus(uintptr(extractRawPointer(browser)))
 }
 
 func (obj *focusHandlerImpl) RawPointer() unsafe.Pointer {

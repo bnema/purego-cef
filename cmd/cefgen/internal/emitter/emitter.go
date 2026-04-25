@@ -148,7 +148,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			return sig
 		},
 		"typedObjectCallArgs": func(m MethodData) string {
-			args := []string{"obj.rawPtr"}
+			args := []string{"rawPtr"}
 			for _, p := range m.Params {
 				if p.MarshalKind == "slice" || p.MarshalKind == "objectSlice" {
 					args = append(args, "uintptr(len("+p.Name+"))", "uintptr("+p.Name+"Ptr)")
@@ -420,7 +420,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				// PublicType is "*WindowInfo" etc, we need "(*WindowInfo)(unsafe.Pointer(...))"
 				return "(" + p.PublicType + ")(unsafe.Pointer(" + rawName + "))"
 			case "numeric":
-				if isFloatPublicType(p.PublicType) {
+				if isTypedCallbackPublicType(p.PublicType) {
 					return rawName
 				}
 				return p.PublicType + "(" + rawName + ")"

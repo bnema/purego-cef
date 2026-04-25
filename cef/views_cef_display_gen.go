@@ -15,6 +15,9 @@ import (
 // Display This structure typically, but not always, corresponds to a physical display connected to the system. A fake Display may exist on a headless system, or a Display may correspond to a remote, virtual display. All size and position values are in density independent pixel (DIP) coordinates unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated. For details on coordinate systems and usage see https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown- header-coordinate-systems
 type Display = portin.Display
 
+// displayImpl is a reverse wrapper for a CEF-owned Display pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type displayImpl struct {
 	rawPtr                   *capi.CEFDisplayT
 	releaseOnce              sync.Once
@@ -28,10 +31,11 @@ func (obj *displayImpl) GetID() int64 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getIDOnce.Do(func() {
-		registerTypedCallback(&obj.getIDFunc, obj.rawPtr.GetID)
+		registerTypedCallback(&obj.getIDFunc, rawPtr.GetID)
 	})
-	ret := obj.getIDFunc(obj.rawPtr)
+	ret := obj.getIDFunc(rawPtr)
 	return int64(ret)
 }
 
@@ -39,10 +43,11 @@ func (obj *displayImpl) GetDeviceScaleFactor() float32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	obj.getDeviceScaleFactorOnce.Do(func() {
-		registerTypedCallback(&obj.getDeviceScaleFactorFunc, obj.rawPtr.GetDeviceScaleFactor)
+		registerTypedCallback(&obj.getDeviceScaleFactorFunc, rawPtr.GetDeviceScaleFactor)
 	})
-	ret := obj.getDeviceScaleFactorFunc(obj.rawPtr)
+	ret := obj.getDeviceScaleFactorFunc(rawPtr)
 	return ret
 }
 
@@ -50,21 +55,24 @@ func (obj *displayImpl) ConvertPointToPixels(point *Point) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallConvertPointToPixels(uintptr(unsafe.Pointer(point)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallConvertPointToPixels(uintptr(unsafe.Pointer(point)))
 }
 
 func (obj *displayImpl) ConvertPointFromPixels(point *Point) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallConvertPointFromPixels(uintptr(unsafe.Pointer(point)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallConvertPointFromPixels(uintptr(unsafe.Pointer(point)))
 }
 
 func (obj *displayImpl) GetBounds() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetBounds()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBounds()
 	return uintptr(ret)
 }
 
@@ -72,7 +80,8 @@ func (obj *displayImpl) GetWorkArea() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetWorkArea()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetWorkArea()
 	return uintptr(ret)
 }
 
@@ -80,7 +89,8 @@ func (obj *displayImpl) GetRotation() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetRotation()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetRotation()
 	return int32(ret)
 }
 

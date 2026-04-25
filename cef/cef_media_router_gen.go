@@ -17,6 +17,9 @@ import (
 // MediaRouter Supports discovery of and communication with media devices on the local network via the Cast and DIAL protocols. The functions of this structure may be called on any browser process thread unless otherwise indicated.
 type MediaRouter = portin.MediaRouter
 
+// mediaRouterImpl is a reverse wrapper for a CEF-owned MediaRouter pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type mediaRouterImpl struct {
 	rawPtr      *capi.CEFMediaRouterT
 	releaseOnce sync.Once
@@ -26,7 +29,8 @@ func (obj *mediaRouterImpl) AddObserver(observer MediaObserver) Registration {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAddObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) })))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAddObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) })))
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
@@ -34,9 +38,10 @@ func (obj *mediaRouterImpl) GetSource(urn string) MediaSource {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	urnStr := cefString(urn)
 	defer freeCefString(&urnStr)
-	ret := obj.rawPtr.CallGetSource(uintptr(unsafe.Pointer(&urnStr)))
+	ret := rawPtr.CallGetSource(uintptr(unsafe.Pointer(&urnStr)))
 	return wrapMediaSource(unsafe.Pointer(ret))
 }
 
@@ -44,21 +49,24 @@ func (obj *mediaRouterImpl) NotifyCurrentSinks() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallNotifyCurrentSinks()
+	rawPtr := obj.rawPtr
+	rawPtr.CallNotifyCurrentSinks()
 }
 
 func (obj *mediaRouterImpl) CreateRoute(source MediaSource, sink MediaSink, callback MediaRouteCreateCallback) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallCreateRoute(uintptr(extractRawPointer(source)), uintptr(extractRawPointer(sink)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaRouteCreateCallback(callback) })))
+	rawPtr := obj.rawPtr
+	rawPtr.CallCreateRoute(uintptr(extractRawPointer(source)), uintptr(extractRawPointer(sink)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaRouteCreateCallback(callback) })))
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallNotifyCurrentRoutes()
+	rawPtr := obj.rawPtr
+	rawPtr.CallNotifyCurrentRoutes()
 }
 
 func (obj *mediaRouterImpl) RawPointer() unsafe.Pointer {
@@ -163,6 +171,9 @@ func NewMediaObserver(impl MediaObserver) MediaObserver {
 	return w
 }
 
+// mediaObserverImpl is a reverse wrapper for a CEF-owned MediaObserver pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type mediaObserverImpl struct {
 	rawPtr      *capi.CEFMediaObserverT
 	releaseOnce sync.Once
@@ -172,6 +183,7 @@ func (obj *mediaObserverImpl) OnSinks(sinks []MediaSink) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	var sinksRaw []uintptr
 	var sinksPtr unsafe.Pointer
 	if len(sinks) > 0 {
@@ -181,13 +193,14 @@ func (obj *mediaObserverImpl) OnSinks(sinks []MediaSink) {
 		}
 		sinksPtr = unsafe.Pointer(&sinksRaw[0])
 	}
-	obj.rawPtr.CallOnSinks(uintptr(len(sinks)), uintptr(sinksPtr))
+	rawPtr.CallOnSinks(uintptr(len(sinks)), uintptr(sinksPtr))
 }
 
 func (obj *mediaObserverImpl) OnRoutes(routes []MediaRoute) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	var routesRaw []uintptr
 	var routesPtr unsafe.Pointer
 	if len(routes) > 0 {
@@ -197,21 +210,23 @@ func (obj *mediaObserverImpl) OnRoutes(routes []MediaRoute) {
 		}
 		routesPtr = unsafe.Pointer(&routesRaw[0])
 	}
-	obj.rawPtr.CallOnRoutes(uintptr(len(routes)), uintptr(routesPtr))
+	rawPtr.CallOnRoutes(uintptr(len(routes)), uintptr(routesPtr))
 }
 
 func (obj *mediaObserverImpl) OnRouteStateChanged(route MediaRoute, state MediaRouteConnectionState) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnRouteStateChanged(uintptr(extractRawPointer(route)), uintptr(state))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnRouteStateChanged(uintptr(extractRawPointer(route)), uintptr(state))
 }
 
 func (obj *mediaObserverImpl) OnRouteMessageReceived(route MediaRoute, message unsafe.Pointer, messageSize int) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnRouteMessageReceived(uintptr(extractRawPointer(route)), uintptr(message), uintptr(messageSize))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnRouteMessageReceived(uintptr(extractRawPointer(route)), uintptr(message), uintptr(messageSize))
 }
 
 func (obj *mediaObserverImpl) RawPointer() unsafe.Pointer {
@@ -254,6 +269,9 @@ func wrapMediaObserver(ptr unsafe.Pointer) MediaObserver {
 // MediaRoute Represents the route between a media source and sink. Instances of this object are created via cef_media_router_t::CreateRoute and retrieved via cef_media_observer_t::OnRoutes. Contains the status and metadata of a routing operation. The functions of this structure may be called on any browser process thread unless otherwise indicated.
 type MediaRoute = portin.MediaRoute
 
+// mediaRouteImpl is a reverse wrapper for a CEF-owned MediaRoute pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type mediaRouteImpl struct {
 	rawPtr      *capi.CEFMediaRouteT
 	releaseOnce sync.Once
@@ -263,7 +281,8 @@ func (obj *mediaRouteImpl) GetID() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetID()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetID()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -271,7 +290,8 @@ func (obj *mediaRouteImpl) GetSource() MediaSource {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetSource()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSource()
 	return wrapMediaSource(unsafe.Pointer(ret))
 }
 
@@ -279,7 +299,8 @@ func (obj *mediaRouteImpl) GetSink() MediaSink {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetSink()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSink()
 	return wrapMediaSink(unsafe.Pointer(ret))
 }
 
@@ -287,14 +308,16 @@ func (obj *mediaRouteImpl) SendRouteMessage(message unsafe.Pointer, messageSize 
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSendRouteMessage(uintptr(message), uintptr(messageSize))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSendRouteMessage(uintptr(message), uintptr(messageSize))
 }
 
 func (obj *mediaRouteImpl) Terminate() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallTerminate()
+	rawPtr := obj.rawPtr
+	rawPtr.CallTerminate()
 }
 
 func (obj *mediaRouteImpl) RawPointer() unsafe.Pointer {
@@ -369,6 +392,9 @@ func NewMediaRouteCreateCallback(impl MediaRouteCreateCallback) MediaRouteCreate
 	return w
 }
 
+// mediaRouteCreateCallbackImpl is a reverse wrapper for a CEF-owned MediaRouteCreateCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type mediaRouteCreateCallbackImpl struct {
 	rawPtr      *capi.CEFMediaRouteCreateCallbackT
 	releaseOnce sync.Once
@@ -378,9 +404,10 @@ func (obj *mediaRouteCreateCallbackImpl) OnMediaRouteCreateFinished(result Media
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	errorStr := cefString(error)
 	defer freeCefString(&errorStr)
-	obj.rawPtr.CallOnMediaRouteCreateFinished(uintptr(result), uintptr(unsafe.Pointer(&errorStr)), uintptr(extractRawPointer(route)))
+	rawPtr.CallOnMediaRouteCreateFinished(uintptr(result), uintptr(unsafe.Pointer(&errorStr)), uintptr(extractRawPointer(route)))
 }
 
 func (obj *mediaRouteCreateCallbackImpl) RawPointer() unsafe.Pointer {
@@ -423,6 +450,9 @@ func wrapMediaRouteCreateCallback(ptr unsafe.Pointer) MediaRouteCreateCallback {
 // MediaSink Represents a sink to which media can be routed. Instances of this object are retrieved via cef_media_observer_t::OnSinks. The functions of this structure may be called on any browser process thread unless otherwise indicated.
 type MediaSink = portin.MediaSink
 
+// mediaSinkImpl is a reverse wrapper for a CEF-owned MediaSink pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type mediaSinkImpl struct {
 	rawPtr      *capi.CEFMediaSinkT
 	releaseOnce sync.Once
@@ -432,7 +462,8 @@ func (obj *mediaSinkImpl) GetID() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetID()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetID()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -440,7 +471,8 @@ func (obj *mediaSinkImpl) GetName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -448,7 +480,8 @@ func (obj *mediaSinkImpl) GetIconType() MediaSinkIconType {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetIconType()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetIconType()
 	return MediaSinkIconType(ret)
 }
 
@@ -456,14 +489,16 @@ func (obj *mediaSinkImpl) GetDeviceInfo(callback MediaSinkDeviceInfoCallback) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallGetDeviceInfo(uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaSinkDeviceInfoCallback(callback) })))
+	rawPtr := obj.rawPtr
+	rawPtr.CallGetDeviceInfo(uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaSinkDeviceInfoCallback(callback) })))
 }
 
 func (obj *mediaSinkImpl) IsCastSink() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsCastSink()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsCastSink()
 	return ret != 0
 }
 
@@ -471,7 +506,8 @@ func (obj *mediaSinkImpl) IsDialSink() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsDialSink()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsDialSink()
 	return ret != 0
 }
 
@@ -479,7 +515,8 @@ func (obj *mediaSinkImpl) IsCompatibleWith(source MediaSource) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsCompatibleWith(uintptr(extractRawPointer(source)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsCompatibleWith(uintptr(extractRawPointer(source)))
 	return ret != 0
 }
 
@@ -553,6 +590,9 @@ func NewMediaSinkDeviceInfoCallback(impl MediaSinkDeviceInfoCallback) MediaSinkD
 	return w
 }
 
+// mediaSinkDeviceInfoCallbackImpl is a reverse wrapper for a CEF-owned MediaSinkDeviceInfoCallback pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type mediaSinkDeviceInfoCallbackImpl struct {
 	rawPtr      *capi.CEFMediaSinkDeviceInfoCallbackT
 	releaseOnce sync.Once
@@ -562,7 +602,8 @@ func (obj *mediaSinkDeviceInfoCallbackImpl) OnMediaSinkDeviceInfo(deviceInfo *Me
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnMediaSinkDeviceInfo(uintptr(unsafe.Pointer(deviceInfo)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnMediaSinkDeviceInfo(uintptr(unsafe.Pointer(deviceInfo)))
 }
 
 func (obj *mediaSinkDeviceInfoCallbackImpl) RawPointer() unsafe.Pointer {
@@ -605,6 +646,9 @@ func wrapMediaSinkDeviceInfoCallback(ptr unsafe.Pointer) MediaSinkDeviceInfoCall
 // MediaSource Represents a source from which media can be routed. Instances of this object are retrieved via cef_media_router_t::GetSource. The functions of this structure may be called on any browser process thread unless otherwise indicated.
 type MediaSource = portin.MediaSource
 
+// mediaSourceImpl is a reverse wrapper for a CEF-owned MediaSource pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type mediaSourceImpl struct {
 	rawPtr      *capi.CEFMediaSourceT
 	releaseOnce sync.Once
@@ -614,7 +658,8 @@ func (obj *mediaSourceImpl) GetID() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetID()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetID()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -622,7 +667,8 @@ func (obj *mediaSourceImpl) IsCastSource() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsCastSource()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsCastSource()
 	return ret != 0
 }
 
@@ -630,7 +676,8 @@ func (obj *mediaSourceImpl) IsDialSource() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsDialSource()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsDialSource()
 	return ret != 0
 }
 

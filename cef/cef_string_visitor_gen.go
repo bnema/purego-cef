@@ -48,6 +48,9 @@ func NewStringVisitor(impl StringVisitor) StringVisitor {
 	return w
 }
 
+// stringVisitorImpl is a reverse wrapper for a CEF-owned StringVisitor pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type stringVisitorImpl struct {
 	rawPtr      *capi.CEFStringVisitorT
 	releaseOnce sync.Once
@@ -57,9 +60,10 @@ func (obj *stringVisitorImpl) Visit(string_ string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	string_Str := cefString(string_)
 	defer freeCefString(&string_Str)
-	obj.rawPtr.CallVisit(uintptr(unsafe.Pointer(&string_Str)))
+	rawPtr.CallVisit(uintptr(unsafe.Pointer(&string_Str)))
 }
 
 func (obj *stringVisitorImpl) RawPointer() unsafe.Pointer {

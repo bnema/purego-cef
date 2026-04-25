@@ -15,6 +15,9 @@ import (
 // LabelButton LabelButton is a button with optional text and/or icon. Methods must be called on the browser process UI thread unless otherwise indicated.
 type LabelButton = portin.LabelButton
 
+// labelButtonImpl is a reverse wrapper for a CEF-owned LabelButton pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type labelButtonImpl struct {
 	rawPtr      *capi.CEFLabelButtonT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *labelButtonImpl) AsMenuButton() MenuButton {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsMenuButton()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsMenuButton()
 	return wrapMenuButton(unsafe.Pointer(ret))
 }
 
@@ -32,16 +36,18 @@ func (obj *labelButtonImpl) SetText(text string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	obj.rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *labelButtonImpl) GetText() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetText()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -49,14 +55,16 @@ func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetImage(uintptr(buttonState), uintptr(extractRawPointer(image)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetImage(uintptr(buttonState), uintptr(extractRawPointer(image)))
 }
 
 func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetImage(uintptr(buttonState))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetImage(uintptr(buttonState))
 	return wrapImage(unsafe.Pointer(ret))
 }
 
@@ -64,44 +72,50 @@ func (obj *labelButtonImpl) SetTextColor(forState ButtonState, color uintptr) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetTextColor(uintptr(forState), color)
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetTextColor(uintptr(forState), color)
 }
 
 func (obj *labelButtonImpl) SetEnabledTextColors(color uintptr) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetEnabledTextColors(color)
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetEnabledTextColors(color)
 }
 
 func (obj *labelButtonImpl) SetFontList(fontList string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
-	obj.rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
+	rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
 }
 
 func (obj *labelButtonImpl) SetHorizontalAlignment(alignment HorizontalAlignment) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetHorizontalAlignment(uintptr(alignment))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetHorizontalAlignment(uintptr(alignment))
 }
 
 func (obj *labelButtonImpl) SetMinimumSize(size *Size) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetMinimumSize(uintptr(unsafe.Pointer(size)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetMinimumSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetMaximumSize(uintptr(unsafe.Pointer(size)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetMaximumSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *labelButtonImpl) RawPointer() unsafe.Pointer {

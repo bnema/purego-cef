@@ -17,6 +17,9 @@ import (
 // SchemeRegistrar Structure that manages custom scheme registrations.
 type SchemeRegistrar = portin.SchemeRegistrar
 
+// schemeRegistrarImpl is a reverse wrapper for a CEF-owned SchemeRegistrar pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type schemeRegistrarImpl struct {
 	rawPtr *capi.CEFSchemeRegistrarT
 }
@@ -25,9 +28,10 @@ func (obj *schemeRegistrarImpl) AddCustomScheme(schemeName string, options int32
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
+	rawPtr := obj.rawPtr
 	schemeNameStr := cefString(schemeName)
 	defer freeCefString(&schemeNameStr)
-	ret := obj.rawPtr.CallAddCustomScheme(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(options))
+	ret := rawPtr.CallAddCustomScheme(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(options))
 	return int32(ret)
 }
 
@@ -89,6 +93,9 @@ func NewSchemeHandlerFactory(impl SchemeHandlerFactory) SchemeHandlerFactory {
 	return w
 }
 
+// schemeHandlerFactoryImpl is a reverse wrapper for a CEF-owned SchemeHandlerFactory pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type schemeHandlerFactoryImpl struct {
 	rawPtr      *capi.CEFSchemeHandlerFactoryT
 	releaseOnce sync.Once
@@ -98,9 +105,10 @@ func (obj *schemeHandlerFactoryImpl) Create(browser Browser, frame Frame, scheme
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
+	rawPtr := obj.rawPtr
 	schemeNameStr := cefString(schemeName)
 	defer freeCefString(&schemeNameStr)
-	ret := obj.rawPtr.CallCreate(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(extractRawPointer(request)))
+	ret := rawPtr.CallCreate(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(extractRawPointer(request)))
 	return wrapResourceHandler(unsafe.Pointer(ret))
 }
 

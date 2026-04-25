@@ -15,6 +15,9 @@ import (
 // DragData Structure used to represent drag data. The functions of this structure may be called on any thread.
 type DragData = portin.DragData
 
+// dragDataImpl is a reverse wrapper for a CEF-owned DragData pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type dragDataImpl struct {
 	rawPtr      *capi.CEFDragDataT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *dragDataImpl) Clone() DragData {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallClone()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallClone()
 	return wrapDragData(unsafe.Pointer(ret))
 }
 
@@ -32,7 +36,8 @@ func (obj *dragDataImpl) IsReadOnly() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsReadOnly()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsReadOnly()
 	return ret != 0
 }
 
@@ -40,7 +45,8 @@ func (obj *dragDataImpl) IsLink() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsLink()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsLink()
 	return ret != 0
 }
 
@@ -48,7 +54,8 @@ func (obj *dragDataImpl) IsFragment() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsFragment()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsFragment()
 	return ret != 0
 }
 
@@ -56,7 +63,8 @@ func (obj *dragDataImpl) IsFile() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsFile()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsFile()
 	return ret != 0
 }
 
@@ -64,7 +72,8 @@ func (obj *dragDataImpl) GetLinkURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetLinkURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLinkURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -72,7 +81,8 @@ func (obj *dragDataImpl) GetLinkTitle() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetLinkTitle()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLinkTitle()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -80,7 +90,8 @@ func (obj *dragDataImpl) GetLinkMetadata() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetLinkMetadata()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLinkMetadata()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -88,7 +99,8 @@ func (obj *dragDataImpl) GetFragmentText() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFragmentText()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFragmentText()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -96,7 +108,8 @@ func (obj *dragDataImpl) GetFragmentHtml() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFragmentHtml()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFragmentHtml()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -104,7 +117,8 @@ func (obj *dragDataImpl) GetFragmentBaseURL() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFragmentBaseURL()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFragmentBaseURL()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -112,7 +126,8 @@ func (obj *dragDataImpl) GetFileName() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetFileName()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFileName()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -120,7 +135,8 @@ func (obj *dragDataImpl) GetFileContents(writer StreamWriter) int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetFileContents(uintptr(extractRawPointer(writer)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFileContents(uintptr(extractRawPointer(writer)))
 	return int(ret)
 }
 
@@ -128,7 +144,8 @@ func (obj *dragDataImpl) GetFileNames(names StringList) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetFileNames(uintptr(names))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFileNames(uintptr(names))
 	return int32(ret)
 }
 
@@ -136,7 +153,8 @@ func (obj *dragDataImpl) GetFilePaths(paths StringList) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetFilePaths(uintptr(paths))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetFilePaths(uintptr(paths))
 	return int32(ret)
 }
 
@@ -144,86 +162,96 @@ func (obj *dragDataImpl) SetLinkURL(uRL string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	obj.rawPtr.CallSetLinkURL(uintptr(unsafe.Pointer(&uRLStr)))
+	rawPtr.CallSetLinkURL(uintptr(unsafe.Pointer(&uRLStr)))
 }
 
 func (obj *dragDataImpl) SetLinkTitle(title string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
-	obj.rawPtr.CallSetLinkTitle(uintptr(unsafe.Pointer(&titleStr)))
+	rawPtr.CallSetLinkTitle(uintptr(unsafe.Pointer(&titleStr)))
 }
 
 func (obj *dragDataImpl) SetLinkMetadata(data string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	dataStr := cefString(data)
 	defer freeCefString(&dataStr)
-	obj.rawPtr.CallSetLinkMetadata(uintptr(unsafe.Pointer(&dataStr)))
+	rawPtr.CallSetLinkMetadata(uintptr(unsafe.Pointer(&dataStr)))
 }
 
 func (obj *dragDataImpl) SetFragmentText(text string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	obj.rawPtr.CallSetFragmentText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallSetFragmentText(uintptr(unsafe.Pointer(&textStr)))
 }
 
 func (obj *dragDataImpl) SetFragmentHtml(html string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	htmlStr := cefString(html)
 	defer freeCefString(&htmlStr)
-	obj.rawPtr.CallSetFragmentHtml(uintptr(unsafe.Pointer(&htmlStr)))
+	rawPtr.CallSetFragmentHtml(uintptr(unsafe.Pointer(&htmlStr)))
 }
 
 func (obj *dragDataImpl) SetFragmentBaseURL(baseURL string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	baseURLStr := cefString(baseURL)
 	defer freeCefString(&baseURLStr)
-	obj.rawPtr.CallSetFragmentBaseURL(uintptr(unsafe.Pointer(&baseURLStr)))
+	rawPtr.CallSetFragmentBaseURL(uintptr(unsafe.Pointer(&baseURLStr)))
 }
 
 func (obj *dragDataImpl) ResetFileContents() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallResetFileContents()
+	rawPtr := obj.rawPtr
+	rawPtr.CallResetFileContents()
 }
 
 func (obj *dragDataImpl) AddFile(path string, displayName string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
+	rawPtr := obj.rawPtr
 	pathStr := cefString(path)
 	defer freeCefString(&pathStr)
 	displayNameStr := cefString(displayName)
 	defer freeCefString(&displayNameStr)
-	obj.rawPtr.CallAddFile(uintptr(unsafe.Pointer(&pathStr)), uintptr(unsafe.Pointer(&displayNameStr)))
+	rawPtr.CallAddFile(uintptr(unsafe.Pointer(&pathStr)), uintptr(unsafe.Pointer(&displayNameStr)))
 }
 
 func (obj *dragDataImpl) ClearFilenames() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallClearFilenames()
+	rawPtr := obj.rawPtr
+	rawPtr.CallClearFilenames()
 }
 
 func (obj *dragDataImpl) GetImage() Image {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetImage()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetImage()
 	return wrapImage(unsafe.Pointer(ret))
 }
 
@@ -231,7 +259,8 @@ func (obj *dragDataImpl) GetImageHotspot() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetImageHotspot()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetImageHotspot()
 	return uintptr(ret)
 }
 
@@ -239,7 +268,8 @@ func (obj *dragDataImpl) HasImage() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasImage()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasImage()
 	return ret != 0
 }
 

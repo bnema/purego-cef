@@ -53,6 +53,9 @@ func NewAccessibilityHandler(impl AccessibilityHandler) AccessibilityHandler {
 	return w
 }
 
+// accessibilityHandlerImpl is a reverse wrapper for a CEF-owned AccessibilityHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type accessibilityHandlerImpl struct {
 	rawPtr      *capi.CEFAccessibilityHandlerT
 	releaseOnce sync.Once
@@ -62,14 +65,16 @@ func (obj *accessibilityHandlerImpl) OnAccessibilityTreeChange(value Value) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnAccessibilityTreeChange(uintptr(extractRawPointer(value)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnAccessibilityTreeChange(uintptr(extractRawPointer(value)))
 }
 
 func (obj *accessibilityHandlerImpl) OnAccessibilityLocationChange(value Value) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnAccessibilityLocationChange(uintptr(extractRawPointer(value)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnAccessibilityLocationChange(uintptr(extractRawPointer(value)))
 }
 
 func (obj *accessibilityHandlerImpl) RawPointer() unsafe.Pointer {

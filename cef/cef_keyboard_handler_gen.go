@@ -58,6 +58,9 @@ func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
 	return w
 }
 
+// keyboardHandlerImpl is a reverse wrapper for a CEF-owned KeyboardHandler pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type keyboardHandlerImpl struct {
 	rawPtr      *capi.CEFKeyboardHandlerT
 	releaseOnce sync.Once
@@ -67,7 +70,8 @@ func (obj *keyboardHandlerImpl) OnPreKeyEvent(browser Browser, event *KeyEvent, 
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnPreKeyEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(event)), osEvent, uintptr(unsafe.Pointer(isKeyboardShortcut)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnPreKeyEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(event)), osEvent, uintptr(unsafe.Pointer(isKeyboardShortcut)))
 	return int32(ret)
 }
 
@@ -75,7 +79,8 @@ func (obj *keyboardHandlerImpl) OnKeyEvent(browser Browser, event *KeyEvent, osE
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(event)), osEvent)
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(event)), osEvent)
 	return int32(ret)
 }
 

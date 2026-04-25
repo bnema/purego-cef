@@ -15,6 +15,9 @@ import (
 // Panel A Panel is a container in the views hierarchy that can contain other Views as children. Methods must be called on the browser process UI thread unless otherwise indicated.
 type Panel = portin.Panel
 
+// panelImpl is a reverse wrapper for a CEF-owned Panel pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type panelImpl struct {
 	rawPtr      *capi.CEFPanelT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *panelImpl) AsWindow() Window {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsWindow()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsWindow()
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
@@ -32,7 +36,8 @@ func (obj *panelImpl) SetToFillLayout() FillLayout {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetToFillLayout()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetToFillLayout()
 	return wrapFillLayout(unsafe.Pointer(ret))
 }
 
@@ -40,7 +45,8 @@ func (obj *panelImpl) SetToBoxLayout(settings *BoxLayoutSettings) BoxLayout {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallSetToBoxLayout(uintptr(unsafe.Pointer(settings)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallSetToBoxLayout(uintptr(unsafe.Pointer(settings)))
 	return wrapBoxLayout(unsafe.Pointer(ret))
 }
 
@@ -48,7 +54,8 @@ func (obj *panelImpl) GetLayout() Layout {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetLayout()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetLayout()
 	return wrapLayout(unsafe.Pointer(ret))
 }
 
@@ -56,49 +63,56 @@ func (obj *panelImpl) Layout() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallLayout()
+	rawPtr := obj.rawPtr
+	rawPtr.CallLayout()
 }
 
 func (obj *panelImpl) AddChildView(view View) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallAddChildView(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallAddChildView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *panelImpl) AddChildViewAt(view View, index int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallAddChildViewAt(uintptr(extractRawPointer(view)), uintptr(index))
+	rawPtr := obj.rawPtr
+	rawPtr.CallAddChildViewAt(uintptr(extractRawPointer(view)), uintptr(index))
 }
 
 func (obj *panelImpl) ReorderChildView(view View, index int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallReorderChildView(uintptr(extractRawPointer(view)), uintptr(index))
+	rawPtr := obj.rawPtr
+	rawPtr.CallReorderChildView(uintptr(extractRawPointer(view)), uintptr(index))
 }
 
 func (obj *panelImpl) RemoveChildView(view View) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallRemoveChildView(uintptr(extractRawPointer(view)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallRemoveChildView(uintptr(extractRawPointer(view)))
 }
 
 func (obj *panelImpl) RemoveAllChildViews() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallRemoveAllChildViews()
+	rawPtr := obj.rawPtr
+	rawPtr.CallRemoveAllChildViews()
 }
 
 func (obj *panelImpl) GetChildViewCount() int {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetChildViewCount()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetChildViewCount()
 	return int(ret)
 }
 
@@ -106,7 +120,8 @@ func (obj *panelImpl) GetChildViewAt(index int32) View {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetChildViewAt(uintptr(index))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetChildViewAt(uintptr(index))
 	return wrapView(unsafe.Pointer(ret))
 }
 

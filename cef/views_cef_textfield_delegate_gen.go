@@ -54,6 +54,9 @@ func NewTextfieldDelegate(impl TextfieldDelegate) TextfieldDelegate {
 	return w
 }
 
+// textfieldDelegateImpl is a reverse wrapper for a CEF-owned TextfieldDelegate pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type textfieldDelegateImpl struct {
 	rawPtr      *capi.CEFTextfieldDelegateT
 	releaseOnce sync.Once
@@ -63,7 +66,8 @@ func (obj *textfieldDelegateImpl) OnKeyEvent(textfield Textfield, event *KeyEven
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(textfield)), uintptr(unsafe.Pointer(event)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(textfield)), uintptr(unsafe.Pointer(event)))
 	return int32(ret)
 }
 
@@ -71,7 +75,8 @@ func (obj *textfieldDelegateImpl) OnAfterUserAction(textfield Textfield) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallOnAfterUserAction(uintptr(extractRawPointer(textfield)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallOnAfterUserAction(uintptr(extractRawPointer(textfield)))
 }
 
 func (obj *textfieldDelegateImpl) RawPointer() unsafe.Pointer {

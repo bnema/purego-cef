@@ -15,6 +15,9 @@ import (
 // View A View is a rectangle within the views View hierarchy. It is the base structure for all Views. All size and position values are in density independent pixels (DIP) unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated.
 type View = portin.View
 
+// viewImpl is a reverse wrapper for a CEF-owned View pointer.
+// Release is idempotent, but callers must externally synchronize Release with
+// concurrent method calls and must not use the wrapper after Release returns.
 type viewImpl struct {
 	rawPtr      *capi.CEFViewT
 	releaseOnce sync.Once
@@ -24,7 +27,8 @@ func (obj *viewImpl) AsBrowserView() BrowserView {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsBrowserView()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsBrowserView()
 	return wrapBrowserView(unsafe.Pointer(ret))
 }
 
@@ -32,7 +36,8 @@ func (obj *viewImpl) AsButton() Button {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsButton()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsButton()
 	return wrapButton(unsafe.Pointer(ret))
 }
 
@@ -40,7 +45,8 @@ func (obj *viewImpl) AsPanel() Panel {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsPanel()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsPanel()
 	return wrapPanel(unsafe.Pointer(ret))
 }
 
@@ -48,7 +54,8 @@ func (obj *viewImpl) AsScrollView() ScrollView {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsScrollView()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsScrollView()
 	return wrapScrollView(unsafe.Pointer(ret))
 }
 
@@ -56,7 +63,8 @@ func (obj *viewImpl) AsTextfield() Textfield {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallAsTextfield()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallAsTextfield()
 	return wrapTextfield(unsafe.Pointer(ret))
 }
 
@@ -64,7 +72,8 @@ func (obj *viewImpl) GetTypeString() string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallGetTypeString()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetTypeString()
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -72,7 +81,8 @@ func (obj *viewImpl) ToString(includeChildren int32) string {
 	if obj == nil || obj.rawPtr == nil {
 		return ""
 	}
-	ret := obj.rawPtr.CallToString(uintptr(includeChildren))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallToString(uintptr(includeChildren))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -80,7 +90,8 @@ func (obj *viewImpl) IsValid() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsValid()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsValid()
 	return ret != 0
 }
 
@@ -88,7 +99,8 @@ func (obj *viewImpl) IsAttached() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsAttached()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsAttached()
 	return ret != 0
 }
 
@@ -96,7 +108,8 @@ func (obj *viewImpl) IsSame(that View) bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
 	return ret != 0
 }
 
@@ -104,7 +117,8 @@ func (obj *viewImpl) GetDelegate() ViewDelegate {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetDelegate()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetDelegate()
 	return wrapViewDelegate(unsafe.Pointer(ret))
 }
 
@@ -112,7 +126,8 @@ func (obj *viewImpl) GetWindow() Window {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetWindow()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetWindow()
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
@@ -120,7 +135,8 @@ func (obj *viewImpl) GetID() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetID()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetID()
 	return int32(ret)
 }
 
@@ -128,14 +144,16 @@ func (obj *viewImpl) SetID(iD int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetID(uintptr(iD))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetID(uintptr(iD))
 }
 
 func (obj *viewImpl) GetGroupID() int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetGroupID()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetGroupID()
 	return int32(ret)
 }
 
@@ -143,14 +161,16 @@ func (obj *viewImpl) SetGroupID(groupID int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetGroupID(uintptr(groupID))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetGroupID(uintptr(groupID))
 }
 
 func (obj *viewImpl) GetParentView() View {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetParentView()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetParentView()
 	return wrapView(unsafe.Pointer(ret))
 }
 
@@ -158,7 +178,8 @@ func (obj *viewImpl) GetViewForID(iD int32) View {
 	if obj == nil || obj.rawPtr == nil {
 		return nil
 	}
-	ret := obj.rawPtr.CallGetViewForID(uintptr(iD))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetViewForID(uintptr(iD))
 	return wrapView(unsafe.Pointer(ret))
 }
 
@@ -166,14 +187,16 @@ func (obj *viewImpl) SetBounds(bounds *Rect) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
 }
 
 func (obj *viewImpl) GetBounds() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetBounds()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBounds()
 	return uintptr(ret)
 }
 
@@ -181,7 +204,8 @@ func (obj *viewImpl) GetBoundsInScreen() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetBoundsInScreen()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBoundsInScreen()
 	return uintptr(ret)
 }
 
@@ -189,14 +213,16 @@ func (obj *viewImpl) SetSize(size *Size) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
 }
 
 func (obj *viewImpl) GetSize() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetSize()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetSize()
 	return uintptr(ret)
 }
 
@@ -204,14 +230,16 @@ func (obj *viewImpl) SetPosition(position *Point) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
 }
 
 func (obj *viewImpl) GetPosition() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetPosition()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPosition()
 	return uintptr(ret)
 }
 
@@ -219,14 +247,16 @@ func (obj *viewImpl) SetInsets(insets *Insets) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
 }
 
 func (obj *viewImpl) GetInsets() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetInsets()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetInsets()
 	return uintptr(ret)
 }
 
@@ -234,7 +264,8 @@ func (obj *viewImpl) GetPreferredSize() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetPreferredSize()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetPreferredSize()
 	return uintptr(ret)
 }
 
@@ -242,14 +273,16 @@ func (obj *viewImpl) SizeToPreferredSize() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSizeToPreferredSize()
+	rawPtr := obj.rawPtr
+	rawPtr.CallSizeToPreferredSize()
 }
 
 func (obj *viewImpl) GetMinimumSize() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetMinimumSize()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMinimumSize()
 	return uintptr(ret)
 }
 
@@ -257,7 +290,8 @@ func (obj *viewImpl) GetMaximumSize() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetMaximumSize()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetMaximumSize()
 	return uintptr(ret)
 }
 
@@ -265,7 +299,8 @@ func (obj *viewImpl) GetHeightForWidth(width int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetHeightForWidth(uintptr(width))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetHeightForWidth(uintptr(width))
 	return int32(ret)
 }
 
@@ -273,21 +308,24 @@ func (obj *viewImpl) InvalidateLayout() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallInvalidateLayout()
+	rawPtr := obj.rawPtr
+	rawPtr.CallInvalidateLayout()
 }
 
 func (obj *viewImpl) SetVisible(visible int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetVisible(uintptr(visible))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetVisible(uintptr(visible))
 }
 
 func (obj *viewImpl) IsVisible() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsVisible()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsVisible()
 	return ret != 0
 }
 
@@ -295,7 +333,8 @@ func (obj *viewImpl) IsDrawn() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsDrawn()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsDrawn()
 	return ret != 0
 }
 
@@ -303,14 +342,16 @@ func (obj *viewImpl) SetEnabled(enabled int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetEnabled(uintptr(enabled))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetEnabled(uintptr(enabled))
 }
 
 func (obj *viewImpl) IsEnabled() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsEnabled()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsEnabled()
 	return ret != 0
 }
 
@@ -318,14 +359,16 @@ func (obj *viewImpl) SetFocusable(focusable int32) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetFocusable(uintptr(focusable))
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetFocusable(uintptr(focusable))
 }
 
 func (obj *viewImpl) IsFocusable() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsFocusable()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsFocusable()
 	return ret != 0
 }
 
@@ -333,7 +376,8 @@ func (obj *viewImpl) IsAccessibilityFocusable() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallIsAccessibilityFocusable()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallIsAccessibilityFocusable()
 	return ret != 0
 }
 
@@ -341,7 +385,8 @@ func (obj *viewImpl) HasFocus() bool {
 	if obj == nil || obj.rawPtr == nil {
 		return false
 	}
-	ret := obj.rawPtr.CallHasFocus()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallHasFocus()
 	return ret != 0
 }
 
@@ -349,21 +394,24 @@ func (obj *viewImpl) RequestFocus() {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallRequestFocus()
+	rawPtr := obj.rawPtr
+	rawPtr.CallRequestFocus()
 }
 
 func (obj *viewImpl) SetBackgroundColor(color uintptr) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
-	obj.rawPtr.CallSetBackgroundColor(color)
+	rawPtr := obj.rawPtr
+	rawPtr.CallSetBackgroundColor(color)
 }
 
 func (obj *viewImpl) GetBackgroundColor() uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetBackgroundColor()
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetBackgroundColor()
 	return uintptr(ret)
 }
 
@@ -371,7 +419,8 @@ func (obj *viewImpl) GetThemeColor(colorID int32) uintptr {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallGetThemeColor(uintptr(colorID))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallGetThemeColor(uintptr(colorID))
 	return uintptr(ret)
 }
 
@@ -379,7 +428,8 @@ func (obj *viewImpl) ConvertPointToScreen(point *Point) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallConvertPointToScreen(uintptr(unsafe.Pointer(point)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallConvertPointToScreen(uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
@@ -387,7 +437,8 @@ func (obj *viewImpl) ConvertPointFromScreen(point *Point) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallConvertPointFromScreen(uintptr(unsafe.Pointer(point)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallConvertPointFromScreen(uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
@@ -395,7 +446,8 @@ func (obj *viewImpl) ConvertPointToWindow(point *Point) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallConvertPointToWindow(uintptr(unsafe.Pointer(point)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallConvertPointToWindow(uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
@@ -403,7 +455,8 @@ func (obj *viewImpl) ConvertPointFromWindow(point *Point) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallConvertPointFromWindow(uintptr(unsafe.Pointer(point)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallConvertPointFromWindow(uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
@@ -411,7 +464,8 @@ func (obj *viewImpl) ConvertPointToView(view View, point *Point) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallConvertPointToView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallConvertPointToView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
@@ -419,7 +473,8 @@ func (obj *viewImpl) ConvertPointFromView(view View, point *Point) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
-	ret := obj.rawPtr.CallConvertPointFromView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point)))
+	rawPtr := obj.rawPtr
+	ret := rawPtr.CallConvertPointFromView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point)))
 	return int32(ret)
 }
 
