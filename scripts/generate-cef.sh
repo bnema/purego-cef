@@ -9,3 +9,4 @@ go run ./cmd/cefgen \
   --port-in-dir internal/ports/in \
   --port-out-dir internal/ports/out \
   --public-dir cef
+

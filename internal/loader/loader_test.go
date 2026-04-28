@@ -8,6 +8,9 @@ import (
 	"testing"
 )
 
+// TestResolveDirOrder mutates package-level test hooks (systemCEFRuntimeDir,
+// pathExists, and userHomeDir), so do not call t.Parallel() here; parallel
+// execution would introduce data races and make future regressions harder to diagnose.
 func TestResolveDirOrder(t *testing.T) {
 	origCEFDir := getenv("CEF_DIR")
 	t.Cleanup(func() {
