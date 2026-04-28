@@ -100,7 +100,29 @@ func (c myClient) GetRenderHandler() cef.RenderHandler     { return myRenderer{}
 ## Requirements
 
 - Go 1.26+
-- CEF 145 runtime in `$CEF_DIR` or `~/.local/share/cef`
+- CEF 147 runtime (the minimum accepted Chrome/CEF major; earlier versions are rejected at load time)
+
+## Runtime discovery
+
+purego-cef locates `libcef.so` using this order:
+
+1. `CEF_DIR` environment variable
+2. Explicit `Settings.CEFDir` argument passed to `cef.Init()`
+3. `/usr/lib/cef` (the Arch Linux `cef` package install path), if `libcef.so` exists there
+4. `~/.local/share/cef`
+
+### Arch Linux
+
+```bash
+sudo pacman -S cef
+```
+
+This installs `/usr/lib/cef/libcef.so` and the required Resources — no env var needed.
+
+### Runtime version override / diagnostics
+
+- `CEF_VERSION=146` sets the minimum accepted Chrome/CEF major to 146.
+- `CEF_SKIP_VERSION_CHECK=1` bypasses the version guard entirely (diagnostics only; use with care).
 
 ## Building
 
@@ -109,10 +131,16 @@ CGO_ENABLED=0 go build ./...
 CGO_ENABLED=0 go test ./...
 ```
 
-Integration tests need the CEF runtime:
+Integration tests need the CEF runtime (adjust the directory as needed):
 
 ```
-CEF_DIR=$HOME/.local/share/cef go test -tags=cef_integration ./integration
+go test -tags=cef_integration ./integration
+```
+
+If your runtime is in a non-standard location, set `CEF_DIR`:
+
+```
+CEF_DIR=/custom/path go test -tags=cef_integration ./integration
 ```
 
 ## Regenerating bindings
