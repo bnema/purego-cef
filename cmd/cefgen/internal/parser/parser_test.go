@@ -8,17 +8,28 @@ import (
 )
 
 func TestParseStructWithCallbacks(t *testing.T) {
-	input := `typedef struct _cef_client_t {
+	cases := []string{
+		`typedef struct _cef_client_t {
   cef_base_ref_counted_t base;
   struct _cef_render_handler_t*(CEF_CALLBACK* get_render_handler)(struct _cef_client_t* self);
-} cef_client_t;`
-
-	file, err := Parse("cef_client_capi.h", []byte(input))
-	if err != nil {
-		t.Fatal(err)
+} cef_client_t;`,
+		`typedef struct _cef_accessibility_handler_t {
+  cef_base_ref_counted_t base;
+  void(CEF_CALLBACK *on_accessibility_tree_change)(struct _cef_accessibility_handler_t *self, struct _cef_value_t *value);
+} cef_accessibility_handler_t;`,
 	}
-	if len(file.Structs) != 1 || len(file.Structs[0].Fields) != 2 {
-		t.Fatalf("unexpected parse result: %+v", file)
+
+	for _, input := range cases {
+		file, err := Parse("cef_client_capi.h", []byte(input))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(file.Structs) != 1 || len(file.Structs[0].Fields) != 2 {
+			t.Fatalf("unexpected parse result: %+v", file)
+		}
+		if !file.Structs[0].Fields[1].IsFunction {
+			t.Fatalf("expected callback field, got: %+v", file.Structs[0].Fields[1])
+		}
 	}
 }
 

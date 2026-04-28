@@ -2,6 +2,7 @@
 package loader
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,8 +11,14 @@ import (
 	"github.com/bnema/purego"
 )
 
-const defaultCEFVersion = 145
+const defaultCEFVersion = 147
 const cefVersionInfoChromeMajor = 4
+
+var (
+	userHomeDir         = os.UserHomeDir
+	systemCEFRuntimeDir = "/usr/lib/cef"
+	pathExists          = defaultPathExists
+)
 
 // Open loads libcef.so and validates the CEF version.
 // The returned handle is used to register all C API symbols.
@@ -50,16 +57,24 @@ func resolveDir(arg string) (string, error) {
 	if arg != "" {
 		return arg, nil
 	}
-	home, err := os.UserHomeDir()
+	if pathExists(filepath.Join(systemCEFRuntimeDir, "libcef.so")) {
+		return systemCEFRuntimeDir, nil
+	}
+	home, err := userHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("resolve home dir: %w", err)
 	}
 	return filepath.Join(home, ".local", "share", "cef"), nil
 }
 
+func defaultPathExists(path string) bool {
+	_, err := os.Stat(path)
+	return !errors.Is(err, os.ErrNotExist)
+}
+
 func targetMajor() int32 {
 	if raw := os.Getenv("CEF_VERSION"); raw != "" {
-		if n, err := strconv.Atoi(raw); err == nil {
+		if n, err := strconv.ParseInt(raw, 10, 32); err == nil && n >= 0 {
 			return int32(n)
 		}
 	}
@@ -89,10 +104,12 @@ func validateVersion(handle uintptr) error {
 	}
 	var versionInfo func(int32) int32
 	purego.RegisterFunc(&versionInfo, sym)
-	got := versionInfo(cefVersionInfoChromeMajor)
-	want := targetMajor()
-	if got != want {
-		return fmt.Errorf("unsupported CEF runtime: chrome major=%d want=%d", got, want)
+	return ensureMinimumVersion(versionInfo(cefVersionInfoChromeMajor), targetMajor())
+}
+
+func ensureMinimumVersion(got, minimum int32) error {
+	if got < minimum {
+		return fmt.Errorf("unsupported CEF runtime: chrome major=%d minimum=%d", got, minimum)
 	}
 	return nil
 }
