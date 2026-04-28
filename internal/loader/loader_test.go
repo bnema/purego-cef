@@ -146,6 +146,16 @@ func TestTargetMajorUsesMinimumOverride(t *testing.T) {
 	if got := targetMajor(); got != defaultCEFVersion {
 		t.Fatalf("targetMajor()=%d want default %d", got, defaultCEFVersion)
 	}
+
+	setenv("CEF_VERSION", "-1")
+	if got := targetMajor(); got != defaultCEFVersion {
+		t.Fatalf("targetMajor()=%d want default %d", got, defaultCEFVersion)
+	}
+
+	setenv("CEF_VERSION", "99999999999999999999")
+	if got := targetMajor(); got != defaultCEFVersion {
+		t.Fatalf("targetMajor()=%d want default %d", got, defaultCEFVersion)
+	}
 }
 
 func TestEnsureMinimumVersion(t *testing.T) {

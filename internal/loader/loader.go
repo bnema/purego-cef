@@ -74,7 +74,7 @@ func defaultPathExists(path string) bool {
 
 func targetMajor() int32 {
 	if raw := os.Getenv("CEF_VERSION"); raw != "" {
-		if n, err := strconv.Atoi(raw); err == nil {
+		if n, err := strconv.ParseInt(raw, 10, 32); err == nil && n >= 0 {
 			return int32(n)
 		}
 	}
