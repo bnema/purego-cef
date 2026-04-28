@@ -109,6 +109,30 @@ func TestResolveDirHomeError(t *testing.T) {
 	}
 }
 
+func TestDefaultPathExistsOnlyMissingReturnsFalse(t *testing.T) {
+	existing := t.TempDir()
+	missing := filepath.Join(existing, "missing")
+	invalid := string([]byte{0})
+
+	tests := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{name: "existing", path: existing, want: true},
+		{name: "missing", path: missing, want: false},
+		{name: "other stat error", path: invalid, want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := defaultPathExists(tt.path); got != tt.want {
+				t.Fatalf("defaultPathExists(%q)=%v want %v", tt.path, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestTargetMajorUsesMinimumOverride(t *testing.T) {
 	orig := getenv("CEF_VERSION")
 	t.Cleanup(func() { setenv("CEF_VERSION", orig) })

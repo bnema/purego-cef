@@ -2,6 +2,7 @@
 package loader
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,9 +15,9 @@ const defaultCEFVersion = 147
 const cefVersionInfoChromeMajor = 4
 
 var (
-	userHomeDir          = os.UserHomeDir
-	systemCEFRuntimeDir  = "/usr/lib/cef"
-	pathExists           = defaultPathExists
+	userHomeDir         = os.UserHomeDir
+	systemCEFRuntimeDir = "/usr/lib/cef"
+	pathExists          = defaultPathExists
 )
 
 // Open loads libcef.so and validates the CEF version.
@@ -68,7 +69,7 @@ func resolveDir(arg string) (string, error) {
 
 func defaultPathExists(path string) bool {
 	_, err := os.Stat(path)
-	return err == nil
+	return !errors.Is(err, os.ErrNotExist)
 }
 
 func targetMajor() int32 {
