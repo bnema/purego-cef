@@ -24,7 +24,9 @@ func StringListToSlice(list StringList) []string {
 }
 
 // ContinueFileDialog continues a file dialog callback with the provided paths.
-// An empty path list is treated the same as canceling the dialog.
+// An empty path list is treated the same as canceling the dialog. The opaque
+// StringList allocated by this helper remains valid only for the duration of
+// the Cont call and must not be retained by the callback after it returns.
 func ContinueFileDialog(callback FileDialogCallback, filePaths ...string) {
 	if callback == nil {
 		return

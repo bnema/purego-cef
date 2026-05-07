@@ -139,6 +139,18 @@ func TestContinueFileDialog(t *testing.T) {
 		require.Zero(t, recorder.contPaths)
 	})
 
+	t.Run("cancel when allocation fails", func(t *testing.T) {
+		m := newStringListTestMock(t)
+		installStringListTestEngine(t, m)
+		m.EXPECT().StringListAlloc().Return(uintptr(0)).Once()
+
+		recorder := &fileDialogCallbackRecorder{}
+		ContinueFileDialog(recorder, "/tmp/report.txt")
+
+		require.Equal(t, 1, recorder.canceled)
+		require.Zero(t, recorder.contPaths)
+	})
+
 	t.Run("continue with selected paths", func(t *testing.T) {
 		m := newStringListTestMock(t)
 		installStringListTestEngine(t, m)
