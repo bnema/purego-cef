@@ -13,12 +13,17 @@ import (
 type Bridge struct {
 	handle uintptr
 
-	// String functions bound from CEF shared library.
-	stringSet     func(*uint16, uintptr, unsafe.Pointer, int32) int32
-	stringClear   func(unsafe.Pointer)
-	stringFreeFn  func(unsafe.Pointer)
-	stringListSz  func(uintptr) uintptr
-	stringListVal func(uintptr, uintptr, unsafe.Pointer) int32
+	// Handwritten string and string-list functions bound from the CEF shared
+	// library. These helpers come from CEF's low-level string headers, not the
+	// capi/type header sets parsed by cefgen.
+	stringSet        func(*uint16, uintptr, unsafe.Pointer, int32) int32
+	stringClear      func(unsafe.Pointer)
+	stringFreeFn     func(unsafe.Pointer)
+	stringListAlloc  func() uintptr
+	stringListAppend func(uintptr, unsafe.Pointer)
+	stringListFree   func(uintptr)
+	stringListSz     func(uintptr) uintptr
+	stringListVal    func(uintptr, uintptr, unsafe.Pointer) int32
 
 	// Core functions bound from CEF shared library (matches out.AppFunctions).
 	initialize              func(unsafe.Pointer, unsafe.Pointer, unsafe.Pointer, unsafe.Pointer) int32
@@ -41,11 +46,15 @@ func NewBridge(handle uintptr) *Bridge {
 }
 
 // bindStringFuncs uses purego.RegisterLibFunc (which panics on missing symbols)
-// intentionally — these string functions are mandatory in every CEF build.
+// intentionally — these low-level string and string-list functions are
+// mandatory in every CEF build.
 func (b *Bridge) bindStringFuncs(handle uintptr) {
 	purego.RegisterLibFunc(&b.stringSet, handle, "cef_string_utf16_set")
 	purego.RegisterLibFunc(&b.stringClear, handle, "cef_string_utf16_clear")
 	purego.RegisterLibFunc(&b.stringFreeFn, handle, "cef_string_userfree_utf16_free")
+	purego.RegisterLibFunc(&b.stringListAlloc, handle, "cef_string_list_alloc")
+	purego.RegisterLibFunc(&b.stringListAppend, handle, "cef_string_list_append")
+	purego.RegisterLibFunc(&b.stringListFree, handle, "cef_string_list_free")
 	purego.RegisterLibFunc(&b.stringListSz, handle, "cef_string_list_size")
 	purego.RegisterLibFunc(&b.stringListVal, handle, "cef_string_list_value")
 }
@@ -116,6 +125,18 @@ func (b *Bridge) StringClear(s unsafe.Pointer) {
 
 func (b *Bridge) StringUserfreeFree(s unsafe.Pointer) {
 	b.stringFreeFn(s)
+}
+
+func (b *Bridge) StringListAlloc() uintptr {
+	return b.stringListAlloc()
+}
+
+func (b *Bridge) StringListAppend(list uintptr, value unsafe.Pointer) {
+	b.stringListAppend(list, value)
+}
+
+func (b *Bridge) StringListFree(list uintptr) {
+	b.stringListFree(list)
 }
 
 func (b *Bridge) StringListSize(list uintptr) uintptr {

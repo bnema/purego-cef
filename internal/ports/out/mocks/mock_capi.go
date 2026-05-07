@@ -476,6 +476,136 @@ func (_c *MockCAPI_StringClear_Call) RunAndReturn(run func(s unsafe.Pointer)) *M
 	return _c
 }
 
+// StringListAlloc provides a mock function for the type MockCAPI
+func (_mock *MockCAPI) StringListAlloc() uintptr {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for StringListAlloc")
+	}
+
+	var r0 uintptr
+	if returnFunc, ok := ret.Get(0).(func() uintptr); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(uintptr)
+	}
+	return r0
+}
+
+// MockCAPI_StringListAlloc_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'StringListAlloc'
+type MockCAPI_StringListAlloc_Call struct {
+	*mock.Call
+}
+
+// StringListAlloc is a helper method to define mock.On call
+func (_e *MockCAPI_Expecter) StringListAlloc() *MockCAPI_StringListAlloc_Call {
+	return &MockCAPI_StringListAlloc_Call{Call: _e.mock.On("StringListAlloc")}
+}
+
+func (_c *MockCAPI_StringListAlloc_Call) Run(run func()) *MockCAPI_StringListAlloc_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockCAPI_StringListAlloc_Call) Return(v uintptr) *MockCAPI_StringListAlloc_Call {
+	_c.Call.Return(v)
+	return _c
+}
+
+func (_c *MockCAPI_StringListAlloc_Call) RunAndReturn(run func() uintptr) *MockCAPI_StringListAlloc_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// StringListAppend provides a mock function for the type MockCAPI
+func (_mock *MockCAPI) StringListAppend(list uintptr, value unsafe.Pointer) {
+	_mock.Called(list, value)
+	return
+}
+
+// MockCAPI_StringListAppend_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'StringListAppend'
+type MockCAPI_StringListAppend_Call struct {
+	*mock.Call
+}
+
+// StringListAppend is a helper method to define mock.On call
+//   - list uintptr
+//   - value unsafe.Pointer
+func (_e *MockCAPI_Expecter) StringListAppend(list interface{}, value interface{}) *MockCAPI_StringListAppend_Call {
+	return &MockCAPI_StringListAppend_Call{Call: _e.mock.On("StringListAppend", list, value)}
+}
+
+func (_c *MockCAPI_StringListAppend_Call) Run(run func(list uintptr, value unsafe.Pointer)) *MockCAPI_StringListAppend_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 uintptr
+		if args[0] != nil {
+			arg0 = args[0].(uintptr)
+		}
+		var arg1 unsafe.Pointer
+		if args[1] != nil {
+			arg1 = args[1].(unsafe.Pointer)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockCAPI_StringListAppend_Call) Return() *MockCAPI_StringListAppend_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockCAPI_StringListAppend_Call) RunAndReturn(run func(list uintptr, value unsafe.Pointer)) *MockCAPI_StringListAppend_Call {
+	_c.Run(run)
+	return _c
+}
+
+// StringListFree provides a mock function for the type MockCAPI
+func (_mock *MockCAPI) StringListFree(list uintptr) {
+	_mock.Called(list)
+	return
+}
+
+// MockCAPI_StringListFree_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'StringListFree'
+type MockCAPI_StringListFree_Call struct {
+	*mock.Call
+}
+
+// StringListFree is a helper method to define mock.On call
+//   - list uintptr
+func (_e *MockCAPI_Expecter) StringListFree(list interface{}) *MockCAPI_StringListFree_Call {
+	return &MockCAPI_StringListFree_Call{Call: _e.mock.On("StringListFree", list)}
+}
+
+func (_c *MockCAPI_StringListFree_Call) Run(run func(list uintptr)) *MockCAPI_StringListFree_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 uintptr
+		if args[0] != nil {
+			arg0 = args[0].(uintptr)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockCAPI_StringListFree_Call) Return() *MockCAPI_StringListFree_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockCAPI_StringListFree_Call) RunAndReturn(run func(list uintptr)) *MockCAPI_StringListFree_Call {
+	_c.Run(run)
+	return _c
+}
+
 // StringListSize provides a mock function for the type MockCAPI
 func (_mock *MockCAPI) StringListSize(list uintptr) uintptr {
 	ret := _mock.Called(list)
