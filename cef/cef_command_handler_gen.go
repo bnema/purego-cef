@@ -96,7 +96,6 @@ func (obj *commandHandlerImpl) OnChromeCommand(browser Browser, commandID int32,
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallOnChromeCommand(uintptr(extractRawPointer(browser)), uintptr(commandID), uintptr(disposition))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -106,7 +105,6 @@ func (obj *commandHandlerImpl) IsChromeAppMenuItemVisible(browser Browser, comma
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsChromeAppMenuItemVisible(uintptr(extractRawPointer(browser)), uintptr(commandID))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -116,7 +114,6 @@ func (obj *commandHandlerImpl) IsChromeAppMenuItemEnabled(browser Browser, comma
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsChromeAppMenuItemEnabled(uintptr(extractRawPointer(browser)), uintptr(commandID))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -126,7 +123,6 @@ func (obj *commandHandlerImpl) IsChromePageActionIconVisible(iconType ChromePage
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsChromePageActionIconVisible(uintptr(iconType))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -136,7 +132,6 @@ func (obj *commandHandlerImpl) IsChromeToolbarButtonVisible(buttonType ChromeToo
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsChromeToolbarButtonVisible(uintptr(buttonType))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 

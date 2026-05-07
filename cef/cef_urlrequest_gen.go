@@ -29,7 +29,6 @@ func (obj *urlrequestImpl) GetRequest() Request {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRequest()
-	runtime.KeepAlive(obj)
 	return wrapRequest(unsafe.Pointer(ret))
 }
 
@@ -39,7 +38,6 @@ func (obj *urlrequestImpl) GetClient() UrlrequestClient {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetClient()
-	runtime.KeepAlive(obj)
 	return wrapUrlrequestClient(unsafe.Pointer(ret))
 }
 
@@ -49,7 +47,6 @@ func (obj *urlrequestImpl) GetRequestStatus() UrlrequestStatus {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRequestStatus()
-	runtime.KeepAlive(obj)
 	return UrlrequestStatus(ret)
 }
 
@@ -59,7 +56,6 @@ func (obj *urlrequestImpl) GetRequestError() Errorcode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRequestError()
-	runtime.KeepAlive(obj)
 	return Errorcode(ret)
 }
 
@@ -69,7 +65,6 @@ func (obj *urlrequestImpl) GetResponse() Response {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetResponse()
-	runtime.KeepAlive(obj)
 	return wrapResponse(unsafe.Pointer(ret))
 }
 
@@ -79,7 +74,6 @@ func (obj *urlrequestImpl) ResponseWasCached() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallResponseWasCached()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -89,7 +83,6 @@ func (obj *urlrequestImpl) Cancel() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCancel()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *urlrequestImpl) RawPointer() unsafe.Pointer {
@@ -211,7 +204,6 @@ func (obj *urlrequestClientImpl) OnRequestComplete(request Urlrequest) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnRequestComplete(uintptr(extractRawPointer(request)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *urlrequestClientImpl) OnUploadProgress(request Urlrequest, current int64, total int64) {
@@ -223,7 +215,6 @@ func (obj *urlrequestClientImpl) OnUploadProgress(request Urlrequest, current in
 		registerTypedCallback(&obj.onUploadProgressFunc, rawPtr.OnUploadProgress)
 	})
 	obj.onUploadProgressFunc(rawPtr, uintptr(extractRawPointer(request)), current, total)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *urlrequestClientImpl) OnDownloadProgress(request Urlrequest, current int64, total int64) {
@@ -235,7 +226,6 @@ func (obj *urlrequestClientImpl) OnDownloadProgress(request Urlrequest, current 
 		registerTypedCallback(&obj.onDownloadProgressFunc, rawPtr.OnDownloadProgress)
 	})
 	obj.onDownloadProgressFunc(rawPtr, uintptr(extractRawPointer(request)), current, total)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *urlrequestClientImpl) OnDownloadData(request Urlrequest, data unsafe.Pointer, dataLength int) {
@@ -244,7 +234,6 @@ func (obj *urlrequestClientImpl) OnDownloadData(request Urlrequest, data unsafe.
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnDownloadData(uintptr(extractRawPointer(request)), uintptr(data), uintptr(dataLength))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, port int32, realm string, scheme string, callback AuthCallback) int32 {
@@ -259,7 +248,6 @@ func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, 
 	schemeStr := cefString(scheme)
 	defer freeCefString(&schemeStr)
 	ret := rawPtr.CallGetAuthCredentials(uintptr(isproxy), uintptr(unsafe.Pointer(&hostStr)), uintptr(port), uintptr(unsafe.Pointer(&realmStr)), uintptr(unsafe.Pointer(&schemeStr)), uintptr(extractRawPointer(callback)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

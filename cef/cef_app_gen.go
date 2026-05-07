@@ -110,7 +110,6 @@ func (obj *appImpl) OnBeforeCommandLineProcessing(processType string, commandLin
 	processTypeStr := cefString(processType)
 	defer freeCefString(&processTypeStr)
 	rawPtr.CallOnBeforeCommandLineProcessing(uintptr(unsafe.Pointer(&processTypeStr)), uintptr(extractRawPointer(commandLine)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *appImpl) OnRegisterCustomSchemes(registrar SchemeRegistrar) {
@@ -119,7 +118,6 @@ func (obj *appImpl) OnRegisterCustomSchemes(registrar SchemeRegistrar) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnRegisterCustomSchemes(uintptr(extractRawPointer(registrar)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *appImpl) GetResourceBundleHandler() ResourceBundleHandler {
@@ -128,7 +126,6 @@ func (obj *appImpl) GetResourceBundleHandler() ResourceBundleHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetResourceBundleHandler()
-	runtime.KeepAlive(obj)
 	return wrapResourceBundleHandler(unsafe.Pointer(ret))
 }
 
@@ -138,7 +135,6 @@ func (obj *appImpl) GetBrowserProcessHandler() BrowserProcessHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBrowserProcessHandler()
-	runtime.KeepAlive(obj)
 	return wrapBrowserProcessHandler(unsafe.Pointer(ret))
 }
 
@@ -148,7 +144,6 @@ func (obj *appImpl) GetRenderProcessHandler() RenderProcessHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRenderProcessHandler()
-	runtime.KeepAlive(obj)
 	return wrapRenderProcessHandler(unsafe.Pointer(ret))
 }
 

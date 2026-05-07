@@ -29,7 +29,6 @@ func (obj *v8ContextImpl) GetTaskRunner() TaskRunner {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTaskRunner()
-	runtime.KeepAlive(obj)
 	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
@@ -39,7 +38,6 @@ func (obj *v8ContextImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -49,7 +47,6 @@ func (obj *v8ContextImpl) GetBrowser() Browser {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBrowser()
-	runtime.KeepAlive(obj)
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
@@ -59,7 +56,6 @@ func (obj *v8ContextImpl) GetFrame() Frame {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFrame()
-	runtime.KeepAlive(obj)
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
@@ -69,7 +65,6 @@ func (obj *v8ContextImpl) GetGlobal() V8Value {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetGlobal()
-	runtime.KeepAlive(obj)
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -79,7 +74,6 @@ func (obj *v8ContextImpl) Enter() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallEnter()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -89,7 +83,6 @@ func (obj *v8ContextImpl) Exit() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallExit()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -99,7 +92,6 @@ func (obj *v8ContextImpl) IsSame(that V8Context) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -125,7 +117,6 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 	}
 
 	ret := rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -235,7 +226,6 @@ func (obj *v8HandlerImpl) Execute(name string, object V8Value, arguments []V8Val
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
 	ret := rawPtr.CallExecute(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr), uintptr(retval), exception)
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -337,7 +327,6 @@ func (obj *v8AccessorImpl) Get(name string, object V8Value, retval unsafe.Pointe
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallGet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -349,7 +338,6 @@ func (obj *v8AccessorImpl) Set(name string, object V8Value, value V8Value, excep
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallSet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -467,7 +455,6 @@ func (obj *v8InterceptorImpl) GetByname(name string, object V8Value, retval unsa
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallGetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -477,7 +464,6 @@ func (obj *v8InterceptorImpl) GetByindex(index int32, object V8Value, retval uns
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(retval), exception)
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -489,7 +475,6 @@ func (obj *v8InterceptorImpl) SetByname(name string, object V8Value, value V8Val
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallSetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -499,7 +484,6 @@ func (obj *v8InterceptorImpl) SetByindex(index int32, object V8Value, value V8Va
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -557,7 +541,6 @@ func (obj *v8ExceptionImpl) GetMessage() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetMessage()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -567,7 +550,6 @@ func (obj *v8ExceptionImpl) GetSourceLine() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSourceLine()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -577,7 +559,6 @@ func (obj *v8ExceptionImpl) GetScriptResourceName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetScriptResourceName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -587,7 +568,6 @@ func (obj *v8ExceptionImpl) GetLineNumber() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLineNumber()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -597,7 +577,6 @@ func (obj *v8ExceptionImpl) GetStartPosition() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetStartPosition()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -607,7 +586,6 @@ func (obj *v8ExceptionImpl) GetEndPosition() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetEndPosition()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -617,7 +595,6 @@ func (obj *v8ExceptionImpl) GetStartColumn() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetStartColumn()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -627,7 +604,6 @@ func (obj *v8ExceptionImpl) GetEndColumn() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetEndColumn()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -715,7 +691,6 @@ func (obj *v8ArrayBufferReleaseCallbackImpl) ReleaseBuffer(buffer unsafe.Pointer
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallReleaseBuffer(uintptr(buffer))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *v8ArrayBufferReleaseCallbackImpl) RawPointer() unsafe.Pointer {
@@ -774,7 +749,6 @@ func (obj *v8ValueImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -784,7 +758,6 @@ func (obj *v8ValueImpl) IsUndefined() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsUndefined()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -794,7 +767,6 @@ func (obj *v8ValueImpl) IsNull() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsNull()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -804,7 +776,6 @@ func (obj *v8ValueImpl) IsBool() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsBool()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -814,7 +785,6 @@ func (obj *v8ValueImpl) IsInt() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsInt()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -824,7 +794,6 @@ func (obj *v8ValueImpl) IsUint() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsUint()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -834,7 +803,6 @@ func (obj *v8ValueImpl) IsDouble() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsDouble()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -844,7 +812,6 @@ func (obj *v8ValueImpl) IsDate() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsDate()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -854,7 +821,6 @@ func (obj *v8ValueImpl) IsString() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsString()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -864,7 +830,6 @@ func (obj *v8ValueImpl) IsObject() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsObject()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -874,7 +839,6 @@ func (obj *v8ValueImpl) IsArray() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsArray()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -884,7 +848,6 @@ func (obj *v8ValueImpl) IsArrayBuffer() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsArrayBuffer()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -894,7 +857,6 @@ func (obj *v8ValueImpl) IsFunction() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsFunction()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -904,7 +866,6 @@ func (obj *v8ValueImpl) IsPromise() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsPromise()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -914,7 +875,6 @@ func (obj *v8ValueImpl) IsSame(that V8Value) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -924,7 +884,6 @@ func (obj *v8ValueImpl) GetBoolValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBoolValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -934,7 +893,6 @@ func (obj *v8ValueImpl) GetIntValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetIntValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -944,7 +902,6 @@ func (obj *v8ValueImpl) GetUintValue() uint32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetUintValue()
-	runtime.KeepAlive(obj)
 	return uint32(ret)
 }
 
@@ -957,7 +914,6 @@ func (obj *v8ValueImpl) GetDoubleValue() float64 {
 		registerTypedCallback(&obj.getDoubleValueFunc, rawPtr.GetDoubleValue)
 	})
 	ret := obj.getDoubleValueFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return ret
 }
 
@@ -967,7 +923,6 @@ func (obj *v8ValueImpl) GetDateValue() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDateValue()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -977,7 +932,6 @@ func (obj *v8ValueImpl) GetStringValue() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetStringValue()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -987,7 +941,6 @@ func (obj *v8ValueImpl) IsUserCreated() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsUserCreated()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -997,7 +950,6 @@ func (obj *v8ValueImpl) HasException() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasException()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -1007,7 +959,6 @@ func (obj *v8ValueImpl) GetException() V8Exception {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetException()
-	runtime.KeepAlive(obj)
 	return wrapV8Exception(unsafe.Pointer(ret))
 }
 
@@ -1017,7 +968,6 @@ func (obj *v8ValueImpl) ClearException() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallClearException()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1027,7 +977,6 @@ func (obj *v8ValueImpl) WillRethrowExceptions() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallWillRethrowExceptions()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1037,7 +986,6 @@ func (obj *v8ValueImpl) SetRethrowExceptions(rethrow int32) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetRethrowExceptions(uintptr(rethrow))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1049,7 +997,6 @@ func (obj *v8ValueImpl) HasValueBykey(key string) bool {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := rawPtr.CallHasValueBykey(uintptr(unsafe.Pointer(&keyStr)))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -1059,7 +1006,6 @@ func (obj *v8ValueImpl) HasValueByindex(index int32) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasValueByindex(uintptr(index))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -1071,7 +1017,6 @@ func (obj *v8ValueImpl) DeleteValueBykey(key string) int32 {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := rawPtr.CallDeleteValueBykey(uintptr(unsafe.Pointer(&keyStr)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1081,7 +1026,6 @@ func (obj *v8ValueImpl) DeleteValueByindex(index int32) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallDeleteValueByindex(uintptr(index))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1093,7 +1037,6 @@ func (obj *v8ValueImpl) GetValueBykey(key string) V8Value {
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := rawPtr.CallGetValueBykey(uintptr(unsafe.Pointer(&keyStr)))
-	runtime.KeepAlive(obj)
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1103,7 +1046,6 @@ func (obj *v8ValueImpl) GetValueByindex(index int32) V8Value {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValueByindex(uintptr(index))
-	runtime.KeepAlive(obj)
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1115,7 +1057,6 @@ func (obj *v8ValueImpl) SetValueBykey(key string, value V8Value, attribute V8Pro
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := rawPtr.CallSetValueBykey(uintptr(unsafe.Pointer(&keyStr)), uintptr(extractRawPointer(value)), uintptr(attribute))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1125,7 +1066,6 @@ func (obj *v8ValueImpl) SetValueByindex(index int32, value V8Value) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetValueByindex(uintptr(index), uintptr(extractRawPointer(value)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1137,7 +1077,6 @@ func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattri
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
 	ret := rawPtr.CallSetValueByaccessor(uintptr(unsafe.Pointer(&keyStr)), uintptr(attribute))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1147,7 +1086,6 @@ func (obj *v8ValueImpl) GetKeys(keys StringList) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetKeys(uintptr(keys))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1157,7 +1095,6 @@ func (obj *v8ValueImpl) SetUserData(userData *BaseRefCounted) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetUserData(uintptr(unsafe.Pointer(userData)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1167,7 +1104,6 @@ func (obj *v8ValueImpl) GetUserData() *BaseRefCounted {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetUserData()
-	runtime.KeepAlive(obj)
 	return (*BaseRefCounted)(unsafe.Pointer(ret))
 }
 
@@ -1177,7 +1113,6 @@ func (obj *v8ValueImpl) GetExternallyAllocatedMemory() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetExternallyAllocatedMemory()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1187,7 +1122,6 @@ func (obj *v8ValueImpl) AdjustExternallyAllocatedMemory(changeInBytes int32) int
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallAdjustExternallyAllocatedMemory(uintptr(changeInBytes))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1197,7 +1131,6 @@ func (obj *v8ValueImpl) GetArrayLength() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetArrayLength()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1207,7 +1140,6 @@ func (obj *v8ValueImpl) GetArrayBufferReleaseCallback() V8ArrayBufferReleaseCall
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetArrayBufferReleaseCallback()
-	runtime.KeepAlive(obj)
 	return wrapV8ArrayBufferReleaseCallback(unsafe.Pointer(ret))
 }
 
@@ -1217,7 +1149,6 @@ func (obj *v8ValueImpl) NeuterArrayBuffer() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallNeuterArrayBuffer()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1227,7 +1158,6 @@ func (obj *v8ValueImpl) GetArrayBufferByteLength() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetArrayBufferByteLength()
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -1237,7 +1167,6 @@ func (obj *v8ValueImpl) GetArrayBufferData() unsafe.Pointer {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetArrayBufferData()
-	runtime.KeepAlive(obj)
 	return unsafe.Pointer(ret)
 }
 
@@ -1247,7 +1176,6 @@ func (obj *v8ValueImpl) GetFunctionName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFunctionName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -1257,7 +1185,6 @@ func (obj *v8ValueImpl) GetFunctionHandler() V8Handler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFunctionHandler()
-	runtime.KeepAlive(obj)
 	return wrapV8Handler(unsafe.Pointer(ret))
 }
 
@@ -1276,7 +1203,6 @@ func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8V
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
 	ret := rawPtr.CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
-	runtime.KeepAlive(obj)
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1295,7 +1221,6 @@ func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8V
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
 	ret := rawPtr.CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
-	runtime.KeepAlive(obj)
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1305,7 +1230,6 @@ func (obj *v8ValueImpl) ResolvePromise(arg V8Value) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallResolvePromise(uintptr(extractRawPointer(arg)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1317,7 +1241,6 @@ func (obj *v8ValueImpl) RejectPromise(errormsg string) int32 {
 	errormsgStr := cefString(errormsg)
 	defer freeCefString(&errormsgStr)
 	ret := rawPtr.CallRejectPromise(uintptr(unsafe.Pointer(&errormsgStr)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1374,7 +1297,6 @@ func (obj *v8StackTraceImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -1384,7 +1306,6 @@ func (obj *v8StackTraceImpl) GetFrameCount() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFrameCount()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1394,7 +1315,6 @@ func (obj *v8StackTraceImpl) GetFrame(index int32) V8StackFrame {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFrame(uintptr(index))
-	runtime.KeepAlive(obj)
 	return wrapV8StackFrame(unsafe.Pointer(ret))
 }
 
@@ -1451,7 +1371,6 @@ func (obj *v8StackFrameImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -1461,7 +1380,6 @@ func (obj *v8StackFrameImpl) GetScriptName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetScriptName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -1471,7 +1389,6 @@ func (obj *v8StackFrameImpl) GetScriptNameOrSourceURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetScriptNameOrSourceURL()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -1481,7 +1398,6 @@ func (obj *v8StackFrameImpl) GetFunctionName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFunctionName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -1491,7 +1407,6 @@ func (obj *v8StackFrameImpl) GetLineNumber() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLineNumber()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1501,7 +1416,6 @@ func (obj *v8StackFrameImpl) GetColumn() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetColumn()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1511,7 +1425,6 @@ func (obj *v8StackFrameImpl) IsEval() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsEval()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -1521,7 +1434,6 @@ func (obj *v8StackFrameImpl) IsConstructor() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsConstructor()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 

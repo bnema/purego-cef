@@ -111,7 +111,6 @@ func (obj *browserProcessHandlerImpl) OnRegisterCustomPreferences(type_ Preferen
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnRegisterCustomPreferences(uintptr(type_), uintptr(extractRawPointer(registrar)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *browserProcessHandlerImpl) OnContextInitialized() {
@@ -120,7 +119,6 @@ func (obj *browserProcessHandlerImpl) OnContextInitialized() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnContextInitialized()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *browserProcessHandlerImpl) OnBeforeChildProcessLaunch(commandLine CommandLine) {
@@ -129,7 +127,6 @@ func (obj *browserProcessHandlerImpl) OnBeforeChildProcessLaunch(commandLine Com
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnBeforeChildProcessLaunch(uintptr(extractRawPointer(commandLine)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine CommandLine, currentDirectory string) int32 {
@@ -140,7 +137,6 @@ func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine Co
 	currentDirectoryStr := cefString(currentDirectory)
 	defer freeCefString(&currentDirectoryStr)
 	ret := rawPtr.CallOnAlreadyRunningAppRelaunch(uintptr(extractRawPointer(commandLine)), uintptr(unsafe.Pointer(&currentDirectoryStr)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -153,7 +149,6 @@ func (obj *browserProcessHandlerImpl) OnScheduleMessagePumpWork(delayMs int64) {
 		registerTypedCallback(&obj.onScheduleMessagePumpWorkFunc, rawPtr.OnScheduleMessagePumpWork)
 	})
 	obj.onScheduleMessagePumpWorkFunc(rawPtr, delayMs)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *browserProcessHandlerImpl) GetDefaultClient() RawClient {
@@ -162,7 +157,6 @@ func (obj *browserProcessHandlerImpl) GetDefaultClient() RawClient {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDefaultClient()
-	runtime.KeepAlive(obj)
 	return wrapRawClient(unsafe.Pointer(ret))
 }
 
@@ -172,7 +166,6 @@ func (obj *browserProcessHandlerImpl) GetDefaultRequestContextHandler() RequestC
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDefaultRequestContextHandler()
-	runtime.KeepAlive(obj)
 	return wrapRequestContextHandler(unsafe.Pointer(ret))
 }
 

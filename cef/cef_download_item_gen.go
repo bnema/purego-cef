@@ -35,7 +35,6 @@ func (obj *downloadItemImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -45,7 +44,6 @@ func (obj *downloadItemImpl) IsInProgress() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsInProgress()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -55,7 +53,6 @@ func (obj *downloadItemImpl) IsComplete() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsComplete()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -65,7 +62,6 @@ func (obj *downloadItemImpl) IsCanceled() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsCanceled()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -75,7 +71,6 @@ func (obj *downloadItemImpl) IsInterrupted() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsInterrupted()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -85,7 +80,6 @@ func (obj *downloadItemImpl) GetInterruptReason() DownloadInterruptReason {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetInterruptReason()
-	runtime.KeepAlive(obj)
 	return DownloadInterruptReason(ret)
 }
 
@@ -98,7 +92,6 @@ func (obj *downloadItemImpl) GetCurrentSpeed() int64 {
 		registerTypedCallback(&obj.getCurrentSpeedFunc, rawPtr.GetCurrentSpeed)
 	})
 	ret := obj.getCurrentSpeedFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -108,7 +101,6 @@ func (obj *downloadItemImpl) GetPercentComplete() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPercentComplete()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -121,7 +113,6 @@ func (obj *downloadItemImpl) GetTotalBytes() int64 {
 		registerTypedCallback(&obj.getTotalBytesFunc, rawPtr.GetTotalBytes)
 	})
 	ret := obj.getTotalBytesFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -134,7 +125,6 @@ func (obj *downloadItemImpl) GetReceivedBytes() int64 {
 		registerTypedCallback(&obj.getReceivedBytesFunc, rawPtr.GetReceivedBytes)
 	})
 	ret := obj.getReceivedBytesFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -144,7 +134,6 @@ func (obj *downloadItemImpl) GetStartTime() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetStartTime()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -154,7 +143,6 @@ func (obj *downloadItemImpl) GetEndTime() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetEndTime()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -164,7 +152,6 @@ func (obj *downloadItemImpl) GetFullPath() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFullPath()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -174,7 +161,6 @@ func (obj *downloadItemImpl) GetID() uint32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetID()
-	runtime.KeepAlive(obj)
 	return uint32(ret)
 }
 
@@ -184,7 +170,6 @@ func (obj *downloadItemImpl) GetURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetURL()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -194,7 +179,6 @@ func (obj *downloadItemImpl) GetOriginalURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOriginalURL()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -204,7 +188,6 @@ func (obj *downloadItemImpl) GetSuggestedFileName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSuggestedFileName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -214,7 +197,6 @@ func (obj *downloadItemImpl) GetContentDisposition() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetContentDisposition()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -224,7 +206,6 @@ func (obj *downloadItemImpl) GetMimeType() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetMimeType()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -234,7 +215,6 @@ func (obj *downloadItemImpl) IsPaused() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsPaused()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 

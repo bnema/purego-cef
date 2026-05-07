@@ -31,7 +31,6 @@ func (obj *serverImpl) GetTaskRunner() TaskRunner {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTaskRunner()
-	runtime.KeepAlive(obj)
 	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
@@ -41,7 +40,6 @@ func (obj *serverImpl) Shutdown() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallShutdown()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverImpl) IsRunning() bool {
@@ -50,7 +48,6 @@ func (obj *serverImpl) IsRunning() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsRunning()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -60,7 +57,6 @@ func (obj *serverImpl) GetAddress() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetAddress()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -70,7 +66,6 @@ func (obj *serverImpl) HasConnection() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasConnection()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -80,7 +75,6 @@ func (obj *serverImpl) IsValidConnection(connectionID int32) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValidConnection(uintptr(connectionID))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -92,7 +86,6 @@ func (obj *serverImpl) SendHttp200Response(connectionID int32, contentType strin
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
 	rawPtr.CallSendHttp200Response(uintptr(connectionID), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverImpl) SendHttp404Response(connectionID int32) {
@@ -101,7 +94,6 @@ func (obj *serverImpl) SendHttp404Response(connectionID int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSendHttp404Response(uintptr(connectionID))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverImpl) SendHttp500Response(connectionID int32, errorMessage string) {
@@ -112,7 +104,6 @@ func (obj *serverImpl) SendHttp500Response(connectionID int32, errorMessage stri
 	errorMessageStr := cefString(errorMessage)
 	defer freeCefString(&errorMessageStr)
 	rawPtr.CallSendHttp500Response(uintptr(connectionID), uintptr(unsafe.Pointer(&errorMessageStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverImpl) SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders StringMultimap) {
@@ -126,7 +117,6 @@ func (obj *serverImpl) SendHttpResponse(connectionID int32, responseCode int32, 
 		registerTypedCallback(&obj.sendHttpResponseFunc, rawPtr.SendHttpResponse)
 	})
 	obj.sendHttpResponseFunc(rawPtr, uintptr(connectionID), uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), contentLength, uintptr(extraHeaders))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverImpl) SendRawData(connectionID int32, data unsafe.Pointer, dataSize int) {
@@ -135,7 +125,6 @@ func (obj *serverImpl) SendRawData(connectionID int32, data unsafe.Pointer, data
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSendRawData(uintptr(connectionID), uintptr(data), uintptr(dataSize))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverImpl) CloseConnection(connectionID int32) {
@@ -144,7 +133,6 @@ func (obj *serverImpl) CloseConnection(connectionID int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCloseConnection(uintptr(connectionID))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverImpl) SendWebSocketMessage(connectionID int32, data unsafe.Pointer, dataSize int) {
@@ -153,7 +141,6 @@ func (obj *serverImpl) SendWebSocketMessage(connectionID int32, data unsafe.Poin
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSendWebSocketMessage(uintptr(connectionID), uintptr(data), uintptr(dataSize))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverImpl) RawPointer() unsafe.Pointer {
@@ -288,7 +275,6 @@ func (obj *serverHandlerImpl) OnServerCreated(server Server) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnServerCreated(uintptr(extractRawPointer(server)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverHandlerImpl) OnServerDestroyed(server Server) {
@@ -297,7 +283,6 @@ func (obj *serverHandlerImpl) OnServerDestroyed(server Server) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnServerDestroyed(uintptr(extractRawPointer(server)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverHandlerImpl) OnClientConnected(server Server, connectionID int32) {
@@ -306,7 +291,6 @@ func (obj *serverHandlerImpl) OnClientConnected(server Server, connectionID int3
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnClientConnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverHandlerImpl) OnClientDisconnected(server Server, connectionID int32) {
@@ -315,7 +299,6 @@ func (obj *serverHandlerImpl) OnClientDisconnected(server Server, connectionID i
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnClientDisconnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverHandlerImpl) OnHttpRequest(server Server, connectionID int32, clientAddress string, request Request) {
@@ -326,7 +309,6 @@ func (obj *serverHandlerImpl) OnHttpRequest(server Server, connectionID int32, c
 	clientAddressStr := cefString(clientAddress)
 	defer freeCefString(&clientAddressStr)
 	rawPtr.CallOnHttpRequest(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(unsafe.Pointer(&clientAddressStr)), uintptr(extractRawPointer(request)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverHandlerImpl) OnWebSocketRequest(server Server, connectionID int32, clientAddress string, request Request, callback Callback) {
@@ -337,7 +319,6 @@ func (obj *serverHandlerImpl) OnWebSocketRequest(server Server, connectionID int
 	clientAddressStr := cefString(clientAddress)
 	defer freeCefString(&clientAddressStr)
 	rawPtr.CallOnWebSocketRequest(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(unsafe.Pointer(&clientAddressStr)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverHandlerImpl) OnWebSocketConnected(server Server, connectionID int32) {
@@ -346,7 +327,6 @@ func (obj *serverHandlerImpl) OnWebSocketConnected(server Server, connectionID i
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnWebSocketConnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverHandlerImpl) OnWebSocketMessage(server Server, connectionID int32, data unsafe.Pointer, dataSize int) {
@@ -355,7 +335,6 @@ func (obj *serverHandlerImpl) OnWebSocketMessage(server Server, connectionID int
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnWebSocketMessage(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(data), uintptr(dataSize))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *serverHandlerImpl) RawPointer() unsafe.Pointer {

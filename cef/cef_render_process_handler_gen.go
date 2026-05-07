@@ -122,7 +122,6 @@ func (obj *renderProcessHandlerImpl) OnWebKitInitialized() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnWebKitInitialized()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *renderProcessHandlerImpl) OnBrowserCreated(browser Browser, extraInfo DictionaryValue) {
@@ -131,7 +130,6 @@ func (obj *renderProcessHandlerImpl) OnBrowserCreated(browser Browser, extraInfo
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(extraInfo)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *renderProcessHandlerImpl) OnBrowserDestroyed(browser Browser) {
@@ -140,7 +138,6 @@ func (obj *renderProcessHandlerImpl) OnBrowserDestroyed(browser Browser) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browser)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *renderProcessHandlerImpl) GetLoadHandler() LoadHandler {
@@ -149,7 +146,6 @@ func (obj *renderProcessHandlerImpl) GetLoadHandler() LoadHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLoadHandler()
-	runtime.KeepAlive(obj)
 	return wrapLoadHandler(unsafe.Pointer(ret))
 }
 
@@ -159,7 +155,6 @@ func (obj *renderProcessHandlerImpl) OnContextCreated(browser Browser, frame Fra
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnContextCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *renderProcessHandlerImpl) OnContextReleased(browser Browser, frame Frame, context V8Context) {
@@ -168,7 +163,6 @@ func (obj *renderProcessHandlerImpl) OnContextReleased(browser Browser, frame Fr
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnContextReleased(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *renderProcessHandlerImpl) OnUncaughtException(browser Browser, frame Frame, context V8Context, exception V8Exception, stacktrace V8StackTrace) {
@@ -177,7 +171,6 @@ func (obj *renderProcessHandlerImpl) OnUncaughtException(browser Browser, frame 
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnUncaughtException(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)), uintptr(extractRawPointer(exception)), uintptr(extractRawPointer(stacktrace)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *renderProcessHandlerImpl) OnFocusedNodeChanged(browser Browser, frame Frame, node Domnode) {
@@ -186,7 +179,6 @@ func (obj *renderProcessHandlerImpl) OnFocusedNodeChanged(browser Browser, frame
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnFocusedNodeChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(node)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *renderProcessHandlerImpl) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
@@ -195,7 +187,6 @@ func (obj *renderProcessHandlerImpl) OnProcessMessageReceived(browser Browser, f
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

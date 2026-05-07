@@ -29,7 +29,6 @@ func (obj *callbackImpl) Cont() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCont()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *callbackImpl) Cancel() {
@@ -38,7 +37,6 @@ func (obj *callbackImpl) Cancel() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCancel()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *callbackImpl) RawPointer() unsafe.Pointer {
@@ -124,7 +122,6 @@ func (obj *completionCallbackImpl) OnComplete() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnComplete()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *completionCallbackImpl) RawPointer() unsafe.Pointer {

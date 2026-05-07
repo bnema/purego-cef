@@ -65,7 +65,6 @@ func (obj *buttonDelegateImpl) OnButtonPressed(button Button) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnButtonPressed(uintptr(extractRawPointer(button)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *buttonDelegateImpl) OnButtonStateChanged(button Button) {
@@ -74,7 +73,6 @@ func (obj *buttonDelegateImpl) OnButtonStateChanged(button Button) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnButtonStateChanged(uintptr(extractRawPointer(button)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *buttonDelegateImpl) RawPointer() unsafe.Pointer {

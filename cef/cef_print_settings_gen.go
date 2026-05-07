@@ -29,7 +29,6 @@ func (obj *printSettingsImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -39,7 +38,6 @@ func (obj *printSettingsImpl) IsReadOnly() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsReadOnly()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -49,7 +47,6 @@ func (obj *printSettingsImpl) SetOrientation(landscape int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetOrientation(uintptr(landscape))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) IsLandscape() bool {
@@ -58,7 +55,6 @@ func (obj *printSettingsImpl) IsLandscape() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsLandscape()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -68,7 +64,6 @@ func (obj *printSettingsImpl) SetPrinterPrintableArea(physicalSizeDeviceUnits *S
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetPrinterPrintableArea(uintptr(unsafe.Pointer(physicalSizeDeviceUnits)), uintptr(unsafe.Pointer(printableAreaDeviceUnits)), uintptr(landscapeNeedsFlip))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) SetDeviceName(name string) {
@@ -79,7 +74,6 @@ func (obj *printSettingsImpl) SetDeviceName(name string) {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	rawPtr.CallSetDeviceName(uintptr(unsafe.Pointer(&nameStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) GetDeviceName() string {
@@ -88,7 +82,6 @@ func (obj *printSettingsImpl) GetDeviceName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDeviceName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -98,7 +91,6 @@ func (obj *printSettingsImpl) SetDpi(dpi int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetDpi(uintptr(dpi))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) GetDpi() int32 {
@@ -107,7 +99,6 @@ func (obj *printSettingsImpl) GetDpi() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDpi()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -121,7 +112,6 @@ func (obj *printSettingsImpl) SetPageRanges(ranges []Range) {
 		rangesPtr = unsafe.Pointer(&ranges[0])
 	}
 	rawPtr.CallSetPageRanges(uintptr(len(ranges)), uintptr(rangesPtr))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) GetPageRangesCount() int {
@@ -130,7 +120,6 @@ func (obj *printSettingsImpl) GetPageRangesCount() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPageRangesCount()
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -151,7 +140,6 @@ func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges []Range) {
 		rangesPtr = unsafe.Pointer(&ranges[0])
 	}
 	rawPtr.CallGetPageRanges(uintptr(unsafe.Pointer(rangesCountPtr)), uintptr(rangesPtr))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) SetSelectionOnly(selectionOnly int32) {
@@ -160,7 +148,6 @@ func (obj *printSettingsImpl) SetSelectionOnly(selectionOnly int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetSelectionOnly(uintptr(selectionOnly))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) IsSelectionOnly() bool {
@@ -169,7 +156,6 @@ func (obj *printSettingsImpl) IsSelectionOnly() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSelectionOnly()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -179,7 +165,6 @@ func (obj *printSettingsImpl) SetCollate(collate int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetCollate(uintptr(collate))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) WillCollate() int32 {
@@ -188,7 +173,6 @@ func (obj *printSettingsImpl) WillCollate() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallWillCollate()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -198,7 +182,6 @@ func (obj *printSettingsImpl) SetColorModel(model ColorModel) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetColorModel(uintptr(model))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) GetColorModel() ColorModel {
@@ -207,7 +190,6 @@ func (obj *printSettingsImpl) GetColorModel() ColorModel {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetColorModel()
-	runtime.KeepAlive(obj)
 	return ColorModel(ret)
 }
 
@@ -217,7 +199,6 @@ func (obj *printSettingsImpl) SetCopies(copies int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetCopies(uintptr(copies))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) GetCopies() int32 {
@@ -226,7 +207,6 @@ func (obj *printSettingsImpl) GetCopies() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCopies()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -236,7 +216,6 @@ func (obj *printSettingsImpl) SetDuplexMode(mode DuplexMode) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetDuplexMode(uintptr(mode))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *printSettingsImpl) GetDuplexMode() DuplexMode {
@@ -245,7 +224,6 @@ func (obj *printSettingsImpl) GetDuplexMode() DuplexMode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDuplexMode()
-	runtime.KeepAlive(obj)
 	return DuplexMode(ret)
 }
 

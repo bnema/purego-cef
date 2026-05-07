@@ -84,7 +84,6 @@ func (obj *readHandlerImpl) Read(ptr unsafe.Pointer, size int, n int) int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -97,7 +96,6 @@ func (obj *readHandlerImpl) SeekOffset(offset int64, whence int32) int32 {
 		registerTypedCallback(&obj.seekOffsetFunc, rawPtr.Seek)
 	})
 	ret := obj.seekOffsetFunc(rawPtr, offset, uintptr(whence))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -110,7 +108,6 @@ func (obj *readHandlerImpl) Tell() int64 {
 		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
 	ret := obj.tellFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -120,7 +117,6 @@ func (obj *readHandlerImpl) Eof() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallEof()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -130,7 +126,6 @@ func (obj *readHandlerImpl) MayBlock() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMayBlock()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -192,7 +187,6 @@ func (obj *streamReaderImpl) Read(ptr unsafe.Pointer, size int, n int) int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -205,7 +199,6 @@ func (obj *streamReaderImpl) SeekOffset(offset int64, whence int32) int32 {
 		registerTypedCallback(&obj.seekOffsetFunc, rawPtr.Seek)
 	})
 	ret := obj.seekOffsetFunc(rawPtr, offset, uintptr(whence))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -218,7 +211,6 @@ func (obj *streamReaderImpl) Tell() int64 {
 		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
 	ret := obj.tellFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -228,7 +220,6 @@ func (obj *streamReaderImpl) Eof() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallEof()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -238,7 +229,6 @@ func (obj *streamReaderImpl) MayBlock() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMayBlock()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -350,7 +340,6 @@ func (obj *writeHandlerImpl) Write(ptr unsafe.Pointer, size int, n int) int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -363,7 +352,6 @@ func (obj *writeHandlerImpl) SeekOffset(offset int64, whence int32) int32 {
 		registerTypedCallback(&obj.seekOffsetFunc, rawPtr.Seek)
 	})
 	ret := obj.seekOffsetFunc(rawPtr, offset, uintptr(whence))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -376,7 +364,6 @@ func (obj *writeHandlerImpl) Tell() int64 {
 		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
 	ret := obj.tellFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -386,7 +373,6 @@ func (obj *writeHandlerImpl) Flush() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallFlush()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -396,7 +382,6 @@ func (obj *writeHandlerImpl) MayBlock() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMayBlock()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -458,7 +443,6 @@ func (obj *streamWriterImpl) Write(ptr unsafe.Pointer, size int, n int) int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -471,7 +455,6 @@ func (obj *streamWriterImpl) SeekOffset(offset int64, whence int32) int32 {
 		registerTypedCallback(&obj.seekOffsetFunc, rawPtr.Seek)
 	})
 	ret := obj.seekOffsetFunc(rawPtr, offset, uintptr(whence))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -484,7 +467,6 @@ func (obj *streamWriterImpl) Tell() int64 {
 		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
 	ret := obj.tellFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -494,7 +476,6 @@ func (obj *streamWriterImpl) Flush() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallFlush()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -504,7 +485,6 @@ func (obj *streamWriterImpl) MayBlock() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMayBlock()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

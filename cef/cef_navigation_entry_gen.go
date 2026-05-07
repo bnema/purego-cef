@@ -29,7 +29,6 @@ func (obj *navigationEntryImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -39,7 +38,6 @@ func (obj *navigationEntryImpl) GetURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetURL()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -49,7 +47,6 @@ func (obj *navigationEntryImpl) GetDisplayURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDisplayURL()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -59,7 +56,6 @@ func (obj *navigationEntryImpl) GetOriginalURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOriginalURL()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -69,7 +65,6 @@ func (obj *navigationEntryImpl) GetTitle() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTitle()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -79,7 +74,6 @@ func (obj *navigationEntryImpl) GetTransitionType() TransitionType {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTransitionType()
-	runtime.KeepAlive(obj)
 	return TransitionType(ret)
 }
 
@@ -89,7 +83,6 @@ func (obj *navigationEntryImpl) HasPostData() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasPostData()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -99,7 +92,6 @@ func (obj *navigationEntryImpl) GetCompletionTime() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCompletionTime()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -109,7 +101,6 @@ func (obj *navigationEntryImpl) GetHttpStatusCode() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetHttpStatusCode()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -119,7 +110,6 @@ func (obj *navigationEntryImpl) GetSslstatus() Sslstatus {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSslstatus()
-	runtime.KeepAlive(obj)
 	return wrapSslstatus(unsafe.Pointer(ret))
 }
 

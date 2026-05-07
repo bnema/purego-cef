@@ -29,7 +29,6 @@ func (obj *apiVersionTestImpl) GetRefPtrLibrary(val int32) ApiVersionTestRefPtrL
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRefPtrLibrary(uintptr(val))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
@@ -39,7 +38,6 @@ func (obj *apiVersionTestImpl) SetRefPtrLibrary(val ApiVersionTestRefPtrLibrary)
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetRefPtrLibrary(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -49,7 +47,6 @@ func (obj *apiVersionTestImpl) SetRefPtrLibraryAndReturn(val ApiVersionTestRefPt
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetRefPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
@@ -59,7 +56,6 @@ func (obj *apiVersionTestImpl) SetChildRefPtrLibrary(val ApiVersionTestRefPtrLib
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildRefPtrLibrary(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -69,7 +65,6 @@ func (obj *apiVersionTestImpl) SetChildRefPtrLibraryAndReturnParent(val ApiVersi
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildRefPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
@@ -88,7 +83,6 @@ func (obj *apiVersionTestImpl) SetRefPtrLibraryList(val []ApiVersionTestRefPtrLi
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
 	ret := rawPtr.CallSetRefPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -111,7 +105,6 @@ func (obj *apiVersionTestImpl) GetRefPtrLibraryListByRef(valcount *int, val []Ap
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
 	ret := rawPtr.CallGetRefPtrLibraryListByRef(uintptr(unsafe.Pointer(valCountPtr)), uintptr(valPtr), uintptr(val1), uintptr(val2))
-	runtime.KeepAlive(obj)
 	if len(val) > 0 {
 		n := len(val)
 		if *valCountPtr < n {
@@ -130,7 +123,6 @@ func (obj *apiVersionTestImpl) GetRefPtrLibraryListSize() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRefPtrLibraryListSize()
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -140,7 +132,6 @@ func (obj *apiVersionTestImpl) SetRefPtrClient(val ApiVersionTestRefPtrClient) i
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClient(val) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -150,7 +141,6 @@ func (obj *apiVersionTestImpl) SetRefPtrClientAndReturn(val ApiVersionTestRefPtr
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetRefPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClient(val) })))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(ret))
 }
 
@@ -160,7 +150,6 @@ func (obj *apiVersionTestImpl) SetChildRefPtrClient(val ApiVersionTestRefPtrClie
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildRefPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChild(val) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -170,7 +159,6 @@ func (obj *apiVersionTestImpl) SetChildRefPtrClientAndReturnParent(val ApiVersio
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildRefPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChild(val) })))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(ret))
 }
 
@@ -189,7 +177,6 @@ func (obj *apiVersionTestImpl) SetRefPtrClientList(val []ApiVersionTestRefPtrCli
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
 	ret := rawPtr.CallSetRefPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -212,7 +199,6 @@ func (obj *apiVersionTestImpl) GetRefPtrClientListByRef(valcount *int, val []Api
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
 	ret := rawPtr.CallGetRefPtrClientListByRef(uintptr(unsafe.Pointer(valCountPtr)), uintptr(valPtr), uintptr(extractOrWrapRawPointer(val1, func() any { return NewApiVersionTestRefPtrClient(val1) })), uintptr(extractOrWrapRawPointer(val2, func() any { return NewApiVersionTestRefPtrClient(val2) })))
-	runtime.KeepAlive(obj)
 	if len(val) > 0 {
 		n := len(val)
 		if *valCountPtr < n {
@@ -231,7 +217,6 @@ func (obj *apiVersionTestImpl) GetRefPtrClientListSize() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRefPtrClientListSize()
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -241,7 +226,6 @@ func (obj *apiVersionTestImpl) GetOwnPtrLibrary(val int32) ApiVersionTestScopedL
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOwnPtrLibrary(uintptr(val))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(ret))
 }
 
@@ -251,7 +235,6 @@ func (obj *apiVersionTestImpl) SetOwnPtrLibrary(val ApiVersionTestScopedLibrary)
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetOwnPtrLibrary(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -261,7 +244,6 @@ func (obj *apiVersionTestImpl) SetOwnPtrLibraryAndReturn(val ApiVersionTestScope
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetOwnPtrLibraryAndReturn(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(ret))
 }
 
@@ -271,7 +253,6 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrLibrary(val ApiVersionTestScopedLib
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildOwnPtrLibrary(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -281,7 +262,6 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrLibraryAndReturnParent(val ApiVersi
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestScopedLibrary(unsafe.Pointer(ret))
 }
 
@@ -291,7 +271,6 @@ func (obj *apiVersionTestImpl) SetOwnPtrClient(val ApiVersionTestScopedClient) i
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -301,7 +280,6 @@ func (obj *apiVersionTestImpl) SetOwnPtrClientAndReturn(val ApiVersionTestScoped
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetOwnPtrClientAndReturn(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestScopedClient(unsafe.Pointer(ret))
 }
 
@@ -311,7 +289,6 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrClient(val ApiVersionTestScopedClie
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildOwnPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -321,7 +298,6 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrClientAndReturnParent(val ApiVersio
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildOwnPtrClientAndReturnParent(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestScopedClient(unsafe.Pointer(ret))
 }
 
@@ -331,7 +307,6 @@ func (obj *apiVersionTestImpl) SetRawPtrLibrary(val ApiVersionTestScopedLibrary)
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetRawPtrLibrary(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -341,7 +316,6 @@ func (obj *apiVersionTestImpl) SetChildRawPtrLibrary(val ApiVersionTestScopedLib
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildRawPtrLibrary(uintptr(extractRawPointer(val)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -360,7 +334,6 @@ func (obj *apiVersionTestImpl) SetRawPtrLibraryList(val []ApiVersionTestScopedLi
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
 	ret := rawPtr.CallSetRawPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -370,7 +343,6 @@ func (obj *apiVersionTestImpl) SetRawPtrClient(val ApiVersionTestScopedClient) i
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClient(val) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -380,7 +352,6 @@ func (obj *apiVersionTestImpl) SetChildRawPtrClient(val ApiVersionTestScopedClie
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildRawPtrClient(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChild(val) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -399,7 +370,6 @@ func (obj *apiVersionTestImpl) SetRawPtrClientList(val []ApiVersionTestScopedCli
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
 	ret := rawPtr.CallSetRawPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -409,7 +379,6 @@ func (obj *apiVersionTestImpl) SetChildRefPtrClientV2(val ApiVersionTestRefPtrCl
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildRefPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChildV2(val) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -419,7 +388,6 @@ func (obj *apiVersionTestImpl) SetChildRefPtrClientAndReturnParentV2(val ApiVers
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildRefPtrClientAndReturnParentV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestRefPtrClientChildV2(val) })))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestRefPtrClient(unsafe.Pointer(ret))
 }
 
@@ -429,7 +397,6 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrClientV2(val ApiVersionTestScopedCl
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildOwnPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -439,7 +406,6 @@ func (obj *apiVersionTestImpl) SetChildOwnPtrClientAndReturnParentV2(val ApiVers
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildOwnPtrClientAndReturnParentV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
-	runtime.KeepAlive(obj)
 	return wrapApiVersionTestScopedClient(unsafe.Pointer(ret))
 }
 
@@ -449,7 +415,6 @@ func (obj *apiVersionTestImpl) SetChildRawPtrClientV2(val ApiVersionTestScopedCl
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSetChildRawPtrClientV2(uintptr(extractOrWrapRawPointer(val, func() any { return NewApiVersionTestScopedClientChildV2(val) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -506,7 +471,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) GetValueLegacy() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValueLegacy()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -516,7 +480,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueLegacy(value int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetValueLegacy(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValue() int32 {
@@ -525,7 +488,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) GetValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -535,7 +497,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValue(value int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetValue(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV1() int32 {
@@ -544,7 +505,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV1() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValueV1()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -554,7 +514,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV1(value int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetValueV1(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV2() int32 {
@@ -563,7 +522,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) GetValueV2() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValueV2()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -573,7 +531,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueV2(value int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetValueV2(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) GetValueExp() int32 {
@@ -582,7 +539,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) GetValueExp() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValueExp()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -592,7 +548,6 @@ func (obj *apiVersionTestRefPtrLibraryImpl) SetValueExp(value int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetValueExp(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestRefPtrLibraryImpl) RawPointer() unsafe.Pointer {
@@ -648,7 +603,6 @@ func (obj *apiVersionTestRefPtrLibraryChildImpl) GetOtherValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -658,7 +612,6 @@ func (obj *apiVersionTestRefPtrLibraryChildImpl) SetOtherValue(value int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetOtherValue(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildImpl) RawPointer() unsafe.Pointer {
@@ -714,7 +667,6 @@ func (obj *apiVersionTestRefPtrLibraryChildChildImpl) GetOtherOtherValue() int32
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -724,7 +676,6 @@ func (obj *apiVersionTestRefPtrLibraryChildChildImpl) SetOtherOtherValue(value i
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetOtherOtherValue(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildImpl) RawPointer() unsafe.Pointer {
@@ -780,7 +731,6 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) GetOtherOtherValue() int
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -790,7 +740,6 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) SetOtherOtherValue(value
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetOtherOtherValue(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV1Impl) RawPointer() unsafe.Pointer {
@@ -846,7 +795,6 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) GetOtherOtherValue() int
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -856,7 +804,6 @@ func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) SetOtherOtherValue(value
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetOtherOtherValue(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestRefPtrLibraryChildChildV2Impl) RawPointer() unsafe.Pointer {
@@ -958,7 +905,6 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValueLegacy() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValueLegacy()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -968,7 +914,6 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -978,7 +923,6 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValueV1() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValueV1()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -988,7 +932,6 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValueV2() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValueV2()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -998,7 +941,6 @@ func (obj *apiVersionTestRefPtrClientImpl) GetValueExp() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValueExp()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1090,7 +1032,6 @@ func (obj *apiVersionTestRefPtrClientChildImpl) GetOtherValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1100,7 +1041,6 @@ func (obj *apiVersionTestRefPtrClientChildImpl) GetOtherValueV1() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherValueV1()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1192,7 +1132,6 @@ func (obj *apiVersionTestRefPtrClientChildV2Impl) GetOtherValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1202,7 +1141,6 @@ func (obj *apiVersionTestRefPtrClientChildV2Impl) GetAnotherValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetAnotherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1370,7 +1308,6 @@ func (obj *apiVersionTestScopedLibraryChildImpl) GetOtherValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1380,7 +1317,6 @@ func (obj *apiVersionTestScopedLibraryChildImpl) SetOtherValue(value int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetOtherValue(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestScopedLibraryChildImpl) RawPointer() unsafe.Pointer {
@@ -1436,7 +1372,6 @@ func (obj *apiVersionTestScopedLibraryChildChildImpl) GetOtherOtherValue() int32
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1446,7 +1381,6 @@ func (obj *apiVersionTestScopedLibraryChildChildImpl) SetOtherOtherValue(value i
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetOtherOtherValue(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildImpl) RawPointer() unsafe.Pointer {
@@ -1502,7 +1436,6 @@ func (obj *apiVersionTestScopedLibraryChildChildV1Impl) GetOtherOtherValue() int
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1512,7 +1445,6 @@ func (obj *apiVersionTestScopedLibraryChildChildV1Impl) SetOtherOtherValue(value
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetOtherOtherValue(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV1Impl) RawPointer() unsafe.Pointer {
@@ -1568,7 +1500,6 @@ func (obj *apiVersionTestScopedLibraryChildChildV2Impl) GetOtherOtherValue() int
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1578,7 +1509,6 @@ func (obj *apiVersionTestScopedLibraryChildChildV2Impl) SetOtherOtherValue(value
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetOtherOtherValue(uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *apiVersionTestScopedLibraryChildChildV2Impl) RawPointer() unsafe.Pointer {
@@ -1784,7 +1714,6 @@ func (obj *apiVersionTestScopedClientChildImpl) GetOtherValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1794,7 +1723,6 @@ func (obj *apiVersionTestScopedClientChildImpl) GetOtherValueV1() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherValueV1()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1886,7 +1814,6 @@ func (obj *apiVersionTestScopedClientChildV2Impl) GetOtherValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOtherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -1896,7 +1823,6 @@ func (obj *apiVersionTestScopedClientChildV2Impl) GetAnotherValue() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetAnotherValue()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

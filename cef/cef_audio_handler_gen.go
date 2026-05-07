@@ -89,7 +89,6 @@ func (obj *rawAudioHandlerImpl) GetAudioParameters(browser Browser, params *Audi
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetAudioParameters(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(params)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -99,7 +98,6 @@ func (obj *rawAudioHandlerImpl) OnAudioStreamStarted(browser Browser, params *Au
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnAudioStreamStarted(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(params)), uintptr(channels))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamPacket(browser Browser, data unsafe.Pointer, frames int32, pts int64) {
@@ -111,7 +109,6 @@ func (obj *rawAudioHandlerImpl) OnAudioStreamPacket(browser Browser, data unsafe
 		registerTypedCallback(&obj.onAudioStreamPacketFunc, rawPtr.OnAudioStreamPacket)
 	})
 	obj.onAudioStreamPacketFunc(rawPtr, uintptr(extractRawPointer(browser)), uintptr(data), uintptr(frames), pts)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamStopped(browser Browser) {
@@ -120,7 +117,6 @@ func (obj *rawAudioHandlerImpl) OnAudioStreamStopped(browser Browser) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnAudioStreamStopped(uintptr(extractRawPointer(browser)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *rawAudioHandlerImpl) OnAudioStreamError(browser Browser, message string) {
@@ -131,7 +127,6 @@ func (obj *rawAudioHandlerImpl) OnAudioStreamError(browser Browser, message stri
 	messageStr := cefString(message)
 	defer freeCefString(&messageStr)
 	rawPtr.CallOnAudioStreamError(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&messageStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *rawAudioHandlerImpl) RawPointer() unsafe.Pointer {

@@ -116,17 +116,11 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	})
 	{{- if .Return.IsVoid}}
 	obj.{{lower .Name}}Func({{typedObjectCallArgs .}})
-	{{- if not $.IsScoped}}
-	runtime.KeepAlive(obj)
-	{{- end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
 	{{- else}}
 	ret := obj.{{lower .Name}}Func({{typedObjectCallArgs .}})
-	{{- if not $.IsScoped}}
-	runtime.KeepAlive(obj)
-	{{- end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
@@ -154,17 +148,11 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	{{- end}}
 	{{- else if .Return.IsVoid}}
 	rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
-	{{- if not $.IsScoped}}
-	runtime.KeepAlive(obj)
-	{{- end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
 	{{- else}}
 	ret := rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
-	{{- if not $.IsScoped}}
-	runtime.KeepAlive(obj)
-	{{- end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}

@@ -60,7 +60,6 @@ func (obj *domvisitorImpl) Visit(document Domdocument) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallVisit(uintptr(extractRawPointer(document)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *domvisitorImpl) RawPointer() unsafe.Pointer {
@@ -117,7 +116,6 @@ func (obj *domdocumentImpl) GetType() DomDocumentType {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetType()
-	runtime.KeepAlive(obj)
 	return DomDocumentType(ret)
 }
 
@@ -127,7 +125,6 @@ func (obj *domdocumentImpl) GetDocument() Domnode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDocument()
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -137,7 +134,6 @@ func (obj *domdocumentImpl) GetBody() Domnode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBody()
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -147,7 +143,6 @@ func (obj *domdocumentImpl) GetHead() Domnode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetHead()
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -157,7 +152,6 @@ func (obj *domdocumentImpl) GetTitle() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTitle()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -169,7 +163,6 @@ func (obj *domdocumentImpl) GetElementByID(iD string) Domnode {
 	iDStr := cefString(iD)
 	defer freeCefString(&iDStr)
 	ret := rawPtr.CallGetElementByID(uintptr(unsafe.Pointer(&iDStr)))
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -179,7 +172,6 @@ func (obj *domdocumentImpl) GetFocusedNode() Domnode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFocusedNode()
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -189,7 +181,6 @@ func (obj *domdocumentImpl) HasSelection() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasSelection()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -199,7 +190,6 @@ func (obj *domdocumentImpl) GetSelectionStartOffset() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSelectionStartOffset()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -209,7 +199,6 @@ func (obj *domdocumentImpl) GetSelectionEndOffset() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSelectionEndOffset()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -219,7 +208,6 @@ func (obj *domdocumentImpl) GetSelectionAsMarkup() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSelectionAsMarkup()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -229,7 +217,6 @@ func (obj *domdocumentImpl) GetSelectionAsText() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSelectionAsText()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -239,7 +226,6 @@ func (obj *domdocumentImpl) GetBaseURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBaseURL()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -251,7 +237,6 @@ func (obj *domdocumentImpl) GetCompleteURL(partialurl string) string {
 	partialurlStr := cefString(partialurl)
 	defer freeCefString(&partialurlStr)
 	ret := rawPtr.CallGetCompleteURL(uintptr(unsafe.Pointer(&partialurlStr)))
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -308,7 +293,6 @@ func (obj *domnodeImpl) GetType() DomNodeType {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetType()
-	runtime.KeepAlive(obj)
 	return DomNodeType(ret)
 }
 
@@ -318,7 +302,6 @@ func (obj *domnodeImpl) IsText() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsText()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -328,7 +311,6 @@ func (obj *domnodeImpl) IsElement() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsElement()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -338,7 +320,6 @@ func (obj *domnodeImpl) IsEditable() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsEditable()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -348,7 +329,6 @@ func (obj *domnodeImpl) IsFormControlElement() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsFormControlElement()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -358,7 +338,6 @@ func (obj *domnodeImpl) GetFormControlElementType() DomFormControlType {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFormControlElementType()
-	runtime.KeepAlive(obj)
 	return DomFormControlType(ret)
 }
 
@@ -368,7 +347,6 @@ func (obj *domnodeImpl) IsSame(that Domnode) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -378,7 +356,6 @@ func (obj *domnodeImpl) GetName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -388,7 +365,6 @@ func (obj *domnodeImpl) GetValue() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValue()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -400,7 +376,6 @@ func (obj *domnodeImpl) SetValue(value string) int32 {
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
 	ret := rawPtr.CallSetValue(uintptr(unsafe.Pointer(&valueStr)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -410,7 +385,6 @@ func (obj *domnodeImpl) GetAsMarkup() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetAsMarkup()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -420,7 +394,6 @@ func (obj *domnodeImpl) GetDocument() Domdocument {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDocument()
-	runtime.KeepAlive(obj)
 	return wrapDomdocument(unsafe.Pointer(ret))
 }
 
@@ -430,7 +403,6 @@ func (obj *domnodeImpl) GetParent() Domnode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetParent()
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -440,7 +412,6 @@ func (obj *domnodeImpl) GetPreviousSibling() Domnode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPreviousSibling()
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -450,7 +421,6 @@ func (obj *domnodeImpl) GetNextSibling() Domnode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetNextSibling()
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -460,7 +430,6 @@ func (obj *domnodeImpl) HasChildren() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasChildren()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -470,7 +439,6 @@ func (obj *domnodeImpl) GetFirstChild() Domnode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFirstChild()
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -480,7 +448,6 @@ func (obj *domnodeImpl) GetLastChild() Domnode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLastChild()
-	runtime.KeepAlive(obj)
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -490,7 +457,6 @@ func (obj *domnodeImpl) GetElementTagName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetElementTagName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -500,7 +466,6 @@ func (obj *domnodeImpl) HasElementAttributes() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasElementAttributes()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -512,7 +477,6 @@ func (obj *domnodeImpl) HasElementAttribute(attrname string) bool {
 	attrnameStr := cefString(attrname)
 	defer freeCefString(&attrnameStr)
 	ret := rawPtr.CallHasElementAttribute(uintptr(unsafe.Pointer(&attrnameStr)))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -524,7 +488,6 @@ func (obj *domnodeImpl) GetElementAttribute(attrname string) string {
 	attrnameStr := cefString(attrname)
 	defer freeCefString(&attrnameStr)
 	ret := rawPtr.CallGetElementAttribute(uintptr(unsafe.Pointer(&attrnameStr)))
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -534,7 +497,6 @@ func (obj *domnodeImpl) GetElementAttributes(attrmap StringMap) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallGetElementAttributes(uintptr(attrmap))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *domnodeImpl) SetElementAttribute(attrname string, value string) int32 {
@@ -547,7 +509,6 @@ func (obj *domnodeImpl) SetElementAttribute(attrname string, value string) int32
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
 	ret := rawPtr.CallSetElementAttribute(uintptr(unsafe.Pointer(&attrnameStr)), uintptr(unsafe.Pointer(&valueStr)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -557,7 +518,6 @@ func (obj *domnodeImpl) GetElementInnerText() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetElementInnerText()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -567,7 +527,6 @@ func (obj *domnodeImpl) GetElementBounds() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetElementBounds()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 

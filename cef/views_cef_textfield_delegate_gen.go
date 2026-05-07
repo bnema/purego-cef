@@ -66,7 +66,6 @@ func (obj *textfieldDelegateImpl) OnKeyEvent(textfield Textfield, event *KeyEven
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(textfield)), uintptr(unsafe.Pointer(event)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -76,7 +75,6 @@ func (obj *textfieldDelegateImpl) OnAfterUserAction(textfield Textfield) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnAfterUserAction(uintptr(extractRawPointer(textfield)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldDelegateImpl) RawPointer() unsafe.Pointer {

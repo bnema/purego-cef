@@ -59,7 +59,6 @@ func (obj *taskImpl) Execute() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallExecute()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *taskImpl) RawPointer() unsafe.Pointer {
@@ -118,7 +117,6 @@ func (obj *taskRunnerImpl) IsSame(that TaskRunner) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -128,7 +126,6 @@ func (obj *taskRunnerImpl) BelongsToCurrentThread() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallBelongsToCurrentThread()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -138,7 +135,6 @@ func (obj *taskRunnerImpl) BelongsToThread(threadid ThreadID) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallBelongsToThread(uintptr(threadid))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -148,7 +144,6 @@ func (obj *taskRunnerImpl) PostTask(task Task) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallPostTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -161,7 +156,6 @@ func (obj *taskRunnerImpl) PostDelayedTask(task Task, delayMs int64) int32 {
 		registerTypedCallback(&obj.postDelayedTaskFunc, rawPtr.PostDelayedTask)
 	})
 	ret := obj.postDelayedTaskFunc(rawPtr, uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), delayMs)
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

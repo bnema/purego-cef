@@ -29,7 +29,6 @@ func (obj *sharedMemoryRegionImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -39,7 +38,6 @@ func (obj *sharedMemoryRegionImpl) Size() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSize()
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -49,7 +47,6 @@ func (obj *sharedMemoryRegionImpl) Memory() unsafe.Pointer {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMemory()
-	runtime.KeepAlive(obj)
 	return unsafe.Pointer(ret)
 }
 

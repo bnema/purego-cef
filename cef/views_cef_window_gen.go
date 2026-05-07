@@ -29,7 +29,6 @@ func (obj *windowImpl) Show() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallShow()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) ShowAsBrowserModalDialog(browserView BrowserView) {
@@ -38,7 +37,6 @@ func (obj *windowImpl) ShowAsBrowserModalDialog(browserView BrowserView) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallShowAsBrowserModalDialog(uintptr(extractRawPointer(browserView)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) Hide() {
@@ -47,7 +45,6 @@ func (obj *windowImpl) Hide() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallHide()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) CenterWindow(size *Size) {
@@ -56,7 +53,6 @@ func (obj *windowImpl) CenterWindow(size *Size) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCenterWindow(uintptr(unsafe.Pointer(size)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) Close() {
@@ -65,7 +61,6 @@ func (obj *windowImpl) Close() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallClose()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) IsClosed() bool {
@@ -74,7 +69,6 @@ func (obj *windowImpl) IsClosed() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsClosed()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -84,7 +78,6 @@ func (obj *windowImpl) Activate() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallActivate()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) Deactivate() {
@@ -93,7 +86,6 @@ func (obj *windowImpl) Deactivate() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallDeactivate()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) IsActive() bool {
@@ -102,7 +94,6 @@ func (obj *windowImpl) IsActive() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsActive()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -112,7 +103,6 @@ func (obj *windowImpl) BringToTop() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallBringToTop()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) SetAlwaysOnTop(onTop int32) {
@@ -121,7 +111,6 @@ func (obj *windowImpl) SetAlwaysOnTop(onTop int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetAlwaysOnTop(uintptr(onTop))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) IsAlwaysOnTop() bool {
@@ -130,7 +119,6 @@ func (obj *windowImpl) IsAlwaysOnTop() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsAlwaysOnTop()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -140,7 +128,6 @@ func (obj *windowImpl) Maximize() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallMaximize()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) Minimize() {
@@ -149,7 +136,6 @@ func (obj *windowImpl) Minimize() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallMinimize()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) Restore() {
@@ -158,7 +144,6 @@ func (obj *windowImpl) Restore() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallRestore()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) SetFullscreen(fullscreen int32) {
@@ -167,7 +152,6 @@ func (obj *windowImpl) SetFullscreen(fullscreen int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetFullscreen(uintptr(fullscreen))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) IsMaximized() bool {
@@ -176,7 +160,6 @@ func (obj *windowImpl) IsMaximized() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsMaximized()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -186,7 +169,6 @@ func (obj *windowImpl) IsMinimized() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsMinimized()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -196,7 +178,6 @@ func (obj *windowImpl) IsFullscreen() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsFullscreen()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -206,7 +187,6 @@ func (obj *windowImpl) GetFocusedView() View {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFocusedView()
-	runtime.KeepAlive(obj)
 	return wrapView(unsafe.Pointer(ret))
 }
 
@@ -218,7 +198,6 @@ func (obj *windowImpl) SetTitle(title string) {
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
 	rawPtr.CallSetTitle(uintptr(unsafe.Pointer(&titleStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) GetTitle() string {
@@ -227,7 +206,6 @@ func (obj *windowImpl) GetTitle() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTitle()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -237,7 +215,6 @@ func (obj *windowImpl) SetWindowIcon(image Image) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetWindowIcon(uintptr(extractRawPointer(image)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) GetWindowIcon() Image {
@@ -246,7 +223,6 @@ func (obj *windowImpl) GetWindowIcon() Image {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetWindowIcon()
-	runtime.KeepAlive(obj)
 	return wrapImage(unsafe.Pointer(ret))
 }
 
@@ -256,7 +232,6 @@ func (obj *windowImpl) SetWindowAppIcon(image Image) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetWindowAppIcon(uintptr(extractRawPointer(image)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) GetWindowAppIcon() Image {
@@ -265,7 +240,6 @@ func (obj *windowImpl) GetWindowAppIcon() Image {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetWindowAppIcon()
-	runtime.KeepAlive(obj)
 	return wrapImage(unsafe.Pointer(ret))
 }
 
@@ -275,7 +249,6 @@ func (obj *windowImpl) AddOverlayView(view View, dockingMode DockingMode, canAct
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallAddOverlayView(uintptr(extractRawPointer(view)), uintptr(dockingMode), uintptr(canActivate))
-	runtime.KeepAlive(obj)
 	return wrapOverlayController(unsafe.Pointer(ret))
 }
 
@@ -285,7 +258,6 @@ func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anchorP
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) CancelMenu() {
@@ -294,7 +266,6 @@ func (obj *windowImpl) CancelMenu() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCancelMenu()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) GetDisplay() Display {
@@ -303,7 +274,6 @@ func (obj *windowImpl) GetDisplay() Display {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDisplay()
-	runtime.KeepAlive(obj)
 	return wrapDisplay(unsafe.Pointer(ret))
 }
 
@@ -313,7 +283,6 @@ func (obj *windowImpl) GetClientAreaBoundsInScreen() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetClientAreaBoundsInScreen()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -327,7 +296,6 @@ func (obj *windowImpl) SetDraggableRegions(regions []DraggableRegion) {
 		regionsPtr = unsafe.Pointer(&regions[0])
 	}
 	rawPtr.CallSetDraggableRegions(uintptr(len(regions)), uintptr(regionsPtr))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) GetWindowHandle() uintptr {
@@ -336,7 +304,6 @@ func (obj *windowImpl) GetWindowHandle() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetWindowHandle()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -346,7 +313,6 @@ func (obj *windowImpl) SendKeyPress(keyCode int32, eventFlags uint32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSendKeyPress(uintptr(keyCode), uintptr(eventFlags))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) SendMouseMove(screenX int32, screenY int32) {
@@ -355,7 +321,6 @@ func (obj *windowImpl) SendMouseMove(screenX int32, screenY int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSendMouseMove(uintptr(screenX), uintptr(screenY))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) SendMouseEvents(button MouseButtonType, mouseDown int32, mouseUp int32) {
@@ -364,7 +329,6 @@ func (obj *windowImpl) SendMouseEvents(button MouseButtonType, mouseDown int32, 
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSendMouseEvents(uintptr(button), uintptr(mouseDown), uintptr(mouseUp))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) SetAccelerator(commandID int32, keyCode int32, shiftPressed int32, ctrlPressed int32, altPressed int32, highPriority int32) {
@@ -373,7 +337,6 @@ func (obj *windowImpl) SetAccelerator(commandID int32, keyCode int32, shiftPress
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetAccelerator(uintptr(commandID), uintptr(keyCode), uintptr(shiftPressed), uintptr(ctrlPressed), uintptr(altPressed), uintptr(highPriority))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) RemoveAccelerator(commandID int32) {
@@ -382,7 +345,6 @@ func (obj *windowImpl) RemoveAccelerator(commandID int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallRemoveAccelerator(uintptr(commandID))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) RemoveAllAccelerators() {
@@ -391,7 +353,6 @@ func (obj *windowImpl) RemoveAllAccelerators() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallRemoveAllAccelerators()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) SetThemeColor(colorID int32, color uintptr) {
@@ -400,7 +361,6 @@ func (obj *windowImpl) SetThemeColor(colorID int32, color uintptr) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetThemeColor(uintptr(colorID), color)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) ThemeChanged() {
@@ -409,7 +369,6 @@ func (obj *windowImpl) ThemeChanged() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallThemeChanged()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *windowImpl) GetRuntimeStyle() RuntimeStyle {
@@ -418,7 +377,6 @@ func (obj *windowImpl) GetRuntimeStyle() RuntimeStyle {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRuntimeStyle()
-	runtime.KeepAlive(obj)
 	return RuntimeStyle(ret)
 }
 

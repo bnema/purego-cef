@@ -61,7 +61,6 @@ func (obj *resolveCallbackImpl) OnResolveCompleted(result Errorcode, resolvedIps
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnResolveCompleted(uintptr(result), uintptr(resolvedIps))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *resolveCallbackImpl) RawPointer() unsafe.Pointer {
@@ -155,7 +154,6 @@ func (obj *settingObserverImpl) OnSettingChanged(requestingURL string, topLevelU
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
 	rawPtr.CallOnSettingChanged(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *settingObserverImpl) RawPointer() unsafe.Pointer {
@@ -212,7 +210,6 @@ func (obj *requestContextImpl) IsSame(other RequestContext) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(other)))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -222,7 +219,6 @@ func (obj *requestContextImpl) IsSharingWith(other RequestContext) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSharingWith(uintptr(extractRawPointer(other)))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -232,7 +228,6 @@ func (obj *requestContextImpl) IsGlobal() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsGlobal()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -242,7 +237,6 @@ func (obj *requestContextImpl) GetHandler() RequestContextHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetHandler()
-	runtime.KeepAlive(obj)
 	return wrapRequestContextHandler(unsafe.Pointer(ret))
 }
 
@@ -252,7 +246,6 @@ func (obj *requestContextImpl) GetCachePath() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCachePath()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -262,7 +255,6 @@ func (obj *requestContextImpl) GetCookieManager(callback CompletionCallback) Coo
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCookieManager(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
-	runtime.KeepAlive(obj)
 	return wrapCookieManager(unsafe.Pointer(ret))
 }
 
@@ -276,7 +268,6 @@ func (obj *requestContextImpl) RegisterSchemeHandlerFactory(schemeName string, d
 	domainNameStr := cefString(domainName)
 	defer freeCefString(&domainNameStr)
 	ret := rawPtr.CallRegisterSchemeHandlerFactory(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(unsafe.Pointer(&domainNameStr)), uintptr(extractOrWrapRawPointer(factory, func() any { return NewSchemeHandlerFactory(factory) })))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -286,7 +277,6 @@ func (obj *requestContextImpl) ClearSchemeHandlerFactories() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallClearSchemeHandlerFactories()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -296,7 +286,6 @@ func (obj *requestContextImpl) ClearCertificateExceptions(callback CompletionCal
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallClearCertificateExceptions(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *requestContextImpl) ClearHttpAuthCredentials(callback CompletionCallback) {
@@ -305,7 +294,6 @@ func (obj *requestContextImpl) ClearHttpAuthCredentials(callback CompletionCallb
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallClearHttpAuthCredentials(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *requestContextImpl) CloseAllConnections(callback CompletionCallback) {
@@ -314,7 +302,6 @@ func (obj *requestContextImpl) CloseAllConnections(callback CompletionCallback) 
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCloseAllConnections(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *requestContextImpl) ResolveHost(origin string, callback ResolveCallback) {
@@ -325,7 +312,6 @@ func (obj *requestContextImpl) ResolveHost(origin string, callback ResolveCallba
 	originStr := cefString(origin)
 	defer freeCefString(&originStr)
 	rawPtr.CallResolveHost(uintptr(unsafe.Pointer(&originStr)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewResolveCallback(callback) })))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *requestContextImpl) GetMediaRouter(callback CompletionCallback) MediaRouter {
@@ -334,7 +320,6 @@ func (obj *requestContextImpl) GetMediaRouter(callback CompletionCallback) Media
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetMediaRouter(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
-	runtime.KeepAlive(obj)
 	return wrapMediaRouter(unsafe.Pointer(ret))
 }
 
@@ -348,7 +333,6 @@ func (obj *requestContextImpl) GetWebsiteSetting(requestingURL string, topLevelU
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
 	ret := rawPtr.CallGetWebsiteSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
-	runtime.KeepAlive(obj)
 	return wrapValue(unsafe.Pointer(ret))
 }
 
@@ -362,7 +346,6 @@ func (obj *requestContextImpl) SetWebsiteSetting(requestingURL string, topLevelU
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
 	rawPtr.CallSetWebsiteSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType), uintptr(extractRawPointer(value)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *requestContextImpl) GetContentSetting(requestingURL string, topLevelURL string, contentType ContentSettingTypes) ContentSettingValues {
@@ -375,7 +358,6 @@ func (obj *requestContextImpl) GetContentSetting(requestingURL string, topLevelU
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
 	ret := rawPtr.CallGetContentSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType))
-	runtime.KeepAlive(obj)
 	return ContentSettingValues(ret)
 }
 
@@ -389,7 +371,6 @@ func (obj *requestContextImpl) SetContentSetting(requestingURL string, topLevelU
 	topLevelURLStr := cefString(topLevelURL)
 	defer freeCefString(&topLevelURLStr)
 	rawPtr.CallSetContentSetting(uintptr(unsafe.Pointer(&requestingURLStr)), uintptr(unsafe.Pointer(&topLevelURLStr)), uintptr(contentType), uintptr(value))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *requestContextImpl) SetChromeColorScheme(variant ColorVariant, userColor uintptr) {
@@ -398,7 +379,6 @@ func (obj *requestContextImpl) SetChromeColorScheme(variant ColorVariant, userCo
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetChromeColorScheme(uintptr(variant), userColor)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *requestContextImpl) GetChromeColorSchemeMode() ColorVariant {
@@ -407,7 +387,6 @@ func (obj *requestContextImpl) GetChromeColorSchemeMode() ColorVariant {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetChromeColorSchemeMode()
-	runtime.KeepAlive(obj)
 	return ColorVariant(ret)
 }
 
@@ -417,7 +396,6 @@ func (obj *requestContextImpl) GetChromeColorSchemeColor() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetChromeColorSchemeColor()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -427,7 +405,6 @@ func (obj *requestContextImpl) GetChromeColorSchemeVariant() ColorVariant {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetChromeColorSchemeVariant()
-	runtime.KeepAlive(obj)
 	return ColorVariant(ret)
 }
 
@@ -437,7 +414,6 @@ func (obj *requestContextImpl) AddSettingObserver(observer SettingObserver) Regi
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallAddSettingObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewSettingObserver(observer) })))
-	runtime.KeepAlive(obj)
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
@@ -447,7 +423,6 @@ func (obj *requestContextImpl) ClearHttpCache(callback CompletionCallback) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallClearHttpCache(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *requestContextImpl) RawPointer() unsafe.Pointer {

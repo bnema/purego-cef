@@ -29,7 +29,6 @@ func (obj *x509CertPrincipalImpl) GetDisplayName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDisplayName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -39,7 +38,6 @@ func (obj *x509CertPrincipalImpl) GetCommonName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCommonName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -49,7 +47,6 @@ func (obj *x509CertPrincipalImpl) GetLocalityName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLocalityName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -59,7 +56,6 @@ func (obj *x509CertPrincipalImpl) GetStateOrProvinceName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetStateOrProvinceName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -69,7 +65,6 @@ func (obj *x509CertPrincipalImpl) GetCountryName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCountryName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -79,7 +74,6 @@ func (obj *x509CertPrincipalImpl) GetOrganizationNames(names StringList) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallGetOrganizationNames(uintptr(names))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *x509CertPrincipalImpl) GetOrganizationUnitNames(names StringList) {
@@ -88,7 +82,6 @@ func (obj *x509CertPrincipalImpl) GetOrganizationUnitNames(names StringList) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallGetOrganizationUnitNames(uintptr(names))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *x509CertPrincipalImpl) RawPointer() unsafe.Pointer {
@@ -144,7 +137,6 @@ func (obj *x509CertificateImpl) GetSubject() X509CertPrincipal {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSubject()
-	runtime.KeepAlive(obj)
 	return wrapX509CertPrincipal(unsafe.Pointer(ret))
 }
 
@@ -154,7 +146,6 @@ func (obj *x509CertificateImpl) GetIssuer() X509CertPrincipal {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetIssuer()
-	runtime.KeepAlive(obj)
 	return wrapX509CertPrincipal(unsafe.Pointer(ret))
 }
 
@@ -164,7 +155,6 @@ func (obj *x509CertificateImpl) GetSerialNumber() BinaryValue {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSerialNumber()
-	runtime.KeepAlive(obj)
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
@@ -174,7 +164,6 @@ func (obj *x509CertificateImpl) GetValidStart() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValidStart()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -184,7 +173,6 @@ func (obj *x509CertificateImpl) GetValidExpiry() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValidExpiry()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -194,7 +182,6 @@ func (obj *x509CertificateImpl) GetDerencoded() BinaryValue {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDerencoded()
-	runtime.KeepAlive(obj)
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
@@ -204,7 +191,6 @@ func (obj *x509CertificateImpl) GetPemencoded() BinaryValue {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPemencoded()
-	runtime.KeepAlive(obj)
 	return wrapBinaryValue(unsafe.Pointer(ret))
 }
 
@@ -214,7 +200,6 @@ func (obj *x509CertificateImpl) GetIssuerChainSize() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetIssuerChainSize()
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -237,7 +222,6 @@ func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain 
 		chainPtr = unsafe.Pointer(&chainRaw[0])
 	}
 	rawPtr.CallGetDerencodedIssuerChain(uintptr(unsafe.Pointer(chainCountPtr)), uintptr(chainPtr))
-	runtime.KeepAlive(obj)
 	if len(chain) > 0 {
 		n := len(chain)
 		if *chainCountPtr < n {
@@ -268,7 +252,6 @@ func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain 
 		chainPtr = unsafe.Pointer(&chainRaw[0])
 	}
 	rawPtr.CallGetPemencodedIssuerChain(uintptr(unsafe.Pointer(chainCountPtr)), uintptr(chainPtr))
-	runtime.KeepAlive(obj)
 	if len(chain) > 0 {
 		n := len(chain)
 		if *chainCountPtr < n {

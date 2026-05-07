@@ -29,7 +29,6 @@ func (obj *labelButtonImpl) AsMenuButton() MenuButton {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallAsMenuButton()
-	runtime.KeepAlive(obj)
 	return wrapMenuButton(unsafe.Pointer(ret))
 }
 
@@ -41,7 +40,6 @@ func (obj *labelButtonImpl) SetText(text string) {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
 	rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *labelButtonImpl) GetText() string {
@@ -50,7 +48,6 @@ func (obj *labelButtonImpl) GetText() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetText()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -60,7 +57,6 @@ func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetImage(uintptr(buttonState), uintptr(extractRawPointer(image)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
@@ -69,7 +65,6 @@ func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetImage(uintptr(buttonState))
-	runtime.KeepAlive(obj)
 	return wrapImage(unsafe.Pointer(ret))
 }
 
@@ -79,7 +74,6 @@ func (obj *labelButtonImpl) SetTextColor(forState ButtonState, color uintptr) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetTextColor(uintptr(forState), color)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *labelButtonImpl) SetEnabledTextColors(color uintptr) {
@@ -88,7 +82,6 @@ func (obj *labelButtonImpl) SetEnabledTextColors(color uintptr) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetEnabledTextColors(color)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *labelButtonImpl) SetFontList(fontList string) {
@@ -99,7 +92,6 @@ func (obj *labelButtonImpl) SetFontList(fontList string) {
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
 	rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *labelButtonImpl) SetHorizontalAlignment(alignment HorizontalAlignment) {
@@ -108,7 +100,6 @@ func (obj *labelButtonImpl) SetHorizontalAlignment(alignment HorizontalAlignment
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetHorizontalAlignment(uintptr(alignment))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *labelButtonImpl) SetMinimumSize(size *Size) {
@@ -117,7 +108,6 @@ func (obj *labelButtonImpl) SetMinimumSize(size *Size) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetMinimumSize(uintptr(unsafe.Pointer(size)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
@@ -126,7 +116,6 @@ func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetMaximumSize(uintptr(unsafe.Pointer(size)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *labelButtonImpl) RawPointer() unsafe.Pointer {

@@ -29,7 +29,6 @@ func (obj *scrollViewImpl) SetContentView(view View) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetContentView(uintptr(extractRawPointer(view)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *scrollViewImpl) GetContentView() View {
@@ -38,7 +37,6 @@ func (obj *scrollViewImpl) GetContentView() View {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetContentView()
-	runtime.KeepAlive(obj)
 	return wrapView(unsafe.Pointer(ret))
 }
 
@@ -48,7 +46,6 @@ func (obj *scrollViewImpl) GetVisibleContentRect() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetVisibleContentRect()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -58,7 +55,6 @@ func (obj *scrollViewImpl) HasHorizontalScrollbar() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasHorizontalScrollbar()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -68,7 +64,6 @@ func (obj *scrollViewImpl) GetHorizontalScrollbarHeight() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetHorizontalScrollbarHeight()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -78,7 +73,6 @@ func (obj *scrollViewImpl) HasVerticalScrollbar() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasVerticalScrollbar()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -88,7 +82,6 @@ func (obj *scrollViewImpl) GetVerticalScrollbarWidth() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetVerticalScrollbarWidth()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

@@ -29,7 +29,6 @@ func (obj *mediaRouterImpl) AddObserver(observer MediaObserver) Registration {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallAddObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) })))
-	runtime.KeepAlive(obj)
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
@@ -41,7 +40,6 @@ func (obj *mediaRouterImpl) GetSource(urn string) MediaSource {
 	urnStr := cefString(urn)
 	defer freeCefString(&urnStr)
 	ret := rawPtr.CallGetSource(uintptr(unsafe.Pointer(&urnStr)))
-	runtime.KeepAlive(obj)
 	return wrapMediaSource(unsafe.Pointer(ret))
 }
 
@@ -51,7 +49,6 @@ func (obj *mediaRouterImpl) NotifyCurrentSinks() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallNotifyCurrentSinks()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaRouterImpl) CreateRoute(source MediaSource, sink MediaSink, callback MediaRouteCreateCallback) {
@@ -60,7 +57,6 @@ func (obj *mediaRouterImpl) CreateRoute(source MediaSource, sink MediaSink, call
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCreateRoute(uintptr(extractRawPointer(source)), uintptr(extractRawPointer(sink)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaRouteCreateCallback(callback) })))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
@@ -69,7 +65,6 @@ func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallNotifyCurrentRoutes()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaRouterImpl) RawPointer() unsafe.Pointer {
@@ -197,7 +192,6 @@ func (obj *mediaObserverImpl) OnSinks(sinks []MediaSink) {
 		sinksPtr = unsafe.Pointer(&sinksRaw[0])
 	}
 	rawPtr.CallOnSinks(uintptr(len(sinks)), uintptr(sinksPtr))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaObserverImpl) OnRoutes(routes []MediaRoute) {
@@ -215,7 +209,6 @@ func (obj *mediaObserverImpl) OnRoutes(routes []MediaRoute) {
 		routesPtr = unsafe.Pointer(&routesRaw[0])
 	}
 	rawPtr.CallOnRoutes(uintptr(len(routes)), uintptr(routesPtr))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaObserverImpl) OnRouteStateChanged(route MediaRoute, state MediaRouteConnectionState) {
@@ -224,7 +217,6 @@ func (obj *mediaObserverImpl) OnRouteStateChanged(route MediaRoute, state MediaR
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnRouteStateChanged(uintptr(extractRawPointer(route)), uintptr(state))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaObserverImpl) OnRouteMessageReceived(route MediaRoute, message unsafe.Pointer, messageSize int) {
@@ -233,7 +225,6 @@ func (obj *mediaObserverImpl) OnRouteMessageReceived(route MediaRoute, message u
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnRouteMessageReceived(uintptr(extractRawPointer(route)), uintptr(message), uintptr(messageSize))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaObserverImpl) RawPointer() unsafe.Pointer {
@@ -290,7 +281,6 @@ func (obj *mediaRouteImpl) GetID() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetID()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -300,7 +290,6 @@ func (obj *mediaRouteImpl) GetSource() MediaSource {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSource()
-	runtime.KeepAlive(obj)
 	return wrapMediaSource(unsafe.Pointer(ret))
 }
 
@@ -310,7 +299,6 @@ func (obj *mediaRouteImpl) GetSink() MediaSink {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSink()
-	runtime.KeepAlive(obj)
 	return wrapMediaSink(unsafe.Pointer(ret))
 }
 
@@ -320,7 +308,6 @@ func (obj *mediaRouteImpl) SendRouteMessage(message unsafe.Pointer, messageSize 
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSendRouteMessage(uintptr(message), uintptr(messageSize))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaRouteImpl) Terminate() {
@@ -329,7 +316,6 @@ func (obj *mediaRouteImpl) Terminate() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallTerminate()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaRouteImpl) RawPointer() unsafe.Pointer {
@@ -420,7 +406,6 @@ func (obj *mediaRouteCreateCallbackImpl) OnMediaRouteCreateFinished(result Media
 	errorStr := cefString(error)
 	defer freeCefString(&errorStr)
 	rawPtr.CallOnMediaRouteCreateFinished(uintptr(result), uintptr(unsafe.Pointer(&errorStr)), uintptr(extractRawPointer(route)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaRouteCreateCallbackImpl) RawPointer() unsafe.Pointer {
@@ -477,7 +462,6 @@ func (obj *mediaSinkImpl) GetID() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetID()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -487,7 +471,6 @@ func (obj *mediaSinkImpl) GetName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -497,7 +480,6 @@ func (obj *mediaSinkImpl) GetIconType() MediaSinkIconType {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetIconType()
-	runtime.KeepAlive(obj)
 	return MediaSinkIconType(ret)
 }
 
@@ -507,7 +489,6 @@ func (obj *mediaSinkImpl) GetDeviceInfo(callback MediaSinkDeviceInfoCallback) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallGetDeviceInfo(uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaSinkDeviceInfoCallback(callback) })))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaSinkImpl) IsCastSink() bool {
@@ -516,7 +497,6 @@ func (obj *mediaSinkImpl) IsCastSink() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsCastSink()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -526,7 +506,6 @@ func (obj *mediaSinkImpl) IsDialSink() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsDialSink()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -536,7 +515,6 @@ func (obj *mediaSinkImpl) IsCompatibleWith(source MediaSource) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsCompatibleWith(uintptr(extractRawPointer(source)))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -624,7 +602,6 @@ func (obj *mediaSinkDeviceInfoCallbackImpl) OnMediaSinkDeviceInfo(deviceInfo *Me
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnMediaSinkDeviceInfo(uintptr(unsafe.Pointer(deviceInfo)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaSinkDeviceInfoCallbackImpl) RawPointer() unsafe.Pointer {
@@ -681,7 +658,6 @@ func (obj *mediaSourceImpl) GetID() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetID()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -691,7 +667,6 @@ func (obj *mediaSourceImpl) IsCastSource() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsCastSource()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -701,7 +676,6 @@ func (obj *mediaSourceImpl) IsDialSource() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsDialSource()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 

@@ -69,7 +69,6 @@ func (obj *responseFilterImpl) InitFilter() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallInitFilter()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -79,7 +78,6 @@ func (obj *responseFilterImpl) Filter(dataIn unsafe.Pointer, dataInSize int, dat
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallFilter(uintptr(dataIn), uintptr(dataInSize), uintptr(unsafe.Pointer(dataInRead)), uintptr(dataOut), uintptr(dataOutSize), uintptr(unsafe.Pointer(dataOutWritten)))
-	runtime.KeepAlive(obj)
 	return ResponseFilterStatus(ret)
 }
 

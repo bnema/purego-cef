@@ -33,7 +33,6 @@ func (obj *zipReaderImpl) MoveToFirstFile() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMoveToFirstFile()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -43,7 +42,6 @@ func (obj *zipReaderImpl) MoveToNextFile() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMoveToNextFile()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -55,7 +53,6 @@ func (obj *zipReaderImpl) MoveToFile(filename string, casesensitive int32) int32
 	filenameStr := cefString(filename)
 	defer freeCefString(&filenameStr)
 	ret := rawPtr.CallMoveToFile(uintptr(unsafe.Pointer(&filenameStr)), uintptr(casesensitive))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -65,7 +62,6 @@ func (obj *zipReaderImpl) Close() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallClose()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -75,7 +71,6 @@ func (obj *zipReaderImpl) GetFileName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFileName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -88,7 +83,6 @@ func (obj *zipReaderImpl) GetFileSize() int64 {
 		registerTypedCallback(&obj.getFileSizeFunc, rawPtr.GetFileSize)
 	})
 	ret := obj.getFileSizeFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -98,7 +92,6 @@ func (obj *zipReaderImpl) GetFileLastModified() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFileLastModified()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -110,7 +103,6 @@ func (obj *zipReaderImpl) OpenFile(password string) int32 {
 	passwordStr := cefString(password)
 	defer freeCefString(&passwordStr)
 	ret := rawPtr.CallOpenFile(uintptr(unsafe.Pointer(&passwordStr)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -120,7 +112,6 @@ func (obj *zipReaderImpl) CloseFile() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallCloseFile()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -130,7 +121,6 @@ func (obj *zipReaderImpl) ReadFile(buffer unsafe.Pointer, buffersize int) int32 
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallReadFile(uintptr(buffer), uintptr(buffersize))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -143,7 +133,6 @@ func (obj *zipReaderImpl) Tell() int64 {
 		registerTypedCallback(&obj.tellFunc, rawPtr.Tell)
 	})
 	ret := obj.tellFunc(rawPtr)
-	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -153,7 +142,6 @@ func (obj *zipReaderImpl) Eof() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallEof()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

@@ -29,7 +29,6 @@ func (obj *testServerImpl) Stop() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallStop()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *testServerImpl) GetOrigin() string {
@@ -38,7 +37,6 @@ func (obj *testServerImpl) GetOrigin() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOrigin()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -128,7 +126,6 @@ func (obj *testServerHandlerImpl) OnTestServerRequest(server TestServer, request
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallOnTestServerRequest(uintptr(extractRawPointer(server)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(connection)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -188,7 +185,6 @@ func (obj *testServerConnectionImpl) SendHttp200Response(contentType string, dat
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
 	rawPtr.CallSendHttp200Response(uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *testServerConnectionImpl) SendHttp404Response() {
@@ -197,7 +193,6 @@ func (obj *testServerConnectionImpl) SendHttp404Response() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSendHttp404Response()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *testServerConnectionImpl) SendHttp500Response(errorMessage string) {
@@ -208,7 +203,6 @@ func (obj *testServerConnectionImpl) SendHttp500Response(errorMessage string) {
 	errorMessageStr := cefString(errorMessage)
 	defer freeCefString(&errorMessageStr)
 	rawPtr.CallSendHttp500Response(uintptr(unsafe.Pointer(&errorMessageStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, contentType string, data unsafe.Pointer, dataSize int, extraHeaders StringMultimap) {
@@ -219,7 +213,6 @@ func (obj *testServerConnectionImpl) SendHttpResponse(responseCode int32, conten
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
 	rawPtr.CallSendHttpResponse(uintptr(responseCode), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize), uintptr(extraHeaders))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *testServerConnectionImpl) RawPointer() unsafe.Pointer {

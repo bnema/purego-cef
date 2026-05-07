@@ -29,7 +29,6 @@ func (obj *xmlReaderImpl) MoveToNextNode() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMoveToNextNode()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -39,7 +38,6 @@ func (obj *xmlReaderImpl) Close() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallClose()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -49,7 +47,6 @@ func (obj *xmlReaderImpl) HasError() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasError()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -59,7 +56,6 @@ func (obj *xmlReaderImpl) GetError() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetError()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -69,7 +65,6 @@ func (obj *xmlReaderImpl) GetType() XmlNodeType {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetType()
-	runtime.KeepAlive(obj)
 	return XmlNodeType(ret)
 }
 
@@ -79,7 +74,6 @@ func (obj *xmlReaderImpl) GetDepth() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDepth()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -89,7 +83,6 @@ func (obj *xmlReaderImpl) GetLocalName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLocalName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -99,7 +92,6 @@ func (obj *xmlReaderImpl) GetPrefix() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPrefix()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -109,7 +101,6 @@ func (obj *xmlReaderImpl) GetQualifiedName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetQualifiedName()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -119,7 +110,6 @@ func (obj *xmlReaderImpl) GetNamespaceUri() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetNamespaceUri()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -129,7 +119,6 @@ func (obj *xmlReaderImpl) GetBaseUri() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBaseUri()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -139,7 +128,6 @@ func (obj *xmlReaderImpl) GetXmlLang() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetXmlLang()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -149,7 +137,6 @@ func (obj *xmlReaderImpl) IsEmptyElement() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsEmptyElement()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -159,7 +146,6 @@ func (obj *xmlReaderImpl) HasValue() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasValue()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -169,7 +155,6 @@ func (obj *xmlReaderImpl) GetValue() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetValue()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -179,7 +164,6 @@ func (obj *xmlReaderImpl) HasAttributes() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasAttributes()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -189,7 +173,6 @@ func (obj *xmlReaderImpl) GetAttributeCount() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetAttributeCount()
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -199,7 +182,6 @@ func (obj *xmlReaderImpl) GetAttributeByindex(index int32) string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetAttributeByindex(uintptr(index))
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -211,7 +193,6 @@ func (obj *xmlReaderImpl) GetAttributeByqname(qualifiedname string) string {
 	qualifiednameStr := cefString(qualifiedname)
 	defer freeCefString(&qualifiednameStr)
 	ret := rawPtr.CallGetAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr)))
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -225,7 +206,6 @@ func (obj *xmlReaderImpl) GetAttributeBylname(localname string, namespaceuri str
 	namespaceuriStr := cefString(namespaceuri)
 	defer freeCefString(&namespaceuriStr)
 	ret := rawPtr.CallGetAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr)))
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -235,7 +215,6 @@ func (obj *xmlReaderImpl) GetInnerXml() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetInnerXml()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -245,7 +224,6 @@ func (obj *xmlReaderImpl) GetOuterXml() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetOuterXml()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -255,7 +233,6 @@ func (obj *xmlReaderImpl) GetLineNumber() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLineNumber()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -265,7 +242,6 @@ func (obj *xmlReaderImpl) MoveToAttributeByindex(index int32) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMoveToAttributeByindex(uintptr(index))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -277,7 +253,6 @@ func (obj *xmlReaderImpl) MoveToAttributeByqname(qualifiedname string) int32 {
 	qualifiednameStr := cefString(qualifiedname)
 	defer freeCefString(&qualifiednameStr)
 	ret := rawPtr.CallMoveToAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -291,7 +266,6 @@ func (obj *xmlReaderImpl) MoveToAttributeBylname(localname string, namespaceuri 
 	namespaceuriStr := cefString(namespaceuri)
 	defer freeCefString(&namespaceuriStr)
 	ret := rawPtr.CallMoveToAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr)))
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -301,7 +275,6 @@ func (obj *xmlReaderImpl) MoveToFirstAttribute() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMoveToFirstAttribute()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -311,7 +284,6 @@ func (obj *xmlReaderImpl) MoveToNextAttribute() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMoveToNextAttribute()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -321,7 +293,6 @@ func (obj *xmlReaderImpl) MoveToCarryingElement() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMoveToCarryingElement()
-	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

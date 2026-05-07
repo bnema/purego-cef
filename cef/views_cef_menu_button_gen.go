@@ -29,7 +29,6 @@ func (obj *menuButtonImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anc
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *menuButtonImpl) TriggerMenu() {
@@ -38,7 +37,6 @@ func (obj *menuButtonImpl) TriggerMenu() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallTriggerMenu()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *menuButtonImpl) RawPointer() unsafe.Pointer {

@@ -87,7 +87,6 @@ func (obj *frameHandlerImpl) OnFrameCreated(browser Browser, frame Frame) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnFrameCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *frameHandlerImpl) OnFrameDestroyed(browser Browser, frame Frame) {
@@ -96,7 +95,6 @@ func (obj *frameHandlerImpl) OnFrameDestroyed(browser Browser, frame Frame) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnFrameDestroyed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *frameHandlerImpl) OnFrameAttached(browser Browser, frame Frame, reattached int32) {
@@ -105,7 +103,6 @@ func (obj *frameHandlerImpl) OnFrameAttached(browser Browser, frame Frame, reatt
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnFrameAttached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(reattached))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *frameHandlerImpl) OnFrameDetached(browser Browser, frame Frame) {
@@ -114,7 +111,6 @@ func (obj *frameHandlerImpl) OnFrameDetached(browser Browser, frame Frame) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnFrameDetached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *frameHandlerImpl) OnMainFrameChanged(browser Browser, oldFrame Frame, newFrame Frame) {
@@ -123,7 +119,6 @@ func (obj *frameHandlerImpl) OnMainFrameChanged(browser Browser, oldFrame Frame,
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnMainFrameChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(oldFrame)), uintptr(extractRawPointer(newFrame)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *frameHandlerImpl) RawPointer() unsafe.Pointer {

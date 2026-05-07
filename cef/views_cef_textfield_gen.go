@@ -29,7 +29,6 @@ func (obj *textfieldImpl) SetPasswordInput(passwordInput int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetPasswordInput(uintptr(passwordInput))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) IsPasswordInput() bool {
@@ -38,7 +37,6 @@ func (obj *textfieldImpl) IsPasswordInput() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsPasswordInput()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -48,7 +46,6 @@ func (obj *textfieldImpl) SetReadOnly(readOnly int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetReadOnly(uintptr(readOnly))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) IsReadOnly() bool {
@@ -57,7 +54,6 @@ func (obj *textfieldImpl) IsReadOnly() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsReadOnly()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -67,7 +63,6 @@ func (obj *textfieldImpl) GetText() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetText()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -79,7 +74,6 @@ func (obj *textfieldImpl) SetText(text string) {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
 	rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) AppendText(text string) {
@@ -90,7 +84,6 @@ func (obj *textfieldImpl) AppendText(text string) {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
 	rawPtr.CallAppendText(uintptr(unsafe.Pointer(&textStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) InsertOrReplaceText(text string) {
@@ -101,7 +94,6 @@ func (obj *textfieldImpl) InsertOrReplaceText(text string) {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
 	rawPtr.CallInsertOrReplaceText(uintptr(unsafe.Pointer(&textStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) HasSelection() bool {
@@ -110,7 +102,6 @@ func (obj *textfieldImpl) HasSelection() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasSelection()
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -120,7 +111,6 @@ func (obj *textfieldImpl) GetSelectedText() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSelectedText()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -130,7 +120,6 @@ func (obj *textfieldImpl) SelectAll(reversed int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSelectAll(uintptr(reversed))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) ClearSelection() {
@@ -139,7 +128,6 @@ func (obj *textfieldImpl) ClearSelection() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallClearSelection()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) GetSelectedRange() uintptr {
@@ -148,7 +136,6 @@ func (obj *textfieldImpl) GetSelectedRange() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSelectedRange()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -158,7 +145,6 @@ func (obj *textfieldImpl) SelectRange(range_ *Range) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSelectRange(uintptr(unsafe.Pointer(range_)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) GetCursorPosition() int {
@@ -167,7 +153,6 @@ func (obj *textfieldImpl) GetCursorPosition() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCursorPosition()
-	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -177,7 +162,6 @@ func (obj *textfieldImpl) SetTextColor(color uintptr) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetTextColor(color)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) GetTextColor() uintptr {
@@ -186,7 +170,6 @@ func (obj *textfieldImpl) GetTextColor() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTextColor()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -196,7 +179,6 @@ func (obj *textfieldImpl) SetSelectionTextColor(color uintptr) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetSelectionTextColor(color)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
@@ -205,7 +187,6 @@ func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSelectionTextColor()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -215,7 +196,6 @@ func (obj *textfieldImpl) SetSelectionBackgroundColor(color uintptr) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetSelectionBackgroundColor(color)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) GetSelectionBackgroundColor() uintptr {
@@ -224,7 +204,6 @@ func (obj *textfieldImpl) GetSelectionBackgroundColor() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSelectionBackgroundColor()
-	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -236,7 +215,6 @@ func (obj *textfieldImpl) SetFontList(fontList string) {
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
 	rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) ApplyTextColor(color uintptr, range_ *Range) {
@@ -245,7 +223,6 @@ func (obj *textfieldImpl) ApplyTextColor(color uintptr, range_ *Range) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallApplyTextColor(color, uintptr(unsafe.Pointer(range_)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) ApplyTextStyle(style TextStyle, add int32, range_ *Range) {
@@ -254,7 +231,6 @@ func (obj *textfieldImpl) ApplyTextStyle(style TextStyle, add int32, range_ *Ran
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallApplyTextStyle(uintptr(style), uintptr(add), uintptr(unsafe.Pointer(range_)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) IsCommandEnabled(commandID TextFieldCommands) bool {
@@ -263,7 +239,6 @@ func (obj *textfieldImpl) IsCommandEnabled(commandID TextFieldCommands) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsCommandEnabled(uintptr(commandID))
-	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -273,7 +248,6 @@ func (obj *textfieldImpl) ExecuteCommand(commandID TextFieldCommands) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallExecuteCommand(uintptr(commandID))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) ClearEditHistory() {
@@ -282,7 +256,6 @@ func (obj *textfieldImpl) ClearEditHistory() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallClearEditHistory()
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) SetPlaceholderText(text string) {
@@ -293,7 +266,6 @@ func (obj *textfieldImpl) SetPlaceholderText(text string) {
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
 	rawPtr.CallSetPlaceholderText(uintptr(unsafe.Pointer(&textStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) GetPlaceholderText() string {
@@ -302,7 +274,6 @@ func (obj *textfieldImpl) GetPlaceholderText() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPlaceholderText()
-	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -312,7 +283,6 @@ func (obj *textfieldImpl) SetPlaceholderTextColor(color uintptr) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetPlaceholderTextColor(color)
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) SetAccessibleName(name string) {
@@ -323,7 +293,6 @@ func (obj *textfieldImpl) SetAccessibleName(name string) {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
-	runtime.KeepAlive(obj)
 }
 
 func (obj *textfieldImpl) RawPointer() unsafe.Pointer {

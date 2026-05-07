@@ -29,7 +29,6 @@ func (obj *sslinfoImpl) GetCertStatus() CertStatus {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCertStatus()
-	runtime.KeepAlive(obj)
 	return CertStatus(ret)
 }
 
@@ -39,7 +38,6 @@ func (obj *sslinfoImpl) GetX509Certificate() X509Certificate {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetX509Certificate()
-	runtime.KeepAlive(obj)
 	return wrapX509Certificate(unsafe.Pointer(ret))
 }
 
