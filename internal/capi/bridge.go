@@ -13,7 +13,9 @@ import (
 type Bridge struct {
 	handle uintptr
 
-	// String functions bound from CEF shared library.
+	// Handwritten string and string-list functions bound from the CEF shared
+	// library. These helpers come from CEF's low-level string headers, not the
+	// capi/type header sets parsed by cefgen.
 	stringSet        func(*uint16, uintptr, unsafe.Pointer, int32) int32
 	stringClear      func(unsafe.Pointer)
 	stringFreeFn     func(unsafe.Pointer)
@@ -44,7 +46,8 @@ func NewBridge(handle uintptr) *Bridge {
 }
 
 // bindStringFuncs uses purego.RegisterLibFunc (which panics on missing symbols)
-// intentionally — these string functions are mandatory in every CEF build.
+// intentionally — these low-level string and string-list functions are
+// mandatory in every CEF build.
 func (b *Bridge) bindStringFuncs(handle uintptr) {
 	purego.RegisterLibFunc(&b.stringSet, handle, "cef_string_utf16_set")
 	purego.RegisterLibFunc(&b.stringClear, handle, "cef_string_utf16_clear")

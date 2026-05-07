@@ -2,6 +2,11 @@ package cef
 
 import "runtime"
 
+// These helpers wrap CEF's opaque cef_string_list_t utility API from
+// include/internal/cef_string_list.h. That header intentionally sits outside
+// cefgen's parsed header set, so string-list support lives in the handwritten
+// foundational layer alongside the raw string helpers.
+
 // NewStringList allocates a caller-owned CEF string list populated with the
 // provided values. The returned list must be released with FreeStringList.
 func NewStringList(values ...string) StringList {
