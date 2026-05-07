@@ -29,6 +29,7 @@ func (obj *sslstatusImpl) IsSecureConnection() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSecureConnection()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -38,6 +39,7 @@ func (obj *sslstatusImpl) GetCertStatus() CertStatus {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCertStatus()
+	runtime.KeepAlive(obj)
 	return CertStatus(ret)
 }
 
@@ -47,6 +49,7 @@ func (obj *sslstatusImpl) GetSslversion() SslVersion {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSslversion()
+	runtime.KeepAlive(obj)
 	return SslVersion(ret)
 }
 
@@ -56,6 +59,7 @@ func (obj *sslstatusImpl) GetContentStatus() SslContentStatus {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetContentStatus()
+	runtime.KeepAlive(obj)
 	return SslContentStatus(ret)
 }
 
@@ -65,6 +69,7 @@ func (obj *sslstatusImpl) GetX509Certificate() X509Certificate {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetX509Certificate()
+	runtime.KeepAlive(obj)
 	return wrapX509Certificate(unsafe.Pointer(ret))
 }
 

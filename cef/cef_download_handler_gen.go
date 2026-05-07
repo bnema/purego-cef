@@ -31,6 +31,7 @@ func (obj *beforeDownloadCallbackImpl) Cont(downloadPath string, showDialog int3
 	downloadPathStr := cefString(downloadPath)
 	defer freeCefString(&downloadPathStr)
 	rawPtr.CallCont(uintptr(unsafe.Pointer(&downloadPathStr)), uintptr(showDialog))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *beforeDownloadCallbackImpl) RawPointer() unsafe.Pointer {
@@ -86,6 +87,7 @@ func (obj *downloadItemCallbackImpl) Cancel() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCancel()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *downloadItemCallbackImpl) Pause() {
@@ -94,6 +96,7 @@ func (obj *downloadItemCallbackImpl) Pause() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallPause()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *downloadItemCallbackImpl) Resume() {
@@ -102,6 +105,7 @@ func (obj *downloadItemCallbackImpl) Resume() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallResume()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *downloadItemCallbackImpl) RawPointer() unsafe.Pointer {
@@ -215,6 +219,7 @@ func (obj *downloadHandlerImpl) CanDownload(browser Browser, uRL string, request
 	requestMethodStr := cefString(requestMethod)
 	defer freeCefString(&requestMethodStr)
 	ret := rawPtr.CallCanDownload(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&requestMethodStr)))
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -226,6 +231,7 @@ func (obj *downloadHandlerImpl) OnBeforeDownload(browser Browser, downloadItem D
 	suggestedNameStr := cefString(suggestedName)
 	defer freeCefString(&suggestedNameStr)
 	ret := rawPtr.CallOnBeforeDownload(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(unsafe.Pointer(&suggestedNameStr)), uintptr(extractRawPointer(callback)))
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -235,6 +241,7 @@ func (obj *downloadHandlerImpl) OnDownloadUpdated(browser Browser, downloadItem 
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnDownloadUpdated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(extractRawPointer(callback)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *downloadHandlerImpl) RawPointer() unsafe.Pointer {

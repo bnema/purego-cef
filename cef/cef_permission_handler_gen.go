@@ -29,6 +29,7 @@ func (obj *mediaAccessCallbackImpl) Cont(allowedPermissions uint32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCont(uintptr(allowedPermissions))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaAccessCallbackImpl) Cancel() {
@@ -37,6 +38,7 @@ func (obj *mediaAccessCallbackImpl) Cancel() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCancel()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *mediaAccessCallbackImpl) RawPointer() unsafe.Pointer {
@@ -92,6 +94,7 @@ func (obj *permissionPromptCallbackImpl) Cont(result PermissionRequestResult) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCont(uintptr(result))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *permissionPromptCallbackImpl) RawPointer() unsafe.Pointer {
@@ -204,6 +207,7 @@ func (obj *permissionHandlerImpl) OnRequestMediaAccessPermission(browser Browser
 	requestingOriginStr := cefString(requestingOrigin)
 	defer freeCefString(&requestingOriginStr)
 	ret := rawPtr.CallOnRequestMediaAccessPermission(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -218,6 +222,7 @@ func (obj *permissionHandlerImpl) OnShowPermissionPrompt(browser Browser, prompt
 		registerTypedCallback(&obj.onShowPermissionPromptFunc, rawPtr.OnShowPermissionPrompt)
 	})
 	ret := obj.onShowPermissionPromptFunc(rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -230,6 +235,7 @@ func (obj *permissionHandlerImpl) OnDismissPermissionPrompt(browser Browser, pro
 		registerTypedCallback(&obj.onDismissPermissionPromptFunc, rawPtr.OnDismissPermissionPrompt)
 	})
 	obj.onDismissPermissionPromptFunc(rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(result))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *permissionHandlerImpl) RawPointer() unsafe.Pointer {

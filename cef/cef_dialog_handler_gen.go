@@ -29,6 +29,7 @@ func (obj *fileDialogCallbackImpl) Cont(filePaths StringList) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCont(uintptr(filePaths))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *fileDialogCallbackImpl) Cancel() {
@@ -37,6 +38,7 @@ func (obj *fileDialogCallbackImpl) Cancel() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCancel()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *fileDialogCallbackImpl) RawPointer() unsafe.Pointer {
@@ -134,6 +136,7 @@ func (obj *dialogHandlerImpl) OnFileDialog(browser Browser, mode FileDialogMode,
 	defaultFilePathStr := cefString(defaultFilePath)
 	defer freeCefString(&defaultFilePathStr)
 	ret := rawPtr.CallOnFileDialog(uintptr(extractRawPointer(browser)), uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), uintptr(acceptFilters), uintptr(acceptExtensions), uintptr(acceptDescriptions), uintptr(extractRawPointer(callback)))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

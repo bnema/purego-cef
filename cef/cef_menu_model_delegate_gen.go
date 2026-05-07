@@ -96,6 +96,7 @@ func (obj *menuModelDelegateImpl) ExecuteCommand(menuModel MenuModel, commandID 
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallExecuteCommand(uintptr(extractRawPointer(menuModel)), uintptr(commandID), uintptr(eventFlags))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *menuModelDelegateImpl) MouseOutsideMenu(menuModel MenuModel, screenPoint *Point) {
@@ -104,6 +105,7 @@ func (obj *menuModelDelegateImpl) MouseOutsideMenu(menuModel MenuModel, screenPo
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallMouseOutsideMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *menuModelDelegateImpl) UnhandledOpenSubmenu(menuModel MenuModel, isRtl int32) {
@@ -112,6 +114,7 @@ func (obj *menuModelDelegateImpl) UnhandledOpenSubmenu(menuModel MenuModel, isRt
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallUnhandledOpenSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *menuModelDelegateImpl) UnhandledCloseSubmenu(menuModel MenuModel, isRtl int32) {
@@ -120,6 +123,7 @@ func (obj *menuModelDelegateImpl) UnhandledCloseSubmenu(menuModel MenuModel, isR
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallUnhandledCloseSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *menuModelDelegateImpl) MenuWillShow(menuModel MenuModel) {
@@ -128,6 +132,7 @@ func (obj *menuModelDelegateImpl) MenuWillShow(menuModel MenuModel) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallMenuWillShow(uintptr(extractRawPointer(menuModel)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *menuModelDelegateImpl) MenuClosed(menuModel MenuModel) {
@@ -136,6 +141,7 @@ func (obj *menuModelDelegateImpl) MenuClosed(menuModel MenuModel) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallMenuClosed(uintptr(extractRawPointer(menuModel)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *menuModelDelegateImpl) FormatLabel(menuModel MenuModel, label uintptr) int32 {
@@ -144,6 +150,7 @@ func (obj *menuModelDelegateImpl) FormatLabel(menuModel MenuModel, label uintptr
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallFormatLabel(uintptr(extractRawPointer(menuModel)), label)
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

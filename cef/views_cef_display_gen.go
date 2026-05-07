@@ -36,6 +36,7 @@ func (obj *displayImpl) GetID() int64 {
 		registerTypedCallback(&obj.getIDFunc, rawPtr.GetID)
 	})
 	ret := obj.getIDFunc(rawPtr)
+	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 
@@ -48,6 +49,7 @@ func (obj *displayImpl) GetDeviceScaleFactor() float32 {
 		registerTypedCallback(&obj.getDeviceScaleFactorFunc, rawPtr.GetDeviceScaleFactor)
 	})
 	ret := obj.getDeviceScaleFactorFunc(rawPtr)
+	runtime.KeepAlive(obj)
 	return ret
 }
 
@@ -57,6 +59,7 @@ func (obj *displayImpl) ConvertPointToPixels(point *Point) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallConvertPointToPixels(uintptr(unsafe.Pointer(point)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *displayImpl) ConvertPointFromPixels(point *Point) {
@@ -65,6 +68,7 @@ func (obj *displayImpl) ConvertPointFromPixels(point *Point) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallConvertPointFromPixels(uintptr(unsafe.Pointer(point)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *displayImpl) GetBounds() uintptr {
@@ -73,6 +77,7 @@ func (obj *displayImpl) GetBounds() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBounds()
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -82,6 +87,7 @@ func (obj *displayImpl) GetWorkArea() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetWorkArea()
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -91,6 +97,7 @@ func (obj *displayImpl) GetRotation() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRotation()
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

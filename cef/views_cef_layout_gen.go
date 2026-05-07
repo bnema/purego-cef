@@ -29,6 +29,7 @@ func (obj *layoutImpl) AsBoxLayout() BoxLayout {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallAsBoxLayout()
+	runtime.KeepAlive(obj)
 	return wrapBoxLayout(unsafe.Pointer(ret))
 }
 
@@ -38,6 +39,7 @@ func (obj *layoutImpl) AsFillLayout() FillLayout {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallAsFillLayout()
+	runtime.KeepAlive(obj)
 	return wrapFillLayout(unsafe.Pointer(ret))
 }
 
@@ -47,6 +49,7 @@ func (obj *layoutImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 

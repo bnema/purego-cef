@@ -33,6 +33,7 @@ func (obj *authCallbackImpl) Cont(username string, password string) {
 	passwordStr := cefString(password)
 	defer freeCefString(&passwordStr)
 	rawPtr.CallCont(uintptr(unsafe.Pointer(&usernameStr)), uintptr(unsafe.Pointer(&passwordStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *authCallbackImpl) Cancel() {
@@ -41,6 +42,7 @@ func (obj *authCallbackImpl) Cancel() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCancel()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *authCallbackImpl) RawPointer() unsafe.Pointer {

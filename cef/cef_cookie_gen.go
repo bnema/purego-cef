@@ -29,6 +29,7 @@ func (obj *cookieManagerImpl) VisitAllCookies(visitor CookieVisitor) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallVisitAllCookies(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -40,6 +41,7 @@ func (obj *cookieManagerImpl) VisitURLCookies(uRL string, includehttponly int32,
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	ret := rawPtr.CallVisitURLCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(includehttponly), uintptr(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -51,6 +53,7 @@ func (obj *cookieManagerImpl) SetCookie(uRL string, cookie *Cookie, callback Set
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	ret := rawPtr.CallSetCookie(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(cookie)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewSetCookieCallback(callback) })))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -64,6 +67,7 @@ func (obj *cookieManagerImpl) DeleteCookies(uRL string, cookieName string, callb
 	cookieNameStr := cefString(cookieName)
 	defer freeCefString(&cookieNameStr)
 	ret := rawPtr.CallDeleteCookies(uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&cookieNameStr)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewDeleteCookiesCallback(callback) })))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -73,6 +77,7 @@ func (obj *cookieManagerImpl) FlushStore(callback CompletionCallback) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallFlushStore(uintptr(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -163,6 +168,7 @@ func (obj *cookieVisitorImpl) Visit(cookie *Cookie, count int32, total int32, de
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallVisit(uintptr(unsafe.Pointer(cookie)), uintptr(count), uintptr(total), uintptr(unsafe.Pointer(deletecookie)))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -251,6 +257,7 @@ func (obj *setCookieCallbackImpl) OnComplete(success int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnComplete(uintptr(success))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *setCookieCallbackImpl) RawPointer() unsafe.Pointer {
@@ -338,6 +345,7 @@ func (obj *deleteCookiesCallbackImpl) OnComplete(numDeleted int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnComplete(uintptr(numDeleted))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *deleteCookiesCallbackImpl) RawPointer() unsafe.Pointer {

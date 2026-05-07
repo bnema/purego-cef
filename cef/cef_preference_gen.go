@@ -98,6 +98,7 @@ func (obj *preferenceObserverImpl) OnPreferenceChanged(name string) {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	rawPtr.CallOnPreferenceChanged(uintptr(unsafe.Pointer(&nameStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *preferenceObserverImpl) RawPointer() unsafe.Pointer {
@@ -156,6 +157,7 @@ func (obj *preferenceManagerImpl) HasPreference(name string) bool {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallHasPreference(uintptr(unsafe.Pointer(&nameStr)))
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -167,6 +169,7 @@ func (obj *preferenceManagerImpl) GetPreference(name string) Value {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallGetPreference(uintptr(unsafe.Pointer(&nameStr)))
+	runtime.KeepAlive(obj)
 	return wrapValue(unsafe.Pointer(ret))
 }
 
@@ -176,6 +179,7 @@ func (obj *preferenceManagerImpl) GetAllPreferences(includeDefaults int32) Dicti
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetAllPreferences(uintptr(includeDefaults))
+	runtime.KeepAlive(obj)
 	return wrapDictionaryValue(unsafe.Pointer(ret))
 }
 
@@ -187,6 +191,7 @@ func (obj *preferenceManagerImpl) CanSetPreference(name string) bool {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallCanSetPreference(uintptr(unsafe.Pointer(&nameStr)))
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -198,6 +203,7 @@ func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error 
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallSetPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(value)), error)
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -209,6 +215,7 @@ func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer Pr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractOrWrapRawPointer(observer, func() any { return NewPreferenceObserver(observer) })))
+	runtime.KeepAlive(obj)
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 

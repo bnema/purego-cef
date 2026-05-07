@@ -56,6 +56,36 @@ func (e *Engine) GoStringUserfree(ptr unsafe.Pointer) string {
 	return s
 }
 
+// NewStringList allocates a cef_string_list_t and appends the provided values.
+// It returns 0 if allocation fails.
+func (e *Engine) NewStringList(values ...string) uintptr {
+	list := e.capi.StringListAlloc()
+	if list == 0 {
+		return 0
+	}
+	for _, value := range values {
+		e.AppendStringList(list, value)
+	}
+	return list
+}
+
+// AppendStringList appends a Go string to a caller-owned cef_string_list_t.
+func (e *Engine) AppendStringList(list uintptr, value string) {
+	if list == 0 {
+		return
+	}
+	cs := e.CefString(value)
+	defer e.FreeCefString(&cs)
+	e.capi.StringListAppend(list, unsafe.Pointer(&cs))
+}
+
+// FreeStringList releases a caller-owned cef_string_list_t.
+func (e *Engine) FreeStringList(list uintptr) {
+	if list != 0 {
+		e.capi.StringListFree(list)
+	}
+}
+
 // DecodeStringList converts a cef_string_list_t handle to a Go string slice.
 func (e *Engine) DecodeStringList(list uintptr) []string {
 	if list == 0 {

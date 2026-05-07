@@ -29,6 +29,7 @@ func (obj *overlayControllerImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -38,6 +39,7 @@ func (obj *overlayControllerImpl) IsSame(that OverlayController) bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -47,6 +49,7 @@ func (obj *overlayControllerImpl) GetContentsView() View {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetContentsView()
+	runtime.KeepAlive(obj)
 	return wrapView(unsafe.Pointer(ret))
 }
 
@@ -56,6 +59,7 @@ func (obj *overlayControllerImpl) GetWindow() Window {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetWindow()
+	runtime.KeepAlive(obj)
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
@@ -65,6 +69,7 @@ func (obj *overlayControllerImpl) GetDockingMode() DockingMode {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDockingMode()
+	runtime.KeepAlive(obj)
 	return DockingMode(ret)
 }
 
@@ -74,6 +79,7 @@ func (obj *overlayControllerImpl) Destroy() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallDestroy()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *overlayControllerImpl) SetBounds(bounds *Rect) {
@@ -82,6 +88,7 @@ func (obj *overlayControllerImpl) SetBounds(bounds *Rect) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *overlayControllerImpl) GetBounds() uintptr {
@@ -90,6 +97,7 @@ func (obj *overlayControllerImpl) GetBounds() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBounds()
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -99,6 +107,7 @@ func (obj *overlayControllerImpl) GetBoundsInScreen() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBoundsInScreen()
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -108,6 +117,7 @@ func (obj *overlayControllerImpl) SetSize(size *Size) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *overlayControllerImpl) GetSize() uintptr {
@@ -116,6 +126,7 @@ func (obj *overlayControllerImpl) GetSize() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSize()
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -125,6 +136,7 @@ func (obj *overlayControllerImpl) SetPosition(position *Point) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *overlayControllerImpl) GetPosition() uintptr {
@@ -133,6 +145,7 @@ func (obj *overlayControllerImpl) GetPosition() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPosition()
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -142,6 +155,7 @@ func (obj *overlayControllerImpl) SetInsets(insets *Insets) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *overlayControllerImpl) GetInsets() uintptr {
@@ -150,6 +164,7 @@ func (obj *overlayControllerImpl) GetInsets() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetInsets()
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -159,6 +174,7 @@ func (obj *overlayControllerImpl) SizeToPreferredSize() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSizeToPreferredSize()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *overlayControllerImpl) SetVisible(visible int32) {
@@ -167,6 +183,7 @@ func (obj *overlayControllerImpl) SetVisible(visible int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetVisible(uintptr(visible))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *overlayControllerImpl) IsVisible() bool {
@@ -175,6 +192,7 @@ func (obj *overlayControllerImpl) IsVisible() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsVisible()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -184,6 +202,7 @@ func (obj *overlayControllerImpl) IsDrawn() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsDrawn()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 

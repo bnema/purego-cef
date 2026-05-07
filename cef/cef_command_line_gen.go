@@ -29,6 +29,7 @@ func (obj *commandLineImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -38,6 +39,7 @@ func (obj *commandLineImpl) IsReadOnly() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsReadOnly()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -47,6 +49,7 @@ func (obj *commandLineImpl) Copy() CommandLine {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallCopy()
+	runtime.KeepAlive(obj)
 	return wrapCommandLine(unsafe.Pointer(ret))
 }
 
@@ -56,6 +59,7 @@ func (obj *commandLineImpl) InitFromArgv(argc int32, argv unsafe.Pointer) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallInitFromArgv(uintptr(argc), uintptr(argv))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) InitFromString(commandLine string) {
@@ -66,6 +70,7 @@ func (obj *commandLineImpl) InitFromString(commandLine string) {
 	commandLineStr := cefString(commandLine)
 	defer freeCefString(&commandLineStr)
 	rawPtr.CallInitFromString(uintptr(unsafe.Pointer(&commandLineStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) Reset() {
@@ -74,6 +79,7 @@ func (obj *commandLineImpl) Reset() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallReset()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) GetArgv(argv StringList) {
@@ -82,6 +88,7 @@ func (obj *commandLineImpl) GetArgv(argv StringList) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallGetArgv(uintptr(argv))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) GetCommandLineString() string {
@@ -90,6 +97,7 @@ func (obj *commandLineImpl) GetCommandLineString() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCommandLineString()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -99,6 +107,7 @@ func (obj *commandLineImpl) GetProgram() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetProgram()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -110,6 +119,7 @@ func (obj *commandLineImpl) SetProgram(program string) {
 	programStr := cefString(program)
 	defer freeCefString(&programStr)
 	rawPtr.CallSetProgram(uintptr(unsafe.Pointer(&programStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) HasSwitches() bool {
@@ -118,6 +128,7 @@ func (obj *commandLineImpl) HasSwitches() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasSwitches()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -129,6 +140,7 @@ func (obj *commandLineImpl) HasSwitch(name string) bool {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallHasSwitch(uintptr(unsafe.Pointer(&nameStr)))
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -140,6 +152,7 @@ func (obj *commandLineImpl) GetSwitchValue(name string) string {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := rawPtr.CallGetSwitchValue(uintptr(unsafe.Pointer(&nameStr)))
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -149,6 +162,7 @@ func (obj *commandLineImpl) GetSwitches(switches StringMap) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallGetSwitches(uintptr(switches))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) AppendSwitch(name string) {
@@ -159,6 +173,7 @@ func (obj *commandLineImpl) AppendSwitch(name string) {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	rawPtr.CallAppendSwitch(uintptr(unsafe.Pointer(&nameStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) AppendSwitchWithValue(name string, value string) {
@@ -171,6 +186,7 @@ func (obj *commandLineImpl) AppendSwitchWithValue(name string, value string) {
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
 	rawPtr.CallAppendSwitchWithValue(uintptr(unsafe.Pointer(&nameStr)), uintptr(unsafe.Pointer(&valueStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) HasArguments() bool {
@@ -179,6 +195,7 @@ func (obj *commandLineImpl) HasArguments() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasArguments()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -188,6 +205,7 @@ func (obj *commandLineImpl) GetArguments(arguments StringList) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallGetArguments(uintptr(arguments))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) AppendArgument(argument string) {
@@ -198,6 +216,7 @@ func (obj *commandLineImpl) AppendArgument(argument string) {
 	argumentStr := cefString(argument)
 	defer freeCefString(&argumentStr)
 	rawPtr.CallAppendArgument(uintptr(unsafe.Pointer(&argumentStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) PrependWrapper(wrapper string) {
@@ -208,6 +227,7 @@ func (obj *commandLineImpl) PrependWrapper(wrapper string) {
 	wrapperStr := cefString(wrapper)
 	defer freeCefString(&wrapperStr)
 	rawPtr.CallPrependWrapper(uintptr(unsafe.Pointer(&wrapperStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) RemoveSwitch(name string) {
@@ -218,6 +238,7 @@ func (obj *commandLineImpl) RemoveSwitch(name string) {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	rawPtr.CallRemoveSwitch(uintptr(unsafe.Pointer(&nameStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *commandLineImpl) RawPointer() unsafe.Pointer {

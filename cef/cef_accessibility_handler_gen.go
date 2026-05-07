@@ -65,6 +65,7 @@ func (obj *accessibilityHandlerImpl) OnAccessibilityTreeChange(value Value) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnAccessibilityTreeChange(uintptr(extractRawPointer(value)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *accessibilityHandlerImpl) OnAccessibilityLocationChange(value Value) {
@@ -73,6 +74,7 @@ func (obj *accessibilityHandlerImpl) OnAccessibilityLocationChange(value Value) 
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnAccessibilityLocationChange(uintptr(extractRawPointer(value)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *accessibilityHandlerImpl) RawPointer() unsafe.Pointer {

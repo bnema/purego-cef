@@ -29,6 +29,7 @@ func (obj *runContextMenuCallbackImpl) Cont(commandID int32, eventFlags EventFla
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *runContextMenuCallbackImpl) Cancel() {
@@ -37,6 +38,7 @@ func (obj *runContextMenuCallbackImpl) Cancel() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCancel()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *runContextMenuCallbackImpl) RawPointer() unsafe.Pointer {
@@ -92,6 +94,7 @@ func (obj *runQuickMenuCallbackImpl) Cont(commandID int32, eventFlags EventFlags
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCont(uintptr(commandID), uintptr(eventFlags))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *runQuickMenuCallbackImpl) Cancel() {
@@ -100,6 +103,7 @@ func (obj *runQuickMenuCallbackImpl) Cancel() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCancel()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *runQuickMenuCallbackImpl) RawPointer() unsafe.Pointer {
@@ -237,6 +241,7 @@ func (obj *contextMenuHandlerImpl) OnBeforeContextMenu(browser Browser, frame Fr
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnBeforeContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *contextMenuHandlerImpl) RunContextMenu(browser Browser, frame Frame, params ContextMenuParams, model MenuModel, callback RunContextMenuCallback) int32 {
@@ -245,6 +250,7 @@ func (obj *contextMenuHandlerImpl) RunContextMenu(browser Browser, frame Frame, 
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallRunContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)), uintptr(extractRawPointer(callback)))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -254,6 +260,7 @@ func (obj *contextMenuHandlerImpl) OnContextMenuCommand(browser Browser, frame F
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallOnContextMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(commandID), uintptr(eventFlags))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -263,6 +270,7 @@ func (obj *contextMenuHandlerImpl) OnContextMenuDismissed(browser Browser, frame
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnContextMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *contextMenuHandlerImpl) RunQuickMenu(browser Browser, frame Frame, location *Point, size *Size, editStateFlags QuickMenuEditStateFlags, callback RunQuickMenuCallback) int32 {
@@ -271,6 +279,7 @@ func (obj *contextMenuHandlerImpl) RunQuickMenu(browser Browser, frame Frame, lo
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallRunQuickMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(location)), uintptr(unsafe.Pointer(size)), uintptr(editStateFlags), uintptr(extractRawPointer(callback)))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -280,6 +289,7 @@ func (obj *contextMenuHandlerImpl) OnQuickMenuCommand(browser Browser, frame Fra
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallOnQuickMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(commandID), uintptr(eventFlags))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -289,6 +299,7 @@ func (obj *contextMenuHandlerImpl) OnQuickMenuDismissed(browser Browser, frame F
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnQuickMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *contextMenuHandlerImpl) RawPointer() unsafe.Pointer {
@@ -345,6 +356,7 @@ func (obj *contextMenuParamsImpl) GetXcoord() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetXcoord()
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -354,6 +366,7 @@ func (obj *contextMenuParamsImpl) GetYcoord() int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetYcoord()
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -363,6 +376,7 @@ func (obj *contextMenuParamsImpl) GetTypeFlags() ContextMenuTypeFlags {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTypeFlags()
+	runtime.KeepAlive(obj)
 	return ContextMenuTypeFlags(ret)
 }
 
@@ -372,6 +386,7 @@ func (obj *contextMenuParamsImpl) GetLinkURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLinkURL()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -381,6 +396,7 @@ func (obj *contextMenuParamsImpl) GetUnfilteredLinkURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetUnfilteredLinkURL()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -390,6 +406,7 @@ func (obj *contextMenuParamsImpl) GetSourceURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSourceURL()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -399,6 +416,7 @@ func (obj *contextMenuParamsImpl) HasImageContents() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallHasImageContents()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -408,6 +426,7 @@ func (obj *contextMenuParamsImpl) GetTitleText() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTitleText()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -417,6 +436,7 @@ func (obj *contextMenuParamsImpl) GetPageURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPageURL()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -426,6 +446,7 @@ func (obj *contextMenuParamsImpl) GetFrameURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFrameURL()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -435,6 +456,7 @@ func (obj *contextMenuParamsImpl) GetFrameCharset() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFrameCharset()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -444,6 +466,7 @@ func (obj *contextMenuParamsImpl) GetMediaType() ContextMenuMediaType {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetMediaType()
+	runtime.KeepAlive(obj)
 	return ContextMenuMediaType(ret)
 }
 
@@ -453,6 +476,7 @@ func (obj *contextMenuParamsImpl) GetMediaStateFlags() ContextMenuMediaStateFlag
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetMediaStateFlags()
+	runtime.KeepAlive(obj)
 	return ContextMenuMediaStateFlags(ret)
 }
 
@@ -462,6 +486,7 @@ func (obj *contextMenuParamsImpl) GetSelectionText() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSelectionText()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -471,6 +496,7 @@ func (obj *contextMenuParamsImpl) GetMisspelledWord() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetMisspelledWord()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -480,6 +506,7 @@ func (obj *contextMenuParamsImpl) GetDictionarySuggestions(suggestions StringLis
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDictionarySuggestions(uintptr(suggestions))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -489,6 +516,7 @@ func (obj *contextMenuParamsImpl) IsEditable() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsEditable()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -498,6 +526,7 @@ func (obj *contextMenuParamsImpl) IsSpellCheckEnabled() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSpellCheckEnabled()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -507,6 +536,7 @@ func (obj *contextMenuParamsImpl) GetEditStateFlags() ContextMenuEditStateFlags 
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetEditStateFlags()
+	runtime.KeepAlive(obj)
 	return ContextMenuEditStateFlags(ret)
 }
 
@@ -516,6 +546,7 @@ func (obj *contextMenuParamsImpl) IsCustomMenu() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsCustomMenu()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 

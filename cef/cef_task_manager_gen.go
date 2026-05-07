@@ -35,6 +35,7 @@ func (obj *taskManagerImpl) GetTasksCount() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTasksCount()
+	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -55,6 +56,7 @@ func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds []int64) i
 		taskIdsPtr = unsafe.Pointer(&taskIds[0])
 	}
 	ret := rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(taskIdsCountPtr)), uintptr(taskIdsPtr))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -67,6 +69,7 @@ func (obj *taskManagerImpl) GetTaskInfo(taskID int64, info *TaskInfo) int32 {
 		registerTypedCallback(&obj.getTaskInfoFunc, rawPtr.GetTaskInfo)
 	})
 	ret := obj.getTaskInfoFunc(rawPtr, taskID, uintptr(unsafe.Pointer(info)))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -79,6 +82,7 @@ func (obj *taskManagerImpl) KillTask(taskID int64) int32 {
 		registerTypedCallback(&obj.killTaskFunc, rawPtr.KillTask)
 	})
 	ret := obj.killTaskFunc(rawPtr, taskID)
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -91,6 +95,7 @@ func (obj *taskManagerImpl) GetTaskIDForBrowserID(browserID int32) int64 {
 		registerTypedCallback(&obj.getTaskIDForBrowserIDFunc, rawPtr.GetTaskIDForBrowserID)
 	})
 	ret := obj.getTaskIDForBrowserIDFunc(rawPtr, uintptr(browserID))
+	runtime.KeepAlive(obj)
 	return int64(ret)
 }
 

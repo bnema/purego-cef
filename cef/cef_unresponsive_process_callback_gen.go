@@ -29,6 +29,7 @@ func (obj *unresponsiveProcessCallbackImpl) Wait() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallWait()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *unresponsiveProcessCallbackImpl) Terminate() {
@@ -37,6 +38,7 @@ func (obj *unresponsiveProcessCallbackImpl) Terminate() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallTerminate()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *unresponsiveProcessCallbackImpl) RawPointer() unsafe.Pointer {

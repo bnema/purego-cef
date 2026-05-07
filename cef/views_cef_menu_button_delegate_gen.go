@@ -109,6 +109,7 @@ func (obj *menuButtonDelegateImpl) OnMenuButtonPressed(menuButton MenuButton, sc
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnMenuButtonPressed(uintptr(extractRawPointer(menuButton)), uintptr(unsafe.Pointer(screenPoint)), uintptr(extractRawPointer(buttonPressedLock)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *menuButtonDelegateImpl) RawPointer() unsafe.Pointer {

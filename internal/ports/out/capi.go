@@ -16,6 +16,9 @@ type CAPI interface {
 	StringSet(src *uint16, srcLen uintptr, output unsafe.Pointer, copy int32) int32
 	StringClear(s unsafe.Pointer)
 	StringUserfreeFree(s unsafe.Pointer)
+	StringListAlloc() uintptr
+	StringListAppend(list uintptr, value unsafe.Pointer)
+	StringListFree(list uintptr)
 	StringListSize(list uintptr) uintptr
 	StringListValue(list uintptr, index uintptr, value unsafe.Pointer) int32
 }

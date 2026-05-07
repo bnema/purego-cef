@@ -107,6 +107,7 @@ func (obj *schemeHandlerFactoryImpl) Create(browser Browser, frame Frame, scheme
 	schemeNameStr := cefString(schemeName)
 	defer freeCefString(&schemeNameStr)
 	ret := rawPtr.CallCreate(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(extractRawPointer(request)))
+	runtime.KeepAlive(obj)
 	return wrapResourceHandler(unsafe.Pointer(ret))
 }
 

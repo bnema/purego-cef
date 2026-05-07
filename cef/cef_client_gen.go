@@ -315,6 +315,7 @@ func (obj *rawClientImpl) GetAudioHandler() RawAudioHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetAudioHandler()
+	runtime.KeepAlive(obj)
 	return wrapAudioHandler(unsafe.Pointer(ret))
 }
 
@@ -324,6 +325,7 @@ func (obj *rawClientImpl) GetCommandHandler() CommandHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetCommandHandler()
+	runtime.KeepAlive(obj)
 	return wrapCommandHandler(unsafe.Pointer(ret))
 }
 
@@ -333,6 +335,7 @@ func (obj *rawClientImpl) GetContextMenuHandler() ContextMenuHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetContextMenuHandler()
+	runtime.KeepAlive(obj)
 	return wrapContextMenuHandler(unsafe.Pointer(ret))
 }
 
@@ -342,6 +345,7 @@ func (obj *rawClientImpl) GetDialogHandler() DialogHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDialogHandler()
+	runtime.KeepAlive(obj)
 	return wrapDialogHandler(unsafe.Pointer(ret))
 }
 
@@ -351,6 +355,7 @@ func (obj *rawClientImpl) GetDisplayHandler() DisplayHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDisplayHandler()
+	runtime.KeepAlive(obj)
 	return wrapDisplayHandler(unsafe.Pointer(ret))
 }
 
@@ -360,6 +365,7 @@ func (obj *rawClientImpl) GetDownloadHandler() DownloadHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDownloadHandler()
+	runtime.KeepAlive(obj)
 	return wrapDownloadHandler(unsafe.Pointer(ret))
 }
 
@@ -369,6 +375,7 @@ func (obj *rawClientImpl) GetDragHandler() DragHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetDragHandler()
+	runtime.KeepAlive(obj)
 	return wrapDragHandler(unsafe.Pointer(ret))
 }
 
@@ -378,6 +385,7 @@ func (obj *rawClientImpl) GetFindHandler() FindHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFindHandler()
+	runtime.KeepAlive(obj)
 	return wrapFindHandler(unsafe.Pointer(ret))
 }
 
@@ -387,6 +395,7 @@ func (obj *rawClientImpl) GetFocusHandler() FocusHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFocusHandler()
+	runtime.KeepAlive(obj)
 	return wrapFocusHandler(unsafe.Pointer(ret))
 }
 
@@ -396,6 +405,7 @@ func (obj *rawClientImpl) GetFrameHandler() FrameHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetFrameHandler()
+	runtime.KeepAlive(obj)
 	return wrapFrameHandler(unsafe.Pointer(ret))
 }
 
@@ -405,6 +415,7 @@ func (obj *rawClientImpl) GetPermissionHandler() PermissionHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPermissionHandler()
+	runtime.KeepAlive(obj)
 	return wrapPermissionHandler(unsafe.Pointer(ret))
 }
 
@@ -414,6 +425,7 @@ func (obj *rawClientImpl) GetJsdialogHandler() JsdialogHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetJsdialogHandler()
+	runtime.KeepAlive(obj)
 	return wrapJsdialogHandler(unsafe.Pointer(ret))
 }
 
@@ -423,6 +435,7 @@ func (obj *rawClientImpl) GetKeyboardHandler() KeyboardHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetKeyboardHandler()
+	runtime.KeepAlive(obj)
 	return wrapKeyboardHandler(unsafe.Pointer(ret))
 }
 
@@ -432,6 +445,7 @@ func (obj *rawClientImpl) GetLifeSpanHandler() RawLifeSpanHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLifeSpanHandler()
+	runtime.KeepAlive(obj)
 	return wrapLifeSpanHandler(unsafe.Pointer(ret))
 }
 
@@ -441,6 +455,7 @@ func (obj *rawClientImpl) GetLoadHandler() LoadHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetLoadHandler()
+	runtime.KeepAlive(obj)
 	return wrapLoadHandler(unsafe.Pointer(ret))
 }
 
@@ -450,6 +465,7 @@ func (obj *rawClientImpl) GetPrintHandler() PrintHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPrintHandler()
+	runtime.KeepAlive(obj)
 	return wrapPrintHandler(unsafe.Pointer(ret))
 }
 
@@ -459,6 +475,7 @@ func (obj *rawClientImpl) GetRenderHandler() RenderHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRenderHandler()
+	runtime.KeepAlive(obj)
 	return wrapRenderHandler(unsafe.Pointer(ret))
 }
 
@@ -468,6 +485,7 @@ func (obj *rawClientImpl) GetRequestHandler() RequestHandler {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRequestHandler()
+	runtime.KeepAlive(obj)
 	return wrapRequestHandler(unsafe.Pointer(ret))
 }
 
@@ -477,6 +495,7 @@ func (obj *rawClientImpl) OnProcessMessageReceived(browser Browser, frame Frame,
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

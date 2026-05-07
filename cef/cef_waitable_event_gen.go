@@ -31,6 +31,7 @@ func (obj *waitableEventImpl) Reset() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallReset()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *waitableEventImpl) Signal() {
@@ -39,6 +40,7 @@ func (obj *waitableEventImpl) Signal() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSignal()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *waitableEventImpl) IsSignaled() bool {
@@ -47,6 +49,7 @@ func (obj *waitableEventImpl) IsSignaled() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsSignaled()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -56,6 +59,7 @@ func (obj *waitableEventImpl) Wait() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallWait()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *waitableEventImpl) TimedWait(maxMs int64) int32 {
@@ -67,6 +71,7 @@ func (obj *waitableEventImpl) TimedWait(maxMs int64) int32 {
 		registerTypedCallback(&obj.timedWaitFunc, rawPtr.TimedWait)
 	})
 	ret := obj.timedWaitFunc(rawPtr, maxMs)
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 

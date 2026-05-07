@@ -89,6 +89,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsMessage(browser Browser, messa
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallOnDevToolsMessage(uintptr(extractRawPointer(browser)), uintptr(message), uintptr(messageSize))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -98,6 +99,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsMethodResult(browser Browser, 
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnDevToolsMethodResult(uintptr(extractRawPointer(browser)), uintptr(messageID), uintptr(success), uintptr(result), uintptr(resultSize))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsEvent(browser Browser, method string, params unsafe.Pointer, paramsSize int) {
@@ -108,6 +110,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsEvent(browser Browser, method 
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
 	rawPtr.CallOnDevToolsEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&methodStr)), uintptr(params), uintptr(paramsSize))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentAttached(browser Browser) {
@@ -116,6 +119,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsAgentAttached(browser Browser)
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnDevToolsAgentAttached(uintptr(extractRawPointer(browser)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentDetached(browser Browser) {
@@ -124,6 +128,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsAgentDetached(browser Browser)
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnDevToolsAgentDetached(uintptr(extractRawPointer(browser)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *devToolsMessageObserverImpl) RawPointer() unsafe.Pointer {

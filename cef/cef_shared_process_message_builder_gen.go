@@ -29,6 +29,7 @@ func (obj *sharedProcessMessageBuilderImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -38,6 +39,7 @@ func (obj *sharedProcessMessageBuilderImpl) Size() int {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallSize()
+	runtime.KeepAlive(obj)
 	return int(ret)
 }
 
@@ -47,6 +49,7 @@ func (obj *sharedProcessMessageBuilderImpl) Memory() unsafe.Pointer {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallMemory()
+	runtime.KeepAlive(obj)
 	return unsafe.Pointer(ret)
 }
 
@@ -56,6 +59,7 @@ func (obj *sharedProcessMessageBuilderImpl) Build() ProcessMessage {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallBuild()
+	runtime.KeepAlive(obj)
 	return wrapProcessMessage(unsafe.Pointer(ret))
 }
 

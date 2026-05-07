@@ -29,6 +29,7 @@ func (obj *threadImpl) GetTaskRunner() TaskRunner {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetTaskRunner()
+	runtime.KeepAlive(obj)
 	return wrapTaskRunner(unsafe.Pointer(ret))
 }
 
@@ -38,6 +39,7 @@ func (obj *threadImpl) GetPlatformThreadID() uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPlatformThreadID()
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -47,6 +49,7 @@ func (obj *threadImpl) Stop() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallStop()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *threadImpl) IsRunning() bool {
@@ -55,6 +58,7 @@ func (obj *threadImpl) IsRunning() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsRunning()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 

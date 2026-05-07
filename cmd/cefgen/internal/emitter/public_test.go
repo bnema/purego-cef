@@ -127,6 +127,92 @@ func TestEmitPublicObjectInterface_UsesTypedPuregoForFloatMethods(t *testing.T) 
 	}
 }
 
+func TestEmitPublicReverseWrappersKeepReceiverAliveAcrossRawCalls(t *testing.T) {
+	t.Run("handler reverse wrapper", func(t *testing.T) {
+		header := &model.Header{
+			Structs: []model.Struct{{
+				CName:         "cef_focus_handler_t",
+				GoName:        "CEFFocusHandlerT",
+				Kind:          "handler",
+				InterfaceName: "FocusHandler",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "on_got_focus",
+						GoName:      "OnGotFocus",
+						IsFunction:  true,
+						ReturnCType: "void",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_focus_handler_t*"},
+							{CName: "browser", GoName: "browser", CType: "struct _cef_browser_t*"},
+						},
+					},
+				},
+			}},
+		}
+		registry := NewTypeRegistry([]*model.Header{header})
+		data := BuildPublicFileData(header, registry)
+
+		code, err := EmitPublic(data)
+		if err != nil {
+			t.Fatalf("EmitPublic failed: %v", err)
+		}
+
+		want := "rawPtr.CallOnGotFocus(uintptr(browser))\n\truntime.KeepAlive(obj)"
+		if !strings.Contains(code, want) {
+			t.Fatalf("expected generated reverse wrapper to keep receiver alive across raw call:\nwant snippet: %s\n\nGot:\n%s", want, code)
+		}
+	})
+
+	t.Run("typed object reverse wrapper", func(t *testing.T) {
+		header := &model.Header{
+			Structs: []model.Struct{{
+				CName:         "_cef_browser_host_t",
+				GoName:        "CEFBrowserHostT",
+				Kind:          "object",
+				InterfaceName: "BrowserHost",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "get_zoom_level",
+						GoName:      "GetZoomLevel",
+						IsFunction:  true,
+						ReturnCType: "double",
+						Params: []model.Param{{CName: "self", GoName: "self", CType: "struct _cef_browser_host_t*"}},
+					},
+					{
+						CName:       "set_zoom_level",
+						GoName:      "SetZoomLevel",
+						IsFunction:  true,
+						ReturnCType: "void",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_browser_host_t*"},
+							{CName: "zoomLevel", GoName: "zoomlevel", CType: "double"},
+						},
+					},
+				},
+			}},
+		}
+		registry := NewTypeRegistry([]*model.Header{header})
+		data := BuildPublicFileData(header, registry)
+
+		code, err := EmitPublic(data)
+		if err != nil {
+			t.Fatalf("EmitPublic failed: %v", err)
+		}
+
+		wants := []string{
+			"ret := obj.getZoomLevelFunc(rawPtr)\n\truntime.KeepAlive(obj)",
+			"obj.setZoomLevelFunc(rawPtr, zoomlevel)\n\truntime.KeepAlive(obj)",
+		}
+		for _, want := range wants {
+			if !strings.Contains(code, want) {
+				t.Fatalf("expected generated typed reverse wrapper to keep receiver alive across callback:\nwant snippet: %s\n\nGot:\n%s", want, code)
+			}
+		}
+	})
+}
+
 func TestEmitPublicObjectInterface_GetClientReturnsWrappedRawClient(t *testing.T) {
 	headers := []*model.Header{
 		{

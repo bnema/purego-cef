@@ -117,6 +117,7 @@ func (obj *viewDelegateImpl) GetPreferredSize(view View) uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPreferredSize(uintptr(extractRawPointer(view)))
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -126,6 +127,7 @@ func (obj *viewDelegateImpl) GetMinimumSize(view View) uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetMinimumSize(uintptr(extractRawPointer(view)))
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -135,6 +137,7 @@ func (obj *viewDelegateImpl) GetMaximumSize(view View) uintptr {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetMaximumSize(uintptr(extractRawPointer(view)))
+	runtime.KeepAlive(obj)
 	return uintptr(ret)
 }
 
@@ -144,6 +147,7 @@ func (obj *viewDelegateImpl) GetHeightForWidth(view View, width int32) int32 {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetHeightForWidth(uintptr(extractRawPointer(view)), uintptr(width))
+	runtime.KeepAlive(obj)
 	return int32(ret)
 }
 
@@ -153,6 +157,7 @@ func (obj *viewDelegateImpl) OnParentViewChanged(view View, added int32, parent 
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnParentViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(parent)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *viewDelegateImpl) OnChildViewChanged(view View, added int32, child View) {
@@ -161,6 +166,7 @@ func (obj *viewDelegateImpl) OnChildViewChanged(view View, added int32, child Vi
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnChildViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(child)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *viewDelegateImpl) OnWindowChanged(view View, added int32) {
@@ -169,6 +175,7 @@ func (obj *viewDelegateImpl) OnWindowChanged(view View, added int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnWindowChanged(uintptr(extractRawPointer(view)), uintptr(added))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *viewDelegateImpl) OnLayoutChanged(view View, newBounds *Rect) {
@@ -177,6 +184,7 @@ func (obj *viewDelegateImpl) OnLayoutChanged(view View, newBounds *Rect) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnLayoutChanged(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(newBounds)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *viewDelegateImpl) OnFocus(view View) {
@@ -185,6 +193,7 @@ func (obj *viewDelegateImpl) OnFocus(view View) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnFocus(uintptr(extractRawPointer(view)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *viewDelegateImpl) OnBlur(view View) {
@@ -193,6 +202,7 @@ func (obj *viewDelegateImpl) OnBlur(view View) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnBlur(uintptr(extractRawPointer(view)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *viewDelegateImpl) OnThemeChanged(view View) {
@@ -201,6 +211,7 @@ func (obj *viewDelegateImpl) OnThemeChanged(view View) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallOnThemeChanged(uintptr(extractRawPointer(view)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *viewDelegateImpl) RawPointer() unsafe.Pointer {

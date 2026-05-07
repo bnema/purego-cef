@@ -29,6 +29,7 @@ func (obj *browserViewImpl) GetBrowser() Browser {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBrowser()
+	runtime.KeepAlive(obj)
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
@@ -38,6 +39,7 @@ func (obj *browserViewImpl) GetChromeToolbar() View {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetChromeToolbar()
+	runtime.KeepAlive(obj)
 	return wrapView(unsafe.Pointer(ret))
 }
 
@@ -47,6 +49,7 @@ func (obj *browserViewImpl) SetPreferAccelerators(preferAccelerators int32) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSetPreferAccelerators(uintptr(preferAccelerators))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *browserViewImpl) GetRuntimeStyle() RuntimeStyle {
@@ -55,6 +58,7 @@ func (obj *browserViewImpl) GetRuntimeStyle() RuntimeStyle {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetRuntimeStyle()
+	runtime.KeepAlive(obj)
 	return RuntimeStyle(ret)
 }
 

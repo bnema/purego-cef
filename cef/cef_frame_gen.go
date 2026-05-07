@@ -29,6 +29,7 @@ func (obj *frameImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -38,6 +39,7 @@ func (obj *frameImpl) Undo() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallUndo()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) Redo() {
@@ -46,6 +48,7 @@ func (obj *frameImpl) Redo() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallRedo()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) Cut() {
@@ -54,6 +57,7 @@ func (obj *frameImpl) Cut() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCut()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) Copy() {
@@ -62,6 +66,7 @@ func (obj *frameImpl) Copy() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallCopy()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) Paste() {
@@ -70,6 +75,7 @@ func (obj *frameImpl) Paste() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallPaste()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) PasteAndMatchStyle() {
@@ -78,6 +84,7 @@ func (obj *frameImpl) PasteAndMatchStyle() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallPasteAndMatchStyle()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) Del() {
@@ -86,6 +93,7 @@ func (obj *frameImpl) Del() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallDel()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) SelectAll() {
@@ -94,6 +102,7 @@ func (obj *frameImpl) SelectAll() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSelectAll()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) ViewSource() {
@@ -102,6 +111,7 @@ func (obj *frameImpl) ViewSource() {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallViewSource()
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) GetSource(visitor StringVisitor) {
@@ -110,6 +120,7 @@ func (obj *frameImpl) GetSource(visitor StringVisitor) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallGetSource(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) GetText(visitor StringVisitor) {
@@ -118,6 +129,7 @@ func (obj *frameImpl) GetText(visitor StringVisitor) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallGetText(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) LoadRequest(request Request) {
@@ -126,6 +138,7 @@ func (obj *frameImpl) LoadRequest(request Request) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallLoadRequest(uintptr(extractRawPointer(request)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) LoadURL(uRL string) {
@@ -136,6 +149,7 @@ func (obj *frameImpl) LoadURL(uRL string) {
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	rawPtr.CallLoadURL(uintptr(unsafe.Pointer(&uRLStr)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) ExecuteJavaScript(code string, scriptURL string, startLine int32) {
@@ -148,6 +162,7 @@ func (obj *frameImpl) ExecuteJavaScript(code string, scriptURL string, startLine
 	scriptURLStr := cefString(scriptURL)
 	defer freeCefString(&scriptURLStr)
 	rawPtr.CallExecuteJavaScript(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) IsMain() bool {
@@ -156,6 +171,7 @@ func (obj *frameImpl) IsMain() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsMain()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -165,6 +181,7 @@ func (obj *frameImpl) IsFocused() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsFocused()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -174,6 +191,7 @@ func (obj *frameImpl) GetName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetName()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -183,6 +201,7 @@ func (obj *frameImpl) GetIdentifier() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetIdentifier()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -192,6 +211,7 @@ func (obj *frameImpl) GetParent() Frame {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetParent()
+	runtime.KeepAlive(obj)
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
@@ -201,6 +221,7 @@ func (obj *frameImpl) GetURL() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetURL()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -210,6 +231,7 @@ func (obj *frameImpl) GetBrowser() Browser {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetBrowser()
+	runtime.KeepAlive(obj)
 	return wrapBrowser(unsafe.Pointer(ret))
 }
 
@@ -219,6 +241,7 @@ func (obj *frameImpl) GetV8Context() V8Context {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetV8Context()
+	runtime.KeepAlive(obj)
 	return wrapV8Context(unsafe.Pointer(ret))
 }
 
@@ -228,6 +251,7 @@ func (obj *frameImpl) VisitDom(visitor Domvisitor) {
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallVisitDom(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewDomvisitor(visitor) })))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient) Urlrequest {
@@ -236,6 +260,7 @@ func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient)
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })))
+	runtime.KeepAlive(obj)
 	return wrapUrlrequest(unsafe.Pointer(ret))
 }
 
@@ -245,6 +270,7 @@ func (obj *frameImpl) SendProcessMessage(targetProcess ProcessID, message Proces
 	}
 	rawPtr := obj.rawPtr
 	rawPtr.CallSendProcessMessage(uintptr(targetProcess), uintptr(extractRawPointer(message)))
+	runtime.KeepAlive(obj)
 }
 
 func (obj *frameImpl) RawPointer() unsafe.Pointer {

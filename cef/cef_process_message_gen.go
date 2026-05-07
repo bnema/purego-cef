@@ -29,6 +29,7 @@ func (obj *processMessageImpl) IsValid() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsValid()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -38,6 +39,7 @@ func (obj *processMessageImpl) IsReadOnly() bool {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallIsReadOnly()
+	runtime.KeepAlive(obj)
 	return ret != 0
 }
 
@@ -47,6 +49,7 @@ func (obj *processMessageImpl) Copy() ProcessMessage {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallCopy()
+	runtime.KeepAlive(obj)
 	return wrapProcessMessage(unsafe.Pointer(ret))
 }
 
@@ -56,6 +59,7 @@ func (obj *processMessageImpl) GetName() string {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetName()
+	runtime.KeepAlive(obj)
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -65,6 +69,7 @@ func (obj *processMessageImpl) GetArgumentList() ListValue {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetArgumentList()
+	runtime.KeepAlive(obj)
 	return wrapListValue(unsafe.Pointer(ret))
 }
 
@@ -74,6 +79,7 @@ func (obj *processMessageImpl) GetSharedMemoryRegion() SharedMemoryRegion {
 	}
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetSharedMemoryRegion()
+	runtime.KeepAlive(obj)
 	return wrapSharedMemoryRegion(unsafe.Pointer(ret))
 }
 
