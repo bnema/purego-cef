@@ -156,15 +156,15 @@ func (w *downloadHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewDownloadHandler creates a CEF handler backed by the given implementation.
-func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFDownloadHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var downloadHandlerCanDownloadSharedOnce sync.Once
+var downloadHandlerCanDownloadSharedCallback uintptr
 
-	r.OverrideCanDownload(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+func downloadHandlerCanDownloadCEFCallback() uintptr {
+	return sharedCEFCallback(&downloadHandlerCanDownloadSharedOnce, &downloadHandlerCanDownloadSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DownloadHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		uRL := goString(unsafe.Pointer(arg1))
 		requestMethod := goString(unsafe.Pointer(arg2))
@@ -172,9 +172,18 @@ func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideOnBeforeDownload(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+var downloadHandlerOnBeforeDownloadSharedOnce sync.Once
+var downloadHandlerOnBeforeDownloadSharedCallback uintptr
+
+func downloadHandlerOnBeforeDownloadCEFCallback() uintptr {
+	return sharedCEFCallback(&downloadHandlerOnBeforeDownloadSharedOnce, &downloadHandlerOnBeforeDownloadSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DownloadHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		downloadItem := wrapDownloadItem(unsafe.Pointer(arg1))
 		suggestedName := goString(unsafe.Pointer(arg2))
@@ -183,17 +192,41 @@ func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideOnDownloadUpdated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+var downloadHandlerOnDownloadUpdatedSharedOnce sync.Once
+var downloadHandlerOnDownloadUpdatedSharedCallback uintptr
+
+func downloadHandlerOnDownloadUpdatedCEFCallback() uintptr {
+	return sharedCEFCallback(&downloadHandlerOnDownloadUpdatedSharedOnce, &downloadHandlerOnDownloadUpdatedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DownloadHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		downloadItem := wrapDownloadItem(unsafe.Pointer(arg1))
 		callback := wrapDownloadItemCallback(unsafe.Pointer(arg2))
 		impl.OnDownloadUpdated(browser, downloadItem, callback)
-	}))
+	})
+}
 
+// NewDownloadHandler creates a CEF handler backed by the given implementation.
+func NewDownloadHandler(impl DownloadHandler) DownloadHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFDownloadHandlerT)
 	w := &downloadHandlerWrapper{rawPtr: r}
 	w.DownloadHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideCanDownload(downloadHandlerCanDownloadCEFCallback())
+
+	r.OverrideOnBeforeDownload(downloadHandlerOnBeforeDownloadCEFCallback())
+
+	r.OverrideOnDownloadUpdated(downloadHandlerOnDownloadUpdatedCEFCallback())
+
 	return w
 }
 

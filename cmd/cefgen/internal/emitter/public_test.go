@@ -253,8 +253,9 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 	}{
 		{"interface declaration", "type FocusHandler = portin.FocusHandler"},
 		{"constructor function", "func NewFocusHandler(impl FocusHandler) FocusHandler"},
-		{"initRefCount call", "initRefCount(unsafe.Pointer(r)"},
-		{"tracked callback", "newCEFCallback(unsafe.Pointer(r), func"},
+		{"initRefCount pins wrapper owner", "initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)"},
+		{"shared callback", "sharedCEFCallback(&focusHandlerOnGotFocusSharedOnce"},
+		{"owner dispatch", "cefCallbackOwnerAs[FocusHandler](self)"},
 		{"idempotent release guard", "if obj.rawPtr == nil {"},
 		{"release clears finalizer", "runtime.SetFinalizer(obj, nil)"},
 		{"release finalizer", "runtime.SetFinalizer(impl, (*focusHandlerImpl).Release)"},
@@ -404,7 +405,7 @@ func TestEmitPublicHandlerInterface_UsesTypedFloatCallbackParams(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	if !strings.Contains(code, "newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 float64) {") {
+	if !strings.Contains(code, "func(self uintptr, arg0 float64) {") {
 		t.Fatalf("expected typed float callback parameter, got:\n%s", code)
 	}
 

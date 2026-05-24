@@ -64,15 +64,15 @@ func (w *schemeHandlerFactoryWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewSchemeHandlerFactory creates a CEF handler backed by the given implementation.
-func NewSchemeHandlerFactory(impl SchemeHandlerFactory) SchemeHandlerFactory {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFSchemeHandlerFactoryT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var schemeHandlerFactoryCreateSharedOnce sync.Once
+var schemeHandlerFactoryCreateSharedCallback uintptr
 
-	r.OverrideCreate(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+func schemeHandlerFactoryCreateCEFCallback() uintptr {
+	return sharedCEFCallback(&schemeHandlerFactoryCreateSharedOnce, &schemeHandlerFactoryCreateSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[SchemeHandlerFactory](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		schemeName := goString(unsafe.Pointer(arg2))
@@ -84,10 +84,21 @@ func NewSchemeHandlerFactory(impl SchemeHandlerFactory) SchemeHandlerFactory {
 		return uintptr(extractOrWrapRawPointer(result, func() any {
 			return NewResourceHandler(result)
 		}))
-	}))
+	})
+}
 
+// NewSchemeHandlerFactory creates a CEF handler backed by the given implementation.
+func NewSchemeHandlerFactory(impl SchemeHandlerFactory) SchemeHandlerFactory {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFSchemeHandlerFactoryT)
 	w := &schemeHandlerFactoryWrapper{rawPtr: r}
 	w.SchemeHandlerFactory = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideCreate(schemeHandlerFactoryCreateCEFCallback())
+
 	return w
 }
 

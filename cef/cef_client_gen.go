@@ -28,276 +28,251 @@ func (w *rawClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var rawClientOnProcessMessageReceivedSharedOnce sync.Once
+var rawClientOnProcessMessageReceivedSharedCallback uintptr
+
+func rawClientOnProcessMessageReceivedCEFCallback() uintptr {
+	return sharedCEFCallback(&rawClientOnProcessMessageReceivedSharedOnce, &rawClientOnProcessMessageReceivedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RawClient](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		sourceProcess := ProcessID(arg2)
+		message := wrapProcessMessage(unsafe.Pointer(arg3))
+		return uintptr(impl.OnProcessMessageReceived(browser, frame, sourceProcess, message))
+	})
+}
+
 // NewRawClient creates a CEF handler backed by the given implementation.
 func NewRawClient(impl RawClient) RawClient {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFClientT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+	w := &rawClientWrapper{rawPtr: r}
+	w.RawClient = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetAudioHandlerPtr unsafe.Pointer
-	if h := impl.GetAudioHandler(); h != nil {
+	if h := impl.GetAudioHandler(); !isNilImpl(h) {
 		cachedGetAudioHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRawAudioHandler(h)
 		})
-	}
-	r.OverrideGetAudioHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetAudioHandlerPtr != nil {
+		r.OverrideGetAudioHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetAudioHandlerPtr)
-		}
-		return uintptr(cachedGetAudioHandlerPtr)
-	}))
+			return uintptr(cachedGetAudioHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetCommandHandlerPtr unsafe.Pointer
-	if h := impl.GetCommandHandler(); h != nil {
+	if h := impl.GetCommandHandler(); !isNilImpl(h) {
 		cachedGetCommandHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewCommandHandler(h)
 		})
-	}
-	r.OverrideGetCommandHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetCommandHandlerPtr != nil {
+		r.OverrideGetCommandHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetCommandHandlerPtr)
-		}
-		return uintptr(cachedGetCommandHandlerPtr)
-	}))
+			return uintptr(cachedGetCommandHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetContextMenuHandlerPtr unsafe.Pointer
-	if h := impl.GetContextMenuHandler(); h != nil {
+	if h := impl.GetContextMenuHandler(); !isNilImpl(h) {
 		cachedGetContextMenuHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewContextMenuHandler(h)
 		})
-	}
-	r.OverrideGetContextMenuHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetContextMenuHandlerPtr != nil {
+		r.OverrideGetContextMenuHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetContextMenuHandlerPtr)
-		}
-		return uintptr(cachedGetContextMenuHandlerPtr)
-	}))
+			return uintptr(cachedGetContextMenuHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDialogHandlerPtr unsafe.Pointer
-	if h := impl.GetDialogHandler(); h != nil {
+	if h := impl.GetDialogHandler(); !isNilImpl(h) {
 		cachedGetDialogHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewDialogHandler(h)
 		})
-	}
-	r.OverrideGetDialogHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetDialogHandlerPtr != nil {
+		r.OverrideGetDialogHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetDialogHandlerPtr)
-		}
-		return uintptr(cachedGetDialogHandlerPtr)
-	}))
+			return uintptr(cachedGetDialogHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDisplayHandlerPtr unsafe.Pointer
-	if h := impl.GetDisplayHandler(); h != nil {
+	if h := impl.GetDisplayHandler(); !isNilImpl(h) {
 		cachedGetDisplayHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewDisplayHandler(h)
 		})
-	}
-	r.OverrideGetDisplayHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetDisplayHandlerPtr != nil {
+		r.OverrideGetDisplayHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetDisplayHandlerPtr)
-		}
-		return uintptr(cachedGetDisplayHandlerPtr)
-	}))
+			return uintptr(cachedGetDisplayHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDownloadHandlerPtr unsafe.Pointer
-	if h := impl.GetDownloadHandler(); h != nil {
+	if h := impl.GetDownloadHandler(); !isNilImpl(h) {
 		cachedGetDownloadHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewDownloadHandler(h)
 		})
-	}
-	r.OverrideGetDownloadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetDownloadHandlerPtr != nil {
+		r.OverrideGetDownloadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetDownloadHandlerPtr)
-		}
-		return uintptr(cachedGetDownloadHandlerPtr)
-	}))
+			return uintptr(cachedGetDownloadHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDragHandlerPtr unsafe.Pointer
-	if h := impl.GetDragHandler(); h != nil {
+	if h := impl.GetDragHandler(); !isNilImpl(h) {
 		cachedGetDragHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewDragHandler(h)
 		})
-	}
-	r.OverrideGetDragHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetDragHandlerPtr != nil {
+		r.OverrideGetDragHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetDragHandlerPtr)
-		}
-		return uintptr(cachedGetDragHandlerPtr)
-	}))
+			return uintptr(cachedGetDragHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetFindHandlerPtr unsafe.Pointer
-	if h := impl.GetFindHandler(); h != nil {
+	if h := impl.GetFindHandler(); !isNilImpl(h) {
 		cachedGetFindHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewFindHandler(h)
 		})
-	}
-	r.OverrideGetFindHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetFindHandlerPtr != nil {
+		r.OverrideGetFindHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetFindHandlerPtr)
-		}
-		return uintptr(cachedGetFindHandlerPtr)
-	}))
+			return uintptr(cachedGetFindHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetFocusHandlerPtr unsafe.Pointer
-	if h := impl.GetFocusHandler(); h != nil {
+	if h := impl.GetFocusHandler(); !isNilImpl(h) {
 		cachedGetFocusHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewFocusHandler(h)
 		})
-	}
-	r.OverrideGetFocusHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetFocusHandlerPtr != nil {
+		r.OverrideGetFocusHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetFocusHandlerPtr)
-		}
-		return uintptr(cachedGetFocusHandlerPtr)
-	}))
+			return uintptr(cachedGetFocusHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetFrameHandlerPtr unsafe.Pointer
-	if h := impl.GetFrameHandler(); h != nil {
+	if h := impl.GetFrameHandler(); !isNilImpl(h) {
 		cachedGetFrameHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewFrameHandler(h)
 		})
-	}
-	r.OverrideGetFrameHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetFrameHandlerPtr != nil {
+		r.OverrideGetFrameHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetFrameHandlerPtr)
-		}
-		return uintptr(cachedGetFrameHandlerPtr)
-	}))
+			return uintptr(cachedGetFrameHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetPermissionHandlerPtr unsafe.Pointer
-	if h := impl.GetPermissionHandler(); h != nil {
+	if h := impl.GetPermissionHandler(); !isNilImpl(h) {
 		cachedGetPermissionHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewPermissionHandler(h)
 		})
-	}
-	r.OverrideGetPermissionHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetPermissionHandlerPtr != nil {
+		r.OverrideGetPermissionHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetPermissionHandlerPtr)
-		}
-		return uintptr(cachedGetPermissionHandlerPtr)
-	}))
+			return uintptr(cachedGetPermissionHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetJsdialogHandlerPtr unsafe.Pointer
-	if h := impl.GetJsdialogHandler(); h != nil {
+	if h := impl.GetJsdialogHandler(); !isNilImpl(h) {
 		cachedGetJsdialogHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewJsdialogHandler(h)
 		})
-	}
-	r.OverrideGetJsdialogHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetJsdialogHandlerPtr != nil {
+		r.OverrideGetJsdialogHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetJsdialogHandlerPtr)
-		}
-		return uintptr(cachedGetJsdialogHandlerPtr)
-	}))
+			return uintptr(cachedGetJsdialogHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetKeyboardHandlerPtr unsafe.Pointer
-	if h := impl.GetKeyboardHandler(); h != nil {
+	if h := impl.GetKeyboardHandler(); !isNilImpl(h) {
 		cachedGetKeyboardHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewKeyboardHandler(h)
 		})
-	}
-	r.OverrideGetKeyboardHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetKeyboardHandlerPtr != nil {
+		r.OverrideGetKeyboardHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetKeyboardHandlerPtr)
-		}
-		return uintptr(cachedGetKeyboardHandlerPtr)
-	}))
+			return uintptr(cachedGetKeyboardHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetLifeSpanHandlerPtr unsafe.Pointer
-	if h := impl.GetLifeSpanHandler(); h != nil {
+	if h := impl.GetLifeSpanHandler(); !isNilImpl(h) {
 		cachedGetLifeSpanHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRawLifeSpanHandler(h)
 		})
-	}
-	r.OverrideGetLifeSpanHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetLifeSpanHandlerPtr != nil {
+		r.OverrideGetLifeSpanHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetLifeSpanHandlerPtr)
-		}
-		return uintptr(cachedGetLifeSpanHandlerPtr)
-	}))
+			return uintptr(cachedGetLifeSpanHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetLoadHandlerPtr unsafe.Pointer
-	if h := impl.GetLoadHandler(); h != nil {
+	if h := impl.GetLoadHandler(); !isNilImpl(h) {
 		cachedGetLoadHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewLoadHandler(h)
 		})
-	}
-	r.OverrideGetLoadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetLoadHandlerPtr != nil {
+		r.OverrideGetLoadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetLoadHandlerPtr)
-		}
-		return uintptr(cachedGetLoadHandlerPtr)
-	}))
+			return uintptr(cachedGetLoadHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetPrintHandlerPtr unsafe.Pointer
-	if h := impl.GetPrintHandler(); h != nil {
+	if h := impl.GetPrintHandler(); !isNilImpl(h) {
 		cachedGetPrintHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewPrintHandler(h)
 		})
-	}
-	r.OverrideGetPrintHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetPrintHandlerPtr != nil {
+		r.OverrideGetPrintHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetPrintHandlerPtr)
-		}
-		return uintptr(cachedGetPrintHandlerPtr)
-	}))
+			return uintptr(cachedGetPrintHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetRenderHandlerPtr unsafe.Pointer
-	if h := impl.GetRenderHandler(); h != nil {
+	if h := impl.GetRenderHandler(); !isNilImpl(h) {
 		cachedGetRenderHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRenderHandler(h)
 		})
-	}
-	r.OverrideGetRenderHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetRenderHandlerPtr != nil {
+		r.OverrideGetRenderHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetRenderHandlerPtr)
-		}
-		return uintptr(cachedGetRenderHandlerPtr)
-	}))
+			return uintptr(cachedGetRenderHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetRequestHandlerPtr unsafe.Pointer
-	if h := impl.GetRequestHandler(); h != nil {
+	if h := impl.GetRequestHandler(); !isNilImpl(h) {
 		cachedGetRequestHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRequestHandler(h)
 		})
-	}
-	r.OverrideGetRequestHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetRequestHandlerPtr != nil {
+		r.OverrideGetRequestHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetRequestHandlerPtr)
-		}
-		return uintptr(cachedGetRequestHandlerPtr)
-	}))
+			return uintptr(cachedGetRequestHandlerPtr)
+		}))
+	}
 
-	r.OverrideOnProcessMessageReceived(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		sourceProcess := ProcessID(arg2)
-		message := wrapProcessMessage(unsafe.Pointer(arg3))
-		return uintptr(impl.OnProcessMessageReceived(browser, frame, sourceProcess, message))
-	}))
+	r.OverrideOnProcessMessageReceived(rawClientOnProcessMessageReceivedCEFCallback())
 
-	w := &rawClientWrapper{rawPtr: r}
-	w.RawClient = impl
 	return w
 }
 

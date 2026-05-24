@@ -28,68 +28,108 @@ func (w *renderHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewRenderHandler creates a CEF handler backed by the given implementation.
-func NewRenderHandler(impl RenderHandler) RenderHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFRenderHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var renderHandlerGetRootScreenRectSharedOnce sync.Once
+var renderHandlerGetRootScreenRectSharedCallback uintptr
 
-	// Cache the fully-wrapped handler once to avoid allocating on every callback.
-	var cachedGetAccessibilityHandlerPtr unsafe.Pointer
-	if h := impl.GetAccessibilityHandler(); h != nil {
-		cachedGetAccessibilityHandlerPtr = extractOrWrapRawPointer(h, func() any {
-			return NewAccessibilityHandler(h)
-		})
-	}
-	r.OverrideGetAccessibilityHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetAccessibilityHandlerPtr != nil {
-			addRef(cachedGetAccessibilityHandlerPtr)
+func renderHandlerGetRootScreenRectCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerGetRootScreenRectSharedOnce, &renderHandlerGetRootScreenRectSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return 0
 		}
-		return uintptr(cachedGetAccessibilityHandlerPtr)
-	}))
-
-	r.OverrideGetRootScreenRect(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		rect := (*Rect)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetRootScreenRect(browser, rect))
-	}))
+	})
+}
 
-	r.OverrideGetViewRect(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var renderHandlerGetViewRectSharedOnce sync.Once
+var renderHandlerGetViewRectSharedCallback uintptr
+
+func renderHandlerGetViewRectCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerGetViewRectSharedOnce, &renderHandlerGetViewRectSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		rect := (*Rect)(unsafe.Pointer(arg1))
 		impl.GetViewRect(browser, rect)
-	}))
+	})
+}
 
-	r.OverrideGetScreenPoint(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+var renderHandlerGetScreenPointSharedOnce sync.Once
+var renderHandlerGetScreenPointSharedCallback uintptr
+
+func renderHandlerGetScreenPointCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerGetScreenPointSharedOnce, &renderHandlerGetScreenPointSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		viewx := int32(arg1)
 		viewy := int32(arg2)
 		screenx := (*int32)(unsafe.Pointer(arg3))
 		screeny := (*int32)(unsafe.Pointer(arg4))
 		return uintptr(impl.GetScreenPoint(browser, viewx, viewy, screenx, screeny))
-	}))
+	})
+}
 
-	r.OverrideGetScreenInfo(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+var renderHandlerGetScreenInfoSharedOnce sync.Once
+var renderHandlerGetScreenInfoSharedCallback uintptr
+
+func renderHandlerGetScreenInfoCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerGetScreenInfoSharedOnce, &renderHandlerGetScreenInfoSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		screenInfo := (*ScreenInfo)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetScreenInfo(browser, screenInfo))
-	}))
+	})
+}
 
-	r.OverrideOnPopupShow(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var renderHandlerOnPopupShowSharedOnce sync.Once
+var renderHandlerOnPopupShowSharedCallback uintptr
+
+func renderHandlerOnPopupShowCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerOnPopupShowSharedOnce, &renderHandlerOnPopupShowSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		show := int32(arg1)
 		impl.OnPopupShow(browser, show)
-	}))
+	})
+}
 
-	r.OverrideOnPopupSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var renderHandlerOnPopupSizeSharedOnce sync.Once
+var renderHandlerOnPopupSizeSharedCallback uintptr
+
+func renderHandlerOnPopupSizeCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerOnPopupSizeSharedOnce, &renderHandlerOnPopupSizeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		rect := (*Rect)(unsafe.Pointer(arg1))
 		impl.OnPopupSize(browser, rect)
-	}))
+	})
+}
 
-	r.OverrideOnPaint(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) {
+var renderHandlerOnPaintSharedOnce sync.Once
+var renderHandlerOnPaintSharedCallback uintptr
+
+func renderHandlerOnPaintCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerOnPaintSharedOnce, &renderHandlerOnPaintSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		type_ := PaintElementType(arg1)
 		dirtyrects := decodeSlice[Rect](arg3, int(arg2))
@@ -97,73 +137,207 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 		width := int32(arg5)
 		height := int32(arg6)
 		impl.OnPaint(browser, type_, dirtyrects, buffer, width, height)
-	}))
+	})
+}
 
-	r.OverrideOnAcceleratedPaint(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+var renderHandlerOnAcceleratedPaintSharedOnce sync.Once
+var renderHandlerOnAcceleratedPaintSharedCallback uintptr
+
+func renderHandlerOnAcceleratedPaintCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerOnAcceleratedPaintSharedOnce, &renderHandlerOnAcceleratedPaintSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		type_ := PaintElementType(arg1)
 		dirtyrects := decodeSlice[Rect](arg3, int(arg2))
 		info := (*AcceleratedPaintInfo)(unsafe.Pointer(arg4))
 		impl.OnAcceleratedPaint(browser, type_, dirtyrects, info)
-	}))
+	})
+}
 
-	r.OverrideGetTouchHandleSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+var renderHandlerGetTouchHandleSizeSharedOnce sync.Once
+var renderHandlerGetTouchHandleSizeSharedCallback uintptr
+
+func renderHandlerGetTouchHandleSizeCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerGetTouchHandleSizeSharedOnce, &renderHandlerGetTouchHandleSizeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		orientation := HorizontalAlignment(arg1)
 		size := (*Size)(unsafe.Pointer(arg2))
 		impl.GetTouchHandleSize(browser, orientation, size)
-	}))
+	})
+}
 
-	r.OverrideOnTouchHandleStateChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var renderHandlerOnTouchHandleStateChangedSharedOnce sync.Once
+var renderHandlerOnTouchHandleStateChangedSharedCallback uintptr
+
+func renderHandlerOnTouchHandleStateChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerOnTouchHandleStateChangedSharedOnce, &renderHandlerOnTouchHandleStateChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		state := (*TouchHandleState)(unsafe.Pointer(arg1))
 		impl.OnTouchHandleStateChanged(browser, state)
-	}))
+	})
+}
 
-	r.OverrideStartDragging(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+var renderHandlerStartDraggingSharedOnce sync.Once
+var renderHandlerStartDraggingSharedCallback uintptr
+
+func renderHandlerStartDraggingCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerStartDraggingSharedOnce, &renderHandlerStartDraggingSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		dragData := wrapDragData(unsafe.Pointer(arg1))
 		allowedOps := DragOperationsMask(arg2)
 		x := int32(arg3)
 		y := int32(arg4)
 		return uintptr(impl.StartDragging(browser, dragData, allowedOps, x, y))
-	}))
+	})
+}
 
-	r.OverrideUpdateDragCursor(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var renderHandlerUpdateDragCursorSharedOnce sync.Once
+var renderHandlerUpdateDragCursorSharedCallback uintptr
+
+func renderHandlerUpdateDragCursorCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerUpdateDragCursorSharedOnce, &renderHandlerUpdateDragCursorSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		operation := DragOperationsMask(arg1)
 		impl.UpdateDragCursor(browser, operation)
-	}))
+	})
+}
 
-	r.OverrideOnScrollOffsetChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 float64, arg2 float64) {
+var renderHandlerOnScrollOffsetChangedSharedOnce sync.Once
+var renderHandlerOnScrollOffsetChangedSharedCallback uintptr
+
+func renderHandlerOnScrollOffsetChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerOnScrollOffsetChangedSharedOnce, &renderHandlerOnScrollOffsetChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 float64, arg2 float64) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		x := arg1
 		y := arg2
 		impl.OnScrollOffsetChanged(browser, x, y)
-	}))
+	})
+}
 
-	r.OverrideOnImeCompositionRangeChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+var renderHandlerOnImeCompositionRangeChangedSharedOnce sync.Once
+var renderHandlerOnImeCompositionRangeChangedSharedCallback uintptr
+
+func renderHandlerOnImeCompositionRangeChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerOnImeCompositionRangeChangedSharedOnce, &renderHandlerOnImeCompositionRangeChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		selectedRange := (*Range)(unsafe.Pointer(arg1))
 		characterBounds := decodeSlice[Rect](arg3, int(arg2))
 		impl.OnImeCompositionRangeChanged(browser, selectedRange, characterBounds)
-	}))
+	})
+}
 
-	r.OverrideOnTextSelectionChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+var renderHandlerOnTextSelectionChangedSharedOnce sync.Once
+var renderHandlerOnTextSelectionChangedSharedCallback uintptr
+
+func renderHandlerOnTextSelectionChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerOnTextSelectionChangedSharedOnce, &renderHandlerOnTextSelectionChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		selectedText := goString(unsafe.Pointer(arg1))
 		selectedRange := (*Range)(unsafe.Pointer(arg2))
 		impl.OnTextSelectionChanged(browser, selectedText, selectedRange)
-	}))
+	})
+}
 
-	r.OverrideOnVirtualKeyboardRequested(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var renderHandlerOnVirtualKeyboardRequestedSharedOnce sync.Once
+var renderHandlerOnVirtualKeyboardRequestedSharedCallback uintptr
+
+func renderHandlerOnVirtualKeyboardRequestedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerOnVirtualKeyboardRequestedSharedOnce, &renderHandlerOnVirtualKeyboardRequestedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		inputMode := TextInputMode(arg1)
 		impl.OnVirtualKeyboardRequested(browser, inputMode)
-	}))
+	})
+}
 
+// NewRenderHandler creates a CEF handler backed by the given implementation.
+func NewRenderHandler(impl RenderHandler) RenderHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFRenderHandlerT)
 	w := &renderHandlerWrapper{rawPtr: r}
 	w.RenderHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	// Cache the fully-wrapped handler once to avoid allocating on every callback.
+	var cachedGetAccessibilityHandlerPtr unsafe.Pointer
+	if h := impl.GetAccessibilityHandler(); !isNilImpl(h) {
+		cachedGetAccessibilityHandlerPtr = extractOrWrapRawPointer(h, func() any {
+			return NewAccessibilityHandler(h)
+		})
+		r.OverrideGetAccessibilityHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
+			addRef(cachedGetAccessibilityHandlerPtr)
+			return uintptr(cachedGetAccessibilityHandlerPtr)
+		}))
+	}
+
+	r.OverrideGetRootScreenRect(renderHandlerGetRootScreenRectCEFCallback())
+
+	r.OverrideGetViewRect(renderHandlerGetViewRectCEFCallback())
+
+	r.OverrideGetScreenPoint(renderHandlerGetScreenPointCEFCallback())
+
+	r.OverrideGetScreenInfo(renderHandlerGetScreenInfoCEFCallback())
+
+	r.OverrideOnPopupShow(renderHandlerOnPopupShowCEFCallback())
+
+	r.OverrideOnPopupSize(renderHandlerOnPopupSizeCEFCallback())
+
+	r.OverrideOnPaint(renderHandlerOnPaintCEFCallback())
+
+	r.OverrideOnAcceleratedPaint(renderHandlerOnAcceleratedPaintCEFCallback())
+
+	r.OverrideGetTouchHandleSize(renderHandlerGetTouchHandleSizeCEFCallback())
+
+	r.OverrideOnTouchHandleStateChanged(renderHandlerOnTouchHandleStateChangedCEFCallback())
+
+	r.OverrideStartDragging(renderHandlerStartDraggingCEFCallback())
+
+	r.OverrideUpdateDragCursor(renderHandlerUpdateDragCursorCEFCallback())
+
+	r.OverrideOnScrollOffsetChanged(renderHandlerOnScrollOffsetChangedCEFCallback())
+
+	r.OverrideOnImeCompositionRangeChanged(renderHandlerOnImeCompositionRangeChangedCEFCallback())
+
+	r.OverrideOnTextSelectionChanged(renderHandlerOnTextSelectionChangedCEFCallback())
+
+	r.OverrideOnVirtualKeyboardRequested(renderHandlerOnVirtualKeyboardRequestedCEFCallback())
+
 	return w
 }
 

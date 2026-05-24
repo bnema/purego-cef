@@ -137,41 +137,77 @@ func (w *urlrequestClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewUrlrequestClient creates a CEF handler backed by the given implementation.
-func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFUrlrequestClientT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var urlrequestClientOnRequestCompleteSharedOnce sync.Once
+var urlrequestClientOnRequestCompleteSharedCallback uintptr
 
-	r.OverrideOnRequestComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+func urlrequestClientOnRequestCompleteCEFCallback() uintptr {
+	return sharedCEFCallback(&urlrequestClientOnRequestCompleteSharedOnce, &urlrequestClientOnRequestCompleteSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[UrlrequestClient](self)
+		if !ownerOK {
+			return
+		}
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
 		impl.OnRequestComplete(request)
-	}))
+	})
+}
 
-	r.OverrideOnUploadProgress(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
+var urlrequestClientOnUploadProgressSharedOnce sync.Once
+var urlrequestClientOnUploadProgressSharedCallback uintptr
+
+func urlrequestClientOnUploadProgressCEFCallback() uintptr {
+	return sharedCEFCallback(&urlrequestClientOnUploadProgressSharedOnce, &urlrequestClientOnUploadProgressSharedCallback, func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
+		impl, ownerOK := cefCallbackOwnerAs[UrlrequestClient](self)
+		if !ownerOK {
+			return
+		}
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
 		current := arg1
 		total := arg2
 		impl.OnUploadProgress(request, current, total)
-	}))
+	})
+}
 
-	r.OverrideOnDownloadProgress(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
+var urlrequestClientOnDownloadProgressSharedOnce sync.Once
+var urlrequestClientOnDownloadProgressSharedCallback uintptr
+
+func urlrequestClientOnDownloadProgressCEFCallback() uintptr {
+	return sharedCEFCallback(&urlrequestClientOnDownloadProgressSharedOnce, &urlrequestClientOnDownloadProgressSharedCallback, func(self uintptr, arg0 uintptr, arg1 int64, arg2 int64) {
+		impl, ownerOK := cefCallbackOwnerAs[UrlrequestClient](self)
+		if !ownerOK {
+			return
+		}
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
 		current := arg1
 		total := arg2
 		impl.OnDownloadProgress(request, current, total)
-	}))
+	})
+}
 
-	r.OverrideOnDownloadData(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+var urlrequestClientOnDownloadDataSharedOnce sync.Once
+var urlrequestClientOnDownloadDataSharedCallback uintptr
+
+func urlrequestClientOnDownloadDataCEFCallback() uintptr {
+	return sharedCEFCallback(&urlrequestClientOnDownloadDataSharedOnce, &urlrequestClientOnDownloadDataSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[UrlrequestClient](self)
+		if !ownerOK {
+			return
+		}
 		request := wrapUrlrequest(unsafe.Pointer(arg0))
 		data := unsafe.Pointer(arg1)
 		dataLength := int(arg2)
 		impl.OnDownloadData(request, data, dataLength)
-	}))
+	})
+}
 
-	r.OverrideGetAuthCredentials(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+var urlrequestClientGetAuthCredentialsSharedOnce sync.Once
+var urlrequestClientGetAuthCredentialsSharedCallback uintptr
+
+func urlrequestClientGetAuthCredentialsCEFCallback() uintptr {
+	return sharedCEFCallback(&urlrequestClientGetAuthCredentialsSharedOnce, &urlrequestClientGetAuthCredentialsSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[UrlrequestClient](self)
+		if !ownerOK {
+			return 0
+		}
 		isproxy := int32(arg0)
 		host := goString(unsafe.Pointer(arg1))
 		port := int32(arg2)
@@ -179,10 +215,29 @@ func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
 		scheme := goString(unsafe.Pointer(arg4))
 		callback := wrapAuthCallback(unsafe.Pointer(arg5))
 		return uintptr(impl.GetAuthCredentials(isproxy, host, port, realm, scheme, callback))
-	}))
+	})
+}
 
+// NewUrlrequestClient creates a CEF handler backed by the given implementation.
+func NewUrlrequestClient(impl UrlrequestClient) UrlrequestClient {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFUrlrequestClientT)
 	w := &urlrequestClientWrapper{rawPtr: r}
 	w.UrlrequestClient = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnRequestComplete(urlrequestClientOnRequestCompleteCEFCallback())
+
+	r.OverrideOnUploadProgress(urlrequestClientOnUploadProgressCEFCallback())
+
+	r.OverrideOnDownloadProgress(urlrequestClientOnDownloadProgressCEFCallback())
+
+	r.OverrideOnDownloadData(urlrequestClientOnDownloadDataCEFCallback())
+
+	r.OverrideGetAuthCredentials(urlrequestClientGetAuthCredentialsCEFCallback())
+
 	return w
 }
 

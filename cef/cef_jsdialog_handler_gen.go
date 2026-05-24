@@ -85,15 +85,15 @@ func (w *jsdialogHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewJsdialogHandler creates a CEF handler backed by the given implementation.
-func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFJsdialogHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var jsdialogHandlerOnJsdialogSharedOnce sync.Once
+var jsdialogHandlerOnJsdialogSharedCallback uintptr
 
-	r.OverrideOnJsdialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+func jsdialogHandlerOnJsdialogCEFCallback() uintptr {
+	return sharedCEFCallback(&jsdialogHandlerOnJsdialogSharedOnce, &jsdialogHandlerOnJsdialogSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[JsdialogHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		originURL := goString(unsafe.Pointer(arg1))
 		dialogType := JsdialogType(arg2)
@@ -102,9 +102,18 @@ func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 		callback := wrapJsdialogCallback(unsafe.Pointer(arg5))
 		suppressMessage := (*int32)(unsafe.Pointer(arg6))
 		return uintptr(impl.OnJsdialog(browser, originURL, dialogType, messageText, defaultPromptText, callback, suppressMessage))
-	}))
+	})
+}
 
-	r.OverrideOnBeforeUnloadDialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+var jsdialogHandlerOnBeforeUnloadDialogSharedOnce sync.Once
+var jsdialogHandlerOnBeforeUnloadDialogSharedCallback uintptr
+
+func jsdialogHandlerOnBeforeUnloadDialogCEFCallback() uintptr {
+	return sharedCEFCallback(&jsdialogHandlerOnBeforeUnloadDialogSharedOnce, &jsdialogHandlerOnBeforeUnloadDialogSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[JsdialogHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		messageText := goString(unsafe.Pointer(arg1))
 		isReload := int32(arg2)
@@ -113,20 +122,55 @@ func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideOnResetDialogState(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var jsdialogHandlerOnResetDialogStateSharedOnce sync.Once
+var jsdialogHandlerOnResetDialogStateSharedCallback uintptr
+
+func jsdialogHandlerOnResetDialogStateCEFCallback() uintptr {
+	return sharedCEFCallback(&jsdialogHandlerOnResetDialogStateSharedOnce, &jsdialogHandlerOnResetDialogStateSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[JsdialogHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnResetDialogState(browser)
-	}))
+	})
+}
 
-	r.OverrideOnDialogClosed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var jsdialogHandlerOnDialogClosedSharedOnce sync.Once
+var jsdialogHandlerOnDialogClosedSharedCallback uintptr
+
+func jsdialogHandlerOnDialogClosedCEFCallback() uintptr {
+	return sharedCEFCallback(&jsdialogHandlerOnDialogClosedSharedOnce, &jsdialogHandlerOnDialogClosedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[JsdialogHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnDialogClosed(browser)
-	}))
+	})
+}
 
+// NewJsdialogHandler creates a CEF handler backed by the given implementation.
+func NewJsdialogHandler(impl JsdialogHandler) JsdialogHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFJsdialogHandlerT)
 	w := &jsdialogHandlerWrapper{rawPtr: r}
 	w.JsdialogHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnJsdialog(jsdialogHandlerOnJsdialogCEFCallback())
+
+	r.OverrideOnBeforeUnloadDialog(jsdialogHandlerOnBeforeUnloadDialogCEFCallback())
+
+	r.OverrideOnResetDialogState(jsdialogHandlerOnResetDialogStateCEFCallback())
+
+	r.OverrideOnDialogClosed(jsdialogHandlerOnDialogClosedCEFCallback())
+
 	return w
 }
 

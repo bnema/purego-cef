@@ -119,15 +119,15 @@ func (w *mediaObserverWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewMediaObserver creates a CEF handler backed by the given implementation.
-func NewMediaObserver(impl MediaObserver) MediaObserver {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFMediaObserverT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var mediaObserverOnSinksSharedOnce sync.Once
+var mediaObserverOnSinksSharedCallback uintptr
 
-	r.OverrideOnSinks(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+func mediaObserverOnSinksCEFCallback() uintptr {
+	return sharedCEFCallback(&mediaObserverOnSinksSharedOnce, &mediaObserverOnSinksSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MediaObserver](self)
+		if !ownerOK {
+			return
+		}
 		var sinks []MediaSink
 		if arg1 != 0 && arg0 > 0 {
 			sinksPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg1)), int(arg0))
@@ -137,9 +137,18 @@ func NewMediaObserver(impl MediaObserver) MediaObserver {
 			}
 		}
 		impl.OnSinks(sinks)
-	}))
+	})
+}
 
-	r.OverrideOnRoutes(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var mediaObserverOnRoutesSharedOnce sync.Once
+var mediaObserverOnRoutesSharedCallback uintptr
+
+func mediaObserverOnRoutesCEFCallback() uintptr {
+	return sharedCEFCallback(&mediaObserverOnRoutesSharedOnce, &mediaObserverOnRoutesSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MediaObserver](self)
+		if !ownerOK {
+			return
+		}
 		var routes []MediaRoute
 		if arg1 != 0 && arg0 > 0 {
 			routesPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg1)), int(arg0))
@@ -149,23 +158,58 @@ func NewMediaObserver(impl MediaObserver) MediaObserver {
 			}
 		}
 		impl.OnRoutes(routes)
-	}))
+	})
+}
 
-	r.OverrideOnRouteStateChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var mediaObserverOnRouteStateChangedSharedOnce sync.Once
+var mediaObserverOnRouteStateChangedSharedCallback uintptr
+
+func mediaObserverOnRouteStateChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&mediaObserverOnRouteStateChangedSharedOnce, &mediaObserverOnRouteStateChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MediaObserver](self)
+		if !ownerOK {
+			return
+		}
 		route := wrapMediaRoute(unsafe.Pointer(arg0))
 		state := MediaRouteConnectionState(arg1)
 		impl.OnRouteStateChanged(route, state)
-	}))
+	})
+}
 
-	r.OverrideOnRouteMessageReceived(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+var mediaObserverOnRouteMessageReceivedSharedOnce sync.Once
+var mediaObserverOnRouteMessageReceivedSharedCallback uintptr
+
+func mediaObserverOnRouteMessageReceivedCEFCallback() uintptr {
+	return sharedCEFCallback(&mediaObserverOnRouteMessageReceivedSharedOnce, &mediaObserverOnRouteMessageReceivedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MediaObserver](self)
+		if !ownerOK {
+			return
+		}
 		route := wrapMediaRoute(unsafe.Pointer(arg0))
 		message := unsafe.Pointer(arg1)
 		messageSize := int(arg2)
 		impl.OnRouteMessageReceived(route, message, messageSize)
-	}))
+	})
+}
 
+// NewMediaObserver creates a CEF handler backed by the given implementation.
+func NewMediaObserver(impl MediaObserver) MediaObserver {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFMediaObserverT)
 	w := &mediaObserverWrapper{rawPtr: r}
 	w.MediaObserver = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnSinks(mediaObserverOnSinksCEFCallback())
+
+	r.OverrideOnRoutes(mediaObserverOnRoutesCEFCallback())
+
+	r.OverrideOnRouteStateChanged(mediaObserverOnRouteStateChangedCEFCallback())
+
+	r.OverrideOnRouteMessageReceived(mediaObserverOnRouteMessageReceivedCEFCallback())
+
 	return w
 }
 
@@ -370,23 +414,34 @@ func (w *mediaRouteCreateCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var mediaRouteCreateCallbackOnMediaRouteCreateFinishedSharedOnce sync.Once
+var mediaRouteCreateCallbackOnMediaRouteCreateFinishedSharedCallback uintptr
+
+func mediaRouteCreateCallbackOnMediaRouteCreateFinishedCEFCallback() uintptr {
+	return sharedCEFCallback(&mediaRouteCreateCallbackOnMediaRouteCreateFinishedSharedOnce, &mediaRouteCreateCallbackOnMediaRouteCreateFinishedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MediaRouteCreateCallback](self)
+		if !ownerOK {
+			return
+		}
+		result := MediaRouteCreateResult(arg0)
+		error := goString(unsafe.Pointer(arg1))
+		route := wrapMediaRoute(unsafe.Pointer(arg2))
+		impl.OnMediaRouteCreateFinished(result, error, route)
+	})
+}
+
 // NewMediaRouteCreateCallback creates a CEF handler backed by the given implementation.
 func NewMediaRouteCreateCallback(impl MediaRouteCreateCallback) MediaRouteCreateCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFMediaRouteCreateCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnMediaRouteCreateFinished(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		result := MediaRouteCreateResult(arg0)
-		error := goString(unsafe.Pointer(arg1))
-		route := wrapMediaRoute(unsafe.Pointer(arg2))
-		impl.OnMediaRouteCreateFinished(result, error, route)
-	}))
-
 	w := &mediaRouteCreateCallbackWrapper{rawPtr: r}
 	w.MediaRouteCreateCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnMediaRouteCreateFinished(mediaRouteCreateCallbackOnMediaRouteCreateFinishedCEFCallback())
+
 	return w
 }
 
@@ -570,21 +625,32 @@ func (w *mediaSinkDeviceInfoCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var mediaSinkDeviceInfoCallbackOnMediaSinkDeviceInfoSharedOnce sync.Once
+var mediaSinkDeviceInfoCallbackOnMediaSinkDeviceInfoSharedCallback uintptr
+
+func mediaSinkDeviceInfoCallbackOnMediaSinkDeviceInfoCEFCallback() uintptr {
+	return sharedCEFCallback(&mediaSinkDeviceInfoCallbackOnMediaSinkDeviceInfoSharedOnce, &mediaSinkDeviceInfoCallbackOnMediaSinkDeviceInfoSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MediaSinkDeviceInfoCallback](self)
+		if !ownerOK {
+			return
+		}
+		deviceInfo := (*MediaSinkDeviceInfo)(unsafe.Pointer(arg0))
+		impl.OnMediaSinkDeviceInfo(deviceInfo)
+	})
+}
+
 // NewMediaSinkDeviceInfoCallback creates a CEF handler backed by the given implementation.
 func NewMediaSinkDeviceInfoCallback(impl MediaSinkDeviceInfoCallback) MediaSinkDeviceInfoCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFMediaSinkDeviceInfoCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnMediaSinkDeviceInfo(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		deviceInfo := (*MediaSinkDeviceInfo)(unsafe.Pointer(arg0))
-		impl.OnMediaSinkDeviceInfo(deviceInfo)
-	}))
-
 	w := &mediaSinkDeviceInfoCallbackWrapper{rawPtr: r}
 	w.MediaSinkDeviceInfoCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnMediaSinkDeviceInfo(mediaSinkDeviceInfoCallbackOnMediaSinkDeviceInfoCEFCallback())
+
 	return w
 }
 

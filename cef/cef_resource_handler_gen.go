@@ -143,63 +143,140 @@ func (w *resourceHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var resourceHandlerOpenSharedOnce sync.Once
+var resourceHandlerOpenSharedCallback uintptr
+
+func resourceHandlerOpenCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceHandlerOpenSharedOnce, &resourceHandlerOpenSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		request := wrapRequest(unsafe.Pointer(arg0))
+		handleRequest := (*int32)(unsafe.Pointer(arg1))
+		callback := wrapCallback(unsafe.Pointer(arg2))
+		return uintptr(impl.Open(request, handleRequest, callback))
+	})
+}
+
+var resourceHandlerProcessRequestSharedOnce sync.Once
+var resourceHandlerProcessRequestSharedCallback uintptr
+
+func resourceHandlerProcessRequestCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceHandlerProcessRequestSharedOnce, &resourceHandlerProcessRequestSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		request := wrapRequest(unsafe.Pointer(arg0))
+		callback := wrapCallback(unsafe.Pointer(arg1))
+		return uintptr(impl.ProcessRequest(request, callback))
+	})
+}
+
+var resourceHandlerGetResponseHeadersSharedOnce sync.Once
+var resourceHandlerGetResponseHeadersSharedCallback uintptr
+
+func resourceHandlerGetResponseHeadersCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceHandlerGetResponseHeadersSharedOnce, &resourceHandlerGetResponseHeadersSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceHandler](self)
+		if !ownerOK {
+			return
+		}
+		response := wrapResponse(unsafe.Pointer(arg0))
+		responseLength := (*int64)(unsafe.Pointer(arg1))
+		redirecturl := uintptr(arg2)
+		impl.GetResponseHeaders(response, responseLength, redirecturl)
+	})
+}
+
+var resourceHandlerSkipSharedOnce sync.Once
+var resourceHandlerSkipSharedCallback uintptr
+
+func resourceHandlerSkipCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceHandlerSkipSharedOnce, &resourceHandlerSkipSharedCallback, func(self uintptr, arg0 int64, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		bytesToSkip := arg0
+		bytesSkipped := (*int64)(unsafe.Pointer(arg1))
+		callback := wrapResourceSkipCallback(unsafe.Pointer(arg2))
+		return uintptr(impl.Skip(bytesToSkip, bytesSkipped, callback))
+	})
+}
+
+var resourceHandlerReadSharedOnce sync.Once
+var resourceHandlerReadSharedCallback uintptr
+
+func resourceHandlerReadCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceHandlerReadSharedOnce, &resourceHandlerReadSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		dataOut := unsafe.Pointer(arg0)
+		bytesToRead := int32(arg1)
+		bytesRead := (*int32)(unsafe.Pointer(arg2))
+		callback := wrapResourceReadCallback(unsafe.Pointer(arg3))
+		return uintptr(impl.Read(dataOut, bytesToRead, bytesRead, callback))
+	})
+}
+
+var resourceHandlerReadResponseSharedOnce sync.Once
+var resourceHandlerReadResponseSharedCallback uintptr
+
+func resourceHandlerReadResponseCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceHandlerReadResponseSharedOnce, &resourceHandlerReadResponseSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		dataOut := unsafe.Pointer(arg0)
+		bytesToRead := int32(arg1)
+		bytesRead := (*int32)(unsafe.Pointer(arg2))
+		callback := wrapCallback(unsafe.Pointer(arg3))
+		return uintptr(impl.ReadResponse(dataOut, bytesToRead, bytesRead, callback))
+	})
+}
+
+var resourceHandlerCancelSharedOnce sync.Once
+var resourceHandlerCancelSharedCallback uintptr
+
+func resourceHandlerCancelCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceHandlerCancelSharedOnce, &resourceHandlerCancelSharedCallback, func(self uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceHandler](self)
+		if !ownerOK {
+			return
+		}
+		impl.Cancel()
+	})
+}
+
 // NewResourceHandler creates a CEF handler backed by the given implementation.
 func NewResourceHandler(impl ResourceHandler) ResourceHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFResourceHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOpen(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
-		request := wrapRequest(unsafe.Pointer(arg0))
-		handleRequest := (*int32)(unsafe.Pointer(arg1))
-		callback := wrapCallback(unsafe.Pointer(arg2))
-		return uintptr(impl.Open(request, handleRequest, callback))
-	}))
-
-	r.OverrideProcessRequest(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		request := wrapRequest(unsafe.Pointer(arg0))
-		callback := wrapCallback(unsafe.Pointer(arg1))
-		return uintptr(impl.ProcessRequest(request, callback))
-	}))
-
-	r.OverrideGetResponseHeaders(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		response := wrapResponse(unsafe.Pointer(arg0))
-		responseLength := (*int64)(unsafe.Pointer(arg1))
-		redirecturl := uintptr(arg2)
-		impl.GetResponseHeaders(response, responseLength, redirecturl)
-	}))
-
-	r.OverrideSkip(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 int64, arg1 uintptr, arg2 uintptr) uintptr {
-		bytesToSkip := arg0
-		bytesSkipped := (*int64)(unsafe.Pointer(arg1))
-		callback := wrapResourceSkipCallback(unsafe.Pointer(arg2))
-		return uintptr(impl.Skip(bytesToSkip, bytesSkipped, callback))
-	}))
-
-	r.OverrideRead(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		dataOut := unsafe.Pointer(arg0)
-		bytesToRead := int32(arg1)
-		bytesRead := (*int32)(unsafe.Pointer(arg2))
-		callback := wrapResourceReadCallback(unsafe.Pointer(arg3))
-		return uintptr(impl.Read(dataOut, bytesToRead, bytesRead, callback))
-	}))
-
-	r.OverrideReadResponse(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		dataOut := unsafe.Pointer(arg0)
-		bytesToRead := int32(arg1)
-		bytesRead := (*int32)(unsafe.Pointer(arg2))
-		callback := wrapCallback(unsafe.Pointer(arg3))
-		return uintptr(impl.ReadResponse(dataOut, bytesToRead, bytesRead, callback))
-	}))
-
-	r.OverrideCancel(newCEFCallback(unsafe.Pointer(r), func(self uintptr) {
-		impl.Cancel()
-	}))
-
 	w := &resourceHandlerWrapper{rawPtr: r}
 	w.ResourceHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOpen(resourceHandlerOpenCEFCallback())
+
+	r.OverrideProcessRequest(resourceHandlerProcessRequestCEFCallback())
+
+	r.OverrideGetResponseHeaders(resourceHandlerGetResponseHeadersCEFCallback())
+
+	r.OverrideSkip(resourceHandlerSkipCEFCallback())
+
+	r.OverrideRead(resourceHandlerReadCEFCallback())
+
+	r.OverrideReadResponse(resourceHandlerReadResponseCEFCallback())
+
+	r.OverrideCancel(resourceHandlerCancelCEFCallback())
+
 	return w
 }
 

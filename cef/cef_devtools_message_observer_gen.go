@@ -28,50 +28,105 @@ func (w *devToolsMessageObserverWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewDevToolsMessageObserver creates a CEF handler backed by the given implementation.
-func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObserver {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFDevToolsMessageObserverT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var devToolsMessageObserverOnDevToolsMessageSharedOnce sync.Once
+var devToolsMessageObserverOnDevToolsMessageSharedCallback uintptr
 
-	r.OverrideOnDevToolsMessage(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+func devToolsMessageObserverOnDevToolsMessageCEFCallback() uintptr {
+	return sharedCEFCallback(&devToolsMessageObserverOnDevToolsMessageSharedOnce, &devToolsMessageObserverOnDevToolsMessageSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DevToolsMessageObserver](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		message := unsafe.Pointer(arg1)
 		messageSize := int(arg2)
 		return uintptr(impl.OnDevToolsMessage(browser, message, messageSize))
-	}))
+	})
+}
 
-	r.OverrideOnDevToolsMethodResult(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+var devToolsMessageObserverOnDevToolsMethodResultSharedOnce sync.Once
+var devToolsMessageObserverOnDevToolsMethodResultSharedCallback uintptr
+
+func devToolsMessageObserverOnDevToolsMethodResultCEFCallback() uintptr {
+	return sharedCEFCallback(&devToolsMessageObserverOnDevToolsMethodResultSharedOnce, &devToolsMessageObserverOnDevToolsMethodResultSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DevToolsMessageObserver](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		messageID := int32(arg1)
 		success := int32(arg2)
 		result := unsafe.Pointer(arg3)
 		resultSize := int(arg4)
 		impl.OnDevToolsMethodResult(browser, messageID, success, result, resultSize)
-	}))
+	})
+}
 
-	r.OverrideOnDevToolsEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+var devToolsMessageObserverOnDevToolsEventSharedOnce sync.Once
+var devToolsMessageObserverOnDevToolsEventSharedCallback uintptr
+
+func devToolsMessageObserverOnDevToolsEventCEFCallback() uintptr {
+	return sharedCEFCallback(&devToolsMessageObserverOnDevToolsEventSharedOnce, &devToolsMessageObserverOnDevToolsEventSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DevToolsMessageObserver](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		method := goString(unsafe.Pointer(arg1))
 		params := unsafe.Pointer(arg2)
 		paramsSize := int(arg3)
 		impl.OnDevToolsEvent(browser, method, params, paramsSize)
-	}))
+	})
+}
 
-	r.OverrideOnDevToolsAgentAttached(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var devToolsMessageObserverOnDevToolsAgentAttachedSharedOnce sync.Once
+var devToolsMessageObserverOnDevToolsAgentAttachedSharedCallback uintptr
+
+func devToolsMessageObserverOnDevToolsAgentAttachedCEFCallback() uintptr {
+	return sharedCEFCallback(&devToolsMessageObserverOnDevToolsAgentAttachedSharedOnce, &devToolsMessageObserverOnDevToolsAgentAttachedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DevToolsMessageObserver](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnDevToolsAgentAttached(browser)
-	}))
+	})
+}
 
-	r.OverrideOnDevToolsAgentDetached(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var devToolsMessageObserverOnDevToolsAgentDetachedSharedOnce sync.Once
+var devToolsMessageObserverOnDevToolsAgentDetachedSharedCallback uintptr
+
+func devToolsMessageObserverOnDevToolsAgentDetachedCEFCallback() uintptr {
+	return sharedCEFCallback(&devToolsMessageObserverOnDevToolsAgentDetachedSharedOnce, &devToolsMessageObserverOnDevToolsAgentDetachedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DevToolsMessageObserver](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnDevToolsAgentDetached(browser)
-	}))
+	})
+}
 
+// NewDevToolsMessageObserver creates a CEF handler backed by the given implementation.
+func NewDevToolsMessageObserver(impl DevToolsMessageObserver) DevToolsMessageObserver {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFDevToolsMessageObserverT)
 	w := &devToolsMessageObserverWrapper{rawPtr: r}
 	w.DevToolsMessageObserver = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnDevToolsMessage(devToolsMessageObserverOnDevToolsMessageCEFCallback())
+
+	r.OverrideOnDevToolsMethodResult(devToolsMessageObserverOnDevToolsMethodResultCEFCallback())
+
+	r.OverrideOnDevToolsEvent(devToolsMessageObserverOnDevToolsEventCEFCallback())
+
+	r.OverrideOnDevToolsAgentAttached(devToolsMessageObserverOnDevToolsAgentAttachedCEFCallback())
+
+	r.OverrideOnDevToolsAgentDetached(devToolsMessageObserverOnDevToolsAgentDetachedCEFCallback())
+
 	return w
 }
 

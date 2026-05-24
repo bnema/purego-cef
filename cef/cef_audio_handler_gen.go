@@ -28,48 +28,103 @@ func (w *rawAudioHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var rawAudioHandlerGetAudioParametersSharedOnce sync.Once
+var rawAudioHandlerGetAudioParametersSharedCallback uintptr
+
+func rawAudioHandlerGetAudioParametersCEFCallback() uintptr {
+	return sharedCEFCallback(&rawAudioHandlerGetAudioParametersSharedOnce, &rawAudioHandlerGetAudioParametersSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RawAudioHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		params := (*AudioParameters)(unsafe.Pointer(arg1))
+		return uintptr(impl.GetAudioParameters(browser, params))
+	})
+}
+
+var rawAudioHandlerOnAudioStreamStartedSharedOnce sync.Once
+var rawAudioHandlerOnAudioStreamStartedSharedCallback uintptr
+
+func rawAudioHandlerOnAudioStreamStartedCEFCallback() uintptr {
+	return sharedCEFCallback(&rawAudioHandlerOnAudioStreamStartedSharedOnce, &rawAudioHandlerOnAudioStreamStartedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RawAudioHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		params := (*AudioParameters)(unsafe.Pointer(arg1))
+		channels := int32(arg2)
+		impl.OnAudioStreamStarted(browser, params, channels)
+	})
+}
+
+var rawAudioHandlerOnAudioStreamPacketSharedOnce sync.Once
+var rawAudioHandlerOnAudioStreamPacketSharedCallback uintptr
+
+func rawAudioHandlerOnAudioStreamPacketCEFCallback() uintptr {
+	return sharedCEFCallback(&rawAudioHandlerOnAudioStreamPacketSharedOnce, &rawAudioHandlerOnAudioStreamPacketSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 int64) {
+		impl, ownerOK := cefCallbackOwnerAs[RawAudioHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		data := unsafe.Pointer(arg1)
+		frames := int32(arg2)
+		pts := arg3
+		impl.OnAudioStreamPacket(browser, data, frames, pts)
+	})
+}
+
+var rawAudioHandlerOnAudioStreamStoppedSharedOnce sync.Once
+var rawAudioHandlerOnAudioStreamStoppedSharedCallback uintptr
+
+func rawAudioHandlerOnAudioStreamStoppedCEFCallback() uintptr {
+	return sharedCEFCallback(&rawAudioHandlerOnAudioStreamStoppedSharedOnce, &rawAudioHandlerOnAudioStreamStoppedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RawAudioHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnAudioStreamStopped(browser)
+	})
+}
+
+var rawAudioHandlerOnAudioStreamErrorSharedOnce sync.Once
+var rawAudioHandlerOnAudioStreamErrorSharedCallback uintptr
+
+func rawAudioHandlerOnAudioStreamErrorCEFCallback() uintptr {
+	return sharedCEFCallback(&rawAudioHandlerOnAudioStreamErrorSharedOnce, &rawAudioHandlerOnAudioStreamErrorSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RawAudioHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		message := goString(unsafe.Pointer(arg1))
+		impl.OnAudioStreamError(browser, message)
+	})
+}
+
 // NewRawAudioHandler creates a CEF handler backed by the given implementation.
 func NewRawAudioHandler(impl RawAudioHandler) RawAudioHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFAudioHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetAudioParameters(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		params := (*AudioParameters)(unsafe.Pointer(arg1))
-		return uintptr(impl.GetAudioParameters(browser, params))
-	}))
-
-	r.OverrideOnAudioStreamStarted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		params := (*AudioParameters)(unsafe.Pointer(arg1))
-		channels := int32(arg2)
-		impl.OnAudioStreamStarted(browser, params, channels)
-	}))
-
-	r.OverrideOnAudioStreamPacket(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 int64) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		data := unsafe.Pointer(arg1)
-		frames := int32(arg2)
-		pts := arg3
-		impl.OnAudioStreamPacket(browser, data, frames, pts)
-	}))
-
-	r.OverrideOnAudioStreamStopped(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		impl.OnAudioStreamStopped(browser)
-	}))
-
-	r.OverrideOnAudioStreamError(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		message := goString(unsafe.Pointer(arg1))
-		impl.OnAudioStreamError(browser, message)
-	}))
-
 	w := &rawAudioHandlerWrapper{rawPtr: r}
 	w.RawAudioHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetAudioParameters(rawAudioHandlerGetAudioParametersCEFCallback())
+
+	r.OverrideOnAudioStreamStarted(rawAudioHandlerOnAudioStreamStartedCEFCallback())
+
+	r.OverrideOnAudioStreamPacket(rawAudioHandlerOnAudioStreamPacketCEFCallback())
+
+	r.OverrideOnAudioStreamStopped(rawAudioHandlerOnAudioStreamStoppedCEFCallback())
+
+	r.OverrideOnAudioStreamError(rawAudioHandlerOnAudioStreamErrorCEFCallback())
+
 	return w
 }
 

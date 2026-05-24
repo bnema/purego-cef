@@ -28,57 +28,112 @@ func (w *commandHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewCommandHandler creates a CEF handler backed by the given implementation.
-func NewCommandHandler(impl CommandHandler) CommandHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFCommandHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var commandHandlerOnChromeCommandSharedOnce sync.Once
+var commandHandlerOnChromeCommandSharedCallback uintptr
 
-	r.OverrideOnChromeCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+func commandHandlerOnChromeCommandCEFCallback() uintptr {
+	return sharedCEFCallback(&commandHandlerOnChromeCommandSharedOnce, &commandHandlerOnChromeCommandSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[CommandHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		commandID := int32(arg1)
 		disposition := WindowOpenDisposition(arg2)
 		return uintptr(impl.OnChromeCommand(browser, commandID, disposition))
-	}))
+	})
+}
 
-	r.OverrideIsChromeAppMenuItemVisible(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+var commandHandlerIsChromeAppMenuItemVisibleSharedOnce sync.Once
+var commandHandlerIsChromeAppMenuItemVisibleSharedCallback uintptr
+
+func commandHandlerIsChromeAppMenuItemVisibleCEFCallback() uintptr {
+	return sharedCEFCallback(&commandHandlerIsChromeAppMenuItemVisibleSharedOnce, &commandHandlerIsChromeAppMenuItemVisibleSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[CommandHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		commandID := int32(arg1)
 		if impl.IsChromeAppMenuItemVisible(browser, commandID) {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideIsChromeAppMenuItemEnabled(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+var commandHandlerIsChromeAppMenuItemEnabledSharedOnce sync.Once
+var commandHandlerIsChromeAppMenuItemEnabledSharedCallback uintptr
+
+func commandHandlerIsChromeAppMenuItemEnabledCEFCallback() uintptr {
+	return sharedCEFCallback(&commandHandlerIsChromeAppMenuItemEnabledSharedOnce, &commandHandlerIsChromeAppMenuItemEnabledSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[CommandHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		commandID := int32(arg1)
 		if impl.IsChromeAppMenuItemEnabled(browser, commandID) {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideIsChromePageActionIconVisible(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
+var commandHandlerIsChromePageActionIconVisibleSharedOnce sync.Once
+var commandHandlerIsChromePageActionIconVisibleSharedCallback uintptr
+
+func commandHandlerIsChromePageActionIconVisibleCEFCallback() uintptr {
+	return sharedCEFCallback(&commandHandlerIsChromePageActionIconVisibleSharedOnce, &commandHandlerIsChromePageActionIconVisibleSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[CommandHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		iconType := ChromePageActionIconType(arg0)
 		if impl.IsChromePageActionIconVisible(iconType) {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideIsChromeToolbarButtonVisible(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
+var commandHandlerIsChromeToolbarButtonVisibleSharedOnce sync.Once
+var commandHandlerIsChromeToolbarButtonVisibleSharedCallback uintptr
+
+func commandHandlerIsChromeToolbarButtonVisibleCEFCallback() uintptr {
+	return sharedCEFCallback(&commandHandlerIsChromeToolbarButtonVisibleSharedOnce, &commandHandlerIsChromeToolbarButtonVisibleSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[CommandHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		buttonType := ChromeToolbarButtonType(arg0)
 		if impl.IsChromeToolbarButtonVisible(buttonType) {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
+// NewCommandHandler creates a CEF handler backed by the given implementation.
+func NewCommandHandler(impl CommandHandler) CommandHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFCommandHandlerT)
 	w := &commandHandlerWrapper{rawPtr: r}
 	w.CommandHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnChromeCommand(commandHandlerOnChromeCommandCEFCallback())
+
+	r.OverrideIsChromeAppMenuItemVisible(commandHandlerIsChromeAppMenuItemVisibleCEFCallback())
+
+	r.OverrideIsChromeAppMenuItemEnabled(commandHandlerIsChromeAppMenuItemEnabledCEFCallback())
+
+	r.OverrideIsChromePageActionIconVisible(commandHandlerIsChromePageActionIconVisibleCEFCallback())
+
+	r.OverrideIsChromeToolbarButtonVisible(commandHandlerIsChromeToolbarButtonVisibleCEFCallback())
+
 	return w
 }
 

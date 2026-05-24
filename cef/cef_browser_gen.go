@@ -261,21 +261,32 @@ func (w *runFileDialogCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var runFileDialogCallbackOnFileDialogDismissedSharedOnce sync.Once
+var runFileDialogCallbackOnFileDialogDismissedSharedCallback uintptr
+
+func runFileDialogCallbackOnFileDialogDismissedCEFCallback() uintptr {
+	return sharedCEFCallback(&runFileDialogCallbackOnFileDialogDismissedSharedOnce, &runFileDialogCallbackOnFileDialogDismissedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RunFileDialogCallback](self)
+		if !ownerOK {
+			return
+		}
+		filePaths := StringList(arg0)
+		impl.OnFileDialogDismissed(filePaths)
+	})
+}
+
 // NewRunFileDialogCallback creates a CEF handler backed by the given implementation.
 func NewRunFileDialogCallback(impl RunFileDialogCallback) RunFileDialogCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFRunFileDialogCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnFileDialogDismissed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		filePaths := StringList(arg0)
-		impl.OnFileDialogDismissed(filePaths)
-	}))
-
 	w := &runFileDialogCallbackWrapper{rawPtr: r}
 	w.RunFileDialogCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnFileDialogDismissed(runFileDialogCallbackOnFileDialogDismissedCEFCallback())
+
 	return w
 }
 
@@ -348,24 +359,35 @@ func (w *navigationEntryVisitorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var navigationEntryVisitorVisitSharedOnce sync.Once
+var navigationEntryVisitorVisitSharedCallback uintptr
+
+func navigationEntryVisitorVisitCEFCallback() uintptr {
+	return sharedCEFCallback(&navigationEntryVisitorVisitSharedOnce, &navigationEntryVisitorVisitSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[NavigationEntryVisitor](self)
+		if !ownerOK {
+			return 0
+		}
+		entry := wrapNavigationEntry(unsafe.Pointer(arg0))
+		current := int32(arg1)
+		index := int32(arg2)
+		total := int32(arg3)
+		return uintptr(impl.Visit(entry, current, index, total))
+	})
+}
+
 // NewNavigationEntryVisitor creates a CEF handler backed by the given implementation.
 func NewNavigationEntryVisitor(impl NavigationEntryVisitor) NavigationEntryVisitor {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFNavigationEntryVisitorT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideVisit(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		entry := wrapNavigationEntry(unsafe.Pointer(arg0))
-		current := int32(arg1)
-		index := int32(arg2)
-		total := int32(arg3)
-		return uintptr(impl.Visit(entry, current, index, total))
-	}))
-
 	w := &navigationEntryVisitorWrapper{rawPtr: r}
 	w.NavigationEntryVisitor = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideVisit(navigationEntryVisitorVisitCEFCallback())
+
 	return w
 }
 
@@ -439,22 +461,33 @@ func (w *pdfPrintCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var pdfPrintCallbackOnPdfPrintFinishedSharedOnce sync.Once
+var pdfPrintCallbackOnPdfPrintFinishedSharedCallback uintptr
+
+func pdfPrintCallbackOnPdfPrintFinishedCEFCallback() uintptr {
+	return sharedCEFCallback(&pdfPrintCallbackOnPdfPrintFinishedSharedOnce, &pdfPrintCallbackOnPdfPrintFinishedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[PdfPrintCallback](self)
+		if !ownerOK {
+			return
+		}
+		path := goString(unsafe.Pointer(arg0))
+		ok := int32(arg1)
+		impl.OnPdfPrintFinished(path, ok)
+	})
+}
+
 // NewPdfPrintCallback creates a CEF handler backed by the given implementation.
 func NewPdfPrintCallback(impl PdfPrintCallback) PdfPrintCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFPdfPrintCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnPdfPrintFinished(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		path := goString(unsafe.Pointer(arg0))
-		ok := int32(arg1)
-		impl.OnPdfPrintFinished(path, ok)
-	}))
-
 	w := &pdfPrintCallbackWrapper{rawPtr: r}
 	w.PdfPrintCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnPdfPrintFinished(pdfPrintCallbackOnPdfPrintFinishedCEFCallback())
+
 	return w
 }
 
@@ -529,23 +562,34 @@ func (w *downloadImageCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var downloadImageCallbackOnDownloadImageFinishedSharedOnce sync.Once
+var downloadImageCallbackOnDownloadImageFinishedSharedCallback uintptr
+
+func downloadImageCallbackOnDownloadImageFinishedCEFCallback() uintptr {
+	return sharedCEFCallback(&downloadImageCallbackOnDownloadImageFinishedSharedOnce, &downloadImageCallbackOnDownloadImageFinishedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DownloadImageCallback](self)
+		if !ownerOK {
+			return
+		}
+		imageURL := goString(unsafe.Pointer(arg0))
+		httpStatusCode := int32(arg1)
+		image := wrapImage(unsafe.Pointer(arg2))
+		impl.OnDownloadImageFinished(imageURL, httpStatusCode, image)
+	})
+}
+
 // NewDownloadImageCallback creates a CEF handler backed by the given implementation.
 func NewDownloadImageCallback(impl DownloadImageCallback) DownloadImageCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFDownloadImageCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnDownloadImageFinished(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		imageURL := goString(unsafe.Pointer(arg0))
-		httpStatusCode := int32(arg1)
-		image := wrapImage(unsafe.Pointer(arg2))
-		impl.OnDownloadImageFinished(imageURL, httpStatusCode, image)
-	}))
-
 	w := &downloadImageCallbackWrapper{rawPtr: r}
 	w.DownloadImageCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnDownloadImageFinished(downloadImageCallbackOnDownloadImageFinishedCEFCallback())
+
 	return w
 }
 

@@ -28,37 +28,70 @@ func (w *resourceBundleHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var resourceBundleHandlerGetLocalizedStringSharedOnce sync.Once
+var resourceBundleHandlerGetLocalizedStringSharedCallback uintptr
+
+func resourceBundleHandlerGetLocalizedStringCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceBundleHandlerGetLocalizedStringSharedOnce, &resourceBundleHandlerGetLocalizedStringSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceBundleHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		stringID := int32(arg0)
+		string_ := uintptr(arg1)
+		return uintptr(impl.GetLocalizedString(stringID, string_))
+	})
+}
+
+var resourceBundleHandlerGetDataResourceSharedOnce sync.Once
+var resourceBundleHandlerGetDataResourceSharedCallback uintptr
+
+func resourceBundleHandlerGetDataResourceCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceBundleHandlerGetDataResourceSharedOnce, &resourceBundleHandlerGetDataResourceSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceBundleHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		resourceID := int32(arg0)
+		data := unsafe.Pointer(arg1)
+		dataSize := (*int)(unsafe.Pointer(arg2))
+		return uintptr(impl.GetDataResource(resourceID, data, dataSize))
+	})
+}
+
+var resourceBundleHandlerGetDataResourceForScaleSharedOnce sync.Once
+var resourceBundleHandlerGetDataResourceForScaleSharedCallback uintptr
+
+func resourceBundleHandlerGetDataResourceForScaleCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceBundleHandlerGetDataResourceForScaleSharedOnce, &resourceBundleHandlerGetDataResourceForScaleSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceBundleHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		resourceID := int32(arg0)
+		scaleFactor := ScaleFactor(arg1)
+		data := unsafe.Pointer(arg2)
+		dataSize := (*int)(unsafe.Pointer(arg3))
+		return uintptr(impl.GetDataResourceForScale(resourceID, scaleFactor, data, dataSize))
+	})
+}
+
 // NewResourceBundleHandler creates a CEF handler backed by the given implementation.
 func NewResourceBundleHandler(impl ResourceBundleHandler) ResourceBundleHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFResourceBundleHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetLocalizedString(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		stringID := int32(arg0)
-		string_ := uintptr(arg1)
-		return uintptr(impl.GetLocalizedString(stringID, string_))
-	}))
-
-	r.OverrideGetDataResource(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
-		resourceID := int32(arg0)
-		data := unsafe.Pointer(arg1)
-		dataSize := (*int)(unsafe.Pointer(arg2))
-		return uintptr(impl.GetDataResource(resourceID, data, dataSize))
-	}))
-
-	r.OverrideGetDataResourceForScale(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		resourceID := int32(arg0)
-		scaleFactor := ScaleFactor(arg1)
-		data := unsafe.Pointer(arg2)
-		dataSize := (*int)(unsafe.Pointer(arg3))
-		return uintptr(impl.GetDataResourceForScale(resourceID, scaleFactor, data, dataSize))
-	}))
-
 	w := &resourceBundleHandlerWrapper{rawPtr: r}
 	w.ResourceBundleHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetLocalizedString(resourceBundleHandlerGetLocalizedStringCEFCallback())
+
+	r.OverrideGetDataResource(resourceBundleHandlerGetDataResourceCEFCallback())
+
+	r.OverrideGetDataResourceForScale(resourceBundleHandlerGetDataResourceForScaleCEFCallback())
+
 	return w
 }
 

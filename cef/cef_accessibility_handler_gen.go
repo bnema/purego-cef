@@ -28,26 +28,48 @@ func (w *accessibilityHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var accessibilityHandlerOnAccessibilityTreeChangeSharedOnce sync.Once
+var accessibilityHandlerOnAccessibilityTreeChangeSharedCallback uintptr
+
+func accessibilityHandlerOnAccessibilityTreeChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&accessibilityHandlerOnAccessibilityTreeChangeSharedOnce, &accessibilityHandlerOnAccessibilityTreeChangeSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[AccessibilityHandler](self)
+		if !ownerOK {
+			return
+		}
+		value := wrapValue(unsafe.Pointer(arg0))
+		impl.OnAccessibilityTreeChange(value)
+	})
+}
+
+var accessibilityHandlerOnAccessibilityLocationChangeSharedOnce sync.Once
+var accessibilityHandlerOnAccessibilityLocationChangeSharedCallback uintptr
+
+func accessibilityHandlerOnAccessibilityLocationChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&accessibilityHandlerOnAccessibilityLocationChangeSharedOnce, &accessibilityHandlerOnAccessibilityLocationChangeSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[AccessibilityHandler](self)
+		if !ownerOK {
+			return
+		}
+		value := wrapValue(unsafe.Pointer(arg0))
+		impl.OnAccessibilityLocationChange(value)
+	})
+}
+
 // NewAccessibilityHandler creates a CEF handler backed by the given implementation.
 func NewAccessibilityHandler(impl AccessibilityHandler) AccessibilityHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFAccessibilityHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnAccessibilityTreeChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		value := wrapValue(unsafe.Pointer(arg0))
-		impl.OnAccessibilityTreeChange(value)
-	}))
-
-	r.OverrideOnAccessibilityLocationChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		value := wrapValue(unsafe.Pointer(arg0))
-		impl.OnAccessibilityLocationChange(value)
-	}))
-
 	w := &accessibilityHandlerWrapper{rawPtr: r}
 	w.AccessibilityHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnAccessibilityTreeChange(accessibilityHandlerOnAccessibilityTreeChangeCEFCallback())
+
+	r.OverrideOnAccessibilityLocationChange(accessibilityHandlerOnAccessibilityLocationChangeCEFCallback())
+
 	return w
 }
 

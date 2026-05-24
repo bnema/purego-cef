@@ -28,48 +28,103 @@ func (w *frameHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var frameHandlerOnFrameCreatedSharedOnce sync.Once
+var frameHandlerOnFrameCreatedSharedCallback uintptr
+
+func frameHandlerOnFrameCreatedCEFCallback() uintptr {
+	return sharedCEFCallback(&frameHandlerOnFrameCreatedSharedOnce, &frameHandlerOnFrameCreatedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[FrameHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		impl.OnFrameCreated(browser, frame)
+	})
+}
+
+var frameHandlerOnFrameDestroyedSharedOnce sync.Once
+var frameHandlerOnFrameDestroyedSharedCallback uintptr
+
+func frameHandlerOnFrameDestroyedCEFCallback() uintptr {
+	return sharedCEFCallback(&frameHandlerOnFrameDestroyedSharedOnce, &frameHandlerOnFrameDestroyedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[FrameHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		impl.OnFrameDestroyed(browser, frame)
+	})
+}
+
+var frameHandlerOnFrameAttachedSharedOnce sync.Once
+var frameHandlerOnFrameAttachedSharedCallback uintptr
+
+func frameHandlerOnFrameAttachedCEFCallback() uintptr {
+	return sharedCEFCallback(&frameHandlerOnFrameAttachedSharedOnce, &frameHandlerOnFrameAttachedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[FrameHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		reattached := int32(arg2)
+		impl.OnFrameAttached(browser, frame, reattached)
+	})
+}
+
+var frameHandlerOnFrameDetachedSharedOnce sync.Once
+var frameHandlerOnFrameDetachedSharedCallback uintptr
+
+func frameHandlerOnFrameDetachedCEFCallback() uintptr {
+	return sharedCEFCallback(&frameHandlerOnFrameDetachedSharedOnce, &frameHandlerOnFrameDetachedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[FrameHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		impl.OnFrameDetached(browser, frame)
+	})
+}
+
+var frameHandlerOnMainFrameChangedSharedOnce sync.Once
+var frameHandlerOnMainFrameChangedSharedCallback uintptr
+
+func frameHandlerOnMainFrameChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&frameHandlerOnMainFrameChangedSharedOnce, &frameHandlerOnMainFrameChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[FrameHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		oldFrame := wrapFrame(unsafe.Pointer(arg1))
+		newFrame := wrapFrame(unsafe.Pointer(arg2))
+		impl.OnMainFrameChanged(browser, oldFrame, newFrame)
+	})
+}
+
 // NewFrameHandler creates a CEF handler backed by the given implementation.
 func NewFrameHandler(impl FrameHandler) FrameHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFFrameHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnFrameCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		impl.OnFrameCreated(browser, frame)
-	}))
-
-	r.OverrideOnFrameDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		impl.OnFrameDestroyed(browser, frame)
-	}))
-
-	r.OverrideOnFrameAttached(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		reattached := int32(arg2)
-		impl.OnFrameAttached(browser, frame, reattached)
-	}))
-
-	r.OverrideOnFrameDetached(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		impl.OnFrameDetached(browser, frame)
-	}))
-
-	r.OverrideOnMainFrameChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		oldFrame := wrapFrame(unsafe.Pointer(arg1))
-		newFrame := wrapFrame(unsafe.Pointer(arg2))
-		impl.OnMainFrameChanged(browser, oldFrame, newFrame)
-	}))
-
 	w := &frameHandlerWrapper{rawPtr: r}
 	w.FrameHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnFrameCreated(frameHandlerOnFrameCreatedCEFCallback())
+
+	r.OverrideOnFrameDestroyed(frameHandlerOnFrameDestroyedCEFCallback())
+
+	r.OverrideOnFrameAttached(frameHandlerOnFrameAttachedCEFCallback())
+
+	r.OverrideOnFrameDetached(frameHandlerOnFrameDetachedCEFCallback())
+
+	r.OverrideOnMainFrameChanged(frameHandlerOnMainFrameChangedCEFCallback())
+
 	return w
 }
 

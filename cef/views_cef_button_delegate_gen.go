@@ -28,26 +28,48 @@ func (w *buttonDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var buttonDelegateOnButtonPressedSharedOnce sync.Once
+var buttonDelegateOnButtonPressedSharedCallback uintptr
+
+func buttonDelegateOnButtonPressedCEFCallback() uintptr {
+	return sharedCEFCallback(&buttonDelegateOnButtonPressedSharedOnce, &buttonDelegateOnButtonPressedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ButtonDelegate](self)
+		if !ownerOK {
+			return
+		}
+		button := wrapButton(unsafe.Pointer(arg0))
+		impl.OnButtonPressed(button)
+	})
+}
+
+var buttonDelegateOnButtonStateChangedSharedOnce sync.Once
+var buttonDelegateOnButtonStateChangedSharedCallback uintptr
+
+func buttonDelegateOnButtonStateChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&buttonDelegateOnButtonStateChangedSharedOnce, &buttonDelegateOnButtonStateChangedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ButtonDelegate](self)
+		if !ownerOK {
+			return
+		}
+		button := wrapButton(unsafe.Pointer(arg0))
+		impl.OnButtonStateChanged(button)
+	})
+}
+
 // NewButtonDelegate creates a CEF handler backed by the given implementation.
 func NewButtonDelegate(impl ButtonDelegate) ButtonDelegate {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFButtonDelegateT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnButtonPressed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		button := wrapButton(unsafe.Pointer(arg0))
-		impl.OnButtonPressed(button)
-	}))
-
-	r.OverrideOnButtonStateChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		button := wrapButton(unsafe.Pointer(arg0))
-		impl.OnButtonStateChanged(button)
-	}))
-
 	w := &buttonDelegateWrapper{rawPtr: r}
 	w.ButtonDelegate = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnButtonPressed(buttonDelegateOnButtonPressedCEFCallback())
+
+	r.OverrideOnButtonStateChanged(buttonDelegateOnButtonStateChangedCEFCallback())
+
 	return w
 }
 

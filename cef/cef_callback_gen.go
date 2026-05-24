@@ -91,20 +91,31 @@ func (w *completionCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var completionCallbackOnCompleteSharedOnce sync.Once
+var completionCallbackOnCompleteSharedCallback uintptr
+
+func completionCallbackOnCompleteCEFCallback() uintptr {
+	return sharedCEFCallback(&completionCallbackOnCompleteSharedOnce, &completionCallbackOnCompleteSharedCallback, func(self uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[CompletionCallback](self)
+		if !ownerOK {
+			return
+		}
+		impl.OnComplete()
+	})
+}
+
 // NewCompletionCallback creates a CEF handler backed by the given implementation.
 func NewCompletionCallback(impl CompletionCallback) CompletionCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFCompletionCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr) {
-		impl.OnComplete()
-	}))
-
 	w := &completionCallbackWrapper{rawPtr: r}
 	w.CompletionCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnComplete(completionCallbackOnCompleteCEFCallback())
+
 	return w
 }
 

@@ -195,69 +195,157 @@ func (w *serverHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewServerHandler creates a CEF handler backed by the given implementation.
-func NewServerHandler(impl ServerHandler) ServerHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFServerHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var serverHandlerOnServerCreatedSharedOnce sync.Once
+var serverHandlerOnServerCreatedSharedCallback uintptr
 
-	r.OverrideOnServerCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+func serverHandlerOnServerCreatedCEFCallback() uintptr {
+	return sharedCEFCallback(&serverHandlerOnServerCreatedSharedOnce, &serverHandlerOnServerCreatedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ServerHandler](self)
+		if !ownerOK {
+			return
+		}
 		server := wrapServer(unsafe.Pointer(arg0))
 		impl.OnServerCreated(server)
-	}))
+	})
+}
 
-	r.OverrideOnServerDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var serverHandlerOnServerDestroyedSharedOnce sync.Once
+var serverHandlerOnServerDestroyedSharedCallback uintptr
+
+func serverHandlerOnServerDestroyedCEFCallback() uintptr {
+	return sharedCEFCallback(&serverHandlerOnServerDestroyedSharedOnce, &serverHandlerOnServerDestroyedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ServerHandler](self)
+		if !ownerOK {
+			return
+		}
 		server := wrapServer(unsafe.Pointer(arg0))
 		impl.OnServerDestroyed(server)
-	}))
+	})
+}
 
-	r.OverrideOnClientConnected(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var serverHandlerOnClientConnectedSharedOnce sync.Once
+var serverHandlerOnClientConnectedSharedCallback uintptr
+
+func serverHandlerOnClientConnectedCEFCallback() uintptr {
+	return sharedCEFCallback(&serverHandlerOnClientConnectedSharedOnce, &serverHandlerOnClientConnectedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ServerHandler](self)
+		if !ownerOK {
+			return
+		}
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		impl.OnClientConnected(server, connectionID)
-	}))
+	})
+}
 
-	r.OverrideOnClientDisconnected(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var serverHandlerOnClientDisconnectedSharedOnce sync.Once
+var serverHandlerOnClientDisconnectedSharedCallback uintptr
+
+func serverHandlerOnClientDisconnectedCEFCallback() uintptr {
+	return sharedCEFCallback(&serverHandlerOnClientDisconnectedSharedOnce, &serverHandlerOnClientDisconnectedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ServerHandler](self)
+		if !ownerOK {
+			return
+		}
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		impl.OnClientDisconnected(server, connectionID)
-	}))
+	})
+}
 
-	r.OverrideOnHttpRequest(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+var serverHandlerOnHttpRequestSharedOnce sync.Once
+var serverHandlerOnHttpRequestSharedCallback uintptr
+
+func serverHandlerOnHttpRequestCEFCallback() uintptr {
+	return sharedCEFCallback(&serverHandlerOnHttpRequestSharedOnce, &serverHandlerOnHttpRequestSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ServerHandler](self)
+		if !ownerOK {
+			return
+		}
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		clientAddress := goString(unsafe.Pointer(arg2))
 		request := wrapRequest(unsafe.Pointer(arg3))
 		impl.OnHttpRequest(server, connectionID, clientAddress, request)
-	}))
+	})
+}
 
-	r.OverrideOnWebSocketRequest(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+var serverHandlerOnWebSocketRequestSharedOnce sync.Once
+var serverHandlerOnWebSocketRequestSharedCallback uintptr
+
+func serverHandlerOnWebSocketRequestCEFCallback() uintptr {
+	return sharedCEFCallback(&serverHandlerOnWebSocketRequestSharedOnce, &serverHandlerOnWebSocketRequestSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ServerHandler](self)
+		if !ownerOK {
+			return
+		}
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		clientAddress := goString(unsafe.Pointer(arg2))
 		request := wrapRequest(unsafe.Pointer(arg3))
 		callback := wrapCallback(unsafe.Pointer(arg4))
 		impl.OnWebSocketRequest(server, connectionID, clientAddress, request, callback)
-	}))
+	})
+}
 
-	r.OverrideOnWebSocketConnected(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var serverHandlerOnWebSocketConnectedSharedOnce sync.Once
+var serverHandlerOnWebSocketConnectedSharedCallback uintptr
+
+func serverHandlerOnWebSocketConnectedCEFCallback() uintptr {
+	return sharedCEFCallback(&serverHandlerOnWebSocketConnectedSharedOnce, &serverHandlerOnWebSocketConnectedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ServerHandler](self)
+		if !ownerOK {
+			return
+		}
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		impl.OnWebSocketConnected(server, connectionID)
-	}))
+	})
+}
 
-	r.OverrideOnWebSocketMessage(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+var serverHandlerOnWebSocketMessageSharedOnce sync.Once
+var serverHandlerOnWebSocketMessageSharedCallback uintptr
+
+func serverHandlerOnWebSocketMessageCEFCallback() uintptr {
+	return sharedCEFCallback(&serverHandlerOnWebSocketMessageSharedOnce, &serverHandlerOnWebSocketMessageSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ServerHandler](self)
+		if !ownerOK {
+			return
+		}
 		server := wrapServer(unsafe.Pointer(arg0))
 		connectionID := int32(arg1)
 		data := unsafe.Pointer(arg2)
 		dataSize := int(arg3)
 		impl.OnWebSocketMessage(server, connectionID, data, dataSize)
-	}))
+	})
+}
 
+// NewServerHandler creates a CEF handler backed by the given implementation.
+func NewServerHandler(impl ServerHandler) ServerHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFServerHandlerT)
 	w := &serverHandlerWrapper{rawPtr: r}
 	w.ServerHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnServerCreated(serverHandlerOnServerCreatedCEFCallback())
+
+	r.OverrideOnServerDestroyed(serverHandlerOnServerDestroyedCEFCallback())
+
+	r.OverrideOnClientConnected(serverHandlerOnClientConnectedCEFCallback())
+
+	r.OverrideOnClientDisconnected(serverHandlerOnClientDisconnectedCEFCallback())
+
+	r.OverrideOnHttpRequest(serverHandlerOnHttpRequestCEFCallback())
+
+	r.OverrideOnWebSocketRequest(serverHandlerOnWebSocketRequestCEFCallback())
+
+	r.OverrideOnWebSocketConnected(serverHandlerOnWebSocketConnectedCEFCallback())
+
+	r.OverrideOnWebSocketMessage(serverHandlerOnWebSocketMessageCEFCallback())
+
 	return w
 }
 

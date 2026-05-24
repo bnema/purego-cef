@@ -146,41 +146,74 @@ func (w *permissionHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewPermissionHandler creates a CEF handler backed by the given implementation.
-func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFPermissionHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var permissionHandlerOnRequestMediaAccessPermissionSharedOnce sync.Once
+var permissionHandlerOnRequestMediaAccessPermissionSharedCallback uintptr
 
-	r.OverrideOnRequestMediaAccessPermission(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+func permissionHandlerOnRequestMediaAccessPermissionCEFCallback() uintptr {
+	return sharedCEFCallback(&permissionHandlerOnRequestMediaAccessPermissionSharedOnce, &permissionHandlerOnRequestMediaAccessPermissionSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[PermissionHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		requestingOrigin := goString(unsafe.Pointer(arg2))
 		requestedPermissions := uint32(arg3)
 		callback := wrapMediaAccessCallback(unsafe.Pointer(arg4))
 		return uintptr(impl.OnRequestMediaAccessPermission(browser, frame, requestingOrigin, requestedPermissions, callback))
-	}))
+	})
+}
 
-	r.OverrideOnShowPermissionPrompt(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+var permissionHandlerOnShowPermissionPromptSharedOnce sync.Once
+var permissionHandlerOnShowPermissionPromptSharedCallback uintptr
+
+func permissionHandlerOnShowPermissionPromptCEFCallback() uintptr {
+	return sharedCEFCallback(&permissionHandlerOnShowPermissionPromptSharedOnce, &permissionHandlerOnShowPermissionPromptSharedCallback, func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[PermissionHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		promptID := arg1
 		requestingOrigin := goString(unsafe.Pointer(arg2))
 		requestedPermissions := uint32(arg3)
 		callback := wrapPermissionPromptCallback(unsafe.Pointer(arg4))
 		return uintptr(impl.OnShowPermissionPrompt(browser, promptID, requestingOrigin, requestedPermissions, callback))
-	}))
+	})
+}
 
-	r.OverrideOnDismissPermissionPrompt(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr) {
+var permissionHandlerOnDismissPermissionPromptSharedOnce sync.Once
+var permissionHandlerOnDismissPermissionPromptSharedCallback uintptr
+
+func permissionHandlerOnDismissPermissionPromptCEFCallback() uintptr {
+	return sharedCEFCallback(&permissionHandlerOnDismissPermissionPromptSharedOnce, &permissionHandlerOnDismissPermissionPromptSharedCallback, func(self uintptr, arg0 uintptr, arg1 uint64, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[PermissionHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		promptID := arg1
 		result := PermissionRequestResult(arg2)
 		impl.OnDismissPermissionPrompt(browser, promptID, result)
-	}))
+	})
+}
 
+// NewPermissionHandler creates a CEF handler backed by the given implementation.
+func NewPermissionHandler(impl PermissionHandler) PermissionHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFPermissionHandlerT)
 	w := &permissionHandlerWrapper{rawPtr: r}
 	w.PermissionHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnRequestMediaAccessPermission(permissionHandlerOnRequestMediaAccessPermissionCEFCallback())
+
+	r.OverrideOnShowPermissionPrompt(permissionHandlerOnShowPermissionPromptCEFCallback())
+
+	r.OverrideOnDismissPermissionPrompt(permissionHandlerOnDismissPermissionPromptCEFCallback())
+
 	return w
 }
 

@@ -172,15 +172,15 @@ func (w *v8HandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewV8Handler creates a CEF handler backed by the given implementation.
-func NewV8Handler(impl V8Handler) V8Handler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFV8HandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var v8HandlerExecuteSharedOnce sync.Once
+var v8HandlerExecuteSharedCallback uintptr
 
-	r.OverrideExecute(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+func v8HandlerExecuteCEFCallback() uintptr {
+	return sharedCEFCallback(&v8HandlerExecuteSharedOnce, &v8HandlerExecuteSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[V8Handler](self)
+		if !ownerOK {
+			return 0
+		}
 		name := goString(unsafe.Pointer(arg0))
 		object := wrapV8Value(unsafe.Pointer(arg1))
 		var arguments []V8Value
@@ -194,10 +194,21 @@ func NewV8Handler(impl V8Handler) V8Handler {
 		retval := unsafe.Pointer(arg4)
 		exception := uintptr(arg5)
 		return uintptr(impl.Execute(name, object, arguments, retval, exception))
-	}))
+	})
+}
 
+// NewV8Handler creates a CEF handler backed by the given implementation.
+func NewV8Handler(impl V8Handler) V8Handler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFV8HandlerT)
 	w := &v8HandlerWrapper{rawPtr: r}
 	w.V8Handler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideExecute(v8HandlerExecuteCEFCallback())
+
 	return w
 }
 
@@ -282,32 +293,54 @@ func (w *v8AccessorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var v8AccessorGetSharedOnce sync.Once
+var v8AccessorGetSharedCallback uintptr
+
+func v8AccessorGetCEFCallback() uintptr {
+	return sharedCEFCallback(&v8AccessorGetSharedOnce, &v8AccessorGetSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[V8Accessor](self)
+		if !ownerOK {
+			return 0
+		}
+		name := goString(unsafe.Pointer(arg0))
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		retval := unsafe.Pointer(arg2)
+		exception := uintptr(arg3)
+		return uintptr(impl.Get(name, object, retval, exception))
+	})
+}
+
+var v8AccessorSetSharedOnce sync.Once
+var v8AccessorSetSharedCallback uintptr
+
+func v8AccessorSetCEFCallback() uintptr {
+	return sharedCEFCallback(&v8AccessorSetSharedOnce, &v8AccessorSetSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[V8Accessor](self)
+		if !ownerOK {
+			return 0
+		}
+		name := goString(unsafe.Pointer(arg0))
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		value := wrapV8Value(unsafe.Pointer(arg2))
+		exception := uintptr(arg3)
+		return uintptr(impl.Set(name, object, value, exception))
+	})
+}
+
 // NewV8Accessor creates a CEF handler backed by the given implementation.
 func NewV8Accessor(impl V8Accessor) V8Accessor {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFV8AccessorT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGet(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		name := goString(unsafe.Pointer(arg0))
-		object := wrapV8Value(unsafe.Pointer(arg1))
-		retval := unsafe.Pointer(arg2)
-		exception := uintptr(arg3)
-		return uintptr(impl.Get(name, object, retval, exception))
-	}))
-
-	r.OverrideSet(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		name := goString(unsafe.Pointer(arg0))
-		object := wrapV8Value(unsafe.Pointer(arg1))
-		value := wrapV8Value(unsafe.Pointer(arg2))
-		exception := uintptr(arg3)
-		return uintptr(impl.Set(name, object, value, exception))
-	}))
-
 	w := &v8AccessorWrapper{rawPtr: r}
 	w.V8Accessor = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGet(v8AccessorGetCEFCallback())
+
+	r.OverrideSet(v8AccessorSetCEFCallback())
+
 	return w
 }
 
@@ -394,48 +427,92 @@ func (w *v8InterceptorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var v8InterceptorGetBynameSharedOnce sync.Once
+var v8InterceptorGetBynameSharedCallback uintptr
+
+func v8InterceptorGetBynameCEFCallback() uintptr {
+	return sharedCEFCallback(&v8InterceptorGetBynameSharedOnce, &v8InterceptorGetBynameSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[V8Interceptor](self)
+		if !ownerOK {
+			return 0
+		}
+		name := goString(unsafe.Pointer(arg0))
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		retval := unsafe.Pointer(arg2)
+		exception := uintptr(arg3)
+		return uintptr(impl.GetByname(name, object, retval, exception))
+	})
+}
+
+var v8InterceptorGetByindexSharedOnce sync.Once
+var v8InterceptorGetByindexSharedCallback uintptr
+
+func v8InterceptorGetByindexCEFCallback() uintptr {
+	return sharedCEFCallback(&v8InterceptorGetByindexSharedOnce, &v8InterceptorGetByindexSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[V8Interceptor](self)
+		if !ownerOK {
+			return 0
+		}
+		index := int32(arg0)
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		retval := unsafe.Pointer(arg2)
+		exception := uintptr(arg3)
+		return uintptr(impl.GetByindex(index, object, retval, exception))
+	})
+}
+
+var v8InterceptorSetBynameSharedOnce sync.Once
+var v8InterceptorSetBynameSharedCallback uintptr
+
+func v8InterceptorSetBynameCEFCallback() uintptr {
+	return sharedCEFCallback(&v8InterceptorSetBynameSharedOnce, &v8InterceptorSetBynameSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[V8Interceptor](self)
+		if !ownerOK {
+			return 0
+		}
+		name := goString(unsafe.Pointer(arg0))
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		value := wrapV8Value(unsafe.Pointer(arg2))
+		exception := uintptr(arg3)
+		return uintptr(impl.SetByname(name, object, value, exception))
+	})
+}
+
+var v8InterceptorSetByindexSharedOnce sync.Once
+var v8InterceptorSetByindexSharedCallback uintptr
+
+func v8InterceptorSetByindexCEFCallback() uintptr {
+	return sharedCEFCallback(&v8InterceptorSetByindexSharedOnce, &v8InterceptorSetByindexSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[V8Interceptor](self)
+		if !ownerOK {
+			return 0
+		}
+		index := int32(arg0)
+		object := wrapV8Value(unsafe.Pointer(arg1))
+		value := wrapV8Value(unsafe.Pointer(arg2))
+		exception := uintptr(arg3)
+		return uintptr(impl.SetByindex(index, object, value, exception))
+	})
+}
+
 // NewV8Interceptor creates a CEF handler backed by the given implementation.
 func NewV8Interceptor(impl V8Interceptor) V8Interceptor {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFV8InterceptorT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetByname(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		name := goString(unsafe.Pointer(arg0))
-		object := wrapV8Value(unsafe.Pointer(arg1))
-		retval := unsafe.Pointer(arg2)
-		exception := uintptr(arg3)
-		return uintptr(impl.GetByname(name, object, retval, exception))
-	}))
-
-	r.OverrideGetByindex(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		index := int32(arg0)
-		object := wrapV8Value(unsafe.Pointer(arg1))
-		retval := unsafe.Pointer(arg2)
-		exception := uintptr(arg3)
-		return uintptr(impl.GetByindex(index, object, retval, exception))
-	}))
-
-	r.OverrideSetByname(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		name := goString(unsafe.Pointer(arg0))
-		object := wrapV8Value(unsafe.Pointer(arg1))
-		value := wrapV8Value(unsafe.Pointer(arg2))
-		exception := uintptr(arg3)
-		return uintptr(impl.SetByname(name, object, value, exception))
-	}))
-
-	r.OverrideSetByindex(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		index := int32(arg0)
-		object := wrapV8Value(unsafe.Pointer(arg1))
-		value := wrapV8Value(unsafe.Pointer(arg2))
-		exception := uintptr(arg3)
-		return uintptr(impl.SetByindex(index, object, value, exception))
-	}))
-
 	w := &v8InterceptorWrapper{rawPtr: r}
 	w.V8Interceptor = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetByname(v8InterceptorGetBynameCEFCallback())
+
+	r.OverrideGetByindex(v8InterceptorGetByindexCEFCallback())
+
+	r.OverrideSetByname(v8InterceptorSetBynameCEFCallback())
+
+	r.OverrideSetByindex(v8InterceptorSetByindexCEFCallback())
+
 	return w
 }
 
@@ -659,21 +736,32 @@ func (w *v8ArrayBufferReleaseCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var v8ArrayBufferReleaseCallbackReleaseBufferSharedOnce sync.Once
+var v8ArrayBufferReleaseCallbackReleaseBufferSharedCallback uintptr
+
+func v8ArrayBufferReleaseCallbackReleaseBufferCEFCallback() uintptr {
+	return sharedCEFCallback(&v8ArrayBufferReleaseCallbackReleaseBufferSharedOnce, &v8ArrayBufferReleaseCallbackReleaseBufferSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[V8ArrayBufferReleaseCallback](self)
+		if !ownerOK {
+			return
+		}
+		buffer := unsafe.Pointer(arg0)
+		impl.ReleaseBuffer(buffer)
+	})
+}
+
 // NewV8ArrayBufferReleaseCallback creates a CEF handler backed by the given implementation.
 func NewV8ArrayBufferReleaseCallback(impl V8ArrayBufferReleaseCallback) V8ArrayBufferReleaseCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFV8ArrayBufferReleaseCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideReleaseBuffer(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		buffer := unsafe.Pointer(arg0)
-		impl.ReleaseBuffer(buffer)
-	}))
-
 	w := &v8ArrayBufferReleaseCallbackWrapper{rawPtr: r}
 	w.V8ArrayBufferReleaseCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideReleaseBuffer(v8ArrayBufferReleaseCallbackReleaseBufferCEFCallback())
+
 	return w
 }
 

@@ -28,27 +28,45 @@ func (w *browserViewDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewBrowserViewDelegate creates a CEF handler backed by the given implementation.
-func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFBrowserViewDelegateT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var browserViewDelegateOnBrowserCreatedSharedOnce sync.Once
+var browserViewDelegateOnBrowserCreatedSharedCallback uintptr
 
-	r.OverrideOnBrowserCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+func browserViewDelegateOnBrowserCreatedCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateOnBrowserCreatedSharedOnce, &browserViewDelegateOnBrowserCreatedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return
+		}
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		browser := wrapBrowser(unsafe.Pointer(arg1))
 		impl.OnBrowserCreated(browserView, browser)
-	}))
+	})
+}
 
-	r.OverrideOnBrowserDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var browserViewDelegateOnBrowserDestroyedSharedOnce sync.Once
+var browserViewDelegateOnBrowserDestroyedSharedCallback uintptr
+
+func browserViewDelegateOnBrowserDestroyedCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateOnBrowserDestroyedSharedOnce, &browserViewDelegateOnBrowserDestroyedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return
+		}
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		browser := wrapBrowser(unsafe.Pointer(arg1))
 		impl.OnBrowserDestroyed(browserView, browser)
-	}))
+	})
+}
 
-	r.OverrideGetDelegateForPopupBrowserView(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+var browserViewDelegateGetDelegateForPopupBrowserViewSharedOnce sync.Once
+var browserViewDelegateGetDelegateForPopupBrowserViewSharedCallback uintptr
+
+func browserViewDelegateGetDelegateForPopupBrowserViewCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateGetDelegateForPopupBrowserViewSharedOnce, &browserViewDelegateGetDelegateForPopupBrowserViewSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		settings := (*BrowserSettings)(unsafe.Pointer(arg1))
 		client := wrapRawClient(unsafe.Pointer(arg2))
@@ -60,47 +78,139 @@ func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
 		return uintptr(extractOrWrapRawPointer(result, func() any {
 			return NewBrowserViewDelegate(result)
 		}))
-	}))
+	})
+}
 
-	r.OverrideOnPopupBrowserViewCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+var browserViewDelegateOnPopupBrowserViewCreatedSharedOnce sync.Once
+var browserViewDelegateOnPopupBrowserViewCreatedSharedCallback uintptr
+
+func browserViewDelegateOnPopupBrowserViewCreatedCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateOnPopupBrowserViewCreatedSharedOnce, &browserViewDelegateOnPopupBrowserViewCreatedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		popupBrowserView := wrapBrowserView(unsafe.Pointer(arg1))
 		isDevtools := int32(arg2)
 		return uintptr(impl.OnPopupBrowserViewCreated(browserView, popupBrowserView, isDevtools))
-	}))
+	})
+}
 
-	r.OverrideGetChromeToolbarType(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
+var browserViewDelegateGetChromeToolbarTypeSharedOnce sync.Once
+var browserViewDelegateGetChromeToolbarTypeSharedCallback uintptr
+
+func browserViewDelegateGetChromeToolbarTypeCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateGetChromeToolbarTypeSharedOnce, &browserViewDelegateGetChromeToolbarTypeSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		return uintptr(impl.GetChromeToolbarType(browserView))
-	}))
+	})
+}
 
-	r.OverrideUseFramelessWindowForPictureInPicture(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
+var browserViewDelegateUseFramelessWindowForPictureInPictureSharedOnce sync.Once
+var browserViewDelegateUseFramelessWindowForPictureInPictureSharedCallback uintptr
+
+func browserViewDelegateUseFramelessWindowForPictureInPictureCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateUseFramelessWindowForPictureInPictureSharedOnce, &browserViewDelegateUseFramelessWindowForPictureInPictureSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		return uintptr(impl.UseFramelessWindowForPictureInPicture(browserView))
-	}))
+	})
+}
 
-	r.OverrideOnGestureCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+var browserViewDelegateOnGestureCommandSharedOnce sync.Once
+var browserViewDelegateOnGestureCommandSharedCallback uintptr
+
+func browserViewDelegateOnGestureCommandCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateOnGestureCommandSharedOnce, &browserViewDelegateOnGestureCommandSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		gestureCommand := GestureCommand(arg1)
 		return uintptr(impl.OnGestureCommand(browserView, gestureCommand))
-	}))
+	})
+}
 
-	r.OverrideGetBrowserRuntimeStyle(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
+var browserViewDelegateGetBrowserRuntimeStyleSharedOnce sync.Once
+var browserViewDelegateGetBrowserRuntimeStyleSharedCallback uintptr
+
+func browserViewDelegateGetBrowserRuntimeStyleCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateGetBrowserRuntimeStyleSharedOnce, &browserViewDelegateGetBrowserRuntimeStyleSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
 		return uintptr(impl.GetBrowserRuntimeStyle())
-	}))
+	})
+}
 
-	r.OverrideAllowMoveForPictureInPicture(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
+var browserViewDelegateAllowMoveForPictureInPictureSharedOnce sync.Once
+var browserViewDelegateAllowMoveForPictureInPictureSharedCallback uintptr
+
+func browserViewDelegateAllowMoveForPictureInPictureCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateAllowMoveForPictureInPictureSharedOnce, &browserViewDelegateAllowMoveForPictureInPictureSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		return uintptr(impl.AllowMoveForPictureInPicture(browserView))
-	}))
+	})
+}
 
-	r.OverrideAllowPictureInPictureWithoutUserActivation(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
+var browserViewDelegateAllowPictureInPictureWithoutUserActivationSharedOnce sync.Once
+var browserViewDelegateAllowPictureInPictureWithoutUserActivationSharedCallback uintptr
+
+func browserViewDelegateAllowPictureInPictureWithoutUserActivationCEFCallback() uintptr {
+	return sharedCEFCallback(&browserViewDelegateAllowPictureInPictureWithoutUserActivationSharedOnce, &browserViewDelegateAllowPictureInPictureWithoutUserActivationSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
 		browserView := wrapBrowserView(unsafe.Pointer(arg0))
 		return uintptr(impl.AllowPictureInPictureWithoutUserActivation(browserView))
-	}))
+	})
+}
 
+// NewBrowserViewDelegate creates a CEF handler backed by the given implementation.
+func NewBrowserViewDelegate(impl BrowserViewDelegate) BrowserViewDelegate {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFBrowserViewDelegateT)
 	w := &browserViewDelegateWrapper{rawPtr: r}
 	w.BrowserViewDelegate = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnBrowserCreated(browserViewDelegateOnBrowserCreatedCEFCallback())
+
+	r.OverrideOnBrowserDestroyed(browserViewDelegateOnBrowserDestroyedCEFCallback())
+
+	r.OverrideGetDelegateForPopupBrowserView(browserViewDelegateGetDelegateForPopupBrowserViewCEFCallback())
+
+	r.OverrideOnPopupBrowserViewCreated(browserViewDelegateOnPopupBrowserViewCreatedCEFCallback())
+
+	r.OverrideGetChromeToolbarType(browserViewDelegateGetChromeToolbarTypeCEFCallback())
+
+	r.OverrideUseFramelessWindowForPictureInPicture(browserViewDelegateUseFramelessWindowForPictureInPictureCEFCallback())
+
+	r.OverrideOnGestureCommand(browserViewDelegateOnGestureCommandCEFCallback())
+
+	r.OverrideGetBrowserRuntimeStyle(browserViewDelegateGetBrowserRuntimeStyleCEFCallback())
+
+	r.OverrideAllowMoveForPictureInPicture(browserViewDelegateAllowMoveForPictureInPictureCEFCallback())
+
+	r.OverrideAllowPictureInPictureWithoutUserActivation(browserViewDelegateAllowPictureInPictureWithoutUserActivationCEFCallback())
+
 	return w
 }
 

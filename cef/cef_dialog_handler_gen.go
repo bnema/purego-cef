@@ -91,15 +91,15 @@ func (w *dialogHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewDialogHandler creates a CEF handler backed by the given implementation.
-func NewDialogHandler(impl DialogHandler) DialogHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFDialogHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var dialogHandlerOnFileDialogSharedOnce sync.Once
+var dialogHandlerOnFileDialogSharedCallback uintptr
 
-	r.OverrideOnFileDialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr) uintptr {
+func dialogHandlerOnFileDialogCEFCallback() uintptr {
+	return sharedCEFCallback(&dialogHandlerOnFileDialogSharedOnce, &dialogHandlerOnFileDialogSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DialogHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		mode := FileDialogMode(arg1)
 		title := goString(unsafe.Pointer(arg2))
@@ -109,10 +109,21 @@ func NewDialogHandler(impl DialogHandler) DialogHandler {
 		acceptDescriptions := StringList(arg6)
 		callback := wrapFileDialogCallback(unsafe.Pointer(arg7))
 		return uintptr(impl.OnFileDialog(browser, mode, title, defaultFilePath, acceptFilters, acceptExtensions, acceptDescriptions, callback))
-	}))
+	})
+}
 
+// NewDialogHandler creates a CEF handler backed by the given implementation.
+func NewDialogHandler(impl DialogHandler) DialogHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFDialogHandlerT)
 	w := &dialogHandlerWrapper{rawPtr: r}
 	w.DialogHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnFileDialog(dialogHandlerOnFileDialogCEFCallback())
+
 	return w
 }
 

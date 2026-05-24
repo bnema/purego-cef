@@ -35,9 +35,13 @@ func installBridgeTestEngine(t *testing.T) {
 }
 
 type plainRawClientStub struct{}
+type typedNilDisplayRawClientStub struct {
+	plainRawClientStub
+}
 
 type nilAudioHandlerStub struct{}
 type plainLifeSpanHandlerStub struct{}
+type noopDisplayHandlerStub struct{}
 
 func (*nilAudioHandlerStub) GetAudioParameters(Browser, *AudioParameters) int32     { return 0 }
 func (*nilAudioHandlerStub) OnAudioStreamStarted(Browser, *AudioParameters, int32)  {}
@@ -54,6 +58,24 @@ func (plainLifeSpanHandlerStub) OnBeforeDevToolsPopup(Browser, *WindowInfo, *Raw
 func (plainLifeSpanHandlerStub) OnAfterCreated(Browser) {}
 func (plainLifeSpanHandlerStub) DoClose(Browser) bool   { return false }
 func (plainLifeSpanHandlerStub) OnBeforeClose(Browser)  {}
+
+func (noopDisplayHandlerStub) OnAddressChange(Browser, Frame, string) {}
+func (noopDisplayHandlerStub) OnTitleChange(Browser, string)          {}
+func (noopDisplayHandlerStub) OnFaviconUrlchange(Browser, StringList) {}
+func (noopDisplayHandlerStub) OnFullscreenModeChange(Browser, int32)  {}
+func (noopDisplayHandlerStub) OnTooltip(Browser, uintptr) int32       { return 0 }
+func (noopDisplayHandlerStub) OnStatusMessage(Browser, string)        {}
+func (noopDisplayHandlerStub) OnConsoleMessage(Browser, LogSeverity, string, string, int32) int32 {
+	return 0
+}
+func (noopDisplayHandlerStub) OnAutoResize(Browser, *Size) int32        { return 0 }
+func (noopDisplayHandlerStub) OnLoadingProgressChange(Browser, float64) {}
+func (noopDisplayHandlerStub) OnCursorChange(Browser, uintptr, CursorType, *CursorInfo) int32 {
+	return 0
+}
+func (noopDisplayHandlerStub) OnMediaAccessChange(Browser, int32, int32)    {}
+func (noopDisplayHandlerStub) OnContentsBoundsChange(Browser, *Rect) int32  { return 0 }
+func (noopDisplayHandlerStub) GetRootWindowScreenRect(Browser, *Rect) int32 { return 0 }
 
 func (plainRawClientStub) GetAudioHandler() RawAudioHandler          { return nil }
 func (plainRawClientStub) GetCommandHandler() CommandHandler         { return nil }
@@ -75,6 +97,11 @@ func (plainRawClientStub) GetRenderHandler() RenderHandler           { return ni
 func (plainRawClientStub) GetRequestHandler() RequestHandler         { return nil }
 func (plainRawClientStub) OnProcessMessageReceived(Browser, Frame, ProcessID, ProcessMessage) int32 {
 	return 0
+}
+
+func (typedNilDisplayRawClientStub) GetDisplayHandler() DisplayHandler {
+	var h *noopDisplayHandlerStub
+	return h
 }
 
 func TestConstructorsReturnNilForNilImpl(t *testing.T) {
@@ -116,6 +143,29 @@ func TestNewLifeSpanHandlerUsesDirectPopupSlotAPI(t *testing.T) {
 
 	if got := NewLifeSpanHandler(plainLifeSpanHandlerStub{}); got == nil {
 		t.Fatal("NewLifeSpanHandler(...) = nil, want non-nil raw handler")
+	}
+}
+
+func TestDisplayHandlerConstructorUsesSharedMethodCallbacks(t *testing.T) {
+	installBridgeTestEngine(t)
+
+	for i := 0; i < 250; i++ {
+		if got := NewDisplayHandler(noopDisplayHandlerStub{}); got == nil {
+			t.Fatalf("NewDisplayHandler(...) at %d = nil, want non-nil handler", i)
+		}
+	}
+}
+
+func TestRawClientGetterSkipsTypedNilHandlerCallback(t *testing.T) {
+	installBridgeTestEngine(t)
+
+	client := NewRawClient(typedNilDisplayRawClientStub{})
+	raw := (*capi.CEFClientT)(extractRawPointer(client))
+	if raw == nil {
+		t.Fatal("NewRawClient returned nil raw pointer")
+	}
+	if raw.GetDisplayHandler != 0 {
+		t.Fatalf("GetDisplayHandler callback = %x, want unset for typed-nil handler", raw.GetDisplayHandler)
 	}
 }
 

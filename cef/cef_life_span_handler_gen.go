@@ -28,15 +28,15 @@ func (w *rawLifeSpanHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewRawLifeSpanHandler creates a CEF handler backed by the given implementation.
-func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFLifeSpanHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var rawLifeSpanHandlerOnBeforePopupSharedOnce sync.Once
+var rawLifeSpanHandlerOnBeforePopupSharedCallback uintptr
 
-	r.OverrideOnBeforePopup(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr, arg8 uintptr, arg9 uintptr, arg10 uintptr, arg11 uintptr, arg12 uintptr) uintptr {
+func rawLifeSpanHandlerOnBeforePopupCEFCallback() uintptr {
+	return sharedCEFCallback(&rawLifeSpanHandlerOnBeforePopupSharedOnce, &rawLifeSpanHandlerOnBeforePopupSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr, arg8 uintptr, arg9 uintptr, arg10 uintptr, arg11 uintptr, arg12 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RawLifeSpanHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		popupID := int32(arg2)
@@ -54,15 +54,33 @@ func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideOnBeforePopupAborted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var rawLifeSpanHandlerOnBeforePopupAbortedSharedOnce sync.Once
+var rawLifeSpanHandlerOnBeforePopupAbortedSharedCallback uintptr
+
+func rawLifeSpanHandlerOnBeforePopupAbortedCEFCallback() uintptr {
+	return sharedCEFCallback(&rawLifeSpanHandlerOnBeforePopupAbortedSharedOnce, &rawLifeSpanHandlerOnBeforePopupAbortedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RawLifeSpanHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		popupID := int32(arg1)
 		impl.OnBeforePopupAborted(browser, popupID)
-	}))
+	})
+}
 
-	r.OverrideOnBeforeDevToolsPopup(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
+var rawLifeSpanHandlerOnBeforeDevToolsPopupSharedOnce sync.Once
+var rawLifeSpanHandlerOnBeforeDevToolsPopupSharedCallback uintptr
+
+func rawLifeSpanHandlerOnBeforeDevToolsPopupCEFCallback() uintptr {
+	return sharedCEFCallback(&rawLifeSpanHandlerOnBeforeDevToolsPopupSharedOnce, &rawLifeSpanHandlerOnBeforeDevToolsPopupSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RawLifeSpanHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		windowinfo := (*WindowInfo)(unsafe.Pointer(arg1))
 		client := unsafe.Pointer(arg2)
@@ -70,28 +88,76 @@ func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
 		extraInfo := unsafe.Pointer(arg4)
 		useDefaultWindow := (*int32)(unsafe.Pointer(arg5))
 		impl.OnBeforeDevToolsPopup(browser, windowinfo, client, settings, extraInfo, useDefaultWindow)
-	}))
+	})
+}
 
-	r.OverrideOnAfterCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var rawLifeSpanHandlerOnAfterCreatedSharedOnce sync.Once
+var rawLifeSpanHandlerOnAfterCreatedSharedCallback uintptr
+
+func rawLifeSpanHandlerOnAfterCreatedCEFCallback() uintptr {
+	return sharedCEFCallback(&rawLifeSpanHandlerOnAfterCreatedSharedOnce, &rawLifeSpanHandlerOnAfterCreatedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RawLifeSpanHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnAfterCreated(browser)
-	}))
+	})
+}
 
-	r.OverrideDoClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
+var rawLifeSpanHandlerDoCloseSharedOnce sync.Once
+var rawLifeSpanHandlerDoCloseSharedCallback uintptr
+
+func rawLifeSpanHandlerDoCloseCEFCallback() uintptr {
+	return sharedCEFCallback(&rawLifeSpanHandlerDoCloseSharedOnce, &rawLifeSpanHandlerDoCloseSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RawLifeSpanHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		if impl.DoClose(browser) {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideOnBeforeClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var rawLifeSpanHandlerOnBeforeCloseSharedOnce sync.Once
+var rawLifeSpanHandlerOnBeforeCloseSharedCallback uintptr
+
+func rawLifeSpanHandlerOnBeforeCloseCEFCallback() uintptr {
+	return sharedCEFCallback(&rawLifeSpanHandlerOnBeforeCloseSharedOnce, &rawLifeSpanHandlerOnBeforeCloseSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RawLifeSpanHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnBeforeClose(browser)
-	}))
+	})
+}
 
+// NewRawLifeSpanHandler creates a CEF handler backed by the given implementation.
+func NewRawLifeSpanHandler(impl RawLifeSpanHandler) RawLifeSpanHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFLifeSpanHandlerT)
 	w := &rawLifeSpanHandlerWrapper{rawPtr: r}
 	w.RawLifeSpanHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnBeforePopup(rawLifeSpanHandlerOnBeforePopupCEFCallback())
+
+	r.OverrideOnBeforePopupAborted(rawLifeSpanHandlerOnBeforePopupAbortedCEFCallback())
+
+	r.OverrideOnBeforeDevToolsPopup(rawLifeSpanHandlerOnBeforeDevToolsPopupCEFCallback())
+
+	r.OverrideOnAfterCreated(rawLifeSpanHandlerOnAfterCreatedCEFCallback())
+
+	r.OverrideDoClose(rawLifeSpanHandlerDoCloseCEFCallback())
+
+	r.OverrideOnBeforeClose(rawLifeSpanHandlerOnBeforeCloseCEFCallback())
+
 	return w
 }
 

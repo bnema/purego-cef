@@ -28,47 +28,91 @@ func (w *loadHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewLoadHandler creates a CEF handler backed by the given implementation.
-func NewLoadHandler(impl LoadHandler) LoadHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFLoadHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var loadHandlerOnLoadingStateChangeSharedOnce sync.Once
+var loadHandlerOnLoadingStateChangeSharedCallback uintptr
 
-	r.OverrideOnLoadingStateChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+func loadHandlerOnLoadingStateChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&loadHandlerOnLoadingStateChangeSharedOnce, &loadHandlerOnLoadingStateChangeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[LoadHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		isloading := int32(arg1)
 		cangoback := int32(arg2)
 		cangoforward := int32(arg3)
 		impl.OnLoadingStateChange(browser, isloading, cangoback, cangoforward)
-	}))
+	})
+}
 
-	r.OverrideOnLoadStart(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+var loadHandlerOnLoadStartSharedOnce sync.Once
+var loadHandlerOnLoadStartSharedCallback uintptr
+
+func loadHandlerOnLoadStartCEFCallback() uintptr {
+	return sharedCEFCallback(&loadHandlerOnLoadStartSharedOnce, &loadHandlerOnLoadStartSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[LoadHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		transitionType := TransitionType(arg2)
 		impl.OnLoadStart(browser, frame, transitionType)
-	}))
+	})
+}
 
-	r.OverrideOnLoadEnd(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+var loadHandlerOnLoadEndSharedOnce sync.Once
+var loadHandlerOnLoadEndSharedCallback uintptr
+
+func loadHandlerOnLoadEndCEFCallback() uintptr {
+	return sharedCEFCallback(&loadHandlerOnLoadEndSharedOnce, &loadHandlerOnLoadEndSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[LoadHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		httpstatuscode := int32(arg2)
 		impl.OnLoadEnd(browser, frame, httpstatuscode)
-	}))
+	})
+}
 
-	r.OverrideOnLoadError(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+var loadHandlerOnLoadErrorSharedOnce sync.Once
+var loadHandlerOnLoadErrorSharedCallback uintptr
+
+func loadHandlerOnLoadErrorCEFCallback() uintptr {
+	return sharedCEFCallback(&loadHandlerOnLoadErrorSharedOnce, &loadHandlerOnLoadErrorSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[LoadHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		errorcode := Errorcode(arg2)
 		errortext := goString(unsafe.Pointer(arg3))
 		failedurl := goString(unsafe.Pointer(arg4))
 		impl.OnLoadError(browser, frame, errorcode, errortext, failedurl)
-	}))
+	})
+}
 
+// NewLoadHandler creates a CEF handler backed by the given implementation.
+func NewLoadHandler(impl LoadHandler) LoadHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFLoadHandlerT)
 	w := &loadHandlerWrapper{rawPtr: r}
 	w.LoadHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnLoadingStateChange(loadHandlerOnLoadingStateChangeCEFCallback())
+
+	r.OverrideOnLoadStart(loadHandlerOnLoadStartCEFCallback())
+
+	r.OverrideOnLoadEnd(loadHandlerOnLoadEndCEFCallback())
+
+	r.OverrideOnLoadError(loadHandlerOnLoadErrorCEFCallback())
+
 	return w
 }
 

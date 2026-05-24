@@ -28,78 +28,199 @@ func (w *viewDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var viewDelegateGetPreferredSizeSharedOnce sync.Once
+var viewDelegateGetPreferredSizeSharedCallback uintptr
+
+func viewDelegateGetPreferredSizeCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateGetPreferredSizeSharedOnce, &viewDelegateGetPreferredSizeSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		return uintptr(impl.GetPreferredSize(view))
+	})
+}
+
+var viewDelegateGetMinimumSizeSharedOnce sync.Once
+var viewDelegateGetMinimumSizeSharedCallback uintptr
+
+func viewDelegateGetMinimumSizeCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateGetMinimumSizeSharedOnce, &viewDelegateGetMinimumSizeSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		return uintptr(impl.GetMinimumSize(view))
+	})
+}
+
+var viewDelegateGetMaximumSizeSharedOnce sync.Once
+var viewDelegateGetMaximumSizeSharedCallback uintptr
+
+func viewDelegateGetMaximumSizeCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateGetMaximumSizeSharedOnce, &viewDelegateGetMaximumSizeSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		return uintptr(impl.GetMaximumSize(view))
+	})
+}
+
+var viewDelegateGetHeightForWidthSharedOnce sync.Once
+var viewDelegateGetHeightForWidthSharedCallback uintptr
+
+func viewDelegateGetHeightForWidthCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateGetHeightForWidthSharedOnce, &viewDelegateGetHeightForWidthSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		width := int32(arg1)
+		return uintptr(impl.GetHeightForWidth(view, width))
+	})
+}
+
+var viewDelegateOnParentViewChangedSharedOnce sync.Once
+var viewDelegateOnParentViewChangedSharedCallback uintptr
+
+func viewDelegateOnParentViewChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateOnParentViewChangedSharedOnce, &viewDelegateOnParentViewChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		added := int32(arg1)
+		parent := wrapView(unsafe.Pointer(arg2))
+		impl.OnParentViewChanged(view, added, parent)
+	})
+}
+
+var viewDelegateOnChildViewChangedSharedOnce sync.Once
+var viewDelegateOnChildViewChangedSharedCallback uintptr
+
+func viewDelegateOnChildViewChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateOnChildViewChangedSharedOnce, &viewDelegateOnChildViewChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		added := int32(arg1)
+		child := wrapView(unsafe.Pointer(arg2))
+		impl.OnChildViewChanged(view, added, child)
+	})
+}
+
+var viewDelegateOnWindowChangedSharedOnce sync.Once
+var viewDelegateOnWindowChangedSharedCallback uintptr
+
+func viewDelegateOnWindowChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateOnWindowChangedSharedOnce, &viewDelegateOnWindowChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		added := int32(arg1)
+		impl.OnWindowChanged(view, added)
+	})
+}
+
+var viewDelegateOnLayoutChangedSharedOnce sync.Once
+var viewDelegateOnLayoutChangedSharedCallback uintptr
+
+func viewDelegateOnLayoutChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateOnLayoutChangedSharedOnce, &viewDelegateOnLayoutChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		newBounds := (*Rect)(unsafe.Pointer(arg1))
+		impl.OnLayoutChanged(view, newBounds)
+	})
+}
+
+var viewDelegateOnFocusSharedOnce sync.Once
+var viewDelegateOnFocusSharedCallback uintptr
+
+func viewDelegateOnFocusCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateOnFocusSharedOnce, &viewDelegateOnFocusSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		impl.OnFocus(view)
+	})
+}
+
+var viewDelegateOnBlurSharedOnce sync.Once
+var viewDelegateOnBlurSharedCallback uintptr
+
+func viewDelegateOnBlurCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateOnBlurSharedOnce, &viewDelegateOnBlurSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		impl.OnBlur(view)
+	})
+}
+
+var viewDelegateOnThemeChangedSharedOnce sync.Once
+var viewDelegateOnThemeChangedSharedCallback uintptr
+
+func viewDelegateOnThemeChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&viewDelegateOnThemeChangedSharedOnce, &viewDelegateOnThemeChangedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ViewDelegate](self)
+		if !ownerOK {
+			return
+		}
+		view := wrapView(unsafe.Pointer(arg0))
+		impl.OnThemeChanged(view)
+	})
+}
+
 // NewViewDelegate creates a CEF handler backed by the given implementation.
 func NewViewDelegate(impl ViewDelegate) ViewDelegate {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFViewDelegateT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetPreferredSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		view := wrapView(unsafe.Pointer(arg0))
-		return uintptr(impl.GetPreferredSize(view))
-	}))
-
-	r.OverrideGetMinimumSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		view := wrapView(unsafe.Pointer(arg0))
-		return uintptr(impl.GetMinimumSize(view))
-	}))
-
-	r.OverrideGetMaximumSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		view := wrapView(unsafe.Pointer(arg0))
-		return uintptr(impl.GetMaximumSize(view))
-	}))
-
-	r.OverrideGetHeightForWidth(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		view := wrapView(unsafe.Pointer(arg0))
-		width := int32(arg1)
-		return uintptr(impl.GetHeightForWidth(view, width))
-	}))
-
-	r.OverrideOnParentViewChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		view := wrapView(unsafe.Pointer(arg0))
-		added := int32(arg1)
-		parent := wrapView(unsafe.Pointer(arg2))
-		impl.OnParentViewChanged(view, added, parent)
-	}))
-
-	r.OverrideOnChildViewChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		view := wrapView(unsafe.Pointer(arg0))
-		added := int32(arg1)
-		child := wrapView(unsafe.Pointer(arg2))
-		impl.OnChildViewChanged(view, added, child)
-	}))
-
-	r.OverrideOnWindowChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		view := wrapView(unsafe.Pointer(arg0))
-		added := int32(arg1)
-		impl.OnWindowChanged(view, added)
-	}))
-
-	r.OverrideOnLayoutChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		view := wrapView(unsafe.Pointer(arg0))
-		newBounds := (*Rect)(unsafe.Pointer(arg1))
-		impl.OnLayoutChanged(view, newBounds)
-	}))
-
-	r.OverrideOnFocus(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		view := wrapView(unsafe.Pointer(arg0))
-		impl.OnFocus(view)
-	}))
-
-	r.OverrideOnBlur(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		view := wrapView(unsafe.Pointer(arg0))
-		impl.OnBlur(view)
-	}))
-
-	r.OverrideOnThemeChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		view := wrapView(unsafe.Pointer(arg0))
-		impl.OnThemeChanged(view)
-	}))
-
 	w := &viewDelegateWrapper{rawPtr: r}
 	w.ViewDelegate = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetPreferredSize(viewDelegateGetPreferredSizeCEFCallback())
+
+	r.OverrideGetMinimumSize(viewDelegateGetMinimumSizeCEFCallback())
+
+	r.OverrideGetMaximumSize(viewDelegateGetMaximumSizeCEFCallback())
+
+	r.OverrideGetHeightForWidth(viewDelegateGetHeightForWidthCEFCallback())
+
+	r.OverrideOnParentViewChanged(viewDelegateOnParentViewChangedCEFCallback())
+
+	r.OverrideOnChildViewChanged(viewDelegateOnChildViewChangedCEFCallback())
+
+	r.OverrideOnWindowChanged(viewDelegateOnWindowChangedCEFCallback())
+
+	r.OverrideOnLayoutChanged(viewDelegateOnLayoutChangedCEFCallback())
+
+	r.OverrideOnFocus(viewDelegateOnFocusCEFCallback())
+
+	r.OverrideOnBlur(viewDelegateOnBlurCEFCallback())
+
+	r.OverrideOnThemeChanged(viewDelegateOnThemeChangedCEFCallback())
+
 	return w
 }
 

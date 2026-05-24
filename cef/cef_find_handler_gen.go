@@ -28,15 +28,15 @@ func (w *findHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewFindHandler creates a CEF handler backed by the given implementation.
-func NewFindHandler(impl FindHandler) FindHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFFindHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var findHandlerOnFindResultSharedOnce sync.Once
+var findHandlerOnFindResultSharedCallback uintptr
 
-	r.OverrideOnFindResult(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
+func findHandlerOnFindResultCEFCallback() uintptr {
+	return sharedCEFCallback(&findHandlerOnFindResultSharedOnce, &findHandlerOnFindResultSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[FindHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		identifier := int32(arg1)
 		count := int32(arg2)
@@ -44,10 +44,21 @@ func NewFindHandler(impl FindHandler) FindHandler {
 		activematchordinal := int32(arg4)
 		finalupdate := int32(arg5)
 		impl.OnFindResult(browser, identifier, count, selectionrect, activematchordinal, finalupdate)
-	}))
+	})
+}
 
+// NewFindHandler creates a CEF handler backed by the given implementation.
+func NewFindHandler(impl FindHandler) FindHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFFindHandlerT)
 	w := &findHandlerWrapper{rawPtr: r}
 	w.FindHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnFindResult(findHandlerOnFindResultCEFCallback())
+
 	return w
 }
 

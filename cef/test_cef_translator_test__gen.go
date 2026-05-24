@@ -926,20 +926,31 @@ func (w *translatorTestRefPtrClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var translatorTestRefPtrClientGetValueSharedOnce sync.Once
+var translatorTestRefPtrClientGetValueSharedCallback uintptr
+
+func translatorTestRefPtrClientGetValueCEFCallback() uintptr {
+	return sharedCEFCallback(&translatorTestRefPtrClientGetValueSharedOnce, &translatorTestRefPtrClientGetValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[TranslatorTestRefPtrClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValue())
+	})
+}
+
 // NewTranslatorTestRefPtrClient creates a CEF handler backed by the given implementation.
 func NewTranslatorTestRefPtrClient(impl TranslatorTestRefPtrClient) TranslatorTestRefPtrClient {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFTranslatorTestRefPtrClientT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValue())
-	}))
-
 	w := &translatorTestRefPtrClientWrapper{rawPtr: r}
 	w.TranslatorTestRefPtrClient = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetValue(translatorTestRefPtrClientGetValueCEFCallback())
+
 	return w
 }
 
@@ -1013,20 +1024,31 @@ func (w *translatorTestRefPtrClientChildWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var translatorTestRefPtrClientChildGetOtherValueSharedOnce sync.Once
+var translatorTestRefPtrClientChildGetOtherValueSharedCallback uintptr
+
+func translatorTestRefPtrClientChildGetOtherValueCEFCallback() uintptr {
+	return sharedCEFCallback(&translatorTestRefPtrClientChildGetOtherValueSharedOnce, &translatorTestRefPtrClientChildGetOtherValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[TranslatorTestRefPtrClientChild](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetOtherValue())
+	})
+}
+
 // NewTranslatorTestRefPtrClientChild creates a CEF handler backed by the given implementation.
 func NewTranslatorTestRefPtrClientChild(impl TranslatorTestRefPtrClientChild) TranslatorTestRefPtrClientChild {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFTranslatorTestRefPtrClientChildT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetOtherValue())
-	}))
-
 	w := &translatorTestRefPtrClientChildWrapper{rawPtr: r}
 	w.TranslatorTestRefPtrClientChild = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetOtherValue(translatorTestRefPtrClientChildGetOtherValueCEFCallback())
+
 	return w
 }
 
@@ -1270,20 +1292,31 @@ func (w *translatorTestScopedClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var translatorTestScopedClientGetValueSharedOnce sync.Once
+var translatorTestScopedClientGetValueSharedCallback uintptr
+
+func translatorTestScopedClientGetValueCEFCallback() uintptr {
+	return sharedCEFCallback(&translatorTestScopedClientGetValueSharedOnce, &translatorTestScopedClientGetValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[TranslatorTestScopedClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValue())
+	})
+}
+
 // NewTranslatorTestScopedClient creates a CEF handler backed by the given implementation.
 func NewTranslatorTestScopedClient(impl TranslatorTestScopedClient) TranslatorTestScopedClient {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFTranslatorTestScopedClientT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValue())
-	}))
-
 	w := &translatorTestScopedClientWrapper{rawPtr: r}
 	w.TranslatorTestScopedClient = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetValue(translatorTestScopedClientGetValueCEFCallback())
+
 	return w
 }
 
@@ -1334,20 +1367,31 @@ func (w *translatorTestScopedClientChildWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var translatorTestScopedClientChildGetOtherValueSharedOnce sync.Once
+var translatorTestScopedClientChildGetOtherValueSharedCallback uintptr
+
+func translatorTestScopedClientChildGetOtherValueCEFCallback() uintptr {
+	return sharedCEFCallback(&translatorTestScopedClientChildGetOtherValueSharedOnce, &translatorTestScopedClientChildGetOtherValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[TranslatorTestScopedClientChild](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetOtherValue())
+	})
+}
+
 // NewTranslatorTestScopedClientChild creates a CEF handler backed by the given implementation.
 func NewTranslatorTestScopedClientChild(impl TranslatorTestScopedClientChild) TranslatorTestScopedClientChild {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFTranslatorTestScopedClientChildT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetOtherValue())
-	}))
-
 	w := &translatorTestScopedClientChildWrapper{rawPtr: r}
 	w.TranslatorTestScopedClientChild = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetOtherValue(translatorTestScopedClientChildGetOtherValueCEFCallback())
+
 	return w
 }
 

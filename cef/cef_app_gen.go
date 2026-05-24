@@ -28,69 +28,85 @@ func (w *appWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var appOnBeforeCommandLineProcessingSharedOnce sync.Once
+var appOnBeforeCommandLineProcessingSharedCallback uintptr
+
+func appOnBeforeCommandLineProcessingCEFCallback() uintptr {
+	return sharedCEFCallback(&appOnBeforeCommandLineProcessingSharedOnce, &appOnBeforeCommandLineProcessingSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[App](self)
+		if !ownerOK {
+			return
+		}
+		processType := goString(unsafe.Pointer(arg0))
+		commandLine := wrapCommandLine(unsafe.Pointer(arg1))
+		impl.OnBeforeCommandLineProcessing(processType, commandLine)
+	})
+}
+
+var appOnRegisterCustomSchemesSharedOnce sync.Once
+var appOnRegisterCustomSchemesSharedCallback uintptr
+
+func appOnRegisterCustomSchemesCEFCallback() uintptr {
+	return sharedCEFCallback(&appOnRegisterCustomSchemesSharedOnce, &appOnRegisterCustomSchemesSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[App](self)
+		if !ownerOK {
+			return
+		}
+		registrar := wrapSchemeRegistrar(unsafe.Pointer(arg0))
+		impl.OnRegisterCustomSchemes(registrar)
+	})
+}
+
 // NewApp creates a CEF handler backed by the given implementation.
 func NewApp(impl App) App {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFAppT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+	w := &appWrapper{rawPtr: r}
+	w.App = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
-	r.OverrideOnBeforeCommandLineProcessing(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		processType := goString(unsafe.Pointer(arg0))
-		commandLine := wrapCommandLine(unsafe.Pointer(arg1))
-		impl.OnBeforeCommandLineProcessing(processType, commandLine)
-	}))
+	r.OverrideOnBeforeCommandLineProcessing(appOnBeforeCommandLineProcessingCEFCallback())
 
-	r.OverrideOnRegisterCustomSchemes(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		registrar := wrapSchemeRegistrar(unsafe.Pointer(arg0))
-		impl.OnRegisterCustomSchemes(registrar)
-	}))
+	r.OverrideOnRegisterCustomSchemes(appOnRegisterCustomSchemesCEFCallback())
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetResourceBundleHandlerPtr unsafe.Pointer
-	if h := impl.GetResourceBundleHandler(); h != nil {
+	if h := impl.GetResourceBundleHandler(); !isNilImpl(h) {
 		cachedGetResourceBundleHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewResourceBundleHandler(h)
 		})
-	}
-	r.OverrideGetResourceBundleHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetResourceBundleHandlerPtr != nil {
+		r.OverrideGetResourceBundleHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetResourceBundleHandlerPtr)
-		}
-		return uintptr(cachedGetResourceBundleHandlerPtr)
-	}))
+			return uintptr(cachedGetResourceBundleHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetBrowserProcessHandlerPtr unsafe.Pointer
-	if h := impl.GetBrowserProcessHandler(); h != nil {
+	if h := impl.GetBrowserProcessHandler(); !isNilImpl(h) {
 		cachedGetBrowserProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewBrowserProcessHandler(h)
 		})
-	}
-	r.OverrideGetBrowserProcessHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetBrowserProcessHandlerPtr != nil {
+		r.OverrideGetBrowserProcessHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetBrowserProcessHandlerPtr)
-		}
-		return uintptr(cachedGetBrowserProcessHandlerPtr)
-	}))
+			return uintptr(cachedGetBrowserProcessHandlerPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetRenderProcessHandlerPtr unsafe.Pointer
-	if h := impl.GetRenderProcessHandler(); h != nil {
+	if h := impl.GetRenderProcessHandler(); !isNilImpl(h) {
 		cachedGetRenderProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRenderProcessHandler(h)
 		})
-	}
-	r.OverrideGetRenderProcessHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetRenderProcessHandlerPtr != nil {
+		r.OverrideGetRenderProcessHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetRenderProcessHandlerPtr)
-		}
-		return uintptr(cachedGetRenderProcessHandlerPtr)
-	}))
+			return uintptr(cachedGetRenderProcessHandlerPtr)
+		}))
+	}
 
-	w := &appWrapper{rawPtr: r}
-	w.App = impl
 	return w
 }
 

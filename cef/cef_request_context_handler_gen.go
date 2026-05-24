@@ -28,20 +28,29 @@ func (w *requestContextHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewRequestContextHandler creates a CEF handler backed by the given implementation.
-func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFRequestContextHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var requestContextHandlerOnRequestContextInitializedSharedOnce sync.Once
+var requestContextHandlerOnRequestContextInitializedSharedCallback uintptr
 
-	r.OverrideOnRequestContextInitialized(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+func requestContextHandlerOnRequestContextInitializedCEFCallback() uintptr {
+	return sharedCEFCallback(&requestContextHandlerOnRequestContextInitializedSharedOnce, &requestContextHandlerOnRequestContextInitializedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RequestContextHandler](self)
+		if !ownerOK {
+			return
+		}
 		requestContext := wrapRequestContext(unsafe.Pointer(arg0))
 		impl.OnRequestContextInitialized(requestContext)
-	}))
+	})
+}
 
-	r.OverrideGetResourceRequestHandler(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+var requestContextHandlerGetResourceRequestHandlerSharedOnce sync.Once
+var requestContextHandlerGetResourceRequestHandlerSharedCallback uintptr
+
+func requestContextHandlerGetResourceRequestHandlerCEFCallback() uintptr {
+	return sharedCEFCallback(&requestContextHandlerGetResourceRequestHandlerSharedOnce, &requestContextHandlerGetResourceRequestHandlerSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RequestContextHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -56,10 +65,23 @@ func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler 
 		return uintptr(extractOrWrapRawPointer(result, func() any {
 			return NewResourceRequestHandler(result)
 		}))
-	}))
+	})
+}
 
+// NewRequestContextHandler creates a CEF handler backed by the given implementation.
+func NewRequestContextHandler(impl RequestContextHandler) RequestContextHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFRequestContextHandlerT)
 	w := &requestContextHandlerWrapper{rawPtr: r}
 	w.RequestContextHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnRequestContextInitialized(requestContextHandlerOnRequestContextInitializedCEFCallback())
+
+	r.OverrideGetResourceRequestHandler(requestContextHandlerGetResourceRequestHandlerCEFCallback())
+
 	return w
 }
 
