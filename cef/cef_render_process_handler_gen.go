@@ -171,7 +171,7 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetLoadHandlerPtr unsafe.Pointer
-	if h := impl.GetLoadHandler(); h != nil {
+	if h := impl.GetLoadHandler(); !isNilImpl(h) {
 		cachedGetLoadHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewLoadHandler(h)
 		})

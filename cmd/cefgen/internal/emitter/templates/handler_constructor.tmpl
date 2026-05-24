@@ -76,7 +76,7 @@ func {{constructorName .Name}}(impl {{.Name}}) {{.Name}} {
 	{{- if .IsGetter}}
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cached{{.Name}}Ptr unsafe.Pointer
-	if h := impl.{{.Name}}(); h != nil {
+	if h := impl.{{.Name}}(); !isNilImpl(h) {
 		cached{{.Name}}Ptr = extractOrWrapRawPointer(h, func() any {
 			return {{constructorName .GetterInterface}}(h)
 		})

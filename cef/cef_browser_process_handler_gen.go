@@ -121,7 +121,7 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDefaultClientPtr unsafe.Pointer
-	if h := impl.GetDefaultClient(); h != nil {
+	if h := impl.GetDefaultClient(); !isNilImpl(h) {
 		cachedGetDefaultClientPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRawClient(h)
 		})
@@ -133,7 +133,7 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDefaultRequestContextHandlerPtr unsafe.Pointer
-	if h := impl.GetDefaultRequestContextHandler(); h != nil {
+	if h := impl.GetDefaultRequestContextHandler(); !isNilImpl(h) {
 		cachedGetDefaultRequestContextHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRequestContextHandler(h)
 		})

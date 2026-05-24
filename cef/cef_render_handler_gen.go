@@ -296,7 +296,7 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetAccessibilityHandlerPtr unsafe.Pointer
-	if h := impl.GetAccessibilityHandler(); h != nil {
+	if h := impl.GetAccessibilityHandler(); !isNilImpl(h) {
 		cachedGetAccessibilityHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewAccessibilityHandler(h)
 		})

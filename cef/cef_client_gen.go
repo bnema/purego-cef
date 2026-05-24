@@ -57,7 +57,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetAudioHandlerPtr unsafe.Pointer
-	if h := impl.GetAudioHandler(); h != nil {
+	if h := impl.GetAudioHandler(); !isNilImpl(h) {
 		cachedGetAudioHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRawAudioHandler(h)
 		})
@@ -69,7 +69,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetCommandHandlerPtr unsafe.Pointer
-	if h := impl.GetCommandHandler(); h != nil {
+	if h := impl.GetCommandHandler(); !isNilImpl(h) {
 		cachedGetCommandHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewCommandHandler(h)
 		})
@@ -81,7 +81,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetContextMenuHandlerPtr unsafe.Pointer
-	if h := impl.GetContextMenuHandler(); h != nil {
+	if h := impl.GetContextMenuHandler(); !isNilImpl(h) {
 		cachedGetContextMenuHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewContextMenuHandler(h)
 		})
@@ -93,7 +93,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDialogHandlerPtr unsafe.Pointer
-	if h := impl.GetDialogHandler(); h != nil {
+	if h := impl.GetDialogHandler(); !isNilImpl(h) {
 		cachedGetDialogHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewDialogHandler(h)
 		})
@@ -105,7 +105,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDisplayHandlerPtr unsafe.Pointer
-	if h := impl.GetDisplayHandler(); h != nil {
+	if h := impl.GetDisplayHandler(); !isNilImpl(h) {
 		cachedGetDisplayHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewDisplayHandler(h)
 		})
@@ -117,7 +117,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDownloadHandlerPtr unsafe.Pointer
-	if h := impl.GetDownloadHandler(); h != nil {
+	if h := impl.GetDownloadHandler(); !isNilImpl(h) {
 		cachedGetDownloadHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewDownloadHandler(h)
 		})
@@ -129,7 +129,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDragHandlerPtr unsafe.Pointer
-	if h := impl.GetDragHandler(); h != nil {
+	if h := impl.GetDragHandler(); !isNilImpl(h) {
 		cachedGetDragHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewDragHandler(h)
 		})
@@ -141,7 +141,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetFindHandlerPtr unsafe.Pointer
-	if h := impl.GetFindHandler(); h != nil {
+	if h := impl.GetFindHandler(); !isNilImpl(h) {
 		cachedGetFindHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewFindHandler(h)
 		})
@@ -153,7 +153,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetFocusHandlerPtr unsafe.Pointer
-	if h := impl.GetFocusHandler(); h != nil {
+	if h := impl.GetFocusHandler(); !isNilImpl(h) {
 		cachedGetFocusHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewFocusHandler(h)
 		})
@@ -165,7 +165,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetFrameHandlerPtr unsafe.Pointer
-	if h := impl.GetFrameHandler(); h != nil {
+	if h := impl.GetFrameHandler(); !isNilImpl(h) {
 		cachedGetFrameHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewFrameHandler(h)
 		})
@@ -177,7 +177,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetPermissionHandlerPtr unsafe.Pointer
-	if h := impl.GetPermissionHandler(); h != nil {
+	if h := impl.GetPermissionHandler(); !isNilImpl(h) {
 		cachedGetPermissionHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewPermissionHandler(h)
 		})
@@ -189,7 +189,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetJsdialogHandlerPtr unsafe.Pointer
-	if h := impl.GetJsdialogHandler(); h != nil {
+	if h := impl.GetJsdialogHandler(); !isNilImpl(h) {
 		cachedGetJsdialogHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewJsdialogHandler(h)
 		})
@@ -201,7 +201,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetKeyboardHandlerPtr unsafe.Pointer
-	if h := impl.GetKeyboardHandler(); h != nil {
+	if h := impl.GetKeyboardHandler(); !isNilImpl(h) {
 		cachedGetKeyboardHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewKeyboardHandler(h)
 		})
@@ -213,7 +213,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetLifeSpanHandlerPtr unsafe.Pointer
-	if h := impl.GetLifeSpanHandler(); h != nil {
+	if h := impl.GetLifeSpanHandler(); !isNilImpl(h) {
 		cachedGetLifeSpanHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRawLifeSpanHandler(h)
 		})
@@ -225,7 +225,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetLoadHandlerPtr unsafe.Pointer
-	if h := impl.GetLoadHandler(); h != nil {
+	if h := impl.GetLoadHandler(); !isNilImpl(h) {
 		cachedGetLoadHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewLoadHandler(h)
 		})
@@ -237,7 +237,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetPrintHandlerPtr unsafe.Pointer
-	if h := impl.GetPrintHandler(); h != nil {
+	if h := impl.GetPrintHandler(); !isNilImpl(h) {
 		cachedGetPrintHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewPrintHandler(h)
 		})
@@ -249,7 +249,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetRenderHandlerPtr unsafe.Pointer
-	if h := impl.GetRenderHandler(); h != nil {
+	if h := impl.GetRenderHandler(); !isNilImpl(h) {
 		cachedGetRenderHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRenderHandler(h)
 		})
@@ -261,7 +261,7 @@ func NewRawClient(impl RawClient) RawClient {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetRequestHandlerPtr unsafe.Pointer
-	if h := impl.GetRequestHandler(); h != nil {
+	if h := impl.GetRequestHandler(); !isNilImpl(h) {
 		cachedGetRequestHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRequestHandler(h)
 		})

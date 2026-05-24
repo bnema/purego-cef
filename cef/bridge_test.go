@@ -35,6 +35,9 @@ func installBridgeTestEngine(t *testing.T) {
 }
 
 type plainRawClientStub struct{}
+type typedNilDisplayRawClientStub struct {
+	plainRawClientStub
+}
 
 type nilAudioHandlerStub struct{}
 type plainLifeSpanHandlerStub struct{}
@@ -96,6 +99,11 @@ func (plainRawClientStub) OnProcessMessageReceived(Browser, Frame, ProcessID, Pr
 	return 0
 }
 
+func (typedNilDisplayRawClientStub) GetDisplayHandler() DisplayHandler {
+	var h *noopDisplayHandlerStub
+	return h
+}
+
 func TestConstructorsReturnNilForNilImpl(t *testing.T) {
 	var rawLifeSpan RawLifeSpanHandler
 	if got := NewRawLifeSpanHandler(rawLifeSpan); got != nil {
@@ -145,6 +153,19 @@ func TestDisplayHandlerConstructorUsesSharedMethodCallbacks(t *testing.T) {
 		if got := NewDisplayHandler(noopDisplayHandlerStub{}); got == nil {
 			t.Fatalf("NewDisplayHandler(...) at %d = nil, want non-nil handler", i)
 		}
+	}
+}
+
+func TestRawClientGetterSkipsTypedNilHandlerCallback(t *testing.T) {
+	installBridgeTestEngine(t)
+
+	client := NewRawClient(typedNilDisplayRawClientStub{})
+	raw := (*capi.CEFClientT)(extractRawPointer(client))
+	if raw == nil {
+		t.Fatal("NewRawClient returned nil raw pointer")
+	}
+	if raw.GetDisplayHandler != 0 {
+		t.Fatalf("GetDisplayHandler callback = %x, want unset for typed-nil handler", raw.GetDisplayHandler)
 	}
 }
 

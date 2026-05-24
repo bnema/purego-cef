@@ -73,7 +73,7 @@ func NewApp(impl App) App {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetResourceBundleHandlerPtr unsafe.Pointer
-	if h := impl.GetResourceBundleHandler(); h != nil {
+	if h := impl.GetResourceBundleHandler(); !isNilImpl(h) {
 		cachedGetResourceBundleHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewResourceBundleHandler(h)
 		})
@@ -85,7 +85,7 @@ func NewApp(impl App) App {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetBrowserProcessHandlerPtr unsafe.Pointer
-	if h := impl.GetBrowserProcessHandler(); h != nil {
+	if h := impl.GetBrowserProcessHandler(); !isNilImpl(h) {
 		cachedGetBrowserProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewBrowserProcessHandler(h)
 		})
@@ -97,7 +97,7 @@ func NewApp(impl App) App {
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetRenderProcessHandlerPtr unsafe.Pointer
-	if h := impl.GetRenderProcessHandler(); h != nil {
+	if h := impl.GetRenderProcessHandler(); !isNilImpl(h) {
 		cachedGetRenderProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRenderProcessHandler(h)
 		})
