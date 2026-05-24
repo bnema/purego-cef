@@ -64,21 +64,32 @@ func (w *preferenceObserverWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var preferenceObserverOnPreferenceChangedSharedOnce sync.Once
+var preferenceObserverOnPreferenceChangedSharedCallback uintptr
+
+func preferenceObserverOnPreferenceChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&preferenceObserverOnPreferenceChangedSharedOnce, &preferenceObserverOnPreferenceChangedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[PreferenceObserver](self)
+		if !ownerOK {
+			return
+		}
+		name := goString(unsafe.Pointer(arg0))
+		impl.OnPreferenceChanged(name)
+	})
+}
+
 // NewPreferenceObserver creates a CEF handler backed by the given implementation.
 func NewPreferenceObserver(impl PreferenceObserver) PreferenceObserver {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFPreferenceObserverT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnPreferenceChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		name := goString(unsafe.Pointer(arg0))
-		impl.OnPreferenceChanged(name)
-	}))
-
 	w := &preferenceObserverWrapper{rawPtr: r}
 	w.PreferenceObserver = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnPreferenceChanged(preferenceObserverOnPreferenceChangedCEFCallback())
+
 	return w
 }
 

@@ -28,27 +28,49 @@ func (w *textfieldDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var textfieldDelegateOnKeyEventSharedOnce sync.Once
+var textfieldDelegateOnKeyEventSharedCallback uintptr
+
+func textfieldDelegateOnKeyEventCEFCallback() uintptr {
+	return sharedCEFCallback(&textfieldDelegateOnKeyEventSharedOnce, &textfieldDelegateOnKeyEventSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[TextfieldDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		textfield := wrapTextfield(unsafe.Pointer(arg0))
+		event := (*KeyEvent)(unsafe.Pointer(arg1))
+		return uintptr(impl.OnKeyEvent(textfield, event))
+	})
+}
+
+var textfieldDelegateOnAfterUserActionSharedOnce sync.Once
+var textfieldDelegateOnAfterUserActionSharedCallback uintptr
+
+func textfieldDelegateOnAfterUserActionCEFCallback() uintptr {
+	return sharedCEFCallback(&textfieldDelegateOnAfterUserActionSharedOnce, &textfieldDelegateOnAfterUserActionSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[TextfieldDelegate](self)
+		if !ownerOK {
+			return
+		}
+		textfield := wrapTextfield(unsafe.Pointer(arg0))
+		impl.OnAfterUserAction(textfield)
+	})
+}
+
 // NewTextfieldDelegate creates a CEF handler backed by the given implementation.
 func NewTextfieldDelegate(impl TextfieldDelegate) TextfieldDelegate {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFTextfieldDelegateT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnKeyEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		textfield := wrapTextfield(unsafe.Pointer(arg0))
-		event := (*KeyEvent)(unsafe.Pointer(arg1))
-		return uintptr(impl.OnKeyEvent(textfield, event))
-	}))
-
-	r.OverrideOnAfterUserAction(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		textfield := wrapTextfield(unsafe.Pointer(arg0))
-		impl.OnAfterUserAction(textfield)
-	}))
-
 	w := &textfieldDelegateWrapper{rawPtr: r}
 	w.TextfieldDelegate = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnKeyEvent(textfieldDelegateOnKeyEventCEFCallback())
+
+	r.OverrideOnAfterUserAction(textfieldDelegateOnAfterUserActionCEFCallback())
+
 	return w
 }
 

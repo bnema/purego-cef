@@ -28,20 +28,31 @@ func (w *taskWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var taskExecuteSharedOnce sync.Once
+var taskExecuteSharedCallback uintptr
+
+func taskExecuteCEFCallback() uintptr {
+	return sharedCEFCallback(&taskExecuteSharedOnce, &taskExecuteSharedCallback, func(self uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[Task](self)
+		if !ownerOK {
+			return
+		}
+		impl.Execute()
+	})
+}
+
 // NewTask creates a CEF handler backed by the given implementation.
 func NewTask(impl Task) Task {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFTaskT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideExecute(newCEFCallback(unsafe.Pointer(r), func(self uintptr) {
-		impl.Execute()
-	}))
-
 	w := &taskWrapper{rawPtr: r}
 	w.Task = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideExecute(taskExecuteCEFCallback())
+
 	return w
 }
 

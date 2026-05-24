@@ -34,10 +34,10 @@ func NewPanelDelegate(impl PanelDelegate) PanelDelegate {
 		return nil
 	}
 	r := new(capi.CEFPanelDelegateT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
 	w := &panelDelegateWrapper{rawPtr: r}
 	w.PanelDelegate = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
 	return w
 }
 

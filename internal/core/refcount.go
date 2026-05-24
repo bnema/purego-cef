@@ -146,6 +146,14 @@ func (rm *RefManager) Has(base unsafe.Pointer) bool {
 	return ok
 }
 
+// Owner returns the Go owner pinned for the object at base.
+func (rm *RefManager) Owner(base unsafe.Pointer) (any, bool) {
+	if base == nil {
+		return nil, false
+	}
+	return rm.pins.Load(uintptr(base))
+}
+
 func (rm *RefManager) loadState(base unsafe.Pointer) (*refState, bool) {
 	v, ok := rm.states.Load(uintptr(base))
 	if !ok {

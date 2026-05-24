@@ -28,21 +28,32 @@ func (w *domvisitorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var domvisitorVisitSharedOnce sync.Once
+var domvisitorVisitSharedCallback uintptr
+
+func domvisitorVisitCEFCallback() uintptr {
+	return sharedCEFCallback(&domvisitorVisitSharedOnce, &domvisitorVisitSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[Domvisitor](self)
+		if !ownerOK {
+			return
+		}
+		document := wrapDomdocument(unsafe.Pointer(arg0))
+		impl.Visit(document)
+	})
+}
+
 // NewDomvisitor creates a CEF handler backed by the given implementation.
 func NewDomvisitor(impl Domvisitor) Domvisitor {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFDomvisitorT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideVisit(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		document := wrapDomdocument(unsafe.Pointer(arg0))
-		impl.Visit(document)
-	}))
-
 	w := &domvisitorWrapper{rawPtr: r}
 	w.Domvisitor = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideVisit(domvisitorVisitCEFCallback())
+
 	return w
 }
 

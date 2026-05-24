@@ -28,39 +28,96 @@ func (w *browserProcessHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var browserProcessHandlerOnRegisterCustomPreferencesSharedOnce sync.Once
+var browserProcessHandlerOnRegisterCustomPreferencesSharedCallback uintptr
+
+func browserProcessHandlerOnRegisterCustomPreferencesCEFCallback() uintptr {
+	return sharedCEFCallback(&browserProcessHandlerOnRegisterCustomPreferencesSharedOnce, &browserProcessHandlerOnRegisterCustomPreferencesSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		type_ := PreferencesType(arg0)
+		registrar := wrapPreferenceRegistrar(unsafe.Pointer(arg1))
+		impl.OnRegisterCustomPreferences(type_, registrar)
+	})
+}
+
+var browserProcessHandlerOnContextInitializedSharedOnce sync.Once
+var browserProcessHandlerOnContextInitializedSharedCallback uintptr
+
+func browserProcessHandlerOnContextInitializedCEFCallback() uintptr {
+	return sharedCEFCallback(&browserProcessHandlerOnContextInitializedSharedOnce, &browserProcessHandlerOnContextInitializedSharedCallback, func(self uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		impl.OnContextInitialized()
+	})
+}
+
+var browserProcessHandlerOnBeforeChildProcessLaunchSharedOnce sync.Once
+var browserProcessHandlerOnBeforeChildProcessLaunchSharedCallback uintptr
+
+func browserProcessHandlerOnBeforeChildProcessLaunchCEFCallback() uintptr {
+	return sharedCEFCallback(&browserProcessHandlerOnBeforeChildProcessLaunchSharedOnce, &browserProcessHandlerOnBeforeChildProcessLaunchSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		commandLine := wrapCommandLine(unsafe.Pointer(arg0))
+		impl.OnBeforeChildProcessLaunch(commandLine)
+	})
+}
+
+var browserProcessHandlerOnAlreadyRunningAppRelaunchSharedOnce sync.Once
+var browserProcessHandlerOnAlreadyRunningAppRelaunchSharedCallback uintptr
+
+func browserProcessHandlerOnAlreadyRunningAppRelaunchCEFCallback() uintptr {
+	return sharedCEFCallback(&browserProcessHandlerOnAlreadyRunningAppRelaunchSharedOnce, &browserProcessHandlerOnAlreadyRunningAppRelaunchSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserProcessHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		commandLine := wrapCommandLine(unsafe.Pointer(arg0))
+		currentDirectory := goString(unsafe.Pointer(arg1))
+		return uintptr(impl.OnAlreadyRunningAppRelaunch(commandLine, currentDirectory))
+	})
+}
+
+var browserProcessHandlerOnScheduleMessagePumpWorkSharedOnce sync.Once
+var browserProcessHandlerOnScheduleMessagePumpWorkSharedCallback uintptr
+
+func browserProcessHandlerOnScheduleMessagePumpWorkCEFCallback() uintptr {
+	return sharedCEFCallback(&browserProcessHandlerOnScheduleMessagePumpWorkSharedOnce, &browserProcessHandlerOnScheduleMessagePumpWorkSharedCallback, func(self uintptr, arg0 int64) {
+		impl, ownerOK := cefCallbackOwnerAs[BrowserProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		delayMs := arg0
+		impl.OnScheduleMessagePumpWork(delayMs)
+	})
+}
+
 // NewBrowserProcessHandler creates a CEF handler backed by the given implementation.
 func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFBrowserProcessHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+	w := &browserProcessHandlerWrapper{rawPtr: r}
+	w.BrowserProcessHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
-	r.OverrideOnRegisterCustomPreferences(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		type_ := PreferencesType(arg0)
-		registrar := wrapPreferenceRegistrar(unsafe.Pointer(arg1))
-		impl.OnRegisterCustomPreferences(type_, registrar)
-	}))
+	r.OverrideOnRegisterCustomPreferences(browserProcessHandlerOnRegisterCustomPreferencesCEFCallback())
 
-	r.OverrideOnContextInitialized(newCEFCallback(unsafe.Pointer(r), func(self uintptr) {
-		impl.OnContextInitialized()
-	}))
+	r.OverrideOnContextInitialized(browserProcessHandlerOnContextInitializedCEFCallback())
 
-	r.OverrideOnBeforeChildProcessLaunch(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		commandLine := wrapCommandLine(unsafe.Pointer(arg0))
-		impl.OnBeforeChildProcessLaunch(commandLine)
-	}))
+	r.OverrideOnBeforeChildProcessLaunch(browserProcessHandlerOnBeforeChildProcessLaunchCEFCallback())
 
-	r.OverrideOnAlreadyRunningAppRelaunch(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		commandLine := wrapCommandLine(unsafe.Pointer(arg0))
-		currentDirectory := goString(unsafe.Pointer(arg1))
-		return uintptr(impl.OnAlreadyRunningAppRelaunch(commandLine, currentDirectory))
-	}))
+	r.OverrideOnAlreadyRunningAppRelaunch(browserProcessHandlerOnAlreadyRunningAppRelaunchCEFCallback())
 
-	r.OverrideOnScheduleMessagePumpWork(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 int64) {
-		delayMs := arg0
-		impl.OnScheduleMessagePumpWork(delayMs)
-	}))
+	r.OverrideOnScheduleMessagePumpWork(browserProcessHandlerOnScheduleMessagePumpWorkCEFCallback())
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDefaultClientPtr unsafe.Pointer
@@ -68,13 +125,11 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 		cachedGetDefaultClientPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRawClient(h)
 		})
-	}
-	r.OverrideGetDefaultClient(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetDefaultClientPtr != nil {
+		r.OverrideGetDefaultClient(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetDefaultClientPtr)
-		}
-		return uintptr(cachedGetDefaultClientPtr)
-	}))
+			return uintptr(cachedGetDefaultClientPtr)
+		}))
+	}
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetDefaultRequestContextHandlerPtr unsafe.Pointer
@@ -82,16 +137,12 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 		cachedGetDefaultRequestContextHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRequestContextHandler(h)
 		})
-	}
-	r.OverrideGetDefaultRequestContextHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetDefaultRequestContextHandlerPtr != nil {
+		r.OverrideGetDefaultRequestContextHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetDefaultRequestContextHandlerPtr)
-		}
-		return uintptr(cachedGetDefaultRequestContextHandlerPtr)
-	}))
+			return uintptr(cachedGetDefaultRequestContextHandlerPtr)
+		}))
+	}
 
-	w := &browserProcessHandlerWrapper{rawPtr: r}
-	w.BrowserProcessHandler = impl
 	return w
 }
 

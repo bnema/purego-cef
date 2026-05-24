@@ -92,23 +92,34 @@ func (w *testServerHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var testServerHandlerOnTestServerRequestSharedOnce sync.Once
+var testServerHandlerOnTestServerRequestSharedCallback uintptr
+
+func testServerHandlerOnTestServerRequestCEFCallback() uintptr {
+	return sharedCEFCallback(&testServerHandlerOnTestServerRequestSharedOnce, &testServerHandlerOnTestServerRequestSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[TestServerHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		server := wrapTestServer(unsafe.Pointer(arg0))
+		request := wrapRequest(unsafe.Pointer(arg1))
+		connection := wrapTestServerConnection(unsafe.Pointer(arg2))
+		return uintptr(impl.OnTestServerRequest(server, request, connection))
+	})
+}
+
 // NewTestServerHandler creates a CEF handler backed by the given implementation.
 func NewTestServerHandler(impl TestServerHandler) TestServerHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFTestServerHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnTestServerRequest(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
-		server := wrapTestServer(unsafe.Pointer(arg0))
-		request := wrapRequest(unsafe.Pointer(arg1))
-		connection := wrapTestServerConnection(unsafe.Pointer(arg2))
-		return uintptr(impl.OnTestServerRequest(server, request, connection))
-	}))
-
 	w := &testServerHandlerWrapper{rawPtr: r}
 	w.TestServerHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnTestServerRequest(testServerHandlerOnTestServerRequestCEFCallback())
+
 	return w
 }
 

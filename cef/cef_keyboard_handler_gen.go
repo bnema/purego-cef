@@ -28,31 +28,53 @@ func (w *keyboardHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var keyboardHandlerOnPreKeyEventSharedOnce sync.Once
+var keyboardHandlerOnPreKeyEventSharedCallback uintptr
+
+func keyboardHandlerOnPreKeyEventCEFCallback() uintptr {
+	return sharedCEFCallback(&keyboardHandlerOnPreKeyEventSharedOnce, &keyboardHandlerOnPreKeyEventSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[KeyboardHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		event := (*KeyEvent)(unsafe.Pointer(arg1))
+		osEvent := uintptr(arg2)
+		isKeyboardShortcut := (*int32)(unsafe.Pointer(arg3))
+		return uintptr(impl.OnPreKeyEvent(browser, event, osEvent, isKeyboardShortcut))
+	})
+}
+
+var keyboardHandlerOnKeyEventSharedOnce sync.Once
+var keyboardHandlerOnKeyEventSharedCallback uintptr
+
+func keyboardHandlerOnKeyEventCEFCallback() uintptr {
+	return sharedCEFCallback(&keyboardHandlerOnKeyEventSharedOnce, &keyboardHandlerOnKeyEventSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[KeyboardHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		event := (*KeyEvent)(unsafe.Pointer(arg1))
+		osEvent := uintptr(arg2)
+		return uintptr(impl.OnKeyEvent(browser, event, osEvent))
+	})
+}
+
 // NewKeyboardHandler creates a CEF handler backed by the given implementation.
 func NewKeyboardHandler(impl KeyboardHandler) KeyboardHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFKeyboardHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnPreKeyEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		event := (*KeyEvent)(unsafe.Pointer(arg1))
-		osEvent := uintptr(arg2)
-		isKeyboardShortcut := (*int32)(unsafe.Pointer(arg3))
-		return uintptr(impl.OnPreKeyEvent(browser, event, osEvent, isKeyboardShortcut))
-	}))
-
-	r.OverrideOnKeyEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		event := (*KeyEvent)(unsafe.Pointer(arg1))
-		osEvent := uintptr(arg2)
-		return uintptr(impl.OnKeyEvent(browser, event, osEvent))
-	}))
-
 	w := &keyboardHandlerWrapper{rawPtr: r}
 	w.KeyboardHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnPreKeyEvent(keyboardHandlerOnPreKeyEventCEFCallback())
+
+	r.OverrideOnKeyEvent(keyboardHandlerOnKeyEventCEFCallback())
+
 	return w
 }
 

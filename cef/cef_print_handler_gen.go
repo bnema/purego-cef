@@ -146,54 +146,120 @@ func (w *printHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var printHandlerOnPrintStartSharedOnce sync.Once
+var printHandlerOnPrintStartSharedCallback uintptr
+
+func printHandlerOnPrintStartCEFCallback() uintptr {
+	return sharedCEFCallback(&printHandlerOnPrintStartSharedOnce, &printHandlerOnPrintStartSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[PrintHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnPrintStart(browser)
+	})
+}
+
+var printHandlerOnPrintSettingsSharedOnce sync.Once
+var printHandlerOnPrintSettingsSharedCallback uintptr
+
+func printHandlerOnPrintSettingsCEFCallback() uintptr {
+	return sharedCEFCallback(&printHandlerOnPrintSettingsSharedOnce, &printHandlerOnPrintSettingsSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[PrintHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		settings := wrapPrintSettings(unsafe.Pointer(arg1))
+		getDefaults := int32(arg2)
+		impl.OnPrintSettings(browser, settings, getDefaults)
+	})
+}
+
+var printHandlerOnPrintDialogSharedOnce sync.Once
+var printHandlerOnPrintDialogSharedCallback uintptr
+
+func printHandlerOnPrintDialogCEFCallback() uintptr {
+	return sharedCEFCallback(&printHandlerOnPrintDialogSharedOnce, &printHandlerOnPrintDialogSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[PrintHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		hasSelection := int32(arg1)
+		callback := wrapPrintDialogCallback(unsafe.Pointer(arg2))
+		return uintptr(impl.OnPrintDialog(browser, hasSelection, callback))
+	})
+}
+
+var printHandlerOnPrintJobSharedOnce sync.Once
+var printHandlerOnPrintJobSharedCallback uintptr
+
+func printHandlerOnPrintJobCEFCallback() uintptr {
+	return sharedCEFCallback(&printHandlerOnPrintJobSharedOnce, &printHandlerOnPrintJobSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[PrintHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		documentName := goString(unsafe.Pointer(arg1))
+		pdfFilePath := goString(unsafe.Pointer(arg2))
+		callback := wrapPrintJobCallback(unsafe.Pointer(arg3))
+		return uintptr(impl.OnPrintJob(browser, documentName, pdfFilePath, callback))
+	})
+}
+
+var printHandlerOnPrintResetSharedOnce sync.Once
+var printHandlerOnPrintResetSharedCallback uintptr
+
+func printHandlerOnPrintResetCEFCallback() uintptr {
+	return sharedCEFCallback(&printHandlerOnPrintResetSharedOnce, &printHandlerOnPrintResetSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[PrintHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnPrintReset(browser)
+	})
+}
+
+var printHandlerGetPdfPaperSizeSharedOnce sync.Once
+var printHandlerGetPdfPaperSizeSharedCallback uintptr
+
+func printHandlerGetPdfPaperSizeCEFCallback() uintptr {
+	return sharedCEFCallback(&printHandlerGetPdfPaperSizeSharedOnce, &printHandlerGetPdfPaperSizeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[PrintHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		deviceUnitsPerInch := int32(arg1)
+		return uintptr(impl.GetPdfPaperSize(browser, deviceUnitsPerInch))
+	})
+}
+
 // NewPrintHandler creates a CEF handler backed by the given implementation.
 func NewPrintHandler(impl PrintHandler) PrintHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFPrintHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnPrintStart(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		impl.OnPrintStart(browser)
-	}))
-
-	r.OverrideOnPrintSettings(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		settings := wrapPrintSettings(unsafe.Pointer(arg1))
-		getDefaults := int32(arg2)
-		impl.OnPrintSettings(browser, settings, getDefaults)
-	}))
-
-	r.OverrideOnPrintDialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		hasSelection := int32(arg1)
-		callback := wrapPrintDialogCallback(unsafe.Pointer(arg2))
-		return uintptr(impl.OnPrintDialog(browser, hasSelection, callback))
-	}))
-
-	r.OverrideOnPrintJob(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		documentName := goString(unsafe.Pointer(arg1))
-		pdfFilePath := goString(unsafe.Pointer(arg2))
-		callback := wrapPrintJobCallback(unsafe.Pointer(arg3))
-		return uintptr(impl.OnPrintJob(browser, documentName, pdfFilePath, callback))
-	}))
-
-	r.OverrideOnPrintReset(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		impl.OnPrintReset(browser)
-	}))
-
-	r.OverrideGetPdfPaperSize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		deviceUnitsPerInch := int32(arg1)
-		return uintptr(impl.GetPdfPaperSize(browser, deviceUnitsPerInch))
-	}))
-
 	w := &printHandlerWrapper{rawPtr: r}
 	w.PrintHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnPrintStart(printHandlerOnPrintStartCEFCallback())
+
+	r.OverrideOnPrintSettings(printHandlerOnPrintSettingsCEFCallback())
+
+	r.OverrideOnPrintDialog(printHandlerOnPrintDialogCEFCallback())
+
+	r.OverrideOnPrintJob(printHandlerOnPrintJobCEFCallback())
+
+	r.OverrideOnPrintReset(printHandlerOnPrintResetCEFCallback())
+
+	r.OverrideGetPdfPaperSize(printHandlerGetPdfPaperSizeCEFCallback())
+
 	return w
 }
 

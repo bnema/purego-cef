@@ -28,41 +28,96 @@ func (w *readHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var readHandlerReadSharedOnce sync.Once
+var readHandlerReadSharedCallback uintptr
+
+func readHandlerReadCEFCallback() uintptr {
+	return sharedCEFCallback(&readHandlerReadSharedOnce, &readHandlerReadSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ReadHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		ptr := unsafe.Pointer(arg0)
+		size := int(arg1)
+		n := int(arg2)
+		return uintptr(impl.Read(ptr, size, n))
+	})
+}
+
+var readHandlerSeekSharedOnce sync.Once
+var readHandlerSeekSharedCallback uintptr
+
+func readHandlerSeekCEFCallback() uintptr {
+	return sharedCEFCallback(&readHandlerSeekSharedOnce, &readHandlerSeekSharedCallback, func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ReadHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		offset := arg0
+		whence := int32(arg1)
+		return uintptr(impl.SeekOffset(offset, whence))
+	})
+}
+
+var readHandlerTellSharedOnce sync.Once
+var readHandlerTellSharedCallback uintptr
+
+func readHandlerTellCEFCallback() uintptr {
+	return sharedCEFCallback(&readHandlerTellSharedOnce, &readHandlerTellSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ReadHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.Tell())
+	})
+}
+
+var readHandlerEofSharedOnce sync.Once
+var readHandlerEofSharedCallback uintptr
+
+func readHandlerEofCEFCallback() uintptr {
+	return sharedCEFCallback(&readHandlerEofSharedOnce, &readHandlerEofSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ReadHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.Eof())
+	})
+}
+
+var readHandlerMayBlockSharedOnce sync.Once
+var readHandlerMayBlockSharedCallback uintptr
+
+func readHandlerMayBlockCEFCallback() uintptr {
+	return sharedCEFCallback(&readHandlerMayBlockSharedOnce, &readHandlerMayBlockSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ReadHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.MayBlock())
+	})
+}
+
 // NewReadHandler creates a CEF handler backed by the given implementation.
 func NewReadHandler(impl ReadHandler) ReadHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFReadHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideRead(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
-		ptr := unsafe.Pointer(arg0)
-		size := int(arg1)
-		n := int(arg2)
-		return uintptr(impl.Read(ptr, size, n))
-	}))
-
-	r.OverrideSeek(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
-		offset := arg0
-		whence := int32(arg1)
-		return uintptr(impl.SeekOffset(offset, whence))
-	}))
-
-	r.OverrideTell(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.Tell())
-	}))
-
-	r.OverrideEof(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.Eof())
-	}))
-
-	r.OverrideMayBlock(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.MayBlock())
-	}))
-
 	w := &readHandlerWrapper{rawPtr: r}
 	w.ReadHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideRead(readHandlerReadCEFCallback())
+
+	r.OverrideSeek(readHandlerSeekCEFCallback())
+
+	r.OverrideTell(readHandlerTellCEFCallback())
+
+	r.OverrideEof(readHandlerEofCEFCallback())
+
+	r.OverrideMayBlock(readHandlerMayBlockCEFCallback())
+
 	return w
 }
 
@@ -284,41 +339,96 @@ func (w *writeHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var writeHandlerWriteSharedOnce sync.Once
+var writeHandlerWriteSharedCallback uintptr
+
+func writeHandlerWriteCEFCallback() uintptr {
+	return sharedCEFCallback(&writeHandlerWriteSharedOnce, &writeHandlerWriteSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WriteHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		ptr := unsafe.Pointer(arg0)
+		size := int(arg1)
+		n := int(arg2)
+		return uintptr(impl.Write(ptr, size, n))
+	})
+}
+
+var writeHandlerSeekSharedOnce sync.Once
+var writeHandlerSeekSharedCallback uintptr
+
+func writeHandlerSeekCEFCallback() uintptr {
+	return sharedCEFCallback(&writeHandlerSeekSharedOnce, &writeHandlerSeekSharedCallback, func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WriteHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		offset := arg0
+		whence := int32(arg1)
+		return uintptr(impl.SeekOffset(offset, whence))
+	})
+}
+
+var writeHandlerTellSharedOnce sync.Once
+var writeHandlerTellSharedCallback uintptr
+
+func writeHandlerTellCEFCallback() uintptr {
+	return sharedCEFCallback(&writeHandlerTellSharedOnce, &writeHandlerTellSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WriteHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.Tell())
+	})
+}
+
+var writeHandlerFlushSharedOnce sync.Once
+var writeHandlerFlushSharedCallback uintptr
+
+func writeHandlerFlushCEFCallback() uintptr {
+	return sharedCEFCallback(&writeHandlerFlushSharedOnce, &writeHandlerFlushSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WriteHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.Flush())
+	})
+}
+
+var writeHandlerMayBlockSharedOnce sync.Once
+var writeHandlerMayBlockSharedCallback uintptr
+
+func writeHandlerMayBlockCEFCallback() uintptr {
+	return sharedCEFCallback(&writeHandlerMayBlockSharedOnce, &writeHandlerMayBlockSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WriteHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.MayBlock())
+	})
+}
+
 // NewWriteHandler creates a CEF handler backed by the given implementation.
 func NewWriteHandler(impl WriteHandler) WriteHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFWriteHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideWrite(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
-		ptr := unsafe.Pointer(arg0)
-		size := int(arg1)
-		n := int(arg2)
-		return uintptr(impl.Write(ptr, size, n))
-	}))
-
-	r.OverrideSeek(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 int64, arg1 uintptr) uintptr {
-		offset := arg0
-		whence := int32(arg1)
-		return uintptr(impl.SeekOffset(offset, whence))
-	}))
-
-	r.OverrideTell(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.Tell())
-	}))
-
-	r.OverrideFlush(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.Flush())
-	}))
-
-	r.OverrideMayBlock(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.MayBlock())
-	}))
-
 	w := &writeHandlerWrapper{rawPtr: r}
 	w.WriteHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideWrite(writeHandlerWriteCEFCallback())
+
+	r.OverrideSeek(writeHandlerSeekCEFCallback())
+
+	r.OverrideTell(writeHandlerTellCEFCallback())
+
+	r.OverrideFlush(writeHandlerFlushCEFCallback())
+
+	r.OverrideMayBlock(writeHandlerMayBlockCEFCallback())
+
 	return w
 }
 

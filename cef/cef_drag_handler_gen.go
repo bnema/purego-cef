@@ -28,30 +28,52 @@ func (w *dragHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var dragHandlerOnDragEnterSharedOnce sync.Once
+var dragHandlerOnDragEnterSharedCallback uintptr
+
+func dragHandlerOnDragEnterCEFCallback() uintptr {
+	return sharedCEFCallback(&dragHandlerOnDragEnterSharedOnce, &dragHandlerOnDragEnterSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DragHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		dragdata := wrapDragData(unsafe.Pointer(arg1))
+		mask := DragOperationsMask(arg2)
+		return uintptr(impl.OnDragEnter(browser, dragdata, mask))
+	})
+}
+
+var dragHandlerOnDraggableRegionsChangedSharedOnce sync.Once
+var dragHandlerOnDraggableRegionsChangedSharedCallback uintptr
+
+func dragHandlerOnDraggableRegionsChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&dragHandlerOnDraggableRegionsChangedSharedOnce, &dragHandlerOnDraggableRegionsChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DragHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		regions := decodeSlice[DraggableRegion](arg3, int(arg2))
+		impl.OnDraggableRegionsChanged(browser, frame, regions)
+	})
+}
+
 // NewDragHandler creates a CEF handler backed by the given implementation.
 func NewDragHandler(impl DragHandler) DragHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFDragHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnDragEnter(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		dragdata := wrapDragData(unsafe.Pointer(arg1))
-		mask := DragOperationsMask(arg2)
-		return uintptr(impl.OnDragEnter(browser, dragdata, mask))
-	}))
-
-	r.OverrideOnDraggableRegionsChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		regions := decodeSlice[DraggableRegion](arg3, int(arg2))
-		impl.OnDraggableRegionsChanged(browser, frame, regions)
-	}))
-
 	w := &dragHandlerWrapper{rawPtr: r}
 	w.DragHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnDragEnter(dragHandlerOnDragEnterCEFCallback())
+
+	r.OverrideOnDraggableRegionsChanged(dragHandlerOnDraggableRegionsChangedCEFCallback())
+
 	return w
 }
 

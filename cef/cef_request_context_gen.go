@@ -28,22 +28,33 @@ func (w *resolveCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var resolveCallbackOnResolveCompletedSharedOnce sync.Once
+var resolveCallbackOnResolveCompletedSharedCallback uintptr
+
+func resolveCallbackOnResolveCompletedCEFCallback() uintptr {
+	return sharedCEFCallback(&resolveCallbackOnResolveCompletedSharedOnce, &resolveCallbackOnResolveCompletedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ResolveCallback](self)
+		if !ownerOK {
+			return
+		}
+		result := Errorcode(arg0)
+		resolvedIps := StringList(arg1)
+		impl.OnResolveCompleted(result, resolvedIps)
+	})
+}
+
 // NewResolveCallback creates a CEF handler backed by the given implementation.
 func NewResolveCallback(impl ResolveCallback) ResolveCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFResolveCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnResolveCompleted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		result := Errorcode(arg0)
-		resolvedIps := StringList(arg1)
-		impl.OnResolveCompleted(result, resolvedIps)
-	}))
-
 	w := &resolveCallbackWrapper{rawPtr: r}
 	w.ResolveCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnResolveCompleted(resolveCallbackOnResolveCompletedCEFCallback())
+
 	return w
 }
 
@@ -116,23 +127,34 @@ func (w *settingObserverWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var settingObserverOnSettingChangedSharedOnce sync.Once
+var settingObserverOnSettingChangedSharedCallback uintptr
+
+func settingObserverOnSettingChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&settingObserverOnSettingChangedSharedOnce, &settingObserverOnSettingChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[SettingObserver](self)
+		if !ownerOK {
+			return
+		}
+		requestingURL := goString(unsafe.Pointer(arg0))
+		topLevelURL := goString(unsafe.Pointer(arg1))
+		contentType := ContentSettingTypes(arg2)
+		impl.OnSettingChanged(requestingURL, topLevelURL, contentType)
+	})
+}
+
 // NewSettingObserver creates a CEF handler backed by the given implementation.
 func NewSettingObserver(impl SettingObserver) SettingObserver {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFSettingObserverT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnSettingChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		requestingURL := goString(unsafe.Pointer(arg0))
-		topLevelURL := goString(unsafe.Pointer(arg1))
-		contentType := ContentSettingTypes(arg2)
-		impl.OnSettingChanged(requestingURL, topLevelURL, contentType)
-	}))
-
 	w := &settingObserverWrapper{rawPtr: r}
 	w.SettingObserver = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnSettingChanged(settingObserverOnSettingChangedCEFCallback())
+
 	return w
 }
 

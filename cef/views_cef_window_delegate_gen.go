@@ -28,158 +28,411 @@ func (w *windowDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var windowDelegateOnWindowCreatedSharedOnce sync.Once
+var windowDelegateOnWindowCreatedSharedCallback uintptr
+
+func windowDelegateOnWindowCreatedCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateOnWindowCreatedSharedOnce, &windowDelegateOnWindowCreatedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		impl.OnWindowCreated(window)
+	})
+}
+
+var windowDelegateOnWindowClosingSharedOnce sync.Once
+var windowDelegateOnWindowClosingSharedCallback uintptr
+
+func windowDelegateOnWindowClosingCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateOnWindowClosingSharedOnce, &windowDelegateOnWindowClosingSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		impl.OnWindowClosing(window)
+	})
+}
+
+var windowDelegateOnWindowDestroyedSharedOnce sync.Once
+var windowDelegateOnWindowDestroyedSharedCallback uintptr
+
+func windowDelegateOnWindowDestroyedCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateOnWindowDestroyedSharedOnce, &windowDelegateOnWindowDestroyedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		impl.OnWindowDestroyed(window)
+	})
+}
+
+var windowDelegateOnWindowActivationChangedSharedOnce sync.Once
+var windowDelegateOnWindowActivationChangedSharedCallback uintptr
+
+func windowDelegateOnWindowActivationChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateOnWindowActivationChangedSharedOnce, &windowDelegateOnWindowActivationChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		active := int32(arg1)
+		impl.OnWindowActivationChanged(window, active)
+	})
+}
+
+var windowDelegateOnWindowBoundsChangedSharedOnce sync.Once
+var windowDelegateOnWindowBoundsChangedSharedCallback uintptr
+
+func windowDelegateOnWindowBoundsChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateOnWindowBoundsChangedSharedOnce, &windowDelegateOnWindowBoundsChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		newBounds := (*Rect)(unsafe.Pointer(arg1))
+		impl.OnWindowBoundsChanged(window, newBounds)
+	})
+}
+
+var windowDelegateOnWindowFullscreenTransitionSharedOnce sync.Once
+var windowDelegateOnWindowFullscreenTransitionSharedCallback uintptr
+
+func windowDelegateOnWindowFullscreenTransitionCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateOnWindowFullscreenTransitionSharedOnce, &windowDelegateOnWindowFullscreenTransitionSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		isCompleted := int32(arg1)
+		impl.OnWindowFullscreenTransition(window, isCompleted)
+	})
+}
+
+var windowDelegateGetParentWindowSharedOnce sync.Once
+var windowDelegateGetParentWindowSharedCallback uintptr
+
+func windowDelegateGetParentWindowCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateGetParentWindowSharedOnce, &windowDelegateGetParentWindowSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		isMenu := (*int32)(unsafe.Pointer(arg1))
+		canActivateMenu := (*int32)(unsafe.Pointer(arg2))
+		return uintptr(extractRawPointer(impl.GetParentWindow(window, isMenu, canActivateMenu)))
+	})
+}
+
+var windowDelegateIsWindowModalDialogSharedOnce sync.Once
+var windowDelegateIsWindowModalDialogSharedCallback uintptr
+
+func windowDelegateIsWindowModalDialogCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateIsWindowModalDialogSharedOnce, &windowDelegateIsWindowModalDialogSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.IsWindowModalDialog(window) {
+			return 1
+		}
+		return 0
+	})
+}
+
+var windowDelegateGetInitialBoundsSharedOnce sync.Once
+var windowDelegateGetInitialBoundsSharedCallback uintptr
+
+func windowDelegateGetInitialBoundsCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateGetInitialBoundsSharedOnce, &windowDelegateGetInitialBoundsSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		return uintptr(impl.GetInitialBounds(window))
+	})
+}
+
+var windowDelegateGetInitialShowStateSharedOnce sync.Once
+var windowDelegateGetInitialShowStateSharedCallback uintptr
+
+func windowDelegateGetInitialShowStateCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateGetInitialShowStateSharedOnce, &windowDelegateGetInitialShowStateSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		return uintptr(impl.GetInitialShowState(window))
+	})
+}
+
+var windowDelegateIsFramelessSharedOnce sync.Once
+var windowDelegateIsFramelessSharedCallback uintptr
+
+func windowDelegateIsFramelessCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateIsFramelessSharedOnce, &windowDelegateIsFramelessSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.IsFrameless(window) {
+			return 1
+		}
+		return 0
+	})
+}
+
+var windowDelegateWithStandardWindowButtonsSharedOnce sync.Once
+var windowDelegateWithStandardWindowButtonsSharedCallback uintptr
+
+func windowDelegateWithStandardWindowButtonsCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateWithStandardWindowButtonsSharedOnce, &windowDelegateWithStandardWindowButtonsSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		return uintptr(impl.WithStandardWindowButtons(window))
+	})
+}
+
+var windowDelegateGetTitlebarHeightSharedOnce sync.Once
+var windowDelegateGetTitlebarHeightSharedCallback uintptr
+
+func windowDelegateGetTitlebarHeightCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateGetTitlebarHeightSharedOnce, &windowDelegateGetTitlebarHeightSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		titlebarHeight := (*float32)(unsafe.Pointer(arg1))
+		return uintptr(impl.GetTitlebarHeight(window, titlebarHeight))
+	})
+}
+
+var windowDelegateAcceptsFirstMouseSharedOnce sync.Once
+var windowDelegateAcceptsFirstMouseSharedCallback uintptr
+
+func windowDelegateAcceptsFirstMouseCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateAcceptsFirstMouseSharedOnce, &windowDelegateAcceptsFirstMouseSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		return uintptr(impl.AcceptsFirstMouse(window))
+	})
+}
+
+var windowDelegateCanResizeSharedOnce sync.Once
+var windowDelegateCanResizeSharedCallback uintptr
+
+func windowDelegateCanResizeCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateCanResizeSharedOnce, &windowDelegateCanResizeSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.CanResize(window) {
+			return 1
+		}
+		return 0
+	})
+}
+
+var windowDelegateCanMaximizeSharedOnce sync.Once
+var windowDelegateCanMaximizeSharedCallback uintptr
+
+func windowDelegateCanMaximizeCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateCanMaximizeSharedOnce, &windowDelegateCanMaximizeSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.CanMaximize(window) {
+			return 1
+		}
+		return 0
+	})
+}
+
+var windowDelegateCanMinimizeSharedOnce sync.Once
+var windowDelegateCanMinimizeSharedCallback uintptr
+
+func windowDelegateCanMinimizeCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateCanMinimizeSharedOnce, &windowDelegateCanMinimizeSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.CanMinimize(window) {
+			return 1
+		}
+		return 0
+	})
+}
+
+var windowDelegateCanCloseSharedOnce sync.Once
+var windowDelegateCanCloseSharedCallback uintptr
+
+func windowDelegateCanCloseCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateCanCloseSharedOnce, &windowDelegateCanCloseSharedCallback, func(self uintptr, arg0 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		if impl.CanClose(window) {
+			return 1
+		}
+		return 0
+	})
+}
+
+var windowDelegateOnAcceleratorSharedOnce sync.Once
+var windowDelegateOnAcceleratorSharedCallback uintptr
+
+func windowDelegateOnAcceleratorCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateOnAcceleratorSharedOnce, &windowDelegateOnAcceleratorSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		commandID := int32(arg1)
+		return uintptr(impl.OnAccelerator(window, commandID))
+	})
+}
+
+var windowDelegateOnKeyEventSharedOnce sync.Once
+var windowDelegateOnKeyEventSharedCallback uintptr
+
+func windowDelegateOnKeyEventCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateOnKeyEventSharedOnce, &windowDelegateOnKeyEventSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		event := (*KeyEvent)(unsafe.Pointer(arg1))
+		return uintptr(impl.OnKeyEvent(window, event))
+	})
+}
+
+var windowDelegateOnThemeColorsChangedSharedOnce sync.Once
+var windowDelegateOnThemeColorsChangedSharedCallback uintptr
+
+func windowDelegateOnThemeColorsChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateOnThemeColorsChangedSharedOnce, &windowDelegateOnThemeColorsChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		chromeTheme := int32(arg1)
+		impl.OnThemeColorsChanged(window, chromeTheme)
+	})
+}
+
+var windowDelegateGetWindowRuntimeStyleSharedOnce sync.Once
+var windowDelegateGetWindowRuntimeStyleSharedCallback uintptr
+
+func windowDelegateGetWindowRuntimeStyleCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateGetWindowRuntimeStyleSharedOnce, &windowDelegateGetWindowRuntimeStyleSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetWindowRuntimeStyle())
+	})
+}
+
+var windowDelegateGetLinuxWindowPropertiesSharedOnce sync.Once
+var windowDelegateGetLinuxWindowPropertiesSharedCallback uintptr
+
+func windowDelegateGetLinuxWindowPropertiesCEFCallback() uintptr {
+	return sharedCEFCallback(&windowDelegateGetLinuxWindowPropertiesSharedOnce, &windowDelegateGetLinuxWindowPropertiesSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[WindowDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		window := wrapWindow(unsafe.Pointer(arg0))
+		properties := (*LinuxWindowProperties)(unsafe.Pointer(arg1))
+		return uintptr(impl.GetLinuxWindowProperties(window, properties))
+	})
+}
+
 // NewWindowDelegate creates a CEF handler backed by the given implementation.
 func NewWindowDelegate(impl WindowDelegate) WindowDelegate {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFWindowDelegateT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnWindowCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		impl.OnWindowCreated(window)
-	}))
-
-	r.OverrideOnWindowClosing(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		impl.OnWindowClosing(window)
-	}))
-
-	r.OverrideOnWindowDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		impl.OnWindowDestroyed(window)
-	}))
-
-	r.OverrideOnWindowActivationChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		active := int32(arg1)
-		impl.OnWindowActivationChanged(window, active)
-	}))
-
-	r.OverrideOnWindowBoundsChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		newBounds := (*Rect)(unsafe.Pointer(arg1))
-		impl.OnWindowBoundsChanged(window, newBounds)
-	}))
-
-	r.OverrideOnWindowFullscreenTransition(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		isCompleted := int32(arg1)
-		impl.OnWindowFullscreenTransition(window, isCompleted)
-	}))
-
-	r.OverrideGetParentWindow(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		isMenu := (*int32)(unsafe.Pointer(arg1))
-		canActivateMenu := (*int32)(unsafe.Pointer(arg2))
-		return uintptr(extractRawPointer(impl.GetParentWindow(window, isMenu, canActivateMenu)))
-	}))
-
-	r.OverrideIsWindowModalDialog(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		if impl.IsWindowModalDialog(window) {
-			return 1
-		}
-		return 0
-	}))
-
-	r.OverrideGetInitialBounds(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		return uintptr(impl.GetInitialBounds(window))
-	}))
-
-	r.OverrideGetInitialShowState(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		return uintptr(impl.GetInitialShowState(window))
-	}))
-
-	r.OverrideIsFrameless(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		if impl.IsFrameless(window) {
-			return 1
-		}
-		return 0
-	}))
-
-	r.OverrideWithStandardWindowButtons(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		return uintptr(impl.WithStandardWindowButtons(window))
-	}))
-
-	r.OverrideGetTitlebarHeight(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		titlebarHeight := (*float32)(unsafe.Pointer(arg1))
-		return uintptr(impl.GetTitlebarHeight(window, titlebarHeight))
-	}))
-
-	r.OverrideAcceptsFirstMouse(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		return uintptr(impl.AcceptsFirstMouse(window))
-	}))
-
-	r.OverrideCanResize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		if impl.CanResize(window) {
-			return 1
-		}
-		return 0
-	}))
-
-	r.OverrideCanMaximize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		if impl.CanMaximize(window) {
-			return 1
-		}
-		return 0
-	}))
-
-	r.OverrideCanMinimize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		if impl.CanMinimize(window) {
-			return 1
-		}
-		return 0
-	}))
-
-	r.OverrideCanClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		if impl.CanClose(window) {
-			return 1
-		}
-		return 0
-	}))
-
-	r.OverrideOnAccelerator(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		commandID := int32(arg1)
-		return uintptr(impl.OnAccelerator(window, commandID))
-	}))
-
-	r.OverrideOnKeyEvent(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		event := (*KeyEvent)(unsafe.Pointer(arg1))
-		return uintptr(impl.OnKeyEvent(window, event))
-	}))
-
-	r.OverrideOnThemeColorsChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		chromeTheme := int32(arg1)
-		impl.OnThemeColorsChanged(window, chromeTheme)
-	}))
-
-	r.OverrideGetWindowRuntimeStyle(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetWindowRuntimeStyle())
-	}))
-
-	r.OverrideGetLinuxWindowProperties(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		window := wrapWindow(unsafe.Pointer(arg0))
-		properties := (*LinuxWindowProperties)(unsafe.Pointer(arg1))
-		return uintptr(impl.GetLinuxWindowProperties(window, properties))
-	}))
-
 	w := &windowDelegateWrapper{rawPtr: r}
 	w.WindowDelegate = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnWindowCreated(windowDelegateOnWindowCreatedCEFCallback())
+
+	r.OverrideOnWindowClosing(windowDelegateOnWindowClosingCEFCallback())
+
+	r.OverrideOnWindowDestroyed(windowDelegateOnWindowDestroyedCEFCallback())
+
+	r.OverrideOnWindowActivationChanged(windowDelegateOnWindowActivationChangedCEFCallback())
+
+	r.OverrideOnWindowBoundsChanged(windowDelegateOnWindowBoundsChangedCEFCallback())
+
+	r.OverrideOnWindowFullscreenTransition(windowDelegateOnWindowFullscreenTransitionCEFCallback())
+
+	r.OverrideGetParentWindow(windowDelegateGetParentWindowCEFCallback())
+
+	r.OverrideIsWindowModalDialog(windowDelegateIsWindowModalDialogCEFCallback())
+
+	r.OverrideGetInitialBounds(windowDelegateGetInitialBoundsCEFCallback())
+
+	r.OverrideGetInitialShowState(windowDelegateGetInitialShowStateCEFCallback())
+
+	r.OverrideIsFrameless(windowDelegateIsFramelessCEFCallback())
+
+	r.OverrideWithStandardWindowButtons(windowDelegateWithStandardWindowButtonsCEFCallback())
+
+	r.OverrideGetTitlebarHeight(windowDelegateGetTitlebarHeightCEFCallback())
+
+	r.OverrideAcceptsFirstMouse(windowDelegateAcceptsFirstMouseCEFCallback())
+
+	r.OverrideCanResize(windowDelegateCanResizeCEFCallback())
+
+	r.OverrideCanMaximize(windowDelegateCanMaximizeCEFCallback())
+
+	r.OverrideCanMinimize(windowDelegateCanMinimizeCEFCallback())
+
+	r.OverrideCanClose(windowDelegateCanCloseCEFCallback())
+
+	r.OverrideOnAccelerator(windowDelegateOnAcceleratorCEFCallback())
+
+	r.OverrideOnKeyEvent(windowDelegateOnKeyEventCEFCallback())
+
+	r.OverrideOnThemeColorsChanged(windowDelegateOnThemeColorsChangedCEFCallback())
+
+	r.OverrideGetWindowRuntimeStyle(windowDelegateGetWindowRuntimeStyleCEFCallback())
+
+	r.OverrideGetLinuxWindowProperties(windowDelegateGetLinuxWindowPropertiesCEFCallback())
+
 	return w
 }
 

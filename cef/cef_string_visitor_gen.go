@@ -28,21 +28,32 @@ func (w *stringVisitorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var stringVisitorVisitSharedOnce sync.Once
+var stringVisitorVisitSharedCallback uintptr
+
+func stringVisitorVisitCEFCallback() uintptr {
+	return sharedCEFCallback(&stringVisitorVisitSharedOnce, &stringVisitorVisitSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[StringVisitor](self)
+		if !ownerOK {
+			return
+		}
+		string_ := goString(unsafe.Pointer(arg0))
+		impl.Visit(string_)
+	})
+}
+
 // NewStringVisitor creates a CEF handler backed by the given implementation.
 func NewStringVisitor(impl StringVisitor) StringVisitor {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFStringVisitorT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideVisit(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		string_ := goString(unsafe.Pointer(arg0))
-		impl.Visit(string_)
-	}))
-
 	w := &stringVisitorWrapper{rawPtr: r}
 	w.StringVisitor = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideVisit(stringVisitorVisitCEFCallback())
+
 	return w
 }
 

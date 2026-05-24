@@ -28,101 +28,244 @@ func (w *displayHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewDisplayHandler creates a CEF handler backed by the given implementation.
-func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFDisplayHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var displayHandlerOnAddressChangeSharedOnce sync.Once
+var displayHandlerOnAddressChangeSharedCallback uintptr
 
-	r.OverrideOnAddressChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+func displayHandlerOnAddressChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnAddressChangeSharedOnce, &displayHandlerOnAddressChangeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		uRL := goString(unsafe.Pointer(arg2))
 		impl.OnAddressChange(browser, frame, uRL)
-	}))
+	})
+}
 
-	r.OverrideOnTitleChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var displayHandlerOnTitleChangeSharedOnce sync.Once
+var displayHandlerOnTitleChangeSharedCallback uintptr
+
+func displayHandlerOnTitleChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnTitleChangeSharedOnce, &displayHandlerOnTitleChangeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		title := goString(unsafe.Pointer(arg1))
 		impl.OnTitleChange(browser, title)
-	}))
+	})
+}
 
-	r.OverrideOnFaviconUrlchange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var displayHandlerOnFaviconUrlchangeSharedOnce sync.Once
+var displayHandlerOnFaviconUrlchangeSharedCallback uintptr
+
+func displayHandlerOnFaviconUrlchangeCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnFaviconUrlchangeSharedOnce, &displayHandlerOnFaviconUrlchangeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		iconUrls := StringList(arg1)
 		impl.OnFaviconUrlchange(browser, iconUrls)
-	}))
+	})
+}
 
-	r.OverrideOnFullscreenModeChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var displayHandlerOnFullscreenModeChangeSharedOnce sync.Once
+var displayHandlerOnFullscreenModeChangeSharedCallback uintptr
+
+func displayHandlerOnFullscreenModeChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnFullscreenModeChangeSharedOnce, &displayHandlerOnFullscreenModeChangeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		fullscreen := int32(arg1)
 		impl.OnFullscreenModeChange(browser, fullscreen)
-	}))
+	})
+}
 
-	r.OverrideOnTooltip(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+var displayHandlerOnTooltipSharedOnce sync.Once
+var displayHandlerOnTooltipSharedCallback uintptr
+
+func displayHandlerOnTooltipCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnTooltipSharedOnce, &displayHandlerOnTooltipSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		text := uintptr(arg1)
 		return uintptr(impl.OnTooltip(browser, text))
-	}))
+	})
+}
 
-	r.OverrideOnStatusMessage(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var displayHandlerOnStatusMessageSharedOnce sync.Once
+var displayHandlerOnStatusMessageSharedCallback uintptr
+
+func displayHandlerOnStatusMessageCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnStatusMessageSharedOnce, &displayHandlerOnStatusMessageSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		value := goString(unsafe.Pointer(arg1))
 		impl.OnStatusMessage(browser, value)
-	}))
+	})
+}
 
-	r.OverrideOnConsoleMessage(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+var displayHandlerOnConsoleMessageSharedOnce sync.Once
+var displayHandlerOnConsoleMessageSharedCallback uintptr
+
+func displayHandlerOnConsoleMessageCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnConsoleMessageSharedOnce, &displayHandlerOnConsoleMessageSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		level := LogSeverity(arg1)
 		message := goString(unsafe.Pointer(arg2))
 		source := goString(unsafe.Pointer(arg3))
 		line := int32(arg4)
 		return uintptr(impl.OnConsoleMessage(browser, level, message, source, line))
-	}))
+	})
+}
 
-	r.OverrideOnAutoResize(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+var displayHandlerOnAutoResizeSharedOnce sync.Once
+var displayHandlerOnAutoResizeSharedCallback uintptr
+
+func displayHandlerOnAutoResizeCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnAutoResizeSharedOnce, &displayHandlerOnAutoResizeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		newSize := (*Size)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnAutoResize(browser, newSize))
-	}))
+	})
+}
 
-	r.OverrideOnLoadingProgressChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 float64) {
+var displayHandlerOnLoadingProgressChangeSharedOnce sync.Once
+var displayHandlerOnLoadingProgressChangeSharedCallback uintptr
+
+func displayHandlerOnLoadingProgressChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnLoadingProgressChangeSharedOnce, &displayHandlerOnLoadingProgressChangeSharedCallback, func(self uintptr, arg0 uintptr, arg1 float64) {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		progress := arg1
 		impl.OnLoadingProgressChange(browser, progress)
-	}))
+	})
+}
 
-	r.OverrideOnCursorChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+var displayHandlerOnCursorChangeSharedOnce sync.Once
+var displayHandlerOnCursorChangeSharedCallback uintptr
+
+func displayHandlerOnCursorChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnCursorChangeSharedOnce, &displayHandlerOnCursorChangeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		cursor := uintptr(arg1)
 		type_ := CursorType(arg2)
 		customCursorInfo := (*CursorInfo)(unsafe.Pointer(arg3))
 		return uintptr(impl.OnCursorChange(browser, cursor, type_, customCursorInfo))
-	}))
+	})
+}
 
-	r.OverrideOnMediaAccessChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+var displayHandlerOnMediaAccessChangeSharedOnce sync.Once
+var displayHandlerOnMediaAccessChangeSharedCallback uintptr
+
+func displayHandlerOnMediaAccessChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnMediaAccessChangeSharedOnce, &displayHandlerOnMediaAccessChangeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		hasVideoAccess := int32(arg1)
 		hasAudioAccess := int32(arg2)
 		impl.OnMediaAccessChange(browser, hasVideoAccess, hasAudioAccess)
-	}))
+	})
+}
 
-	r.OverrideOnContentsBoundsChange(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+var displayHandlerOnContentsBoundsChangeSharedOnce sync.Once
+var displayHandlerOnContentsBoundsChangeSharedCallback uintptr
+
+func displayHandlerOnContentsBoundsChangeCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerOnContentsBoundsChangeSharedOnce, &displayHandlerOnContentsBoundsChangeSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		newBounds := (*Rect)(unsafe.Pointer(arg1))
 		return uintptr(impl.OnContentsBoundsChange(browser, newBounds))
-	}))
+	})
+}
 
-	r.OverrideGetRootWindowScreenRect(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+var displayHandlerGetRootWindowScreenRectSharedOnce sync.Once
+var displayHandlerGetRootWindowScreenRectSharedCallback uintptr
+
+func displayHandlerGetRootWindowScreenRectCEFCallback() uintptr {
+	return sharedCEFCallback(&displayHandlerGetRootWindowScreenRectSharedOnce, &displayHandlerGetRootWindowScreenRectSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[DisplayHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		rect := (*Rect)(unsafe.Pointer(arg1))
 		return uintptr(impl.GetRootWindowScreenRect(browser, rect))
-	}))
+	})
+}
 
+// NewDisplayHandler creates a CEF handler backed by the given implementation.
+func NewDisplayHandler(impl DisplayHandler) DisplayHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFDisplayHandlerT)
 	w := &displayHandlerWrapper{rawPtr: r}
 	w.DisplayHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnAddressChange(displayHandlerOnAddressChangeCEFCallback())
+
+	r.OverrideOnTitleChange(displayHandlerOnTitleChangeCEFCallback())
+
+	r.OverrideOnFaviconUrlchange(displayHandlerOnFaviconUrlchangeCEFCallback())
+
+	r.OverrideOnFullscreenModeChange(displayHandlerOnFullscreenModeChangeCEFCallback())
+
+	r.OverrideOnTooltip(displayHandlerOnTooltipCEFCallback())
+
+	r.OverrideOnStatusMessage(displayHandlerOnStatusMessageCEFCallback())
+
+	r.OverrideOnConsoleMessage(displayHandlerOnConsoleMessageCEFCallback())
+
+	r.OverrideOnAutoResize(displayHandlerOnAutoResizeCEFCallback())
+
+	r.OverrideOnLoadingProgressChange(displayHandlerOnLoadingProgressChangeCEFCallback())
+
+	r.OverrideOnCursorChange(displayHandlerOnCursorChangeCEFCallback())
+
+	r.OverrideOnMediaAccessChange(displayHandlerOnMediaAccessChangeCEFCallback())
+
+	r.OverrideOnContentsBoundsChange(displayHandlerOnContentsBoundsChangeCEFCallback())
+
+	r.OverrideGetRootWindowScreenRect(displayHandlerGetRootWindowScreenRectCEFCallback())
+
 	return w
 }
 

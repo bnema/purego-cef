@@ -28,28 +28,146 @@ func (w *renderProcessHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var renderProcessHandlerOnWebKitInitializedSharedOnce sync.Once
+var renderProcessHandlerOnWebKitInitializedSharedCallback uintptr
+
+func renderProcessHandlerOnWebKitInitializedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderProcessHandlerOnWebKitInitializedSharedOnce, &renderProcessHandlerOnWebKitInitializedSharedCallback, func(self uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		impl.OnWebKitInitialized()
+	})
+}
+
+var renderProcessHandlerOnBrowserCreatedSharedOnce sync.Once
+var renderProcessHandlerOnBrowserCreatedSharedCallback uintptr
+
+func renderProcessHandlerOnBrowserCreatedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderProcessHandlerOnBrowserCreatedSharedOnce, &renderProcessHandlerOnBrowserCreatedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		extraInfo := wrapDictionaryValue(unsafe.Pointer(arg1))
+		impl.OnBrowserCreated(browser, extraInfo)
+	})
+}
+
+var renderProcessHandlerOnBrowserDestroyedSharedOnce sync.Once
+var renderProcessHandlerOnBrowserDestroyedSharedCallback uintptr
+
+func renderProcessHandlerOnBrowserDestroyedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderProcessHandlerOnBrowserDestroyedSharedOnce, &renderProcessHandlerOnBrowserDestroyedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnBrowserDestroyed(browser)
+	})
+}
+
+var renderProcessHandlerOnContextCreatedSharedOnce sync.Once
+var renderProcessHandlerOnContextCreatedSharedCallback uintptr
+
+func renderProcessHandlerOnContextCreatedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderProcessHandlerOnContextCreatedSharedOnce, &renderProcessHandlerOnContextCreatedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		context := wrapV8Context(unsafe.Pointer(arg2))
+		impl.OnContextCreated(browser, frame, context)
+	})
+}
+
+var renderProcessHandlerOnContextReleasedSharedOnce sync.Once
+var renderProcessHandlerOnContextReleasedSharedCallback uintptr
+
+func renderProcessHandlerOnContextReleasedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderProcessHandlerOnContextReleasedSharedOnce, &renderProcessHandlerOnContextReleasedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		context := wrapV8Context(unsafe.Pointer(arg2))
+		impl.OnContextReleased(browser, frame, context)
+	})
+}
+
+var renderProcessHandlerOnUncaughtExceptionSharedOnce sync.Once
+var renderProcessHandlerOnUncaughtExceptionSharedCallback uintptr
+
+func renderProcessHandlerOnUncaughtExceptionCEFCallback() uintptr {
+	return sharedCEFCallback(&renderProcessHandlerOnUncaughtExceptionSharedOnce, &renderProcessHandlerOnUncaughtExceptionSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		context := wrapV8Context(unsafe.Pointer(arg2))
+		exception := wrapV8Exception(unsafe.Pointer(arg3))
+		stacktrace := wrapV8StackTrace(unsafe.Pointer(arg4))
+		impl.OnUncaughtException(browser, frame, context, exception, stacktrace)
+	})
+}
+
+var renderProcessHandlerOnFocusedNodeChangedSharedOnce sync.Once
+var renderProcessHandlerOnFocusedNodeChangedSharedCallback uintptr
+
+func renderProcessHandlerOnFocusedNodeChangedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderProcessHandlerOnFocusedNodeChangedSharedOnce, &renderProcessHandlerOnFocusedNodeChangedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RenderProcessHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		node := wrapDomnode(unsafe.Pointer(arg2))
+		impl.OnFocusedNodeChanged(browser, frame, node)
+	})
+}
+
+var renderProcessHandlerOnProcessMessageReceivedSharedOnce sync.Once
+var renderProcessHandlerOnProcessMessageReceivedSharedCallback uintptr
+
+func renderProcessHandlerOnProcessMessageReceivedCEFCallback() uintptr {
+	return sharedCEFCallback(&renderProcessHandlerOnProcessMessageReceivedSharedOnce, &renderProcessHandlerOnProcessMessageReceivedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RenderProcessHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		frame := wrapFrame(unsafe.Pointer(arg1))
+		sourceProcess := ProcessID(arg2)
+		message := wrapProcessMessage(unsafe.Pointer(arg3))
+		return uintptr(impl.OnProcessMessageReceived(browser, frame, sourceProcess, message))
+	})
+}
+
 // NewRenderProcessHandler creates a CEF handler backed by the given implementation.
 func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFRenderProcessHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+	w := &renderProcessHandlerWrapper{rawPtr: r}
+	w.RenderProcessHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
-	r.OverrideOnWebKitInitialized(newCEFCallback(unsafe.Pointer(r), func(self uintptr) {
-		impl.OnWebKitInitialized()
-	}))
+	r.OverrideOnWebKitInitialized(renderProcessHandlerOnWebKitInitializedCEFCallback())
 
-	r.OverrideOnBrowserCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		extraInfo := wrapDictionaryValue(unsafe.Pointer(arg1))
-		impl.OnBrowserCreated(browser, extraInfo)
-	}))
+	r.OverrideOnBrowserCreated(renderProcessHandlerOnBrowserCreatedCEFCallback())
 
-	r.OverrideOnBrowserDestroyed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		impl.OnBrowserDestroyed(browser)
-	}))
+	r.OverrideOnBrowserDestroyed(renderProcessHandlerOnBrowserDestroyedCEFCallback())
 
 	// Cache the fully-wrapped handler once to avoid allocating on every callback.
 	var cachedGetLoadHandlerPtr unsafe.Pointer
@@ -57,54 +175,22 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 		cachedGetLoadHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewLoadHandler(h)
 		})
-	}
-	r.OverrideGetLoadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-		if cachedGetLoadHandlerPtr != nil {
+		r.OverrideGetLoadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
 			addRef(cachedGetLoadHandlerPtr)
-		}
-		return uintptr(cachedGetLoadHandlerPtr)
-	}))
+			return uintptr(cachedGetLoadHandlerPtr)
+		}))
+	}
 
-	r.OverrideOnContextCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		context := wrapV8Context(unsafe.Pointer(arg2))
-		impl.OnContextCreated(browser, frame, context)
-	}))
+	r.OverrideOnContextCreated(renderProcessHandlerOnContextCreatedCEFCallback())
 
-	r.OverrideOnContextReleased(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		context := wrapV8Context(unsafe.Pointer(arg2))
-		impl.OnContextReleased(browser, frame, context)
-	}))
+	r.OverrideOnContextReleased(renderProcessHandlerOnContextReleasedCEFCallback())
 
-	r.OverrideOnUncaughtException(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		context := wrapV8Context(unsafe.Pointer(arg2))
-		exception := wrapV8Exception(unsafe.Pointer(arg3))
-		stacktrace := wrapV8StackTrace(unsafe.Pointer(arg4))
-		impl.OnUncaughtException(browser, frame, context, exception, stacktrace)
-	}))
+	r.OverrideOnUncaughtException(renderProcessHandlerOnUncaughtExceptionCEFCallback())
 
-	r.OverrideOnFocusedNodeChanged(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		node := wrapDomnode(unsafe.Pointer(arg2))
-		impl.OnFocusedNodeChanged(browser, frame, node)
-	}))
+	r.OverrideOnFocusedNodeChanged(renderProcessHandlerOnFocusedNodeChangedCEFCallback())
 
-	r.OverrideOnProcessMessageReceived(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		frame := wrapFrame(unsafe.Pointer(arg1))
-		sourceProcess := ProcessID(arg2)
-		message := wrapProcessMessage(unsafe.Pointer(arg3))
-		return uintptr(impl.OnProcessMessageReceived(browser, frame, sourceProcess, message))
-	}))
+	r.OverrideOnProcessMessageReceived(renderProcessHandlerOnProcessMessageReceivedCEFCallback())
 
-	w := &renderProcessHandlerWrapper{rawPtr: r}
-	w.RenderProcessHandler = impl
 	return w
 }
 

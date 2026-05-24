@@ -83,15 +83,15 @@ func (w *requestHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewRequestHandler creates a CEF handler backed by the given implementation.
-func NewRequestHandler(impl RequestHandler) RequestHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFRequestHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var requestHandlerOnBeforeBrowseSharedOnce sync.Once
+var requestHandlerOnBeforeBrowseSharedCallback uintptr
 
-	r.OverrideOnBeforeBrowse(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+func requestHandlerOnBeforeBrowseCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerOnBeforeBrowseSharedOnce, &requestHandlerOnBeforeBrowseSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -101,18 +101,36 @@ func NewRequestHandler(impl RequestHandler) RequestHandler {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideOnOpenUrlfromTab(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+var requestHandlerOnOpenUrlfromTabSharedOnce sync.Once
+var requestHandlerOnOpenUrlfromTabSharedCallback uintptr
+
+func requestHandlerOnOpenUrlfromTabCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerOnOpenUrlfromTabSharedOnce, &requestHandlerOnOpenUrlfromTabSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		targetURL := goString(unsafe.Pointer(arg2))
 		targetDisposition := WindowOpenDisposition(arg3)
 		userGesture := int32(arg4)
 		return uintptr(impl.OnOpenUrlfromTab(browser, frame, targetURL, targetDisposition, userGesture))
-	}))
+	})
+}
 
-	r.OverrideGetResourceRequestHandler(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+var requestHandlerGetResourceRequestHandlerSharedOnce sync.Once
+var requestHandlerGetResourceRequestHandlerSharedCallback uintptr
+
+func requestHandlerGetResourceRequestHandlerCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerGetResourceRequestHandlerSharedOnce, &requestHandlerGetResourceRequestHandlerSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -127,9 +145,18 @@ func NewRequestHandler(impl RequestHandler) RequestHandler {
 		return uintptr(extractOrWrapRawPointer(result, func() any {
 			return NewResourceRequestHandler(result)
 		}))
-	}))
+	})
+}
 
-	r.OverrideGetAuthCredentials(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr) uintptr {
+var requestHandlerGetAuthCredentialsSharedOnce sync.Once
+var requestHandlerGetAuthCredentialsSharedCallback uintptr
+
+func requestHandlerGetAuthCredentialsCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerGetAuthCredentialsSharedOnce, &requestHandlerGetAuthCredentialsSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr, arg7 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		originURL := goString(unsafe.Pointer(arg1))
 		isproxy := int32(arg2)
@@ -139,18 +166,36 @@ func NewRequestHandler(impl RequestHandler) RequestHandler {
 		scheme := goString(unsafe.Pointer(arg6))
 		callback := wrapAuthCallback(unsafe.Pointer(arg7))
 		return uintptr(impl.GetAuthCredentials(browser, originURL, isproxy, host, port, realm, scheme, callback))
-	}))
+	})
+}
 
-	r.OverrideOnCertificateError(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+var requestHandlerOnCertificateErrorSharedOnce sync.Once
+var requestHandlerOnCertificateErrorSharedCallback uintptr
+
+func requestHandlerOnCertificateErrorCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerOnCertificateErrorSharedOnce, &requestHandlerOnCertificateErrorSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		certError := Errorcode(arg1)
 		requestURL := goString(unsafe.Pointer(arg2))
 		sslInfo := wrapSslinfo(unsafe.Pointer(arg3))
 		callback := wrapCallback(unsafe.Pointer(arg4))
 		return uintptr(impl.OnCertificateError(browser, certError, requestURL, sslInfo, callback))
-	}))
+	})
+}
 
-	r.OverrideOnSelectClientCertificate(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+var requestHandlerOnSelectClientCertificateSharedOnce sync.Once
+var requestHandlerOnSelectClientCertificateSharedCallback uintptr
+
+func requestHandlerOnSelectClientCertificateCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerOnSelectClientCertificateSharedOnce, &requestHandlerOnSelectClientCertificateSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr, arg6 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		isproxy := int32(arg1)
 		host := goString(unsafe.Pointer(arg2))
@@ -165,39 +210,115 @@ func NewRequestHandler(impl RequestHandler) RequestHandler {
 		}
 		callback := wrapSelectClientCertificateCallback(unsafe.Pointer(arg6))
 		return uintptr(impl.OnSelectClientCertificate(browser, isproxy, host, port, certificates, callback))
-	}))
+	})
+}
 
-	r.OverrideOnRenderViewReady(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var requestHandlerOnRenderViewReadySharedOnce sync.Once
+var requestHandlerOnRenderViewReadySharedCallback uintptr
+
+func requestHandlerOnRenderViewReadyCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerOnRenderViewReadySharedOnce, &requestHandlerOnRenderViewReadySharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnRenderViewReady(browser)
-	}))
+	})
+}
 
-	r.OverrideOnRenderProcessUnresponsive(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+var requestHandlerOnRenderProcessUnresponsiveSharedOnce sync.Once
+var requestHandlerOnRenderProcessUnresponsiveSharedCallback uintptr
+
+func requestHandlerOnRenderProcessUnresponsiveCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerOnRenderProcessUnresponsiveSharedOnce, &requestHandlerOnRenderProcessUnresponsiveSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		callback := wrapUnresponsiveProcessCallback(unsafe.Pointer(arg1))
 		return uintptr(impl.OnRenderProcessUnresponsive(browser, callback))
-	}))
+	})
+}
 
-	r.OverrideOnRenderProcessResponsive(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var requestHandlerOnRenderProcessResponsiveSharedOnce sync.Once
+var requestHandlerOnRenderProcessResponsiveSharedCallback uintptr
+
+func requestHandlerOnRenderProcessResponsiveCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerOnRenderProcessResponsiveSharedOnce, &requestHandlerOnRenderProcessResponsiveSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnRenderProcessResponsive(browser)
-	}))
+	})
+}
 
-	r.OverrideOnRenderProcessTerminated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+var requestHandlerOnRenderProcessTerminatedSharedOnce sync.Once
+var requestHandlerOnRenderProcessTerminatedSharedCallback uintptr
+
+func requestHandlerOnRenderProcessTerminatedCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerOnRenderProcessTerminatedSharedOnce, &requestHandlerOnRenderProcessTerminatedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		status := TerminationStatus(arg1)
 		errorCode := int32(arg2)
 		errorString := goString(unsafe.Pointer(arg3))
 		impl.OnRenderProcessTerminated(browser, status, errorCode, errorString)
-	}))
+	})
+}
 
-	r.OverrideOnDocumentAvailableInMainFrame(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
+var requestHandlerOnDocumentAvailableInMainFrameSharedOnce sync.Once
+var requestHandlerOnDocumentAvailableInMainFrameSharedCallback uintptr
+
+func requestHandlerOnDocumentAvailableInMainFrameCEFCallback() uintptr {
+	return sharedCEFCallback(&requestHandlerOnDocumentAvailableInMainFrameSharedOnce, &requestHandlerOnDocumentAvailableInMainFrameSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[RequestHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnDocumentAvailableInMainFrame(browser)
-	}))
+	})
+}
 
+// NewRequestHandler creates a CEF handler backed by the given implementation.
+func NewRequestHandler(impl RequestHandler) RequestHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFRequestHandlerT)
 	w := &requestHandlerWrapper{rawPtr: r}
 	w.RequestHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnBeforeBrowse(requestHandlerOnBeforeBrowseCEFCallback())
+
+	r.OverrideOnOpenUrlfromTab(requestHandlerOnOpenUrlfromTabCEFCallback())
+
+	r.OverrideGetResourceRequestHandler(requestHandlerGetResourceRequestHandlerCEFCallback())
+
+	r.OverrideGetAuthCredentials(requestHandlerGetAuthCredentialsCEFCallback())
+
+	r.OverrideOnCertificateError(requestHandlerOnCertificateErrorCEFCallback())
+
+	r.OverrideOnSelectClientCertificate(requestHandlerOnSelectClientCertificateCEFCallback())
+
+	r.OverrideOnRenderViewReady(requestHandlerOnRenderViewReadyCEFCallback())
+
+	r.OverrideOnRenderProcessUnresponsive(requestHandlerOnRenderProcessUnresponsiveCEFCallback())
+
+	r.OverrideOnRenderProcessResponsive(requestHandlerOnRenderProcessResponsiveCEFCallback())
+
+	r.OverrideOnRenderProcessTerminated(requestHandlerOnRenderProcessTerminatedCEFCallback())
+
+	r.OverrideOnDocumentAvailableInMainFrame(requestHandlerOnDocumentAvailableInMainFrameCEFCallback())
+
 	return w
 }
 

@@ -28,19 +28,28 @@ func (w *responseFilterWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewResponseFilter creates a CEF handler backed by the given implementation.
-func NewResponseFilter(impl ResponseFilter) ResponseFilter {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFResponseFilterT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var responseFilterInitFilterSharedOnce sync.Once
+var responseFilterInitFilterSharedCallback uintptr
 
-	r.OverrideInitFilter(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
+func responseFilterInitFilterCEFCallback() uintptr {
+	return sharedCEFCallback(&responseFilterInitFilterSharedOnce, &responseFilterInitFilterSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResponseFilter](self)
+		if !ownerOK {
+			return 0
+		}
 		return uintptr(impl.InitFilter())
-	}))
+	})
+}
 
-	r.OverrideFilter(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+var responseFilterFilterSharedOnce sync.Once
+var responseFilterFilterSharedCallback uintptr
+
+func responseFilterFilterCEFCallback() uintptr {
+	return sharedCEFCallback(&responseFilterFilterSharedOnce, &responseFilterFilterSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResponseFilter](self)
+		if !ownerOK {
+			return 0
+		}
 		dataIn := unsafe.Pointer(arg0)
 		dataInSize := int(arg1)
 		dataInRead := (*int)(unsafe.Pointer(arg2))
@@ -48,10 +57,23 @@ func NewResponseFilter(impl ResponseFilter) ResponseFilter {
 		dataOutSize := int(arg4)
 		dataOutWritten := (*int)(unsafe.Pointer(arg5))
 		return uintptr(impl.Filter(dataIn, dataInSize, dataInRead, dataOut, dataOutSize, dataOutWritten))
-	}))
+	})
+}
 
+// NewResponseFilter creates a CEF handler backed by the given implementation.
+func NewResponseFilter(impl ResponseFilter) ResponseFilter {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFResponseFilterT)
 	w := &responseFilterWrapper{rawPtr: r}
 	w.ResponseFilter = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideInitFilter(responseFilterInitFilterCEFCallback())
+
+	r.OverrideFilter(responseFilterFilterCEFCallback())
+
 	return w
 }
 

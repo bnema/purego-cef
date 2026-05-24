@@ -28,57 +28,134 @@ func (w *menuModelDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var menuModelDelegateExecuteCommandSharedOnce sync.Once
+var menuModelDelegateExecuteCommandSharedCallback uintptr
+
+func menuModelDelegateExecuteCommandCEFCallback() uintptr {
+	return sharedCEFCallback(&menuModelDelegateExecuteCommandSharedOnce, &menuModelDelegateExecuteCommandSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MenuModelDelegate](self)
+		if !ownerOK {
+			return
+		}
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		commandID := int32(arg1)
+		eventFlags := EventFlags(arg2)
+		impl.ExecuteCommand(menuModel, commandID, eventFlags)
+	})
+}
+
+var menuModelDelegateMouseOutsideMenuSharedOnce sync.Once
+var menuModelDelegateMouseOutsideMenuSharedCallback uintptr
+
+func menuModelDelegateMouseOutsideMenuCEFCallback() uintptr {
+	return sharedCEFCallback(&menuModelDelegateMouseOutsideMenuSharedOnce, &menuModelDelegateMouseOutsideMenuSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MenuModelDelegate](self)
+		if !ownerOK {
+			return
+		}
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		screenPoint := (*Point)(unsafe.Pointer(arg1))
+		impl.MouseOutsideMenu(menuModel, screenPoint)
+	})
+}
+
+var menuModelDelegateUnhandledOpenSubmenuSharedOnce sync.Once
+var menuModelDelegateUnhandledOpenSubmenuSharedCallback uintptr
+
+func menuModelDelegateUnhandledOpenSubmenuCEFCallback() uintptr {
+	return sharedCEFCallback(&menuModelDelegateUnhandledOpenSubmenuSharedOnce, &menuModelDelegateUnhandledOpenSubmenuSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MenuModelDelegate](self)
+		if !ownerOK {
+			return
+		}
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		isRtl := int32(arg1)
+		impl.UnhandledOpenSubmenu(menuModel, isRtl)
+	})
+}
+
+var menuModelDelegateUnhandledCloseSubmenuSharedOnce sync.Once
+var menuModelDelegateUnhandledCloseSubmenuSharedCallback uintptr
+
+func menuModelDelegateUnhandledCloseSubmenuCEFCallback() uintptr {
+	return sharedCEFCallback(&menuModelDelegateUnhandledCloseSubmenuSharedOnce, &menuModelDelegateUnhandledCloseSubmenuSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MenuModelDelegate](self)
+		if !ownerOK {
+			return
+		}
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		isRtl := int32(arg1)
+		impl.UnhandledCloseSubmenu(menuModel, isRtl)
+	})
+}
+
+var menuModelDelegateMenuWillShowSharedOnce sync.Once
+var menuModelDelegateMenuWillShowSharedCallback uintptr
+
+func menuModelDelegateMenuWillShowCEFCallback() uintptr {
+	return sharedCEFCallback(&menuModelDelegateMenuWillShowSharedOnce, &menuModelDelegateMenuWillShowSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MenuModelDelegate](self)
+		if !ownerOK {
+			return
+		}
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		impl.MenuWillShow(menuModel)
+	})
+}
+
+var menuModelDelegateMenuClosedSharedOnce sync.Once
+var menuModelDelegateMenuClosedSharedCallback uintptr
+
+func menuModelDelegateMenuClosedCEFCallback() uintptr {
+	return sharedCEFCallback(&menuModelDelegateMenuClosedSharedOnce, &menuModelDelegateMenuClosedSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MenuModelDelegate](self)
+		if !ownerOK {
+			return
+		}
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		impl.MenuClosed(menuModel)
+	})
+}
+
+var menuModelDelegateFormatLabelSharedOnce sync.Once
+var menuModelDelegateFormatLabelSharedCallback uintptr
+
+func menuModelDelegateFormatLabelCEFCallback() uintptr {
+	return sharedCEFCallback(&menuModelDelegateFormatLabelSharedOnce, &menuModelDelegateFormatLabelSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[MenuModelDelegate](self)
+		if !ownerOK {
+			return 0
+		}
+		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
+		label := uintptr(arg1)
+		return uintptr(impl.FormatLabel(menuModel, label))
+	})
+}
+
 // NewMenuModelDelegate creates a CEF handler backed by the given implementation.
 func NewMenuModelDelegate(impl MenuModelDelegate) MenuModelDelegate {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFMenuModelDelegateT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideExecuteCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
-		commandID := int32(arg1)
-		eventFlags := EventFlags(arg2)
-		impl.ExecuteCommand(menuModel, commandID, eventFlags)
-	}))
-
-	r.OverrideMouseOutsideMenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
-		screenPoint := (*Point)(unsafe.Pointer(arg1))
-		impl.MouseOutsideMenu(menuModel, screenPoint)
-	}))
-
-	r.OverrideUnhandledOpenSubmenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
-		isRtl := int32(arg1)
-		impl.UnhandledOpenSubmenu(menuModel, isRtl)
-	}))
-
-	r.OverrideUnhandledCloseSubmenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
-		isRtl := int32(arg1)
-		impl.UnhandledCloseSubmenu(menuModel, isRtl)
-	}))
-
-	r.OverrideMenuWillShow(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
-		impl.MenuWillShow(menuModel)
-	}))
-
-	r.OverrideMenuClosed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
-		impl.MenuClosed(menuModel)
-	}))
-
-	r.OverrideFormatLabel(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		menuModel := wrapMenuModel(unsafe.Pointer(arg0))
-		label := uintptr(arg1)
-		return uintptr(impl.FormatLabel(menuModel, label))
-	}))
-
 	w := &menuModelDelegateWrapper{rawPtr: r}
 	w.MenuModelDelegate = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideExecuteCommand(menuModelDelegateExecuteCommandCEFCallback())
+
+	r.OverrideMouseOutsideMenu(menuModelDelegateMouseOutsideMenuCEFCallback())
+
+	r.OverrideUnhandledOpenSubmenu(menuModelDelegateUnhandledOpenSubmenuCEFCallback())
+
+	r.OverrideUnhandledCloseSubmenu(menuModelDelegateUnhandledCloseSubmenuCEFCallback())
+
+	r.OverrideMenuWillShow(menuModelDelegateMenuWillShowCEFCallback())
+
+	r.OverrideMenuClosed(menuModelDelegateMenuClosedCEFCallback())
+
+	r.OverrideFormatLabel(menuModelDelegateFormatLabelCEFCallback())
+
 	return w
 }
 

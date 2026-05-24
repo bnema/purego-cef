@@ -154,47 +154,83 @@ func (w *contextMenuHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewContextMenuHandler creates a CEF handler backed by the given implementation.
-func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFContextMenuHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var contextMenuHandlerOnBeforeContextMenuSharedOnce sync.Once
+var contextMenuHandlerOnBeforeContextMenuSharedCallback uintptr
 
-	r.OverrideOnBeforeContextMenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+func contextMenuHandlerOnBeforeContextMenuCEFCallback() uintptr {
+	return sharedCEFCallback(&contextMenuHandlerOnBeforeContextMenuSharedOnce, &contextMenuHandlerOnBeforeContextMenuSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ContextMenuHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		params := wrapContextMenuParams(unsafe.Pointer(arg2))
 		model := wrapMenuModel(unsafe.Pointer(arg3))
 		impl.OnBeforeContextMenu(browser, frame, params, model)
-	}))
+	})
+}
 
-	r.OverrideRunContextMenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+var contextMenuHandlerRunContextMenuSharedOnce sync.Once
+var contextMenuHandlerRunContextMenuSharedCallback uintptr
+
+func contextMenuHandlerRunContextMenuCEFCallback() uintptr {
+	return sharedCEFCallback(&contextMenuHandlerRunContextMenuSharedOnce, &contextMenuHandlerRunContextMenuSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ContextMenuHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		params := wrapContextMenuParams(unsafe.Pointer(arg2))
 		model := wrapMenuModel(unsafe.Pointer(arg3))
 		callback := wrapRunContextMenuCallback(unsafe.Pointer(arg4))
 		return uintptr(impl.RunContextMenu(browser, frame, params, model, callback))
-	}))
+	})
+}
 
-	r.OverrideOnContextMenuCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+var contextMenuHandlerOnContextMenuCommandSharedOnce sync.Once
+var contextMenuHandlerOnContextMenuCommandSharedCallback uintptr
+
+func contextMenuHandlerOnContextMenuCommandCEFCallback() uintptr {
+	return sharedCEFCallback(&contextMenuHandlerOnContextMenuCommandSharedOnce, &contextMenuHandlerOnContextMenuCommandSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ContextMenuHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		params := wrapContextMenuParams(unsafe.Pointer(arg2))
 		commandID := int32(arg3)
 		eventFlags := EventFlags(arg4)
 		return uintptr(impl.OnContextMenuCommand(browser, frame, params, commandID, eventFlags))
-	}))
+	})
+}
 
-	r.OverrideOnContextMenuDismissed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var contextMenuHandlerOnContextMenuDismissedSharedOnce sync.Once
+var contextMenuHandlerOnContextMenuDismissedSharedCallback uintptr
+
+func contextMenuHandlerOnContextMenuDismissedCEFCallback() uintptr {
+	return sharedCEFCallback(&contextMenuHandlerOnContextMenuDismissedSharedOnce, &contextMenuHandlerOnContextMenuDismissedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ContextMenuHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		impl.OnContextMenuDismissed(browser, frame)
-	}))
+	})
+}
 
-	r.OverrideRunQuickMenu(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+var contextMenuHandlerRunQuickMenuSharedOnce sync.Once
+var contextMenuHandlerRunQuickMenuSharedCallback uintptr
+
+func contextMenuHandlerRunQuickMenuCEFCallback() uintptr {
+	return sharedCEFCallback(&contextMenuHandlerRunQuickMenuSharedOnce, &contextMenuHandlerRunQuickMenuSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ContextMenuHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		location := (*Point)(unsafe.Pointer(arg2))
@@ -202,24 +238,65 @@ func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
 		editStateFlags := QuickMenuEditStateFlags(arg4)
 		callback := wrapRunQuickMenuCallback(unsafe.Pointer(arg5))
 		return uintptr(impl.RunQuickMenu(browser, frame, location, size, editStateFlags, callback))
-	}))
+	})
+}
 
-	r.OverrideOnQuickMenuCommand(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+var contextMenuHandlerOnQuickMenuCommandSharedOnce sync.Once
+var contextMenuHandlerOnQuickMenuCommandSharedCallback uintptr
+
+func contextMenuHandlerOnQuickMenuCommandCEFCallback() uintptr {
+	return sharedCEFCallback(&contextMenuHandlerOnQuickMenuCommandSharedOnce, &contextMenuHandlerOnQuickMenuCommandSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ContextMenuHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		commandID := int32(arg2)
 		eventFlags := EventFlags(arg3)
 		return uintptr(impl.OnQuickMenuCommand(browser, frame, commandID, eventFlags))
-	}))
+	})
+}
 
-	r.OverrideOnQuickMenuDismissed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
+var contextMenuHandlerOnQuickMenuDismissedSharedOnce sync.Once
+var contextMenuHandlerOnQuickMenuDismissedSharedCallback uintptr
+
+func contextMenuHandlerOnQuickMenuDismissedCEFCallback() uintptr {
+	return sharedCEFCallback(&contextMenuHandlerOnQuickMenuDismissedSharedOnce, &contextMenuHandlerOnQuickMenuDismissedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ContextMenuHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		impl.OnQuickMenuDismissed(browser, frame)
-	}))
+	})
+}
 
+// NewContextMenuHandler creates a CEF handler backed by the given implementation.
+func NewContextMenuHandler(impl ContextMenuHandler) ContextMenuHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFContextMenuHandlerT)
 	w := &contextMenuHandlerWrapper{rawPtr: r}
 	w.ContextMenuHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnBeforeContextMenu(contextMenuHandlerOnBeforeContextMenuCEFCallback())
+
+	r.OverrideRunContextMenu(contextMenuHandlerRunContextMenuCEFCallback())
+
+	r.OverrideOnContextMenuCommand(contextMenuHandlerOnContextMenuCommandCEFCallback())
+
+	r.OverrideOnContextMenuDismissed(contextMenuHandlerOnContextMenuDismissedCEFCallback())
+
+	r.OverrideRunQuickMenu(contextMenuHandlerRunQuickMenuCEFCallback())
+
+	r.OverrideOnQuickMenuCommand(contextMenuHandlerOnQuickMenuCommandCEFCallback())
+
+	r.OverrideOnQuickMenuDismissed(contextMenuHandlerOnQuickMenuDismissedCEFCallback())
+
 	return w
 }
 

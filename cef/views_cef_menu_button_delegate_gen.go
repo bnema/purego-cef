@@ -75,23 +75,34 @@ func (w *menuButtonDelegateWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var menuButtonDelegateOnMenuButtonPressedSharedOnce sync.Once
+var menuButtonDelegateOnMenuButtonPressedSharedCallback uintptr
+
+func menuButtonDelegateOnMenuButtonPressedCEFCallback() uintptr {
+	return sharedCEFCallback(&menuButtonDelegateOnMenuButtonPressedSharedOnce, &menuButtonDelegateOnMenuButtonPressedSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[MenuButtonDelegate](self)
+		if !ownerOK {
+			return
+		}
+		menuButton := wrapMenuButton(unsafe.Pointer(arg0))
+		screenPoint := (*Point)(unsafe.Pointer(arg1))
+		buttonPressedLock := wrapMenuButtonPressedLock(unsafe.Pointer(arg2))
+		impl.OnMenuButtonPressed(menuButton, screenPoint, buttonPressedLock)
+	})
+}
+
 // NewMenuButtonDelegate creates a CEF handler backed by the given implementation.
 func NewMenuButtonDelegate(impl MenuButtonDelegate) MenuButtonDelegate {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFMenuButtonDelegateT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnMenuButtonPressed(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) {
-		menuButton := wrapMenuButton(unsafe.Pointer(arg0))
-		screenPoint := (*Point)(unsafe.Pointer(arg1))
-		buttonPressedLock := wrapMenuButtonPressedLock(unsafe.Pointer(arg2))
-		impl.OnMenuButtonPressed(menuButton, screenPoint, buttonPressedLock)
-	}))
-
 	w := &menuButtonDelegateWrapper{rawPtr: r}
 	w.MenuButtonDelegate = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnMenuButtonPressed(menuButtonDelegateOnMenuButtonPressedCEFCallback())
+
 	return w
 }
 

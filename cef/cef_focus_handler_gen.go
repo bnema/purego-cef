@@ -28,33 +28,66 @@ func (w *focusHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var focusHandlerOnTakeFocusSharedOnce sync.Once
+var focusHandlerOnTakeFocusSharedCallback uintptr
+
+func focusHandlerOnTakeFocusCEFCallback() uintptr {
+	return sharedCEFCallback(&focusHandlerOnTakeFocusSharedOnce, &focusHandlerOnTakeFocusSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[FocusHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		next := int32(arg1)
+		impl.OnTakeFocus(browser, next)
+	})
+}
+
+var focusHandlerOnSetFocusSharedOnce sync.Once
+var focusHandlerOnSetFocusSharedCallback uintptr
+
+func focusHandlerOnSetFocusCEFCallback() uintptr {
+	return sharedCEFCallback(&focusHandlerOnSetFocusSharedOnce, &focusHandlerOnSetFocusSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[FocusHandler](self)
+		if !ownerOK {
+			return 0
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		source := FocusSource(arg1)
+		return uintptr(impl.OnSetFocus(browser, source))
+	})
+}
+
+var focusHandlerOnGotFocusSharedOnce sync.Once
+var focusHandlerOnGotFocusSharedCallback uintptr
+
+func focusHandlerOnGotFocusCEFCallback() uintptr {
+	return sharedCEFCallback(&focusHandlerOnGotFocusSharedOnce, &focusHandlerOnGotFocusSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[FocusHandler](self)
+		if !ownerOK {
+			return
+		}
+		browser := wrapBrowser(unsafe.Pointer(arg0))
+		impl.OnGotFocus(browser)
+	})
+}
+
 // NewFocusHandler creates a CEF handler backed by the given implementation.
 func NewFocusHandler(impl FocusHandler) FocusHandler {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFFocusHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnTakeFocus(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		next := int32(arg1)
-		impl.OnTakeFocus(browser, next)
-	}))
-
-	r.OverrideOnSetFocus(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr) uintptr {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		source := FocusSource(arg1)
-		return uintptr(impl.OnSetFocus(browser, source))
-	}))
-
-	r.OverrideOnGotFocus(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		browser := wrapBrowser(unsafe.Pointer(arg0))
-		impl.OnGotFocus(browser)
-	}))
-
 	w := &focusHandlerWrapper{rawPtr: r}
 	w.FocusHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnTakeFocus(focusHandlerOnTakeFocusCEFCallback())
+
+	r.OverrideOnSetFocus(focusHandlerOnSetFocusCEFCallback())
+
+	r.OverrideOnGotFocus(focusHandlerOnGotFocusCEFCallback())
+
 	return w
 }
 

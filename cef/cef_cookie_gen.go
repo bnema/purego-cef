@@ -128,24 +128,35 @@ func (w *cookieVisitorWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var cookieVisitorVisitSharedOnce sync.Once
+var cookieVisitorVisitSharedCallback uintptr
+
+func cookieVisitorVisitCEFCallback() uintptr {
+	return sharedCEFCallback(&cookieVisitorVisitSharedOnce, &cookieVisitorVisitSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[CookieVisitor](self)
+		if !ownerOK {
+			return 0
+		}
+		cookie := (*Cookie)(unsafe.Pointer(arg0))
+		count := int32(arg1)
+		total := int32(arg2)
+		deletecookie := (*int32)(unsafe.Pointer(arg3))
+		return uintptr(impl.Visit(cookie, count, total, deletecookie))
+	})
+}
+
 // NewCookieVisitor creates a CEF handler backed by the given implementation.
 func NewCookieVisitor(impl CookieVisitor) CookieVisitor {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFCookieVisitorT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideVisit(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
-		cookie := (*Cookie)(unsafe.Pointer(arg0))
-		count := int32(arg1)
-		total := int32(arg2)
-		deletecookie := (*int32)(unsafe.Pointer(arg3))
-		return uintptr(impl.Visit(cookie, count, total, deletecookie))
-	}))
-
 	w := &cookieVisitorWrapper{rawPtr: r}
 	w.CookieVisitor = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideVisit(cookieVisitorVisitCEFCallback())
+
 	return w
 }
 
@@ -219,21 +230,32 @@ func (w *setCookieCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var setCookieCallbackOnCompleteSharedOnce sync.Once
+var setCookieCallbackOnCompleteSharedCallback uintptr
+
+func setCookieCallbackOnCompleteCEFCallback() uintptr {
+	return sharedCEFCallback(&setCookieCallbackOnCompleteSharedOnce, &setCookieCallbackOnCompleteSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[SetCookieCallback](self)
+		if !ownerOK {
+			return
+		}
+		success := int32(arg0)
+		impl.OnComplete(success)
+	})
+}
+
 // NewSetCookieCallback creates a CEF handler backed by the given implementation.
 func NewSetCookieCallback(impl SetCookieCallback) SetCookieCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFSetCookieCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		success := int32(arg0)
-		impl.OnComplete(success)
-	}))
-
 	w := &setCookieCallbackWrapper{rawPtr: r}
 	w.SetCookieCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnComplete(setCookieCallbackOnCompleteCEFCallback())
+
 	return w
 }
 
@@ -306,21 +328,32 @@ func (w *deleteCookiesCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var deleteCookiesCallbackOnCompleteSharedOnce sync.Once
+var deleteCookiesCallbackOnCompleteSharedCallback uintptr
+
+func deleteCookiesCallbackOnCompleteCEFCallback() uintptr {
+	return sharedCEFCallback(&deleteCookiesCallbackOnCompleteSharedOnce, &deleteCookiesCallbackOnCompleteSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[DeleteCookiesCallback](self)
+		if !ownerOK {
+			return
+		}
+		numDeleted := int32(arg0)
+		impl.OnComplete(numDeleted)
+	})
+}
+
 // NewDeleteCookiesCallback creates a CEF handler backed by the given implementation.
 func NewDeleteCookiesCallback(impl DeleteCookiesCallback) DeleteCookiesCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFDeleteCookiesCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		numDeleted := int32(arg0)
-		impl.OnComplete(numDeleted)
-	}))
-
 	w := &deleteCookiesCallbackWrapper{rawPtr: r}
 	w.DeleteCookiesCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnComplete(deleteCookiesCallbackOnCompleteCEFCallback())
+
 	return w
 }
 

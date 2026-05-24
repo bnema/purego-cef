@@ -28,15 +28,15 @@ func (w *resourceRequestHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewResourceRequestHandler creates a CEF handler backed by the given implementation.
-func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandler {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFResourceRequestHandlerT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var resourceRequestHandlerGetCookieAccessFilterSharedOnce sync.Once
+var resourceRequestHandlerGetCookieAccessFilterSharedCallback uintptr
 
-	r.OverrideGetCookieAccessFilter(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+func resourceRequestHandlerGetCookieAccessFilterCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceRequestHandlerGetCookieAccessFilterSharedOnce, &resourceRequestHandlerGetCookieAccessFilterSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceRequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -47,17 +47,35 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		return uintptr(extractOrWrapRawPointer(result, func() any {
 			return NewCookieAccessFilter(result)
 		}))
-	}))
+	})
+}
 
-	r.OverrideOnBeforeResourceLoad(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+var resourceRequestHandlerOnBeforeResourceLoadSharedOnce sync.Once
+var resourceRequestHandlerOnBeforeResourceLoadSharedCallback uintptr
+
+func resourceRequestHandlerOnBeforeResourceLoadCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceRequestHandlerOnBeforeResourceLoadSharedOnce, &resourceRequestHandlerOnBeforeResourceLoadSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceRequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
 		callback := wrapCallback(unsafe.Pointer(arg3))
 		return uintptr(impl.OnBeforeResourceLoad(browser, frame, request, callback))
-	}))
+	})
+}
 
-	r.OverrideGetResourceHandler(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+var resourceRequestHandlerGetResourceHandlerSharedOnce sync.Once
+var resourceRequestHandlerGetResourceHandlerSharedCallback uintptr
+
+func resourceRequestHandlerGetResourceHandlerCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceRequestHandlerGetResourceHandlerSharedOnce, &resourceRequestHandlerGetResourceHandlerSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceRequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -68,26 +86,53 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		return uintptr(extractOrWrapRawPointer(result, func() any {
 			return NewResourceHandler(result)
 		}))
-	}))
+	})
+}
 
-	r.OverrideOnResourceRedirect(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+var resourceRequestHandlerOnResourceRedirectSharedOnce sync.Once
+var resourceRequestHandlerOnResourceRedirectSharedCallback uintptr
+
+func resourceRequestHandlerOnResourceRedirectCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceRequestHandlerOnResourceRedirectSharedOnce, &resourceRequestHandlerOnResourceRedirectSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceRequestHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
 		response := wrapResponse(unsafe.Pointer(arg3))
 		newURL := uintptr(arg4)
 		impl.OnResourceRedirect(browser, frame, request, response, newURL)
-	}))
+	})
+}
 
-	r.OverrideOnResourceResponse(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+var resourceRequestHandlerOnResourceResponseSharedOnce sync.Once
+var resourceRequestHandlerOnResourceResponseSharedCallback uintptr
+
+func resourceRequestHandlerOnResourceResponseCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceRequestHandlerOnResourceResponseSharedOnce, &resourceRequestHandlerOnResourceResponseSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceRequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
 		response := wrapResponse(unsafe.Pointer(arg3))
 		return uintptr(impl.OnResourceResponse(browser, frame, request, response))
-	}))
+	})
+}
 
-	r.OverrideGetResourceResponseFilter(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+var resourceRequestHandlerGetResourceResponseFilterSharedOnce sync.Once
+var resourceRequestHandlerGetResourceResponseFilterSharedCallback uintptr
+
+func resourceRequestHandlerGetResourceResponseFilterCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceRequestHandlerGetResourceResponseFilterSharedOnce, &resourceRequestHandlerGetResourceResponseFilterSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceRequestHandler](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -99,9 +144,18 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		return uintptr(extractOrWrapRawPointer(result, func() any {
 			return NewResponseFilter(result)
 		}))
-	}))
+	})
+}
 
-	r.OverrideOnResourceLoadComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 int64) {
+var resourceRequestHandlerOnResourceLoadCompleteSharedOnce sync.Once
+var resourceRequestHandlerOnResourceLoadCompleteSharedCallback uintptr
+
+func resourceRequestHandlerOnResourceLoadCompleteCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceRequestHandlerOnResourceLoadCompleteSharedOnce, &resourceRequestHandlerOnResourceLoadCompleteSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr, arg5 int64) {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceRequestHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -109,18 +163,52 @@ func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandl
 		status := UrlrequestStatus(arg4)
 		receivedContentLength := arg5
 		impl.OnResourceLoadComplete(browser, frame, request, response, status, receivedContentLength)
-	}))
+	})
+}
 
-	r.OverrideOnProtocolExecution(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+var resourceRequestHandlerOnProtocolExecutionSharedOnce sync.Once
+var resourceRequestHandlerOnProtocolExecutionSharedCallback uintptr
+
+func resourceRequestHandlerOnProtocolExecutionCEFCallback() uintptr {
+	return sharedCEFCallback(&resourceRequestHandlerOnProtocolExecutionSharedOnce, &resourceRequestHandlerOnProtocolExecutionSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[ResourceRequestHandler](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
 		allowOsExecution := (*int32)(unsafe.Pointer(arg3))
 		impl.OnProtocolExecution(browser, frame, request, allowOsExecution)
-	}))
+	})
+}
 
+// NewResourceRequestHandler creates a CEF handler backed by the given implementation.
+func NewResourceRequestHandler(impl ResourceRequestHandler) ResourceRequestHandler {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFResourceRequestHandlerT)
 	w := &resourceRequestHandlerWrapper{rawPtr: r}
 	w.ResourceRequestHandler = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetCookieAccessFilter(resourceRequestHandlerGetCookieAccessFilterCEFCallback())
+
+	r.OverrideOnBeforeResourceLoad(resourceRequestHandlerOnBeforeResourceLoadCEFCallback())
+
+	r.OverrideGetResourceHandler(resourceRequestHandlerGetResourceHandlerCEFCallback())
+
+	r.OverrideOnResourceRedirect(resourceRequestHandlerOnResourceRedirectCEFCallback())
+
+	r.OverrideOnResourceResponse(resourceRequestHandlerOnResourceResponseCEFCallback())
+
+	r.OverrideGetResourceResponseFilter(resourceRequestHandlerGetResourceResponseFilterCEFCallback())
+
+	r.OverrideOnResourceLoadComplete(resourceRequestHandlerOnResourceLoadCompleteCEFCallback())
+
+	r.OverrideOnProtocolExecution(resourceRequestHandlerOnProtocolExecutionCEFCallback())
+
 	return w
 }
 
@@ -259,15 +347,15 @@ func (w *cookieAccessFilterWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
-// NewCookieAccessFilter creates a CEF handler backed by the given implementation.
-func NewCookieAccessFilter(impl CookieAccessFilter) CookieAccessFilter {
-	if isNilImpl(impl) {
-		return nil
-	}
-	r := new(capi.CEFCookieAccessFilterT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
+var cookieAccessFilterCanSendCookieSharedOnce sync.Once
+var cookieAccessFilterCanSendCookieSharedCallback uintptr
 
-	r.OverrideCanSendCookie(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+func cookieAccessFilterCanSendCookieCEFCallback() uintptr {
+	return sharedCEFCallback(&cookieAccessFilterCanSendCookieSharedOnce, &cookieAccessFilterCanSendCookieSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[CookieAccessFilter](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -276,9 +364,18 @@ func NewCookieAccessFilter(impl CookieAccessFilter) CookieAccessFilter {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
-	r.OverrideCanSaveCookie(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+var cookieAccessFilterCanSaveCookieSharedOnce sync.Once
+var cookieAccessFilterCanSaveCookieSharedCallback uintptr
+
+func cookieAccessFilterCanSaveCookieCEFCallback() uintptr {
+	return sharedCEFCallback(&cookieAccessFilterCanSaveCookieSharedOnce, &cookieAccessFilterCanSaveCookieSharedCallback, func(self uintptr, arg0 uintptr, arg1 uintptr, arg2 uintptr, arg3 uintptr, arg4 uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[CookieAccessFilter](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		request := wrapRequest(unsafe.Pointer(arg2))
@@ -288,10 +385,23 @@ func NewCookieAccessFilter(impl CookieAccessFilter) CookieAccessFilter {
 			return 1
 		}
 		return 0
-	}))
+	})
+}
 
+// NewCookieAccessFilter creates a CEF handler backed by the given implementation.
+func NewCookieAccessFilter(impl CookieAccessFilter) CookieAccessFilter {
+	if isNilImpl(impl) {
+		return nil
+	}
+	r := new(capi.CEFCookieAccessFilterT)
 	w := &cookieAccessFilterWrapper{rawPtr: r}
 	w.CookieAccessFilter = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideCanSendCookie(cookieAccessFilterCanSendCookieCEFCallback())
+
+	r.OverrideCanSaveCookie(cookieAccessFilterCanSaveCookieCEFCallback())
+
 	return w
 }
 

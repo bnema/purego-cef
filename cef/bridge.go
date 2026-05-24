@@ -503,6 +503,41 @@ func newCEFCallback(base unsafe.Pointer, fn any) uintptr {
 	return cb
 }
 
+// sharedCEFCallback creates a process-lifetime callback trampoline once. It is
+// used for generated handler methods that can dispatch by their CEF self
+// pointer instead of capturing per-object Go state in a fresh closure.
+func sharedCEFCallback(once *sync.Once, slot *uintptr, fn any) uintptr {
+	once.Do(func() {
+		*slot = purego.NewCallback(fn)
+	})
+	return *slot
+}
+
+func cefCallbackOwnerAs[T any](self uintptr) (T, bool) {
+	var zero T
+	if self == 0 {
+		return zero, false
+	}
+	base := unsafe.Pointer(self)
+
+	refManagerMu.RLock()
+	managers := append([]*core.RefManager(nil), registeredRefManagers...)
+	refManagerMu.RUnlock()
+
+	for i := len(managers) - 1; i >= 0; i-- {
+		owner, ok := managers[i].Owner(base)
+		if !ok {
+			continue
+		}
+		typed, ok := owner.(T)
+		if !ok {
+			return zero, false
+		}
+		return typed, true
+	}
+	return zero, false
+}
+
 // addRef increments the refcount for the object at base.
 func addRef(base unsafe.Pointer) {
 	if base == nil {

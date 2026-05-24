@@ -28,21 +28,32 @@ func (w *endTracingCallbackWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var endTracingCallbackOnEndTracingCompleteSharedOnce sync.Once
+var endTracingCallbackOnEndTracingCompleteSharedCallback uintptr
+
+func endTracingCallbackOnEndTracingCompleteCEFCallback() uintptr {
+	return sharedCEFCallback(&endTracingCallbackOnEndTracingCompleteSharedOnce, &endTracingCallbackOnEndTracingCompleteSharedCallback, func(self uintptr, arg0 uintptr) {
+		impl, ownerOK := cefCallbackOwnerAs[EndTracingCallback](self)
+		if !ownerOK {
+			return
+		}
+		tracingFile := goString(unsafe.Pointer(arg0))
+		impl.OnEndTracingComplete(tracingFile)
+	})
+}
+
 // NewEndTracingCallback creates a CEF handler backed by the given implementation.
 func NewEndTracingCallback(impl EndTracingCallback) EndTracingCallback {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFEndTracingCallbackT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideOnEndTracingComplete(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		tracingFile := goString(unsafe.Pointer(arg0))
-		impl.OnEndTracingComplete(tracingFile)
-	}))
-
 	w := &endTracingCallbackWrapper{rawPtr: r}
 	w.EndTracingCallback = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideOnEndTracingComplete(endTracingCallbackOnEndTracingCompleteCEFCallback())
+
 	return w
 }
 

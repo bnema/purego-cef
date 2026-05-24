@@ -858,36 +858,91 @@ func (w *apiVersionTestRefPtrClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var apiVersionTestRefPtrClientGetValueLegacySharedOnce sync.Once
+var apiVersionTestRefPtrClientGetValueLegacySharedCallback uintptr
+
+func apiVersionTestRefPtrClientGetValueLegacyCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestRefPtrClientGetValueLegacySharedOnce, &apiVersionTestRefPtrClientGetValueLegacySharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestRefPtrClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValueLegacy())
+	})
+}
+
+var apiVersionTestRefPtrClientGetValueSharedOnce sync.Once
+var apiVersionTestRefPtrClientGetValueSharedCallback uintptr
+
+func apiVersionTestRefPtrClientGetValueCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestRefPtrClientGetValueSharedOnce, &apiVersionTestRefPtrClientGetValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestRefPtrClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValue())
+	})
+}
+
+var apiVersionTestRefPtrClientGetValueV1SharedOnce sync.Once
+var apiVersionTestRefPtrClientGetValueV1SharedCallback uintptr
+
+func apiVersionTestRefPtrClientGetValueV1CEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestRefPtrClientGetValueV1SharedOnce, &apiVersionTestRefPtrClientGetValueV1SharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestRefPtrClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValueV1())
+	})
+}
+
+var apiVersionTestRefPtrClientGetValueV2SharedOnce sync.Once
+var apiVersionTestRefPtrClientGetValueV2SharedCallback uintptr
+
+func apiVersionTestRefPtrClientGetValueV2CEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestRefPtrClientGetValueV2SharedOnce, &apiVersionTestRefPtrClientGetValueV2SharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestRefPtrClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValueV2())
+	})
+}
+
+var apiVersionTestRefPtrClientGetValueExpSharedOnce sync.Once
+var apiVersionTestRefPtrClientGetValueExpSharedCallback uintptr
+
+func apiVersionTestRefPtrClientGetValueExpCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestRefPtrClientGetValueExpSharedOnce, &apiVersionTestRefPtrClientGetValueExpSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestRefPtrClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValueExp())
+	})
+}
+
 // NewApiVersionTestRefPtrClient creates a CEF handler backed by the given implementation.
 func NewApiVersionTestRefPtrClient(impl ApiVersionTestRefPtrClient) ApiVersionTestRefPtrClient {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFApiVersionTestRefPtrClientT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetValueLegacy(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValueLegacy())
-	}))
-
-	r.OverrideGetValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValue())
-	}))
-
-	r.OverrideGetValueV1(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValueV1())
-	}))
-
-	r.OverrideGetValueV2(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValueV2())
-	}))
-
-	r.OverrideGetValueExp(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValueExp())
-	}))
-
 	w := &apiVersionTestRefPtrClientWrapper{rawPtr: r}
 	w.ApiVersionTestRefPtrClient = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetValueLegacy(apiVersionTestRefPtrClientGetValueLegacyCEFCallback())
+
+	r.OverrideGetValue(apiVersionTestRefPtrClientGetValueCEFCallback())
+
+	r.OverrideGetValueV1(apiVersionTestRefPtrClientGetValueV1CEFCallback())
+
+	r.OverrideGetValueV2(apiVersionTestRefPtrClientGetValueV2CEFCallback())
+
+	r.OverrideGetValueExp(apiVersionTestRefPtrClientGetValueExpCEFCallback())
+
 	return w
 }
 
@@ -997,24 +1052,46 @@ func (w *apiVersionTestRefPtrClientChildWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var apiVersionTestRefPtrClientChildGetOtherValueSharedOnce sync.Once
+var apiVersionTestRefPtrClientChildGetOtherValueSharedCallback uintptr
+
+func apiVersionTestRefPtrClientChildGetOtherValueCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestRefPtrClientChildGetOtherValueSharedOnce, &apiVersionTestRefPtrClientChildGetOtherValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestRefPtrClientChild](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetOtherValue())
+	})
+}
+
+var apiVersionTestRefPtrClientChildGetOtherValueV1SharedOnce sync.Once
+var apiVersionTestRefPtrClientChildGetOtherValueV1SharedCallback uintptr
+
+func apiVersionTestRefPtrClientChildGetOtherValueV1CEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestRefPtrClientChildGetOtherValueV1SharedOnce, &apiVersionTestRefPtrClientChildGetOtherValueV1SharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestRefPtrClientChild](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetOtherValueV1())
+	})
+}
+
 // NewApiVersionTestRefPtrClientChild creates a CEF handler backed by the given implementation.
 func NewApiVersionTestRefPtrClientChild(impl ApiVersionTestRefPtrClientChild) ApiVersionTestRefPtrClientChild {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFApiVersionTestRefPtrClientChildT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetOtherValue())
-	}))
-
-	r.OverrideGetOtherValueV1(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetOtherValueV1())
-	}))
-
 	w := &apiVersionTestRefPtrClientChildWrapper{rawPtr: r}
 	w.ApiVersionTestRefPtrClientChild = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetOtherValue(apiVersionTestRefPtrClientChildGetOtherValueCEFCallback())
+
+	r.OverrideGetOtherValueV1(apiVersionTestRefPtrClientChildGetOtherValueV1CEFCallback())
+
 	return w
 }
 
@@ -1097,24 +1174,46 @@ func (w *apiVersionTestRefPtrClientChildV2Wrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var apiVersionTestRefPtrClientChildV2GetOtherValueSharedOnce sync.Once
+var apiVersionTestRefPtrClientChildV2GetOtherValueSharedCallback uintptr
+
+func apiVersionTestRefPtrClientChildV2GetOtherValueCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestRefPtrClientChildV2GetOtherValueSharedOnce, &apiVersionTestRefPtrClientChildV2GetOtherValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestRefPtrClientChildV2](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetOtherValue())
+	})
+}
+
+var apiVersionTestRefPtrClientChildV2GetAnotherValueSharedOnce sync.Once
+var apiVersionTestRefPtrClientChildV2GetAnotherValueSharedCallback uintptr
+
+func apiVersionTestRefPtrClientChildV2GetAnotherValueCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestRefPtrClientChildV2GetAnotherValueSharedOnce, &apiVersionTestRefPtrClientChildV2GetAnotherValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestRefPtrClientChildV2](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetAnotherValue())
+	})
+}
+
 // NewApiVersionTestRefPtrClientChildV2 creates a CEF handler backed by the given implementation.
 func NewApiVersionTestRefPtrClientChildV2(impl ApiVersionTestRefPtrClientChildV2) ApiVersionTestRefPtrClientChildV2 {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFApiVersionTestRefPtrClientChildV2T)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetOtherValue())
-	}))
-
-	r.OverrideGetAnotherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetAnotherValue())
-	}))
-
 	w := &apiVersionTestRefPtrClientChildV2Wrapper{rawPtr: r}
 	w.ApiVersionTestRefPtrClientChildV2 = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetOtherValue(apiVersionTestRefPtrClientChildV2GetOtherValueCEFCallback())
+
+	r.OverrideGetAnotherValue(apiVersionTestRefPtrClientChildV2GetAnotherValueCEFCallback())
+
 	return w
 }
 
@@ -1563,36 +1662,91 @@ func (w *apiVersionTestScopedClientWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var apiVersionTestScopedClientGetValueLegacySharedOnce sync.Once
+var apiVersionTestScopedClientGetValueLegacySharedCallback uintptr
+
+func apiVersionTestScopedClientGetValueLegacyCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestScopedClientGetValueLegacySharedOnce, &apiVersionTestScopedClientGetValueLegacySharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestScopedClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValueLegacy())
+	})
+}
+
+var apiVersionTestScopedClientGetValueSharedOnce sync.Once
+var apiVersionTestScopedClientGetValueSharedCallback uintptr
+
+func apiVersionTestScopedClientGetValueCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestScopedClientGetValueSharedOnce, &apiVersionTestScopedClientGetValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestScopedClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValue())
+	})
+}
+
+var apiVersionTestScopedClientGetValueV1SharedOnce sync.Once
+var apiVersionTestScopedClientGetValueV1SharedCallback uintptr
+
+func apiVersionTestScopedClientGetValueV1CEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestScopedClientGetValueV1SharedOnce, &apiVersionTestScopedClientGetValueV1SharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestScopedClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValueV1())
+	})
+}
+
+var apiVersionTestScopedClientGetValueV2SharedOnce sync.Once
+var apiVersionTestScopedClientGetValueV2SharedCallback uintptr
+
+func apiVersionTestScopedClientGetValueV2CEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestScopedClientGetValueV2SharedOnce, &apiVersionTestScopedClientGetValueV2SharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestScopedClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValueV2())
+	})
+}
+
+var apiVersionTestScopedClientGetValueExpSharedOnce sync.Once
+var apiVersionTestScopedClientGetValueExpSharedCallback uintptr
+
+func apiVersionTestScopedClientGetValueExpCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestScopedClientGetValueExpSharedOnce, &apiVersionTestScopedClientGetValueExpSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestScopedClient](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetValueExp())
+	})
+}
+
 // NewApiVersionTestScopedClient creates a CEF handler backed by the given implementation.
 func NewApiVersionTestScopedClient(impl ApiVersionTestScopedClient) ApiVersionTestScopedClient {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFApiVersionTestScopedClientT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetValueLegacy(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValueLegacy())
-	}))
-
-	r.OverrideGetValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValue())
-	}))
-
-	r.OverrideGetValueV1(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValueV1())
-	}))
-
-	r.OverrideGetValueV2(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValueV2())
-	}))
-
-	r.OverrideGetValueExp(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetValueExp())
-	}))
-
 	w := &apiVersionTestScopedClientWrapper{rawPtr: r}
 	w.ApiVersionTestScopedClient = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetValueLegacy(apiVersionTestScopedClientGetValueLegacyCEFCallback())
+
+	r.OverrideGetValue(apiVersionTestScopedClientGetValueCEFCallback())
+
+	r.OverrideGetValueV1(apiVersionTestScopedClientGetValueV1CEFCallback())
+
+	r.OverrideGetValueV2(apiVersionTestScopedClientGetValueV2CEFCallback())
+
+	r.OverrideGetValueExp(apiVersionTestScopedClientGetValueExpCEFCallback())
+
 	return w
 }
 
@@ -1679,24 +1833,46 @@ func (w *apiVersionTestScopedClientChildWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var apiVersionTestScopedClientChildGetOtherValueSharedOnce sync.Once
+var apiVersionTestScopedClientChildGetOtherValueSharedCallback uintptr
+
+func apiVersionTestScopedClientChildGetOtherValueCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestScopedClientChildGetOtherValueSharedOnce, &apiVersionTestScopedClientChildGetOtherValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestScopedClientChild](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetOtherValue())
+	})
+}
+
+var apiVersionTestScopedClientChildGetOtherValueV1SharedOnce sync.Once
+var apiVersionTestScopedClientChildGetOtherValueV1SharedCallback uintptr
+
+func apiVersionTestScopedClientChildGetOtherValueV1CEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestScopedClientChildGetOtherValueV1SharedOnce, &apiVersionTestScopedClientChildGetOtherValueV1SharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestScopedClientChild](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetOtherValueV1())
+	})
+}
+
 // NewApiVersionTestScopedClientChild creates a CEF handler backed by the given implementation.
 func NewApiVersionTestScopedClientChild(impl ApiVersionTestScopedClientChild) ApiVersionTestScopedClientChild {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFApiVersionTestScopedClientChildT)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetOtherValue())
-	}))
-
-	r.OverrideGetOtherValueV1(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetOtherValueV1())
-	}))
-
 	w := &apiVersionTestScopedClientChildWrapper{rawPtr: r}
 	w.ApiVersionTestScopedClientChild = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetOtherValue(apiVersionTestScopedClientChildGetOtherValueCEFCallback())
+
+	r.OverrideGetOtherValueV1(apiVersionTestScopedClientChildGetOtherValueV1CEFCallback())
+
 	return w
 }
 
@@ -1779,24 +1955,46 @@ func (w *apiVersionTestScopedClientChildV2Wrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
 }
 
+var apiVersionTestScopedClientChildV2GetOtherValueSharedOnce sync.Once
+var apiVersionTestScopedClientChildV2GetOtherValueSharedCallback uintptr
+
+func apiVersionTestScopedClientChildV2GetOtherValueCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestScopedClientChildV2GetOtherValueSharedOnce, &apiVersionTestScopedClientChildV2GetOtherValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestScopedClientChildV2](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetOtherValue())
+	})
+}
+
+var apiVersionTestScopedClientChildV2GetAnotherValueSharedOnce sync.Once
+var apiVersionTestScopedClientChildV2GetAnotherValueSharedCallback uintptr
+
+func apiVersionTestScopedClientChildV2GetAnotherValueCEFCallback() uintptr {
+	return sharedCEFCallback(&apiVersionTestScopedClientChildV2GetAnotherValueSharedOnce, &apiVersionTestScopedClientChildV2GetAnotherValueSharedCallback, func(self uintptr) uintptr {
+		impl, ownerOK := cefCallbackOwnerAs[ApiVersionTestScopedClientChildV2](self)
+		if !ownerOK {
+			return 0
+		}
+		return uintptr(impl.GetAnotherValue())
+	})
+}
+
 // NewApiVersionTestScopedClientChildV2 creates a CEF handler backed by the given implementation.
 func NewApiVersionTestScopedClientChildV2(impl ApiVersionTestScopedClientChildV2) ApiVersionTestScopedClientChildV2 {
 	if isNilImpl(impl) {
 		return nil
 	}
 	r := new(capi.CEFApiVersionTestScopedClientChildV2T)
-	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), r)
-
-	r.OverrideGetOtherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetOtherValue())
-	}))
-
-	r.OverrideGetAnotherValue(newCEFCallback(unsafe.Pointer(r), func(self uintptr) uintptr {
-		return uintptr(impl.GetAnotherValue())
-	}))
-
 	w := &apiVersionTestScopedClientChildV2Wrapper{rawPtr: r}
 	w.ApiVersionTestScopedClientChildV2 = impl
+	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
+
+	r.OverrideGetOtherValue(apiVersionTestScopedClientChildV2GetOtherValueCEFCallback())
+
+	r.OverrideGetAnotherValue(apiVersionTestScopedClientChildV2GetAnotherValueCEFCallback())
+
 	return w
 }
 
