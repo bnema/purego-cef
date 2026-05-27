@@ -2,7 +2,7 @@ module github.com/bnema/purego-cef
 
 go 1.26
 
-require github.com/bnema/purego v0.11.0-bnema.2
+require github.com/bnema/purego v0.11.0-bnema.3
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
