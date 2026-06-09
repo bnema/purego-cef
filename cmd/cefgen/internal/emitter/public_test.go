@@ -268,6 +268,70 @@ func TestEmitPublicHandlerInterface(t *testing.T) {
 	}
 }
 
+func TestEmitPublicHandlerGetterUsesSharedCallbackAndCachedWrapperField(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:         "cef_client_t",
+				GoName:        "CEFClientT",
+				Kind:          "handler",
+				InterfaceName: "RawClient",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+					{
+						CName:       "get_life_span_handler",
+						GoName:      "GetLifeSpanHandler",
+						IsFunction:  true,
+						ReturnCType: "struct _cef_life_span_handler_t*",
+						Params: []model.Param{
+							{CName: "self", GoName: "self", CType: "struct _cef_client_t*"},
+						},
+					},
+				},
+			},
+			{
+				CName:         "cef_life_span_handler_t",
+				GoName:        "CEFLifeSpanHandlerT",
+				Kind:          "handler",
+				InterfaceName: "RawLifeSpanHandler",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t", IsFunction: false},
+				},
+			},
+		},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	checks := []struct {
+		desc string
+		want string
+	}{
+		{"cached wrapper field", "cachedGetLifeSpanHandlerPtr unsafe.Pointer"},
+		{"shared getter callback", "sharedCEFCallback(&rawClientGetLifeSpanHandlerSharedOnce"},
+		{"wrapper owner dispatch", "cefCallbackOwnerAs[*rawClientWrapper](self)"},
+		{"getter addRef", "addRef(owner.cachedGetLifeSpanHandlerPtr)"},
+		{"constructor stores cached pointer", "w.cachedGetLifeSpanHandlerPtr = extractOrWrapRawPointer"},
+		{"constructor installs shared callback", "r.OverrideGetLifeSpanHandler(rawClientGetLifeSpanHandlerCEFCallback())"},
+	}
+	for _, c := range checks {
+		if !strings.Contains(code, c.want) {
+			t.Errorf("missing %s: want %q in output", c.desc, c.want)
+		}
+	}
+
+	forbidden := "r.OverrideGetLifeSpanHandler(newCEFCallback"
+	if strings.Contains(code, forbidden) {
+		t.Errorf("getter callback still uses per-object newCEFCallback: found %q", forbidden)
+	}
+}
+
 func TestEmitPublicRawAudioHandlerEmitsReverseWrapper(t *testing.T) {
 	header := &model.Header{
 		Structs: []model.Struct{}}

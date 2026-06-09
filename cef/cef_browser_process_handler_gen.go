@@ -20,8 +20,10 @@ type BrowserProcessHandler = portin.BrowserProcessHandler
 // BrowserProcessHandler interface (by embedding the user impl) and core.RawPointerHolder
 // (so extractRawPointer can recover the raw pointer).
 type browserProcessHandlerWrapper struct {
-	BrowserProcessHandler // embed user impl for interface delegation
-	rawPtr                *capi.CEFBrowserProcessHandlerT
+	BrowserProcessHandler                    // embed user impl for interface delegation
+	rawPtr                                   *capi.CEFBrowserProcessHandlerT
+	cachedGetDefaultClientPtr                unsafe.Pointer
+	cachedGetDefaultRequestContextHandlerPtr unsafe.Pointer
 }
 
 func (w *browserProcessHandlerWrapper) RawPointer() unsafe.Pointer {
@@ -99,6 +101,34 @@ func browserProcessHandlerOnScheduleMessagePumpWorkCEFCallback() uintptr {
 	})
 }
 
+var browserProcessHandlerGetDefaultClientSharedOnce sync.Once
+var browserProcessHandlerGetDefaultClientSharedCallback uintptr
+
+func browserProcessHandlerGetDefaultClientCEFCallback() uintptr {
+	return sharedCEFCallback(&browserProcessHandlerGetDefaultClientSharedOnce, &browserProcessHandlerGetDefaultClientSharedCallback, func(self uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*browserProcessHandlerWrapper](self)
+		if !ownerOK || owner.cachedGetDefaultClientPtr == nil {
+			return 0
+		}
+		addRef(owner.cachedGetDefaultClientPtr)
+		return uintptr(owner.cachedGetDefaultClientPtr)
+	})
+}
+
+var browserProcessHandlerGetDefaultRequestContextHandlerSharedOnce sync.Once
+var browserProcessHandlerGetDefaultRequestContextHandlerSharedCallback uintptr
+
+func browserProcessHandlerGetDefaultRequestContextHandlerCEFCallback() uintptr {
+	return sharedCEFCallback(&browserProcessHandlerGetDefaultRequestContextHandlerSharedOnce, &browserProcessHandlerGetDefaultRequestContextHandlerSharedCallback, func(self uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*browserProcessHandlerWrapper](self)
+		if !ownerOK || owner.cachedGetDefaultRequestContextHandlerPtr == nil {
+			return 0
+		}
+		addRef(owner.cachedGetDefaultRequestContextHandlerPtr)
+		return uintptr(owner.cachedGetDefaultRequestContextHandlerPtr)
+	})
+}
+
 // NewBrowserProcessHandler creates a CEF handler backed by the given implementation.
 func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler {
 	if isNilImpl(impl) {
@@ -119,28 +149,20 @@ func NewBrowserProcessHandler(impl BrowserProcessHandler) BrowserProcessHandler 
 
 	r.OverrideOnScheduleMessagePumpWork(browserProcessHandlerOnScheduleMessagePumpWorkCEFCallback())
 
-	// Cache the fully-wrapped handler once to avoid allocating on every callback.
-	var cachedGetDefaultClientPtr unsafe.Pointer
+	// Cache the fully-wrapped handler once and dispatch through a shared callback.
 	if h := impl.GetDefaultClient(); !isNilImpl(h) {
-		cachedGetDefaultClientPtr = extractOrWrapRawPointer(h, func() any {
+		w.cachedGetDefaultClientPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRawClient(h)
 		})
-		r.OverrideGetDefaultClient(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-			addRef(cachedGetDefaultClientPtr)
-			return uintptr(cachedGetDefaultClientPtr)
-		}))
+		r.OverrideGetDefaultClient(browserProcessHandlerGetDefaultClientCEFCallback())
 	}
 
-	// Cache the fully-wrapped handler once to avoid allocating on every callback.
-	var cachedGetDefaultRequestContextHandlerPtr unsafe.Pointer
+	// Cache the fully-wrapped handler once and dispatch through a shared callback.
 	if h := impl.GetDefaultRequestContextHandler(); !isNilImpl(h) {
-		cachedGetDefaultRequestContextHandlerPtr = extractOrWrapRawPointer(h, func() any {
+		w.cachedGetDefaultRequestContextHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRequestContextHandler(h)
 		})
-		r.OverrideGetDefaultRequestContextHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-			addRef(cachedGetDefaultRequestContextHandlerPtr)
-			return uintptr(cachedGetDefaultRequestContextHandlerPtr)
-		}))
+		r.OverrideGetDefaultRequestContextHandler(browserProcessHandlerGetDefaultRequestContextHandlerCEFCallback())
 	}
 
 	return w

@@ -4,8 +4,13 @@
 // {{.Name}} interface (by embedding the user impl) and core.RawPointerHolder
 // (so extractRawPointer can recover the raw pointer).
 type {{lower .Name}}Wrapper struct {
-	{{.Name}}                           // embed user impl for interface delegation
+	{{.Name}} // embed user impl for interface delegation
 	rawPtr *capi.{{.RawGoName}}
+{{- range .Methods}}
+{{- if .IsGetter}}
+	cached{{.Name}}Ptr unsafe.Pointer
+{{- end}}
+{{- end}}
 }
 
 func (w *{{lower .Name}}Wrapper) RawPointer() unsafe.Pointer {
@@ -13,7 +18,22 @@ func (w *{{lower .Name}}Wrapper) RawPointer() unsafe.Pointer {
 }
 
 {{range .Methods}}
-{{- if not .IsGetter}}
+{{- if .IsGetter}}
+var {{lower $.Name}}{{.RawFieldName}}SharedOnce sync.Once
+var {{lower $.Name}}{{.RawFieldName}}SharedCallback uintptr
+
+func {{lower $.Name}}{{.RawFieldName}}CEFCallback() uintptr {
+	return sharedCEFCallback(&{{lower $.Name}}{{.RawFieldName}}SharedOnce, &{{lower $.Name}}{{.RawFieldName}}SharedCallback, func(self uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*{{lower $.Name}}Wrapper](self)
+		if !ownerOK || owner.cached{{.Name}}Ptr == nil {
+			return 0
+		}
+		addRef(owner.cached{{.Name}}Ptr)
+		return uintptr(owner.cached{{.Name}}Ptr)
+	})
+}
+
+{{- else}}
 var {{lower $.Name}}{{.RawFieldName}}SharedOnce sync.Once
 var {{lower $.Name}}{{.RawFieldName}}SharedCallback uintptr
 
@@ -74,16 +94,12 @@ func {{constructorName .Name}}(impl {{.Name}}) {{.Name}} {
 
 {{range .Methods}}
 	{{- if .IsGetter}}
-	// Cache the fully-wrapped handler once to avoid allocating on every callback.
-	var cached{{.Name}}Ptr unsafe.Pointer
+	// Cache the fully-wrapped handler once and dispatch through a shared callback.
 	if h := impl.{{.Name}}(); !isNilImpl(h) {
-		cached{{.Name}}Ptr = extractOrWrapRawPointer(h, func() any {
+		w.cached{{.Name}}Ptr = extractOrWrapRawPointer(h, func() any {
 			return {{constructorName .GetterInterface}}(h)
 		})
-		r.Override{{.RawFieldName}}(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-			addRef(cached{{.Name}}Ptr)
-			return uintptr(cached{{.Name}}Ptr)
-		}))
+		r.Override{{.RawFieldName}}({{lower $.Name}}{{.RawFieldName}}CEFCallback())
 	}
 	{{- else}}
 	r.Override{{.RawFieldName}}({{lower $.Name}}{{.RawFieldName}}CEFCallback())

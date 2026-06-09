@@ -20,8 +20,11 @@ type App = portin.App
 // App interface (by embedding the user impl) and core.RawPointerHolder
 // (so extractRawPointer can recover the raw pointer).
 type appWrapper struct {
-	App    // embed user impl for interface delegation
-	rawPtr *capi.CEFAppT
+	App                               // embed user impl for interface delegation
+	rawPtr                            *capi.CEFAppT
+	cachedGetResourceBundleHandlerPtr unsafe.Pointer
+	cachedGetBrowserProcessHandlerPtr unsafe.Pointer
+	cachedGetRenderProcessHandlerPtr  unsafe.Pointer
 }
 
 func (w *appWrapper) RawPointer() unsafe.Pointer {
@@ -57,6 +60,48 @@ func appOnRegisterCustomSchemesCEFCallback() uintptr {
 	})
 }
 
+var appGetResourceBundleHandlerSharedOnce sync.Once
+var appGetResourceBundleHandlerSharedCallback uintptr
+
+func appGetResourceBundleHandlerCEFCallback() uintptr {
+	return sharedCEFCallback(&appGetResourceBundleHandlerSharedOnce, &appGetResourceBundleHandlerSharedCallback, func(self uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*appWrapper](self)
+		if !ownerOK || owner.cachedGetResourceBundleHandlerPtr == nil {
+			return 0
+		}
+		addRef(owner.cachedGetResourceBundleHandlerPtr)
+		return uintptr(owner.cachedGetResourceBundleHandlerPtr)
+	})
+}
+
+var appGetBrowserProcessHandlerSharedOnce sync.Once
+var appGetBrowserProcessHandlerSharedCallback uintptr
+
+func appGetBrowserProcessHandlerCEFCallback() uintptr {
+	return sharedCEFCallback(&appGetBrowserProcessHandlerSharedOnce, &appGetBrowserProcessHandlerSharedCallback, func(self uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*appWrapper](self)
+		if !ownerOK || owner.cachedGetBrowserProcessHandlerPtr == nil {
+			return 0
+		}
+		addRef(owner.cachedGetBrowserProcessHandlerPtr)
+		return uintptr(owner.cachedGetBrowserProcessHandlerPtr)
+	})
+}
+
+var appGetRenderProcessHandlerSharedOnce sync.Once
+var appGetRenderProcessHandlerSharedCallback uintptr
+
+func appGetRenderProcessHandlerCEFCallback() uintptr {
+	return sharedCEFCallback(&appGetRenderProcessHandlerSharedOnce, &appGetRenderProcessHandlerSharedCallback, func(self uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*appWrapper](self)
+		if !ownerOK || owner.cachedGetRenderProcessHandlerPtr == nil {
+			return 0
+		}
+		addRef(owner.cachedGetRenderProcessHandlerPtr)
+		return uintptr(owner.cachedGetRenderProcessHandlerPtr)
+	})
+}
+
 // NewApp creates a CEF handler backed by the given implementation.
 func NewApp(impl App) App {
 	if isNilImpl(impl) {
@@ -71,40 +116,28 @@ func NewApp(impl App) App {
 
 	r.OverrideOnRegisterCustomSchemes(appOnRegisterCustomSchemesCEFCallback())
 
-	// Cache the fully-wrapped handler once to avoid allocating on every callback.
-	var cachedGetResourceBundleHandlerPtr unsafe.Pointer
+	// Cache the fully-wrapped handler once and dispatch through a shared callback.
 	if h := impl.GetResourceBundleHandler(); !isNilImpl(h) {
-		cachedGetResourceBundleHandlerPtr = extractOrWrapRawPointer(h, func() any {
+		w.cachedGetResourceBundleHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewResourceBundleHandler(h)
 		})
-		r.OverrideGetResourceBundleHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-			addRef(cachedGetResourceBundleHandlerPtr)
-			return uintptr(cachedGetResourceBundleHandlerPtr)
-		}))
+		r.OverrideGetResourceBundleHandler(appGetResourceBundleHandlerCEFCallback())
 	}
 
-	// Cache the fully-wrapped handler once to avoid allocating on every callback.
-	var cachedGetBrowserProcessHandlerPtr unsafe.Pointer
+	// Cache the fully-wrapped handler once and dispatch through a shared callback.
 	if h := impl.GetBrowserProcessHandler(); !isNilImpl(h) {
-		cachedGetBrowserProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
+		w.cachedGetBrowserProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewBrowserProcessHandler(h)
 		})
-		r.OverrideGetBrowserProcessHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-			addRef(cachedGetBrowserProcessHandlerPtr)
-			return uintptr(cachedGetBrowserProcessHandlerPtr)
-		}))
+		r.OverrideGetBrowserProcessHandler(appGetBrowserProcessHandlerCEFCallback())
 	}
 
-	// Cache the fully-wrapped handler once to avoid allocating on every callback.
-	var cachedGetRenderProcessHandlerPtr unsafe.Pointer
+	// Cache the fully-wrapped handler once and dispatch through a shared callback.
 	if h := impl.GetRenderProcessHandler(); !isNilImpl(h) {
-		cachedGetRenderProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
+		w.cachedGetRenderProcessHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewRenderProcessHandler(h)
 		})
-		r.OverrideGetRenderProcessHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-			addRef(cachedGetRenderProcessHandlerPtr)
-			return uintptr(cachedGetRenderProcessHandlerPtr)
-		}))
+		r.OverrideGetRenderProcessHandler(appGetRenderProcessHandlerCEFCallback())
 	}
 
 	return w

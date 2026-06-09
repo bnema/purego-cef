@@ -142,6 +142,19 @@ func (w *safeLifeSpanHandlerWrapper) OnBeforeClose(Browser) {
 	panic("safeLifeSpanHandlerWrapper: raw OnBeforeClose called directly; callbacks go through purego")
 }
 
+var lifeSpanHandlerOnBeforePopupOnce sync.Once
+var lifeSpanHandlerOnBeforePopupCallback uintptr
+var lifeSpanHandlerOnBeforePopupAbortedOnce sync.Once
+var lifeSpanHandlerOnBeforePopupAbortedCallback uintptr
+var lifeSpanHandlerOnBeforeDevToolsPopupOnce sync.Once
+var lifeSpanHandlerOnBeforeDevToolsPopupCallback uintptr
+var lifeSpanHandlerOnAfterCreatedOnce sync.Once
+var lifeSpanHandlerOnAfterCreatedCallback uintptr
+var lifeSpanHandlerDoCloseOnce sync.Once
+var lifeSpanHandlerDoCloseCallback uintptr
+var lifeSpanHandlerOnBeforeCloseOnce sync.Once
+var lifeSpanHandlerOnBeforeCloseCallback uintptr
+
 // NewLifeSpanHandler creates a raw lifespan handler from the user-facing
 // typed lifespan handler interface. It converts raw callback out-params to
 // typed Go values and writes back any changes the consumer makes.
@@ -153,7 +166,11 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 	w := &safeLifeSpanHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
-	r.OverrideOnBeforePopup(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12 uintptr) uintptr {
+	r.OverrideOnBeforePopup(sharedCEFCallback(&lifeSpanHandlerOnBeforePopupOnce, &lifeSpanHandlerOnBeforePopupCallback, func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12 uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*safeLifeSpanHandlerWrapper](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frame := wrapFrame(unsafe.Pointer(arg1))
 		popupID := int32(arg2)
@@ -186,7 +203,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 			noJS = *(*int32)(unsafe.Pointer(arg12)) != 0
 		}
 
-		blocked := impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName,
+		blocked := owner.impl.OnBeforePopup(browser, frame, popupID, targetURL, targetFrameName,
 			targetDisposition, userGesture, popupFeatures, windowInfo,
 			clientSlot, settings, &extraInfoVal, &noJS)
 
@@ -211,11 +228,19 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		return 0
 	}))
 
-	r.OverrideOnBeforePopupAborted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1 uintptr) {
-		impl.OnBeforePopupAborted(wrapBrowser(unsafe.Pointer(arg0)), int32(arg1))
+	r.OverrideOnBeforePopupAborted(sharedCEFCallback(&lifeSpanHandlerOnBeforePopupAbortedOnce, &lifeSpanHandlerOnBeforePopupAbortedCallback, func(self uintptr, arg0, arg1 uintptr) {
+		owner, ownerOK := cefCallbackOwnerAs[*safeLifeSpanHandlerWrapper](self)
+		if !ownerOK {
+			return
+		}
+		owner.impl.OnBeforePopupAborted(wrapBrowser(unsafe.Pointer(arg0)), int32(arg1))
 	}))
 
-	r.OverrideOnBeforeDevToolsPopup(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5 uintptr) {
+	r.OverrideOnBeforeDevToolsPopup(sharedCEFCallback(&lifeSpanHandlerOnBeforeDevToolsPopupOnce, &lifeSpanHandlerOnBeforeDevToolsPopupCallback, func(self uintptr, arg0, arg1, arg2, arg3, arg4, arg5 uintptr) {
+		owner, ownerOK := cefCallbackOwnerAs[*safeLifeSpanHandlerWrapper](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		windowInfo := (*WindowInfo)(unsafe.Pointer(arg1))
 		settings := (*BrowserSettings)(unsafe.Pointer(arg3))
@@ -241,7 +266,7 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 			useDefault = *(*int32)(unsafe.Pointer(arg5)) != 0
 		}
 
-		impl.OnBeforeDevToolsPopup(browser, windowInfo, clientSlot, settings, &extraInfoVal, &useDefault)
+		owner.impl.OnBeforeDevToolsPopup(browser, windowInfo, clientSlot, settings, &extraInfoVal, &useDefault)
 
 		// Write back out-params.
 		if arg2 != 0 {
@@ -259,19 +284,31 @@ func NewLifeSpanHandler(impl LifeSpanHandler) RawLifeSpanHandler {
 		}
 	}))
 
-	r.OverrideOnAfterCreated(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		impl.OnAfterCreated(wrapBrowser(unsafe.Pointer(arg0)))
+	r.OverrideOnAfterCreated(sharedCEFCallback(&lifeSpanHandlerOnAfterCreatedOnce, &lifeSpanHandlerOnAfterCreatedCallback, func(self uintptr, arg0 uintptr) {
+		owner, ownerOK := cefCallbackOwnerAs[*safeLifeSpanHandlerWrapper](self)
+		if !ownerOK {
+			return
+		}
+		owner.impl.OnAfterCreated(wrapBrowser(unsafe.Pointer(arg0)))
 	}))
 
-	r.OverrideDoClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) uintptr {
-		if impl.DoClose(wrapBrowser(unsafe.Pointer(arg0))) {
+	r.OverrideDoClose(sharedCEFCallback(&lifeSpanHandlerDoCloseOnce, &lifeSpanHandlerDoCloseCallback, func(self uintptr, arg0 uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*safeLifeSpanHandlerWrapper](self)
+		if !ownerOK {
+			return 0
+		}
+		if owner.impl.DoClose(wrapBrowser(unsafe.Pointer(arg0))) {
 			return 1
 		}
 		return 0
 	}))
 
-	r.OverrideOnBeforeClose(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		impl.OnBeforeClose(wrapBrowser(unsafe.Pointer(arg0)))
+	r.OverrideOnBeforeClose(sharedCEFCallback(&lifeSpanHandlerOnBeforeCloseOnce, &lifeSpanHandlerOnBeforeCloseCallback, func(self uintptr, arg0 uintptr) {
+		owner, ownerOK := cefCallbackOwnerAs[*safeLifeSpanHandlerWrapper](self)
+		if !ownerOK {
+			return
+		}
+		owner.impl.OnBeforeClose(wrapBrowser(unsafe.Pointer(arg0)))
 	}))
 
 	return w
@@ -309,6 +346,17 @@ func (w *audioHandlerWrapper) OnAudioStreamError(browser Browser, message string
 	w.impl.OnAudioStreamError(browser, message)
 }
 
+var audioHandlerGetAudioParametersOnce sync.Once
+var audioHandlerGetAudioParametersCallback uintptr
+var audioHandlerOnAudioStreamStartedOnce sync.Once
+var audioHandlerOnAudioStreamStartedCallback uintptr
+var audioHandlerOnAudioStreamPacketOnce sync.Once
+var audioHandlerOnAudioStreamPacketCallback uintptr
+var audioHandlerOnAudioStreamStoppedOnce sync.Once
+var audioHandlerOnAudioStreamStoppedCallback uintptr
+var audioHandlerOnAudioStreamErrorOnce sync.Once
+var audioHandlerOnAudioStreamErrorCallback uintptr
+
 // NewAudioHandler creates a CEF handler with decoded [][]float32 audio packets.
 func NewAudioHandler(impl AudioHandler) RawAudioHandler {
 	if isNilImpl(impl) {
@@ -318,39 +366,59 @@ func NewAudioHandler(impl AudioHandler) RawAudioHandler {
 	w := &audioHandlerWrapper{rawPtr: r, impl: impl}
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
-	r.OverrideGetAudioParameters(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1 uintptr) uintptr {
+	r.OverrideGetAudioParameters(sharedCEFCallback(&audioHandlerGetAudioParametersOnce, &audioHandlerGetAudioParametersCallback, func(self uintptr, arg0, arg1 uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*audioHandlerWrapper](self)
+		if !ownerOK {
+			return 0
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		params := (*AudioParameters)(unsafe.Pointer(arg1))
-		return uintptr(impl.GetAudioParameters(browser, params))
+		return uintptr(owner.impl.GetAudioParameters(browser, params))
 	}))
 
-	r.OverrideOnAudioStreamStarted(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1, arg2 uintptr) {
+	r.OverrideOnAudioStreamStarted(sharedCEFCallback(&audioHandlerOnAudioStreamStartedOnce, &audioHandlerOnAudioStreamStartedCallback, func(self uintptr, arg0, arg1, arg2 uintptr) {
+		owner, ownerOK := cefCallbackOwnerAs[*audioHandlerWrapper](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		params := (*AudioParameters)(unsafe.Pointer(arg1))
 		channels := int32(arg2)
-		w.mu.Lock()
-		w.channels = channels
-		w.mu.Unlock()
-		impl.OnAudioStreamStarted(browser, params, channels)
+		owner.mu.Lock()
+		owner.channels = channels
+		owner.mu.Unlock()
+		owner.impl.OnAudioStreamStarted(browser, params, channels)
 	}))
 
-	r.OverrideOnAudioStreamPacket(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1, arg2, arg3 uintptr) {
+	r.OverrideOnAudioStreamPacket(sharedCEFCallback(&audioHandlerOnAudioStreamPacketOnce, &audioHandlerOnAudioStreamPacketCallback, func(self uintptr, arg0, arg1, arg2, arg3 uintptr) {
+		owner, ownerOK := cefCallbackOwnerAs[*audioHandlerWrapper](self)
+		if !ownerOK {
+			return
+		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		frames := int32(arg2)
 		pts := int64(arg3)
-		w.mu.Lock()
-		ch := w.channels
-		w.mu.Unlock()
+		owner.mu.Lock()
+		ch := owner.channels
+		owner.mu.Unlock()
 		decoded := core.DecodeAudioPacket(unsafe.Pointer(arg1), ch, frames)
-		impl.OnAudioStreamPacket(browser, decoded, frames, pts)
+		owner.impl.OnAudioStreamPacket(browser, decoded, frames, pts)
 	}))
 
-	r.OverrideOnAudioStreamStopped(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0 uintptr) {
-		impl.OnAudioStreamStopped(wrapBrowser(unsafe.Pointer(arg0)))
+	r.OverrideOnAudioStreamStopped(sharedCEFCallback(&audioHandlerOnAudioStreamStoppedOnce, &audioHandlerOnAudioStreamStoppedCallback, func(self uintptr, arg0 uintptr) {
+		owner, ownerOK := cefCallbackOwnerAs[*audioHandlerWrapper](self)
+		if !ownerOK {
+			return
+		}
+		owner.impl.OnAudioStreamStopped(wrapBrowser(unsafe.Pointer(arg0)))
 	}))
 
-	r.OverrideOnAudioStreamError(newCEFCallback(unsafe.Pointer(r), func(self uintptr, arg0, arg1 uintptr) {
-		impl.OnAudioStreamError(wrapBrowser(unsafe.Pointer(arg0)), goString(unsafe.Pointer(arg1)))
+	r.OverrideOnAudioStreamError(sharedCEFCallback(&audioHandlerOnAudioStreamErrorOnce, &audioHandlerOnAudioStreamErrorCallback, func(self uintptr, arg0, arg1 uintptr) {
+		owner, ownerOK := cefCallbackOwnerAs[*audioHandlerWrapper](self)
+		if !ownerOK {
+			return
+		}
+		owner.impl.OnAudioStreamError(wrapBrowser(unsafe.Pointer(arg0)), goString(unsafe.Pointer(arg1)))
 	}))
 
 	return w
