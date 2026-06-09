@@ -20,12 +20,27 @@ type RenderHandler = portin.RenderHandler
 // RenderHandler interface (by embedding the user impl) and core.RawPointerHolder
 // (so extractRawPointer can recover the raw pointer).
 type renderHandlerWrapper struct {
-	RenderHandler // embed user impl for interface delegation
-	rawPtr        *capi.CEFRenderHandlerT
+	RenderHandler                    // embed user impl for interface delegation
+	rawPtr                           *capi.CEFRenderHandlerT
+	cachedGetAccessibilityHandlerPtr unsafe.Pointer
 }
 
 func (w *renderHandlerWrapper) RawPointer() unsafe.Pointer {
 	return unsafe.Pointer(w.rawPtr)
+}
+
+var renderHandlerGetAccessibilityHandlerSharedOnce sync.Once
+var renderHandlerGetAccessibilityHandlerSharedCallback uintptr
+
+func renderHandlerGetAccessibilityHandlerCEFCallback() uintptr {
+	return sharedCEFCallback(&renderHandlerGetAccessibilityHandlerSharedOnce, &renderHandlerGetAccessibilityHandlerSharedCallback, func(self uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*renderHandlerWrapper](self)
+		if !ownerOK || owner.cachedGetAccessibilityHandlerPtr == nil {
+			return 0
+		}
+		addRef(owner.cachedGetAccessibilityHandlerPtr)
+		return uintptr(owner.cachedGetAccessibilityHandlerPtr)
+	})
 }
 
 var renderHandlerGetRootScreenRectSharedOnce sync.Once
@@ -294,16 +309,12 @@ func NewRenderHandler(impl RenderHandler) RenderHandler {
 	w.RenderHandler = impl
 	initRefCount(unsafe.Pointer(r), unsafe.Sizeof(*r), w)
 
-	// Cache the fully-wrapped handler once to avoid allocating on every callback.
-	var cachedGetAccessibilityHandlerPtr unsafe.Pointer
+	// Cache the fully-wrapped handler once and dispatch through a shared callback.
 	if h := impl.GetAccessibilityHandler(); !isNilImpl(h) {
-		cachedGetAccessibilityHandlerPtr = extractOrWrapRawPointer(h, func() any {
+		w.cachedGetAccessibilityHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewAccessibilityHandler(h)
 		})
-		r.OverrideGetAccessibilityHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-			addRef(cachedGetAccessibilityHandlerPtr)
-			return uintptr(cachedGetAccessibilityHandlerPtr)
-		}))
+		r.OverrideGetAccessibilityHandler(renderHandlerGetAccessibilityHandlerCEFCallback())
 	}
 
 	r.OverrideGetRootScreenRect(renderHandlerGetRootScreenRectCEFCallback())

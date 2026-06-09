@@ -20,8 +20,9 @@ type RenderProcessHandler = portin.RenderProcessHandler
 // RenderProcessHandler interface (by embedding the user impl) and core.RawPointerHolder
 // (so extractRawPointer can recover the raw pointer).
 type renderProcessHandlerWrapper struct {
-	RenderProcessHandler // embed user impl for interface delegation
-	rawPtr               *capi.CEFRenderProcessHandlerT
+	RenderProcessHandler    // embed user impl for interface delegation
+	rawPtr                  *capi.CEFRenderProcessHandlerT
+	cachedGetLoadHandlerPtr unsafe.Pointer
 }
 
 func (w *renderProcessHandlerWrapper) RawPointer() unsafe.Pointer {
@@ -67,6 +68,20 @@ func renderProcessHandlerOnBrowserDestroyedCEFCallback() uintptr {
 		}
 		browser := wrapBrowser(unsafe.Pointer(arg0))
 		impl.OnBrowserDestroyed(browser)
+	})
+}
+
+var renderProcessHandlerGetLoadHandlerSharedOnce sync.Once
+var renderProcessHandlerGetLoadHandlerSharedCallback uintptr
+
+func renderProcessHandlerGetLoadHandlerCEFCallback() uintptr {
+	return sharedCEFCallback(&renderProcessHandlerGetLoadHandlerSharedOnce, &renderProcessHandlerGetLoadHandlerSharedCallback, func(self uintptr) uintptr {
+		owner, ownerOK := cefCallbackOwnerAs[*renderProcessHandlerWrapper](self)
+		if !ownerOK || owner.cachedGetLoadHandlerPtr == nil {
+			return 0
+		}
+		addRef(owner.cachedGetLoadHandlerPtr)
+		return uintptr(owner.cachedGetLoadHandlerPtr)
 	})
 }
 
@@ -169,16 +184,12 @@ func NewRenderProcessHandler(impl RenderProcessHandler) RenderProcessHandler {
 
 	r.OverrideOnBrowserDestroyed(renderProcessHandlerOnBrowserDestroyedCEFCallback())
 
-	// Cache the fully-wrapped handler once to avoid allocating on every callback.
-	var cachedGetLoadHandlerPtr unsafe.Pointer
+	// Cache the fully-wrapped handler once and dispatch through a shared callback.
 	if h := impl.GetLoadHandler(); !isNilImpl(h) {
-		cachedGetLoadHandlerPtr = extractOrWrapRawPointer(h, func() any {
+		w.cachedGetLoadHandlerPtr = extractOrWrapRawPointer(h, func() any {
 			return NewLoadHandler(h)
 		})
-		r.OverrideGetLoadHandler(newCEFCallback(unsafe.Pointer(r), func(_ uintptr) uintptr {
-			addRef(cachedGetLoadHandlerPtr)
-			return uintptr(cachedGetLoadHandlerPtr)
-		}))
+		r.OverrideGetLoadHandler(renderProcessHandlerGetLoadHandlerCEFCallback())
 	}
 
 	r.OverrideOnContextCreated(renderProcessHandlerOnContextCreatedCEFCallback())
