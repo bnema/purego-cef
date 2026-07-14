@@ -65,7 +65,7 @@ func TestAcceleratedSharedTextureOSRAndShutdown(t *testing.T) {
 	}
 	settings.BrowserSubprocessPath = subprocessPath
 	settings.LogFile = runtimeLogFile(t)
-	if err := cef.Init(settings); err != nil {
+	if err := cef.InitWithApp(settings, newIntegrationApp()); err != nil {
 		t.Fatalf("cef.Init: %v", err)
 	}
 	defer cef.Shutdown()
