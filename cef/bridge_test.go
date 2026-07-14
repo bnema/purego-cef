@@ -321,7 +321,6 @@ func TestAudioHandlerWrapperOnAudioStreamPacketPanics(t *testing.T) {
 }
 
 type callbackOwnerPrimary struct{}
-type callbackOwnerReplacement struct{}
 type callbackOwnerWrongType struct{}
 
 func withCallbackOwnerRegistry(t testing.TB, fn func()) {
