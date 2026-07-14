@@ -1,0 +1,35 @@
+name: CEF Runtime Integration
+
+on:
+  workflow_dispatch:
+
+jobs:
+  accelerated-osr:
+    name: Accelerated shared-texture OSR
+    runs-on: [self-hosted, linux, cef, gpu]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Prepare runtime logs
+        run: mkdir -p artifacts/cef-runtime
+      - name: Run bounded CEF OSR integration test
+        shell: bash
+        run: |
+          set -o pipefail
+          /usr/bin/timeout --signal=TERM --kill-after=5s 120s env \
+            CGO_ENABLED=0 \
+            CEF_RUNTIME_INTEGRATION=1 \
+            CEF_RUNTIME_LOG_DIR="$PWD/artifacts/cef-runtime" \
+            CEF_DIR="${CEF_DIR:?CEF_DIR must point to the provisioned CEF runtime}" \
+            go test -count=1 -v -tags=cef_integration \
+              -run '^TestAcceleratedSharedTextureOSRAndShutdown$' \
+              -timeout=105s ./integration 2>&1 | tee artifacts/cef-runtime/go-test.log
+      - name: Upload CEF runtime logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cef-runtime-integration-logs
+          path: artifacts/cef-runtime
+          if-no-files-found: warn
