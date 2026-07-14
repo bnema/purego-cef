@@ -1,0 +1,10 @@
+[324721:324721:0714/084046.266800:WARNING:ui/ozone/platform/wayland/common/wayland_object.cc:119] Binding to wl_shm version 1 but version 2 is available.
+[324721:324721:0714/084046.266826:WARNING:ui/ozone/platform/wayland/common/wayland_object.cc:119] Binding to zwp_pointer_gestures_v1 version 1 but version 3 is available.
+[324721:324721:0714/084046.266868:WARNING:ui/ozone/platform/wayland/common/wayland_object.cc:119] Binding to wp_cursor_shape_manager_v1 version 1 but version 2 is available.
+[324721:324721:0714/084046.266874:WARNING:ui/ozone/platform/wayland/common/wayland_object.cc:119] Binding to zwp_linux_dmabuf_v1 version 4 but version 5 is available.
+[324721:324721:0714/084046.331183:WARNING:chrome/browser/signin/account_consistency_mode_manager.cc:74] Desktop Identity Consistency cannot be enabled as no OAuth client ID and client secret have been configured.
+[324721:324721:0714/084046.355763:WARNING:ui/ozone/platform/wayland/host/org_gnome_mutter_idle_monitor.cc:87] org.gnome.Mutter.IdleMonitor D-Bus service does not exist
+[324774:324774:0714/084046.368816:WARNING:sandbox/policy/linux/sandbox_linux.cc:405] InitializeSandbox() called with multiple threads in process gpu-process.
+[324825:324825:0714/084046.375570:WARNING:chrome/app/chrome_main_delegate.cc:286] process type 'renderer' should be created through the zygote.
+[324853:324856:0714/084046.381879:WARNING:chrome/app/chrome_main_delegate.cc:286] process type 'renderer' should be created through the zygote.
+[324721:324721:0714/084046.383090:WARNING:ui/base/idle/idle_linux.cc:111] None of the known D-Bus ScreenSaver services could be used.

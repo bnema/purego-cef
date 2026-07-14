@@ -1,0 +1,4 @@
+=== RUN   TestIntegrationAppDisablesZygote
+--- PASS: TestIntegrationAppDisablesZygote (0.00s)
+PASS
+ok  	github.com/bnema/purego-cef/integration	0.002s

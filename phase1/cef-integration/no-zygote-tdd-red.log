@@ -1,0 +1,4 @@
+# github.com/bnema/purego-cef/integration [github.com/bnema/purego-cef/integration.test]
+integration/offscreen_browser_test.go:135:2: undefined: newIntegrationApp
+FAIL	github.com/bnema/purego-cef/integration [build failed]
+FAIL

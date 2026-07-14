@@ -1,0 +1,6 @@
+=== RUN   TestAcceleratedSharedTextureOSRAndShutdown
+[0714/083944.141241:WARNING:cef/libcef/common/resource_util.cc:83] Please customize CefSettings.root_cache_path for your application. Use of the default value may lead to unintended process singleton behavior.
+WARNING: radv is not a conformant Vulkan implementation, testing use only.
+--- PASS: TestAcceleratedSharedTextureOSRAndShutdown (0.23s)
+PASS
+ok  	github.com/bnema/purego-cef/integration	0.236s

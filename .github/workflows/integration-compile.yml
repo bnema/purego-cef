@@ -1,0 +1,19 @@
+name: Integration Compile
+
+on:
+  push:
+    branches: [next]
+  pull_request:
+    branches: [next]
+
+jobs:
+  tagged-suite:
+    name: Tagged suite (no CEF runtime)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Compile tagged integration suite
+        run: CGO_ENABLED=0 go test -count=1 -run '^$' -tags=cef_integration ./integration
