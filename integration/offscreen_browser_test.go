@@ -3,10 +3,42 @@
 package integration
 
 import (
+	"fmt"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/bnema/purego-cef/cef"
 )
+
+// TestMain lets CEF helper processes run before testing.M parses their
+// Chromium-only --type argument. Normal tagged suite invocations never load
+// CEF here, so the compile-only workflow remains runtime-free.
+func TestMain(m *testing.M) {
+	if hasCEFSubprocessType(os.Args[1:]) {
+		executed, exitCode, err := cef.ExecuteSubprocess()
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "cef.ExecuteSubprocess: %v\n", err)
+			os.Exit(1)
+		}
+		if !executed {
+			_, _ = fmt.Fprintln(os.Stderr, "cef.ExecuteSubprocess did not handle CEF helper process")
+			os.Exit(1)
+		}
+		os.Exit(exitCode)
+	}
+
+	os.Exit(m.Run())
+}
+
+func hasCEFSubprocessType(args []string) bool {
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--type=") {
+			return true
+		}
+	}
+	return false
+}
 
 // testClient is a minimal Client implementation that returns nil for all
 // sub-handlers except the configured render and life span handlers.
@@ -94,6 +126,25 @@ func (h *testRenderHandler) OnImeCompositionRangeChanged(browser cef.Browser, se
 func (h *testRenderHandler) OnTextSelectionChanged(browser cef.Browser, selectedText string, selectedRange *cef.Range) {
 }
 func (h *testRenderHandler) OnVirtualKeyboardRequested(browser cef.Browser, inputMode cef.TextInputMode) {
+}
+
+func TestHasCEFSubprocessType(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		args []string
+		want bool
+	}{
+		{name: "renderer", args: []string{"--type=renderer"}, want: true},
+		{name: "helper with test flags", args: []string{"-test.run=Test", "--type=utility"}, want: true},
+		{name: "browser process", args: []string{"-test.run=TestAPICompiles"}},
+		{name: "unrelated type prefix", args: []string{"--types=renderer"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := hasCEFSubprocessType(tc.args); got != tc.want {
+				t.Fatalf("hasCEFSubprocessType(%q) = %t, want %t", tc.args, got, tc.want)
+			}
+		})
+	}
 }
 
 // TestAPICompiles verifies runtime-free settings behavior. Interface assertions

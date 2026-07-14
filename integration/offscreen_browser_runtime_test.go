@@ -57,25 +57,13 @@ func TestAcceleratedSharedTextureOSRAndShutdown(t *testing.T) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 
-	// CEF child processes re-enter this test binary. Exit them before starting
-	// the browser-process test body.
-	executed, exitCode, err := cef.ExecuteSubprocess()
-	if err != nil {
-		t.Fatalf("cef.ExecuteSubprocess: %v", err)
-	}
-	if executed {
-		if exitCode != 0 {
-			t.Fatalf("CEF subprocess exit code = %d, want 0", exitCode)
-		}
-		return
-	}
-
 	settings := cef.DefaultSettings()
 	settings.CEFDir = os.Getenv("CEF_DIR")
-	settings.BrowserSubprocessPath, err = os.Executable()
+	subprocessPath, err := os.Executable()
 	if err != nil {
 		t.Fatalf("os.Executable: %v", err)
 	}
+	settings.BrowserSubprocessPath = subprocessPath
 	settings.LogFile = runtimeLogFile(t)
 	if err := cef.Init(settings); err != nil {
 		t.Fatalf("cef.Init: %v", err)
