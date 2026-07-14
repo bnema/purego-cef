@@ -13,7 +13,89 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Prepare runtime logs
-        run: mkdir -p artifacts/cef-runtime
+        run: mkdir -p artifacts/cef-runtime/metadata
+      - name: Capture CEF runtime and GPU provenance
+        if: always()
+        shell: bash
+        run: |
+          set -uo pipefail
+          metadata=artifacts/cef-runtime/metadata
+          libcef="${CEF_DIR:-}/libcef.so"
+          {
+            date --iso-8601=seconds
+            printf 'CEF_DIR=%s\n' "${CEF_DIR:-<unset>}"
+            uname -a
+            test -r /etc/os-release && cat /etc/os-release || true
+            if [[ -f "$libcef" ]]; then
+              printf '\nlibcef path and digest:\n'
+              realpath "$libcef"
+              sha256sum "$libcef"
+              printf '\nlibcef ELF identity:\n'
+              readelf -n "$libcef" || true
+              printf '\nlibcef version:\n'
+              python3 - "$libcef" <<'PY' || true
+          import ctypes
+          import sys
+
+          libcef = ctypes.CDLL(sys.argv[1])
+          version_info = libcef.cef_version_info
+          version_info.argtypes = [ctypes.c_int]
+          version_info.restype = ctypes.c_int
+          print("%d.%d.%d.%d" % tuple(version_info(i) for i in range(4)))
+          PY
+            else
+              echo "libcef unavailable: CEF_DIR is unset or libcef.so is missing"
+            fi
+          } > "$metadata/runtime-identity.txt" 2>&1
+
+          capture_optional() {
+            local name=$1
+            shift
+            if command -v "$1" >/dev/null 2>&1; then
+              "$@" > "$metadata/$name.txt" 2>&1 || echo "$1 exited non-zero" >> "$metadata/$name.txt"
+            else
+              echo "$1 unavailable on this runner" > "$metadata/$name.txt"
+            fi
+          }
+          capture_optional lspci lspci -nnk
+          capture_optional vulkaninfo vulkaninfo --summary
+          capture_optional glxinfo glxinfo -B
+      - name: Validate provisioned CEF runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${CEF_DIR:?CEF_DIR must point to the provisioned CEF runtime}"
+          libcef="$CEF_DIR/libcef.so"
+          test -f "$libcef"
+          required_major="${CEF_REQUIRED_MAJOR:-147}"
+          expected_build="${CEF_EXPECTED_BUILD:-}"
+          if ! [[ "$required_major" =~ ^[0-9]+$ ]] || (( required_major < 147 )); then
+            echo "CEF_REQUIRED_MAJOR must be an integer of at least 147" >&2
+            exit 1
+          fi
+          runtime_version="$(python3 - "$libcef" <<'PY'
+          import ctypes
+          import sys
+
+          libcef = ctypes.CDLL(sys.argv[1])
+          version_info = libcef.cef_version_info
+          version_info.argtypes = [ctypes.c_int]
+          version_info.restype = ctypes.c_int
+          print("%d.%d.%d.%d" % tuple(version_info(i) for i in range(4)))
+          PY
+          )"
+          IFS=. read -r cef_major _ <<< "$runtime_version"
+          [[ "$cef_major" =~ ^[0-9]+$ ]] || { echo "invalid libcef version: $runtime_version" >&2; exit 1; }
+          (( cef_major >= required_major )) || {
+            echo "libcef $runtime_version is older than required CEF $required_major" >&2
+            exit 1
+          }
+          if [[ -n "$expected_build" && "$runtime_version" != "$expected_build" ]]; then
+            echo "libcef $runtime_version does not match CEF_EXPECTED_BUILD=$expected_build" >&2
+            exit 1
+          fi
+          printf 'validated libcef=%s (required major=%s, expected build=%s)\n' \
+            "$runtime_version" "$required_major" "${expected_build:-any}"
       - name: Run bounded CEF OSR integration test
         shell: bash
         run: |
@@ -26,7 +108,7 @@ jobs:
             go test -count=1 -v -tags=cef_integration \
               -run '^TestAcceleratedSharedTextureOSRAndShutdown$' \
               -timeout=105s ./integration 2>&1 | tee artifacts/cef-runtime/go-test.log
-      - name: Upload CEF runtime logs
+      - name: Upload CEF runtime logs and provenance
         if: always()
         uses: actions/upload-artifact@v4
         with:

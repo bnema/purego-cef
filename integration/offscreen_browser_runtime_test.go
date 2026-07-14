@@ -3,6 +3,7 @@
 package integration
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -68,7 +69,8 @@ func TestAcceleratedSharedTextureOSRAndShutdown(t *testing.T) {
 	if err := cef.InitWithApp(settings, newIntegrationApp()); err != nil {
 		t.Fatalf("cef.Init: %v", err)
 	}
-	defer cef.Shutdown()
+	cleanup := newRuntimeCleanup(cef.Shutdown, cef.DoMessageLoopWork)
+	defer cleanup.closeAndShutdown()
 
 	render := &testRenderHandler{
 		painted:     make(chan struct{}, 1),
@@ -94,54 +96,55 @@ func TestAcceleratedSharedTextureOSRAndShutdown(t *testing.T) {
 	}
 
 	var browser cef.Browser
-	pumpUntil(t, browserCreationTimeout, "browser creation", func() bool {
+	if err := waitFor(browserCreationTimeout, "browser creation", func() bool {
 		select {
 		case browser = <-lifeSpan.created:
 			return browser != nil
 		default:
 			return false
 		}
-	})
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+	cleanup.browserCreated = true
+	cleanup.onBeforeClose = lifeSpan.closed
+	cleanup.closeBrowser = func() {
+		if host := browser.GetHost(); host != nil {
+			host.CloseBrowser(1)
+		}
+	}
 
 	host := browser.GetHost()
 	if host == nil {
-		t.Fatal("created browser has no host")
+		t.Error("created browser has no host")
+		return
 	}
 	host.WasResized()
 	host.Invalidate(cef.PaintElementTypePetView)
 
-	pumpUntil(t, acceleratedPaintTimeout, "accelerated shared-texture paint", func() bool {
+	if err := waitFor(acceleratedPaintTimeout, "accelerated shared-texture paint", func() bool {
 		select {
 		case <-render.accelerated:
 			return true
 		default:
 			return false
 		}
-	})
-
-	host.CloseBrowser(1)
-	pumpUntil(t, shutdownTimeout, "browser close", func() bool {
-		select {
-		case <-lifeSpan.closed:
-			return true
-		default:
-			return false
-		}
-	})
-
-	cef.Shutdown()
+	}); err != nil {
+		t.Error(err)
+	}
 }
 
-func pumpUntil(t *testing.T, timeout time.Duration, event string, done func() bool) {
-	t.Helper()
+func waitFor(timeout time.Duration, event string, done func() bool) error {
 	deadline := time.Now().Add(timeout)
 	for !done() {
 		if time.Now().After(deadline) {
-			t.Fatalf("timed out after %s waiting for %s", timeout, event)
+			return fmt.Errorf("timed out after %s waiting for %s", timeout, event)
 		}
 		cef.DoMessageLoopWork()
 		time.Sleep(10 * time.Millisecond)
 	}
+	return nil
 }
 
 func runtimeLogFile(t *testing.T) string {
