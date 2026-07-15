@@ -390,10 +390,10 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			var b strings.Builder
 			fmt.Fprintf(&b, "var %s []%s\n", p.Name, elemType)
 			fmt.Fprintf(&b, "\t\tif %s != 0 && %s > 0 {\n", ptrArg, countArg)
-			fmt.Fprintf(&b, "\t\t\t%sPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(%s)), int(%s))\n", p.Name, ptrArg, countArg)
+			fmt.Fprintf(&b, "\t\t\t%sPtrs := unsafe.Slice((*uintptr)(cefCallbackPointer(%s)), int(%s))\n", p.Name, ptrArg, countArg)
 			fmt.Fprintf(&b, "\t\t\t%s = make([]%s, int(%s))\n", p.Name, elemType, countArg)
 			fmt.Fprintf(&b, "\t\t\tfor i, ptr := range %sPtrs {\n", p.Name)
-			fmt.Fprintf(&b, "\t\t\t\t%s[i] = wrap%s(unsafe.Pointer(ptr))\n", p.Name, elemType)
+			fmt.Fprintf(&b, "\t\t\t\t%s[i] = wrap%s(cefCallbackPointer(ptr))\n", p.Name, elemType)
 			fmt.Fprintf(&b, "\t\t\t}\n")
 			fmt.Fprintf(&b, "\t\t}")
 			return b.String()
@@ -403,9 +403,9 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			switch p.MarshalKind {
 			case "interface":
 				if p.PublicType == "unsafe.Pointer" {
-					return "unsafe.Pointer(" + rawName + ")"
+					return "cefCallbackPointer(" + rawName + ")"
 				}
-				return wrapFuncName(p.PublicType) + "(unsafe.Pointer(" + rawName + "))"
+				return wrapFuncName(p.PublicType) + "(cefCallbackPointer(" + rawName + "))"
 			case "string":
 				return "goString(unsafe.Pointer(" + rawName + "))"
 			case "userfreeString":
