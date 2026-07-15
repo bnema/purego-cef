@@ -1039,8 +1039,11 @@ func TestEmitV8HandlerExecuteArgumentsObjectSlice(t *testing.T) {
 	}
 
 	checks := []string{
-		"argumentsPtrs := unsafe.Slice((*uintptr)(unsafe.Pointer(arg3)), int(arg2))",
-		"arguments[i] = wrapV8Value(unsafe.Pointer(ptr))",
+		// uintptr callback arguments may represent Go-backed test registrars. Keep
+		// their conversion in the runtime's narrowly scoped nocheckptr bridge.
+		"object := wrapV8Value(cefCallbackPointer(arg1))",
+		"argumentsPtrs := unsafe.Slice((*uintptr)(cefCallbackPointer(arg3)), int(arg2))",
+		"arguments[i] = wrapV8Value(cefCallbackPointer(ptr))",
 		"return uintptr(impl.Execute(name, object, arguments, retval, exception))",
 	}
 	for _, want := range checks {
