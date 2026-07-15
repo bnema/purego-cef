@@ -2,6 +2,7 @@ package cef
 
 import (
 	"strings"
+	"sync"
 	"testing"
 	"unsafe"
 
@@ -317,4 +318,165 @@ func TestAudioHandlerWrapperOnAudioStreamPacketPanics(t *testing.T) {
 	}()
 
 	w.OnAudioStreamPacket(nil, nil, 0, 0)
+}
+
+type callbackOwnerPrimary struct{}
+type callbackOwnerWrongType struct{}
+
+func withCallbackOwnerRegistry(t testing.TB, fn func()) {
+	t.Helper()
+	refManagerMu.Lock()
+	previous := registeredRefManagers
+	registeredRefManagers = nil
+	refManagerMu.Unlock()
+	t.Cleanup(func() {
+		refManagerMu.Lock()
+		registeredRefManagers = previous
+		refManagerMu.Unlock()
+	})
+	fn()
+}
+
+func newCallbackOwnerTestRefManager(t *testing.T) *core.RefManager {
+	return newBridgeTestEngine(t).Refs()
+}
+
+func TestCEFCallbackOwnerAsSteadyStateDoesNotAllocate(t *testing.T) {
+	rm := newCallbackOwnerTestRefManager(t)
+	base := &capi.CEFClientT{}
+	owner := &callbackOwnerPrimary{}
+	rm.InitRefCount(unsafe.Pointer(base), unsafe.Sizeof(*base), owner)
+
+	withCallbackOwnerRegistry(t, func() {
+		registerRefManager(rm)
+		self := uintptr(unsafe.Pointer(base))
+		allocs := testing.AllocsPerRun(100, func() {
+			got, ok := cefCallbackOwnerAs[*callbackOwnerPrimary](self)
+			if !ok || got != owner {
+				panic("cef callback owner lookup failed")
+			}
+			callbackOwnerBenchmarkSink = got
+		})
+		if allocs != 0 {
+			t.Fatalf("cefCallbackOwnerAs steady-state allocations = %g, want 0", allocs)
+		}
+	})
+}
+
+func TestCEFCallbackOwnerAsUsesLatestRegisteredOwnerAndFallsBackAfterUnregister(t *testing.T) {
+	first := newCallbackOwnerTestRefManager(t)
+	replacement := newCallbackOwnerTestRefManager(t)
+	base := &capi.CEFClientT{}
+	primaryOwner := &callbackOwnerPrimary{}
+	replacementOwner := &callbackOwnerPrimary{}
+	first.InitRefCount(unsafe.Pointer(base), unsafe.Sizeof(*base), primaryOwner)
+	replacement.InitRefCount(unsafe.Pointer(base), unsafe.Sizeof(*base), replacementOwner)
+
+	withCallbackOwnerRegistry(t, func() {
+		registerRefManager(first)
+		registerRefManager(replacement)
+
+		got, ok := cefCallbackOwnerAs[*callbackOwnerPrimary](uintptr(unsafe.Pointer(base)))
+		if !ok || got != replacementOwner {
+			t.Fatalf("replacement lookup = (%p, %t), want (%p, true)", got, ok, replacementOwner)
+		}
+
+		unregisterRefManager(replacement)
+		got, ok = cefCallbackOwnerAs[*callbackOwnerPrimary](uintptr(unsafe.Pointer(base)))
+		if !ok || got != primaryOwner {
+			t.Fatalf("fallback lookup = (%p, %t), want (%p, true)", got, ok, primaryOwner)
+		}
+	})
+}
+
+func TestCEFCallbackOwnerAsRejectsZeroAndWrongType(t *testing.T) {
+	if got, ok := cefCallbackOwnerAs[*callbackOwnerPrimary](0); ok || got != nil {
+		t.Fatalf("zero lookup = (%p, %t), want (nil, false)", got, ok)
+	}
+
+	rm := newCallbackOwnerTestRefManager(t)
+	base := &capi.CEFClientT{}
+	rm.InitRefCount(unsafe.Pointer(base), unsafe.Sizeof(*base), &callbackOwnerWrongType{})
+	withCallbackOwnerRegistry(t, func() {
+		registerRefManager(rm)
+		if got, ok := cefCallbackOwnerAs[*callbackOwnerPrimary](uintptr(unsafe.Pointer(base))); ok || got != nil {
+			t.Fatalf("wrong-type lookup = (%p, %t), want (nil, false)", got, ok)
+		}
+	})
+}
+
+func TestCEFCallbackOwnerAsLookupIsControlledAcrossReplacementAndUnregister(t *testing.T) {
+	first := newCallbackOwnerTestRefManager(t)
+	replacement := newCallbackOwnerTestRefManager(t)
+	base := &capi.CEFClientT{}
+	primaryOwner := &callbackOwnerPrimary{}
+	replacementOwner := &callbackOwnerPrimary{}
+	first.InitRefCount(unsafe.Pointer(base), unsafe.Sizeof(*base), primaryOwner)
+	replacement.InitRefCount(unsafe.Pointer(base), unsafe.Sizeof(*base), replacementOwner)
+
+	withCallbackOwnerRegistry(t, func() {
+		registerRefManager(first)
+		requests := make(chan chan *callbackOwnerPrimary)
+		done := make(chan struct{})
+		go func() {
+			defer close(done)
+			for response := range requests {
+				owner, ok := cefCallbackOwnerAs[*callbackOwnerPrimary](uintptr(unsafe.Pointer(base)))
+				if !ok {
+					response <- nil
+					continue
+				}
+				response <- owner
+			}
+		}()
+		lookup := func() *callbackOwnerPrimary {
+			response := make(chan *callbackOwnerPrimary, 1)
+			requests <- response
+			return <-response
+		}
+
+		if got := lookup(); got != primaryOwner {
+			t.Fatalf("initial lookup = %p, want %p", got, primaryOwner)
+		}
+		registerRefManager(replacement)
+		if got := lookup(); got != replacementOwner {
+			t.Fatalf("replacement lookup = %p, want %p", got, replacementOwner)
+		}
+		unregisterRefManager(replacement)
+		if got := lookup(); got != primaryOwner {
+			t.Fatalf("unregister fallback lookup = %p, want %p", got, primaryOwner)
+		}
+		close(requests)
+		<-done
+	})
+}
+
+func TestCEFCallbackOwnerAsRacesWithRegistryReplacement(t *testing.T) {
+	first := newCallbackOwnerTestRefManager(t)
+	replacement := newCallbackOwnerTestRefManager(t)
+	base := &capi.CEFClientT{}
+	primaryOwner := &callbackOwnerPrimary{}
+	replacementOwner := &callbackOwnerPrimary{}
+	first.InitRefCount(unsafe.Pointer(base), unsafe.Sizeof(*base), primaryOwner)
+	replacement.InitRefCount(unsafe.Pointer(base), unsafe.Sizeof(*base), replacementOwner)
+
+	withCallbackOwnerRegistry(t, func() {
+		registerRefManager(first)
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for range 500 {
+				registerRefManager(replacement)
+				unregisterRefManager(replacement)
+			}
+		}()
+		for range 500 {
+			got, ok := cefCallbackOwnerAs[*callbackOwnerPrimary](uintptr(unsafe.Pointer(base)))
+			if !ok || (got != primaryOwner && got != replacementOwner) {
+				t.Fatalf("concurrent lookup = (%p, %t), want either registered owner", got, ok)
+			}
+		}
+		wg.Wait()
+	})
 }
