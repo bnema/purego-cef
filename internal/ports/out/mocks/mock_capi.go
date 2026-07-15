@@ -96,7 +96,7 @@ type MockCAPI_ExecuteProcess_Call struct {
 //   - args unsafe.Pointer
 //   - application unsafe.Pointer
 //   - windowsSandboxInfo unsafe.Pointer
-func (_e *MockCAPI_Expecter) ExecuteProcess(args interface{}, application interface{}, windowsSandboxInfo interface{}) *MockCAPI_ExecuteProcess_Call {
+func (_e *MockCAPI_Expecter) ExecuteProcess(args any, application any, windowsSandboxInfo any) *MockCAPI_ExecuteProcess_Call {
 	return &MockCAPI_ExecuteProcess_Call{Call: _e.mock.On("ExecuteProcess", args, application, windowsSandboxInfo)}
 }
 
@@ -204,7 +204,7 @@ type MockCAPI_Initialize_Call struct {
 //   - settings unsafe.Pointer
 //   - application unsafe.Pointer
 //   - windowsSandboxInfo unsafe.Pointer
-func (_e *MockCAPI_Expecter) Initialize(args interface{}, settings interface{}, application interface{}, windowsSandboxInfo interface{}) *MockCAPI_Initialize_Call {
+func (_e *MockCAPI_Expecter) Initialize(args any, settings any, application any, windowsSandboxInfo any) *MockCAPI_Initialize_Call {
 	return &MockCAPI_Initialize_Call{Call: _e.mock.On("Initialize", args, settings, application, windowsSandboxInfo)}
 }
 
@@ -270,7 +270,7 @@ type MockCAPI_NewCallback_Call struct {
 
 // NewCallback is a helper method to define mock.On call
 //   - fn any
-func (_e *MockCAPI_Expecter) NewCallback(fn interface{}) *MockCAPI_NewCallback_Call {
+func (_e *MockCAPI_Expecter) NewCallback(fn any) *MockCAPI_NewCallback_Call {
 	return &MockCAPI_NewCallback_Call{Call: _e.mock.On("NewCallback", fn)}
 }
 
@@ -376,7 +376,7 @@ type MockCAPI_SetNestableTasksAllowed_Call struct {
 
 // SetNestableTasksAllowed is a helper method to define mock.On call
 //   - allowed unsafe.Pointer
-func (_e *MockCAPI_Expecter) SetNestableTasksAllowed(allowed interface{}) *MockCAPI_SetNestableTasksAllowed_Call {
+func (_e *MockCAPI_Expecter) SetNestableTasksAllowed(allowed any) *MockCAPI_SetNestableTasksAllowed_Call {
 	return &MockCAPI_SetNestableTasksAllowed_Call{Call: _e.mock.On("SetNestableTasksAllowed", allowed)}
 }
 
@@ -449,7 +449,7 @@ type MockCAPI_StringClear_Call struct {
 
 // StringClear is a helper method to define mock.On call
 //   - s unsafe.Pointer
-func (_e *MockCAPI_Expecter) StringClear(s interface{}) *MockCAPI_StringClear_Call {
+func (_e *MockCAPI_Expecter) StringClear(s any) *MockCAPI_StringClear_Call {
 	return &MockCAPI_StringClear_Call{Call: _e.mock.On("StringClear", s)}
 }
 
@@ -534,7 +534,7 @@ type MockCAPI_StringListAppend_Call struct {
 // StringListAppend is a helper method to define mock.On call
 //   - list uintptr
 //   - value unsafe.Pointer
-func (_e *MockCAPI_Expecter) StringListAppend(list interface{}, value interface{}) *MockCAPI_StringListAppend_Call {
+func (_e *MockCAPI_Expecter) StringListAppend(list any, value any) *MockCAPI_StringListAppend_Call {
 	return &MockCAPI_StringListAppend_Call{Call: _e.mock.On("StringListAppend", list, value)}
 }
 
@@ -579,7 +579,7 @@ type MockCAPI_StringListFree_Call struct {
 
 // StringListFree is a helper method to define mock.On call
 //   - list uintptr
-func (_e *MockCAPI_Expecter) StringListFree(list interface{}) *MockCAPI_StringListFree_Call {
+func (_e *MockCAPI_Expecter) StringListFree(list any) *MockCAPI_StringListFree_Call {
 	return &MockCAPI_StringListFree_Call{Call: _e.mock.On("StringListFree", list)}
 }
 
@@ -630,7 +630,7 @@ type MockCAPI_StringListSize_Call struct {
 
 // StringListSize is a helper method to define mock.On call
 //   - list uintptr
-func (_e *MockCAPI_Expecter) StringListSize(list interface{}) *MockCAPI_StringListSize_Call {
+func (_e *MockCAPI_Expecter) StringListSize(list any) *MockCAPI_StringListSize_Call {
 	return &MockCAPI_StringListSize_Call{Call: _e.mock.On("StringListSize", list)}
 }
 
@@ -683,7 +683,7 @@ type MockCAPI_StringListValue_Call struct {
 //   - list uintptr
 //   - index uintptr
 //   - value unsafe.Pointer
-func (_e *MockCAPI_Expecter) StringListValue(list interface{}, index interface{}, value interface{}) *MockCAPI_StringListValue_Call {
+func (_e *MockCAPI_Expecter) StringListValue(list any, index any, value any) *MockCAPI_StringListValue_Call {
 	return &MockCAPI_StringListValue_Call{Call: _e.mock.On("StringListValue", list, index, value)}
 }
 
@@ -747,7 +747,7 @@ type MockCAPI_StringSet_Call struct {
 //   - srcLen uintptr
 //   - output unsafe.Pointer
 //   - copy int32
-func (_e *MockCAPI_Expecter) StringSet(src interface{}, srcLen interface{}, output interface{}, copy interface{}) *MockCAPI_StringSet_Call {
+func (_e *MockCAPI_Expecter) StringSet(src any, srcLen any, output any, copy any) *MockCAPI_StringSet_Call {
 	return &MockCAPI_StringSet_Call{Call: _e.mock.On("StringSet", src, srcLen, output, copy)}
 }
 
@@ -802,7 +802,7 @@ type MockCAPI_StringUserfreeFree_Call struct {
 
 // StringUserfreeFree is a helper method to define mock.On call
 //   - s unsafe.Pointer
-func (_e *MockCAPI_Expecter) StringUserfreeFree(s interface{}) *MockCAPI_StringUserfreeFree_Call {
+func (_e *MockCAPI_Expecter) StringUserfreeFree(s any) *MockCAPI_StringUserfreeFree_Call {
 	return &MockCAPI_StringUserfreeFree_Call{Call: _e.mock.On("StringUserfreeFree", s)}
 }
 
@@ -853,7 +853,7 @@ type MockCAPI_UnrefCallback_Call struct {
 
 // UnrefCallback is a helper method to define mock.On call
 //   - cb uintptr
-func (_e *MockCAPI_Expecter) UnrefCallback(cb interface{}) *MockCAPI_UnrefCallback_Call {
+func (_e *MockCAPI_Expecter) UnrefCallback(cb any) *MockCAPI_UnrefCallback_Call {
 	return &MockCAPI_UnrefCallback_Call{Call: _e.mock.On("UnrefCallback", cb)}
 }
 
