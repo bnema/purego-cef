@@ -103,6 +103,19 @@ func wrapMediaRouter(ptr unsafe.Pointer) MediaRouter {
 	return impl
 }
 
+// takeMediaRouter adopts a CEF MediaRouter pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapMediaRouter it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeMediaRouter(ptr unsafe.Pointer) MediaRouter {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFMediaRouterT)(ptr)
+	impl := &mediaRouterImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*mediaRouterImpl).Release)
+	return impl
+}
+
 // MediaObserver Implemented by the client to observe MediaRouter events and registered via cef_media_router_t::AddObserver. The functions of this structure will be called on the browser process UI thread.
 type MediaObserver = portin.MediaObserver
 
@@ -754,5 +767,5 @@ func wrapMediaSource(ptr unsafe.Pointer) MediaSource {
 // MediaRouterGetGlobal Returns the MediaRouter object associated with the global request context. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the manager's storage has been initialized. Equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >get_media_router().
 func MediaRouterGetGlobal(callback CompletionCallback) MediaRouter {
 	ret := capi.CEFMediaRouterGetGlobal(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) }))
-	return wrapMediaRouter(ret)
+	return takeMediaRouter(ret)
 }

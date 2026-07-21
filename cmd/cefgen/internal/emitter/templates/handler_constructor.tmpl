@@ -255,5 +255,20 @@ func {{wrapFuncName .Name}}(ptr unsafe.Pointer) {{.Name}} {
 	runtime.SetFinalizer(impl, (*{{lower .Name}}Impl).Release)
 	return impl
 }
+{{if .NeedsTake}}
+// {{takeFuncName .Name}} adopts a CEF {{.Name}} pointer whose reference is already
+// owned by the caller (as returned by a global factory function). Unlike
+// {{wrapFuncName .Name}} it does NOT call AddRef, because the C API already
+// transferred one reference to us.
+func {{takeFuncName .Name}}(ptr unsafe.Pointer) {{.Name}} {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.{{.RawGoName}})(ptr)
+	impl := &{{lower .Name}}Impl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*{{lower .Name}}Impl).Release)
+	return impl
+}
+{{end}}
 {{end}}
 {{end}}

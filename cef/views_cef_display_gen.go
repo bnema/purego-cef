@@ -130,22 +130,35 @@ func wrapDisplay(ptr unsafe.Pointer) Display {
 	return impl
 }
 
+// takeDisplay adopts a CEF Display pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapDisplay it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeDisplay(ptr unsafe.Pointer) Display {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFDisplayT)(ptr)
+	impl := &displayImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*displayImpl).Release)
+	return impl
+}
+
 // DisplayGetPrimary Returns the primary Display.
 func DisplayGetPrimary() Display {
 	ret := capi.CEFDisplayGetPrimary()
-	return wrapDisplay(ret)
+	return takeDisplay(ret)
 }
 
 // DisplayGetNearestPoint Returns the Display nearest |point|. Set |input_pixel_coords| to true (1) if |point| is in pixel screen coordinates instead of DIP screen coordinates.
 func DisplayGetNearestPoint(point *Point, inputPixelCoords int32) Display {
 	ret := capi.CEFDisplayGetNearestPoint(unsafe.Pointer(point), inputPixelCoords)
-	return wrapDisplay(ret)
+	return takeDisplay(ret)
 }
 
 // DisplayGetMatchingBounds Returns the Display that most closely intersects |bounds|.  Set |input_pixel_coords| to true (1) if |bounds| is in pixel screen coordinates instead of DIP screen coordinates.
 func DisplayGetMatchingBounds(bounds *Rect, inputPixelCoords int32) Display {
 	ret := capi.CEFDisplayGetMatchingBounds(unsafe.Pointer(bounds), inputPixelCoords)
-	return wrapDisplay(ret)
+	return takeDisplay(ret)
 }
 
 // DisplayGetCount Returns the total number of Displays. Mirrored displays are excluded; this function is intended to return the number of distinct, usable displays.

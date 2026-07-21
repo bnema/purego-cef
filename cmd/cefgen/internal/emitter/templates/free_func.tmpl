@@ -1,6 +1,11 @@
 {{define "free_func.tmpl"}}
 {{- if .Doc}}// {{.Name}} {{.Doc}}{{else}}// {{.Name}} wraps the CEF {{.RawGoName}} function.{{end}}
 func {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+	{{- range .Params}}{{if .NeedsSizeGuard}}
+	if {{.Name}} < 0 {
+		return{{if not $.Return.IsVoid}} {{zeroReturn $.Return}}{{end}}
+	}
+	{{- end}}{{end}}
 	{{- range .Params}}{{with marshalPreamble .}}
 	{{.}}
 	{{- end}}{{end}}
@@ -21,7 +26,7 @@ func {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.Pub
 		{{- else if .Return.IsString}}
 	return goStringUserfree(unsafe.Pointer(ret))
 		{{- else if .Return.IsInterface}}
-	return {{wrapFuncName .Return.PublicType}}(ret)
+	return {{if .Return.UseTake}}{{takeFuncName .Return.PublicType}}{{else}}{{wrapFuncName .Return.PublicType}}{{end}}(ret)
 		{{- else if .Return.IsNumeric}}
 	return {{.Return.PublicType}}(ret)
 		{{- else if .Return.IsPointer}}

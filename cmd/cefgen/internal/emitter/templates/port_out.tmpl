@@ -21,7 +21,7 @@ type {{.Name}} interface {
 // {{.HeaderStem}}Functions defines the outbound port for {{.HeaderStem}} free functions.
 type {{.HeaderStem}}Functions interface {
 {{- range .FreeFunctions}}
-	{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} unsafe.Pointer{{end}}){{if not .Return.IsVoid}} {{if .Return.IsNumeric}}{{.Return.PublicType}}{{else}}unsafe.Pointer{{end}}{{end}}
+	{{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PortParamType}}{{end}}){{if not .Return.IsVoid}} {{if .Return.IsNumeric}}{{.Return.PublicType}}{{else}}unsafe.Pointer{{end}}{{end}}
 {{- end}}
 }
 {{end}}

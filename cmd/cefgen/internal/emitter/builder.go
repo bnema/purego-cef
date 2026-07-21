@@ -165,22 +165,30 @@ func buildFileData(header *model.Header, registry *TypeRegistry, applySkip bool)
 	return data
 }
 
-func buildInterface(s *model.Struct, registry *TypeRegistry) InterfaceData {
-	// Detect scoped types by checking the base field type.
-	isScoped := false
+// isScopedStruct reports whether an interface struct is scoped (its base field
+// is cef_base_scoped_t rather than cef_base_ref_counted_t).
+func isScopedStruct(s *model.Struct) bool {
 	for _, f := range s.Fields {
 		if strings.EqualFold(f.CName, "base") && strings.Contains(f.CType, "cef_base_scoped_t") {
-			isScoped = true
-			break
+			return true
 		}
 	}
+	return false
+}
+
+func buildInterface(s *model.Struct, registry *TypeRegistry) InterfaceData {
+	isScoped := isScopedStruct(s)
+	name := publicTypeNameForCName(s.CName)
 
 	iface := InterfaceData{
-		Name:      publicTypeNameForCName(s.CName),
+		Name:      name,
 		Doc:       s.Doc,
 		Kind:      s.Kind,
 		IsScoped:  isScoped,
 		RawGoName: s.GoName,
+		// A takeX adopter is only needed for ref-counted interfaces that a global
+		// function hands back with ownership already transferred.
+		NeedsTake: registry.IsGlobalFactoryReturn(name),
 	}
 
 	for _, f := range s.Fields {
@@ -377,6 +385,9 @@ func buildFreeFunc(fn *model.Function, registry *TypeRegistry) FreeFuncData {
 			IsNumeric:   isNumericType(pubType),
 			IsPointer:   pubType == "unsafe.Pointer",
 			IsBool:      false, // free functions don't use bool heuristic
+			// A global function that returns a ref-counted interface transfers
+			// ownership of one reference; adopt it with takeX rather than wrapX.
+			UseTake: registry.IsGlobalFactoryReturn(pubType),
 		}
 	}
 

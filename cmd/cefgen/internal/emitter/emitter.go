@@ -36,6 +36,17 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			return "wrap" + typeName
 		}
 	}
+	// takeFuncName mirrors wrapFuncName for the ownership-adopting constructor.
+	takeFuncName := func(typeName string) string {
+		switch typeName {
+		case "RawAudioHandler":
+			return "takeAudioHandler"
+		case "RawLifeSpanHandler":
+			return "takeLifeSpanHandler"
+		default:
+			return "take" + typeName
+		}
+	}
 	interfaceRawPointerExpr := func(p ParamData) string {
 		if p.IsHandler {
 			return "extractOrWrapRawPointer(" + p.Name + ", func() any { return " + constructorName(p.PublicType) + "(" + p.Name + ") })"
@@ -84,6 +95,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 		// constructors in bridge.go, "NewX" for everything else.
 		"constructorName": constructorName,
 		"wrapFuncName":    wrapFuncName,
+		"takeFuncName":    takeFuncName,
 		"zeroVal": func(typ string) string {
 			switch typ {
 			case "bool":
