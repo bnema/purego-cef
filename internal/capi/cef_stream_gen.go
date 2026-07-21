@@ -251,8 +251,6 @@ func (v *CEFStreamWriterT) CallMayBlock(args ...uintptr) uintptr {
 
 var CEFStreamReaderCreateForFile func(Filename unsafe.Pointer) unsafe.Pointer
 
-var CEFStreamReaderCreateForData func(Data unsafe.Pointer, Size uintptr) unsafe.Pointer
-
 var CEFStreamReaderCreateForHandler func(Handler unsafe.Pointer) unsafe.Pointer
 
 var CEFStreamWriterCreateForFile func(Filename unsafe.Pointer) unsafe.Pointer
@@ -261,7 +259,6 @@ var CEFStreamWriterCreateForHandler func(Handler unsafe.Pointer) unsafe.Pointer
 
 func RegisterStream(handle uintptr) {
 	tryRegisterLibFunc(&CEFStreamReaderCreateForFile, handle, "cef_stream_reader_create_for_file")
-	tryRegisterLibFunc(&CEFStreamReaderCreateForData, handle, "cef_stream_reader_create_for_data")
 	tryRegisterLibFunc(&CEFStreamReaderCreateForHandler, handle, "cef_stream_reader_create_for_handler")
 	tryRegisterLibFunc(&CEFStreamWriterCreateForFile, handle, "cef_stream_writer_create_for_file")
 	tryRegisterLibFunc(&CEFStreamWriterCreateForHandler, handle, "cef_stream_writer_create_for_handler")

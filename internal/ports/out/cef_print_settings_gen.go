@@ -32,8 +32,3 @@ type PrintSettings interface {
 	SetDuplexMode(mode uintptr)
 	GetDuplexMode() uintptr
 }
-
-// PrintSettingsFunctions defines the outbound port for PrintSettings free functions.
-type PrintSettingsFunctions interface {
-	PrintSettingsCreate() unsafe.Pointer
-}

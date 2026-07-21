@@ -128,15 +128,9 @@ func mediaObserverOnSinksCEFCallback() uintptr {
 		if !ownerOK {
 			return
 		}
-		var sinks []MediaSink
-		if arg1 != 0 && arg0 > 0 {
-			sinksPtrs := unsafe.Slice((*uintptr)(cefCallbackPointer(arg1)), int(arg0))
-			sinks = make([]MediaSink, int(arg0))
-			for i, ptr := range sinksPtrs {
-				sinks[i] = wrapMediaSink(cefCallbackPointer(ptr))
-			}
-		}
-		impl.OnSinks(sinks)
+		sinkscount := int(arg0)
+		sinks := unsafe.Pointer(arg1)
+		impl.OnSinks(sinkscount, sinks)
 	})
 }
 
@@ -149,15 +143,9 @@ func mediaObserverOnRoutesCEFCallback() uintptr {
 		if !ownerOK {
 			return
 		}
-		var routes []MediaRoute
-		if arg1 != 0 && arg0 > 0 {
-			routesPtrs := unsafe.Slice((*uintptr)(cefCallbackPointer(arg1)), int(arg0))
-			routes = make([]MediaRoute, int(arg0))
-			for i, ptr := range routesPtrs {
-				routes[i] = wrapMediaRoute(cefCallbackPointer(ptr))
-			}
-		}
-		impl.OnRoutes(routes)
+		routescount := int(arg0)
+		routes := unsafe.Pointer(arg1)
+		impl.OnRoutes(routescount, routes)
 	})
 }
 
@@ -221,38 +209,20 @@ type mediaObserverImpl struct {
 	releaseOnce sync.Once
 }
 
-func (obj *mediaObserverImpl) OnSinks(sinks []MediaSink) {
+func (obj *mediaObserverImpl) OnSinks(sinkscount int, sinks unsafe.Pointer) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
 	rawPtr := obj.rawPtr
-	var sinksRaw []uintptr
-	var sinksPtr unsafe.Pointer
-	if len(sinks) > 0 {
-		sinksRaw = make([]uintptr, len(sinks))
-		for i, elem := range sinks {
-			sinksRaw[i] = uintptr(extractRawPointer(elem))
-		}
-		sinksPtr = unsafe.Pointer(&sinksRaw[0])
-	}
-	rawPtr.CallOnSinks(uintptr(len(sinks)), uintptr(sinksPtr))
+	rawPtr.CallOnSinks(uintptr(sinkscount), uintptr(sinks))
 }
 
-func (obj *mediaObserverImpl) OnRoutes(routes []MediaRoute) {
+func (obj *mediaObserverImpl) OnRoutes(routescount int, routes unsafe.Pointer) {
 	if obj == nil || obj.rawPtr == nil {
 		return
 	}
 	rawPtr := obj.rawPtr
-	var routesRaw []uintptr
-	var routesPtr unsafe.Pointer
-	if len(routes) > 0 {
-		routesRaw = make([]uintptr, len(routes))
-		for i, elem := range routes {
-			routesRaw[i] = uintptr(extractRawPointer(elem))
-		}
-		routesPtr = unsafe.Pointer(&routesRaw[0])
-	}
-	rawPtr.CallOnRoutes(uintptr(len(routes)), uintptr(routesPtr))
+	rawPtr.CallOnRoutes(uintptr(routescount), uintptr(routes))
 }
 
 func (obj *mediaObserverImpl) OnRouteStateChanged(route MediaRoute, state MediaRouteConnectionState) {

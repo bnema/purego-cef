@@ -10,6 +10,7 @@ import (
 	"unicode"
 
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
+	"github.com/bnema/purego-cef/internal/cefapi"
 )
 
 var (
@@ -21,20 +22,34 @@ var (
 
 // ParseFile reads a CEF capi header file and returns a parsed Header.
 func ParseFile(path string) (*model.Header, error) {
+	return ParseFileForAPI(path, cefapi.Version)
+}
+
+// ParseFileForAPI reads and parses a header for one explicit CEF API version.
+func ParseFileForAPI(path string, targetAPI int) (*model.Header, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	return Parse(path, data)
+	return ParseForAPI(path, data, targetAPI)
 }
 
 // Parse parses the given CEF capi header content.
 func Parse(path string, data []byte) (*model.Header, error) {
+	return ParseForAPI(path, data, cefapi.Version)
+}
+
+// ParseForAPI parses a header after selecting CEF API-versioned declarations.
+func ParseForAPI(path string, data []byte, targetAPI int) (*model.Header, error) {
+	preprocessed, err := PreprocessCEFAPI(data, targetAPI)
+	if err != nil {
+		return nil, fmt.Errorf("preprocess %s: %w", path, err)
+	}
 	// Extract doc comments from raw source BEFORE stripping comments.
-	rawSource := string(data)
+	rawSource := string(preprocessed)
 	docIdx := buildDocIndex(rawSource)
 
-	clean := stripComments(data)
+	clean := stripComments(preprocessed)
 	// Join continuation lines so multi-line declarations become single lines.
 	clean = joinLines(clean)
 

@@ -23,8 +23,3 @@ type Image interface {
 	GetAsPng(scaleFactor uintptr, withTransparency uintptr, pixelWidth uintptr, pixelHeight uintptr) uintptr
 	GetAsJpeg(scaleFactor uintptr, quality uintptr, pixelWidth uintptr, pixelHeight uintptr) uintptr
 }
-
-// ImageFunctions defines the outbound port for Image free functions.
-type ImageFunctions interface {
-	ImageCreate() unsafe.Pointer
-}

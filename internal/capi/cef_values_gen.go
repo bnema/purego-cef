@@ -986,17 +986,4 @@ func (v *CEFListValueT) CallSetList(args ...uintptr) uintptr {
 	return r1
 }
 
-var CEFValueCreate func() unsafe.Pointer
-
-var CEFBinaryValueCreate func(Data unsafe.Pointer, DataSize uintptr) unsafe.Pointer
-
-var CEFDictionaryValueCreate func() unsafe.Pointer
-
-var CEFListValueCreate func() unsafe.Pointer
-
-func RegisterValues(handle uintptr) {
-	tryRegisterLibFunc(&CEFValueCreate, handle, "cef_value_create")
-	tryRegisterLibFunc(&CEFBinaryValueCreate, handle, "cef_binary_value_create")
-	tryRegisterLibFunc(&CEFDictionaryValueCreate, handle, "cef_dictionary_value_create")
-	tryRegisterLibFunc(&CEFListValueCreate, handle, "cef_list_value_create")
-}
+func RegisterValues(_ uintptr) {}

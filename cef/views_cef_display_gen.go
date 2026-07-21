@@ -12,7 +12,7 @@ import (
 	portin "github.com/bnema/purego-cef/internal/ports/in"
 )
 
-// Display This structure typically, but not always, corresponds to a physical display connected to the system. A fake Display may exist on a headless system, or a Display may correspond to a remote, virtual display. All size and position values are in density independent pixel (DIP) coordinates unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated. For details on coordinate systems and usage see https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown- header-coordinate-systems
+// Display This structure typically, but not always, corresponds to a physical display connected to the system. A fake Display may exist on a headless system, or a Display may correspond to a remote, virtual display. All size and position values are in density independent pixel (DIP) coordinates unless otherwise indicated. Methods must be called on the browser process UI thread unless otherwise indicated. For details on coordinate systems and usage see https://chromiumembedded.github.io/cef/general_usage#coordinate-systems
 type Display = portin.Display
 
 // displayImpl is a reverse wrapper for a CEF-owned Display pointer.
@@ -128,12 +128,6 @@ func wrapDisplay(ptr unsafe.Pointer) Display {
 	impl := &displayImpl{rawPtr: r}
 	runtime.SetFinalizer(impl, (*displayImpl).Release)
 	return impl
-}
-
-// DisplayGetPrimary Returns the primary Display.
-func DisplayGetPrimary() Display {
-	ret := capi.CEFDisplayGetPrimary()
-	return wrapDisplay(ret)
 }
 
 // DisplayGetNearestPoint Returns the Display nearest |point|. Set |input_pixel_coords| to true (1) if |point| is in pixel screen coordinates instead of DIP screen coordinates.

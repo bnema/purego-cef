@@ -642,12 +642,6 @@ func StreamReaderCreateForFile(filename string) StreamReader {
 	return wrapStreamReader(ret)
 }
 
-// StreamReaderCreateForData Create a new cef_stream_reader_t object from data.
-func StreamReaderCreateForData(data unsafe.Pointer, size int) StreamReader {
-	ret := capi.CEFStreamReaderCreateForData(data, uintptr(size))
-	return wrapStreamReader(ret)
-}
-
 // StreamReaderCreateForHandler Create a new cef_stream_reader_t object from a custom handler.
 func StreamReaderCreateForHandler(handler ReadHandler) StreamReader {
 	ret := capi.CEFStreamReaderCreateForHandler(extractOrWrapRawPointer(handler, func() any { return NewReadHandler(handler) }))

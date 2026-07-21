@@ -258,8 +258,4 @@ func (v *CEFPrintSettingsT) CallGetDuplexMode(args ...uintptr) uintptr {
 	return r1
 }
 
-var CEFPrintSettingsCreate func() unsafe.Pointer
-
-func RegisterPrintSettings(handle uintptr) {
-	tryRegisterLibFunc(&CEFPrintSettingsCreate, handle, "cef_print_settings_create")
-}
+func RegisterPrintSettings(_ uintptr) {}

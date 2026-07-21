@@ -156,57 +156,6 @@ func (obj *textfieldImpl) GetCursorPosition() int {
 	return int(ret)
 }
 
-func (obj *textfieldImpl) SetTextColor(color uintptr) {
-	if obj == nil || obj.rawPtr == nil {
-		return
-	}
-	rawPtr := obj.rawPtr
-	rawPtr.CallSetTextColor(color)
-}
-
-func (obj *textfieldImpl) GetTextColor() uintptr {
-	if obj == nil || obj.rawPtr == nil {
-		return 0
-	}
-	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetTextColor()
-	return uintptr(ret)
-}
-
-func (obj *textfieldImpl) SetSelectionTextColor(color uintptr) {
-	if obj == nil || obj.rawPtr == nil {
-		return
-	}
-	rawPtr := obj.rawPtr
-	rawPtr.CallSetSelectionTextColor(color)
-}
-
-func (obj *textfieldImpl) GetSelectionTextColor() uintptr {
-	if obj == nil || obj.rawPtr == nil {
-		return 0
-	}
-	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetSelectionTextColor()
-	return uintptr(ret)
-}
-
-func (obj *textfieldImpl) SetSelectionBackgroundColor(color uintptr) {
-	if obj == nil || obj.rawPtr == nil {
-		return
-	}
-	rawPtr := obj.rawPtr
-	rawPtr.CallSetSelectionBackgroundColor(color)
-}
-
-func (obj *textfieldImpl) GetSelectionBackgroundColor() uintptr {
-	if obj == nil || obj.rawPtr == nil {
-		return 0
-	}
-	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetSelectionBackgroundColor()
-	return uintptr(ret)
-}
-
 func (obj *textfieldImpl) SetFontList(fontList string) {
 	if obj == nil || obj.rawPtr == nil {
 		return
@@ -275,14 +224,6 @@ func (obj *textfieldImpl) GetPlaceholderText() string {
 	rawPtr := obj.rawPtr
 	ret := rawPtr.CallGetPlaceholderText()
 	return goStringUserfree(unsafe.Pointer(ret))
-}
-
-func (obj *textfieldImpl) SetPlaceholderTextColor(color uintptr) {
-	if obj == nil || obj.rawPtr == nil {
-		return
-	}
-	rawPtr := obj.rawPtr
-	rawPtr.CallSetPlaceholderTextColor(color)
 }
 
 func (obj *textfieldImpl) SetAccessibleName(name string) {

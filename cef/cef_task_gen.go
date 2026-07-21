@@ -206,12 +206,6 @@ func wrapTaskRunner(ptr unsafe.Pointer) TaskRunner {
 	return impl
 }
 
-// TaskRunnerGetForCurrentThread Returns the task runner for the current thread. Only CEF threads will have task runners. An NULL reference will be returned if this function is called on an invalid thread.
-func TaskRunnerGetForCurrentThread() TaskRunner {
-	ret := capi.CEFTaskRunnerGetForCurrentThread()
-	return wrapTaskRunner(ret)
-}
-
 // TaskRunnerGetForThread Returns the task runner for the specified CEF thread.
 func TaskRunnerGetForThread(threadid ThreadID) TaskRunner {
 	ret := capi.CEFTaskRunnerGetForThread(capi.CEFThreadIDT(threadid))

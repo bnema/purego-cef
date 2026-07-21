@@ -160,7 +160,7 @@ func mustWriteFileContent(t *testing.T, path, content string) {
 }
 
 func TestConfigValidate(t *testing.T) {
-	cfg := config{headersDir: "/tmp/headers", capiDir: "/tmp/capi", portInDir: "/tmp/in", portOutDir: "/tmp/out", publicDir: "/tmp/pub", version: "145"}
+	cfg := config{headersDir: "/tmp/headers", capiDir: "/tmp/capi", portInDir: "/tmp/in", portOutDir: "/tmp/out", publicDir: "/tmp/pub"}
 	if err := cfg.validate(); err != nil {
 		t.Fatal(err)
 	}

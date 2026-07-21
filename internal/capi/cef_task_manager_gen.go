@@ -69,8 +69,4 @@ func (v *CEFTaskManagerT) CallGetTaskIDForBrowserID(args ...uintptr) uintptr {
 	return r1
 }
 
-var CEFTaskManagerGet func() unsafe.Pointer
-
-func RegisterTaskManager(handle uintptr) {
-	tryRegisterLibFunc(&CEFTaskManagerGet, handle, "cef_task_manager_get")
-}
+func RegisterTaskManager(_ uintptr) {}

@@ -55,10 +55,3 @@ type PostDataElement interface {
 	GetBytesCount() uintptr
 	GetBytes(size uintptr, bytes uintptr) uintptr
 }
-
-// RequestFunctions defines the outbound port for Request free functions.
-type RequestFunctions interface {
-	RequestCreate() unsafe.Pointer
-	PostDataCreate() unsafe.Pointer
-	PostDataElementCreate() unsafe.Pointer
-}

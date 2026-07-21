@@ -100,7 +100,7 @@ func (c myClient) GetRenderHandler() cef.RenderHandler     { return myRenderer{}
 ## Requirements
 
 - Go 1.26+
-- CEF 147 runtime (the minimum accepted Chrome/CEF major; earlier versions are rejected at load time)
+- CEF 150 runtime (the minimum accepted Chrome/CEF major; earlier versions are rejected at load time)
 
 ## Runtime discovery
 
@@ -119,10 +119,9 @@ sudo pacman -S cef
 
 This installs `/usr/lib/cef/libcef.so` and the required Resources — no env var needed.
 
-### Runtime version override / diagnostics
+### Runtime diagnostics
 
-- `CEF_VERSION=146` sets the minimum accepted Chrome/CEF major to 146.
-- `CEF_SKIP_VERSION_CHECK=1` bypasses the version guard entirely (diagnostics only; use with care).
+- `CEF_SKIP_VERSION_CHECK=1` bypasses the major-version guard only (diagnostics only; API 15000 hash validation always applies).
 
 ## Building
 
@@ -146,14 +145,14 @@ CEF_DIR=/custom/path go test -tags=cef_integration ./integration
 ## Regenerating bindings
 
 ```
-go generate ./...
+CEF_HEADERS=/usr/include/cef/include go generate ./...
 ```
 
 Or manually:
 
 ```
 go run ./cmd/cefgen \
-  --headers-dir ~/.local/share/cef/include \
+  --headers-dir /usr/include/cef/include \
   --capi-dir internal/capi \
   --port-in-dir internal/ports/in \
   --port-out-dir internal/ports/out \
