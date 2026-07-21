@@ -729,6 +729,8 @@ func (v *CEFApiVersionTestScopedClientChildV2T) CallGetAnotherValue(args ...uint
 	return r1
 }
 
+var CEFApiVersionTestCreate func() unsafe.Pointer
+
 var CEFApiVersionTestRefPtrLibraryCreate func() unsafe.Pointer
 
 var CEFApiVersionTestRefPtrLibraryCreateWithDefault func(Value int32) unsafe.Pointer
@@ -754,6 +756,7 @@ var CEFApiVersionTestScopedLibraryChildChildV2Create func() unsafe.Pointer
 var CEFApiVersionTestScopedLibraryChildChildV2CreateWithDefault func(Value int32, OtherValue int32, OtherOtherValue int32) unsafe.Pointer
 
 func RegisterApiVersionTest(handle uintptr) {
+	tryRegisterLibFunc(&CEFApiVersionTestCreate, handle, "cef_api_version_test_create")
 	tryRegisterLibFunc(&CEFApiVersionTestRefPtrLibraryCreate, handle, "cef_api_version_test_ref_ptr_library_create")
 	tryRegisterLibFunc(&CEFApiVersionTestRefPtrLibraryCreateWithDefault, handle, "cef_api_version_test_ref_ptr_library_create_with_default")
 	tryRegisterLibFunc(&CEFApiVersionTestRefPtrLibraryChildCreate, handle, "cef_api_version_test_ref_ptr_library_child_create")

@@ -15,3 +15,8 @@ type TaskManager interface {
 	KillTask(taskID uintptr) uintptr
 	GetTaskIDForBrowserID(browserID uintptr) uintptr
 }
+
+// TaskManagerFunctions defines the outbound port for TaskManager free functions.
+type TaskManagerFunctions interface {
+	TaskManagerGet() unsafe.Pointer
+}

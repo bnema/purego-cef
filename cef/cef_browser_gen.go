@@ -245,6 +245,19 @@ func wrapBrowser(ptr unsafe.Pointer) Browser {
 	return impl
 }
 
+// takeBrowser adopts a CEF Browser pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapBrowser it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeBrowser(ptr unsafe.Pointer) Browser {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFBrowserT)(ptr)
+	impl := &browserImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*browserImpl).Release)
+	return impl
+}
+
 // RunFileDialogCallback Callback structure for cef_browser_host_t::RunFileDialog. The functions of this structure will be called on the browser process UI thread.
 type RunFileDialogCallback = portin.RunFileDialogCallback
 
@@ -1312,8 +1325,16 @@ func BrowserHostCreateBrowser(windowinfo *WindowInfo, client RawClient, uRL stri
 	return int32(ret)
 }
 
+// BrowserHostCreateBrowserSync Create a new browser using the window parameters specified by |windowInfo|. If |request_context| is NULL the global request context will be used. This function can only be called on the browser process UI thread. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
+func BrowserHostCreateBrowserSync(windowinfo *WindowInfo, client RawClient, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) Browser {
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	ret := capi.CEFBrowserHostCreateBrowserSync(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return NewRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
+	return takeBrowser(ret)
+}
+
 // BrowserHostGetBrowserByIdentifier Returns the browser (if any) with the specified identifier.
 func BrowserHostGetBrowserByIdentifier(browserID int32) Browser {
 	ret := capi.CEFBrowserHostGetBrowserByIdentifier(browserID)
-	return wrapBrowser(ret)
+	return takeBrowser(ret)
 }

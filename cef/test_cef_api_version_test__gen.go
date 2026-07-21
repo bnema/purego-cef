@@ -373,6 +373,19 @@ func wrapApiVersionTest(ptr unsafe.Pointer) ApiVersionTest {
 	return impl
 }
 
+// takeApiVersionTest adopts a CEF ApiVersionTest pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapApiVersionTest it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeApiVersionTest(ptr unsafe.Pointer) ApiVersionTest {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestT)(ptr)
+	impl := &apiVersionTestImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*apiVersionTestImpl).Release)
+	return impl
+}
+
 // ApiVersionTestRefPtrLibrary Library-side test object for RefPtr.
 type ApiVersionTestRefPtrLibrary = portin.ApiVersionTestRefPtrLibrary
 
@@ -454,6 +467,19 @@ func wrapApiVersionTestRefPtrLibrary(ptr unsafe.Pointer) ApiVersionTestRefPtrLib
 	return impl
 }
 
+// takeApiVersionTestRefPtrLibrary adopts a CEF ApiVersionTestRefPtrLibrary pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapApiVersionTestRefPtrLibrary it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeApiVersionTestRefPtrLibrary(ptr unsafe.Pointer) ApiVersionTestRefPtrLibrary {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestRefPtrLibraryT)(ptr)
+	impl := &apiVersionTestRefPtrLibraryImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrLibraryImpl).Release)
+	return impl
+}
+
 // ApiVersionTestRefPtrLibraryChild Library-side child test object for RefPtr.
 type ApiVersionTestRefPtrLibraryChild = portin.ApiVersionTestRefPtrLibraryChild
 
@@ -518,6 +544,19 @@ func wrapApiVersionTestRefPtrLibraryChild(ptr unsafe.Pointer) ApiVersionTestRefP
 	return impl
 }
 
+// takeApiVersionTestRefPtrLibraryChild adopts a CEF ApiVersionTestRefPtrLibraryChild pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapApiVersionTestRefPtrLibraryChild it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeApiVersionTestRefPtrLibraryChild(ptr unsafe.Pointer) ApiVersionTestRefPtrLibraryChild {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestRefPtrLibraryChildT)(ptr)
+	impl := &apiVersionTestRefPtrLibraryChildImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrLibraryChildImpl).Release)
+	return impl
+}
+
 // ApiVersionTestRefPtrLibraryChildChildV2 Another library-side child test object for RefPtr. This replaces cef_api_version_test_ref_ptr_library_child_child_v1_t in version 13302.
 type ApiVersionTestRefPtrLibraryChildChildV2 = portin.ApiVersionTestRefPtrLibraryChildChildV2
 
@@ -577,6 +616,19 @@ func wrapApiVersionTestRefPtrLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionT
 	r := (*capi.CEFApiVersionTestRefPtrLibraryChildChildV2T)(ptr)
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
+	impl := &apiVersionTestRefPtrLibraryChildChildV2Impl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrLibraryChildChildV2Impl).Release)
+	return impl
+}
+
+// takeApiVersionTestRefPtrLibraryChildChildV2 adopts a CEF ApiVersionTestRefPtrLibraryChildChildV2 pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapApiVersionTestRefPtrLibraryChildChildV2 it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeApiVersionTestRefPtrLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionTestRefPtrLibraryChildChildV2 {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestRefPtrLibraryChildChildV2T)(ptr)
 	impl := &apiVersionTestRefPtrLibraryChildChildV2Impl{rawPtr: r}
 	runtime.SetFinalizer(impl, (*apiVersionTestRefPtrLibraryChildChildV2Impl).Release)
 	return impl
@@ -949,6 +1001,19 @@ func wrapApiVersionTestScopedLibraryChild(ptr unsafe.Pointer) ApiVersionTestScop
 	return impl
 }
 
+// takeApiVersionTestScopedLibraryChild adopts a CEF ApiVersionTestScopedLibraryChild pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapApiVersionTestScopedLibraryChild it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeApiVersionTestScopedLibraryChild(ptr unsafe.Pointer) ApiVersionTestScopedLibraryChild {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestScopedLibraryChildT)(ptr)
+	impl := &apiVersionTestScopedLibraryChildImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*apiVersionTestScopedLibraryChildImpl).Release)
+	return impl
+}
+
 // ApiVersionTestScopedLibraryChildChildV2 Another library-side child test object for OwnPtr/RawPtr. This replaces cef_api_version_test_scoped_library_child_child_v1_t in version 13302.
 type ApiVersionTestScopedLibraryChildChildV2 = portin.ApiVersionTestScopedLibraryChildChildV2
 
@@ -1008,6 +1073,19 @@ func wrapApiVersionTestScopedLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionT
 	r := (*capi.CEFApiVersionTestScopedLibraryChildChildV2T)(ptr)
 	base := (*capi.CEFBaseRefCountedT)(ptr)
 	base.CallAddRef()
+	impl := &apiVersionTestScopedLibraryChildChildV2Impl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*apiVersionTestScopedLibraryChildChildV2Impl).Release)
+	return impl
+}
+
+// takeApiVersionTestScopedLibraryChildChildV2 adopts a CEF ApiVersionTestScopedLibraryChildChildV2 pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapApiVersionTestScopedLibraryChildChildV2 it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeApiVersionTestScopedLibraryChildChildV2(ptr unsafe.Pointer) ApiVersionTestScopedLibraryChildChildV2 {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFApiVersionTestScopedLibraryChildChildV2T)(ptr)
 	impl := &apiVersionTestScopedLibraryChildChildV2Impl{rawPtr: r}
 	runtime.SetFinalizer(impl, (*apiVersionTestScopedLibraryChildChildV2Impl).Release)
 	return impl
@@ -1234,40 +1312,46 @@ func wrapApiVersionTestScopedClientChildV2(ptr unsafe.Pointer) ApiVersionTestSco
 	return impl
 }
 
+// ApiVersionTestCreate Create the test object.
+func ApiVersionTestCreate() ApiVersionTest {
+	ret := capi.CEFApiVersionTestCreate()
+	return takeApiVersionTest(ret)
+}
+
 // ApiVersionTestRefPtrLibraryCreate Create the test object.
 func ApiVersionTestRefPtrLibraryCreate() ApiVersionTestRefPtrLibrary {
 	ret := capi.CEFApiVersionTestRefPtrLibraryCreate()
-	return wrapApiVersionTestRefPtrLibrary(ret)
+	return takeApiVersionTestRefPtrLibrary(ret)
 }
 
 // ApiVersionTestRefPtrLibraryCreateWithDefault Create the test object with default value.
 func ApiVersionTestRefPtrLibraryCreateWithDefault(value int32) ApiVersionTestRefPtrLibrary {
 	ret := capi.CEFApiVersionTestRefPtrLibraryCreateWithDefault(value)
-	return wrapApiVersionTestRefPtrLibrary(ret)
+	return takeApiVersionTestRefPtrLibrary(ret)
 }
 
 // ApiVersionTestRefPtrLibraryChildCreate Create the test object.
 func ApiVersionTestRefPtrLibraryChildCreate() ApiVersionTestRefPtrLibraryChild {
 	ret := capi.CEFApiVersionTestRefPtrLibraryChildCreate()
-	return wrapApiVersionTestRefPtrLibraryChild(ret)
+	return takeApiVersionTestRefPtrLibraryChild(ret)
 }
 
 // ApiVersionTestRefPtrLibraryChildCreateWithDefault Create the test object with default value.
 func ApiVersionTestRefPtrLibraryChildCreateWithDefault(value int32, otherValue int32) ApiVersionTestRefPtrLibraryChild {
 	ret := capi.CEFApiVersionTestRefPtrLibraryChildCreateWithDefault(value, otherValue)
-	return wrapApiVersionTestRefPtrLibraryChild(ret)
+	return takeApiVersionTestRefPtrLibraryChild(ret)
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV2Create Create the test object.
 func ApiVersionTestRefPtrLibraryChildChildV2Create() ApiVersionTestRefPtrLibraryChildChildV2 {
 	ret := capi.CEFApiVersionTestRefPtrLibraryChildChildV2Create()
-	return wrapApiVersionTestRefPtrLibraryChildChildV2(ret)
+	return takeApiVersionTestRefPtrLibraryChildChildV2(ret)
 }
 
 // ApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault Create the test object with default value.
 func ApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) ApiVersionTestRefPtrLibraryChildChildV2 {
 	ret := capi.CEFApiVersionTestRefPtrLibraryChildChildV2CreateWithDefault(value, otherValue, otherOtherValue)
-	return wrapApiVersionTestRefPtrLibraryChildChildV2(ret)
+	return takeApiVersionTestRefPtrLibraryChildChildV2(ret)
 }
 
 // ApiVersionTestScopedLibraryCreate Create the test object.
@@ -1285,23 +1369,23 @@ func ApiVersionTestScopedLibraryCreateWithDefault(value int32) ApiVersionTestSco
 // ApiVersionTestScopedLibraryChildCreate Create the test object.
 func ApiVersionTestScopedLibraryChildCreate() ApiVersionTestScopedLibraryChild {
 	ret := capi.CEFApiVersionTestScopedLibraryChildCreate()
-	return wrapApiVersionTestScopedLibraryChild(ret)
+	return takeApiVersionTestScopedLibraryChild(ret)
 }
 
 // ApiVersionTestScopedLibraryChildCreateWithDefault Create the test object with default value.
 func ApiVersionTestScopedLibraryChildCreateWithDefault(value int32, otherValue int32) ApiVersionTestScopedLibraryChild {
 	ret := capi.CEFApiVersionTestScopedLibraryChildCreateWithDefault(value, otherValue)
-	return wrapApiVersionTestScopedLibraryChild(ret)
+	return takeApiVersionTestScopedLibraryChild(ret)
 }
 
 // ApiVersionTestScopedLibraryChildChildV2Create Create the test object.
 func ApiVersionTestScopedLibraryChildChildV2Create() ApiVersionTestScopedLibraryChildChildV2 {
 	ret := capi.CEFApiVersionTestScopedLibraryChildChildV2Create()
-	return wrapApiVersionTestScopedLibraryChildChildV2(ret)
+	return takeApiVersionTestScopedLibraryChildChildV2(ret)
 }
 
 // ApiVersionTestScopedLibraryChildChildV2CreateWithDefault Create the test object with default value.
 func ApiVersionTestScopedLibraryChildChildV2CreateWithDefault(value int32, otherValue int32, otherOtherValue int32) ApiVersionTestScopedLibraryChildChildV2 {
 	ret := capi.CEFApiVersionTestScopedLibraryChildChildV2CreateWithDefault(value, otherValue, otherOtherValue)
-	return wrapApiVersionTestScopedLibraryChildChildV2(ret)
+	return takeApiVersionTestScopedLibraryChildChildV2(ret)
 }

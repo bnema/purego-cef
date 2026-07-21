@@ -1080,9 +1080,12 @@ func (v *CEFBrowserHostT) CallGetRuntimeStyle(args ...uintptr) uintptr {
 
 var CEFBrowserHostCreateBrowser func(Windowinfo unsafe.Pointer, Client unsafe.Pointer, URL unsafe.Pointer, Settings unsafe.Pointer, ExtraInfo unsafe.Pointer, RequestContext unsafe.Pointer) int32
 
+var CEFBrowserHostCreateBrowserSync func(Windowinfo unsafe.Pointer, Client unsafe.Pointer, URL unsafe.Pointer, Settings unsafe.Pointer, ExtraInfo unsafe.Pointer, RequestContext unsafe.Pointer) unsafe.Pointer
+
 var CEFBrowserHostGetBrowserByIdentifier func(BrowserID int32) unsafe.Pointer
 
 func RegisterBrowser(handle uintptr) {
 	tryRegisterLibFunc(&CEFBrowserHostCreateBrowser, handle, "cef_browser_host_create_browser")
+	tryRegisterLibFunc(&CEFBrowserHostCreateBrowserSync, handle, "cef_browser_host_create_browser_sync")
 	tryRegisterLibFunc(&CEFBrowserHostGetBrowserByIdentifier, handle, "cef_browser_host_get_browser_by_identifier")
 }

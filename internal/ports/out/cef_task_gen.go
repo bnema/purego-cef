@@ -18,6 +18,7 @@ type TaskRunner interface {
 
 // TaskFunctions defines the outbound port for Task free functions.
 type TaskFunctions interface {
+	TaskRunnerGetForCurrentThread() unsafe.Pointer
 	TaskRunnerGetForThread(threadid unsafe.Pointer) unsafe.Pointer
 	CurrentlyOn(threadid unsafe.Pointer) int32
 	PostTask(threadid unsafe.Pointer, task unsafe.Pointer) int32

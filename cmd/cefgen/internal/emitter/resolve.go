@@ -11,14 +11,20 @@ import (
 type TypeRegistry struct {
 	structs map[string]*model.Struct
 	enums   map[string]*model.Enum
+	// globalFactoryReturns holds the public type names of ref-counted (non-scoped)
+	// interfaces returned by at least one global (free) function. Such returns
+	// transfer ownership of one reference to the caller, so they must be adopted
+	// with takeX (no AddRef) instead of wrapX (which AddRefs a borrowed pointer).
+	globalFactoryReturns map[string]bool
 }
 
 // NewTypeRegistry builds a TypeRegistry from all parsed headers.
 // Struct and enum types are indexed by their C name for fast lookup.
 func NewTypeRegistry(headers []*model.Header) *TypeRegistry {
 	r := &TypeRegistry{
-		structs: make(map[string]*model.Struct),
-		enums:   make(map[string]*model.Enum),
+		structs:              make(map[string]*model.Struct),
+		enums:                make(map[string]*model.Enum),
+		globalFactoryReturns: make(map[string]bool),
 	}
 	for _, h := range headers {
 		for i := range h.Structs {
@@ -30,7 +36,38 @@ func NewTypeRegistry(headers []*model.Header) *TypeRegistry {
 			r.enums[e.CName] = e
 		}
 	}
+	// Second pass (needs the struct index complete): record ref-counted interface
+	// types returned by global functions. Scoped interfaces are excluded because
+	// they have no reference count and their wrapX already avoids AddRef.
+	for _, h := range headers {
+		for i := range h.Functions {
+			ret := strings.TrimSpace(h.Functions[i].ReturnCType)
+			if ret == "" || ret == "void" {
+				continue
+			}
+			if r.IsInterfaceType(ret) && !r.IsScopedType(ret) {
+				r.globalFactoryReturns[r.ResolvePublicType(ret)] = true
+			}
+		}
+	}
 	return r
+}
+
+// IsGlobalFactoryReturn reports whether the given public type name is a
+// ref-counted interface returned by at least one global (free) function, and
+// therefore needs a takeX ownership-adopting constructor.
+func (r *TypeRegistry) IsGlobalFactoryReturn(publicName string) bool {
+	return r.globalFactoryReturns[publicName]
+}
+
+// IsScopedType reports whether the given C type resolves to a scoped interface
+// (one whose base field is cef_base_scoped_t rather than cef_base_ref_counted_t).
+func (r *TypeRegistry) IsScopedType(ctype string) bool {
+	st := r.lookupStructForCType(ctype)
+	if st == nil {
+		return false
+	}
+	return isScopedStruct(st)
 }
 
 // normalizeConst rewrites C type qualifiers so that "const" always appears as a

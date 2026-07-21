@@ -85,3 +85,22 @@ func wrapResourceBundle(ptr unsafe.Pointer) ResourceBundle {
 	runtime.SetFinalizer(impl, (*resourceBundleImpl).Release)
 	return impl
 }
+
+// takeResourceBundle adopts a CEF ResourceBundle pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapResourceBundle it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeResourceBundle(ptr unsafe.Pointer) ResourceBundle {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFResourceBundleT)(ptr)
+	impl := &resourceBundleImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*resourceBundleImpl).Release)
+	return impl
+}
+
+// ResourceBundleGetGlobal Returns the global resource bundle instance.
+func ResourceBundleGetGlobal() ResourceBundle {
+	ret := capi.CEFResourceBundleGetGlobal()
+	return takeResourceBundle(ret)
+}

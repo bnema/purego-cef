@@ -83,6 +83,7 @@ type ApiVersionTestScopedLibraryChildChildV2 interface {
 
 // ApiVersionTestFunctions defines the outbound port for ApiVersionTest free functions.
 type ApiVersionTestFunctions interface {
+	ApiVersionTestCreate() unsafe.Pointer
 	ApiVersionTestRefPtrLibraryCreate() unsafe.Pointer
 	ApiVersionTestRefPtrLibraryCreateWithDefault(value unsafe.Pointer) unsafe.Pointer
 	ApiVersionTestRefPtrLibraryChildCreate() unsafe.Pointer

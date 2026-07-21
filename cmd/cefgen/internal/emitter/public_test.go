@@ -1322,3 +1322,230 @@ func TestEmitFreeFuncOutputObjectSliceBuffer(t *testing.T) {
 		}
 	}
 }
+
+// TestEmitPublicGlobalFactoryUsesTakeOwnership verifies that a ref-counted
+// interface returned by a global (free) function is adopted with takeX (no
+// AddRef) rather than wrapX, and that a takeX constructor is emitted for it.
+func TestEmitPublicGlobalFactoryUsesTakeOwnership(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:  "_cef_response_t",
+			GoName: "CEFResponseT",
+			Kind:   "object",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t"},
+				{
+					CName:       "is_read_only",
+					GoName:      "IsReadOnly",
+					IsFunction:  true,
+					ReturnCType: "int",
+					Params:      []model.Param{{CName: "self", GoName: "self", CType: "struct _cef_response_t*"}},
+				},
+			},
+		}},
+		Functions: []model.Function{{
+			CName:       "cef_response_create",
+			GoName:      "CEFResponseCreate",
+			ReturnCType: "struct _cef_response_t*",
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	if !strings.Contains(code, "func takeResponse(ptr unsafe.Pointer) Response {") {
+		t.Errorf("expected takeResponse constructor to be emitted\n\nGot:\n%s", code)
+	}
+	// takeResponse must adopt without AddRef.
+	takeBody := code[strings.Index(code, "func takeResponse"):]
+	takeBody = takeBody[:strings.Index(takeBody, "\n}")]
+	if strings.Contains(takeBody, "CallAddRef") {
+		t.Errorf("takeResponse must NOT call AddRef\n\nGot:\n%s", takeBody)
+	}
+	if !strings.Contains(takeBody, "runtime.SetFinalizer(impl, (*responseImpl).Release)") {
+		t.Errorf("takeResponse must set the Release finalizer\n\nGot:\n%s", takeBody)
+	}
+	// The global factory function must use takeResponse, not wrapResponse.
+	if !strings.Contains(code, "func ResponseCreate() Response {") {
+		t.Fatalf("missing ResponseCreate\n\nGot:\n%s", code)
+	}
+	createBody := code[strings.Index(code, "func ResponseCreate"):]
+	createBody = createBody[:strings.Index(createBody, "\n}")]
+	if !strings.Contains(createBody, "return takeResponse(ret)") {
+		t.Errorf("ResponseCreate must adopt ownership via takeResponse\n\nGot:\n%s", createBody)
+	}
+	if strings.Contains(createBody, "wrapResponse") {
+		t.Errorf("ResponseCreate must not use wrapResponse\n\nGot:\n%s", createBody)
+	}
+	// wrapResponse must remain unchanged and still AddRef borrowed pointers.
+	wrapBody := code[strings.Index(code, "func wrapResponse"):]
+	wrapBody = wrapBody[:strings.Index(wrapBody, "\n}")]
+	if !strings.Contains(wrapBody, "base.CallAddRef()") {
+		t.Errorf("wrapResponse must keep its AddRef\n\nGot:\n%s", wrapBody)
+	}
+}
+
+// TestEmitPublicMethodReturnStillUsesWrap verifies that method returns of a
+// ref-counted interface keep using wrapX even when a global factory for the same
+// type exists (method-return ownership is explicitly out of scope for takeX).
+func TestEmitPublicMethodReturnStillUsesWrap(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{
+			{
+				CName:  "_cef_response_t",
+				GoName: "CEFResponseT",
+				Kind:   "object",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t"},
+					{
+						CName:       "is_read_only",
+						GoName:      "IsReadOnly",
+						IsFunction:  true,
+						ReturnCType: "int",
+						Params:      []model.Param{{CName: "self", GoName: "self", CType: "struct _cef_response_t*"}},
+					},
+				},
+			},
+			{
+				CName:  "_cef_urlrequest_t",
+				GoName: "CEFUrlrequestT",
+				Kind:   "object",
+				Fields: []model.Field{
+					{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t"},
+					{
+						CName:       "get_response",
+						GoName:      "GetResponse",
+						IsFunction:  true,
+						ReturnCType: "struct _cef_response_t*",
+						Params:      []model.Param{{CName: "self", GoName: "self", CType: "struct _cef_urlrequest_t*"}},
+					},
+				},
+			},
+		},
+		Functions: []model.Function{{
+			CName:       "cef_response_create",
+			GoName:      "CEFResponseCreate",
+			ReturnCType: "struct _cef_response_t*",
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	getResp := code[strings.Index(code, "func (obj *urlrequestImpl) GetResponse"):]
+	getResp = getResp[:strings.Index(getResp, "\n}")]
+	if !strings.Contains(getResp, "wrapResponse(unsafe.Pointer(ret))") {
+		t.Errorf("method return GetResponse must keep wrapResponse\n\nGot:\n%s", getResp)
+	}
+	if strings.Contains(getResp, "takeResponse") {
+		t.Errorf("method return GetResponse must NOT use takeResponse\n\nGot:\n%s", getResp)
+	}
+}
+
+// TestEmitPublicNegativeSizeGuard verifies that a global function converting a
+// signed Go int size param to a C size_t rejects negative values before the call.
+func TestEmitPublicNegativeSizeGuard(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:  "_cef_binary_value_t",
+			GoName: "CEFBinaryValueT",
+			Kind:   "object",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t"},
+				{
+					CName:       "is_valid",
+					GoName:      "IsValid",
+					IsFunction:  true,
+					ReturnCType: "int",
+					Params:      []model.Param{{CName: "self", GoName: "self", CType: "struct _cef_binary_value_t*"}},
+				},
+			},
+		}},
+		Functions: []model.Function{{
+			CName:       "cef_binary_value_create",
+			GoName:      "CEFBinaryValueCreate",
+			ReturnCType: "struct _cef_binary_value_t*",
+			Params: []model.Param{
+				{CName: "data", GoName: "data", CType: "const void*", GoType: "unsafe.Pointer"},
+				{CName: "data_size", GoName: "dataSize", CType: "size_t", GoType: "uintptr"},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	data := BuildPublicFileData(header, registry)
+
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+
+	createBody := code[strings.Index(code, "func BinaryValueCreate"):]
+	createBody = createBody[:strings.Index(createBody, "\n}")]
+	if !strings.Contains(createBody, "if dataSize < 0 {") {
+		t.Errorf("expected negative-size guard for dataSize\n\nGot:\n%s", createBody)
+	}
+	// The guard must precede the raw call and return the zero value (nil here).
+	guardIdx := strings.Index(createBody, "if dataSize < 0 {")
+	callIdx := strings.Index(createBody, "capi.CEFBinaryValueCreate")
+	if guardIdx < 0 || callIdx < 0 || guardIdx > callIdx {
+		t.Errorf("guard must appear before the capi call\n\nGot:\n%s", createBody)
+	}
+	if !strings.Contains(createBody[guardIdx:callIdx], "return nil") {
+		t.Errorf("guard must return the zero value (nil)\n\nGot:\n%s", createBody)
+	}
+}
+
+// TestEmitPortOutSizeParamUsesUintptr verifies that size_t free-function params
+// are mapped to uintptr (matching the capi boundary) in the outbound port
+// interface, while pointer params remain unsafe.Pointer.
+func TestEmitPortOutSizeParamUsesUintptr(t *testing.T) {
+	header := &model.Header{
+		Structs: []model.Struct{{
+			CName:  "_cef_binary_value_t",
+			GoName: "CEFBinaryValueT",
+			Kind:   "object",
+			Fields: []model.Field{
+				{CName: "base", GoName: "Base", CType: "cef_base_ref_counted_t"},
+				{
+					CName:       "is_valid",
+					GoName:      "IsValid",
+					IsFunction:  true,
+					ReturnCType: "int",
+					Params:      []model.Param{{CName: "self", GoName: "self", CType: "struct _cef_binary_value_t*"}},
+				},
+			},
+		}},
+		Functions: []model.Function{{
+			CName:       "cef_binary_value_create",
+			GoName:      "CEFBinaryValueCreate",
+			ReturnCType: "struct _cef_binary_value_t*",
+			Params: []model.Param{
+				{CName: "data", GoName: "data", CType: "const void*", GoType: "unsafe.Pointer"},
+				{CName: "data_size", GoName: "dataSize", CType: "size_t", GoType: "uintptr"},
+			},
+		}},
+	}
+
+	registry := NewTypeRegistry([]*model.Header{header})
+	portData := BuildPortFileData(header, registry)
+
+	code, err := EmitPortOut(portData)
+	if err != nil {
+		t.Fatalf("EmitPortOut failed: %v", err)
+	}
+
+	if !strings.Contains(code, "BinaryValueCreate(data unsafe.Pointer, dataSize uintptr) unsafe.Pointer") {
+		t.Errorf("expected size_t param mapped to uintptr and pointer param kept as unsafe.Pointer\n\nGot:\n%s", code)
+	}
+}

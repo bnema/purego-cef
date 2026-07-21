@@ -27,3 +27,8 @@ type Response interface {
 	GetURL() uintptr
 	SetURL(uRL uintptr)
 }
+
+// ResponseFunctions defines the outbound port for Response free functions.
+type ResponseFunctions interface {
+	ResponseCreate() unsafe.Pointer
+}

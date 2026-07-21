@@ -201,4 +201,8 @@ func (v *CEFResponseT) CallSetURL(args ...uintptr) uintptr {
 	return r1
 }
 
-func RegisterResponse(_ uintptr) {}
+var CEFResponseCreate func() unsafe.Pointer
+
+func RegisterResponse(handle uintptr) {
+	tryRegisterLibFunc(&CEFResponseCreate, handle, "cef_response_create")
+}

@@ -91,6 +91,8 @@ func (v *CEFDisplayT) CallGetRotation(args ...uintptr) uintptr {
 	return r1
 }
 
+var CEFDisplayGetPrimary func() unsafe.Pointer
+
 var CEFDisplayGetNearestPoint func(Point unsafe.Pointer, InputPixelCoords int32) unsafe.Pointer
 
 var CEFDisplayGetMatchingBounds func(Bounds unsafe.Pointer, InputPixelCoords int32) unsafe.Pointer
@@ -108,6 +110,7 @@ var CEFDisplayConvertScreenRectToPixels func(Rect unsafe.Pointer) CEFRectT
 var CEFDisplayConvertScreenRectFromPixels func(Rect unsafe.Pointer) CEFRectT
 
 func RegisterDisplay(handle uintptr) {
+	tryRegisterLibFunc(&CEFDisplayGetPrimary, handle, "cef_display_get_primary")
 	tryRegisterLibFunc(&CEFDisplayGetNearestPoint, handle, "cef_display_get_nearest_point")
 	tryRegisterLibFunc(&CEFDisplayGetMatchingBounds, handle, "cef_display_get_matching_bounds")
 	tryRegisterLibFunc(&CEFDisplayGetCount, handle, "cef_display_get_count")

@@ -302,3 +302,22 @@ func wrapComponentUpdater(ptr unsafe.Pointer) ComponentUpdater {
 	runtime.SetFinalizer(impl, (*componentUpdaterImpl).Release)
 	return impl
 }
+
+// takeComponentUpdater adopts a CEF ComponentUpdater pointer whose reference is already owned by
+// the caller (as returned by a global factory function). Unlike wrapComponentUpdater it
+// does NOT call AddRef, because the C API already transferred one reference to us.
+func takeComponentUpdater(ptr unsafe.Pointer) ComponentUpdater {
+	if ptr == nil {
+		return nil
+	}
+	r := (*capi.CEFComponentUpdaterT)(ptr)
+	impl := &componentUpdaterImpl{rawPtr: r}
+	runtime.SetFinalizer(impl, (*componentUpdaterImpl).Release)
+	return impl
+}
+
+// ComponentUpdaterGet Returns the global cef_component_updater_t singleton. Returns nullptr if called from the incorrect thread.
+func ComponentUpdaterGet() ComponentUpdater {
+	ret := capi.CEFComponentUpdaterGet()
+	return takeComponentUpdater(ret)
+}

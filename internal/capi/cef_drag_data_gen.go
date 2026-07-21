@@ -311,4 +311,8 @@ func (v *CEFDragDataT) CallHasImage(args ...uintptr) uintptr {
 	return r1
 }
 
-func RegisterDragData(_ uintptr) {}
+var CEFDragDataCreate func() unsafe.Pointer
+
+func RegisterDragData(handle uintptr) {
+	tryRegisterLibFunc(&CEFDragDataCreate, handle, "cef_drag_data_create")
+}

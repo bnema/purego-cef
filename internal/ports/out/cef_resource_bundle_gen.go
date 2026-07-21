@@ -13,3 +13,8 @@ type ResourceBundle interface {
 	GetDataResource(resourceID uintptr) uintptr
 	GetDataResourceForScale(resourceID uintptr, scaleFactor uintptr) uintptr
 }
+
+// ResourceBundleFunctions defines the outbound port for ResourceBundle free functions.
+type ResourceBundleFunctions interface {
+	ResourceBundleGetGlobal() unsafe.Pointer
+}

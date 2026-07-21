@@ -179,6 +179,10 @@ type InterfaceData struct {
 	IsScoped  bool   // true for scoped types (cef_base_scoped_t base)
 	RawGoName string // "CEFBrowserT"
 	Methods   []MethodData
+	// NeedsTake is true when a global factory function returns this ref-counted
+	// interface with ownership transferred, requiring a takeX adopter that skips
+	// the AddRef performed by wrapX.
+	NeedsTake bool
 }
 
 // MethodData represents a single method on an interface.
@@ -219,6 +223,31 @@ type ParamData struct {
 	UnmarshalExtra string
 }
 
+// NeedsSizeGuard reports whether this param is a signed Go integer passed to the
+// C layer as a size_t (uintptr). A negative value would wrap to a huge size_t and
+// make libcef read out of bounds, so global wrappers must reject it up front.
+func (p ParamData) NeedsSizeGuard() bool {
+	if p.RawGoType != "uintptr" {
+		return false
+	}
+	switch p.PublicType {
+	case "int", "int8", "int16", "int32", "int64":
+		return true
+	default:
+		return false
+	}
+}
+
+// PortParamType returns the Go type used for this free-function param in the
+// outbound port interface. Size_t and other opaque handle params are uintptr at
+// the C boundary (matching the capi signatures); everything else is unsafe.Pointer.
+func (p ParamData) PortParamType() string {
+	if p.RawGoType == "uintptr" {
+		return "uintptr"
+	}
+	return "unsafe.Pointer"
+}
+
 // ReturnData represents a method return type.
 type ReturnData struct {
 	PublicType   string
@@ -232,6 +261,10 @@ type ReturnData struct {
 	IsPointer    bool // unsafe.Pointer
 	IsHandler    bool // returns a handler interface (needs NewXxx wrapping in callbacks)
 	IsDataStruct bool // returns a pointer to a data struct (*Type)
+	// UseTake is true when a global function returns this ref-counted interface
+	// with ownership transferred; the wrapper must adopt it with takeX (no AddRef)
+	// instead of wrapX.
+	UseTake bool
 }
 
 // DataStructData represents a plain data struct re-export.
