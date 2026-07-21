@@ -12,6 +12,7 @@ import (
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/emitter"
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/parser"
+	"github.com/bnema/purego-cef/internal/cefapi"
 )
 
 type config struct {
@@ -20,7 +21,6 @@ type config struct {
 	portInDir  string // internal/ports/in/
 	portOutDir string // internal/ports/out/
 	publicDir  string // cef/
-	version    string
 }
 
 func (c config) validate() error {
@@ -37,7 +37,6 @@ func main() {
 	flag.StringVar(&cfg.portInDir, "port-in-dir", "", "internal/ports/in/ output directory")
 	flag.StringVar(&cfg.portOutDir, "port-out-dir", "", "internal/ports/out/ output directory")
 	flag.StringVar(&cfg.publicDir, "public-dir", "", "cef/ output directory")
-	flag.StringVar(&cfg.version, "version", "145", "target major version")
 	flag.Parse()
 	if err := run(cfg); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -54,6 +53,13 @@ type headerEntry struct {
 func run(cfg config) error {
 	if err := cfg.validate(); err != nil {
 		return err
+	}
+	linuxHash, err := readAPIContract(filepath.Join(cfg.headersDir, "cef_api_versions.h"))
+	if err != nil {
+		return err
+	}
+	if linuxHash != cefapi.LinuxHash {
+		return fmt.Errorf("CEF API %d Linux hash mismatch: headers=%s bindings=%s", cefapi.Version, linuxHash, cefapi.LinuxHash)
 	}
 
 	// Ensure output directories exist.

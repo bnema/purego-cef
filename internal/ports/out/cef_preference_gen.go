@@ -26,5 +26,4 @@ type PreferenceManager interface {
 type PreferenceFunctions interface {
 	PreferenceManagerGetChromeVariationsAsSwitches(switches unsafe.Pointer)
 	PreferenceManagerGetChromeVariationsAsStrings(strings unsafe.Pointer)
-	PreferenceManagerGetGlobal() unsafe.Pointer
 }

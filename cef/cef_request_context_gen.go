@@ -482,21 +482,3 @@ func wrapRequestContext(ptr unsafe.Pointer) RequestContext {
 	runtime.SetFinalizer(impl, (*requestContextImpl).Release)
 	return impl
 }
-
-// RequestContextGetGlobalContext Returns the global context object.
-func RequestContextGetGlobalContext() RequestContext {
-	ret := capi.CEFRequestContextGetGlobalContext()
-	return wrapRequestContext(ret)
-}
-
-// RequestContextCreateContext Creates a new context object with the specified |settings| and optional |handler|.
-func RequestContextCreateContext(settings *RequestContextSettings, handler RequestContextHandler) RequestContext {
-	ret := capi.CEFRequestContextCreateContext(unsafe.Pointer(settings), extractOrWrapRawPointer(handler, func() any { return NewRequestContextHandler(handler) }))
-	return wrapRequestContext(ret)
-}
-
-// RequestContextCefCreateContextShared Creates a new context object that shares storage with |other| and uses an optional |handler|.
-func RequestContextCefCreateContextShared(other RequestContext, handler RequestContextHandler) RequestContext {
-	ret := capi.CEFRequestContextCEFCreateContextShared(extractRawPointer(other), extractOrWrapRawPointer(handler, func() any { return NewRequestContextHandler(handler) }))
-	return wrapRequestContext(ret)
-}

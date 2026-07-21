@@ -107,6 +107,5 @@ type BrowserHost interface {
 // BrowserFunctions defines the outbound port for Browser free functions.
 type BrowserFunctions interface {
 	BrowserHostCreateBrowser(windowinfo unsafe.Pointer, client unsafe.Pointer, uRL unsafe.Pointer, settings unsafe.Pointer, extraInfo unsafe.Pointer, requestContext unsafe.Pointer) int32
-	BrowserHostCreateBrowserSync(windowinfo unsafe.Pointer, client unsafe.Pointer, uRL unsafe.Pointer, settings unsafe.Pointer, extraInfo unsafe.Pointer, requestContext unsafe.Pointer) unsafe.Pointer
 	BrowserHostGetBrowserByIdentifier(browserID unsafe.Pointer) unsafe.Pointer
 }

@@ -942,8 +942,6 @@ func (v *CEFTranslatorTestScopedClientChildT) CallGetOtherValue(args ...uintptr)
 	return r1
 }
 
-var CEFTranslatorTestCreate func() unsafe.Pointer
-
 var CEFTranslatorTestRefPtrLibraryCreate func(Value int32) unsafe.Pointer
 
 var CEFTranslatorTestRefPtrLibraryChildCreate func(Value int32, OtherValue int32) unsafe.Pointer
@@ -957,7 +955,6 @@ var CEFTranslatorTestScopedLibraryChildCreate func(Value int32, OtherValue int32
 var CEFTranslatorTestScopedLibraryChildChildCreate func(Value int32, OtherValue int32, OtherOtherValue int32) unsafe.Pointer
 
 func RegisterTranslatorTest(handle uintptr) {
-	tryRegisterLibFunc(&CEFTranslatorTestCreate, handle, "cef_translator_test_create")
 	tryRegisterLibFunc(&CEFTranslatorTestRefPtrLibraryCreate, handle, "cef_translator_test_ref_ptr_library_create")
 	tryRegisterLibFunc(&CEFTranslatorTestRefPtrLibraryChildCreate, handle, "cef_translator_test_ref_ptr_library_child_create")
 	tryRegisterLibFunc(&CEFTranslatorTestRefPtrLibraryChildChildCreate, handle, "cef_translator_test_ref_ptr_library_child_child_create")

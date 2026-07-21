@@ -133,41 +133,16 @@ func TestDefaultPathExistsOnlyMissingReturnsFalse(t *testing.T) {
 	}
 }
 
-func TestTargetMajorUsesMinimumOverride(t *testing.T) {
-	orig := getenv("CEF_VERSION")
-	t.Cleanup(func() { setenv("CEF_VERSION", orig) })
-
-	setenv("CEF_VERSION", "149")
-	if got := targetMajor(); got != 149 {
-		t.Fatalf("targetMajor()=%d want 149", got)
-	}
-
-	setenv("CEF_VERSION", "not-a-number")
-	if got := targetMajor(); got != defaultCEFVersion {
-		t.Fatalf("targetMajor()=%d want default %d", got, defaultCEFVersion)
-	}
-
-	setenv("CEF_VERSION", "-1")
-	if got := targetMajor(); got != defaultCEFVersion {
-		t.Fatalf("targetMajor()=%d want default %d", got, defaultCEFVersion)
-	}
-
-	setenv("CEF_VERSION", "99999999999999999999")
-	if got := targetMajor(); got != defaultCEFVersion {
-		t.Fatalf("targetMajor()=%d want default %d", got, defaultCEFVersion)
-	}
-}
-
 func TestEnsureMinimumVersion(t *testing.T) {
-	if err := ensureMinimumVersion(147, 147); err != nil {
+	if err := ensureMinimumVersion(150, 150); err != nil {
 		t.Fatalf("ensureMinimumVersion(equal): %v", err)
 	}
-	if err := ensureMinimumVersion(148, 147); err != nil {
+	if err := ensureMinimumVersion(151, 150); err != nil {
 		t.Fatalf("ensureMinimumVersion(newer): %v", err)
 	}
-	if err := ensureMinimumVersion(146, 147); err == nil {
+	if err := ensureMinimumVersion(149, 150); err == nil {
 		t.Fatalf("ensureMinimumVersion(older) expected error")
-	} else if !strings.Contains(err.Error(), "minimum=147") {
+	} else if !strings.Contains(err.Error(), "minimum=150") {
 		t.Fatalf("ensureMinimumVersion(older) error=%q want minimum text", err)
 	}
 }

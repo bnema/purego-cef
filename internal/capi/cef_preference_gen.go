@@ -118,10 +118,7 @@ var CEFPreferenceManagerGetChromeVariationsAsSwitches func(Switches uintptr)
 
 var CEFPreferenceManagerGetChromeVariationsAsStrings func(Strings uintptr)
 
-var CEFPreferenceManagerGetGlobal func() unsafe.Pointer
-
 func RegisterPreference(handle uintptr) {
 	tryRegisterLibFunc(&CEFPreferenceManagerGetChromeVariationsAsSwitches, handle, "cef_preference_manager_get_chrome_variations_as_switches")
 	tryRegisterLibFunc(&CEFPreferenceManagerGetChromeVariationsAsStrings, handle, "cef_preference_manager_get_chrome_variations_as_strings")
-	tryRegisterLibFunc(&CEFPreferenceManagerGetGlobal, handle, "cef_preference_manager_get_global")
 }

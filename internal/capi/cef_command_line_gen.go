@@ -245,11 +245,4 @@ func (v *CEFCommandLineT) CallRemoveSwitch(args ...uintptr) uintptr {
 	return r1
 }
 
-var CEFCommandLineCreate func() unsafe.Pointer
-
-var CEFCommandLineGetGlobal func() unsafe.Pointer
-
-func RegisterCommandLine(handle uintptr) {
-	tryRegisterLibFunc(&CEFCommandLineCreate, handle, "cef_command_line_create")
-	tryRegisterLibFunc(&CEFCommandLineGetGlobal, handle, "cef_command_line_get_global")
-}
+func RegisterCommandLine(_ uintptr) {}

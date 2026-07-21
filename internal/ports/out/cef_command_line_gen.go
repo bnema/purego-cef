@@ -31,9 +31,3 @@ type CommandLine interface {
 	PrependWrapper(wrapper uintptr)
 	RemoveSwitch(name uintptr)
 }
-
-// CommandLineFunctions defines the outbound port for CommandLine free functions.
-type CommandLineFunctions interface {
-	CommandLineCreate() unsafe.Pointer
-	CommandLineGetGlobal() unsafe.Pointer
-}

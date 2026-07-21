@@ -85,9 +85,3 @@ func wrapResourceBundle(ptr unsafe.Pointer) ResourceBundle {
 	runtime.SetFinalizer(impl, (*resourceBundleImpl).Release)
 	return impl
 }
-
-// ResourceBundleGetGlobal Returns the global resource bundle instance.
-func ResourceBundleGetGlobal() ResourceBundle {
-	ret := capi.CEFResourceBundleGetGlobal()
-	return wrapResourceBundle(ret)
-}

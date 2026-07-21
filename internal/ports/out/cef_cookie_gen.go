@@ -15,8 +15,3 @@ type CookieManager interface {
 	DeleteCookies(uRL uintptr, cookieName uintptr, callback uintptr) uintptr
 	FlushStore(callback uintptr) uintptr
 }
-
-// CookieFunctions defines the outbound port for Cookie free functions.
-type CookieFunctions interface {
-	CookieManagerGetGlobalManager(callback unsafe.Pointer) unsafe.Pointer
-}

@@ -377,21 +377,12 @@ func (obj *translatorTestImpl) SetChildRefPtrLibraryAndReturnParent(val Translat
 	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
-func (obj *translatorTestImpl) SetRefPtrLibraryList(val []TranslatorTestRefPtrLibrary, val1 int32, val2 int32) int32 {
+func (obj *translatorTestImpl) SetRefPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	var valRaw []uintptr
-	var valPtr unsafe.Pointer
-	if len(val) > 0 {
-		valRaw = make([]uintptr, len(val))
-		for i, elem := range val {
-			valRaw[i] = uintptr(extractRawPointer(elem))
-		}
-		valPtr = unsafe.Pointer(&valRaw[0])
-	}
-	ret := rawPtr.CallSetRefPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
+	ret := rawPtr.CallSetRefPtrLibraryList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2))
 	return int32(ret)
 }
 
@@ -471,21 +462,12 @@ func (obj *translatorTestImpl) SetChildRefPtrClientAndReturnParent(val Translato
 	return wrapTranslatorTestRefPtrClient(unsafe.Pointer(ret))
 }
 
-func (obj *translatorTestImpl) SetRefPtrClientList(val []TranslatorTestRefPtrClient, val1 int32, val2 int32) int32 {
+func (obj *translatorTestImpl) SetRefPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	var valRaw []uintptr
-	var valPtr unsafe.Pointer
-	if len(val) > 0 {
-		valRaw = make([]uintptr, len(val))
-		for i, elem := range val {
-			valRaw[i] = uintptr(extractRawPointer(elem))
-		}
-		valPtr = unsafe.Pointer(&valRaw[0])
-	}
-	ret := rawPtr.CallSetRefPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
+	ret := rawPtr.CallSetRefPtrClientList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2))
 	return int32(ret)
 }
 
@@ -628,21 +610,12 @@ func (obj *translatorTestImpl) SetChildRawPtrLibrary(val TranslatorTestScopedLib
 	return int32(ret)
 }
 
-func (obj *translatorTestImpl) SetRawPtrLibraryList(val []TranslatorTestScopedLibrary, val1 int32, val2 int32) int32 {
+func (obj *translatorTestImpl) SetRawPtrLibraryList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	var valRaw []uintptr
-	var valPtr unsafe.Pointer
-	if len(val) > 0 {
-		valRaw = make([]uintptr, len(val))
-		for i, elem := range val {
-			valRaw[i] = uintptr(extractRawPointer(elem))
-		}
-		valPtr = unsafe.Pointer(&valRaw[0])
-	}
-	ret := rawPtr.CallSetRawPtrLibraryList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
+	ret := rawPtr.CallSetRawPtrLibraryList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2))
 	return int32(ret)
 }
 
@@ -664,21 +637,12 @@ func (obj *translatorTestImpl) SetChildRawPtrClient(val TranslatorTestScopedClie
 	return int32(ret)
 }
 
-func (obj *translatorTestImpl) SetRawPtrClientList(val []TranslatorTestScopedClient, val1 int32, val2 int32) int32 {
+func (obj *translatorTestImpl) SetRawPtrClientList(valcount int, val unsafe.Pointer, val1 int32, val2 int32) int32 {
 	if obj == nil || obj.rawPtr == nil {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	var valRaw []uintptr
-	var valPtr unsafe.Pointer
-	if len(val) > 0 {
-		valRaw = make([]uintptr, len(val))
-		for i, elem := range val {
-			valRaw[i] = uintptr(extractRawPointer(elem))
-		}
-		valPtr = unsafe.Pointer(&valRaw[0])
-	}
-	ret := rawPtr.CallSetRawPtrClientList(uintptr(len(val)), uintptr(valPtr), uintptr(val1), uintptr(val2))
+	ret := rawPtr.CallSetRawPtrClientList(uintptr(valcount), uintptr(val), uintptr(val1), uintptr(val2))
 	return int32(ret)
 }
 
@@ -1447,12 +1411,6 @@ func wrapTranslatorTestScopedClientChild(ptr unsafe.Pointer) TranslatorTestScope
 	impl := &translatorTestScopedClientChildImpl{rawPtr: r}
 	runtime.SetFinalizer(impl, (*translatorTestScopedClientChildImpl).Release)
 	return impl
-}
-
-// TranslatorTestCreate Create the test object.
-func TranslatorTestCreate() TranslatorTest {
-	ret := capi.CEFTranslatorTestCreate()
-	return wrapTranslatorTest(ret)
 }
 
 // TranslatorTestRefPtrLibraryCreate Create the test object.

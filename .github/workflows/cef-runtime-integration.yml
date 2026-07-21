@@ -67,10 +67,10 @@ jobs:
           : "${CEF_DIR:?CEF_DIR must point to the provisioned CEF runtime}"
           libcef="$CEF_DIR/libcef.so"
           test -f "$libcef"
-          required_major="${CEF_REQUIRED_MAJOR:-147}"
+          required_major="${CEF_REQUIRED_MAJOR:-150}"
           expected_build="${CEF_EXPECTED_BUILD:-}"
-          if ! [[ "$required_major" =~ ^[0-9]+$ ]] || (( required_major < 147 )); then
-            echo "CEF_REQUIRED_MAJOR must be an integer of at least 147" >&2
+          if ! [[ "$required_major" =~ ^[0-9]+$ ]] || (( required_major < 150 )); then
+            echo "CEF_REQUIRED_MAJOR must be an integer of at least 150" >&2
             exit 1
           fi
           runtime_version="$(python3 - "$libcef" <<'PY'

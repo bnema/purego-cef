@@ -1,14 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
-if [ -n "${CEF_HEADERS:-}" ]; then
-  headers_dir="$CEF_HEADERS"
-elif [ -n "${HOME:-}" ]; then
-  headers_dir="${HOME}/.local/share/cef/include"
-else
-  echo "ERROR: Neither CEF_HEADERS nor HOME is set. Cannot determine headers directory." >&2
+if [ -z "${CEF_HEADERS:-}" ]; then
+  echo "ERROR: CEF_HEADERS must name the CEF 150 include directory (for example /usr/include/cef/include)." >&2
   exit 1
 fi
+headers_dir="$CEF_HEADERS"
 
 if [ ! -d "$headers_dir" ]; then
   echo "ERROR: headers directory does not exist: $headers_dir" >&2

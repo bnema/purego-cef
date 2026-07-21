@@ -49,8 +49,4 @@ func (v *CEFResourceBundleT) CallGetDataResourceForScale(args ...uintptr) uintpt
 	return r1
 }
 
-var CEFResourceBundleGetGlobal func() unsafe.Pointer
-
-func RegisterResourceBundle(handle uintptr) {
-	tryRegisterLibFunc(&CEFResourceBundleGetGlobal, handle, "cef_resource_bundle_get_global")
-}
+func RegisterResourceBundle(_ uintptr) {}
