@@ -27,6 +27,15 @@ func TestReadAPIContractRequiresTargetLinuxHash(t *testing.T) {
 	if hash != "0123456789abcdef" {
 		t.Fatalf("hash = %q", hash)
 	}
+
+	versionOnly := fmt.Sprintf(`#define CEF_API_VERSION_%[1]d %[1]d`, cefapi.Version)
+	if err := os.WriteFile(path, []byte(versionOnly), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := readAPIContract(path); err == nil {
+		t.Fatalf("missing Linux hash for API %d accepted", cefapi.Version)
+	}
+
 	if err := os.WriteFile(path, []byte(`#define CEF_API_VERSION_14900 14900`), 0o644); err != nil {
 		t.Fatal(err)
 	}

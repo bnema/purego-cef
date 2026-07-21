@@ -150,7 +150,7 @@ CEF_HEADERS=/usr/include/cef/include go generate ./...
 
 Or manually:
 
-```
+```bash
 go run ./cmd/cefgen \
   --headers-dir /usr/include/cef/include \
   --capi-dir internal/capi \
