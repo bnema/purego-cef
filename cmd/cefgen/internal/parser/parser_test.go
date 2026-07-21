@@ -44,6 +44,28 @@ func TestParseExportedFunctions(t *testing.T) {
 	}
 }
 
+func TestParseExportedFunctionsPointerBoundToName(t *testing.T) {
+	// CEF 150 headers are clang-formatted with the star bound to the function
+	// name (`cef_value_t *cef_value_create`), not to the return type.
+	input := `CEF_EXPORT cef_dictionary_value_t *cef_dictionary_value_create(void);
+CEF_EXPORT cef_dictionary_value_t* cef_legacy_style_create(void);`
+	file, err := Parse("cef_values_capi.h", []byte(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(file.Functions) != 2 {
+		t.Fatalf("expected 2 functions, got: %+v", file.Functions)
+	}
+	for _, fn := range file.Functions {
+		if fn.ReturnGoType != "unsafe.Pointer" {
+			t.Fatalf("function %s: unexpected return type %q (C %q)", fn.CName, fn.ReturnGoType, fn.ReturnCType)
+		}
+	}
+	if file.Functions[0].CName != "cef_dictionary_value_create" || file.Functions[1].CName != "cef_legacy_style_create" {
+		t.Fatalf("unexpected function names: %+v", file.Functions)
+	}
+}
+
 func TestMapType(t *testing.T) {
 	tests := []struct {
 		ctype string

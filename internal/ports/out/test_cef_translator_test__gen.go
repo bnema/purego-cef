@@ -109,6 +109,7 @@ type TranslatorTestScopedLibraryChildChild interface {
 
 // TranslatorTestFunctions defines the outbound port for TranslatorTest free functions.
 type TranslatorTestFunctions interface {
+	TranslatorTestCreate() unsafe.Pointer
 	TranslatorTestRefPtrLibraryCreate(value unsafe.Pointer) unsafe.Pointer
 	TranslatorTestRefPtrLibraryChildCreate(value unsafe.Pointer, otherValue unsafe.Pointer) unsafe.Pointer
 	TranslatorTestRefPtrLibraryChildChildCreate(value unsafe.Pointer, otherValue unsafe.Pointer, otherOtherValue unsafe.Pointer) unsafe.Pointer

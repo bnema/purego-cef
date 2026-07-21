@@ -220,3 +220,9 @@ func wrapImage(ptr unsafe.Pointer) Image {
 	runtime.SetFinalizer(impl, (*imageImpl).Release)
 	return impl
 }
+
+// ImageCreate Create a new cef_image_t. It will initially be NULL. Use the Add*() functions to add representations at different scale factors.
+func ImageCreate() Image {
+	ret := capi.CEFImageCreate()
+	return wrapImage(ret)
+}

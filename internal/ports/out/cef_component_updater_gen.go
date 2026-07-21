@@ -22,3 +22,8 @@ type ComponentUpdater interface {
 	GetComponentByID(componentID uintptr) uintptr
 	Update(componentID uintptr, priority uintptr, callback uintptr)
 }
+
+// ComponentUpdaterFunctions defines the outbound port for ComponentUpdater free functions.
+type ComponentUpdaterFunctions interface {
+	ComponentUpdaterGet() unsafe.Pointer
+}

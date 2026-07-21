@@ -302,3 +302,9 @@ func wrapComponentUpdater(ptr unsafe.Pointer) ComponentUpdater {
 	runtime.SetFinalizer(impl, (*componentUpdaterImpl).Release)
 	return impl
 }
+
+// ComponentUpdaterGet Returns the global cef_component_updater_t singleton. Returns nullptr if called from the incorrect thread.
+func ComponentUpdaterGet() ComponentUpdater {
+	ret := capi.CEFComponentUpdaterGet()
+	return wrapComponentUpdater(ret)
+}

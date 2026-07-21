@@ -216,3 +216,9 @@ func wrapResponse(ptr unsafe.Pointer) Response {
 	runtime.SetFinalizer(impl, (*responseImpl).Release)
 	return impl
 }
+
+// ResponseCreate Create a new cef_response_t object.
+func ResponseCreate() Response {
+	ret := capi.CEFResponseCreate()
+	return wrapResponse(ret)
+}

@@ -262,3 +262,9 @@ func wrapPrintSettings(ptr unsafe.Pointer) PrintSettings {
 	runtime.SetFinalizer(impl, (*printSettingsImpl).Release)
 	return impl
 }
+
+// PrintSettingsCreate Create a new cef_print_settings_t object.
+func PrintSettingsCreate() PrintSettings {
+	ret := capi.CEFPrintSettingsCreate()
+	return wrapPrintSettings(ret)
+}

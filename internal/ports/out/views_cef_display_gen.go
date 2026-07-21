@@ -20,6 +20,7 @@ type Display interface {
 
 // DisplayFunctions defines the outbound port for Display free functions.
 type DisplayFunctions interface {
+	DisplayGetPrimary() unsafe.Pointer
 	DisplayGetNearestPoint(point unsafe.Pointer, inputPixelCoords unsafe.Pointer) unsafe.Pointer
 	DisplayGetMatchingBounds(bounds unsafe.Pointer, inputPixelCoords unsafe.Pointer) unsafe.Pointer
 	DisplayGetCount() int

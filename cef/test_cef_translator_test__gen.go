@@ -1413,6 +1413,12 @@ func wrapTranslatorTestScopedClientChild(ptr unsafe.Pointer) TranslatorTestScope
 	return impl
 }
 
+// TranslatorTestCreate Create the test object.
+func TranslatorTestCreate() TranslatorTest {
+	ret := capi.CEFTranslatorTestCreate()
+	return wrapTranslatorTest(ret)
+}
+
 // TranslatorTestRefPtrLibraryCreate Create the test object.
 func TranslatorTestRefPtrLibraryCreate(value int32) TranslatorTestRefPtrLibrary {
 	ret := capi.CEFTranslatorTestRefPtrLibraryCreate(value)

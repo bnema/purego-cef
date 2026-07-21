@@ -1058,3 +1058,27 @@ func wrapListValue(ptr unsafe.Pointer) ListValue {
 	runtime.SetFinalizer(impl, (*listValueImpl).Release)
 	return impl
 }
+
+// ValueCreate Creates a new object.
+func ValueCreate() Value {
+	ret := capi.CEFValueCreate()
+	return wrapValue(ret)
+}
+
+// BinaryValueCreate Creates a new object that is not owned by any other object. The specified |data| will be copied.
+func BinaryValueCreate(data unsafe.Pointer, dataSize int) BinaryValue {
+	ret := capi.CEFBinaryValueCreate(data, uintptr(dataSize))
+	return wrapBinaryValue(ret)
+}
+
+// DictionaryValueCreate Creates a new object that is not owned by any other object.
+func DictionaryValueCreate() DictionaryValue {
+	ret := capi.CEFDictionaryValueCreate()
+	return wrapDictionaryValue(ret)
+}
+
+// ListValueCreate Creates a new object that is not owned by any other object.
+func ListValueCreate() ListValue {
+	ret := capi.CEFListValueCreate()
+	return wrapListValue(ret)
+}

@@ -1635,6 +1635,18 @@ func wrapV8StackFrame(ptr unsafe.Pointer) V8StackFrame {
 	return impl
 }
 
+// V8ContextGetCurrentContext Returns the current (top) context object in the V8 context stack.
+func V8ContextGetCurrentContext() V8Context {
+	ret := capi.CEFV8ContextGetCurrentContext()
+	return wrapV8Context(ret)
+}
+
+// V8ContextGetEnteredContext Returns the entered (bottom) context object in the V8 context stack.
+func V8ContextGetEnteredContext() V8Context {
+	ret := capi.CEFV8ContextGetEnteredContext()
+	return wrapV8Context(ret)
+}
+
 // V8ContextInContext Returns true (1) if V8 is currently inside a context.
 func V8ContextInContext() int32 {
 	ret := capi.CEFV8ContextInContext()
@@ -1645,6 +1657,42 @@ func V8ContextInContext() int32 {
 func V8BackingStoreCreate(byteLength int) V8BackingStore {
 	ret := capi.CEFV8BackingStoreCreate(uintptr(byteLength))
 	return wrapV8BackingStore(ret)
+}
+
+// V8ValueCreateUndefined Create a new cef_v8_value_t object of type undefined.
+func V8ValueCreateUndefined() V8Value {
+	ret := capi.CEFV8ValueCreateUndefined()
+	return wrapV8Value(ret)
+}
+
+// V8ValueCreateNull Create a new cef_v8_value_t object of type null.
+func V8ValueCreateNull() V8Value {
+	ret := capi.CEFV8ValueCreateNull()
+	return wrapV8Value(ret)
+}
+
+// V8ValueCreateBool Create a new cef_v8_value_t object of type bool.
+func V8ValueCreateBool(value int32) V8Value {
+	ret := capi.CEFV8ValueCreateBool(value)
+	return wrapV8Value(ret)
+}
+
+// V8ValueCreateInt Create a new cef_v8_value_t object of type int.
+func V8ValueCreateInt(value int32) V8Value {
+	ret := capi.CEFV8ValueCreateInt(value)
+	return wrapV8Value(ret)
+}
+
+// V8ValueCreateUint Create a new cef_v8_value_t object of type unsigned int.
+func V8ValueCreateUint(value uint32) V8Value {
+	ret := capi.CEFV8ValueCreateUint(value)
+	return wrapV8Value(ret)
+}
+
+// V8ValueCreateDouble Create a new cef_v8_value_t object of type double.
+func V8ValueCreateDouble(value float64) V8Value {
+	ret := capi.CEFV8ValueCreateDouble(value)
+	return wrapV8Value(ret)
 }
 
 // V8ValueCreateString Create a new cef_v8_value_t object of type string.
@@ -1661,9 +1709,27 @@ func V8ValueCreateObject(accessor V8Accessor, interceptor V8Interceptor) V8Value
 	return wrapV8Value(ret)
 }
 
+// V8ValueCreateArray Create a new cef_v8_value_t object of type array with the specified |length|. If |length| is negative the returned array will have length 0. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
+func V8ValueCreateArray(length int32) V8Value {
+	ret := capi.CEFV8ValueCreateArray(length)
+	return wrapV8Value(ret)
+}
+
+// V8ValueCreateArrayBuffer Create a new cef_v8_value_t object of type ArrayBuffer which wraps the provided |buffer| of size |length| bytes. The ArrayBuffer is externalized, meaning that it does not own |buffer|. The caller is responsible for freeing |buffer| when requested via a call to cef_v8_array_buffer_release_callback_t::ReleaseBuffer. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference. NOTE: Always returns nullptr when V8 sandbox is enabled.
+func V8ValueCreateArrayBuffer(buffer unsafe.Pointer, length int, releaseCallback V8ArrayBufferReleaseCallback) V8Value {
+	ret := capi.CEFV8ValueCreateArrayBuffer(buffer, uintptr(length), extractOrWrapRawPointer(releaseCallback, func() any { return NewV8ArrayBufferReleaseCallback(releaseCallback) }))
+	return wrapV8Value(ret)
+}
+
 // V8ValueCreateArrayBufferWithCopy Create a new cef_v8_value_t object of type ArrayBuffer which copies the provided |buffer| of size |length| bytes. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
 func V8ValueCreateArrayBufferWithCopy(buffer unsafe.Pointer, length int) V8Value {
 	ret := capi.CEFV8ValueCreateArrayBufferWithCopy(buffer, uintptr(length))
+	return wrapV8Value(ret)
+}
+
+// V8ValueCreateArrayBufferFromBackingStore wraps the CEF CEFV8ValueCreateArrayBufferFromBackingStore function.
+func V8ValueCreateArrayBufferFromBackingStore(backingStore V8BackingStore) V8Value {
+	ret := capi.CEFV8ValueCreateArrayBufferFromBackingStore(extractRawPointer(backingStore))
 	return wrapV8Value(ret)
 }
 
@@ -1672,6 +1738,12 @@ func V8ValueCreateFunction(name string, handler V8Handler) V8Value {
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	ret := capi.CEFV8ValueCreateFunction(unsafe.Pointer(&nameStr), extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) }))
+	return wrapV8Value(ret)
+}
+
+// V8ValueCreatePromise Create a new cef_v8_value_t object of type Promise. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
+func V8ValueCreatePromise() V8Value {
+	ret := capi.CEFV8ValueCreatePromise()
 	return wrapV8Value(ret)
 }
 

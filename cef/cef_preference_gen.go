@@ -268,3 +268,9 @@ func PreferenceManagerGetChromeVariationsAsSwitches(switches StringList) {
 func PreferenceManagerGetChromeVariationsAsStrings(strings StringList) {
 	capi.CEFPreferenceManagerGetChromeVariationsAsStrings(uintptr(strings))
 }
+
+// PreferenceManagerGetGlobal Returns the global preference manager object.
+func PreferenceManagerGetGlobal() PreferenceManager {
+	ret := capi.CEFPreferenceManagerGetGlobal()
+	return wrapPreferenceManager(ret)
+}

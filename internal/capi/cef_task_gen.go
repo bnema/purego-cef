@@ -85,6 +85,8 @@ func (v *CEFTaskRunnerT) CallPostDelayedTask(args ...uintptr) uintptr {
 	return r1
 }
 
+var CEFTaskRunnerGetForCurrentThread func() unsafe.Pointer
+
 var CEFTaskRunnerGetForThread func(Threadid CEFThreadIDT) unsafe.Pointer
 
 var CEFCurrentlyOn func(Threadid CEFThreadIDT) int32
@@ -94,6 +96,7 @@ var CEFPostTask func(Threadid CEFThreadIDT, Task unsafe.Pointer) int32
 var CEFPostDelayedTask func(Threadid CEFThreadIDT, Task unsafe.Pointer, DelayMs int64) int32
 
 func RegisterTask(handle uintptr) {
+	tryRegisterLibFunc(&CEFTaskRunnerGetForCurrentThread, handle, "cef_task_runner_get_for_current_thread")
 	tryRegisterLibFunc(&CEFTaskRunnerGetForThread, handle, "cef_task_runner_get_for_thread")
 	tryRegisterLibFunc(&CEFCurrentlyOn, handle, "cef_currently_on")
 	tryRegisterLibFunc(&CEFPostTask, handle, "cef_post_task")

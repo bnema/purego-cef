@@ -1312,6 +1312,14 @@ func BrowserHostCreateBrowser(windowinfo *WindowInfo, client RawClient, uRL stri
 	return int32(ret)
 }
 
+// BrowserHostCreateBrowserSync Create a new browser using the window parameters specified by |windowInfo|. If |request_context| is NULL the global request context will be used. This function can only be called on the browser process UI thread. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
+func BrowserHostCreateBrowserSync(windowinfo *WindowInfo, client RawClient, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) Browser {
+	uRLStr := cefString(uRL)
+	defer freeCefString(&uRLStr)
+	ret := capi.CEFBrowserHostCreateBrowserSync(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return NewRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
+	return wrapBrowser(ret)
+}
+
 // BrowserHostGetBrowserByIdentifier Returns the browser (if any) with the specified identifier.
 func BrowserHostGetBrowserByIdentifier(browserID int32) Browser {
 	ret := capi.CEFBrowserHostGetBrowserByIdentifier(browserID)

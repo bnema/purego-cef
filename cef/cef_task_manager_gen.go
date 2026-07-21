@@ -129,3 +129,9 @@ func wrapTaskManager(ptr unsafe.Pointer) TaskManager {
 	runtime.SetFinalizer(impl, (*taskManagerImpl).Release)
 	return impl
 }
+
+// TaskManagerGet Returns the global task manager object. Returns nullptr if the function was called from the incorrect thread.
+func TaskManagerGet() TaskManager {
+	ret := capi.CEFTaskManagerGet()
+	return wrapTaskManager(ret)
+}

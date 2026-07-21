@@ -117,4 +117,8 @@ func (v *CEFDeleteCookiesCallbackT) CallOnComplete(args ...uintptr) uintptr {
 	return r1
 }
 
-func RegisterCookie(_ uintptr) {}
+var CEFCookieManagerGetGlobalManager func(Callback unsafe.Pointer) unsafe.Pointer
+
+func RegisterCookie(handle uintptr) {
+	tryRegisterLibFunc(&CEFCookieManagerGetGlobalManager, handle, "cef_cookie_manager_get_global_manager")
+}

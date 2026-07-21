@@ -1234,6 +1234,12 @@ func wrapApiVersionTestScopedClientChildV2(ptr unsafe.Pointer) ApiVersionTestSco
 	return impl
 }
 
+// ApiVersionTestCreate Create the test object.
+func ApiVersionTestCreate() ApiVersionTest {
+	ret := capi.CEFApiVersionTestCreate()
+	return wrapApiVersionTest(ret)
+}
+
 // ApiVersionTestRefPtrLibraryCreate Create the test object.
 func ApiVersionTestRefPtrLibraryCreate() ApiVersionTestRefPtrLibrary {
 	ret := capi.CEFApiVersionTestRefPtrLibraryCreate()

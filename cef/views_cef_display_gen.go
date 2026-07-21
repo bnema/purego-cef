@@ -130,6 +130,12 @@ func wrapDisplay(ptr unsafe.Pointer) Display {
 	return impl
 }
 
+// DisplayGetPrimary Returns the primary Display.
+func DisplayGetPrimary() Display {
+	ret := capi.CEFDisplayGetPrimary()
+	return wrapDisplay(ret)
+}
+
 // DisplayGetNearestPoint Returns the Display nearest |point|. Set |input_pixel_coords| to true (1) if |point| is in pixel screen coordinates instead of DIP screen coordinates.
 func DisplayGetNearestPoint(point *Point, inputPixelCoords int32) Display {
 	ret := capi.CEFDisplayGetNearestPoint(unsafe.Pointer(point), inputPixelCoords)

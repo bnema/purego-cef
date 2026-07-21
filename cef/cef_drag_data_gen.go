@@ -308,3 +308,9 @@ func wrapDragData(ptr unsafe.Pointer) DragData {
 	runtime.SetFinalizer(impl, (*dragDataImpl).Release)
 	return impl
 }
+
+// DragDataCreate Create a new cef_drag_data_t object.
+func DragDataCreate() DragData {
+	ret := capi.CEFDragDataCreate()
+	return wrapDragData(ret)
+}

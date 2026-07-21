@@ -431,4 +431,14 @@ func (v *CEFPostDataElementT) CallGetBytes(args ...uintptr) uintptr {
 	return r1
 }
 
-func RegisterRequest(_ uintptr) {}
+var CEFRequestCreate func() unsafe.Pointer
+
+var CEFPostDataCreate func() unsafe.Pointer
+
+var CEFPostDataElementCreate func() unsafe.Pointer
+
+func RegisterRequest(handle uintptr) {
+	tryRegisterLibFunc(&CEFRequestCreate, handle, "cef_request_create")
+	tryRegisterLibFunc(&CEFPostDataCreate, handle, "cef_post_data_create")
+	tryRegisterLibFunc(&CEFPostDataElementCreate, handle, "cef_post_data_element_create")
+}

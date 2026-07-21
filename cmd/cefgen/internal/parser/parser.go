@@ -14,8 +14,10 @@ import (
 )
 
 var (
-	structRE   = regexp.MustCompile(`(?s)typedef struct (_cef_[a-z0-9_]+_t)\s*\{(.*?)\}\s*(cef_[a-z0-9_]+_t);`)
-	funcRE     = regexp.MustCompile(`CEF_EXPORT\s+(.+?)\s+(cef_[a-z0-9_]+)\((.*?)\);`)
+	structRE = regexp.MustCompile(`(?s)typedef struct (_cef_[a-z0-9_]+_t)\s*\{(.*?)\}\s*(cef_[a-z0-9_]+_t);`)
+	// The separator between return type and name is `\s|*` because clang-format
+	// binds the pointer star to the name: `cef_value_t *cef_value_create(void)`.
+	funcRE     = regexp.MustCompile(`CEF_EXPORT\s+(.+?[\s*])(cef_[a-z0-9_]+)\((.*?)\);`)
 	enumRE     = regexp.MustCompile(`(?s)typedef enum\s*\{(.*?)\}\s*(cef_[a-z0-9_]+_t);`)
 	callbackRE = regexp.MustCompile(`(.+?)\(\s*CEF_CALLBACK\s*\*\s*([a-z0-9_]+)\)\((.*?)\)`)
 )

@@ -123,4 +123,8 @@ func (v *CEFComponentUpdaterT) CallUpdate(args ...uintptr) uintptr {
 	return r1
 }
 
-func RegisterComponentUpdater(_ uintptr) {}
+var CEFComponentUpdaterGet func() unsafe.Pointer
+
+func RegisterComponentUpdater(handle uintptr) {
+	tryRegisterLibFunc(&CEFComponentUpdaterGet, handle, "cef_component_updater_get")
+}

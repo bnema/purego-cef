@@ -37,3 +37,8 @@ type DragData interface {
 	GetImageHotspot() uintptr
 	HasImage() uintptr
 }
+
+// DragDataFunctions defines the outbound port for DragData free functions.
+type DragDataFunctions interface {
+	DragDataCreate() unsafe.Pointer
+}

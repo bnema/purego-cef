@@ -517,3 +517,21 @@ func wrapPostDataElement(ptr unsafe.Pointer) PostDataElement {
 	runtime.SetFinalizer(impl, (*postDataElementImpl).Release)
 	return impl
 }
+
+// RequestCreate Create a new cef_request_t object.
+func RequestCreate() Request {
+	ret := capi.CEFRequestCreate()
+	return wrapRequest(ret)
+}
+
+// PostDataCreate Create a new cef_post_data_t object.
+func PostDataCreate() PostData {
+	ret := capi.CEFPostDataCreate()
+	return wrapPostData(ret)
+}
+
+// PostDataElementCreate Create a new cef_post_data_element_t object.
+func PostDataElementCreate() PostDataElement {
+	ret := capi.CEFPostDataElementCreate()
+	return wrapPostDataElement(ret)
+}

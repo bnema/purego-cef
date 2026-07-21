@@ -157,4 +157,8 @@ func (v *CEFImageT) CallGetAsJpeg(args ...uintptr) uintptr {
 	return r1
 }
 
-func RegisterImage(_ uintptr) {}
+var CEFImageCreate func() unsafe.Pointer
+
+func RegisterImage(handle uintptr) {
+	tryRegisterLibFunc(&CEFImageCreate, handle, "cef_image_create")
+}

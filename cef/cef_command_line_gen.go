@@ -255,3 +255,15 @@ func wrapCommandLine(ptr unsafe.Pointer) CommandLine {
 	runtime.SetFinalizer(impl, (*commandLineImpl).Release)
 	return impl
 }
+
+// CommandLineCreate Create a new cef_command_line_t instance.
+func CommandLineCreate() CommandLine {
+	ret := capi.CEFCommandLineCreate()
+	return wrapCommandLine(ret)
+}
+
+// CommandLineGetGlobal Returns the singleton global cef_command_line_t object. The returned object will be read-only.
+func CommandLineGetGlobal() CommandLine {
+	ret := capi.CEFCommandLineGetGlobal()
+	return wrapCommandLine(ret)
+}
