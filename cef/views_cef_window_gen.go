@@ -36,7 +36,7 @@ func (obj *windowImpl) ShowAsBrowserModalDialog(browserView BrowserView) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallShowAsBrowserModalDialog(uintptr(extractRawPointer(browserView)))
+	rawPtr.CallShowAsBrowserModalDialog(extractRawPointer(browserView))
 }
 
 func (obj *windowImpl) Hide() {
@@ -52,7 +52,7 @@ func (obj *windowImpl) CenterWindow(size *Size) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallCenterWindow(uintptr(unsafe.Pointer(size)))
+	rawPtr.CallCenterWindow(unsafe.Pointer(size))
 }
 
 func (obj *windowImpl) Close() {
@@ -197,7 +197,7 @@ func (obj *windowImpl) SetTitle(title string) {
 	rawPtr := obj.rawPtr
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
-	rawPtr.CallSetTitle(uintptr(unsafe.Pointer(&titleStr)))
+	rawPtr.CallSetTitle(unsafe.Pointer(&titleStr))
 }
 
 func (obj *windowImpl) GetTitle() string {
@@ -214,7 +214,7 @@ func (obj *windowImpl) SetWindowIcon(image Image) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetWindowIcon(uintptr(extractRawPointer(image)))
+	rawPtr.CallSetWindowIcon(extractRawPointer(image))
 }
 
 func (obj *windowImpl) GetWindowIcon() Image {
@@ -231,7 +231,7 @@ func (obj *windowImpl) SetWindowAppIcon(image Image) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetWindowAppIcon(uintptr(extractRawPointer(image)))
+	rawPtr.CallSetWindowAppIcon(extractRawPointer(image))
 }
 
 func (obj *windowImpl) GetWindowAppIcon() Image {
@@ -248,7 +248,7 @@ func (obj *windowImpl) AddOverlayView(view View, dockingMode DockingMode, canAct
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAddOverlayView(uintptr(extractRawPointer(view)), uintptr(dockingMode), uintptr(canActivate))
+	ret := rawPtr.CallAddOverlayView(extractRawPointer(view), uintptr(dockingMode), uintptr(canActivate))
 	return wrapOverlayController(unsafe.Pointer(ret))
 }
 
@@ -257,7 +257,7 @@ func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anchorP
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
+	rawPtr.CallShowMenu(extractRawPointer(menuModel), unsafe.Pointer(screenPoint), uintptr(anchorPosition))
 }
 
 func (obj *windowImpl) CancelMenu() {
@@ -295,7 +295,7 @@ func (obj *windowImpl) SetDraggableRegions(regions []DraggableRegion) {
 	if len(regions) > 0 {
 		regionsPtr = unsafe.Pointer(&regions[0])
 	}
-	rawPtr.CallSetDraggableRegions(uintptr(len(regions)), uintptr(regionsPtr))
+	rawPtr.CallSetDraggableRegions(uintptr(len(regions)), regionsPtr)
 }
 
 func (obj *windowImpl) GetWindowHandle() uintptr {

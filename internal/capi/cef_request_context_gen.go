@@ -17,11 +17,11 @@ type CEFResolveCallbackT struct {
 
 func (v *CEFResolveCallbackT) OverrideOnResolveCompleted(fn uintptr) { v.OnResolveCompleted = fn }
 
-func (v *CEFResolveCallbackT) CallOnResolveCompleted(args ...uintptr) uintptr {
+func (v *CEFResolveCallbackT) CallOnResolveCompleted(Result uintptr, ResolvedIps uintptr) uintptr {
 	if v.OnResolveCompleted == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnResolveCompleted, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnResolveCompleted, uintptr(unsafe.Pointer(v)), Result, ResolvedIps)
 	return r1
 }
 
@@ -33,11 +33,11 @@ type CEFSettingObserverT struct {
 
 func (v *CEFSettingObserverT) OverrideOnSettingChanged(fn uintptr) { v.OnSettingChanged = fn }
 
-func (v *CEFSettingObserverT) CallOnSettingChanged(args ...uintptr) uintptr {
+func (v *CEFSettingObserverT) CallOnSettingChanged(RequestingURL unsafe.Pointer, TopLevelURL unsafe.Pointer, ContentType uintptr) uintptr {
 	if v.OnSettingChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnSettingChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnSettingChanged, uintptr(unsafe.Pointer(v)), uintptr(RequestingURL), uintptr(TopLevelURL), ContentType)
 	return r1
 }
 
@@ -71,61 +71,61 @@ type CEFRequestContextT struct {
 
 func (v *CEFRequestContextT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
-func (v *CEFRequestContextT) CallIsSame(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallIsSame(Other unsafe.Pointer) uintptr {
 	if v.IsSame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSame, uintptr(unsafe.Pointer(v)), uintptr(Other))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideIsSharingWith(fn uintptr) { v.IsSharingWith = fn }
 
-func (v *CEFRequestContextT) CallIsSharingWith(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallIsSharingWith(Other unsafe.Pointer) uintptr {
 	if v.IsSharingWith == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSharingWith, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSharingWith, uintptr(unsafe.Pointer(v)), uintptr(Other))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideIsGlobal(fn uintptr) { v.IsGlobal = fn }
 
-func (v *CEFRequestContextT) CallIsGlobal(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallIsGlobal() uintptr {
 	if v.IsGlobal == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsGlobal, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsGlobal, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideGetHandler(fn uintptr) { v.GetHandler = fn }
 
-func (v *CEFRequestContextT) CallGetHandler(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallGetHandler() uintptr {
 	if v.GetHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideGetCachePath(fn uintptr) { v.GetCachePath = fn }
 
-func (v *CEFRequestContextT) CallGetCachePath(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallGetCachePath() uintptr {
 	if v.GetCachePath == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCachePath, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCachePath, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideGetCookieManager(fn uintptr) { v.GetCookieManager = fn }
 
-func (v *CEFRequestContextT) CallGetCookieManager(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallGetCookieManager(Callback unsafe.Pointer) uintptr {
 	if v.GetCookieManager == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCookieManager, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCookieManager, uintptr(unsafe.Pointer(v)), uintptr(Callback))
 	return r1
 }
 
@@ -133,11 +133,11 @@ func (v *CEFRequestContextT) OverrideRegisterSchemeHandlerFactory(fn uintptr) {
 	v.RegisterSchemeHandlerFactory = fn
 }
 
-func (v *CEFRequestContextT) CallRegisterSchemeHandlerFactory(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallRegisterSchemeHandlerFactory(SchemeName unsafe.Pointer, DomainName unsafe.Pointer, Factory unsafe.Pointer) uintptr {
 	if v.RegisterSchemeHandlerFactory == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RegisterSchemeHandlerFactory, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RegisterSchemeHandlerFactory, uintptr(unsafe.Pointer(v)), uintptr(SchemeName), uintptr(DomainName), uintptr(Factory))
 	return r1
 }
 
@@ -145,11 +145,11 @@ func (v *CEFRequestContextT) OverrideClearSchemeHandlerFactories(fn uintptr) {
 	v.ClearSchemeHandlerFactories = fn
 }
 
-func (v *CEFRequestContextT) CallClearSchemeHandlerFactories(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallClearSchemeHandlerFactories() uintptr {
 	if v.ClearSchemeHandlerFactories == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ClearSchemeHandlerFactories, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ClearSchemeHandlerFactories, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -157,11 +157,11 @@ func (v *CEFRequestContextT) OverrideClearCertificateExceptions(fn uintptr) {
 	v.ClearCertificateExceptions = fn
 }
 
-func (v *CEFRequestContextT) CallClearCertificateExceptions(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallClearCertificateExceptions(Callback unsafe.Pointer) uintptr {
 	if v.ClearCertificateExceptions == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ClearCertificateExceptions, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ClearCertificateExceptions, uintptr(unsafe.Pointer(v)), uintptr(Callback))
 	return r1
 }
 
@@ -169,91 +169,91 @@ func (v *CEFRequestContextT) OverrideClearHttpAuthCredentials(fn uintptr) {
 	v.ClearHttpAuthCredentials = fn
 }
 
-func (v *CEFRequestContextT) CallClearHttpAuthCredentials(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallClearHttpAuthCredentials(Callback unsafe.Pointer) uintptr {
 	if v.ClearHttpAuthCredentials == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ClearHttpAuthCredentials, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ClearHttpAuthCredentials, uintptr(unsafe.Pointer(v)), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideCloseAllConnections(fn uintptr) { v.CloseAllConnections = fn }
 
-func (v *CEFRequestContextT) CallCloseAllConnections(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallCloseAllConnections(Callback unsafe.Pointer) uintptr {
 	if v.CloseAllConnections == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CloseAllConnections, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CloseAllConnections, uintptr(unsafe.Pointer(v)), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideResolveHost(fn uintptr) { v.ResolveHost = fn }
 
-func (v *CEFRequestContextT) CallResolveHost(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallResolveHost(Origin unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.ResolveHost == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ResolveHost, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ResolveHost, uintptr(unsafe.Pointer(v)), uintptr(Origin), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideGetMediaRouter(fn uintptr) { v.GetMediaRouter = fn }
 
-func (v *CEFRequestContextT) CallGetMediaRouter(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallGetMediaRouter(Callback unsafe.Pointer) uintptr {
 	if v.GetMediaRouter == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetMediaRouter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetMediaRouter, uintptr(unsafe.Pointer(v)), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideGetWebsiteSetting(fn uintptr) { v.GetWebsiteSetting = fn }
 
-func (v *CEFRequestContextT) CallGetWebsiteSetting(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallGetWebsiteSetting(RequestingURL unsafe.Pointer, TopLevelURL unsafe.Pointer, ContentType uintptr) uintptr {
 	if v.GetWebsiteSetting == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWebsiteSetting, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWebsiteSetting, uintptr(unsafe.Pointer(v)), uintptr(RequestingURL), uintptr(TopLevelURL), ContentType)
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideSetWebsiteSetting(fn uintptr) { v.SetWebsiteSetting = fn }
 
-func (v *CEFRequestContextT) CallSetWebsiteSetting(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallSetWebsiteSetting(RequestingURL unsafe.Pointer, TopLevelURL unsafe.Pointer, ContentType uintptr, Value unsafe.Pointer) uintptr {
 	if v.SetWebsiteSetting == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetWebsiteSetting, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetWebsiteSetting, uintptr(unsafe.Pointer(v)), uintptr(RequestingURL), uintptr(TopLevelURL), ContentType, uintptr(Value))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideGetContentSetting(fn uintptr) { v.GetContentSetting = fn }
 
-func (v *CEFRequestContextT) CallGetContentSetting(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallGetContentSetting(RequestingURL unsafe.Pointer, TopLevelURL unsafe.Pointer, ContentType uintptr) uintptr {
 	if v.GetContentSetting == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetContentSetting, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetContentSetting, uintptr(unsafe.Pointer(v)), uintptr(RequestingURL), uintptr(TopLevelURL), ContentType)
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideSetContentSetting(fn uintptr) { v.SetContentSetting = fn }
 
-func (v *CEFRequestContextT) CallSetContentSetting(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallSetContentSetting(RequestingURL unsafe.Pointer, TopLevelURL unsafe.Pointer, ContentType uintptr, Value uintptr) uintptr {
 	if v.SetContentSetting == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetContentSetting, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetContentSetting, uintptr(unsafe.Pointer(v)), uintptr(RequestingURL), uintptr(TopLevelURL), ContentType, Value)
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideSetChromeColorScheme(fn uintptr) { v.SetChromeColorScheme = fn }
 
-func (v *CEFRequestContextT) CallSetChromeColorScheme(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallSetChromeColorScheme(Variant uintptr, UserColor uintptr) uintptr {
 	if v.SetChromeColorScheme == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChromeColorScheme, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChromeColorScheme, uintptr(unsafe.Pointer(v)), Variant, UserColor)
 	return r1
 }
 
@@ -261,11 +261,11 @@ func (v *CEFRequestContextT) OverrideGetChromeColorSchemeMode(fn uintptr) {
 	v.GetChromeColorSchemeMode = fn
 }
 
-func (v *CEFRequestContextT) CallGetChromeColorSchemeMode(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallGetChromeColorSchemeMode() uintptr {
 	if v.GetChromeColorSchemeMode == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetChromeColorSchemeMode, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetChromeColorSchemeMode, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -273,11 +273,11 @@ func (v *CEFRequestContextT) OverrideGetChromeColorSchemeColor(fn uintptr) {
 	v.GetChromeColorSchemeColor = fn
 }
 
-func (v *CEFRequestContextT) CallGetChromeColorSchemeColor(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallGetChromeColorSchemeColor() uintptr {
 	if v.GetChromeColorSchemeColor == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetChromeColorSchemeColor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetChromeColorSchemeColor, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -285,31 +285,31 @@ func (v *CEFRequestContextT) OverrideGetChromeColorSchemeVariant(fn uintptr) {
 	v.GetChromeColorSchemeVariant = fn
 }
 
-func (v *CEFRequestContextT) CallGetChromeColorSchemeVariant(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallGetChromeColorSchemeVariant() uintptr {
 	if v.GetChromeColorSchemeVariant == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetChromeColorSchemeVariant, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetChromeColorSchemeVariant, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideAddSettingObserver(fn uintptr) { v.AddSettingObserver = fn }
 
-func (v *CEFRequestContextT) CallAddSettingObserver(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallAddSettingObserver(Observer unsafe.Pointer) uintptr {
 	if v.AddSettingObserver == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddSettingObserver, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddSettingObserver, uintptr(unsafe.Pointer(v)), uintptr(Observer))
 	return r1
 }
 
 func (v *CEFRequestContextT) OverrideClearHttpCache(fn uintptr) { v.ClearHttpCache = fn }
 
-func (v *CEFRequestContextT) CallClearHttpCache(args ...uintptr) uintptr {
+func (v *CEFRequestContextT) CallClearHttpCache(Callback unsafe.Pointer) uintptr {
 	if v.ClearHttpCache == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ClearHttpCache, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ClearHttpCache, uintptr(unsafe.Pointer(v)), uintptr(Callback))
 	return r1
 }
 

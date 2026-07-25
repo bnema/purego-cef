@@ -21,51 +21,51 @@ type CEFFrameHandlerT struct {
 
 func (v *CEFFrameHandlerT) OverrideOnFrameCreated(fn uintptr) { v.OnFrameCreated = fn }
 
-func (v *CEFFrameHandlerT) CallOnFrameCreated(args ...uintptr) uintptr {
+func (v *CEFFrameHandlerT) CallOnFrameCreated(Browser unsafe.Pointer, Frame unsafe.Pointer) uintptr {
 	if v.OnFrameCreated == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnFrameCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnFrameCreated, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame))
 	return r1
 }
 
 func (v *CEFFrameHandlerT) OverrideOnFrameDestroyed(fn uintptr) { v.OnFrameDestroyed = fn }
 
-func (v *CEFFrameHandlerT) CallOnFrameDestroyed(args ...uintptr) uintptr {
+func (v *CEFFrameHandlerT) CallOnFrameDestroyed(Browser unsafe.Pointer, Frame unsafe.Pointer) uintptr {
 	if v.OnFrameDestroyed == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnFrameDestroyed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnFrameDestroyed, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame))
 	return r1
 }
 
 func (v *CEFFrameHandlerT) OverrideOnFrameAttached(fn uintptr) { v.OnFrameAttached = fn }
 
-func (v *CEFFrameHandlerT) CallOnFrameAttached(args ...uintptr) uintptr {
+func (v *CEFFrameHandlerT) CallOnFrameAttached(Browser unsafe.Pointer, Frame unsafe.Pointer, Reattached uintptr) uintptr {
 	if v.OnFrameAttached == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnFrameAttached, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnFrameAttached, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), Reattached)
 	return r1
 }
 
 func (v *CEFFrameHandlerT) OverrideOnFrameDetached(fn uintptr) { v.OnFrameDetached = fn }
 
-func (v *CEFFrameHandlerT) CallOnFrameDetached(args ...uintptr) uintptr {
+func (v *CEFFrameHandlerT) CallOnFrameDetached(Browser unsafe.Pointer, Frame unsafe.Pointer) uintptr {
 	if v.OnFrameDetached == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnFrameDetached, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnFrameDetached, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame))
 	return r1
 }
 
 func (v *CEFFrameHandlerT) OverrideOnMainFrameChanged(fn uintptr) { v.OnMainFrameChanged = fn }
 
-func (v *CEFFrameHandlerT) CallOnMainFrameChanged(args ...uintptr) uintptr {
+func (v *CEFFrameHandlerT) CallOnMainFrameChanged(Browser unsafe.Pointer, OldFrame unsafe.Pointer, NewFrame unsafe.Pointer) uintptr {
 	if v.OnMainFrameChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnMainFrameChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnMainFrameChanged, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(OldFrame), uintptr(NewFrame))
 	return r1
 }
 

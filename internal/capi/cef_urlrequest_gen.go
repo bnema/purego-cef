@@ -23,71 +23,71 @@ type CEFUrlrequestT struct {
 
 func (v *CEFUrlrequestT) OverrideGetRequest(fn uintptr) { v.GetRequest = fn }
 
-func (v *CEFUrlrequestT) CallGetRequest(args ...uintptr) uintptr {
+func (v *CEFUrlrequestT) CallGetRequest() uintptr {
 	if v.GetRequest == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRequest, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRequest, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFUrlrequestT) OverrideGetClient(fn uintptr) { v.GetClient = fn }
 
-func (v *CEFUrlrequestT) CallGetClient(args ...uintptr) uintptr {
+func (v *CEFUrlrequestT) CallGetClient() uintptr {
 	if v.GetClient == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetClient, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFUrlrequestT) OverrideGetRequestStatus(fn uintptr) { v.GetRequestStatus = fn }
 
-func (v *CEFUrlrequestT) CallGetRequestStatus(args ...uintptr) uintptr {
+func (v *CEFUrlrequestT) CallGetRequestStatus() uintptr {
 	if v.GetRequestStatus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRequestStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRequestStatus, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFUrlrequestT) OverrideGetRequestError(fn uintptr) { v.GetRequestError = fn }
 
-func (v *CEFUrlrequestT) CallGetRequestError(args ...uintptr) uintptr {
+func (v *CEFUrlrequestT) CallGetRequestError() uintptr {
 	if v.GetRequestError == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRequestError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRequestError, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFUrlrequestT) OverrideGetResponse(fn uintptr) { v.GetResponse = fn }
 
-func (v *CEFUrlrequestT) CallGetResponse(args ...uintptr) uintptr {
+func (v *CEFUrlrequestT) CallGetResponse() uintptr {
 	if v.GetResponse == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetResponse, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetResponse, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFUrlrequestT) OverrideResponseWasCached(fn uintptr) { v.ResponseWasCached = fn }
 
-func (v *CEFUrlrequestT) CallResponseWasCached(args ...uintptr) uintptr {
+func (v *CEFUrlrequestT) CallResponseWasCached() uintptr {
 	if v.ResponseWasCached == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ResponseWasCached, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ResponseWasCached, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFUrlrequestT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
-func (v *CEFUrlrequestT) CallCancel(args ...uintptr) uintptr {
+func (v *CEFUrlrequestT) CallCancel() uintptr {
 	if v.Cancel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cancel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -103,51 +103,51 @@ type CEFUrlrequestClientT struct {
 
 func (v *CEFUrlrequestClientT) OverrideOnRequestComplete(fn uintptr) { v.OnRequestComplete = fn }
 
-func (v *CEFUrlrequestClientT) CallOnRequestComplete(args ...uintptr) uintptr {
+func (v *CEFUrlrequestClientT) CallOnRequestComplete(Request unsafe.Pointer) uintptr {
 	if v.OnRequestComplete == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRequestComplete, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRequestComplete, uintptr(unsafe.Pointer(v)), uintptr(Request))
 	return r1
 }
 
 func (v *CEFUrlrequestClientT) OverrideOnUploadProgress(fn uintptr) { v.OnUploadProgress = fn }
 
-func (v *CEFUrlrequestClientT) CallOnUploadProgress(args ...uintptr) uintptr {
+func (v *CEFUrlrequestClientT) CallOnUploadProgress(Request unsafe.Pointer, Current uintptr, Total uintptr) uintptr {
 	if v.OnUploadProgress == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnUploadProgress, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnUploadProgress, uintptr(unsafe.Pointer(v)), uintptr(Request), Current, Total)
 	return r1
 }
 
 func (v *CEFUrlrequestClientT) OverrideOnDownloadProgress(fn uintptr) { v.OnDownloadProgress = fn }
 
-func (v *CEFUrlrequestClientT) CallOnDownloadProgress(args ...uintptr) uintptr {
+func (v *CEFUrlrequestClientT) CallOnDownloadProgress(Request unsafe.Pointer, Current uintptr, Total uintptr) uintptr {
 	if v.OnDownloadProgress == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDownloadProgress, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDownloadProgress, uintptr(unsafe.Pointer(v)), uintptr(Request), Current, Total)
 	return r1
 }
 
 func (v *CEFUrlrequestClientT) OverrideOnDownloadData(fn uintptr) { v.OnDownloadData = fn }
 
-func (v *CEFUrlrequestClientT) CallOnDownloadData(args ...uintptr) uintptr {
+func (v *CEFUrlrequestClientT) CallOnDownloadData(Request unsafe.Pointer, Data unsafe.Pointer, DataLength uintptr) uintptr {
 	if v.OnDownloadData == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDownloadData, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDownloadData, uintptr(unsafe.Pointer(v)), uintptr(Request), uintptr(Data), DataLength)
 	return r1
 }
 
 func (v *CEFUrlrequestClientT) OverrideGetAuthCredentials(fn uintptr) { v.GetAuthCredentials = fn }
 
-func (v *CEFUrlrequestClientT) CallGetAuthCredentials(args ...uintptr) uintptr {
+func (v *CEFUrlrequestClientT) CallGetAuthCredentials(Isproxy uintptr, Host unsafe.Pointer, Port uintptr, Realm unsafe.Pointer, Scheme unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.GetAuthCredentials == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAuthCredentials, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAuthCredentials, uintptr(unsafe.Pointer(v)), Isproxy, uintptr(Host), Port, uintptr(Realm), uintptr(Scheme), uintptr(Callback))
 	return r1
 }
 

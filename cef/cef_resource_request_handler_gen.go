@@ -227,7 +227,7 @@ func (obj *resourceRequestHandlerImpl) GetCookieAccessFilter(browser Browser, fr
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetCookieAccessFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
+	ret := rawPtr.CallGetCookieAccessFilter(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request))
 	return wrapCookieAccessFilter(unsafe.Pointer(ret))
 }
 
@@ -236,7 +236,7 @@ func (obj *resourceRequestHandlerImpl) OnBeforeResourceLoad(browser Browser, fra
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnBeforeResourceLoad(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnBeforeResourceLoad(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), extractRawPointer(callback))
 	return ReturnValue(ret)
 }
 
@@ -245,7 +245,7 @@ func (obj *resourceRequestHandlerImpl) GetResourceHandler(browser Browser, frame
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetResourceHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)))
+	ret := rawPtr.CallGetResourceHandler(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request))
 	return wrapResourceHandler(unsafe.Pointer(ret))
 }
 
@@ -254,7 +254,7 @@ func (obj *resourceRequestHandlerImpl) OnResourceRedirect(browser Browser, frame
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnResourceRedirect(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), newURL)
+	rawPtr.CallOnResourceRedirect(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), extractRawPointer(response), unsafe.Pointer(newURL))
 }
 
 func (obj *resourceRequestHandlerImpl) OnResourceResponse(browser Browser, frame Frame, request Request, response Response) int32 {
@@ -262,7 +262,7 @@ func (obj *resourceRequestHandlerImpl) OnResourceResponse(browser Browser, frame
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnResourceResponse(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
+	ret := rawPtr.CallOnResourceResponse(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), extractRawPointer(response))
 	return int32(ret)
 }
 
@@ -271,7 +271,7 @@ func (obj *resourceRequestHandlerImpl) GetResourceResponseFilter(browser Browser
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetResourceResponseFilter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)))
+	ret := rawPtr.CallGetResourceResponseFilter(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), extractRawPointer(response))
 	return wrapResponseFilter(unsafe.Pointer(ret))
 }
 
@@ -291,7 +291,7 @@ func (obj *resourceRequestHandlerImpl) OnProtocolExecution(browser Browser, fram
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnProtocolExecution(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(allowOsExecution)))
+	rawPtr.CallOnProtocolExecution(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), unsafe.Pointer(allowOsExecution))
 }
 
 func (obj *resourceRequestHandlerImpl) RawPointer() unsafe.Pointer {
@@ -418,7 +418,7 @@ func (obj *cookieAccessFilterImpl) CanSendCookie(browser Browser, frame Frame, r
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanSendCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(cookie)))
+	ret := rawPtr.CallCanSendCookie(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), unsafe.Pointer(cookie))
 	return ret != 0
 }
 
@@ -427,7 +427,7 @@ func (obj *cookieAccessFilterImpl) CanSaveCookie(browser Browser, frame Frame, r
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanSaveCookie(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(cookie)))
+	ret := rawPtr.CallCanSaveCookie(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), extractRawPointer(response), unsafe.Pointer(cookie))
 	return ret != 0
 }
 

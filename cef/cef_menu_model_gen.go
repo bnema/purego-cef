@@ -66,7 +66,7 @@ func (obj *menuModelImpl) AddItem(commandID int32, label string) int32 {
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallAddItem(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)))
+	ret := rawPtr.CallAddItem(uintptr(commandID), unsafe.Pointer(&labelStr))
 	return int32(ret)
 }
 
@@ -77,7 +77,7 @@ func (obj *menuModelImpl) AddCheckItem(commandID int32, label string) int32 {
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallAddCheckItem(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)))
+	ret := rawPtr.CallAddCheckItem(uintptr(commandID), unsafe.Pointer(&labelStr))
 	return int32(ret)
 }
 
@@ -88,7 +88,7 @@ func (obj *menuModelImpl) AddRadioItem(commandID int32, label string, groupID in
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallAddRadioItem(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)), uintptr(groupID))
+	ret := rawPtr.CallAddRadioItem(uintptr(commandID), unsafe.Pointer(&labelStr), uintptr(groupID))
 	return int32(ret)
 }
 
@@ -99,7 +99,7 @@ func (obj *menuModelImpl) AddSubMenu(commandID int32, label string) MenuModel {
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallAddSubMenu(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)))
+	ret := rawPtr.CallAddSubMenu(uintptr(commandID), unsafe.Pointer(&labelStr))
 	return wrapMenuModel(unsafe.Pointer(ret))
 }
 
@@ -119,7 +119,7 @@ func (obj *menuModelImpl) InsertItemAt(index int, commandID int32, label string)
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallInsertItemAt(uintptr(index), uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)))
+	ret := rawPtr.CallInsertItemAt(uintptr(index), uintptr(commandID), unsafe.Pointer(&labelStr))
 	return int32(ret)
 }
 
@@ -130,7 +130,7 @@ func (obj *menuModelImpl) InsertCheckItemAt(index int, commandID int32, label st
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallInsertCheckItemAt(uintptr(index), uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)))
+	ret := rawPtr.CallInsertCheckItemAt(uintptr(index), uintptr(commandID), unsafe.Pointer(&labelStr))
 	return int32(ret)
 }
 
@@ -141,7 +141,7 @@ func (obj *menuModelImpl) InsertRadioItemAt(index int, commandID int32, label st
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallInsertRadioItemAt(uintptr(index), uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)), uintptr(groupID))
+	ret := rawPtr.CallInsertRadioItemAt(uintptr(index), uintptr(commandID), unsafe.Pointer(&labelStr), uintptr(groupID))
 	return int32(ret)
 }
 
@@ -152,7 +152,7 @@ func (obj *menuModelImpl) InsertSubMenuAt(index int, commandID int32, label stri
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallInsertSubMenuAt(uintptr(index), uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)))
+	ret := rawPtr.CallInsertSubMenuAt(uintptr(index), uintptr(commandID), unsafe.Pointer(&labelStr))
 	return wrapMenuModel(unsafe.Pointer(ret))
 }
 
@@ -226,7 +226,7 @@ func (obj *menuModelImpl) SetLabel(commandID int32, label string) int32 {
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallSetLabel(uintptr(commandID), uintptr(unsafe.Pointer(&labelStr)))
+	ret := rawPtr.CallSetLabel(uintptr(commandID), unsafe.Pointer(&labelStr))
 	return int32(ret)
 }
 
@@ -237,7 +237,7 @@ func (obj *menuModelImpl) SetLabelAt(index int, label string) int32 {
 	rawPtr := obj.rawPtr
 	labelStr := cefString(label)
 	defer freeCefString(&labelStr)
-	ret := rawPtr.CallSetLabelAt(uintptr(index), uintptr(unsafe.Pointer(&labelStr)))
+	ret := rawPtr.CallSetLabelAt(uintptr(index), unsafe.Pointer(&labelStr))
 	return int32(ret)
 }
 
@@ -480,7 +480,7 @@ func (obj *menuModelImpl) GetAccelerator(commandID int32, keyCode *int32, shiftP
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetAccelerator(uintptr(commandID), uintptr(unsafe.Pointer(keyCode)), uintptr(unsafe.Pointer(shiftPressed)), uintptr(unsafe.Pointer(ctrlPressed)), uintptr(unsafe.Pointer(altPressed)))
+	ret := rawPtr.CallGetAccelerator(uintptr(commandID), unsafe.Pointer(keyCode), unsafe.Pointer(shiftPressed), unsafe.Pointer(ctrlPressed), unsafe.Pointer(altPressed))
 	return int32(ret)
 }
 
@@ -489,7 +489,7 @@ func (obj *menuModelImpl) GetAcceleratorAt(index int, keyCode *int32, shiftPress
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetAcceleratorAt(uintptr(index), uintptr(unsafe.Pointer(keyCode)), uintptr(unsafe.Pointer(shiftPressed)), uintptr(unsafe.Pointer(ctrlPressed)), uintptr(unsafe.Pointer(altPressed)))
+	ret := rawPtr.CallGetAcceleratorAt(uintptr(index), unsafe.Pointer(keyCode), unsafe.Pointer(shiftPressed), unsafe.Pointer(ctrlPressed), unsafe.Pointer(altPressed))
 	return int32(ret)
 }
 
@@ -516,7 +516,7 @@ func (obj *menuModelImpl) GetColor(commandID int32, colorType MenuColorType, col
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetColor(uintptr(commandID), uintptr(colorType), color)
+	ret := rawPtr.CallGetColor(uintptr(commandID), uintptr(colorType), unsafe.Pointer(color))
 	return int32(ret)
 }
 
@@ -525,7 +525,7 @@ func (obj *menuModelImpl) GetColorAt(index int32, colorType MenuColorType, color
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetColorAt(uintptr(index), uintptr(colorType), color)
+	ret := rawPtr.CallGetColorAt(uintptr(index), uintptr(colorType), unsafe.Pointer(color))
 	return int32(ret)
 }
 
@@ -536,7 +536,7 @@ func (obj *menuModelImpl) SetFontList(commandID int32, fontList string) int32 {
 	rawPtr := obj.rawPtr
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
-	ret := rawPtr.CallSetFontList(uintptr(commandID), uintptr(unsafe.Pointer(&fontListStr)))
+	ret := rawPtr.CallSetFontList(uintptr(commandID), unsafe.Pointer(&fontListStr))
 	return int32(ret)
 }
 
@@ -547,7 +547,7 @@ func (obj *menuModelImpl) SetFontListAt(index int32, fontList string) int32 {
 	rawPtr := obj.rawPtr
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
-	ret := rawPtr.CallSetFontListAt(uintptr(index), uintptr(unsafe.Pointer(&fontListStr)))
+	ret := rawPtr.CallSetFontListAt(uintptr(index), unsafe.Pointer(&fontListStr))
 	return int32(ret)
 }
 

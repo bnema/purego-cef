@@ -18,21 +18,21 @@ type CEFTextfieldDelegateT struct {
 
 func (v *CEFTextfieldDelegateT) OverrideOnKeyEvent(fn uintptr) { v.OnKeyEvent = fn }
 
-func (v *CEFTextfieldDelegateT) CallOnKeyEvent(args ...uintptr) uintptr {
+func (v *CEFTextfieldDelegateT) CallOnKeyEvent(Textfield unsafe.Pointer, Event unsafe.Pointer) uintptr {
 	if v.OnKeyEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnKeyEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnKeyEvent, uintptr(unsafe.Pointer(v)), uintptr(Textfield), uintptr(Event))
 	return r1
 }
 
 func (v *CEFTextfieldDelegateT) OverrideOnAfterUserAction(fn uintptr) { v.OnAfterUserAction = fn }
 
-func (v *CEFTextfieldDelegateT) CallOnAfterUserAction(args ...uintptr) uintptr {
+func (v *CEFTextfieldDelegateT) CallOnAfterUserAction(Textfield unsafe.Pointer) uintptr {
 	if v.OnAfterUserAction == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAfterUserAction, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAfterUserAction, uintptr(unsafe.Pointer(v)), uintptr(Textfield))
 	return r1
 }
 

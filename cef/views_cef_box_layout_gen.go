@@ -28,7 +28,7 @@ func (obj *boxLayoutImpl) SetFlexForView(view View, flex int32) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetFlexForView(uintptr(extractRawPointer(view)), uintptr(flex))
+	rawPtr.CallSetFlexForView(extractRawPointer(view), uintptr(flex))
 }
 
 func (obj *boxLayoutImpl) ClearFlexForView(view View) {
@@ -36,7 +36,7 @@ func (obj *boxLayoutImpl) ClearFlexForView(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallClearFlexForView(uintptr(extractRawPointer(view)))
+	rawPtr.CallClearFlexForView(extractRawPointer(view))
 }
 
 func (obj *boxLayoutImpl) RawPointer() unsafe.Pointer {

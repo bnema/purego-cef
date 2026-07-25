@@ -108,7 +108,7 @@ func (obj *resourceBundleHandlerImpl) GetLocalizedString(stringID int32, string_
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetLocalizedString(uintptr(stringID), string_)
+	ret := rawPtr.CallGetLocalizedString(uintptr(stringID), unsafe.Pointer(string_))
 	return int32(ret)
 }
 
@@ -117,7 +117,7 @@ func (obj *resourceBundleHandlerImpl) GetDataResource(resourceID int32, data uns
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetDataResource(uintptr(resourceID), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
+	ret := rawPtr.CallGetDataResource(uintptr(resourceID), data, unsafe.Pointer(dataSize))
 	return int32(ret)
 }
 
@@ -126,7 +126,7 @@ func (obj *resourceBundleHandlerImpl) GetDataResourceForScale(resourceID int32, 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor), uintptr(data), uintptr(unsafe.Pointer(dataSize)))
+	ret := rawPtr.CallGetDataResourceForScale(uintptr(resourceID), uintptr(scaleFactor), data, unsafe.Pointer(dataSize))
 	return int32(ret)
 }
 

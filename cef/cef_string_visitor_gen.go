@@ -72,7 +72,7 @@ func (obj *stringVisitorImpl) Visit(string_ string) {
 	rawPtr := obj.rawPtr
 	string_Str := cefString(string_)
 	defer freeCefString(&string_Str)
-	rawPtr.CallVisit(uintptr(unsafe.Pointer(&string_Str)))
+	rawPtr.CallVisit(unsafe.Pointer(&string_Str))
 }
 
 func (obj *stringVisitorImpl) RawPointer() unsafe.Pointer {

@@ -56,7 +56,7 @@ func (obj *displayImpl) ConvertPointToPixels(point *Point) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallConvertPointToPixels(uintptr(unsafe.Pointer(point)))
+	rawPtr.CallConvertPointToPixels(unsafe.Pointer(point))
 }
 
 func (obj *displayImpl) ConvertPointFromPixels(point *Point) {
@@ -64,7 +64,7 @@ func (obj *displayImpl) ConvertPointFromPixels(point *Point) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallConvertPointFromPixels(uintptr(unsafe.Pointer(point)))
+	rawPtr.CallConvertPointFromPixels(unsafe.Pointer(point))
 }
 
 func (obj *displayImpl) GetBounds() uintptr {

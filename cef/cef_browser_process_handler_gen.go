@@ -183,7 +183,7 @@ func (obj *browserProcessHandlerImpl) OnRegisterCustomPreferences(type_ Preferen
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRegisterCustomPreferences(uintptr(type_), uintptr(extractRawPointer(registrar)))
+	rawPtr.CallOnRegisterCustomPreferences(uintptr(type_), extractRawPointer(registrar))
 }
 
 func (obj *browserProcessHandlerImpl) OnContextInitialized() {
@@ -199,7 +199,7 @@ func (obj *browserProcessHandlerImpl) OnBeforeChildProcessLaunch(commandLine Com
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBeforeChildProcessLaunch(uintptr(extractRawPointer(commandLine)))
+	rawPtr.CallOnBeforeChildProcessLaunch(extractRawPointer(commandLine))
 }
 
 func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine CommandLine, currentDirectory string) int32 {
@@ -209,7 +209,7 @@ func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine Co
 	rawPtr := obj.rawPtr
 	currentDirectoryStr := cefString(currentDirectory)
 	defer freeCefString(&currentDirectoryStr)
-	ret := rawPtr.CallOnAlreadyRunningAppRelaunch(uintptr(extractRawPointer(commandLine)), uintptr(unsafe.Pointer(&currentDirectoryStr)))
+	ret := rawPtr.CallOnAlreadyRunningAppRelaunch(extractRawPointer(commandLine), unsafe.Pointer(&currentDirectoryStr))
 	return int32(ret)
 }
 

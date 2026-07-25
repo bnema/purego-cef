@@ -21,51 +21,51 @@ type CEFMediaRouterT struct {
 
 func (v *CEFMediaRouterT) OverrideAddObserver(fn uintptr) { v.AddObserver = fn }
 
-func (v *CEFMediaRouterT) CallAddObserver(args ...uintptr) uintptr {
+func (v *CEFMediaRouterT) CallAddObserver(Observer unsafe.Pointer) uintptr {
 	if v.AddObserver == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddObserver, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddObserver, uintptr(unsafe.Pointer(v)), uintptr(Observer))
 	return r1
 }
 
 func (v *CEFMediaRouterT) OverrideGetSource(fn uintptr) { v.GetSource = fn }
 
-func (v *CEFMediaRouterT) CallGetSource(args ...uintptr) uintptr {
+func (v *CEFMediaRouterT) CallGetSource(Urn unsafe.Pointer) uintptr {
 	if v.GetSource == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSource, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSource, uintptr(unsafe.Pointer(v)), uintptr(Urn))
 	return r1
 }
 
 func (v *CEFMediaRouterT) OverrideNotifyCurrentSinks(fn uintptr) { v.NotifyCurrentSinks = fn }
 
-func (v *CEFMediaRouterT) CallNotifyCurrentSinks(args ...uintptr) uintptr {
+func (v *CEFMediaRouterT) CallNotifyCurrentSinks() uintptr {
 	if v.NotifyCurrentSinks == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.NotifyCurrentSinks, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.NotifyCurrentSinks, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaRouterT) OverrideCreateRoute(fn uintptr) { v.CreateRoute = fn }
 
-func (v *CEFMediaRouterT) CallCreateRoute(args ...uintptr) uintptr {
+func (v *CEFMediaRouterT) CallCreateRoute(Source unsafe.Pointer, Sink unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.CreateRoute == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CreateRoute, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CreateRoute, uintptr(unsafe.Pointer(v)), uintptr(Source), uintptr(Sink), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFMediaRouterT) OverrideNotifyCurrentRoutes(fn uintptr) { v.NotifyCurrentRoutes = fn }
 
-func (v *CEFMediaRouterT) CallNotifyCurrentRoutes(args ...uintptr) uintptr {
+func (v *CEFMediaRouterT) CallNotifyCurrentRoutes() uintptr {
 	if v.NotifyCurrentRoutes == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.NotifyCurrentRoutes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.NotifyCurrentRoutes, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -80,41 +80,41 @@ type CEFMediaObserverT struct {
 
 func (v *CEFMediaObserverT) OverrideOnSinks(fn uintptr) { v.OnSinks = fn }
 
-func (v *CEFMediaObserverT) CallOnSinks(args ...uintptr) uintptr {
+func (v *CEFMediaObserverT) CallOnSinks(Sinkscount uintptr, Sinks unsafe.Pointer) uintptr {
 	if v.OnSinks == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnSinks, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnSinks, uintptr(unsafe.Pointer(v)), Sinkscount, uintptr(Sinks))
 	return r1
 }
 
 func (v *CEFMediaObserverT) OverrideOnRoutes(fn uintptr) { v.OnRoutes = fn }
 
-func (v *CEFMediaObserverT) CallOnRoutes(args ...uintptr) uintptr {
+func (v *CEFMediaObserverT) CallOnRoutes(Routescount uintptr, Routes unsafe.Pointer) uintptr {
 	if v.OnRoutes == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRoutes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRoutes, uintptr(unsafe.Pointer(v)), Routescount, uintptr(Routes))
 	return r1
 }
 
 func (v *CEFMediaObserverT) OverrideOnRouteStateChanged(fn uintptr) { v.OnRouteStateChanged = fn }
 
-func (v *CEFMediaObserverT) CallOnRouteStateChanged(args ...uintptr) uintptr {
+func (v *CEFMediaObserverT) CallOnRouteStateChanged(Route unsafe.Pointer, State uintptr) uintptr {
 	if v.OnRouteStateChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRouteStateChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRouteStateChanged, uintptr(unsafe.Pointer(v)), uintptr(Route), State)
 	return r1
 }
 
 func (v *CEFMediaObserverT) OverrideOnRouteMessageReceived(fn uintptr) { v.OnRouteMessageReceived = fn }
 
-func (v *CEFMediaObserverT) CallOnRouteMessageReceived(args ...uintptr) uintptr {
+func (v *CEFMediaObserverT) CallOnRouteMessageReceived(Route unsafe.Pointer, Message unsafe.Pointer, MessageSize uintptr) uintptr {
 	if v.OnRouteMessageReceived == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRouteMessageReceived, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRouteMessageReceived, uintptr(unsafe.Pointer(v)), uintptr(Route), uintptr(Message), MessageSize)
 	return r1
 }
 
@@ -130,51 +130,51 @@ type CEFMediaRouteT struct {
 
 func (v *CEFMediaRouteT) OverrideGetID(fn uintptr) { v.GetID = fn }
 
-func (v *CEFMediaRouteT) CallGetID(args ...uintptr) uintptr {
+func (v *CEFMediaRouteT) CallGetID() uintptr {
 	if v.GetID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetID, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaRouteT) OverrideGetSource(fn uintptr) { v.GetSource = fn }
 
-func (v *CEFMediaRouteT) CallGetSource(args ...uintptr) uintptr {
+func (v *CEFMediaRouteT) CallGetSource() uintptr {
 	if v.GetSource == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSource, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSource, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaRouteT) OverrideGetSink(fn uintptr) { v.GetSink = fn }
 
-func (v *CEFMediaRouteT) CallGetSink(args ...uintptr) uintptr {
+func (v *CEFMediaRouteT) CallGetSink() uintptr {
 	if v.GetSink == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSink, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSink, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaRouteT) OverrideSendRouteMessage(fn uintptr) { v.SendRouteMessage = fn }
 
-func (v *CEFMediaRouteT) CallSendRouteMessage(args ...uintptr) uintptr {
+func (v *CEFMediaRouteT) CallSendRouteMessage(Message unsafe.Pointer, MessageSize uintptr) uintptr {
 	if v.SendRouteMessage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendRouteMessage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendRouteMessage, uintptr(unsafe.Pointer(v)), uintptr(Message), MessageSize)
 	return r1
 }
 
 func (v *CEFMediaRouteT) OverrideTerminate(fn uintptr) { v.Terminate = fn }
 
-func (v *CEFMediaRouteT) CallTerminate(args ...uintptr) uintptr {
+func (v *CEFMediaRouteT) CallTerminate() uintptr {
 	if v.Terminate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Terminate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Terminate, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -188,11 +188,11 @@ func (v *CEFMediaRouteCreateCallbackT) OverrideOnMediaRouteCreateFinished(fn uin
 	v.OnMediaRouteCreateFinished = fn
 }
 
-func (v *CEFMediaRouteCreateCallbackT) CallOnMediaRouteCreateFinished(args ...uintptr) uintptr {
+func (v *CEFMediaRouteCreateCallbackT) CallOnMediaRouteCreateFinished(Result uintptr, Error unsafe.Pointer, Route unsafe.Pointer) uintptr {
 	if v.OnMediaRouteCreateFinished == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnMediaRouteCreateFinished, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnMediaRouteCreateFinished, uintptr(unsafe.Pointer(v)), Result, uintptr(Error), uintptr(Route))
 	return r1
 }
 
@@ -210,71 +210,71 @@ type CEFMediaSinkT struct {
 
 func (v *CEFMediaSinkT) OverrideGetID(fn uintptr) { v.GetID = fn }
 
-func (v *CEFMediaSinkT) CallGetID(args ...uintptr) uintptr {
+func (v *CEFMediaSinkT) CallGetID() uintptr {
 	if v.GetID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetID, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaSinkT) OverrideGetName(fn uintptr) { v.GetName = fn }
 
-func (v *CEFMediaSinkT) CallGetName(args ...uintptr) uintptr {
+func (v *CEFMediaSinkT) CallGetName() uintptr {
 	if v.GetName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetName, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaSinkT) OverrideGetIconType(fn uintptr) { v.GetIconType = fn }
 
-func (v *CEFMediaSinkT) CallGetIconType(args ...uintptr) uintptr {
+func (v *CEFMediaSinkT) CallGetIconType() uintptr {
 	if v.GetIconType == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetIconType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetIconType, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaSinkT) OverrideGetDeviceInfo(fn uintptr) { v.GetDeviceInfo = fn }
 
-func (v *CEFMediaSinkT) CallGetDeviceInfo(args ...uintptr) uintptr {
+func (v *CEFMediaSinkT) CallGetDeviceInfo(Callback unsafe.Pointer) uintptr {
 	if v.GetDeviceInfo == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDeviceInfo, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDeviceInfo, uintptr(unsafe.Pointer(v)), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFMediaSinkT) OverrideIsCastSink(fn uintptr) { v.IsCastSink = fn }
 
-func (v *CEFMediaSinkT) CallIsCastSink(args ...uintptr) uintptr {
+func (v *CEFMediaSinkT) CallIsCastSink() uintptr {
 	if v.IsCastSink == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsCastSink, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsCastSink, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaSinkT) OverrideIsDialSink(fn uintptr) { v.IsDialSink = fn }
 
-func (v *CEFMediaSinkT) CallIsDialSink(args ...uintptr) uintptr {
+func (v *CEFMediaSinkT) CallIsDialSink() uintptr {
 	if v.IsDialSink == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsDialSink, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsDialSink, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaSinkT) OverrideIsCompatibleWith(fn uintptr) { v.IsCompatibleWith = fn }
 
-func (v *CEFMediaSinkT) CallIsCompatibleWith(args ...uintptr) uintptr {
+func (v *CEFMediaSinkT) CallIsCompatibleWith(Source unsafe.Pointer) uintptr {
 	if v.IsCompatibleWith == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsCompatibleWith, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsCompatibleWith, uintptr(unsafe.Pointer(v)), uintptr(Source))
 	return r1
 }
 
@@ -288,11 +288,11 @@ func (v *CEFMediaSinkDeviceInfoCallbackT) OverrideOnMediaSinkDeviceInfo(fn uintp
 	v.OnMediaSinkDeviceInfo = fn
 }
 
-func (v *CEFMediaSinkDeviceInfoCallbackT) CallOnMediaSinkDeviceInfo(args ...uintptr) uintptr {
+func (v *CEFMediaSinkDeviceInfoCallbackT) CallOnMediaSinkDeviceInfo(DeviceInfo unsafe.Pointer) uintptr {
 	if v.OnMediaSinkDeviceInfo == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnMediaSinkDeviceInfo, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnMediaSinkDeviceInfo, uintptr(unsafe.Pointer(v)), uintptr(DeviceInfo))
 	return r1
 }
 
@@ -306,31 +306,31 @@ type CEFMediaSourceT struct {
 
 func (v *CEFMediaSourceT) OverrideGetID(fn uintptr) { v.GetID = fn }
 
-func (v *CEFMediaSourceT) CallGetID(args ...uintptr) uintptr {
+func (v *CEFMediaSourceT) CallGetID() uintptr {
 	if v.GetID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetID, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaSourceT) OverrideIsCastSource(fn uintptr) { v.IsCastSource = fn }
 
-func (v *CEFMediaSourceT) CallIsCastSource(args ...uintptr) uintptr {
+func (v *CEFMediaSourceT) CallIsCastSource() uintptr {
 	if v.IsCastSource == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsCastSource, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsCastSource, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFMediaSourceT) OverrideIsDialSource(fn uintptr) { v.IsDialSource = fn }
 
-func (v *CEFMediaSourceT) CallIsDialSource(args ...uintptr) uintptr {
+func (v *CEFMediaSourceT) CallIsDialSource() uintptr {
 	if v.IsDialSource == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsDialSource, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsDialSource, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

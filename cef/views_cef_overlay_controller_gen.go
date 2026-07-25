@@ -37,7 +37,7 @@ func (obj *overlayControllerImpl) IsSame(that OverlayController) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	ret := rawPtr.CallIsSame(extractRawPointer(that))
 	return ret != 0
 }
 
@@ -81,7 +81,7 @@ func (obj *overlayControllerImpl) SetBounds(bounds *Rect) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
+	rawPtr.CallSetBounds(unsafe.Pointer(bounds))
 }
 
 func (obj *overlayControllerImpl) GetBounds() uintptr {
@@ -107,7 +107,7 @@ func (obj *overlayControllerImpl) SetSize(size *Size) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
+	rawPtr.CallSetSize(unsafe.Pointer(size))
 }
 
 func (obj *overlayControllerImpl) GetSize() uintptr {
@@ -124,7 +124,7 @@ func (obj *overlayControllerImpl) SetPosition(position *Point) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
+	rawPtr.CallSetPosition(unsafe.Pointer(position))
 }
 
 func (obj *overlayControllerImpl) GetPosition() uintptr {
@@ -141,7 +141,7 @@ func (obj *overlayControllerImpl) SetInsets(insets *Insets) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
+	rawPtr.CallSetInsets(unsafe.Pointer(insets))
 }
 
 func (obj *overlayControllerImpl) GetInsets() uintptr {

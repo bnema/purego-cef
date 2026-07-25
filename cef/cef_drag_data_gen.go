@@ -136,7 +136,7 @@ func (obj *dragDataImpl) GetFileContents(writer StreamWriter) int {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetFileContents(uintptr(extractRawPointer(writer)))
+	ret := rawPtr.CallGetFileContents(extractRawPointer(writer))
 	return int(ret)
 }
 
@@ -165,7 +165,7 @@ func (obj *dragDataImpl) SetLinkURL(uRL string) {
 	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	rawPtr.CallSetLinkURL(uintptr(unsafe.Pointer(&uRLStr)))
+	rawPtr.CallSetLinkURL(unsafe.Pointer(&uRLStr))
 }
 
 func (obj *dragDataImpl) SetLinkTitle(title string) {
@@ -175,7 +175,7 @@ func (obj *dragDataImpl) SetLinkTitle(title string) {
 	rawPtr := obj.rawPtr
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
-	rawPtr.CallSetLinkTitle(uintptr(unsafe.Pointer(&titleStr)))
+	rawPtr.CallSetLinkTitle(unsafe.Pointer(&titleStr))
 }
 
 func (obj *dragDataImpl) SetLinkMetadata(data string) {
@@ -185,7 +185,7 @@ func (obj *dragDataImpl) SetLinkMetadata(data string) {
 	rawPtr := obj.rawPtr
 	dataStr := cefString(data)
 	defer freeCefString(&dataStr)
-	rawPtr.CallSetLinkMetadata(uintptr(unsafe.Pointer(&dataStr)))
+	rawPtr.CallSetLinkMetadata(unsafe.Pointer(&dataStr))
 }
 
 func (obj *dragDataImpl) SetFragmentText(text string) {
@@ -195,7 +195,7 @@ func (obj *dragDataImpl) SetFragmentText(text string) {
 	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	rawPtr.CallSetFragmentText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallSetFragmentText(unsafe.Pointer(&textStr))
 }
 
 func (obj *dragDataImpl) SetFragmentHtml(html string) {
@@ -205,7 +205,7 @@ func (obj *dragDataImpl) SetFragmentHtml(html string) {
 	rawPtr := obj.rawPtr
 	htmlStr := cefString(html)
 	defer freeCefString(&htmlStr)
-	rawPtr.CallSetFragmentHtml(uintptr(unsafe.Pointer(&htmlStr)))
+	rawPtr.CallSetFragmentHtml(unsafe.Pointer(&htmlStr))
 }
 
 func (obj *dragDataImpl) SetFragmentBaseURL(baseURL string) {
@@ -215,7 +215,7 @@ func (obj *dragDataImpl) SetFragmentBaseURL(baseURL string) {
 	rawPtr := obj.rawPtr
 	baseURLStr := cefString(baseURL)
 	defer freeCefString(&baseURLStr)
-	rawPtr.CallSetFragmentBaseURL(uintptr(unsafe.Pointer(&baseURLStr)))
+	rawPtr.CallSetFragmentBaseURL(unsafe.Pointer(&baseURLStr))
 }
 
 func (obj *dragDataImpl) ResetFileContents() {
@@ -235,7 +235,7 @@ func (obj *dragDataImpl) AddFile(path string, displayName string) {
 	defer freeCefString(&pathStr)
 	displayNameStr := cefString(displayName)
 	defer freeCefString(&displayNameStr)
-	rawPtr.CallAddFile(uintptr(unsafe.Pointer(&pathStr)), uintptr(unsafe.Pointer(&displayNameStr)))
+	rawPtr.CallAddFile(unsafe.Pointer(&pathStr), unsafe.Pointer(&displayNameStr))
 }
 
 func (obj *dragDataImpl) ClearFilenames() {

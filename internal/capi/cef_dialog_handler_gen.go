@@ -18,21 +18,21 @@ type CEFFileDialogCallbackT struct {
 
 func (v *CEFFileDialogCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFFileDialogCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFFileDialogCallbackT) CallCont(FilePaths uintptr) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), FilePaths)
 	return r1
 }
 
 func (v *CEFFileDialogCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
-func (v *CEFFileDialogCallbackT) CallCancel(args ...uintptr) uintptr {
+func (v *CEFFileDialogCallbackT) CallCancel() uintptr {
 	if v.Cancel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cancel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -44,11 +44,11 @@ type CEFDialogHandlerT struct {
 
 func (v *CEFDialogHandlerT) OverrideOnFileDialog(fn uintptr) { v.OnFileDialog = fn }
 
-func (v *CEFDialogHandlerT) CallOnFileDialog(args ...uintptr) uintptr {
+func (v *CEFDialogHandlerT) CallOnFileDialog(Browser unsafe.Pointer, Mode uintptr, Title unsafe.Pointer, DefaultFilePath unsafe.Pointer, AcceptFilters uintptr, AcceptExtensions uintptr, AcceptDescriptions uintptr, Callback unsafe.Pointer) uintptr {
 	if v.OnFileDialog == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnFileDialog, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnFileDialog, uintptr(unsafe.Pointer(v)), uintptr(Browser), Mode, uintptr(Title), uintptr(DefaultFilePath), AcceptFilters, AcceptExtensions, AcceptDescriptions, uintptr(Callback))
 	return r1
 }
 

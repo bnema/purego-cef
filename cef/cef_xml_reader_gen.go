@@ -192,7 +192,7 @@ func (obj *xmlReaderImpl) GetAttributeByqname(qualifiedname string) string {
 	rawPtr := obj.rawPtr
 	qualifiednameStr := cefString(qualifiedname)
 	defer freeCefString(&qualifiednameStr)
-	ret := rawPtr.CallGetAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr)))
+	ret := rawPtr.CallGetAttributeByqname(unsafe.Pointer(&qualifiednameStr))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -205,7 +205,7 @@ func (obj *xmlReaderImpl) GetAttributeBylname(localname string, namespaceuri str
 	defer freeCefString(&localnameStr)
 	namespaceuriStr := cefString(namespaceuri)
 	defer freeCefString(&namespaceuriStr)
-	ret := rawPtr.CallGetAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr)))
+	ret := rawPtr.CallGetAttributeBylname(unsafe.Pointer(&localnameStr), unsafe.Pointer(&namespaceuriStr))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -252,7 +252,7 @@ func (obj *xmlReaderImpl) MoveToAttributeByqname(qualifiedname string) int32 {
 	rawPtr := obj.rawPtr
 	qualifiednameStr := cefString(qualifiedname)
 	defer freeCefString(&qualifiednameStr)
-	ret := rawPtr.CallMoveToAttributeByqname(uintptr(unsafe.Pointer(&qualifiednameStr)))
+	ret := rawPtr.CallMoveToAttributeByqname(unsafe.Pointer(&qualifiednameStr))
 	return int32(ret)
 }
 
@@ -265,7 +265,7 @@ func (obj *xmlReaderImpl) MoveToAttributeBylname(localname string, namespaceuri 
 	defer freeCefString(&localnameStr)
 	namespaceuriStr := cefString(namespaceuri)
 	defer freeCefString(&namespaceuriStr)
-	ret := rawPtr.CallMoveToAttributeBylname(uintptr(unsafe.Pointer(&localnameStr)), uintptr(unsafe.Pointer(&namespaceuriStr)))
+	ret := rawPtr.CallMoveToAttributeBylname(unsafe.Pointer(&localnameStr), unsafe.Pointer(&namespaceuriStr))
 	return int32(ret)
 }
 

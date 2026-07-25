@@ -38,221 +38,221 @@ type CEFValueT struct {
 
 func (v *CEFValueT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFValueT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFValueT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideIsOwned(fn uintptr) { v.IsOwned = fn }
 
-func (v *CEFValueT) CallIsOwned(args ...uintptr) uintptr {
+func (v *CEFValueT) CallIsOwned() uintptr {
 	if v.IsOwned == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsOwned, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsOwned, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
-func (v *CEFValueT) CallIsReadOnly(args ...uintptr) uintptr {
+func (v *CEFValueT) CallIsReadOnly() uintptr {
 	if v.IsReadOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsReadOnly, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
-func (v *CEFValueT) CallIsSame(args ...uintptr) uintptr {
+func (v *CEFValueT) CallIsSame(That unsafe.Pointer) uintptr {
 	if v.IsSame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSame, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFValueT) OverrideIsEqual(fn uintptr) { v.IsEqual = fn }
 
-func (v *CEFValueT) CallIsEqual(args ...uintptr) uintptr {
+func (v *CEFValueT) CallIsEqual(That unsafe.Pointer) uintptr {
 	if v.IsEqual == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsEqual, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsEqual, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFValueT) OverrideCopy(fn uintptr) { v.Copy = fn }
 
-func (v *CEFValueT) CallCopy(args ...uintptr) uintptr {
+func (v *CEFValueT) CallCopy() uintptr {
 	if v.Copy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Copy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Copy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideGetType(fn uintptr) { v.GetType = fn }
 
-func (v *CEFValueT) CallGetType(args ...uintptr) uintptr {
+func (v *CEFValueT) CallGetType() uintptr {
 	if v.GetType == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetType, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideGetBool(fn uintptr) { v.GetBool = fn }
 
-func (v *CEFValueT) CallGetBool(args ...uintptr) uintptr {
+func (v *CEFValueT) CallGetBool() uintptr {
 	if v.GetBool == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBool, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBool, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideGetInt(fn uintptr) { v.GetInt = fn }
 
-func (v *CEFValueT) CallGetInt(args ...uintptr) uintptr {
+func (v *CEFValueT) CallGetInt() uintptr {
 	if v.GetInt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetInt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetInt, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideGetDouble(fn uintptr) { v.GetDouble = fn }
 
-func (v *CEFValueT) CallGetDouble(args ...uintptr) uintptr {
+func (v *CEFValueT) CallGetDouble() uintptr {
 	if v.GetDouble == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDouble, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDouble, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideGetString(fn uintptr) { v.GetString = fn }
 
-func (v *CEFValueT) CallGetString(args ...uintptr) uintptr {
+func (v *CEFValueT) CallGetString() uintptr {
 	if v.GetString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetString, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideGetBinary(fn uintptr) { v.GetBinary = fn }
 
-func (v *CEFValueT) CallGetBinary(args ...uintptr) uintptr {
+func (v *CEFValueT) CallGetBinary() uintptr {
 	if v.GetBinary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBinary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBinary, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideGetDictionary(fn uintptr) { v.GetDictionary = fn }
 
-func (v *CEFValueT) CallGetDictionary(args ...uintptr) uintptr {
+func (v *CEFValueT) CallGetDictionary() uintptr {
 	if v.GetDictionary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDictionary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDictionary, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideGetList(fn uintptr) { v.GetList = fn }
 
-func (v *CEFValueT) CallGetList(args ...uintptr) uintptr {
+func (v *CEFValueT) CallGetList() uintptr {
 	if v.GetList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetList, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideSetNull(fn uintptr) { v.SetNull = fn }
 
-func (v *CEFValueT) CallSetNull(args ...uintptr) uintptr {
+func (v *CEFValueT) CallSetNull() uintptr {
 	if v.SetNull == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetNull, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetNull, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFValueT) OverrideSetBool(fn uintptr) { v.SetBool = fn }
 
-func (v *CEFValueT) CallSetBool(args ...uintptr) uintptr {
+func (v *CEFValueT) CallSetBool(Value uintptr) uintptr {
 	if v.SetBool == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetBool, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetBool, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
 func (v *CEFValueT) OverrideSetInt(fn uintptr) { v.SetInt = fn }
 
-func (v *CEFValueT) CallSetInt(args ...uintptr) uintptr {
+func (v *CEFValueT) CallSetInt(Value uintptr) uintptr {
 	if v.SetInt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetInt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetInt, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
 func (v *CEFValueT) OverrideSetDouble(fn uintptr) { v.SetDouble = fn }
 
-func (v *CEFValueT) CallSetDouble(args ...uintptr) uintptr {
+func (v *CEFValueT) CallSetDouble(Value uintptr) uintptr {
 	if v.SetDouble == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDouble, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDouble, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
 func (v *CEFValueT) OverrideSetString(fn uintptr) { v.SetString = fn }
 
-func (v *CEFValueT) CallSetString(args ...uintptr) uintptr {
+func (v *CEFValueT) CallSetString(Value unsafe.Pointer) uintptr {
 	if v.SetString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetString, uintptr(unsafe.Pointer(v)), uintptr(Value))
 	return r1
 }
 
 func (v *CEFValueT) OverrideSetBinary(fn uintptr) { v.SetBinary = fn }
 
-func (v *CEFValueT) CallSetBinary(args ...uintptr) uintptr {
+func (v *CEFValueT) CallSetBinary(Value unsafe.Pointer) uintptr {
 	if v.SetBinary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetBinary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetBinary, uintptr(unsafe.Pointer(v)), uintptr(Value))
 	return r1
 }
 
 func (v *CEFValueT) OverrideSetDictionary(fn uintptr) { v.SetDictionary = fn }
 
-func (v *CEFValueT) CallSetDictionary(args ...uintptr) uintptr {
+func (v *CEFValueT) CallSetDictionary(Value unsafe.Pointer) uintptr {
 	if v.SetDictionary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDictionary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDictionary, uintptr(unsafe.Pointer(v)), uintptr(Value))
 	return r1
 }
 
 func (v *CEFValueT) OverrideSetList(fn uintptr) { v.SetList = fn }
 
-func (v *CEFValueT) CallSetList(args ...uintptr) uintptr {
+func (v *CEFValueT) CallSetList(Value unsafe.Pointer) uintptr {
 	if v.SetList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetList, uintptr(unsafe.Pointer(v)), uintptr(Value))
 	return r1
 }
 
@@ -271,81 +271,81 @@ type CEFBinaryValueT struct {
 
 func (v *CEFBinaryValueT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFBinaryValueT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFBinaryValueT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBinaryValueT) OverrideIsOwned(fn uintptr) { v.IsOwned = fn }
 
-func (v *CEFBinaryValueT) CallIsOwned(args ...uintptr) uintptr {
+func (v *CEFBinaryValueT) CallIsOwned() uintptr {
 	if v.IsOwned == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsOwned, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsOwned, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBinaryValueT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
-func (v *CEFBinaryValueT) CallIsSame(args ...uintptr) uintptr {
+func (v *CEFBinaryValueT) CallIsSame(That unsafe.Pointer) uintptr {
 	if v.IsSame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSame, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFBinaryValueT) OverrideIsEqual(fn uintptr) { v.IsEqual = fn }
 
-func (v *CEFBinaryValueT) CallIsEqual(args ...uintptr) uintptr {
+func (v *CEFBinaryValueT) CallIsEqual(That unsafe.Pointer) uintptr {
 	if v.IsEqual == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsEqual, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsEqual, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFBinaryValueT) OverrideCopy(fn uintptr) { v.Copy = fn }
 
-func (v *CEFBinaryValueT) CallCopy(args ...uintptr) uintptr {
+func (v *CEFBinaryValueT) CallCopy() uintptr {
 	if v.Copy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Copy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Copy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBinaryValueT) OverrideGetRawData(fn uintptr) { v.GetRawData = fn }
 
-func (v *CEFBinaryValueT) CallGetRawData(args ...uintptr) uintptr {
+func (v *CEFBinaryValueT) CallGetRawData() uintptr {
 	if v.GetRawData == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRawData, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRawData, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBinaryValueT) OverrideGetSize(fn uintptr) { v.GetSize = fn }
 
-func (v *CEFBinaryValueT) CallGetSize(args ...uintptr) uintptr {
+func (v *CEFBinaryValueT) CallGetSize() uintptr {
 	if v.GetSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBinaryValueT) OverrideGetData(fn uintptr) { v.GetData = fn }
 
-func (v *CEFBinaryValueT) CallGetData(args ...uintptr) uintptr {
+func (v *CEFBinaryValueT) CallGetData(Buffer unsafe.Pointer, BufferSize uintptr, DataOffset uintptr) uintptr {
 	if v.GetData == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetData, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetData, uintptr(unsafe.Pointer(v)), uintptr(Buffer), BufferSize, DataOffset)
 	return r1
 }
 
@@ -385,291 +385,291 @@ type CEFDictionaryValueT struct {
 
 func (v *CEFDictionaryValueT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFDictionaryValueT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideIsOwned(fn uintptr) { v.IsOwned = fn }
 
-func (v *CEFDictionaryValueT) CallIsOwned(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallIsOwned() uintptr {
 	if v.IsOwned == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsOwned, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsOwned, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
-func (v *CEFDictionaryValueT) CallIsReadOnly(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallIsReadOnly() uintptr {
 	if v.IsReadOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsReadOnly, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
-func (v *CEFDictionaryValueT) CallIsSame(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallIsSame(That unsafe.Pointer) uintptr {
 	if v.IsSame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSame, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideIsEqual(fn uintptr) { v.IsEqual = fn }
 
-func (v *CEFDictionaryValueT) CallIsEqual(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallIsEqual(That unsafe.Pointer) uintptr {
 	if v.IsEqual == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsEqual, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsEqual, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideCopy(fn uintptr) { v.Copy = fn }
 
-func (v *CEFDictionaryValueT) CallCopy(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallCopy(ExcludeEmptyChildren uintptr) uintptr {
 	if v.Copy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Copy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Copy, uintptr(unsafe.Pointer(v)), ExcludeEmptyChildren)
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetSize(fn uintptr) { v.GetSize = fn }
 
-func (v *CEFDictionaryValueT) CallGetSize(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetSize() uintptr {
 	if v.GetSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideClear(fn uintptr) { v.Clear = fn }
 
-func (v *CEFDictionaryValueT) CallClear(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallClear() uintptr {
 	if v.Clear == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Clear, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Clear, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideHasKey(fn uintptr) { v.HasKey = fn }
 
-func (v *CEFDictionaryValueT) CallHasKey(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallHasKey(Key unsafe.Pointer) uintptr {
 	if v.HasKey == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasKey, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasKey, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetKeys(fn uintptr) { v.GetKeys = fn }
 
-func (v *CEFDictionaryValueT) CallGetKeys(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetKeys(Keys uintptr) uintptr {
 	if v.GetKeys == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetKeys, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetKeys, uintptr(unsafe.Pointer(v)), Keys)
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideRemove(fn uintptr) { v.Remove = fn }
 
-func (v *CEFDictionaryValueT) CallRemove(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallRemove(Key unsafe.Pointer) uintptr {
 	if v.Remove == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Remove, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Remove, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetType(fn uintptr) { v.GetType = fn }
 
-func (v *CEFDictionaryValueT) CallGetType(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetType(Key unsafe.Pointer) uintptr {
 	if v.GetType == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetType, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetValue(fn uintptr) { v.GetValue = fn }
 
-func (v *CEFDictionaryValueT) CallGetValue(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetValue(Key unsafe.Pointer) uintptr {
 	if v.GetValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValue, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetBool(fn uintptr) { v.GetBool = fn }
 
-func (v *CEFDictionaryValueT) CallGetBool(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetBool(Key unsafe.Pointer) uintptr {
 	if v.GetBool == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBool, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBool, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetInt(fn uintptr) { v.GetInt = fn }
 
-func (v *CEFDictionaryValueT) CallGetInt(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetInt(Key unsafe.Pointer) uintptr {
 	if v.GetInt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetInt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetInt, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetDouble(fn uintptr) { v.GetDouble = fn }
 
-func (v *CEFDictionaryValueT) CallGetDouble(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetDouble(Key unsafe.Pointer) uintptr {
 	if v.GetDouble == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDouble, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDouble, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetString(fn uintptr) { v.GetString = fn }
 
-func (v *CEFDictionaryValueT) CallGetString(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetString(Key unsafe.Pointer) uintptr {
 	if v.GetString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetString, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetBinary(fn uintptr) { v.GetBinary = fn }
 
-func (v *CEFDictionaryValueT) CallGetBinary(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetBinary(Key unsafe.Pointer) uintptr {
 	if v.GetBinary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBinary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBinary, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetDictionary(fn uintptr) { v.GetDictionary = fn }
 
-func (v *CEFDictionaryValueT) CallGetDictionary(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetDictionary(Key unsafe.Pointer) uintptr {
 	if v.GetDictionary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDictionary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDictionary, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideGetList(fn uintptr) { v.GetList = fn }
 
-func (v *CEFDictionaryValueT) CallGetList(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallGetList(Key unsafe.Pointer) uintptr {
 	if v.GetList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetList, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideSetValue(fn uintptr) { v.SetValue = fn }
 
-func (v *CEFDictionaryValueT) CallSetValue(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallSetValue(Key unsafe.Pointer, Value unsafe.Pointer) uintptr {
 	if v.SetValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetValue, uintptr(unsafe.Pointer(v)), uintptr(Key), uintptr(Value))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideSetNull(fn uintptr) { v.SetNull = fn }
 
-func (v *CEFDictionaryValueT) CallSetNull(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallSetNull(Key unsafe.Pointer) uintptr {
 	if v.SetNull == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetNull, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetNull, uintptr(unsafe.Pointer(v)), uintptr(Key))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideSetBool(fn uintptr) { v.SetBool = fn }
 
-func (v *CEFDictionaryValueT) CallSetBool(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallSetBool(Key unsafe.Pointer, Value uintptr) uintptr {
 	if v.SetBool == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetBool, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetBool, uintptr(unsafe.Pointer(v)), uintptr(Key), Value)
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideSetInt(fn uintptr) { v.SetInt = fn }
 
-func (v *CEFDictionaryValueT) CallSetInt(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallSetInt(Key unsafe.Pointer, Value uintptr) uintptr {
 	if v.SetInt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetInt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetInt, uintptr(unsafe.Pointer(v)), uintptr(Key), Value)
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideSetDouble(fn uintptr) { v.SetDouble = fn }
 
-func (v *CEFDictionaryValueT) CallSetDouble(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallSetDouble(Key unsafe.Pointer, Value uintptr) uintptr {
 	if v.SetDouble == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDouble, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDouble, uintptr(unsafe.Pointer(v)), uintptr(Key), Value)
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideSetString(fn uintptr) { v.SetString = fn }
 
-func (v *CEFDictionaryValueT) CallSetString(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallSetString(Key unsafe.Pointer, Value unsafe.Pointer) uintptr {
 	if v.SetString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetString, uintptr(unsafe.Pointer(v)), uintptr(Key), uintptr(Value))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideSetBinary(fn uintptr) { v.SetBinary = fn }
 
-func (v *CEFDictionaryValueT) CallSetBinary(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallSetBinary(Key unsafe.Pointer, Value unsafe.Pointer) uintptr {
 	if v.SetBinary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetBinary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetBinary, uintptr(unsafe.Pointer(v)), uintptr(Key), uintptr(Value))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideSetDictionary(fn uintptr) { v.SetDictionary = fn }
 
-func (v *CEFDictionaryValueT) CallSetDictionary(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallSetDictionary(Key unsafe.Pointer, Value unsafe.Pointer) uintptr {
 	if v.SetDictionary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDictionary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDictionary, uintptr(unsafe.Pointer(v)), uintptr(Key), uintptr(Value))
 	return r1
 }
 
 func (v *CEFDictionaryValueT) OverrideSetList(fn uintptr) { v.SetList = fn }
 
-func (v *CEFDictionaryValueT) CallSetList(args ...uintptr) uintptr {
+func (v *CEFDictionaryValueT) CallSetList(Key unsafe.Pointer, Value unsafe.Pointer) uintptr {
 	if v.SetList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetList, uintptr(unsafe.Pointer(v)), uintptr(Key), uintptr(Value))
 	return r1
 }
 
@@ -708,281 +708,281 @@ type CEFListValueT struct {
 
 func (v *CEFListValueT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFListValueT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideIsOwned(fn uintptr) { v.IsOwned = fn }
 
-func (v *CEFListValueT) CallIsOwned(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallIsOwned() uintptr {
 	if v.IsOwned == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsOwned, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsOwned, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
-func (v *CEFListValueT) CallIsReadOnly(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallIsReadOnly() uintptr {
 	if v.IsReadOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsReadOnly, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
-func (v *CEFListValueT) CallIsSame(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallIsSame(That unsafe.Pointer) uintptr {
 	if v.IsSame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSame, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideIsEqual(fn uintptr) { v.IsEqual = fn }
 
-func (v *CEFListValueT) CallIsEqual(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallIsEqual(That unsafe.Pointer) uintptr {
 	if v.IsEqual == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsEqual, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsEqual, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideCopy(fn uintptr) { v.Copy = fn }
 
-func (v *CEFListValueT) CallCopy(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallCopy() uintptr {
 	if v.Copy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Copy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Copy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetSize(fn uintptr) { v.SetSize = fn }
 
-func (v *CEFListValueT) CallSetSize(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetSize(Size uintptr) uintptr {
 	if v.SetSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetSize, uintptr(unsafe.Pointer(v)), Size)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetSize(fn uintptr) { v.GetSize = fn }
 
-func (v *CEFListValueT) CallGetSize(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetSize() uintptr {
 	if v.GetSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideClear(fn uintptr) { v.Clear = fn }
 
-func (v *CEFListValueT) CallClear(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallClear() uintptr {
 	if v.Clear == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Clear, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Clear, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideRemove(fn uintptr) { v.Remove = fn }
 
-func (v *CEFListValueT) CallRemove(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallRemove(Index uintptr) uintptr {
 	if v.Remove == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Remove, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Remove, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetType(fn uintptr) { v.GetType = fn }
 
-func (v *CEFListValueT) CallGetType(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetType(Index uintptr) uintptr {
 	if v.GetType == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetType, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetValue(fn uintptr) { v.GetValue = fn }
 
-func (v *CEFListValueT) CallGetValue(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetValue(Index uintptr) uintptr {
 	if v.GetValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValue, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetBool(fn uintptr) { v.GetBool = fn }
 
-func (v *CEFListValueT) CallGetBool(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetBool(Index uintptr) uintptr {
 	if v.GetBool == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBool, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBool, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetInt(fn uintptr) { v.GetInt = fn }
 
-func (v *CEFListValueT) CallGetInt(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetInt(Index uintptr) uintptr {
 	if v.GetInt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetInt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetInt, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetDouble(fn uintptr) { v.GetDouble = fn }
 
-func (v *CEFListValueT) CallGetDouble(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetDouble(Index uintptr) uintptr {
 	if v.GetDouble == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDouble, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDouble, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetString(fn uintptr) { v.GetString = fn }
 
-func (v *CEFListValueT) CallGetString(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetString(Index uintptr) uintptr {
 	if v.GetString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetString, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetBinary(fn uintptr) { v.GetBinary = fn }
 
-func (v *CEFListValueT) CallGetBinary(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetBinary(Index uintptr) uintptr {
 	if v.GetBinary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBinary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBinary, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetDictionary(fn uintptr) { v.GetDictionary = fn }
 
-func (v *CEFListValueT) CallGetDictionary(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetDictionary(Index uintptr) uintptr {
 	if v.GetDictionary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDictionary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDictionary, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideGetList(fn uintptr) { v.GetList = fn }
 
-func (v *CEFListValueT) CallGetList(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallGetList(Index uintptr) uintptr {
 	if v.GetList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetList, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetValue(fn uintptr) { v.SetValue = fn }
 
-func (v *CEFListValueT) CallSetValue(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetValue(Index uintptr, Value unsafe.Pointer) uintptr {
 	if v.SetValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetValue, uintptr(unsafe.Pointer(v)), Index, uintptr(Value))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetNull(fn uintptr) { v.SetNull = fn }
 
-func (v *CEFListValueT) CallSetNull(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetNull(Index uintptr) uintptr {
 	if v.SetNull == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetNull, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetNull, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetBool(fn uintptr) { v.SetBool = fn }
 
-func (v *CEFListValueT) CallSetBool(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetBool(Index uintptr, Value uintptr) uintptr {
 	if v.SetBool == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetBool, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetBool, uintptr(unsafe.Pointer(v)), Index, Value)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetInt(fn uintptr) { v.SetInt = fn }
 
-func (v *CEFListValueT) CallSetInt(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetInt(Index uintptr, Value uintptr) uintptr {
 	if v.SetInt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetInt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetInt, uintptr(unsafe.Pointer(v)), Index, Value)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetDouble(fn uintptr) { v.SetDouble = fn }
 
-func (v *CEFListValueT) CallSetDouble(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetDouble(Index uintptr, Value uintptr) uintptr {
 	if v.SetDouble == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDouble, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDouble, uintptr(unsafe.Pointer(v)), Index, Value)
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetString(fn uintptr) { v.SetString = fn }
 
-func (v *CEFListValueT) CallSetString(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetString(Index uintptr, Value unsafe.Pointer) uintptr {
 	if v.SetString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetString, uintptr(unsafe.Pointer(v)), Index, uintptr(Value))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetBinary(fn uintptr) { v.SetBinary = fn }
 
-func (v *CEFListValueT) CallSetBinary(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetBinary(Index uintptr, Value unsafe.Pointer) uintptr {
 	if v.SetBinary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetBinary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetBinary, uintptr(unsafe.Pointer(v)), Index, uintptr(Value))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetDictionary(fn uintptr) { v.SetDictionary = fn }
 
-func (v *CEFListValueT) CallSetDictionary(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetDictionary(Index uintptr, Value unsafe.Pointer) uintptr {
 	if v.SetDictionary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDictionary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDictionary, uintptr(unsafe.Pointer(v)), Index, uintptr(Value))
 	return r1
 }
 
 func (v *CEFListValueT) OverrideSetList(fn uintptr) { v.SetList = fn }
 
-func (v *CEFListValueT) CallSetList(args ...uintptr) uintptr {
+func (v *CEFListValueT) CallSetList(Index uintptr, Value unsafe.Pointer) uintptr {
 	if v.SetList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetList, uintptr(unsafe.Pointer(v)), Index, uintptr(Value))
 	return r1
 }
 

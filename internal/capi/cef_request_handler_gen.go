@@ -17,11 +17,11 @@ type CEFSelectClientCertificateCallbackT struct {
 
 func (v *CEFSelectClientCertificateCallbackT) OverrideSelect(fn uintptr) { v.Select = fn }
 
-func (v *CEFSelectClientCertificateCallbackT) CallSelect(args ...uintptr) uintptr {
+func (v *CEFSelectClientCertificateCallbackT) CallSelect(Cert unsafe.Pointer) uintptr {
 	if v.Select == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Select, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Select, uintptr(unsafe.Pointer(v)), uintptr(Cert))
 	return r1
 }
 
@@ -43,21 +43,21 @@ type CEFRequestHandlerT struct {
 
 func (v *CEFRequestHandlerT) OverrideOnBeforeBrowse(fn uintptr) { v.OnBeforeBrowse = fn }
 
-func (v *CEFRequestHandlerT) CallOnBeforeBrowse(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallOnBeforeBrowse(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, UserGesture uintptr, IsRedirect uintptr) uintptr {
 	if v.OnBeforeBrowse == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforeBrowse, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforeBrowse, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), UserGesture, IsRedirect)
 	return r1
 }
 
 func (v *CEFRequestHandlerT) OverrideOnOpenUrlfromTab(fn uintptr) { v.OnOpenUrlfromTab = fn }
 
-func (v *CEFRequestHandlerT) CallOnOpenUrlfromTab(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallOnOpenUrlfromTab(Browser unsafe.Pointer, Frame unsafe.Pointer, TargetURL unsafe.Pointer, TargetDisposition uintptr, UserGesture uintptr) uintptr {
 	if v.OnOpenUrlfromTab == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnOpenUrlfromTab, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnOpenUrlfromTab, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(TargetURL), TargetDisposition, UserGesture)
 	return r1
 }
 
@@ -65,31 +65,31 @@ func (v *CEFRequestHandlerT) OverrideGetResourceRequestHandler(fn uintptr) {
 	v.GetResourceRequestHandler = fn
 }
 
-func (v *CEFRequestHandlerT) CallGetResourceRequestHandler(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallGetResourceRequestHandler(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, IsNavigation uintptr, IsDownload uintptr, RequestInitiator unsafe.Pointer, DisableDefaultHandling unsafe.Pointer) uintptr {
 	if v.GetResourceRequestHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetResourceRequestHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetResourceRequestHandler, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), IsNavigation, IsDownload, uintptr(RequestInitiator), uintptr(DisableDefaultHandling))
 	return r1
 }
 
 func (v *CEFRequestHandlerT) OverrideGetAuthCredentials(fn uintptr) { v.GetAuthCredentials = fn }
 
-func (v *CEFRequestHandlerT) CallGetAuthCredentials(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallGetAuthCredentials(Browser unsafe.Pointer, OriginURL unsafe.Pointer, Isproxy uintptr, Host unsafe.Pointer, Port uintptr, Realm unsafe.Pointer, Scheme unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.GetAuthCredentials == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAuthCredentials, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAuthCredentials, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(OriginURL), Isproxy, uintptr(Host), Port, uintptr(Realm), uintptr(Scheme), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFRequestHandlerT) OverrideOnCertificateError(fn uintptr) { v.OnCertificateError = fn }
 
-func (v *CEFRequestHandlerT) CallOnCertificateError(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallOnCertificateError(Browser unsafe.Pointer, CertError uintptr, RequestURL unsafe.Pointer, SslInfo unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.OnCertificateError == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnCertificateError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnCertificateError, uintptr(unsafe.Pointer(v)), uintptr(Browser), CertError, uintptr(RequestURL), uintptr(SslInfo), uintptr(Callback))
 	return r1
 }
 
@@ -97,21 +97,21 @@ func (v *CEFRequestHandlerT) OverrideOnSelectClientCertificate(fn uintptr) {
 	v.OnSelectClientCertificate = fn
 }
 
-func (v *CEFRequestHandlerT) CallOnSelectClientCertificate(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallOnSelectClientCertificate(Browser unsafe.Pointer, Isproxy uintptr, Host unsafe.Pointer, Port uintptr, Certificatescount uintptr, Certificates unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.OnSelectClientCertificate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnSelectClientCertificate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnSelectClientCertificate, uintptr(unsafe.Pointer(v)), uintptr(Browser), Isproxy, uintptr(Host), Port, Certificatescount, uintptr(Certificates), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFRequestHandlerT) OverrideOnRenderViewReady(fn uintptr) { v.OnRenderViewReady = fn }
 
-func (v *CEFRequestHandlerT) CallOnRenderViewReady(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallOnRenderViewReady(Browser unsafe.Pointer) uintptr {
 	if v.OnRenderViewReady == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRenderViewReady, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRenderViewReady, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 
@@ -119,11 +119,11 @@ func (v *CEFRequestHandlerT) OverrideOnRenderProcessUnresponsive(fn uintptr) {
 	v.OnRenderProcessUnresponsive = fn
 }
 
-func (v *CEFRequestHandlerT) CallOnRenderProcessUnresponsive(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallOnRenderProcessUnresponsive(Browser unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.OnRenderProcessUnresponsive == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRenderProcessUnresponsive, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRenderProcessUnresponsive, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Callback))
 	return r1
 }
 
@@ -131,11 +131,11 @@ func (v *CEFRequestHandlerT) OverrideOnRenderProcessResponsive(fn uintptr) {
 	v.OnRenderProcessResponsive = fn
 }
 
-func (v *CEFRequestHandlerT) CallOnRenderProcessResponsive(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallOnRenderProcessResponsive(Browser unsafe.Pointer) uintptr {
 	if v.OnRenderProcessResponsive == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRenderProcessResponsive, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRenderProcessResponsive, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 
@@ -143,11 +143,11 @@ func (v *CEFRequestHandlerT) OverrideOnRenderProcessTerminated(fn uintptr) {
 	v.OnRenderProcessTerminated = fn
 }
 
-func (v *CEFRequestHandlerT) CallOnRenderProcessTerminated(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallOnRenderProcessTerminated(Browser unsafe.Pointer, Status uintptr, ErrorCode uintptr, ErrorString unsafe.Pointer) uintptr {
 	if v.OnRenderProcessTerminated == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRenderProcessTerminated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRenderProcessTerminated, uintptr(unsafe.Pointer(v)), uintptr(Browser), Status, ErrorCode, uintptr(ErrorString))
 	return r1
 }
 
@@ -155,11 +155,11 @@ func (v *CEFRequestHandlerT) OverrideOnDocumentAvailableInMainFrame(fn uintptr) 
 	v.OnDocumentAvailableInMainFrame = fn
 }
 
-func (v *CEFRequestHandlerT) CallOnDocumentAvailableInMainFrame(args ...uintptr) uintptr {
+func (v *CEFRequestHandlerT) CallOnDocumentAvailableInMainFrame(Browser unsafe.Pointer) uintptr {
 	if v.OnDocumentAvailableInMainFrame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDocumentAvailableInMainFrame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDocumentAvailableInMainFrame, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 

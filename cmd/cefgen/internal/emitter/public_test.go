@@ -1,11 +1,159 @@
 package emitter
 
 import (
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
 )
+
+func TestMarshalCallArgsPreserveRawPointerTypesForBothConsumers(t *testing.T) {
+	params := []ParamData{
+		{Name: "iface", PublicType: "Browser", MarshalKind: "interface"},
+		{Name: "opaque", PublicType: "unsafe.Pointer", MarshalKind: "interface"},
+		{Name: "text", PublicType: "string", MarshalKind: "string"},
+		{Name: "ptr", PublicType: "unsafe.Pointer", MarshalKind: "pointer"},
+		{Name: "data", PublicType: "*Point", MarshalKind: "dataStruct"},
+		{Name: "pixels", PublicType: "[]byte", MarshalKind: "pixelBuffer"},
+		{Name: "itemscount", PublicType: "*int", MarshalKind: "outCount", CountPartnerName: "items"},
+		{Name: "items", PublicType: "[]Point", MarshalKind: "outSlice", CountParamName: "itemscount"},
+		{Name: "values", PublicType: "[]int32", MarshalKind: "slice"},
+		{Name: "mode", PublicType: "Mode", MarshalKind: "enum"},
+		{Name: "number", PublicType: "int32", MarshalKind: "numeric"},
+		{Name: "opaqueHandle", PublicType: "uintptr", MarshalKind: "numeric", RawGoType: "unsafe.Pointer"},
+	}
+	const wantCall = "rawPtr.CallInvoke(extractRawPointer(iface), opaque, unsafe.Pointer(&textStr), ptr, unsafe.Pointer(data), pixelsPtr, unsafe.Pointer(itemsCountPtr), itemsPtr, uintptr(len(values)), valuesPtr, uintptr(mode), uintptr(number), unsafe.Pointer(opaqueHandle))"
+
+	for _, kind := range []string{"object", "handler"} {
+		t.Run(kind, func(t *testing.T) {
+			method := MethodData{
+				Name: "Invoke", RawFieldName: "Invoke", Params: params, RawParams: params,
+				Return: ReturnData{IsVoid: true},
+			}
+			if kind == "handler" {
+				// IsGetter suppresses the unrelated C-to-Go callback body so this focused
+				// fixture can exercise the handler template's Go-to-C reverse wrapper.
+				method.IsGetter = true
+			}
+			data := &PublicFileData{
+				PackageName: "cef",
+				Interfaces: []InterfaceData{{
+					Name: "Consumer", Kind: kind, RawGoName: "CEFConsumerT", IsScoped: true,
+					Methods: []MethodData{method},
+				}},
+			}
+
+			code, err := EmitPublic(data)
+			if err != nil {
+				t.Fatalf("EmitPublic failed: %v", err)
+			}
+			if !strings.Contains(code, wantCall) {
+				t.Fatalf("%s consumer did not preserve pointer arguments to raw wrapper; want %q\n\nGot:\n%s", kind, wantCall, code)
+			}
+		})
+	}
+}
+
+func TestGeneratedRawAndPublicPointerConsumersCompileTogether(t *testing.T) {
+	params := []ParamData{
+		{Name: "iface", PublicType: "Consumer", MarshalKind: "interface"},
+		{Name: "text", PublicType: "string", MarshalKind: "string"},
+		{Name: "ptr", PublicType: "unsafe.Pointer", MarshalKind: "pointer"},
+		{Name: "data", PublicType: "*Point", MarshalKind: "dataStruct"},
+		{Name: "pixels", PublicType: "[]byte", MarshalKind: "pixelBuffer"},
+		{Name: "itemscount", PublicType: "*int", MarshalKind: "outCount", CountPartnerName: "items"},
+		{Name: "items", PublicType: "[]Point", MarshalKind: "outSlice", CountParamName: "itemscount"},
+		{Name: "values", PublicType: "[]int32", MarshalKind: "slice", SliceElemType: "int32"},
+		{Name: "mode", PublicType: "Mode", MarshalKind: "enum"},
+		{Name: "number", PublicType: "int32", MarshalKind: "numeric"},
+	}
+	data := &PublicFileData{
+		PackageName: "cef",
+		Interfaces: []InterfaceData{{
+			Name: "Consumer", Kind: "object", RawGoName: "CEFConsumerT", IsScoped: true,
+			Methods: []MethodData{{
+				Name: "Invoke", RawFieldName: "Invoke", Params: params, RawParams: params,
+				Return: ReturnData{IsVoid: true},
+			}},
+		}},
+		DataStructs: []DataStructData{{Name: "Point", RawGoName: "CEFPointT"}},
+		Enums:       []EnumData{{Name: "Mode", RawGoName: "CEFModeT"}},
+	}
+	rawHeader := &model.Header{
+		Path: "tiny_capi.h", Package: "raw", RegisterName: "RegisterTiny",
+		Enums: []model.Enum{{GoName: "CEFModeT"}},
+		Structs: []model.Struct{
+			{GoName: "CEFPointT", Fields: []model.Field{{GoName: "X", GoType: "int32"}}},
+			{GoName: "CEFConsumerT", Fields: []model.Field{{
+				GoName: "Invoke", GoType: "uintptr", IsFunction: true,
+				Params: []model.Param{
+					{CName: "self", GoName: "self", CType: "cef_consumer_t*", GoType: "unsafe.Pointer", Pointer: 1},
+					{CName: "iface", GoName: "iface", CType: "cef_consumer_t*", GoType: "unsafe.Pointer", Pointer: 1},
+					{CName: "text", GoName: "text", CType: "cef_string_t*", GoType: "unsafe.Pointer", Pointer: 1},
+					{CName: "ptr", GoName: "ptr", CType: "void*", GoType: "unsafe.Pointer", Pointer: 1},
+					{CName: "data", GoName: "data", CType: "cef_point_t*", GoType: "unsafe.Pointer", Pointer: 1},
+					{CName: "pixels", GoName: "pixels", CType: "void*", GoType: "unsafe.Pointer", Pointer: 1},
+					{CName: "itemscount", GoName: "itemscount", CType: "size_t*", GoType: "unsafe.Pointer", Pointer: 1},
+					{CName: "items", GoName: "items", CType: "cef_point_t*", GoType: "unsafe.Pointer", Pointer: 1},
+					{CName: "valuescount", GoName: "valuescount", CType: "size_t", GoType: "uintptr"},
+					{CName: "values", GoName: "values", CType: "int*", GoType: "unsafe.Pointer", Pointer: 1},
+					{CName: "mode", GoName: "mode", CType: "cef_mode_t", GoType: "CEFModeT"},
+					{CName: "number", GoName: "number", CType: "int", GoType: "int32"},
+				},
+			}}},
+		},
+	}
+
+	rawCode, err := EmitRaw(rawHeader)
+	if err != nil {
+		t.Fatalf("EmitRaw failed: %v", err)
+	}
+	publicCode, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+	portCode, err := EmitPortIn(data)
+	if err != nil {
+		t.Fatalf("EmitPortIn failed: %v", err)
+	}
+
+	root := t.TempDir()
+	writeGeneratedTestFile(t, root, "go.mod", "module github.com/bnema/purego-cef\n\ngo 1.26\n\nrequire github.com/bnema/purego v0.11.0-bnema.4\n")
+	writeGeneratedTestFile(t, root, "internal/capi/tiny_gen.go", rawCode)
+	writeGeneratedTestFile(t, root, "internal/ports/in/tiny_gen.go", portCode)
+	writeGeneratedTestFile(t, root, "cef/tiny_gen.go", publicCode)
+	writeGeneratedTestFile(t, root, "cef/helpers_testbuild.go", `package cef
+
+import "unsafe"
+
+type tinyCEFString struct{}
+func cefString(string) tinyCEFString { return tinyCEFString{} }
+func freeCefString(*tinyCEFString) {}
+func extractRawPointer(any) unsafe.Pointer { return nil }
+`)
+
+	cmd := exec.Command("go", "test", "./...")
+	cmd.Dir = root
+	cmd.Env = append(os.Environ(), "GOWORK=off", "GOFLAGS=-mod=mod")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("generated raw and public packages do not compile: %v\n%s", err, output)
+	}
+}
+
+func writeGeneratedTestFile(t *testing.T, root, name, content string) {
+	t.Helper()
+	path := filepath.Join(root, name)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
 
 func TestEmitPublicObjectInterface(t *testing.T) {
 	header := &model.Header{
@@ -790,7 +938,7 @@ func TestEmitPublicObjectMethodAutoWrapsHandlerParams(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	want := "CallPostTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })))"
+	want := "CallPostTask(extractOrWrapRawPointer(task, func() any { return NewTask(task) }))"
 	if !strings.Contains(code, want) {
 		t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
 	}
@@ -908,7 +1056,7 @@ func TestEmitPixelBufferOverride(t *testing.T) {
 		{"bufferPtr declaration", "var bufferPtr unsafe.Pointer"},
 		{"bufferPtr nil/empty guard", "if len(buffer) > 0 {"},
 		{"bufferPtr first element address", "bufferPtr = unsafe.Pointer(&buffer[0])"},
-		{"bufferPtr passed as uintptr", "uintptr(bufferPtr)"},
+		{"bufferPtr preserved as pointer", "rawPtr.CallOnPaint(uintptr(browser), type_, uintptr(dirtyRectsCount), dirtyRects, bufferPtr"},
 	}
 
 	for _, c := range checks {
@@ -1166,9 +1314,9 @@ func TestEmitV8ValueExecuteFunctionArgumentsObjectSlice(t *testing.T) {
 		"argumentsRaw = make([]uintptr, len(arguments))",
 		"argumentsRaw[i] = uintptr(extractRawPointer(elem))",
 		"argumentsPtr = unsafe.Pointer(&argumentsRaw[0])",
-		"CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))",
+		"CallExecuteFunction(extractRawPointer(object), uintptr(len(arguments)), argumentsPtr)",
 		"func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8Value, arguments []V8Value) V8Value {",
-		"CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))",
+		"CallExecuteFunctionWithContext(extractRawPointer(context), extractRawPointer(object), uintptr(len(arguments)), argumentsPtr)",
 	}
 	for _, want := range checks {
 		if !strings.Contains(code, want) {
@@ -1226,7 +1374,7 @@ func TestEmitObjectMethodOutputObjectSliceBuffer(t *testing.T) {
 		"func (obj *postDataImpl) GetElements(elementsCount *int, elements []PostDataElement) {",
 		"elementsCountPtr := elementsCount",
 		"elementsRaw = make([]uintptr, len(elements))",
-		"rawPtr.CallGetElements(uintptr(unsafe.Pointer(elementsCountPtr)), uintptr(elementsPtr))",
+		"rawPtr.CallGetElements(unsafe.Pointer(elementsCountPtr), elementsPtr)",
 		"elements[i] = wrapPostDataElement(unsafe.Pointer(elementsRaw[i]))",
 	}
 	for _, want := range checks {
@@ -1272,7 +1420,7 @@ func TestEmitObjectMethodOutputNumericSliceBuffer(t *testing.T) {
 		"func (obj *taskManagerImpl) GetTaskIdsList(task_idsCount *int, task_ids []int64) int32 {",
 		"task_idsCountPtr := task_idsCount",
 		"task_idsPtr = unsafe.Pointer(&task_ids[0])",
-		"ret := rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(task_idsCountPtr)), uintptr(task_idsPtr))",
+		"ret := rawPtr.CallGetTaskIdsList(unsafe.Pointer(task_idsCountPtr), task_idsPtr)",
 	}
 	for _, want := range checks {
 		if !strings.Contains(code, want) {

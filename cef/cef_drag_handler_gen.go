@@ -90,7 +90,7 @@ func (obj *dragHandlerImpl) OnDragEnter(browser Browser, dragdata DragData, mask
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnDragEnter(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(dragdata)), uintptr(mask))
+	ret := rawPtr.CallOnDragEnter(extractRawPointer(browser), extractRawPointer(dragdata), uintptr(mask))
 	return int32(ret)
 }
 
@@ -103,7 +103,7 @@ func (obj *dragHandlerImpl) OnDraggableRegionsChanged(browser Browser, frame Fra
 	if len(regions) > 0 {
 		regionsPtr = unsafe.Pointer(&regions[0])
 	}
-	rawPtr.CallOnDraggableRegionsChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(len(regions)), uintptr(regionsPtr))
+	rawPtr.CallOnDraggableRegionsChanged(extractRawPointer(browser), extractRawPointer(frame), uintptr(len(regions)), regionsPtr)
 }
 
 func (obj *dragHandlerImpl) RawPointer() unsafe.Pointer {

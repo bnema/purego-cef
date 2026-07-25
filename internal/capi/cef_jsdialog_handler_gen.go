@@ -17,11 +17,11 @@ type CEFJsdialogCallbackT struct {
 
 func (v *CEFJsdialogCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFJsdialogCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFJsdialogCallbackT) CallCont(Success uintptr, UserInput unsafe.Pointer) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), Success, uintptr(UserInput))
 	return r1
 }
 
@@ -36,41 +36,41 @@ type CEFJsdialogHandlerT struct {
 
 func (v *CEFJsdialogHandlerT) OverrideOnJsdialog(fn uintptr) { v.OnJsdialog = fn }
 
-func (v *CEFJsdialogHandlerT) CallOnJsdialog(args ...uintptr) uintptr {
+func (v *CEFJsdialogHandlerT) CallOnJsdialog(Browser unsafe.Pointer, OriginURL unsafe.Pointer, DialogType uintptr, MessageText unsafe.Pointer, DefaultPromptText unsafe.Pointer, Callback unsafe.Pointer, SuppressMessage unsafe.Pointer) uintptr {
 	if v.OnJsdialog == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnJsdialog, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnJsdialog, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(OriginURL), DialogType, uintptr(MessageText), uintptr(DefaultPromptText), uintptr(Callback), uintptr(SuppressMessage))
 	return r1
 }
 
 func (v *CEFJsdialogHandlerT) OverrideOnBeforeUnloadDialog(fn uintptr) { v.OnBeforeUnloadDialog = fn }
 
-func (v *CEFJsdialogHandlerT) CallOnBeforeUnloadDialog(args ...uintptr) uintptr {
+func (v *CEFJsdialogHandlerT) CallOnBeforeUnloadDialog(Browser unsafe.Pointer, MessageText unsafe.Pointer, IsReload uintptr, Callback unsafe.Pointer) uintptr {
 	if v.OnBeforeUnloadDialog == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforeUnloadDialog, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforeUnloadDialog, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(MessageText), IsReload, uintptr(Callback))
 	return r1
 }
 
 func (v *CEFJsdialogHandlerT) OverrideOnResetDialogState(fn uintptr) { v.OnResetDialogState = fn }
 
-func (v *CEFJsdialogHandlerT) CallOnResetDialogState(args ...uintptr) uintptr {
+func (v *CEFJsdialogHandlerT) CallOnResetDialogState(Browser unsafe.Pointer) uintptr {
 	if v.OnResetDialogState == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnResetDialogState, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnResetDialogState, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 
 func (v *CEFJsdialogHandlerT) OverrideOnDialogClosed(fn uintptr) { v.OnDialogClosed = fn }
 
-func (v *CEFJsdialogHandlerT) CallOnDialogClosed(args ...uintptr) uintptr {
+func (v *CEFJsdialogHandlerT) CallOnDialogClosed(Browser unsafe.Pointer) uintptr {
 	if v.OnDialogClosed == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDialogClosed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDialogClosed, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 

@@ -19,31 +19,31 @@ type CEFFocusHandlerT struct {
 
 func (v *CEFFocusHandlerT) OverrideOnTakeFocus(fn uintptr) { v.OnTakeFocus = fn }
 
-func (v *CEFFocusHandlerT) CallOnTakeFocus(args ...uintptr) uintptr {
+func (v *CEFFocusHandlerT) CallOnTakeFocus(Browser unsafe.Pointer, Next uintptr) uintptr {
 	if v.OnTakeFocus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnTakeFocus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnTakeFocus, uintptr(unsafe.Pointer(v)), uintptr(Browser), Next)
 	return r1
 }
 
 func (v *CEFFocusHandlerT) OverrideOnSetFocus(fn uintptr) { v.OnSetFocus = fn }
 
-func (v *CEFFocusHandlerT) CallOnSetFocus(args ...uintptr) uintptr {
+func (v *CEFFocusHandlerT) CallOnSetFocus(Browser unsafe.Pointer, Source uintptr) uintptr {
 	if v.OnSetFocus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnSetFocus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnSetFocus, uintptr(unsafe.Pointer(v)), uintptr(Browser), Source)
 	return r1
 }
 
 func (v *CEFFocusHandlerT) OverrideOnGotFocus(fn uintptr) { v.OnGotFocus = fn }
 
-func (v *CEFFocusHandlerT) CallOnGotFocus(args ...uintptr) uintptr {
+func (v *CEFFocusHandlerT) CallOnGotFocus(Browser unsafe.Pointer) uintptr {
 	if v.OnGotFocus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnGotFocus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnGotFocus, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 

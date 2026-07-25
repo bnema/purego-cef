@@ -51,21 +51,21 @@ type CEFApiVersionTestT struct {
 
 func (v *CEFApiVersionTestT) OverrideGetRefPtrLibrary(fn uintptr) { v.GetRefPtrLibrary = fn }
 
-func (v *CEFApiVersionTestT) CallGetRefPtrLibrary(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallGetRefPtrLibrary(Val uintptr) uintptr {
 	if v.GetRefPtrLibrary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRefPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRefPtrLibrary, uintptr(unsafe.Pointer(v)), Val)
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetRefPtrLibrary(fn uintptr) { v.SetRefPtrLibrary = fn }
 
-func (v *CEFApiVersionTestT) CallSetRefPtrLibrary(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRefPtrLibrary(Val unsafe.Pointer) uintptr {
 	if v.SetRefPtrLibrary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRefPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRefPtrLibrary, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -73,21 +73,21 @@ func (v *CEFApiVersionTestT) OverrideSetRefPtrLibraryAndReturn(fn uintptr) {
 	v.SetRefPtrLibraryAndReturn = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetRefPtrLibraryAndReturn(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRefPtrLibraryAndReturn(Val unsafe.Pointer) uintptr {
 	if v.SetRefPtrLibraryAndReturn == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRefPtrLibraryAndReturn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRefPtrLibraryAndReturn, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetChildRefPtrLibrary(fn uintptr) { v.SetChildRefPtrLibrary = fn }
 
-func (v *CEFApiVersionTestT) CallSetChildRefPtrLibrary(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildRefPtrLibrary(Val unsafe.Pointer) uintptr {
 	if v.SetChildRefPtrLibrary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildRefPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildRefPtrLibrary, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -95,21 +95,21 @@ func (v *CEFApiVersionTestT) OverrideSetChildRefPtrLibraryAndReturnParent(fn uin
 	v.SetChildRefPtrLibraryAndReturnParent = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetChildRefPtrLibraryAndReturnParent(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildRefPtrLibraryAndReturnParent(Val unsafe.Pointer) uintptr {
 	if v.SetChildRefPtrLibraryAndReturnParent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildRefPtrLibraryAndReturnParent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildRefPtrLibraryAndReturnParent, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetRefPtrLibraryList(fn uintptr) { v.SetRefPtrLibraryList = fn }
 
-func (v *CEFApiVersionTestT) CallSetRefPtrLibraryList(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRefPtrLibraryList(Valcount uintptr, Val unsafe.Pointer, Val1 uintptr, Val2 uintptr) uintptr {
 	if v.SetRefPtrLibraryList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRefPtrLibraryList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRefPtrLibraryList, uintptr(unsafe.Pointer(v)), Valcount, uintptr(Val), Val1, Val2)
 	return r1
 }
 
@@ -117,11 +117,11 @@ func (v *CEFApiVersionTestT) OverrideGetRefPtrLibraryListByRef(fn uintptr) {
 	v.GetRefPtrLibraryListByRef = fn
 }
 
-func (v *CEFApiVersionTestT) CallGetRefPtrLibraryListByRef(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallGetRefPtrLibraryListByRef(Valcount unsafe.Pointer, Val unsafe.Pointer, Val1 uintptr, Val2 uintptr) uintptr {
 	if v.GetRefPtrLibraryListByRef == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRefPtrLibraryListByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRefPtrLibraryListByRef, uintptr(unsafe.Pointer(v)), uintptr(Valcount), uintptr(Val), Val1, Val2)
 	return r1
 }
 
@@ -129,21 +129,21 @@ func (v *CEFApiVersionTestT) OverrideGetRefPtrLibraryListSize(fn uintptr) {
 	v.GetRefPtrLibraryListSize = fn
 }
 
-func (v *CEFApiVersionTestT) CallGetRefPtrLibraryListSize(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallGetRefPtrLibraryListSize() uintptr {
 	if v.GetRefPtrLibraryListSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRefPtrLibraryListSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRefPtrLibraryListSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetRefPtrClient(fn uintptr) { v.SetRefPtrClient = fn }
 
-func (v *CEFApiVersionTestT) CallSetRefPtrClient(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRefPtrClient(Val unsafe.Pointer) uintptr {
 	if v.SetRefPtrClient == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRefPtrClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRefPtrClient, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -151,21 +151,21 @@ func (v *CEFApiVersionTestT) OverrideSetRefPtrClientAndReturn(fn uintptr) {
 	v.SetRefPtrClientAndReturn = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetRefPtrClientAndReturn(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRefPtrClientAndReturn(Val unsafe.Pointer) uintptr {
 	if v.SetRefPtrClientAndReturn == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRefPtrClientAndReturn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRefPtrClientAndReturn, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetRefPtrClientList(fn uintptr) { v.SetRefPtrClientList = fn }
 
-func (v *CEFApiVersionTestT) CallSetRefPtrClientList(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRefPtrClientList(Valcount uintptr, Val unsafe.Pointer, Val1 uintptr, Val2 uintptr) uintptr {
 	if v.SetRefPtrClientList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRefPtrClientList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRefPtrClientList, uintptr(unsafe.Pointer(v)), Valcount, uintptr(Val), Val1, Val2)
 	return r1
 }
 
@@ -173,11 +173,11 @@ func (v *CEFApiVersionTestT) OverrideGetRefPtrClientListByRef(fn uintptr) {
 	v.GetRefPtrClientListByRef = fn
 }
 
-func (v *CEFApiVersionTestT) CallGetRefPtrClientListByRef(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallGetRefPtrClientListByRef(Valcount unsafe.Pointer, Val unsafe.Pointer, Val1 unsafe.Pointer, Val2 unsafe.Pointer) uintptr {
 	if v.GetRefPtrClientListByRef == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRefPtrClientListByRef, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRefPtrClientListByRef, uintptr(unsafe.Pointer(v)), uintptr(Valcount), uintptr(Val), uintptr(Val1), uintptr(Val2))
 	return r1
 }
 
@@ -185,31 +185,31 @@ func (v *CEFApiVersionTestT) OverrideGetRefPtrClientListSize(fn uintptr) {
 	v.GetRefPtrClientListSize = fn
 }
 
-func (v *CEFApiVersionTestT) CallGetRefPtrClientListSize(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallGetRefPtrClientListSize() uintptr {
 	if v.GetRefPtrClientListSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRefPtrClientListSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRefPtrClientListSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideGetOwnPtrLibrary(fn uintptr) { v.GetOwnPtrLibrary = fn }
 
-func (v *CEFApiVersionTestT) CallGetOwnPtrLibrary(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallGetOwnPtrLibrary(Val uintptr) uintptr {
 	if v.GetOwnPtrLibrary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOwnPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOwnPtrLibrary, uintptr(unsafe.Pointer(v)), Val)
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetOwnPtrLibrary(fn uintptr) { v.SetOwnPtrLibrary = fn }
 
-func (v *CEFApiVersionTestT) CallSetOwnPtrLibrary(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetOwnPtrLibrary(Val unsafe.Pointer) uintptr {
 	if v.SetOwnPtrLibrary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetOwnPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetOwnPtrLibrary, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -217,21 +217,21 @@ func (v *CEFApiVersionTestT) OverrideSetOwnPtrLibraryAndReturn(fn uintptr) {
 	v.SetOwnPtrLibraryAndReturn = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetOwnPtrLibraryAndReturn(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetOwnPtrLibraryAndReturn(Val unsafe.Pointer) uintptr {
 	if v.SetOwnPtrLibraryAndReturn == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetOwnPtrLibraryAndReturn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetOwnPtrLibraryAndReturn, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetChildOwnPtrLibrary(fn uintptr) { v.SetChildOwnPtrLibrary = fn }
 
-func (v *CEFApiVersionTestT) CallSetChildOwnPtrLibrary(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildOwnPtrLibrary(Val unsafe.Pointer) uintptr {
 	if v.SetChildOwnPtrLibrary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildOwnPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildOwnPtrLibrary, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -239,21 +239,21 @@ func (v *CEFApiVersionTestT) OverrideSetChildOwnPtrLibraryAndReturnParent(fn uin
 	v.SetChildOwnPtrLibraryAndReturnParent = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetChildOwnPtrLibraryAndReturnParent(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildOwnPtrLibraryAndReturnParent(Val unsafe.Pointer) uintptr {
 	if v.SetChildOwnPtrLibraryAndReturnParent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildOwnPtrLibraryAndReturnParent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildOwnPtrLibraryAndReturnParent, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetOwnPtrClient(fn uintptr) { v.SetOwnPtrClient = fn }
 
-func (v *CEFApiVersionTestT) CallSetOwnPtrClient(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetOwnPtrClient(Val unsafe.Pointer) uintptr {
 	if v.SetOwnPtrClient == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetOwnPtrClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetOwnPtrClient, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -261,61 +261,61 @@ func (v *CEFApiVersionTestT) OverrideSetOwnPtrClientAndReturn(fn uintptr) {
 	v.SetOwnPtrClientAndReturn = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetOwnPtrClientAndReturn(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetOwnPtrClientAndReturn(Val unsafe.Pointer) uintptr {
 	if v.SetOwnPtrClientAndReturn == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetOwnPtrClientAndReturn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetOwnPtrClientAndReturn, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetRawPtrLibrary(fn uintptr) { v.SetRawPtrLibrary = fn }
 
-func (v *CEFApiVersionTestT) CallSetRawPtrLibrary(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRawPtrLibrary(Val unsafe.Pointer) uintptr {
 	if v.SetRawPtrLibrary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRawPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRawPtrLibrary, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetChildRawPtrLibrary(fn uintptr) { v.SetChildRawPtrLibrary = fn }
 
-func (v *CEFApiVersionTestT) CallSetChildRawPtrLibrary(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildRawPtrLibrary(Val unsafe.Pointer) uintptr {
 	if v.SetChildRawPtrLibrary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildRawPtrLibrary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildRawPtrLibrary, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetRawPtrLibraryList(fn uintptr) { v.SetRawPtrLibraryList = fn }
 
-func (v *CEFApiVersionTestT) CallSetRawPtrLibraryList(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRawPtrLibraryList(Valcount uintptr, Val unsafe.Pointer, Val1 uintptr, Val2 uintptr) uintptr {
 	if v.SetRawPtrLibraryList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRawPtrLibraryList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRawPtrLibraryList, uintptr(unsafe.Pointer(v)), Valcount, uintptr(Val), Val1, Val2)
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetRawPtrClient(fn uintptr) { v.SetRawPtrClient = fn }
 
-func (v *CEFApiVersionTestT) CallSetRawPtrClient(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRawPtrClient(Val unsafe.Pointer) uintptr {
 	if v.SetRawPtrClient == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRawPtrClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRawPtrClient, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
 func (v *CEFApiVersionTestT) OverrideSetRawPtrClientList(fn uintptr) { v.SetRawPtrClientList = fn }
 
-func (v *CEFApiVersionTestT) CallSetRawPtrClientList(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetRawPtrClientList(Valcount uintptr, Val unsafe.Pointer, Val1 uintptr, Val2 uintptr) uintptr {
 	if v.SetRawPtrClientList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetRawPtrClientList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetRawPtrClientList, uintptr(unsafe.Pointer(v)), Valcount, uintptr(Val), Val1, Val2)
 	return r1
 }
 
@@ -323,11 +323,11 @@ func (v *CEFApiVersionTestT) OverrideSetChildRefPtrClientV2(fn uintptr) {
 	v.SetChildRefPtrClientV2 = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetChildRefPtrClientV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildRefPtrClientV2(Val unsafe.Pointer) uintptr {
 	if v.SetChildRefPtrClientV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildRefPtrClientV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildRefPtrClientV2, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -335,11 +335,11 @@ func (v *CEFApiVersionTestT) OverrideSetChildRefPtrClientAndReturnParentV2(fn ui
 	v.SetChildRefPtrClientAndReturnParentV2 = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetChildRefPtrClientAndReturnParentV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildRefPtrClientAndReturnParentV2(Val unsafe.Pointer) uintptr {
 	if v.SetChildRefPtrClientAndReturnParentV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildRefPtrClientAndReturnParentV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildRefPtrClientAndReturnParentV2, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -347,11 +347,11 @@ func (v *CEFApiVersionTestT) OverrideSetChildOwnPtrClientV2(fn uintptr) {
 	v.SetChildOwnPtrClientV2 = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetChildOwnPtrClientV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildOwnPtrClientV2(Val unsafe.Pointer) uintptr {
 	if v.SetChildOwnPtrClientV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildOwnPtrClientV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildOwnPtrClientV2, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -359,11 +359,11 @@ func (v *CEFApiVersionTestT) OverrideSetChildOwnPtrClientAndReturnParentV2(fn ui
 	v.SetChildOwnPtrClientAndReturnParentV2 = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetChildOwnPtrClientAndReturnParentV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildOwnPtrClientAndReturnParentV2(Val unsafe.Pointer) uintptr {
 	if v.SetChildOwnPtrClientAndReturnParentV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildOwnPtrClientAndReturnParentV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildOwnPtrClientAndReturnParentV2, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -371,11 +371,11 @@ func (v *CEFApiVersionTestT) OverrideSetChildRawPtrClientV2(fn uintptr) {
 	v.SetChildRawPtrClientV2 = fn
 }
 
-func (v *CEFApiVersionTestT) CallSetChildRawPtrClientV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestT) CallSetChildRawPtrClientV2(Val unsafe.Pointer) uintptr {
 	if v.SetChildRawPtrClientV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetChildRawPtrClientV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetChildRawPtrClientV2, uintptr(unsafe.Pointer(v)), uintptr(Val))
 	return r1
 }
 
@@ -394,41 +394,41 @@ type CEFApiVersionTestRefPtrLibraryT struct {
 
 func (v *CEFApiVersionTestRefPtrLibraryT) OverrideGetValueLegacy(fn uintptr) { v.GetValueLegacy = fn }
 
-func (v *CEFApiVersionTestRefPtrLibraryT) CallGetValueLegacy(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrLibraryT) CallGetValueLegacy() uintptr {
 	if v.GetValueLegacy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValueLegacy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValueLegacy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFApiVersionTestRefPtrLibraryT) OverrideSetValueLegacy(fn uintptr) { v.SetValueLegacy = fn }
 
-func (v *CEFApiVersionTestRefPtrLibraryT) CallSetValueLegacy(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrLibraryT) CallSetValueLegacy(Value uintptr) uintptr {
 	if v.SetValueLegacy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetValueLegacy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetValueLegacy, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
 func (v *CEFApiVersionTestRefPtrLibraryT) OverrideGetValueV2(fn uintptr) { v.GetValueV2 = fn }
 
-func (v *CEFApiVersionTestRefPtrLibraryT) CallGetValueV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrLibraryT) CallGetValueV2() uintptr {
 	if v.GetValueV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValueV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValueV2, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFApiVersionTestRefPtrLibraryT) OverrideSetValueV2(fn uintptr) { v.SetValueV2 = fn }
 
-func (v *CEFApiVersionTestRefPtrLibraryT) CallSetValueV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrLibraryT) CallSetValueV2(Value uintptr) uintptr {
 	if v.SetValueV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetValueV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetValueV2, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
@@ -443,11 +443,11 @@ func (v *CEFApiVersionTestRefPtrLibraryChildT) OverrideGetOtherValue(fn uintptr)
 	v.GetOtherValue = fn
 }
 
-func (v *CEFApiVersionTestRefPtrLibraryChildT) CallGetOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrLibraryChildT) CallGetOtherValue() uintptr {
 	if v.GetOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOtherValue, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -455,11 +455,11 @@ func (v *CEFApiVersionTestRefPtrLibraryChildT) OverrideSetOtherValue(fn uintptr)
 	v.SetOtherValue = fn
 }
 
-func (v *CEFApiVersionTestRefPtrLibraryChildT) CallSetOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrLibraryChildT) CallSetOtherValue(Value uintptr) uintptr {
 	if v.SetOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetOtherValue, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
@@ -474,11 +474,11 @@ func (v *CEFApiVersionTestRefPtrLibraryChildChildV2T) OverrideGetOtherOtherValue
 	v.GetOtherOtherValue = fn
 }
 
-func (v *CEFApiVersionTestRefPtrLibraryChildChildV2T) CallGetOtherOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrLibraryChildChildV2T) CallGetOtherOtherValue() uintptr {
 	if v.GetOtherOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOtherOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOtherOtherValue, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -486,11 +486,11 @@ func (v *CEFApiVersionTestRefPtrLibraryChildChildV2T) OverrideSetOtherOtherValue
 	v.SetOtherOtherValue = fn
 }
 
-func (v *CEFApiVersionTestRefPtrLibraryChildChildV2T) CallSetOtherOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrLibraryChildChildV2T) CallSetOtherOtherValue(Value uintptr) uintptr {
 	if v.SetOtherOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetOtherOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetOtherOtherValue, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
@@ -505,21 +505,21 @@ type CEFApiVersionTestRefPtrClientT struct {
 
 func (v *CEFApiVersionTestRefPtrClientT) OverrideGetValueLegacy(fn uintptr) { v.GetValueLegacy = fn }
 
-func (v *CEFApiVersionTestRefPtrClientT) CallGetValueLegacy(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrClientT) CallGetValueLegacy() uintptr {
 	if v.GetValueLegacy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValueLegacy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValueLegacy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFApiVersionTestRefPtrClientT) OverrideGetValueV2(fn uintptr) { v.GetValueV2 = fn }
 
-func (v *CEFApiVersionTestRefPtrClientT) CallGetValueV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrClientT) CallGetValueV2() uintptr {
 	if v.GetValueV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValueV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValueV2, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -534,11 +534,11 @@ func (v *CEFApiVersionTestRefPtrClientChildV2T) OverrideGetOtherValue(fn uintptr
 	v.GetOtherValue = fn
 }
 
-func (v *CEFApiVersionTestRefPtrClientChildV2T) CallGetOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrClientChildV2T) CallGetOtherValue() uintptr {
 	if v.GetOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOtherValue, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -546,11 +546,11 @@ func (v *CEFApiVersionTestRefPtrClientChildV2T) OverrideGetAnotherValue(fn uintp
 	v.GetAnotherValue = fn
 }
 
-func (v *CEFApiVersionTestRefPtrClientChildV2T) CallGetAnotherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestRefPtrClientChildV2T) CallGetAnotherValue() uintptr {
 	if v.GetAnotherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAnotherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAnotherValue, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -569,41 +569,41 @@ type CEFApiVersionTestScopedLibraryT struct {
 
 func (v *CEFApiVersionTestScopedLibraryT) OverrideGetValueLegacy(fn uintptr) { v.GetValueLegacy = fn }
 
-func (v *CEFApiVersionTestScopedLibraryT) CallGetValueLegacy(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedLibraryT) CallGetValueLegacy() uintptr {
 	if v.GetValueLegacy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValueLegacy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValueLegacy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFApiVersionTestScopedLibraryT) OverrideSetValueLegacy(fn uintptr) { v.SetValueLegacy = fn }
 
-func (v *CEFApiVersionTestScopedLibraryT) CallSetValueLegacy(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedLibraryT) CallSetValueLegacy(Value uintptr) uintptr {
 	if v.SetValueLegacy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetValueLegacy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetValueLegacy, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
 func (v *CEFApiVersionTestScopedLibraryT) OverrideGetValueV2(fn uintptr) { v.GetValueV2 = fn }
 
-func (v *CEFApiVersionTestScopedLibraryT) CallGetValueV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedLibraryT) CallGetValueV2() uintptr {
 	if v.GetValueV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValueV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValueV2, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFApiVersionTestScopedLibraryT) OverrideSetValueV2(fn uintptr) { v.SetValueV2 = fn }
 
-func (v *CEFApiVersionTestScopedLibraryT) CallSetValueV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedLibraryT) CallSetValueV2(Value uintptr) uintptr {
 	if v.SetValueV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetValueV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetValueV2, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
@@ -618,11 +618,11 @@ func (v *CEFApiVersionTestScopedLibraryChildT) OverrideGetOtherValue(fn uintptr)
 	v.GetOtherValue = fn
 }
 
-func (v *CEFApiVersionTestScopedLibraryChildT) CallGetOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedLibraryChildT) CallGetOtherValue() uintptr {
 	if v.GetOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOtherValue, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -630,11 +630,11 @@ func (v *CEFApiVersionTestScopedLibraryChildT) OverrideSetOtherValue(fn uintptr)
 	v.SetOtherValue = fn
 }
 
-func (v *CEFApiVersionTestScopedLibraryChildT) CallSetOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedLibraryChildT) CallSetOtherValue(Value uintptr) uintptr {
 	if v.SetOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetOtherValue, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
@@ -649,11 +649,11 @@ func (v *CEFApiVersionTestScopedLibraryChildChildV2T) OverrideGetOtherOtherValue
 	v.GetOtherOtherValue = fn
 }
 
-func (v *CEFApiVersionTestScopedLibraryChildChildV2T) CallGetOtherOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedLibraryChildChildV2T) CallGetOtherOtherValue() uintptr {
 	if v.GetOtherOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOtherOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOtherOtherValue, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -661,11 +661,11 @@ func (v *CEFApiVersionTestScopedLibraryChildChildV2T) OverrideSetOtherOtherValue
 	v.SetOtherOtherValue = fn
 }
 
-func (v *CEFApiVersionTestScopedLibraryChildChildV2T) CallSetOtherOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedLibraryChildChildV2T) CallSetOtherOtherValue(Value uintptr) uintptr {
 	if v.SetOtherOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetOtherOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetOtherOtherValue, uintptr(unsafe.Pointer(v)), Value)
 	return r1
 }
 
@@ -680,21 +680,21 @@ type CEFApiVersionTestScopedClientT struct {
 
 func (v *CEFApiVersionTestScopedClientT) OverrideGetValueLegacy(fn uintptr) { v.GetValueLegacy = fn }
 
-func (v *CEFApiVersionTestScopedClientT) CallGetValueLegacy(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedClientT) CallGetValueLegacy() uintptr {
 	if v.GetValueLegacy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValueLegacy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValueLegacy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFApiVersionTestScopedClientT) OverrideGetValueV2(fn uintptr) { v.GetValueV2 = fn }
 
-func (v *CEFApiVersionTestScopedClientT) CallGetValueV2(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedClientT) CallGetValueV2() uintptr {
 	if v.GetValueV2 == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetValueV2, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetValueV2, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -709,11 +709,11 @@ func (v *CEFApiVersionTestScopedClientChildV2T) OverrideGetOtherValue(fn uintptr
 	v.GetOtherValue = fn
 }
 
-func (v *CEFApiVersionTestScopedClientChildV2T) CallGetOtherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedClientChildV2T) CallGetOtherValue() uintptr {
 	if v.GetOtherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOtherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOtherValue, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -721,11 +721,11 @@ func (v *CEFApiVersionTestScopedClientChildV2T) OverrideGetAnotherValue(fn uintp
 	v.GetAnotherValue = fn
 }
 
-func (v *CEFApiVersionTestScopedClientChildV2T) CallGetAnotherValue(args ...uintptr) uintptr {
+func (v *CEFApiVersionTestScopedClientChildV2T) CallGetAnotherValue() uintptr {
 	if v.GetAnotherValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAnotherValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAnotherValue, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

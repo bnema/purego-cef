@@ -221,7 +221,7 @@ func (obj *x509CertificateImpl) GetDerencodedIssuerChain(chaincount *int, chain 
 		chainRaw = make([]uintptr, len(chain))
 		chainPtr = unsafe.Pointer(&chainRaw[0])
 	}
-	rawPtr.CallGetDerencodedIssuerChain(uintptr(unsafe.Pointer(chainCountPtr)), uintptr(chainPtr))
+	rawPtr.CallGetDerencodedIssuerChain(unsafe.Pointer(chainCountPtr), chainPtr)
 	if len(chain) > 0 {
 		n := len(chain)
 		if *chainCountPtr < n {
@@ -251,7 +251,7 @@ func (obj *x509CertificateImpl) GetPemencodedIssuerChain(chaincount *int, chain 
 		chainRaw = make([]uintptr, len(chain))
 		chainPtr = unsafe.Pointer(&chainRaw[0])
 	}
-	rawPtr.CallGetPemencodedIssuerChain(uintptr(unsafe.Pointer(chainCountPtr)), uintptr(chainPtr))
+	rawPtr.CallGetPemencodedIssuerChain(unsafe.Pointer(chainCountPtr), chainPtr)
 	if len(chain) > 0 {
 		n := len(chain)
 		if *chainCountPtr < n {

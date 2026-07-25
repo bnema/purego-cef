@@ -28,7 +28,7 @@ func (obj *mediaRouterImpl) AddObserver(observer MediaObserver) Registration {
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAddObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) })))
+	ret := rawPtr.CallAddObserver(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) }))
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
@@ -39,7 +39,7 @@ func (obj *mediaRouterImpl) GetSource(urn string) MediaSource {
 	rawPtr := obj.rawPtr
 	urnStr := cefString(urn)
 	defer freeCefString(&urnStr)
-	ret := rawPtr.CallGetSource(uintptr(unsafe.Pointer(&urnStr)))
+	ret := rawPtr.CallGetSource(unsafe.Pointer(&urnStr))
 	return wrapMediaSource(unsafe.Pointer(ret))
 }
 
@@ -56,7 +56,7 @@ func (obj *mediaRouterImpl) CreateRoute(source MediaSource, sink MediaSink, call
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallCreateRoute(uintptr(extractRawPointer(source)), uintptr(extractRawPointer(sink)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaRouteCreateCallback(callback) })))
+	rawPtr.CallCreateRoute(extractRawPointer(source), extractRawPointer(sink), extractOrWrapRawPointer(callback, func() any { return NewMediaRouteCreateCallback(callback) }))
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
@@ -227,7 +227,7 @@ func (obj *mediaObserverImpl) OnSinks(sinkscount int, sinks unsafe.Pointer) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnSinks(uintptr(sinkscount), uintptr(sinks))
+	rawPtr.CallOnSinks(uintptr(sinkscount), sinks)
 }
 
 func (obj *mediaObserverImpl) OnRoutes(routescount int, routes unsafe.Pointer) {
@@ -235,7 +235,7 @@ func (obj *mediaObserverImpl) OnRoutes(routescount int, routes unsafe.Pointer) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRoutes(uintptr(routescount), uintptr(routes))
+	rawPtr.CallOnRoutes(uintptr(routescount), routes)
 }
 
 func (obj *mediaObserverImpl) OnRouteStateChanged(route MediaRoute, state MediaRouteConnectionState) {
@@ -243,7 +243,7 @@ func (obj *mediaObserverImpl) OnRouteStateChanged(route MediaRoute, state MediaR
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRouteStateChanged(uintptr(extractRawPointer(route)), uintptr(state))
+	rawPtr.CallOnRouteStateChanged(extractRawPointer(route), uintptr(state))
 }
 
 func (obj *mediaObserverImpl) OnRouteMessageReceived(route MediaRoute, message unsafe.Pointer, messageSize int) {
@@ -251,7 +251,7 @@ func (obj *mediaObserverImpl) OnRouteMessageReceived(route MediaRoute, message u
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRouteMessageReceived(uintptr(extractRawPointer(route)), uintptr(message), uintptr(messageSize))
+	rawPtr.CallOnRouteMessageReceived(extractRawPointer(route), message, uintptr(messageSize))
 }
 
 func (obj *mediaObserverImpl) RawPointer() unsafe.Pointer {
@@ -334,7 +334,7 @@ func (obj *mediaRouteImpl) SendRouteMessage(message unsafe.Pointer, messageSize 
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSendRouteMessage(uintptr(message), uintptr(messageSize))
+	rawPtr.CallSendRouteMessage(message, uintptr(messageSize))
 }
 
 func (obj *mediaRouteImpl) Terminate() {
@@ -443,7 +443,7 @@ func (obj *mediaRouteCreateCallbackImpl) OnMediaRouteCreateFinished(result Media
 	rawPtr := obj.rawPtr
 	errorStr := cefString(error)
 	defer freeCefString(&errorStr)
-	rawPtr.CallOnMediaRouteCreateFinished(uintptr(result), uintptr(unsafe.Pointer(&errorStr)), uintptr(extractRawPointer(route)))
+	rawPtr.CallOnMediaRouteCreateFinished(uintptr(result), unsafe.Pointer(&errorStr), extractRawPointer(route))
 }
 
 func (obj *mediaRouteCreateCallbackImpl) RawPointer() unsafe.Pointer {
@@ -526,7 +526,7 @@ func (obj *mediaSinkImpl) GetDeviceInfo(callback MediaSinkDeviceInfoCallback) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetDeviceInfo(uintptr(extractOrWrapRawPointer(callback, func() any { return NewMediaSinkDeviceInfoCallback(callback) })))
+	rawPtr.CallGetDeviceInfo(extractOrWrapRawPointer(callback, func() any { return NewMediaSinkDeviceInfoCallback(callback) }))
 }
 
 func (obj *mediaSinkImpl) IsCastSink() bool {
@@ -552,7 +552,7 @@ func (obj *mediaSinkImpl) IsCompatibleWith(source MediaSource) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsCompatibleWith(uintptr(extractRawPointer(source)))
+	ret := rawPtr.CallIsCompatibleWith(extractRawPointer(source))
 	return ret != 0
 }
 
@@ -650,7 +650,7 @@ func (obj *mediaSinkDeviceInfoCallbackImpl) OnMediaSinkDeviceInfo(deviceInfo *Me
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnMediaSinkDeviceInfo(uintptr(unsafe.Pointer(deviceInfo)))
+	rawPtr.CallOnMediaSinkDeviceInfo(unsafe.Pointer(deviceInfo))
 }
 
 func (obj *mediaSinkDeviceInfoCallbackImpl) RawPointer() unsafe.Pointer {

@@ -17,11 +17,11 @@ type CEFBeforeDownloadCallbackT struct {
 
 func (v *CEFBeforeDownloadCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFBeforeDownloadCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFBeforeDownloadCallbackT) CallCont(DownloadPath unsafe.Pointer, ShowDialog uintptr) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), uintptr(DownloadPath), ShowDialog)
 	return r1
 }
 
@@ -35,31 +35,31 @@ type CEFDownloadItemCallbackT struct {
 
 func (v *CEFDownloadItemCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
-func (v *CEFDownloadItemCallbackT) CallCancel(args ...uintptr) uintptr {
+func (v *CEFDownloadItemCallbackT) CallCancel() uintptr {
 	if v.Cancel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cancel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDownloadItemCallbackT) OverridePause(fn uintptr) { v.Pause = fn }
 
-func (v *CEFDownloadItemCallbackT) CallPause(args ...uintptr) uintptr {
+func (v *CEFDownloadItemCallbackT) CallPause() uintptr {
 	if v.Pause == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Pause, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Pause, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDownloadItemCallbackT) OverrideResume(fn uintptr) { v.Resume = fn }
 
-func (v *CEFDownloadItemCallbackT) CallResume(args ...uintptr) uintptr {
+func (v *CEFDownloadItemCallbackT) CallResume() uintptr {
 	if v.Resume == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Resume, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Resume, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -73,31 +73,31 @@ type CEFDownloadHandlerT struct {
 
 func (v *CEFDownloadHandlerT) OverrideCanDownload(fn uintptr) { v.CanDownload = fn }
 
-func (v *CEFDownloadHandlerT) CallCanDownload(args ...uintptr) uintptr {
+func (v *CEFDownloadHandlerT) CallCanDownload(Browser unsafe.Pointer, URL unsafe.Pointer, RequestMethod unsafe.Pointer) uintptr {
 	if v.CanDownload == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CanDownload, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CanDownload, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(URL), uintptr(RequestMethod))
 	return r1
 }
 
 func (v *CEFDownloadHandlerT) OverrideOnBeforeDownload(fn uintptr) { v.OnBeforeDownload = fn }
 
-func (v *CEFDownloadHandlerT) CallOnBeforeDownload(args ...uintptr) uintptr {
+func (v *CEFDownloadHandlerT) CallOnBeforeDownload(Browser unsafe.Pointer, DownloadItem unsafe.Pointer, SuggestedName unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.OnBeforeDownload == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforeDownload, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforeDownload, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(DownloadItem), uintptr(SuggestedName), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFDownloadHandlerT) OverrideOnDownloadUpdated(fn uintptr) { v.OnDownloadUpdated = fn }
 
-func (v *CEFDownloadHandlerT) CallOnDownloadUpdated(args ...uintptr) uintptr {
+func (v *CEFDownloadHandlerT) CallOnDownloadUpdated(Browser unsafe.Pointer, DownloadItem unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.OnDownloadUpdated == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDownloadUpdated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDownloadUpdated, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(DownloadItem), uintptr(Callback))
 	return r1
 }
 

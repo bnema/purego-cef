@@ -286,7 +286,7 @@ func (obj *displayHandlerImpl) OnAddressChange(browser Browser, frame Frame, uRL
 	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	rawPtr.CallOnAddressChange(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&uRLStr)))
+	rawPtr.CallOnAddressChange(extractRawPointer(browser), extractRawPointer(frame), unsafe.Pointer(&uRLStr))
 }
 
 func (obj *displayHandlerImpl) OnTitleChange(browser Browser, title string) {
@@ -296,7 +296,7 @@ func (obj *displayHandlerImpl) OnTitleChange(browser Browser, title string) {
 	rawPtr := obj.rawPtr
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
-	rawPtr.CallOnTitleChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&titleStr)))
+	rawPtr.CallOnTitleChange(extractRawPointer(browser), unsafe.Pointer(&titleStr))
 }
 
 func (obj *displayHandlerImpl) OnFaviconUrlchange(browser Browser, iconUrls StringList) {
@@ -304,7 +304,7 @@ func (obj *displayHandlerImpl) OnFaviconUrlchange(browser Browser, iconUrls Stri
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFaviconUrlchange(uintptr(extractRawPointer(browser)), uintptr(iconUrls))
+	rawPtr.CallOnFaviconUrlchange(extractRawPointer(browser), uintptr(iconUrls))
 }
 
 func (obj *displayHandlerImpl) OnFullscreenModeChange(browser Browser, fullscreen int32) {
@@ -312,7 +312,7 @@ func (obj *displayHandlerImpl) OnFullscreenModeChange(browser Browser, fullscree
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFullscreenModeChange(uintptr(extractRawPointer(browser)), uintptr(fullscreen))
+	rawPtr.CallOnFullscreenModeChange(extractRawPointer(browser), uintptr(fullscreen))
 }
 
 func (obj *displayHandlerImpl) OnTooltip(browser Browser, text uintptr) int32 {
@@ -320,7 +320,7 @@ func (obj *displayHandlerImpl) OnTooltip(browser Browser, text uintptr) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnTooltip(uintptr(extractRawPointer(browser)), text)
+	ret := rawPtr.CallOnTooltip(extractRawPointer(browser), unsafe.Pointer(text))
 	return int32(ret)
 }
 
@@ -331,7 +331,7 @@ func (obj *displayHandlerImpl) OnStatusMessage(browser Browser, value string) {
 	rawPtr := obj.rawPtr
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
-	rawPtr.CallOnStatusMessage(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&valueStr)))
+	rawPtr.CallOnStatusMessage(extractRawPointer(browser), unsafe.Pointer(&valueStr))
 }
 
 func (obj *displayHandlerImpl) OnConsoleMessage(browser Browser, level LogSeverity, message string, source string, line int32) int32 {
@@ -343,7 +343,7 @@ func (obj *displayHandlerImpl) OnConsoleMessage(browser Browser, level LogSeveri
 	defer freeCefString(&messageStr)
 	sourceStr := cefString(source)
 	defer freeCefString(&sourceStr)
-	ret := rawPtr.CallOnConsoleMessage(uintptr(extractRawPointer(browser)), uintptr(level), uintptr(unsafe.Pointer(&messageStr)), uintptr(unsafe.Pointer(&sourceStr)), uintptr(line))
+	ret := rawPtr.CallOnConsoleMessage(extractRawPointer(browser), uintptr(level), unsafe.Pointer(&messageStr), unsafe.Pointer(&sourceStr), uintptr(line))
 	return int32(ret)
 }
 
@@ -352,7 +352,7 @@ func (obj *displayHandlerImpl) OnAutoResize(browser Browser, newSize *Size) int3
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnAutoResize(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newSize)))
+	ret := rawPtr.CallOnAutoResize(extractRawPointer(browser), unsafe.Pointer(newSize))
 	return int32(ret)
 }
 
@@ -372,7 +372,7 @@ func (obj *displayHandlerImpl) OnCursorChange(browser Browser, cursor uintptr, t
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnCursorChange(uintptr(extractRawPointer(browser)), cursor, uintptr(type_), uintptr(unsafe.Pointer(customCursorInfo)))
+	ret := rawPtr.CallOnCursorChange(extractRawPointer(browser), cursor, uintptr(type_), unsafe.Pointer(customCursorInfo))
 	return int32(ret)
 }
 
@@ -381,7 +381,7 @@ func (obj *displayHandlerImpl) OnMediaAccessChange(browser Browser, hasVideoAcce
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnMediaAccessChange(uintptr(extractRawPointer(browser)), uintptr(hasVideoAccess), uintptr(hasAudioAccess))
+	rawPtr.CallOnMediaAccessChange(extractRawPointer(browser), uintptr(hasVideoAccess), uintptr(hasAudioAccess))
 }
 
 func (obj *displayHandlerImpl) OnContentsBoundsChange(browser Browser, newBounds *Rect) int32 {
@@ -389,7 +389,7 @@ func (obj *displayHandlerImpl) OnContentsBoundsChange(browser Browser, newBounds
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnContentsBoundsChange(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(newBounds)))
+	ret := rawPtr.CallOnContentsBoundsChange(extractRawPointer(browser), unsafe.Pointer(newBounds))
 	return int32(ret)
 }
 
@@ -398,7 +398,7 @@ func (obj *displayHandlerImpl) GetRootWindowScreenRect(browser Browser, rect *Re
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetRootWindowScreenRect(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
+	ret := rawPtr.CallGetRootWindowScreenRect(extractRawPointer(browser), unsafe.Pointer(rect))
 	return int32(ret)
 }
 

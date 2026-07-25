@@ -236,7 +236,7 @@ func (obj *permissionHandlerImpl) OnRequestMediaAccessPermission(browser Browser
 	rawPtr := obj.rawPtr
 	requestingOriginStr := cefString(requestingOrigin)
 	defer freeCefString(&requestingOriginStr)
-	ret := rawPtr.CallOnRequestMediaAccessPermission(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnRequestMediaAccessPermission(extractRawPointer(browser), extractRawPointer(frame), unsafe.Pointer(&requestingOriginStr), uintptr(requestedPermissions), extractRawPointer(callback))
 	return int32(ret)
 }
 

@@ -18,21 +18,21 @@ type CEFSslinfoT struct {
 
 func (v *CEFSslinfoT) OverrideGetCertStatus(fn uintptr) { v.GetCertStatus = fn }
 
-func (v *CEFSslinfoT) CallGetCertStatus(args ...uintptr) uintptr {
+func (v *CEFSslinfoT) CallGetCertStatus() uintptr {
 	if v.GetCertStatus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCertStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCertStatus, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFSslinfoT) OverrideGetX509Certificate(fn uintptr) { v.GetX509Certificate = fn }
 
-func (v *CEFSslinfoT) CallGetX509Certificate(args ...uintptr) uintptr {
+func (v *CEFSslinfoT) CallGetX509Certificate() uintptr {
 	if v.GetX509Certificate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetX509Certificate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetX509Certificate, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

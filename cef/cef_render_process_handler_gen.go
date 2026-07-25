@@ -226,7 +226,7 @@ func (obj *renderProcessHandlerImpl) OnBrowserCreated(browser Browser, extraInfo
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(extraInfo)))
+	rawPtr.CallOnBrowserCreated(extractRawPointer(browser), extractRawPointer(extraInfo))
 }
 
 func (obj *renderProcessHandlerImpl) OnBrowserDestroyed(browser Browser) {
@@ -234,7 +234,7 @@ func (obj *renderProcessHandlerImpl) OnBrowserDestroyed(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browser)))
+	rawPtr.CallOnBrowserDestroyed(extractRawPointer(browser))
 }
 
 func (obj *renderProcessHandlerImpl) GetLoadHandler() LoadHandler {
@@ -251,7 +251,7 @@ func (obj *renderProcessHandlerImpl) OnContextCreated(browser Browser, frame Fra
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnContextCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
+	rawPtr.CallOnContextCreated(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(context))
 }
 
 func (obj *renderProcessHandlerImpl) OnContextReleased(browser Browser, frame Frame, context V8Context) {
@@ -259,7 +259,7 @@ func (obj *renderProcessHandlerImpl) OnContextReleased(browser Browser, frame Fr
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnContextReleased(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)))
+	rawPtr.CallOnContextReleased(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(context))
 }
 
 func (obj *renderProcessHandlerImpl) OnUncaughtException(browser Browser, frame Frame, context V8Context, exception V8Exception, stacktrace V8StackTrace) {
@@ -267,7 +267,7 @@ func (obj *renderProcessHandlerImpl) OnUncaughtException(browser Browser, frame 
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnUncaughtException(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(context)), uintptr(extractRawPointer(exception)), uintptr(extractRawPointer(stacktrace)))
+	rawPtr.CallOnUncaughtException(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(context), extractRawPointer(exception), extractRawPointer(stacktrace))
 }
 
 func (obj *renderProcessHandlerImpl) OnFocusedNodeChanged(browser Browser, frame Frame, node Domnode) {
@@ -275,7 +275,7 @@ func (obj *renderProcessHandlerImpl) OnFocusedNodeChanged(browser Browser, frame
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFocusedNodeChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(node)))
+	rawPtr.CallOnFocusedNodeChanged(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(node))
 }
 
 func (obj *renderProcessHandlerImpl) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
@@ -283,7 +283,7 @@ func (obj *renderProcessHandlerImpl) OnProcessMessageReceived(browser Browser, f
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnProcessMessageReceived(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(sourceProcess), uintptr(extractRawPointer(message)))
+	ret := rawPtr.CallOnProcessMessageReceived(extractRawPointer(browser), extractRawPointer(frame), uintptr(sourceProcess), extractRawPointer(message))
 	return int32(ret)
 }
 

@@ -21,51 +21,51 @@ type CEFWaitableEventT struct {
 
 func (v *CEFWaitableEventT) OverrideReset(fn uintptr) { v.Reset = fn }
 
-func (v *CEFWaitableEventT) CallReset(args ...uintptr) uintptr {
+func (v *CEFWaitableEventT) CallReset() uintptr {
 	if v.Reset == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Reset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Reset, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWaitableEventT) OverrideSignal(fn uintptr) { v.Signal = fn }
 
-func (v *CEFWaitableEventT) CallSignal(args ...uintptr) uintptr {
+func (v *CEFWaitableEventT) CallSignal() uintptr {
 	if v.Signal == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Signal, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Signal, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWaitableEventT) OverrideIsSignaled(fn uintptr) { v.IsSignaled = fn }
 
-func (v *CEFWaitableEventT) CallIsSignaled(args ...uintptr) uintptr {
+func (v *CEFWaitableEventT) CallIsSignaled() uintptr {
 	if v.IsSignaled == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSignaled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSignaled, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWaitableEventT) OverrideWait(fn uintptr) { v.Wait = fn }
 
-func (v *CEFWaitableEventT) CallWait(args ...uintptr) uintptr {
+func (v *CEFWaitableEventT) CallWait() uintptr {
 	if v.Wait == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Wait, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Wait, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWaitableEventT) OverrideTimedWait(fn uintptr) { v.TimedWait = fn }
 
-func (v *CEFWaitableEventT) CallTimedWait(args ...uintptr) uintptr {
+func (v *CEFWaitableEventT) CallTimedWait(MaxMs uintptr) uintptr {
 	if v.TimedWait == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.TimedWait, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.TimedWait, uintptr(unsafe.Pointer(v)), MaxMs)
 	return r1
 }
 

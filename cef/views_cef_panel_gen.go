@@ -46,7 +46,7 @@ func (obj *panelImpl) SetToBoxLayout(settings *BoxLayoutSettings) BoxLayout {
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetToBoxLayout(uintptr(unsafe.Pointer(settings)))
+	ret := rawPtr.CallSetToBoxLayout(unsafe.Pointer(settings))
 	return wrapBoxLayout(unsafe.Pointer(ret))
 }
 
@@ -72,7 +72,7 @@ func (obj *panelImpl) AddChildView(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallAddChildView(uintptr(extractRawPointer(view)))
+	rawPtr.CallAddChildView(extractRawPointer(view))
 }
 
 func (obj *panelImpl) AddChildViewAt(view View, index int32) {
@@ -80,7 +80,7 @@ func (obj *panelImpl) AddChildViewAt(view View, index int32) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallAddChildViewAt(uintptr(extractRawPointer(view)), uintptr(index))
+	rawPtr.CallAddChildViewAt(extractRawPointer(view), uintptr(index))
 }
 
 func (obj *panelImpl) ReorderChildView(view View, index int32) {
@@ -88,7 +88,7 @@ func (obj *panelImpl) ReorderChildView(view View, index int32) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallReorderChildView(uintptr(extractRawPointer(view)), uintptr(index))
+	rawPtr.CallReorderChildView(extractRawPointer(view), uintptr(index))
 }
 
 func (obj *panelImpl) RemoveChildView(view View) {
@@ -96,7 +96,7 @@ func (obj *panelImpl) RemoveChildView(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallRemoveChildView(uintptr(extractRawPointer(view)))
+	rawPtr.CallRemoveChildView(extractRawPointer(view))
 }
 
 func (obj *panelImpl) RemoveAllChildViews() {

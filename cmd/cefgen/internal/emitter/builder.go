@@ -227,6 +227,7 @@ func buildMethod(structCName string, structKind string, f model.Field, registry 
 			PublicType:  registry.ResolvePublicType(p.CType),
 			CType:       p.CType,
 			MarshalKind: classifyParamType(p.CType, registry),
+			RawGoType:   p.GoType,
 			IsHandler:   registry.IsHandlerType(p.CType),
 		}
 		m.Params = append(m.Params, pd)

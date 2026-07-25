@@ -237,7 +237,7 @@ func (obj *viewDelegateImpl) GetPreferredSize(view View) uintptr {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetPreferredSize(uintptr(extractRawPointer(view)))
+	ret := rawPtr.CallGetPreferredSize(extractRawPointer(view))
 	return uintptr(ret)
 }
 
@@ -246,7 +246,7 @@ func (obj *viewDelegateImpl) GetMinimumSize(view View) uintptr {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetMinimumSize(uintptr(extractRawPointer(view)))
+	ret := rawPtr.CallGetMinimumSize(extractRawPointer(view))
 	return uintptr(ret)
 }
 
@@ -255,7 +255,7 @@ func (obj *viewDelegateImpl) GetMaximumSize(view View) uintptr {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetMaximumSize(uintptr(extractRawPointer(view)))
+	ret := rawPtr.CallGetMaximumSize(extractRawPointer(view))
 	return uintptr(ret)
 }
 
@@ -264,7 +264,7 @@ func (obj *viewDelegateImpl) GetHeightForWidth(view View, width int32) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetHeightForWidth(uintptr(extractRawPointer(view)), uintptr(width))
+	ret := rawPtr.CallGetHeightForWidth(extractRawPointer(view), uintptr(width))
 	return int32(ret)
 }
 
@@ -273,7 +273,7 @@ func (obj *viewDelegateImpl) OnParentViewChanged(view View, added int32, parent 
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnParentViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(parent)))
+	rawPtr.CallOnParentViewChanged(extractRawPointer(view), uintptr(added), extractRawPointer(parent))
 }
 
 func (obj *viewDelegateImpl) OnChildViewChanged(view View, added int32, child View) {
@@ -281,7 +281,7 @@ func (obj *viewDelegateImpl) OnChildViewChanged(view View, added int32, child Vi
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnChildViewChanged(uintptr(extractRawPointer(view)), uintptr(added), uintptr(extractRawPointer(child)))
+	rawPtr.CallOnChildViewChanged(extractRawPointer(view), uintptr(added), extractRawPointer(child))
 }
 
 func (obj *viewDelegateImpl) OnWindowChanged(view View, added int32) {
@@ -289,7 +289,7 @@ func (obj *viewDelegateImpl) OnWindowChanged(view View, added int32) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowChanged(uintptr(extractRawPointer(view)), uintptr(added))
+	rawPtr.CallOnWindowChanged(extractRawPointer(view), uintptr(added))
 }
 
 func (obj *viewDelegateImpl) OnLayoutChanged(view View, newBounds *Rect) {
@@ -297,7 +297,7 @@ func (obj *viewDelegateImpl) OnLayoutChanged(view View, newBounds *Rect) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnLayoutChanged(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(newBounds)))
+	rawPtr.CallOnLayoutChanged(extractRawPointer(view), unsafe.Pointer(newBounds))
 }
 
 func (obj *viewDelegateImpl) OnFocus(view View) {
@@ -305,7 +305,7 @@ func (obj *viewDelegateImpl) OnFocus(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFocus(uintptr(extractRawPointer(view)))
+	rawPtr.CallOnFocus(extractRawPointer(view))
 }
 
 func (obj *viewDelegateImpl) OnBlur(view View) {
@@ -313,7 +313,7 @@ func (obj *viewDelegateImpl) OnBlur(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBlur(uintptr(extractRawPointer(view)))
+	rawPtr.CallOnBlur(extractRawPointer(view))
 }
 
 func (obj *viewDelegateImpl) OnThemeChanged(view View) {
@@ -321,7 +321,7 @@ func (obj *viewDelegateImpl) OnThemeChanged(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnThemeChanged(uintptr(extractRawPointer(view)))
+	rawPtr.CallOnThemeChanged(extractRawPointer(view))
 }
 
 func (obj *viewDelegateImpl) RawPointer() unsafe.Pointer {

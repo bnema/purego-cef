@@ -39,7 +39,7 @@ func (obj *labelButtonImpl) SetText(text string) {
 	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallSetText(unsafe.Pointer(&textStr))
 }
 
 func (obj *labelButtonImpl) GetText() string {
@@ -56,7 +56,7 @@ func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetImage(uintptr(buttonState), uintptr(extractRawPointer(image)))
+	rawPtr.CallSetImage(uintptr(buttonState), extractRawPointer(image))
 }
 
 func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
@@ -91,7 +91,7 @@ func (obj *labelButtonImpl) SetFontList(fontList string) {
 	rawPtr := obj.rawPtr
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
-	rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
+	rawPtr.CallSetFontList(unsafe.Pointer(&fontListStr))
 }
 
 func (obj *labelButtonImpl) SetHorizontalAlignment(alignment HorizontalAlignment) {
@@ -107,7 +107,7 @@ func (obj *labelButtonImpl) SetMinimumSize(size *Size) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetMinimumSize(uintptr(unsafe.Pointer(size)))
+	rawPtr.CallSetMinimumSize(unsafe.Pointer(size))
 }
 
 func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
@@ -115,7 +115,7 @@ func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetMaximumSize(uintptr(unsafe.Pointer(size)))
+	rawPtr.CallSetMaximumSize(unsafe.Pointer(size))
 }
 
 func (obj *labelButtonImpl) RawPointer() unsafe.Pointer {

@@ -17,11 +17,11 @@ type CEFFindHandlerT struct {
 
 func (v *CEFFindHandlerT) OverrideOnFindResult(fn uintptr) { v.OnFindResult = fn }
 
-func (v *CEFFindHandlerT) CallOnFindResult(args ...uintptr) uintptr {
+func (v *CEFFindHandlerT) CallOnFindResult(Browser unsafe.Pointer, Identifier uintptr, Count uintptr, Selectionrect unsafe.Pointer, Activematchordinal uintptr, Finalupdate uintptr) uintptr {
 	if v.OnFindResult == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnFindResult, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnFindResult, uintptr(unsafe.Pointer(v)), uintptr(Browser), Identifier, Count, uintptr(Selectionrect), Activematchordinal, Finalupdate)
 	return r1
 }
 

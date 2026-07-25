@@ -18,21 +18,21 @@ type CEFRunContextMenuCallbackT struct {
 
 func (v *CEFRunContextMenuCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFRunContextMenuCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFRunContextMenuCallbackT) CallCont(CommandID uintptr, EventFlags uintptr) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), CommandID, EventFlags)
 	return r1
 }
 
 func (v *CEFRunContextMenuCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
-func (v *CEFRunContextMenuCallbackT) CallCancel(args ...uintptr) uintptr {
+func (v *CEFRunContextMenuCallbackT) CallCancel() uintptr {
 	if v.Cancel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cancel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -45,21 +45,21 @@ type CEFRunQuickMenuCallbackT struct {
 
 func (v *CEFRunQuickMenuCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFRunQuickMenuCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFRunQuickMenuCallbackT) CallCont(CommandID uintptr, EventFlags uintptr) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), CommandID, EventFlags)
 	return r1
 }
 
 func (v *CEFRunQuickMenuCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
-func (v *CEFRunQuickMenuCallbackT) CallCancel(args ...uintptr) uintptr {
+func (v *CEFRunQuickMenuCallbackT) CallCancel() uintptr {
 	if v.Cancel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cancel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -77,21 +77,21 @@ type CEFContextMenuHandlerT struct {
 
 func (v *CEFContextMenuHandlerT) OverrideOnBeforeContextMenu(fn uintptr) { v.OnBeforeContextMenu = fn }
 
-func (v *CEFContextMenuHandlerT) CallOnBeforeContextMenu(args ...uintptr) uintptr {
+func (v *CEFContextMenuHandlerT) CallOnBeforeContextMenu(Browser unsafe.Pointer, Frame unsafe.Pointer, Params unsafe.Pointer, Model unsafe.Pointer) uintptr {
 	if v.OnBeforeContextMenu == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforeContextMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforeContextMenu, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Params), uintptr(Model))
 	return r1
 }
 
 func (v *CEFContextMenuHandlerT) OverrideRunContextMenu(fn uintptr) { v.RunContextMenu = fn }
 
-func (v *CEFContextMenuHandlerT) CallRunContextMenu(args ...uintptr) uintptr {
+func (v *CEFContextMenuHandlerT) CallRunContextMenu(Browser unsafe.Pointer, Frame unsafe.Pointer, Params unsafe.Pointer, Model unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.RunContextMenu == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RunContextMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RunContextMenu, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Params), uintptr(Model), uintptr(Callback))
 	return r1
 }
 
@@ -99,11 +99,11 @@ func (v *CEFContextMenuHandlerT) OverrideOnContextMenuCommand(fn uintptr) {
 	v.OnContextMenuCommand = fn
 }
 
-func (v *CEFContextMenuHandlerT) CallOnContextMenuCommand(args ...uintptr) uintptr {
+func (v *CEFContextMenuHandlerT) CallOnContextMenuCommand(Browser unsafe.Pointer, Frame unsafe.Pointer, Params unsafe.Pointer, CommandID uintptr, EventFlags uintptr) uintptr {
 	if v.OnContextMenuCommand == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnContextMenuCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnContextMenuCommand, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Params), CommandID, EventFlags)
 	return r1
 }
 
@@ -111,31 +111,31 @@ func (v *CEFContextMenuHandlerT) OverrideOnContextMenuDismissed(fn uintptr) {
 	v.OnContextMenuDismissed = fn
 }
 
-func (v *CEFContextMenuHandlerT) CallOnContextMenuDismissed(args ...uintptr) uintptr {
+func (v *CEFContextMenuHandlerT) CallOnContextMenuDismissed(Browser unsafe.Pointer, Frame unsafe.Pointer) uintptr {
 	if v.OnContextMenuDismissed == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnContextMenuDismissed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnContextMenuDismissed, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame))
 	return r1
 }
 
 func (v *CEFContextMenuHandlerT) OverrideRunQuickMenu(fn uintptr) { v.RunQuickMenu = fn }
 
-func (v *CEFContextMenuHandlerT) CallRunQuickMenu(args ...uintptr) uintptr {
+func (v *CEFContextMenuHandlerT) CallRunQuickMenu(Browser unsafe.Pointer, Frame unsafe.Pointer, Location unsafe.Pointer, Size unsafe.Pointer, EditStateFlags uintptr, Callback unsafe.Pointer) uintptr {
 	if v.RunQuickMenu == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RunQuickMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RunQuickMenu, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Location), uintptr(Size), EditStateFlags, uintptr(Callback))
 	return r1
 }
 
 func (v *CEFContextMenuHandlerT) OverrideOnQuickMenuCommand(fn uintptr) { v.OnQuickMenuCommand = fn }
 
-func (v *CEFContextMenuHandlerT) CallOnQuickMenuCommand(args ...uintptr) uintptr {
+func (v *CEFContextMenuHandlerT) CallOnQuickMenuCommand(Browser unsafe.Pointer, Frame unsafe.Pointer, CommandID uintptr, EventFlags uintptr) uintptr {
 	if v.OnQuickMenuCommand == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnQuickMenuCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnQuickMenuCommand, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), CommandID, EventFlags)
 	return r1
 }
 
@@ -143,11 +143,11 @@ func (v *CEFContextMenuHandlerT) OverrideOnQuickMenuDismissed(fn uintptr) {
 	v.OnQuickMenuDismissed = fn
 }
 
-func (v *CEFContextMenuHandlerT) CallOnQuickMenuDismissed(args ...uintptr) uintptr {
+func (v *CEFContextMenuHandlerT) CallOnQuickMenuDismissed(Browser unsafe.Pointer, Frame unsafe.Pointer) uintptr {
 	if v.OnQuickMenuDismissed == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnQuickMenuDismissed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnQuickMenuDismissed, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame))
 	return r1
 }
 
@@ -178,151 +178,151 @@ type CEFContextMenuParamsT struct {
 
 func (v *CEFContextMenuParamsT) OverrideGetXcoord(fn uintptr) { v.GetXcoord = fn }
 
-func (v *CEFContextMenuParamsT) CallGetXcoord(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetXcoord() uintptr {
 	if v.GetXcoord == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetXcoord, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetXcoord, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetYcoord(fn uintptr) { v.GetYcoord = fn }
 
-func (v *CEFContextMenuParamsT) CallGetYcoord(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetYcoord() uintptr {
 	if v.GetYcoord == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetYcoord, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetYcoord, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetTypeFlags(fn uintptr) { v.GetTypeFlags = fn }
 
-func (v *CEFContextMenuParamsT) CallGetTypeFlags(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetTypeFlags() uintptr {
 	if v.GetTypeFlags == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetTypeFlags, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetTypeFlags, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetLinkURL(fn uintptr) { v.GetLinkURL = fn }
 
-func (v *CEFContextMenuParamsT) CallGetLinkURL(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetLinkURL() uintptr {
 	if v.GetLinkURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetLinkURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetLinkURL, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetUnfilteredLinkURL(fn uintptr) { v.GetUnfilteredLinkURL = fn }
 
-func (v *CEFContextMenuParamsT) CallGetUnfilteredLinkURL(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetUnfilteredLinkURL() uintptr {
 	if v.GetUnfilteredLinkURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetUnfilteredLinkURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetUnfilteredLinkURL, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetSourceURL(fn uintptr) { v.GetSourceURL = fn }
 
-func (v *CEFContextMenuParamsT) CallGetSourceURL(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetSourceURL() uintptr {
 	if v.GetSourceURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSourceURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSourceURL, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideHasImageContents(fn uintptr) { v.HasImageContents = fn }
 
-func (v *CEFContextMenuParamsT) CallHasImageContents(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallHasImageContents() uintptr {
 	if v.HasImageContents == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasImageContents, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasImageContents, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetTitleText(fn uintptr) { v.GetTitleText = fn }
 
-func (v *CEFContextMenuParamsT) CallGetTitleText(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetTitleText() uintptr {
 	if v.GetTitleText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetTitleText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetTitleText, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetPageURL(fn uintptr) { v.GetPageURL = fn }
 
-func (v *CEFContextMenuParamsT) CallGetPageURL(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetPageURL() uintptr {
 	if v.GetPageURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPageURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPageURL, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetFrameURL(fn uintptr) { v.GetFrameURL = fn }
 
-func (v *CEFContextMenuParamsT) CallGetFrameURL(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetFrameURL() uintptr {
 	if v.GetFrameURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFrameURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFrameURL, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetFrameCharset(fn uintptr) { v.GetFrameCharset = fn }
 
-func (v *CEFContextMenuParamsT) CallGetFrameCharset(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetFrameCharset() uintptr {
 	if v.GetFrameCharset == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFrameCharset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFrameCharset, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetMediaType(fn uintptr) { v.GetMediaType = fn }
 
-func (v *CEFContextMenuParamsT) CallGetMediaType(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetMediaType() uintptr {
 	if v.GetMediaType == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetMediaType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetMediaType, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetMediaStateFlags(fn uintptr) { v.GetMediaStateFlags = fn }
 
-func (v *CEFContextMenuParamsT) CallGetMediaStateFlags(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetMediaStateFlags() uintptr {
 	if v.GetMediaStateFlags == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetMediaStateFlags, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetMediaStateFlags, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetSelectionText(fn uintptr) { v.GetSelectionText = fn }
 
-func (v *CEFContextMenuParamsT) CallGetSelectionText(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetSelectionText() uintptr {
 	if v.GetSelectionText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSelectionText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSelectionText, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetMisspelledWord(fn uintptr) { v.GetMisspelledWord = fn }
 
-func (v *CEFContextMenuParamsT) CallGetMisspelledWord(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetMisspelledWord() uintptr {
 	if v.GetMisspelledWord == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetMisspelledWord, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetMisspelledWord, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -330,51 +330,51 @@ func (v *CEFContextMenuParamsT) OverrideGetDictionarySuggestions(fn uintptr) {
 	v.GetDictionarySuggestions = fn
 }
 
-func (v *CEFContextMenuParamsT) CallGetDictionarySuggestions(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetDictionarySuggestions(Suggestions uintptr) uintptr {
 	if v.GetDictionarySuggestions == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDictionarySuggestions, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDictionarySuggestions, uintptr(unsafe.Pointer(v)), Suggestions)
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideIsEditable(fn uintptr) { v.IsEditable = fn }
 
-func (v *CEFContextMenuParamsT) CallIsEditable(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallIsEditable() uintptr {
 	if v.IsEditable == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsEditable, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsEditable, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideIsSpellCheckEnabled(fn uintptr) { v.IsSpellCheckEnabled = fn }
 
-func (v *CEFContextMenuParamsT) CallIsSpellCheckEnabled(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallIsSpellCheckEnabled() uintptr {
 	if v.IsSpellCheckEnabled == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSpellCheckEnabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSpellCheckEnabled, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideGetEditStateFlags(fn uintptr) { v.GetEditStateFlags = fn }
 
-func (v *CEFContextMenuParamsT) CallGetEditStateFlags(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallGetEditStateFlags() uintptr {
 	if v.GetEditStateFlags == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetEditStateFlags, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetEditStateFlags, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFContextMenuParamsT) OverrideIsCustomMenu(fn uintptr) { v.IsCustomMenu = fn }
 
-func (v *CEFContextMenuParamsT) CallIsCustomMenu(args ...uintptr) uintptr {
+func (v *CEFContextMenuParamsT) CallIsCustomMenu() uintptr {
 	if v.IsCustomMenu == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsCustomMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsCustomMenu, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

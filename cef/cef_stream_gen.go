@@ -138,7 +138,7 @@ func (obj *readHandlerImpl) Read(ptr unsafe.Pointer, size int, n int) int {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
+	ret := rawPtr.CallRead(ptr, uintptr(size), uintptr(n))
 	return int(ret)
 }
 
@@ -241,7 +241,7 @@ func (obj *streamReaderImpl) Read(ptr unsafe.Pointer, size int, n int) int {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallRead(uintptr(ptr), uintptr(size), uintptr(n))
+	ret := rawPtr.CallRead(ptr, uintptr(size), uintptr(n))
 	return int(ret)
 }
 
@@ -462,7 +462,7 @@ func (obj *writeHandlerImpl) Write(ptr unsafe.Pointer, size int, n int) int {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
+	ret := rawPtr.CallWrite(ptr, uintptr(size), uintptr(n))
 	return int(ret)
 }
 
@@ -565,7 +565,7 @@ func (obj *streamWriterImpl) Write(ptr unsafe.Pointer, size int, n int) int {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallWrite(uintptr(ptr), uintptr(size), uintptr(n))
+	ret := rawPtr.CallWrite(ptr, uintptr(size), uintptr(n))
 	return int(ret)
 }
 

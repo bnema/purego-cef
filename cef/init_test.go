@@ -233,8 +233,8 @@ func TestExecuteSubprocessWithAppKeepsEngineAvailableForAppCallbacks(t *testing.
 			rawApp := (*capi.CEFAppT)(application)
 			rawCommandLine := &capi.CEFCommandLineT{}
 			rawRegistrar := &capi.CEFSchemeRegistrarT{}
-			rawApp.CallOnBeforeCommandLineProcessing(0, uintptr(unsafe.Pointer(rawCommandLine)))
-			rawApp.CallOnRegisterCustomSchemes(uintptr(unsafe.Pointer(rawRegistrar)))
+			rawApp.CallOnBeforeCommandLineProcessing(nil, unsafe.Pointer(rawCommandLine))
+			rawApp.CallOnRegisterCustomSchemes(unsafe.Pointer(rawRegistrar))
 			return 5
 		}).Once()
 

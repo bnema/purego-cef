@@ -91,7 +91,7 @@ func (obj *v8ContextImpl) IsSame(that V8Context) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	ret := rawPtr.CallIsSame(extractRawPointer(that))
 	return ret != 0
 }
 
@@ -116,7 +116,7 @@ func (obj *v8ContextImpl) Eval(code string, scriptURL string, startLine int32, r
 		exception = unsafe.Pointer(&scratch)
 	}
 
-	ret := rawPtr.CallEval(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine), uintptr(retval), uintptr(exception))
+	ret := rawPtr.CallEval(unsafe.Pointer(&codeStr), unsafe.Pointer(&scriptURLStr), uintptr(startLine), retval, exception)
 	return int32(ret)
 }
 
@@ -249,7 +249,7 @@ func (obj *v8HandlerImpl) Execute(name string, object V8Value, arguments []V8Val
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	ret := rawPtr.CallExecute(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr), uintptr(retval), exception)
+	ret := rawPtr.CallExecute(unsafe.Pointer(&nameStr), extractRawPointer(object), uintptr(len(arguments)), argumentsPtr, retval, unsafe.Pointer(exception))
 	return int32(ret)
 }
 
@@ -372,7 +372,7 @@ func (obj *v8AccessorImpl) Get(name string, object V8Value, retval unsafe.Pointe
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallGet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
+	ret := rawPtr.CallGet(unsafe.Pointer(&nameStr), extractRawPointer(object), retval, unsafe.Pointer(exception))
 	return int32(ret)
 }
 
@@ -383,7 +383,7 @@ func (obj *v8AccessorImpl) Set(name string, object V8Value, value V8Value, excep
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallSet(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
+	ret := rawPtr.CallSet(unsafe.Pointer(&nameStr), extractRawPointer(object), extractRawPointer(value), unsafe.Pointer(exception))
 	return int32(ret)
 }
 
@@ -544,7 +544,7 @@ func (obj *v8InterceptorImpl) GetByname(name string, object V8Value, retval unsa
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallGetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(retval), exception)
+	ret := rawPtr.CallGetByname(unsafe.Pointer(&nameStr), extractRawPointer(object), retval, unsafe.Pointer(exception))
 	return int32(ret)
 }
 
@@ -553,7 +553,7 @@ func (obj *v8InterceptorImpl) GetByindex(index int32, object V8Value, retval uns
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(retval), exception)
+	ret := rawPtr.CallGetByindex(uintptr(index), extractRawPointer(object), retval, unsafe.Pointer(exception))
 	return int32(ret)
 }
 
@@ -564,7 +564,7 @@ func (obj *v8InterceptorImpl) SetByname(name string, object V8Value, value V8Val
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallSetByname(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
+	ret := rawPtr.CallSetByname(unsafe.Pointer(&nameStr), extractRawPointer(object), extractRawPointer(value), unsafe.Pointer(exception))
 	return int32(ret)
 }
 
@@ -573,7 +573,7 @@ func (obj *v8InterceptorImpl) SetByindex(index int32, object V8Value, value V8Va
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetByindex(uintptr(index), uintptr(extractRawPointer(object)), uintptr(extractRawPointer(value)), exception)
+	ret := rawPtr.CallSetByindex(uintptr(index), extractRawPointer(object), extractRawPointer(value), unsafe.Pointer(exception))
 	return int32(ret)
 }
 
@@ -791,7 +791,7 @@ func (obj *v8ArrayBufferReleaseCallbackImpl) ReleaseBuffer(buffer unsafe.Pointer
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallReleaseBuffer(uintptr(buffer))
+	rawPtr.CallReleaseBuffer(buffer)
 }
 
 func (obj *v8ArrayBufferReleaseCallbackImpl) RawPointer() unsafe.Pointer {
@@ -1062,7 +1062,7 @@ func (obj *v8ValueImpl) IsSame(that V8Value) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	ret := rawPtr.CallIsSame(extractRawPointer(that))
 	return ret != 0
 }
 
@@ -1184,7 +1184,7 @@ func (obj *v8ValueImpl) HasValueBykey(key string) bool {
 	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallHasValueBykey(uintptr(unsafe.Pointer(&keyStr)))
+	ret := rawPtr.CallHasValueBykey(unsafe.Pointer(&keyStr))
 	return ret != 0
 }
 
@@ -1204,7 +1204,7 @@ func (obj *v8ValueImpl) DeleteValueBykey(key string) int32 {
 	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallDeleteValueBykey(uintptr(unsafe.Pointer(&keyStr)))
+	ret := rawPtr.CallDeleteValueBykey(unsafe.Pointer(&keyStr))
 	return int32(ret)
 }
 
@@ -1224,7 +1224,7 @@ func (obj *v8ValueImpl) GetValueBykey(key string) V8Value {
 	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallGetValueBykey(uintptr(unsafe.Pointer(&keyStr)))
+	ret := rawPtr.CallGetValueBykey(unsafe.Pointer(&keyStr))
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1244,7 +1244,7 @@ func (obj *v8ValueImpl) SetValueBykey(key string, value V8Value, attribute V8Pro
 	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallSetValueBykey(uintptr(unsafe.Pointer(&keyStr)), uintptr(extractRawPointer(value)), uintptr(attribute))
+	ret := rawPtr.CallSetValueBykey(unsafe.Pointer(&keyStr), extractRawPointer(value), uintptr(attribute))
 	return int32(ret)
 }
 
@@ -1253,7 +1253,7 @@ func (obj *v8ValueImpl) SetValueByindex(index int32, value V8Value) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetValueByindex(uintptr(index), uintptr(extractRawPointer(value)))
+	ret := rawPtr.CallSetValueByindex(uintptr(index), extractRawPointer(value))
 	return int32(ret)
 }
 
@@ -1264,7 +1264,7 @@ func (obj *v8ValueImpl) SetValueByaccessor(key string, attribute V8Propertyattri
 	rawPtr := obj.rawPtr
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallSetValueByaccessor(uintptr(unsafe.Pointer(&keyStr)), uintptr(attribute))
+	ret := rawPtr.CallSetValueByaccessor(unsafe.Pointer(&keyStr), uintptr(attribute))
 	return int32(ret)
 }
 
@@ -1282,7 +1282,7 @@ func (obj *v8ValueImpl) SetUserData(userData *BaseRefCounted) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetUserData(uintptr(unsafe.Pointer(userData)))
+	ret := rawPtr.CallSetUserData(unsafe.Pointer(userData))
 	return int32(ret)
 }
 
@@ -1390,7 +1390,7 @@ func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8V
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	ret := rawPtr.CallExecuteFunction(uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
+	ret := rawPtr.CallExecuteFunction(extractRawPointer(object), uintptr(len(arguments)), argumentsPtr)
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1408,7 +1408,7 @@ func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8V
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	ret := rawPtr.CallExecuteFunctionWithContext(uintptr(extractRawPointer(context)), uintptr(extractRawPointer(object)), uintptr(len(arguments)), uintptr(argumentsPtr))
+	ret := rawPtr.CallExecuteFunctionWithContext(extractRawPointer(context), extractRawPointer(object), uintptr(len(arguments)), argumentsPtr)
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1417,7 +1417,7 @@ func (obj *v8ValueImpl) ResolvePromise(arg V8Value) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallResolvePromise(uintptr(extractRawPointer(arg)))
+	ret := rawPtr.CallResolvePromise(extractRawPointer(arg))
 	return int32(ret)
 }
 
@@ -1428,7 +1428,7 @@ func (obj *v8ValueImpl) RejectPromise(errormsg string) int32 {
 	rawPtr := obj.rawPtr
 	errormsgStr := cefString(errormsg)
 	defer freeCefString(&errormsgStr)
-	ret := rawPtr.CallRejectPromise(uintptr(unsafe.Pointer(&errormsgStr)))
+	ret := rawPtr.CallRejectPromise(unsafe.Pointer(&errormsgStr))
 	return int32(ret)
 }
 

@@ -17,11 +17,11 @@ type CEFStringVisitorT struct {
 
 func (v *CEFStringVisitorT) OverrideVisit(fn uintptr) { v.Visit = fn }
 
-func (v *CEFStringVisitorT) CallVisit(args ...uintptr) uintptr {
+func (v *CEFStringVisitorT) CallVisit(String unsafe.Pointer) uintptr {
 	if v.Visit == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Visit, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Visit, uintptr(unsafe.Pointer(v)), uintptr(String))
 	return r1
 }
 

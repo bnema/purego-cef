@@ -26,21 +26,21 @@ type CEFBrowserViewDelegateT struct {
 
 func (v *CEFBrowserViewDelegateT) OverrideOnBrowserCreated(fn uintptr) { v.OnBrowserCreated = fn }
 
-func (v *CEFBrowserViewDelegateT) CallOnBrowserCreated(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallOnBrowserCreated(BrowserView unsafe.Pointer, Browser unsafe.Pointer) uintptr {
 	if v.OnBrowserCreated == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBrowserCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBrowserCreated, uintptr(unsafe.Pointer(v)), uintptr(BrowserView), uintptr(Browser))
 	return r1
 }
 
 func (v *CEFBrowserViewDelegateT) OverrideOnBrowserDestroyed(fn uintptr) { v.OnBrowserDestroyed = fn }
 
-func (v *CEFBrowserViewDelegateT) CallOnBrowserDestroyed(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallOnBrowserDestroyed(BrowserView unsafe.Pointer, Browser unsafe.Pointer) uintptr {
 	if v.OnBrowserDestroyed == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBrowserDestroyed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBrowserDestroyed, uintptr(unsafe.Pointer(v)), uintptr(BrowserView), uintptr(Browser))
 	return r1
 }
 
@@ -48,11 +48,11 @@ func (v *CEFBrowserViewDelegateT) OverrideGetDelegateForPopupBrowserView(fn uint
 	v.GetDelegateForPopupBrowserView = fn
 }
 
-func (v *CEFBrowserViewDelegateT) CallGetDelegateForPopupBrowserView(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallGetDelegateForPopupBrowserView(BrowserView unsafe.Pointer, Settings unsafe.Pointer, Client unsafe.Pointer, IsDevtools uintptr) uintptr {
 	if v.GetDelegateForPopupBrowserView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDelegateForPopupBrowserView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDelegateForPopupBrowserView, uintptr(unsafe.Pointer(v)), uintptr(BrowserView), uintptr(Settings), uintptr(Client), IsDevtools)
 	return r1
 }
 
@@ -60,11 +60,11 @@ func (v *CEFBrowserViewDelegateT) OverrideOnPopupBrowserViewCreated(fn uintptr) 
 	v.OnPopupBrowserViewCreated = fn
 }
 
-func (v *CEFBrowserViewDelegateT) CallOnPopupBrowserViewCreated(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallOnPopupBrowserViewCreated(BrowserView unsafe.Pointer, PopupBrowserView unsafe.Pointer, IsDevtools uintptr) uintptr {
 	if v.OnPopupBrowserViewCreated == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPopupBrowserViewCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPopupBrowserViewCreated, uintptr(unsafe.Pointer(v)), uintptr(BrowserView), uintptr(PopupBrowserView), IsDevtools)
 	return r1
 }
 
@@ -72,11 +72,11 @@ func (v *CEFBrowserViewDelegateT) OverrideGetChromeToolbarType(fn uintptr) {
 	v.GetChromeToolbarType = fn
 }
 
-func (v *CEFBrowserViewDelegateT) CallGetChromeToolbarType(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallGetChromeToolbarType(BrowserView unsafe.Pointer) uintptr {
 	if v.GetChromeToolbarType == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetChromeToolbarType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetChromeToolbarType, uintptr(unsafe.Pointer(v)), uintptr(BrowserView))
 	return r1
 }
 
@@ -84,21 +84,21 @@ func (v *CEFBrowserViewDelegateT) OverrideUseFramelessWindowForPictureInPicture(
 	v.UseFramelessWindowForPictureInPicture = fn
 }
 
-func (v *CEFBrowserViewDelegateT) CallUseFramelessWindowForPictureInPicture(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallUseFramelessWindowForPictureInPicture(BrowserView unsafe.Pointer) uintptr {
 	if v.UseFramelessWindowForPictureInPicture == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.UseFramelessWindowForPictureInPicture, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.UseFramelessWindowForPictureInPicture, uintptr(unsafe.Pointer(v)), uintptr(BrowserView))
 	return r1
 }
 
 func (v *CEFBrowserViewDelegateT) OverrideOnGestureCommand(fn uintptr) { v.OnGestureCommand = fn }
 
-func (v *CEFBrowserViewDelegateT) CallOnGestureCommand(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallOnGestureCommand(BrowserView unsafe.Pointer, GestureCommand uintptr) uintptr {
 	if v.OnGestureCommand == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnGestureCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnGestureCommand, uintptr(unsafe.Pointer(v)), uintptr(BrowserView), GestureCommand)
 	return r1
 }
 
@@ -106,11 +106,11 @@ func (v *CEFBrowserViewDelegateT) OverrideGetBrowserRuntimeStyle(fn uintptr) {
 	v.GetBrowserRuntimeStyle = fn
 }
 
-func (v *CEFBrowserViewDelegateT) CallGetBrowserRuntimeStyle(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallGetBrowserRuntimeStyle() uintptr {
 	if v.GetBrowserRuntimeStyle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBrowserRuntimeStyle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBrowserRuntimeStyle, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -118,11 +118,11 @@ func (v *CEFBrowserViewDelegateT) OverrideAllowMoveForPictureInPicture(fn uintpt
 	v.AllowMoveForPictureInPicture = fn
 }
 
-func (v *CEFBrowserViewDelegateT) CallAllowMoveForPictureInPicture(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallAllowMoveForPictureInPicture(BrowserView unsafe.Pointer) uintptr {
 	if v.AllowMoveForPictureInPicture == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AllowMoveForPictureInPicture, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AllowMoveForPictureInPicture, uintptr(unsafe.Pointer(v)), uintptr(BrowserView))
 	return r1
 }
 
@@ -130,11 +130,11 @@ func (v *CEFBrowserViewDelegateT) OverrideAllowPictureInPictureWithoutUserActiva
 	v.AllowPictureInPictureWithoutUserActivation = fn
 }
 
-func (v *CEFBrowserViewDelegateT) CallAllowPictureInPictureWithoutUserActivation(args ...uintptr) uintptr {
+func (v *CEFBrowserViewDelegateT) CallAllowPictureInPictureWithoutUserActivation(BrowserView unsafe.Pointer) uintptr {
 	if v.AllowPictureInPictureWithoutUserActivation == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AllowPictureInPictureWithoutUserActivation, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AllowPictureInPictureWithoutUserActivation, uintptr(unsafe.Pointer(v)), uintptr(BrowserView))
 	return r1
 }
 

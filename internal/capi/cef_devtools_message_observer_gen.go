@@ -21,11 +21,11 @@ type CEFDevToolsMessageObserverT struct {
 
 func (v *CEFDevToolsMessageObserverT) OverrideOnDevToolsMessage(fn uintptr) { v.OnDevToolsMessage = fn }
 
-func (v *CEFDevToolsMessageObserverT) CallOnDevToolsMessage(args ...uintptr) uintptr {
+func (v *CEFDevToolsMessageObserverT) CallOnDevToolsMessage(Browser unsafe.Pointer, Message unsafe.Pointer, MessageSize uintptr) uintptr {
 	if v.OnDevToolsMessage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDevToolsMessage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDevToolsMessage, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Message), MessageSize)
 	return r1
 }
 
@@ -33,21 +33,21 @@ func (v *CEFDevToolsMessageObserverT) OverrideOnDevToolsMethodResult(fn uintptr)
 	v.OnDevToolsMethodResult = fn
 }
 
-func (v *CEFDevToolsMessageObserverT) CallOnDevToolsMethodResult(args ...uintptr) uintptr {
+func (v *CEFDevToolsMessageObserverT) CallOnDevToolsMethodResult(Browser unsafe.Pointer, MessageID uintptr, Success uintptr, Result unsafe.Pointer, ResultSize uintptr) uintptr {
 	if v.OnDevToolsMethodResult == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDevToolsMethodResult, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDevToolsMethodResult, uintptr(unsafe.Pointer(v)), uintptr(Browser), MessageID, Success, uintptr(Result), ResultSize)
 	return r1
 }
 
 func (v *CEFDevToolsMessageObserverT) OverrideOnDevToolsEvent(fn uintptr) { v.OnDevToolsEvent = fn }
 
-func (v *CEFDevToolsMessageObserverT) CallOnDevToolsEvent(args ...uintptr) uintptr {
+func (v *CEFDevToolsMessageObserverT) CallOnDevToolsEvent(Browser unsafe.Pointer, Method unsafe.Pointer, Params unsafe.Pointer, ParamsSize uintptr) uintptr {
 	if v.OnDevToolsEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDevToolsEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDevToolsEvent, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Method), uintptr(Params), ParamsSize)
 	return r1
 }
 
@@ -55,11 +55,11 @@ func (v *CEFDevToolsMessageObserverT) OverrideOnDevToolsAgentAttached(fn uintptr
 	v.OnDevToolsAgentAttached = fn
 }
 
-func (v *CEFDevToolsMessageObserverT) CallOnDevToolsAgentAttached(args ...uintptr) uintptr {
+func (v *CEFDevToolsMessageObserverT) CallOnDevToolsAgentAttached(Browser unsafe.Pointer) uintptr {
 	if v.OnDevToolsAgentAttached == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDevToolsAgentAttached, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDevToolsAgentAttached, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 
@@ -67,11 +67,11 @@ func (v *CEFDevToolsMessageObserverT) OverrideOnDevToolsAgentDetached(fn uintptr
 	v.OnDevToolsAgentDetached = fn
 }
 
-func (v *CEFDevToolsMessageObserverT) CallOnDevToolsAgentDetached(args ...uintptr) uintptr {
+func (v *CEFDevToolsMessageObserverT) CallOnDevToolsAgentDetached(Browser unsafe.Pointer) uintptr {
 	if v.OnDevToolsAgentDetached == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDevToolsAgentDetached, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDevToolsAgentDetached, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 

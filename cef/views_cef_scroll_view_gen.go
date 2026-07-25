@@ -28,7 +28,7 @@ func (obj *scrollViewImpl) SetContentView(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetContentView(uintptr(extractRawPointer(view)))
+	rawPtr.CallSetContentView(extractRawPointer(view))
 }
 
 func (obj *scrollViewImpl) GetContentView() View {

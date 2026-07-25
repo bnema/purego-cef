@@ -55,7 +55,7 @@ func (obj *imageImpl) IsSame(that Image) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	ret := rawPtr.CallIsSame(extractRawPointer(that))
 	return ret != 0
 }
 

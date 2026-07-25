@@ -98,7 +98,7 @@ func (obj *requestContextHandlerImpl) OnRequestContextInitialized(requestContext
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRequestContextInitialized(uintptr(extractRawPointer(requestContext)))
+	rawPtr.CallOnRequestContextInitialized(extractRawPointer(requestContext))
 }
 
 func (obj *requestContextHandlerImpl) GetResourceRequestHandler(browser Browser, frame Frame, request Request, isNavigation int32, isDownload int32, requestInitiator string, disableDefaultHandling *int32) ResourceRequestHandler {
@@ -108,7 +108,7 @@ func (obj *requestContextHandlerImpl) GetResourceRequestHandler(browser Browser,
 	rawPtr := obj.rawPtr
 	requestInitiatorStr := cefString(requestInitiator)
 	defer freeCefString(&requestInitiatorStr)
-	ret := rawPtr.CallGetResourceRequestHandler(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(request)), uintptr(isNavigation), uintptr(isDownload), uintptr(unsafe.Pointer(&requestInitiatorStr)), uintptr(unsafe.Pointer(disableDefaultHandling)))
+	ret := rawPtr.CallGetResourceRequestHandler(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), uintptr(isNavigation), uintptr(isDownload), unsafe.Pointer(&requestInitiatorStr), unsafe.Pointer(disableDefaultHandling))
 	return wrapResourceRequestHandler(unsafe.Pointer(ret))
 }
 

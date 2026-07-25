@@ -109,7 +109,7 @@ func (obj *viewImpl) IsSame(that View) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	ret := rawPtr.CallIsSame(extractRawPointer(that))
 	return ret != 0
 }
 
@@ -188,7 +188,7 @@ func (obj *viewImpl) SetBounds(bounds *Rect) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetBounds(uintptr(unsafe.Pointer(bounds)))
+	rawPtr.CallSetBounds(unsafe.Pointer(bounds))
 }
 
 func (obj *viewImpl) GetBounds() uintptr {
@@ -214,7 +214,7 @@ func (obj *viewImpl) SetSize(size *Size) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetSize(uintptr(unsafe.Pointer(size)))
+	rawPtr.CallSetSize(unsafe.Pointer(size))
 }
 
 func (obj *viewImpl) GetSize() uintptr {
@@ -231,7 +231,7 @@ func (obj *viewImpl) SetPosition(position *Point) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetPosition(uintptr(unsafe.Pointer(position)))
+	rawPtr.CallSetPosition(unsafe.Pointer(position))
 }
 
 func (obj *viewImpl) GetPosition() uintptr {
@@ -248,7 +248,7 @@ func (obj *viewImpl) SetInsets(insets *Insets) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetInsets(uintptr(unsafe.Pointer(insets)))
+	rawPtr.CallSetInsets(unsafe.Pointer(insets))
 }
 
 func (obj *viewImpl) GetInsets() uintptr {
@@ -429,7 +429,7 @@ func (obj *viewImpl) ConvertPointToScreen(point *Point) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallConvertPointToScreen(uintptr(unsafe.Pointer(point)))
+	ret := rawPtr.CallConvertPointToScreen(unsafe.Pointer(point))
 	return int32(ret)
 }
 
@@ -438,7 +438,7 @@ func (obj *viewImpl) ConvertPointFromScreen(point *Point) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallConvertPointFromScreen(uintptr(unsafe.Pointer(point)))
+	ret := rawPtr.CallConvertPointFromScreen(unsafe.Pointer(point))
 	return int32(ret)
 }
 
@@ -447,7 +447,7 @@ func (obj *viewImpl) ConvertPointToWindow(point *Point) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallConvertPointToWindow(uintptr(unsafe.Pointer(point)))
+	ret := rawPtr.CallConvertPointToWindow(unsafe.Pointer(point))
 	return int32(ret)
 }
 
@@ -456,7 +456,7 @@ func (obj *viewImpl) ConvertPointFromWindow(point *Point) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallConvertPointFromWindow(uintptr(unsafe.Pointer(point)))
+	ret := rawPtr.CallConvertPointFromWindow(unsafe.Pointer(point))
 	return int32(ret)
 }
 
@@ -465,7 +465,7 @@ func (obj *viewImpl) ConvertPointToView(view View, point *Point) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallConvertPointToView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point)))
+	ret := rawPtr.CallConvertPointToView(extractRawPointer(view), unsafe.Pointer(point))
 	return int32(ret)
 }
 
@@ -474,7 +474,7 @@ func (obj *viewImpl) ConvertPointFromView(view View, point *Point) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallConvertPointFromView(uintptr(extractRawPointer(view)), uintptr(unsafe.Pointer(point)))
+	ret := rawPtr.CallConvertPointFromView(extractRawPointer(view), unsafe.Pointer(point))
 	return int32(ret)
 }
 

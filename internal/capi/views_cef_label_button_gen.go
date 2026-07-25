@@ -27,111 +27,111 @@ type CEFLabelButtonT struct {
 
 func (v *CEFLabelButtonT) OverrideAsMenuButton(fn uintptr) { v.AsMenuButton = fn }
 
-func (v *CEFLabelButtonT) CallAsMenuButton(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallAsMenuButton() uintptr {
 	if v.AsMenuButton == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AsMenuButton, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AsMenuButton, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideSetText(fn uintptr) { v.SetText = fn }
 
-func (v *CEFLabelButtonT) CallSetText(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallSetText(Text unsafe.Pointer) uintptr {
 	if v.SetText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetText, uintptr(unsafe.Pointer(v)), uintptr(Text))
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideGetText(fn uintptr) { v.GetText = fn }
 
-func (v *CEFLabelButtonT) CallGetText(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallGetText() uintptr {
 	if v.GetText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetText, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideSetImage(fn uintptr) { v.SetImage = fn }
 
-func (v *CEFLabelButtonT) CallSetImage(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallSetImage(ButtonState uintptr, Image unsafe.Pointer) uintptr {
 	if v.SetImage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetImage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetImage, uintptr(unsafe.Pointer(v)), ButtonState, uintptr(Image))
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideGetImage(fn uintptr) { v.GetImage = fn }
 
-func (v *CEFLabelButtonT) CallGetImage(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallGetImage(ButtonState uintptr) uintptr {
 	if v.GetImage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetImage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetImage, uintptr(unsafe.Pointer(v)), ButtonState)
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideSetTextColor(fn uintptr) { v.SetTextColor = fn }
 
-func (v *CEFLabelButtonT) CallSetTextColor(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallSetTextColor(ForState uintptr, Color uintptr) uintptr {
 	if v.SetTextColor == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetTextColor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetTextColor, uintptr(unsafe.Pointer(v)), ForState, Color)
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideSetEnabledTextColors(fn uintptr) { v.SetEnabledTextColors = fn }
 
-func (v *CEFLabelButtonT) CallSetEnabledTextColors(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallSetEnabledTextColors(Color uintptr) uintptr {
 	if v.SetEnabledTextColors == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetEnabledTextColors, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetEnabledTextColors, uintptr(unsafe.Pointer(v)), Color)
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideSetFontList(fn uintptr) { v.SetFontList = fn }
 
-func (v *CEFLabelButtonT) CallSetFontList(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallSetFontList(FontList unsafe.Pointer) uintptr {
 	if v.SetFontList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetFontList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetFontList, uintptr(unsafe.Pointer(v)), uintptr(FontList))
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideSetHorizontalAlignment(fn uintptr) { v.SetHorizontalAlignment = fn }
 
-func (v *CEFLabelButtonT) CallSetHorizontalAlignment(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallSetHorizontalAlignment(Alignment uintptr) uintptr {
 	if v.SetHorizontalAlignment == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetHorizontalAlignment, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetHorizontalAlignment, uintptr(unsafe.Pointer(v)), Alignment)
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideSetMinimumSize(fn uintptr) { v.SetMinimumSize = fn }
 
-func (v *CEFLabelButtonT) CallSetMinimumSize(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallSetMinimumSize(Size unsafe.Pointer) uintptr {
 	if v.SetMinimumSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetMinimumSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetMinimumSize, uintptr(unsafe.Pointer(v)), uintptr(Size))
 	return r1
 }
 
 func (v *CEFLabelButtonT) OverrideSetMaximumSize(fn uintptr) { v.SetMaximumSize = fn }
 
-func (v *CEFLabelButtonT) CallSetMaximumSize(args ...uintptr) uintptr {
+func (v *CEFLabelButtonT) CallSetMaximumSize(Size unsafe.Pointer) uintptr {
 	if v.SetMaximumSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetMaximumSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetMaximumSize, uintptr(unsafe.Pointer(v)), uintptr(Size))
 	return r1
 }
 

@@ -9,11 +9,11 @@ type {{.GoName}} struct {
 {{range .Fields}}{{if .IsFunction}}
 func (v *{{$.GoName}}) Override{{.GoName}}(fn uintptr) { v.{{.GoName}} = fn }
 
-func (v *{{$.GoName}}) Call{{.GoName}}(args ...uintptr) uintptr {
+func (v *{{$.GoName}}) Call{{.GoName}}({{range $i, $p := rawMethodParams .Params}}{{if $i}}, {{end}}{{$p.GoName}} {{rawParamType $p}}{{end}}) uintptr {
 	if v.{{.GoName}} == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.{{.GoName}}, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.{{.GoName}}, uintptr(unsafe.Pointer(v)){{range rawMethodParams .Params}}, {{rawCallArg .}}{{end}})
 	return r1
 }
 {{end}}{{end}}

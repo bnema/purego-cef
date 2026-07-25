@@ -28,7 +28,7 @@ func (obj *printDialogCallbackImpl) Cont(settings PrintSettings) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallCont(uintptr(extractRawPointer(settings)))
+	rawPtr.CallCont(extractRawPointer(settings))
 }
 
 func (obj *printDialogCallbackImpl) Cancel() {
@@ -276,7 +276,7 @@ func (obj *printHandlerImpl) OnPrintStart(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnPrintStart(uintptr(extractRawPointer(browser)))
+	rawPtr.CallOnPrintStart(extractRawPointer(browser))
 }
 
 func (obj *printHandlerImpl) OnPrintSettings(browser Browser, settings PrintSettings, getDefaults int32) {
@@ -284,7 +284,7 @@ func (obj *printHandlerImpl) OnPrintSettings(browser Browser, settings PrintSett
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnPrintSettings(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(settings)), uintptr(getDefaults))
+	rawPtr.CallOnPrintSettings(extractRawPointer(browser), extractRawPointer(settings), uintptr(getDefaults))
 }
 
 func (obj *printHandlerImpl) OnPrintDialog(browser Browser, hasSelection int32, callback PrintDialogCallback) int32 {
@@ -292,7 +292,7 @@ func (obj *printHandlerImpl) OnPrintDialog(browser Browser, hasSelection int32, 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnPrintDialog(uintptr(extractRawPointer(browser)), uintptr(hasSelection), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnPrintDialog(extractRawPointer(browser), uintptr(hasSelection), extractRawPointer(callback))
 	return int32(ret)
 }
 
@@ -305,7 +305,7 @@ func (obj *printHandlerImpl) OnPrintJob(browser Browser, documentName string, pd
 	defer freeCefString(&documentNameStr)
 	pdfFilePathStr := cefString(pdfFilePath)
 	defer freeCefString(&pdfFilePathStr)
-	ret := rawPtr.CallOnPrintJob(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&documentNameStr)), uintptr(unsafe.Pointer(&pdfFilePathStr)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnPrintJob(extractRawPointer(browser), unsafe.Pointer(&documentNameStr), unsafe.Pointer(&pdfFilePathStr), extractRawPointer(callback))
 	return int32(ret)
 }
 
@@ -314,7 +314,7 @@ func (obj *printHandlerImpl) OnPrintReset(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnPrintReset(uintptr(extractRawPointer(browser)))
+	rawPtr.CallOnPrintReset(extractRawPointer(browser))
 }
 
 func (obj *printHandlerImpl) GetPdfPaperSize(browser Browser, deviceUnitsPerInch int32) uintptr {
@@ -322,7 +322,7 @@ func (obj *printHandlerImpl) GetPdfPaperSize(browser Browser, deviceUnitsPerInch
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetPdfPaperSize(uintptr(extractRawPointer(browser)), uintptr(deviceUnitsPerInch))
+	ret := rawPtr.CallGetPdfPaperSize(extractRawPointer(browser), uintptr(deviceUnitsPerInch))
 	return uintptr(ret)
 }
 

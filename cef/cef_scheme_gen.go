@@ -29,7 +29,7 @@ func (obj *schemeRegistrarImpl) AddCustomScheme(schemeName string, options int32
 	rawPtr := obj.rawPtr
 	schemeNameStr := cefString(schemeName)
 	defer freeCefString(&schemeNameStr)
-	ret := rawPtr.CallAddCustomScheme(uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(options))
+	ret := rawPtr.CallAddCustomScheme(unsafe.Pointer(&schemeNameStr), uintptr(options))
 	return int32(ret)
 }
 
@@ -117,7 +117,7 @@ func (obj *schemeHandlerFactoryImpl) Create(browser Browser, frame Frame, scheme
 	rawPtr := obj.rawPtr
 	schemeNameStr := cefString(schemeName)
 	defer freeCefString(&schemeNameStr)
-	ret := rawPtr.CallCreate(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(&schemeNameStr)), uintptr(extractRawPointer(request)))
+	ret := rawPtr.CallCreate(extractRawPointer(browser), extractRawPointer(frame), unsafe.Pointer(&schemeNameStr), extractRawPointer(request))
 	return wrapResourceHandler(unsafe.Pointer(ret))
 }
 

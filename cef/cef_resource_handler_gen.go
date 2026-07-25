@@ -295,7 +295,7 @@ func (obj *resourceHandlerImpl) Open(request Request, handleRequest *int32, call
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOpen(uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(handleRequest)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOpen(extractRawPointer(request), unsafe.Pointer(handleRequest), extractRawPointer(callback))
 	return int32(ret)
 }
 
@@ -304,7 +304,7 @@ func (obj *resourceHandlerImpl) ProcessRequest(request Request, callback Callbac
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallProcessRequest(uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallProcessRequest(extractRawPointer(request), extractRawPointer(callback))
 	return int32(ret)
 }
 
@@ -313,7 +313,7 @@ func (obj *resourceHandlerImpl) GetResponseHeaders(response Response, responseLe
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetResponseHeaders(uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(responseLength)), redirecturl)
+	rawPtr.CallGetResponseHeaders(extractRawPointer(response), unsafe.Pointer(responseLength), unsafe.Pointer(redirecturl))
 }
 
 func (obj *resourceHandlerImpl) Skip(bytesToSkip int64, bytesSkipped *int64, callback ResourceSkipCallback) int32 {
@@ -333,7 +333,7 @@ func (obj *resourceHandlerImpl) Read(dataOut unsafe.Pointer, bytesToRead int32, 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallRead(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallRead(dataOut, uintptr(bytesToRead), unsafe.Pointer(bytesRead), extractRawPointer(callback))
 	return int32(ret)
 }
 
@@ -342,7 +342,7 @@ func (obj *resourceHandlerImpl) ReadResponse(dataOut unsafe.Pointer, bytesToRead
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallReadResponse(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallReadResponse(dataOut, uintptr(bytesToRead), unsafe.Pointer(bytesRead), extractRawPointer(callback))
 	return int32(ret)
 }
 

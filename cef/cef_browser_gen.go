@@ -122,7 +122,7 @@ func (obj *browserImpl) IsSame(that Browser) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	ret := rawPtr.CallIsSame(extractRawPointer(that))
 	return ret != 0
 }
 
@@ -169,7 +169,7 @@ func (obj *browserImpl) GetFrameByIdentifier(identifier string) Frame {
 	rawPtr := obj.rawPtr
 	identifierStr := cefString(identifier)
 	defer freeCefString(&identifierStr)
-	ret := rawPtr.CallGetFrameByIdentifier(uintptr(unsafe.Pointer(&identifierStr)))
+	ret := rawPtr.CallGetFrameByIdentifier(unsafe.Pointer(&identifierStr))
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
@@ -180,7 +180,7 @@ func (obj *browserImpl) GetFrameByName(name string) Frame {
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallGetFrameByName(uintptr(unsafe.Pointer(&nameStr)))
+	ret := rawPtr.CallGetFrameByName(unsafe.Pointer(&nameStr))
 	return wrapFrame(unsafe.Pointer(ret))
 }
 
@@ -417,7 +417,7 @@ func (obj *navigationEntryVisitorImpl) Visit(entry NavigationEntry, current int3
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallVisit(uintptr(extractRawPointer(entry)), uintptr(current), uintptr(index), uintptr(total))
+	ret := rawPtr.CallVisit(extractRawPointer(entry), uintptr(current), uintptr(index), uintptr(total))
 	return int32(ret)
 }
 
@@ -519,7 +519,7 @@ func (obj *pdfPrintCallbackImpl) OnPdfPrintFinished(path string, ok int32) {
 	rawPtr := obj.rawPtr
 	pathStr := cefString(path)
 	defer freeCefString(&pathStr)
-	rawPtr.CallOnPdfPrintFinished(uintptr(unsafe.Pointer(&pathStr)), uintptr(ok))
+	rawPtr.CallOnPdfPrintFinished(unsafe.Pointer(&pathStr), uintptr(ok))
 }
 
 func (obj *pdfPrintCallbackImpl) RawPointer() unsafe.Pointer {
@@ -621,7 +621,7 @@ func (obj *downloadImageCallbackImpl) OnDownloadImageFinished(imageURL string, h
 	rawPtr := obj.rawPtr
 	imageURLStr := cefString(imageURL)
 	defer freeCefString(&imageURLStr)
-	rawPtr.CallOnDownloadImageFinished(uintptr(unsafe.Pointer(&imageURLStr)), uintptr(httpStatusCode), uintptr(extractRawPointer(image)))
+	rawPtr.CallOnDownloadImageFinished(unsafe.Pointer(&imageURLStr), uintptr(httpStatusCode), extractRawPointer(image))
 }
 
 func (obj *downloadImageCallbackImpl) RawPointer() unsafe.Pointer {
@@ -836,7 +836,7 @@ func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, def
 	defer freeCefString(&titleStr)
 	defaultFilePathStr := cefString(defaultFilePath)
 	defer freeCefString(&defaultFilePathStr)
-	rawPtr.CallRunFileDialog(uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), uintptr(acceptFilters), uintptr(extractOrWrapRawPointer(callback, func() any { return NewRunFileDialogCallback(callback) })))
+	rawPtr.CallRunFileDialog(uintptr(mode), unsafe.Pointer(&titleStr), unsafe.Pointer(&defaultFilePathStr), uintptr(acceptFilters), extractOrWrapRawPointer(callback, func() any { return NewRunFileDialogCallback(callback) }))
 }
 
 func (obj *browserHostImpl) StartDownload(uRL string) {
@@ -846,7 +846,7 @@ func (obj *browserHostImpl) StartDownload(uRL string) {
 	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	rawPtr.CallStartDownload(uintptr(unsafe.Pointer(&uRLStr)))
+	rawPtr.CallStartDownload(unsafe.Pointer(&uRLStr))
 }
 
 func (obj *browserHostImpl) DownloadImage(imageURL string, isFavicon int32, maxImageSize uint32, bypassCache int32, callback DownloadImageCallback) {
@@ -856,7 +856,7 @@ func (obj *browserHostImpl) DownloadImage(imageURL string, isFavicon int32, maxI
 	rawPtr := obj.rawPtr
 	imageURLStr := cefString(imageURL)
 	defer freeCefString(&imageURLStr)
-	rawPtr.CallDownloadImage(uintptr(unsafe.Pointer(&imageURLStr)), uintptr(isFavicon), uintptr(maxImageSize), uintptr(bypassCache), uintptr(extractOrWrapRawPointer(callback, func() any { return NewDownloadImageCallback(callback) })))
+	rawPtr.CallDownloadImage(unsafe.Pointer(&imageURLStr), uintptr(isFavicon), uintptr(maxImageSize), uintptr(bypassCache), extractOrWrapRawPointer(callback, func() any { return NewDownloadImageCallback(callback) }))
 }
 
 func (obj *browserHostImpl) Print() {
@@ -874,7 +874,7 @@ func (obj *browserHostImpl) PrintToPdf(path string, settings *PdfPrintSettings, 
 	rawPtr := obj.rawPtr
 	pathStr := cefString(path)
 	defer freeCefString(&pathStr)
-	rawPtr.CallPrintToPdf(uintptr(unsafe.Pointer(&pathStr)), uintptr(unsafe.Pointer(settings)), uintptr(extractOrWrapRawPointer(callback, func() any { return NewPdfPrintCallback(callback) })))
+	rawPtr.CallPrintToPdf(unsafe.Pointer(&pathStr), unsafe.Pointer(settings), extractOrWrapRawPointer(callback, func() any { return NewPdfPrintCallback(callback) }))
 }
 
 func (obj *browserHostImpl) Find(searchtext string, forward int32, matchcase int32, findnext int32) {
@@ -884,7 +884,7 @@ func (obj *browserHostImpl) Find(searchtext string, forward int32, matchcase int
 	rawPtr := obj.rawPtr
 	searchtextStr := cefString(searchtext)
 	defer freeCefString(&searchtextStr)
-	rawPtr.CallFind(uintptr(unsafe.Pointer(&searchtextStr)), uintptr(forward), uintptr(matchcase), uintptr(findnext))
+	rawPtr.CallFind(unsafe.Pointer(&searchtextStr), uintptr(forward), uintptr(matchcase), uintptr(findnext))
 }
 
 func (obj *browserHostImpl) StopFinding(clearselection int32) {
@@ -900,7 +900,7 @@ func (obj *browserHostImpl) ShowDevTools(windowinfo *WindowInfo, client RawClien
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallShowDevTools(uintptr(unsafe.Pointer(windowinfo)), uintptr(extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })), uintptr(unsafe.Pointer(settings)), uintptr(unsafe.Pointer(inspectElementAt)))
+	rawPtr.CallShowDevTools(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return NewRawClient(client) }), unsafe.Pointer(settings), unsafe.Pointer(inspectElementAt))
 }
 
 func (obj *browserHostImpl) CloseDevTools() {
@@ -925,7 +925,7 @@ func (obj *browserHostImpl) SendDevToolsMessage(message unsafe.Pointer, messageS
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSendDevToolsMessage(uintptr(message), uintptr(messageSize))
+	ret := rawPtr.CallSendDevToolsMessage(message, uintptr(messageSize))
 	return int32(ret)
 }
 
@@ -936,7 +936,7 @@ func (obj *browserHostImpl) ExecuteDevToolsMethod(messageID int32, method string
 	rawPtr := obj.rawPtr
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
-	ret := rawPtr.CallExecuteDevToolsMethod(uintptr(messageID), uintptr(unsafe.Pointer(&methodStr)), uintptr(extractRawPointer(params)))
+	ret := rawPtr.CallExecuteDevToolsMethod(uintptr(messageID), unsafe.Pointer(&methodStr), extractRawPointer(params))
 	return int32(ret)
 }
 
@@ -945,7 +945,7 @@ func (obj *browserHostImpl) AddDevToolsMessageObserver(observer DevToolsMessageO
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAddDevToolsMessageObserver(uintptr(extractOrWrapRawPointer(observer, func() any { return NewDevToolsMessageObserver(observer) })))
+	ret := rawPtr.CallAddDevToolsMessageObserver(extractOrWrapRawPointer(observer, func() any { return NewDevToolsMessageObserver(observer) }))
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
@@ -954,7 +954,7 @@ func (obj *browserHostImpl) GetNavigationEntries(visitor NavigationEntryVisitor,
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetNavigationEntries(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewNavigationEntryVisitor(visitor) })), uintptr(currentOnly))
+	rawPtr.CallGetNavigationEntries(extractOrWrapRawPointer(visitor, func() any { return NewNavigationEntryVisitor(visitor) }), uintptr(currentOnly))
 }
 
 func (obj *browserHostImpl) ReplaceMisspelling(word string) {
@@ -964,7 +964,7 @@ func (obj *browserHostImpl) ReplaceMisspelling(word string) {
 	rawPtr := obj.rawPtr
 	wordStr := cefString(word)
 	defer freeCefString(&wordStr)
-	rawPtr.CallReplaceMisspelling(uintptr(unsafe.Pointer(&wordStr)))
+	rawPtr.CallReplaceMisspelling(unsafe.Pointer(&wordStr))
 }
 
 func (obj *browserHostImpl) AddWordToDictionary(word string) {
@@ -974,7 +974,7 @@ func (obj *browserHostImpl) AddWordToDictionary(word string) {
 	rawPtr := obj.rawPtr
 	wordStr := cefString(word)
 	defer freeCefString(&wordStr)
-	rawPtr.CallAddWordToDictionary(uintptr(unsafe.Pointer(&wordStr)))
+	rawPtr.CallAddWordToDictionary(unsafe.Pointer(&wordStr))
 }
 
 func (obj *browserHostImpl) IsWindowRenderingDisabled() bool {
@@ -1031,7 +1031,7 @@ func (obj *browserHostImpl) SendKeyEvent(event *KeyEvent) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSendKeyEvent(uintptr(unsafe.Pointer(event)))
+	rawPtr.CallSendKeyEvent(unsafe.Pointer(event))
 }
 
 func (obj *browserHostImpl) SendMouseClickEvent(event *MouseEvent, type_ MouseButtonType, mouseup int32, clickcount int32) {
@@ -1039,7 +1039,7 @@ func (obj *browserHostImpl) SendMouseClickEvent(event *MouseEvent, type_ MouseBu
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSendMouseClickEvent(uintptr(unsafe.Pointer(event)), uintptr(type_), uintptr(mouseup), uintptr(clickcount))
+	rawPtr.CallSendMouseClickEvent(unsafe.Pointer(event), uintptr(type_), uintptr(mouseup), uintptr(clickcount))
 }
 
 func (obj *browserHostImpl) SendMouseMoveEvent(event *MouseEvent, mouseleave int32) {
@@ -1047,7 +1047,7 @@ func (obj *browserHostImpl) SendMouseMoveEvent(event *MouseEvent, mouseleave int
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSendMouseMoveEvent(uintptr(unsafe.Pointer(event)), uintptr(mouseleave))
+	rawPtr.CallSendMouseMoveEvent(unsafe.Pointer(event), uintptr(mouseleave))
 }
 
 func (obj *browserHostImpl) SendMouseWheelEvent(event *MouseEvent, deltax int32, deltay int32) {
@@ -1055,7 +1055,7 @@ func (obj *browserHostImpl) SendMouseWheelEvent(event *MouseEvent, deltax int32,
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSendMouseWheelEvent(uintptr(unsafe.Pointer(event)), uintptr(deltax), uintptr(deltay))
+	rawPtr.CallSendMouseWheelEvent(unsafe.Pointer(event), uintptr(deltax), uintptr(deltay))
 }
 
 func (obj *browserHostImpl) SendTouchEvent(event *TouchEvent) {
@@ -1063,7 +1063,7 @@ func (obj *browserHostImpl) SendTouchEvent(event *TouchEvent) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSendTouchEvent(uintptr(unsafe.Pointer(event)))
+	rawPtr.CallSendTouchEvent(unsafe.Pointer(event))
 }
 
 func (obj *browserHostImpl) SendCaptureLostEvent() {
@@ -1110,7 +1110,7 @@ func (obj *browserHostImpl) ImeSetComposition(text string, underlines []Composit
 	if len(underlines) > 0 {
 		underlinesPtr = unsafe.Pointer(&underlines[0])
 	}
-	rawPtr.CallImeSetComposition(uintptr(unsafe.Pointer(&textStr)), uintptr(len(underlines)), uintptr(underlinesPtr), uintptr(unsafe.Pointer(replacementRange)), uintptr(unsafe.Pointer(selectionRange)))
+	rawPtr.CallImeSetComposition(unsafe.Pointer(&textStr), uintptr(len(underlines)), underlinesPtr, unsafe.Pointer(replacementRange), unsafe.Pointer(selectionRange))
 }
 
 func (obj *browserHostImpl) ImeCommitText(text string, replacementRange *Range, relativeCursorPos int32) {
@@ -1120,7 +1120,7 @@ func (obj *browserHostImpl) ImeCommitText(text string, replacementRange *Range, 
 	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	rawPtr.CallImeCommitText(uintptr(unsafe.Pointer(&textStr)), uintptr(unsafe.Pointer(replacementRange)), uintptr(relativeCursorPos))
+	rawPtr.CallImeCommitText(unsafe.Pointer(&textStr), unsafe.Pointer(replacementRange), uintptr(relativeCursorPos))
 }
 
 func (obj *browserHostImpl) ImeFinishComposingText(keepSelection int32) {
@@ -1144,7 +1144,7 @@ func (obj *browserHostImpl) DragTargetDragEnter(dragData DragData, event *MouseE
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallDragTargetDragEnter(uintptr(extractRawPointer(dragData)), uintptr(unsafe.Pointer(event)), uintptr(allowedOps))
+	rawPtr.CallDragTargetDragEnter(extractRawPointer(dragData), unsafe.Pointer(event), uintptr(allowedOps))
 }
 
 func (obj *browserHostImpl) DragTargetDragOver(event *MouseEvent, allowedOps DragOperationsMask) {
@@ -1152,7 +1152,7 @@ func (obj *browserHostImpl) DragTargetDragOver(event *MouseEvent, allowedOps Dra
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallDragTargetDragOver(uintptr(unsafe.Pointer(event)), uintptr(allowedOps))
+	rawPtr.CallDragTargetDragOver(unsafe.Pointer(event), uintptr(allowedOps))
 }
 
 func (obj *browserHostImpl) DragTargetDragLeave() {
@@ -1168,7 +1168,7 @@ func (obj *browserHostImpl) DragTargetDrop(event *MouseEvent) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallDragTargetDrop(uintptr(unsafe.Pointer(event)))
+	rawPtr.CallDragTargetDrop(unsafe.Pointer(event))
 }
 
 func (obj *browserHostImpl) DragSourceEndedAt(x int32, y int32, op DragOperationsMask) {
@@ -1209,7 +1209,7 @@ func (obj *browserHostImpl) SetAutoResizeEnabled(enabled int32, minSize *Size, m
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetAutoResizeEnabled(uintptr(enabled), uintptr(unsafe.Pointer(minSize)), uintptr(unsafe.Pointer(maxSize)))
+	rawPtr.CallSetAutoResizeEnabled(uintptr(enabled), unsafe.Pointer(minSize), unsafe.Pointer(maxSize))
 }
 
 func (obj *browserHostImpl) SetAudioMuted(mute int32) {

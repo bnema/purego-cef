@@ -144,7 +144,7 @@ func (obj *dialogHandlerImpl) OnFileDialog(browser Browser, mode FileDialogMode,
 	defer freeCefString(&titleStr)
 	defaultFilePathStr := cefString(defaultFilePath)
 	defer freeCefString(&defaultFilePathStr)
-	ret := rawPtr.CallOnFileDialog(uintptr(extractRawPointer(browser)), uintptr(mode), uintptr(unsafe.Pointer(&titleStr)), uintptr(unsafe.Pointer(&defaultFilePathStr)), uintptr(acceptFilters), uintptr(acceptExtensions), uintptr(acceptDescriptions), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallOnFileDialog(extractRawPointer(browser), uintptr(mode), unsafe.Pointer(&titleStr), unsafe.Pointer(&defaultFilePathStr), uintptr(acceptFilters), uintptr(acceptExtensions), uintptr(acceptDescriptions), extractRawPointer(callback))
 	return int32(ret)
 }
 

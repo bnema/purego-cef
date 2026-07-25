@@ -23,51 +23,51 @@ func (v *CEFAppT) OverrideOnBeforeCommandLineProcessing(fn uintptr) {
 	v.OnBeforeCommandLineProcessing = fn
 }
 
-func (v *CEFAppT) CallOnBeforeCommandLineProcessing(args ...uintptr) uintptr {
+func (v *CEFAppT) CallOnBeforeCommandLineProcessing(ProcessType unsafe.Pointer, CommandLine unsafe.Pointer) uintptr {
 	if v.OnBeforeCommandLineProcessing == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforeCommandLineProcessing, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforeCommandLineProcessing, uintptr(unsafe.Pointer(v)), uintptr(ProcessType), uintptr(CommandLine))
 	return r1
 }
 
 func (v *CEFAppT) OverrideOnRegisterCustomSchemes(fn uintptr) { v.OnRegisterCustomSchemes = fn }
 
-func (v *CEFAppT) CallOnRegisterCustomSchemes(args ...uintptr) uintptr {
+func (v *CEFAppT) CallOnRegisterCustomSchemes(Registrar unsafe.Pointer) uintptr {
 	if v.OnRegisterCustomSchemes == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRegisterCustomSchemes, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRegisterCustomSchemes, uintptr(unsafe.Pointer(v)), uintptr(Registrar))
 	return r1
 }
 
 func (v *CEFAppT) OverrideGetResourceBundleHandler(fn uintptr) { v.GetResourceBundleHandler = fn }
 
-func (v *CEFAppT) CallGetResourceBundleHandler(args ...uintptr) uintptr {
+func (v *CEFAppT) CallGetResourceBundleHandler() uintptr {
 	if v.GetResourceBundleHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetResourceBundleHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetResourceBundleHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFAppT) OverrideGetBrowserProcessHandler(fn uintptr) { v.GetBrowserProcessHandler = fn }
 
-func (v *CEFAppT) CallGetBrowserProcessHandler(args ...uintptr) uintptr {
+func (v *CEFAppT) CallGetBrowserProcessHandler() uintptr {
 	if v.GetBrowserProcessHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBrowserProcessHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBrowserProcessHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFAppT) OverrideGetRenderProcessHandler(fn uintptr) { v.GetRenderProcessHandler = fn }
 
-func (v *CEFAppT) CallGetRenderProcessHandler(args ...uintptr) uintptr {
+func (v *CEFAppT) CallGetRenderProcessHandler() uintptr {
 	if v.GetRenderProcessHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRenderProcessHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRenderProcessHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

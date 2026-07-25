@@ -25,11 +25,11 @@ func (v *CEFBrowserProcessHandlerT) OverrideOnRegisterCustomPreferences(fn uintp
 	v.OnRegisterCustomPreferences = fn
 }
 
-func (v *CEFBrowserProcessHandlerT) CallOnRegisterCustomPreferences(args ...uintptr) uintptr {
+func (v *CEFBrowserProcessHandlerT) CallOnRegisterCustomPreferences(Type uintptr, Registrar unsafe.Pointer) uintptr {
 	if v.OnRegisterCustomPreferences == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRegisterCustomPreferences, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRegisterCustomPreferences, uintptr(unsafe.Pointer(v)), Type, uintptr(Registrar))
 	return r1
 }
 
@@ -37,11 +37,11 @@ func (v *CEFBrowserProcessHandlerT) OverrideOnContextInitialized(fn uintptr) {
 	v.OnContextInitialized = fn
 }
 
-func (v *CEFBrowserProcessHandlerT) CallOnContextInitialized(args ...uintptr) uintptr {
+func (v *CEFBrowserProcessHandlerT) CallOnContextInitialized() uintptr {
 	if v.OnContextInitialized == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnContextInitialized, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnContextInitialized, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -49,11 +49,11 @@ func (v *CEFBrowserProcessHandlerT) OverrideOnBeforeChildProcessLaunch(fn uintpt
 	v.OnBeforeChildProcessLaunch = fn
 }
 
-func (v *CEFBrowserProcessHandlerT) CallOnBeforeChildProcessLaunch(args ...uintptr) uintptr {
+func (v *CEFBrowserProcessHandlerT) CallOnBeforeChildProcessLaunch(CommandLine unsafe.Pointer) uintptr {
 	if v.OnBeforeChildProcessLaunch == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforeChildProcessLaunch, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforeChildProcessLaunch, uintptr(unsafe.Pointer(v)), uintptr(CommandLine))
 	return r1
 }
 
@@ -61,11 +61,11 @@ func (v *CEFBrowserProcessHandlerT) OverrideOnAlreadyRunningAppRelaunch(fn uintp
 	v.OnAlreadyRunningAppRelaunch = fn
 }
 
-func (v *CEFBrowserProcessHandlerT) CallOnAlreadyRunningAppRelaunch(args ...uintptr) uintptr {
+func (v *CEFBrowserProcessHandlerT) CallOnAlreadyRunningAppRelaunch(CommandLine unsafe.Pointer, CurrentDirectory unsafe.Pointer) uintptr {
 	if v.OnAlreadyRunningAppRelaunch == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAlreadyRunningAppRelaunch, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAlreadyRunningAppRelaunch, uintptr(unsafe.Pointer(v)), uintptr(CommandLine), uintptr(CurrentDirectory))
 	return r1
 }
 
@@ -73,21 +73,21 @@ func (v *CEFBrowserProcessHandlerT) OverrideOnScheduleMessagePumpWork(fn uintptr
 	v.OnScheduleMessagePumpWork = fn
 }
 
-func (v *CEFBrowserProcessHandlerT) CallOnScheduleMessagePumpWork(args ...uintptr) uintptr {
+func (v *CEFBrowserProcessHandlerT) CallOnScheduleMessagePumpWork(DelayMs uintptr) uintptr {
 	if v.OnScheduleMessagePumpWork == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnScheduleMessagePumpWork, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnScheduleMessagePumpWork, uintptr(unsafe.Pointer(v)), DelayMs)
 	return r1
 }
 
 func (v *CEFBrowserProcessHandlerT) OverrideGetDefaultClient(fn uintptr) { v.GetDefaultClient = fn }
 
-func (v *CEFBrowserProcessHandlerT) CallGetDefaultClient(args ...uintptr) uintptr {
+func (v *CEFBrowserProcessHandlerT) CallGetDefaultClient() uintptr {
 	if v.GetDefaultClient == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDefaultClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDefaultClient, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -95,11 +95,11 @@ func (v *CEFBrowserProcessHandlerT) OverrideGetDefaultRequestContextHandler(fn u
 	v.GetDefaultRequestContextHandler = fn
 }
 
-func (v *CEFBrowserProcessHandlerT) CallGetDefaultRequestContextHandler(args ...uintptr) uintptr {
+func (v *CEFBrowserProcessHandlerT) CallGetDefaultRequestContextHandler() uintptr {
 	if v.GetDefaultRequestContextHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDefaultRequestContextHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDefaultRequestContextHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

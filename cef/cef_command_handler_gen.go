@@ -150,7 +150,7 @@ func (obj *commandHandlerImpl) OnChromeCommand(browser Browser, commandID int32,
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnChromeCommand(uintptr(extractRawPointer(browser)), uintptr(commandID), uintptr(disposition))
+	ret := rawPtr.CallOnChromeCommand(extractRawPointer(browser), uintptr(commandID), uintptr(disposition))
 	return int32(ret)
 }
 
@@ -159,7 +159,7 @@ func (obj *commandHandlerImpl) IsChromeAppMenuItemVisible(browser Browser, comma
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsChromeAppMenuItemVisible(uintptr(extractRawPointer(browser)), uintptr(commandID))
+	ret := rawPtr.CallIsChromeAppMenuItemVisible(extractRawPointer(browser), uintptr(commandID))
 	return ret != 0
 }
 
@@ -168,7 +168,7 @@ func (obj *commandHandlerImpl) IsChromeAppMenuItemEnabled(browser Browser, comma
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsChromeAppMenuItemEnabled(uintptr(extractRawPointer(browser)), uintptr(commandID))
+	ret := rawPtr.CallIsChromeAppMenuItemEnabled(extractRawPointer(browser), uintptr(commandID))
 	return ret != 0
 }
 

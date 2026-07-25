@@ -29,131 +29,131 @@ type CEFImageT struct {
 
 func (v *CEFImageT) OverrideIsEmpty(fn uintptr) { v.IsEmpty = fn }
 
-func (v *CEFImageT) CallIsEmpty(args ...uintptr) uintptr {
+func (v *CEFImageT) CallIsEmpty() uintptr {
 	if v.IsEmpty == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsEmpty, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsEmpty, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFImageT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
-func (v *CEFImageT) CallIsSame(args ...uintptr) uintptr {
+func (v *CEFImageT) CallIsSame(That unsafe.Pointer) uintptr {
 	if v.IsSame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSame, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFImageT) OverrideAddBitmap(fn uintptr) { v.AddBitmap = fn }
 
-func (v *CEFImageT) CallAddBitmap(args ...uintptr) uintptr {
+func (v *CEFImageT) CallAddBitmap(ScaleFactor uintptr, PixelWidth uintptr, PixelHeight uintptr, ColorType uintptr, AlphaType uintptr, PixelData unsafe.Pointer, PixelDataSize uintptr) uintptr {
 	if v.AddBitmap == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddBitmap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddBitmap, uintptr(unsafe.Pointer(v)), ScaleFactor, PixelWidth, PixelHeight, ColorType, AlphaType, uintptr(PixelData), PixelDataSize)
 	return r1
 }
 
 func (v *CEFImageT) OverrideAddPng(fn uintptr) { v.AddPng = fn }
 
-func (v *CEFImageT) CallAddPng(args ...uintptr) uintptr {
+func (v *CEFImageT) CallAddPng(ScaleFactor uintptr, PngData unsafe.Pointer, PngDataSize uintptr) uintptr {
 	if v.AddPng == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddPng, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddPng, uintptr(unsafe.Pointer(v)), ScaleFactor, uintptr(PngData), PngDataSize)
 	return r1
 }
 
 func (v *CEFImageT) OverrideAddJpeg(fn uintptr) { v.AddJpeg = fn }
 
-func (v *CEFImageT) CallAddJpeg(args ...uintptr) uintptr {
+func (v *CEFImageT) CallAddJpeg(ScaleFactor uintptr, JpegData unsafe.Pointer, JpegDataSize uintptr) uintptr {
 	if v.AddJpeg == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddJpeg, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddJpeg, uintptr(unsafe.Pointer(v)), ScaleFactor, uintptr(JpegData), JpegDataSize)
 	return r1
 }
 
 func (v *CEFImageT) OverrideGetWidth(fn uintptr) { v.GetWidth = fn }
 
-func (v *CEFImageT) CallGetWidth(args ...uintptr) uintptr {
+func (v *CEFImageT) CallGetWidth() uintptr {
 	if v.GetWidth == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWidth, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWidth, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFImageT) OverrideGetHeight(fn uintptr) { v.GetHeight = fn }
 
-func (v *CEFImageT) CallGetHeight(args ...uintptr) uintptr {
+func (v *CEFImageT) CallGetHeight() uintptr {
 	if v.GetHeight == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetHeight, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetHeight, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFImageT) OverrideHasRepresentation(fn uintptr) { v.HasRepresentation = fn }
 
-func (v *CEFImageT) CallHasRepresentation(args ...uintptr) uintptr {
+func (v *CEFImageT) CallHasRepresentation(ScaleFactor uintptr) uintptr {
 	if v.HasRepresentation == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasRepresentation, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasRepresentation, uintptr(unsafe.Pointer(v)), ScaleFactor)
 	return r1
 }
 
 func (v *CEFImageT) OverrideRemoveRepresentation(fn uintptr) { v.RemoveRepresentation = fn }
 
-func (v *CEFImageT) CallRemoveRepresentation(args ...uintptr) uintptr {
+func (v *CEFImageT) CallRemoveRepresentation(ScaleFactor uintptr) uintptr {
 	if v.RemoveRepresentation == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RemoveRepresentation, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RemoveRepresentation, uintptr(unsafe.Pointer(v)), ScaleFactor)
 	return r1
 }
 
 func (v *CEFImageT) OverrideGetRepresentationInfo(fn uintptr) { v.GetRepresentationInfo = fn }
 
-func (v *CEFImageT) CallGetRepresentationInfo(args ...uintptr) uintptr {
+func (v *CEFImageT) CallGetRepresentationInfo(ScaleFactor uintptr, ActualScaleFactor unsafe.Pointer, PixelWidth unsafe.Pointer, PixelHeight unsafe.Pointer) uintptr {
 	if v.GetRepresentationInfo == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRepresentationInfo, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRepresentationInfo, uintptr(unsafe.Pointer(v)), ScaleFactor, uintptr(ActualScaleFactor), uintptr(PixelWidth), uintptr(PixelHeight))
 	return r1
 }
 
 func (v *CEFImageT) OverrideGetAsBitmap(fn uintptr) { v.GetAsBitmap = fn }
 
-func (v *CEFImageT) CallGetAsBitmap(args ...uintptr) uintptr {
+func (v *CEFImageT) CallGetAsBitmap(ScaleFactor uintptr, ColorType uintptr, AlphaType uintptr, PixelWidth unsafe.Pointer, PixelHeight unsafe.Pointer) uintptr {
 	if v.GetAsBitmap == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAsBitmap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAsBitmap, uintptr(unsafe.Pointer(v)), ScaleFactor, ColorType, AlphaType, uintptr(PixelWidth), uintptr(PixelHeight))
 	return r1
 }
 
 func (v *CEFImageT) OverrideGetAsPng(fn uintptr) { v.GetAsPng = fn }
 
-func (v *CEFImageT) CallGetAsPng(args ...uintptr) uintptr {
+func (v *CEFImageT) CallGetAsPng(ScaleFactor uintptr, WithTransparency uintptr, PixelWidth unsafe.Pointer, PixelHeight unsafe.Pointer) uintptr {
 	if v.GetAsPng == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAsPng, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAsPng, uintptr(unsafe.Pointer(v)), ScaleFactor, WithTransparency, uintptr(PixelWidth), uintptr(PixelHeight))
 	return r1
 }
 
 func (v *CEFImageT) OverrideGetAsJpeg(fn uintptr) { v.GetAsJpeg = fn }
 
-func (v *CEFImageT) CallGetAsJpeg(args ...uintptr) uintptr {
+func (v *CEFImageT) CallGetAsJpeg(ScaleFactor uintptr, Quality uintptr, PixelWidth unsafe.Pointer, PixelHeight unsafe.Pointer) uintptr {
 	if v.GetAsJpeg == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAsJpeg, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAsJpeg, uintptr(unsafe.Pointer(v)), ScaleFactor, Quality, uintptr(PixelWidth), uintptr(PixelHeight))
 	return r1
 }
 

@@ -58,301 +58,301 @@ type CEFWindowT struct {
 
 func (v *CEFWindowT) OverrideShow(fn uintptr) { v.Show = fn }
 
-func (v *CEFWindowT) CallShow(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallShow() uintptr {
 	if v.Show == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Show, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Show, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideShowAsBrowserModalDialog(fn uintptr) { v.ShowAsBrowserModalDialog = fn }
 
-func (v *CEFWindowT) CallShowAsBrowserModalDialog(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallShowAsBrowserModalDialog(BrowserView unsafe.Pointer) uintptr {
 	if v.ShowAsBrowserModalDialog == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ShowAsBrowserModalDialog, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ShowAsBrowserModalDialog, uintptr(unsafe.Pointer(v)), uintptr(BrowserView))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideHide(fn uintptr) { v.Hide = fn }
 
-func (v *CEFWindowT) CallHide(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallHide() uintptr {
 	if v.Hide == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Hide, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Hide, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideCenterWindow(fn uintptr) { v.CenterWindow = fn }
 
-func (v *CEFWindowT) CallCenterWindow(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallCenterWindow(Size unsafe.Pointer) uintptr {
 	if v.CenterWindow == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CenterWindow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CenterWindow, uintptr(unsafe.Pointer(v)), uintptr(Size))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideClose(fn uintptr) { v.Close = fn }
 
-func (v *CEFWindowT) CallClose(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallClose() uintptr {
 	if v.Close == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Close, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Close, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideIsClosed(fn uintptr) { v.IsClosed = fn }
 
-func (v *CEFWindowT) CallIsClosed(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallIsClosed() uintptr {
 	if v.IsClosed == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsClosed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsClosed, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideActivate(fn uintptr) { v.Activate = fn }
 
-func (v *CEFWindowT) CallActivate(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallActivate() uintptr {
 	if v.Activate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Activate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Activate, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideDeactivate(fn uintptr) { v.Deactivate = fn }
 
-func (v *CEFWindowT) CallDeactivate(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallDeactivate() uintptr {
 	if v.Deactivate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Deactivate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Deactivate, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideIsActive(fn uintptr) { v.IsActive = fn }
 
-func (v *CEFWindowT) CallIsActive(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallIsActive() uintptr {
 	if v.IsActive == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsActive, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsActive, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideBringToTop(fn uintptr) { v.BringToTop = fn }
 
-func (v *CEFWindowT) CallBringToTop(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallBringToTop() uintptr {
 	if v.BringToTop == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.BringToTop, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.BringToTop, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSetAlwaysOnTop(fn uintptr) { v.SetAlwaysOnTop = fn }
 
-func (v *CEFWindowT) CallSetAlwaysOnTop(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSetAlwaysOnTop(OnTop uintptr) uintptr {
 	if v.SetAlwaysOnTop == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetAlwaysOnTop, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetAlwaysOnTop, uintptr(unsafe.Pointer(v)), OnTop)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideIsAlwaysOnTop(fn uintptr) { v.IsAlwaysOnTop = fn }
 
-func (v *CEFWindowT) CallIsAlwaysOnTop(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallIsAlwaysOnTop() uintptr {
 	if v.IsAlwaysOnTop == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsAlwaysOnTop, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsAlwaysOnTop, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideMaximize(fn uintptr) { v.Maximize = fn }
 
-func (v *CEFWindowT) CallMaximize(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallMaximize() uintptr {
 	if v.Maximize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Maximize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Maximize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideMinimize(fn uintptr) { v.Minimize = fn }
 
-func (v *CEFWindowT) CallMinimize(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallMinimize() uintptr {
 	if v.Minimize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Minimize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Minimize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideRestore(fn uintptr) { v.Restore = fn }
 
-func (v *CEFWindowT) CallRestore(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallRestore() uintptr {
 	if v.Restore == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Restore, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Restore, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSetFullscreen(fn uintptr) { v.SetFullscreen = fn }
 
-func (v *CEFWindowT) CallSetFullscreen(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSetFullscreen(Fullscreen uintptr) uintptr {
 	if v.SetFullscreen == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetFullscreen, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetFullscreen, uintptr(unsafe.Pointer(v)), Fullscreen)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideIsMaximized(fn uintptr) { v.IsMaximized = fn }
 
-func (v *CEFWindowT) CallIsMaximized(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallIsMaximized() uintptr {
 	if v.IsMaximized == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsMaximized, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsMaximized, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideIsMinimized(fn uintptr) { v.IsMinimized = fn }
 
-func (v *CEFWindowT) CallIsMinimized(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallIsMinimized() uintptr {
 	if v.IsMinimized == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsMinimized, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsMinimized, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideIsFullscreen(fn uintptr) { v.IsFullscreen = fn }
 
-func (v *CEFWindowT) CallIsFullscreen(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallIsFullscreen() uintptr {
 	if v.IsFullscreen == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsFullscreen, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsFullscreen, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideGetFocusedView(fn uintptr) { v.GetFocusedView = fn }
 
-func (v *CEFWindowT) CallGetFocusedView(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallGetFocusedView() uintptr {
 	if v.GetFocusedView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFocusedView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFocusedView, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSetTitle(fn uintptr) { v.SetTitle = fn }
 
-func (v *CEFWindowT) CallSetTitle(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSetTitle(Title unsafe.Pointer) uintptr {
 	if v.SetTitle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetTitle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetTitle, uintptr(unsafe.Pointer(v)), uintptr(Title))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideGetTitle(fn uintptr) { v.GetTitle = fn }
 
-func (v *CEFWindowT) CallGetTitle(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallGetTitle() uintptr {
 	if v.GetTitle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetTitle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetTitle, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSetWindowIcon(fn uintptr) { v.SetWindowIcon = fn }
 
-func (v *CEFWindowT) CallSetWindowIcon(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSetWindowIcon(Image unsafe.Pointer) uintptr {
 	if v.SetWindowIcon == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetWindowIcon, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetWindowIcon, uintptr(unsafe.Pointer(v)), uintptr(Image))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideGetWindowIcon(fn uintptr) { v.GetWindowIcon = fn }
 
-func (v *CEFWindowT) CallGetWindowIcon(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallGetWindowIcon() uintptr {
 	if v.GetWindowIcon == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWindowIcon, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWindowIcon, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSetWindowAppIcon(fn uintptr) { v.SetWindowAppIcon = fn }
 
-func (v *CEFWindowT) CallSetWindowAppIcon(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSetWindowAppIcon(Image unsafe.Pointer) uintptr {
 	if v.SetWindowAppIcon == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetWindowAppIcon, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetWindowAppIcon, uintptr(unsafe.Pointer(v)), uintptr(Image))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideGetWindowAppIcon(fn uintptr) { v.GetWindowAppIcon = fn }
 
-func (v *CEFWindowT) CallGetWindowAppIcon(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallGetWindowAppIcon() uintptr {
 	if v.GetWindowAppIcon == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWindowAppIcon, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWindowAppIcon, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideAddOverlayView(fn uintptr) { v.AddOverlayView = fn }
 
-func (v *CEFWindowT) CallAddOverlayView(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallAddOverlayView(View unsafe.Pointer, DockingMode uintptr, CanActivate uintptr) uintptr {
 	if v.AddOverlayView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddOverlayView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddOverlayView, uintptr(unsafe.Pointer(v)), uintptr(View), DockingMode, CanActivate)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideShowMenu(fn uintptr) { v.ShowMenu = fn }
 
-func (v *CEFWindowT) CallShowMenu(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallShowMenu(MenuModel unsafe.Pointer, ScreenPoint unsafe.Pointer, AnchorPosition uintptr) uintptr {
 	if v.ShowMenu == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ShowMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ShowMenu, uintptr(unsafe.Pointer(v)), uintptr(MenuModel), uintptr(ScreenPoint), AnchorPosition)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideCancelMenu(fn uintptr) { v.CancelMenu = fn }
 
-func (v *CEFWindowT) CallCancelMenu(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallCancelMenu() uintptr {
 	if v.CancelMenu == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CancelMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CancelMenu, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideGetDisplay(fn uintptr) { v.GetDisplay = fn }
 
-func (v *CEFWindowT) CallGetDisplay(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallGetDisplay() uintptr {
 	if v.GetDisplay == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDisplay, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDisplay, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -360,121 +360,121 @@ func (v *CEFWindowT) OverrideGetClientAreaBoundsInScreen(fn uintptr) {
 	v.GetClientAreaBoundsInScreen = fn
 }
 
-func (v *CEFWindowT) CallGetClientAreaBoundsInScreen(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallGetClientAreaBoundsInScreen() uintptr {
 	if v.GetClientAreaBoundsInScreen == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetClientAreaBoundsInScreen, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetClientAreaBoundsInScreen, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSetDraggableRegions(fn uintptr) { v.SetDraggableRegions = fn }
 
-func (v *CEFWindowT) CallSetDraggableRegions(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSetDraggableRegions(Regionscount uintptr, Regions unsafe.Pointer) uintptr {
 	if v.SetDraggableRegions == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDraggableRegions, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDraggableRegions, uintptr(unsafe.Pointer(v)), Regionscount, uintptr(Regions))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideGetWindowHandle(fn uintptr) { v.GetWindowHandle = fn }
 
-func (v *CEFWindowT) CallGetWindowHandle(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallGetWindowHandle() uintptr {
 	if v.GetWindowHandle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWindowHandle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWindowHandle, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSendKeyPress(fn uintptr) { v.SendKeyPress = fn }
 
-func (v *CEFWindowT) CallSendKeyPress(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSendKeyPress(KeyCode uintptr, EventFlags uintptr) uintptr {
 	if v.SendKeyPress == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendKeyPress, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendKeyPress, uintptr(unsafe.Pointer(v)), KeyCode, EventFlags)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSendMouseMove(fn uintptr) { v.SendMouseMove = fn }
 
-func (v *CEFWindowT) CallSendMouseMove(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSendMouseMove(ScreenX uintptr, ScreenY uintptr) uintptr {
 	if v.SendMouseMove == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendMouseMove, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendMouseMove, uintptr(unsafe.Pointer(v)), ScreenX, ScreenY)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSendMouseEvents(fn uintptr) { v.SendMouseEvents = fn }
 
-func (v *CEFWindowT) CallSendMouseEvents(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSendMouseEvents(Button uintptr, MouseDown uintptr, MouseUp uintptr) uintptr {
 	if v.SendMouseEvents == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendMouseEvents, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendMouseEvents, uintptr(unsafe.Pointer(v)), Button, MouseDown, MouseUp)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSetAccelerator(fn uintptr) { v.SetAccelerator = fn }
 
-func (v *CEFWindowT) CallSetAccelerator(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSetAccelerator(CommandID uintptr, KeyCode uintptr, ShiftPressed uintptr, CtrlPressed uintptr, AltPressed uintptr, HighPriority uintptr) uintptr {
 	if v.SetAccelerator == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetAccelerator, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetAccelerator, uintptr(unsafe.Pointer(v)), CommandID, KeyCode, ShiftPressed, CtrlPressed, AltPressed, HighPriority)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideRemoveAccelerator(fn uintptr) { v.RemoveAccelerator = fn }
 
-func (v *CEFWindowT) CallRemoveAccelerator(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallRemoveAccelerator(CommandID uintptr) uintptr {
 	if v.RemoveAccelerator == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RemoveAccelerator, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RemoveAccelerator, uintptr(unsafe.Pointer(v)), CommandID)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideRemoveAllAccelerators(fn uintptr) { v.RemoveAllAccelerators = fn }
 
-func (v *CEFWindowT) CallRemoveAllAccelerators(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallRemoveAllAccelerators() uintptr {
 	if v.RemoveAllAccelerators == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RemoveAllAccelerators, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RemoveAllAccelerators, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideSetThemeColor(fn uintptr) { v.SetThemeColor = fn }
 
-func (v *CEFWindowT) CallSetThemeColor(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallSetThemeColor(ColorID uintptr, Color uintptr) uintptr {
 	if v.SetThemeColor == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetThemeColor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetThemeColor, uintptr(unsafe.Pointer(v)), ColorID, Color)
 	return r1
 }
 
 func (v *CEFWindowT) OverrideThemeChanged(fn uintptr) { v.ThemeChanged = fn }
 
-func (v *CEFWindowT) CallThemeChanged(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallThemeChanged() uintptr {
 	if v.ThemeChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ThemeChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ThemeChanged, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFWindowT) OverrideGetRuntimeStyle(fn uintptr) { v.GetRuntimeStyle = fn }
 
-func (v *CEFWindowT) CallGetRuntimeStyle(args ...uintptr) uintptr {
+func (v *CEFWindowT) CallGetRuntimeStyle() uintptr {
 	if v.GetRuntimeStyle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRuntimeStyle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRuntimeStyle, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

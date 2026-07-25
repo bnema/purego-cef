@@ -72,7 +72,7 @@ func (obj *endTracingCallbackImpl) OnEndTracingComplete(tracingFile string) {
 	rawPtr := obj.rawPtr
 	tracingFileStr := cefString(tracingFile)
 	defer freeCefString(&tracingFileStr)
-	rawPtr.CallOnEndTracingComplete(uintptr(unsafe.Pointer(&tracingFileStr)))
+	rawPtr.CallOnEndTracingComplete(unsafe.Pointer(&tracingFileStr))
 }
 
 func (obj *endTracingCallbackImpl) RawPointer() unsafe.Pointer {

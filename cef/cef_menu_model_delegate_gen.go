@@ -172,7 +172,7 @@ func (obj *menuModelDelegateImpl) ExecuteCommand(menuModel MenuModel, commandID 
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallExecuteCommand(uintptr(extractRawPointer(menuModel)), uintptr(commandID), uintptr(eventFlags))
+	rawPtr.CallExecuteCommand(extractRawPointer(menuModel), uintptr(commandID), uintptr(eventFlags))
 }
 
 func (obj *menuModelDelegateImpl) MouseOutsideMenu(menuModel MenuModel, screenPoint *Point) {
@@ -180,7 +180,7 @@ func (obj *menuModelDelegateImpl) MouseOutsideMenu(menuModel MenuModel, screenPo
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallMouseOutsideMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)))
+	rawPtr.CallMouseOutsideMenu(extractRawPointer(menuModel), unsafe.Pointer(screenPoint))
 }
 
 func (obj *menuModelDelegateImpl) UnhandledOpenSubmenu(menuModel MenuModel, isRtl int32) {
@@ -188,7 +188,7 @@ func (obj *menuModelDelegateImpl) UnhandledOpenSubmenu(menuModel MenuModel, isRt
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallUnhandledOpenSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
+	rawPtr.CallUnhandledOpenSubmenu(extractRawPointer(menuModel), uintptr(isRtl))
 }
 
 func (obj *menuModelDelegateImpl) UnhandledCloseSubmenu(menuModel MenuModel, isRtl int32) {
@@ -196,7 +196,7 @@ func (obj *menuModelDelegateImpl) UnhandledCloseSubmenu(menuModel MenuModel, isR
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallUnhandledCloseSubmenu(uintptr(extractRawPointer(menuModel)), uintptr(isRtl))
+	rawPtr.CallUnhandledCloseSubmenu(extractRawPointer(menuModel), uintptr(isRtl))
 }
 
 func (obj *menuModelDelegateImpl) MenuWillShow(menuModel MenuModel) {
@@ -204,7 +204,7 @@ func (obj *menuModelDelegateImpl) MenuWillShow(menuModel MenuModel) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallMenuWillShow(uintptr(extractRawPointer(menuModel)))
+	rawPtr.CallMenuWillShow(extractRawPointer(menuModel))
 }
 
 func (obj *menuModelDelegateImpl) MenuClosed(menuModel MenuModel) {
@@ -212,7 +212,7 @@ func (obj *menuModelDelegateImpl) MenuClosed(menuModel MenuModel) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallMenuClosed(uintptr(extractRawPointer(menuModel)))
+	rawPtr.CallMenuClosed(extractRawPointer(menuModel))
 }
 
 func (obj *menuModelDelegateImpl) FormatLabel(menuModel MenuModel, label uintptr) int32 {
@@ -220,7 +220,7 @@ func (obj *menuModelDelegateImpl) FormatLabel(menuModel MenuModel, label uintptr
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallFormatLabel(uintptr(extractRawPointer(menuModel)), label)
+	ret := rawPtr.CallFormatLabel(extractRawPointer(menuModel), unsafe.Pointer(label))
 	return int32(ret)
 }
 

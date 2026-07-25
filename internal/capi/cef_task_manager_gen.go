@@ -21,51 +21,51 @@ type CEFTaskManagerT struct {
 
 func (v *CEFTaskManagerT) OverrideGetTasksCount(fn uintptr) { v.GetTasksCount = fn }
 
-func (v *CEFTaskManagerT) CallGetTasksCount(args ...uintptr) uintptr {
+func (v *CEFTaskManagerT) CallGetTasksCount() uintptr {
 	if v.GetTasksCount == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetTasksCount, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetTasksCount, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTaskManagerT) OverrideGetTaskIdsList(fn uintptr) { v.GetTaskIdsList = fn }
 
-func (v *CEFTaskManagerT) CallGetTaskIdsList(args ...uintptr) uintptr {
+func (v *CEFTaskManagerT) CallGetTaskIdsList(TaskIdscount unsafe.Pointer, TaskIds unsafe.Pointer) uintptr {
 	if v.GetTaskIdsList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetTaskIdsList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetTaskIdsList, uintptr(unsafe.Pointer(v)), uintptr(TaskIdscount), uintptr(TaskIds))
 	return r1
 }
 
 func (v *CEFTaskManagerT) OverrideGetTaskInfo(fn uintptr) { v.GetTaskInfo = fn }
 
-func (v *CEFTaskManagerT) CallGetTaskInfo(args ...uintptr) uintptr {
+func (v *CEFTaskManagerT) CallGetTaskInfo(TaskID uintptr, Info unsafe.Pointer) uintptr {
 	if v.GetTaskInfo == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetTaskInfo, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetTaskInfo, uintptr(unsafe.Pointer(v)), TaskID, uintptr(Info))
 	return r1
 }
 
 func (v *CEFTaskManagerT) OverrideKillTask(fn uintptr) { v.KillTask = fn }
 
-func (v *CEFTaskManagerT) CallKillTask(args ...uintptr) uintptr {
+func (v *CEFTaskManagerT) CallKillTask(TaskID uintptr) uintptr {
 	if v.KillTask == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.KillTask, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.KillTask, uintptr(unsafe.Pointer(v)), TaskID)
 	return r1
 }
 
 func (v *CEFTaskManagerT) OverrideGetTaskIDForBrowserID(fn uintptr) { v.GetTaskIDForBrowserID = fn }
 
-func (v *CEFTaskManagerT) CallGetTaskIDForBrowserID(args ...uintptr) uintptr {
+func (v *CEFTaskManagerT) CallGetTaskIDForBrowserID(BrowserID uintptr) uintptr {
 	if v.GetTaskIDForBrowserID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetTaskIDForBrowserID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetTaskIDForBrowserID, uintptr(unsafe.Pointer(v)), BrowserID)
 	return r1
 }
 

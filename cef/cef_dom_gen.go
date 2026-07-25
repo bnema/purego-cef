@@ -70,7 +70,7 @@ func (obj *domvisitorImpl) Visit(document Domdocument) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallVisit(uintptr(extractRawPointer(document)))
+	rawPtr.CallVisit(extractRawPointer(document))
 }
 
 func (obj *domvisitorImpl) RawPointer() unsafe.Pointer {
@@ -173,7 +173,7 @@ func (obj *domdocumentImpl) GetElementByID(iD string) Domnode {
 	rawPtr := obj.rawPtr
 	iDStr := cefString(iD)
 	defer freeCefString(&iDStr)
-	ret := rawPtr.CallGetElementByID(uintptr(unsafe.Pointer(&iDStr)))
+	ret := rawPtr.CallGetElementByID(unsafe.Pointer(&iDStr))
 	return wrapDomnode(unsafe.Pointer(ret))
 }
 
@@ -247,7 +247,7 @@ func (obj *domdocumentImpl) GetCompleteURL(partialurl string) string {
 	rawPtr := obj.rawPtr
 	partialurlStr := cefString(partialurl)
 	defer freeCefString(&partialurlStr)
-	ret := rawPtr.CallGetCompleteURL(uintptr(unsafe.Pointer(&partialurlStr)))
+	ret := rawPtr.CallGetCompleteURL(unsafe.Pointer(&partialurlStr))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -357,7 +357,7 @@ func (obj *domnodeImpl) IsSame(that Domnode) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	ret := rawPtr.CallIsSame(extractRawPointer(that))
 	return ret != 0
 }
 
@@ -386,7 +386,7 @@ func (obj *domnodeImpl) SetValue(value string) int32 {
 	rawPtr := obj.rawPtr
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
-	ret := rawPtr.CallSetValue(uintptr(unsafe.Pointer(&valueStr)))
+	ret := rawPtr.CallSetValue(unsafe.Pointer(&valueStr))
 	return int32(ret)
 }
 
@@ -487,7 +487,7 @@ func (obj *domnodeImpl) HasElementAttribute(attrname string) bool {
 	rawPtr := obj.rawPtr
 	attrnameStr := cefString(attrname)
 	defer freeCefString(&attrnameStr)
-	ret := rawPtr.CallHasElementAttribute(uintptr(unsafe.Pointer(&attrnameStr)))
+	ret := rawPtr.CallHasElementAttribute(unsafe.Pointer(&attrnameStr))
 	return ret != 0
 }
 
@@ -498,7 +498,7 @@ func (obj *domnodeImpl) GetElementAttribute(attrname string) string {
 	rawPtr := obj.rawPtr
 	attrnameStr := cefString(attrname)
 	defer freeCefString(&attrnameStr)
-	ret := rawPtr.CallGetElementAttribute(uintptr(unsafe.Pointer(&attrnameStr)))
+	ret := rawPtr.CallGetElementAttribute(unsafe.Pointer(&attrnameStr))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -519,7 +519,7 @@ func (obj *domnodeImpl) SetElementAttribute(attrname string, value string) int32
 	defer freeCefString(&attrnameStr)
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
-	ret := rawPtr.CallSetElementAttribute(uintptr(unsafe.Pointer(&attrnameStr)), uintptr(unsafe.Pointer(&valueStr)))
+	ret := rawPtr.CallSetElementAttribute(unsafe.Pointer(&attrnameStr), unsafe.Pointer(&valueStr))
 	return int32(ret)
 }
 

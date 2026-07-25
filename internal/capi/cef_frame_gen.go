@@ -42,261 +42,261 @@ type CEFFrameT struct {
 
 func (v *CEFFrameT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFFrameT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideUndo(fn uintptr) { v.Undo = fn }
 
-func (v *CEFFrameT) CallUndo(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallUndo() uintptr {
 	if v.Undo == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Undo, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Undo, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideRedo(fn uintptr) { v.Redo = fn }
 
-func (v *CEFFrameT) CallRedo(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallRedo() uintptr {
 	if v.Redo == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Redo, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Redo, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideCut(fn uintptr) { v.Cut = fn }
 
-func (v *CEFFrameT) CallCut(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallCut() uintptr {
 	if v.Cut == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cut, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cut, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideCopy(fn uintptr) { v.Copy = fn }
 
-func (v *CEFFrameT) CallCopy(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallCopy() uintptr {
 	if v.Copy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Copy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Copy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverridePaste(fn uintptr) { v.Paste = fn }
 
-func (v *CEFFrameT) CallPaste(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallPaste() uintptr {
 	if v.Paste == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Paste, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Paste, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverridePasteAndMatchStyle(fn uintptr) { v.PasteAndMatchStyle = fn }
 
-func (v *CEFFrameT) CallPasteAndMatchStyle(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallPasteAndMatchStyle() uintptr {
 	if v.PasteAndMatchStyle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.PasteAndMatchStyle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.PasteAndMatchStyle, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideDel(fn uintptr) { v.Del = fn }
 
-func (v *CEFFrameT) CallDel(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallDel() uintptr {
 	if v.Del == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Del, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Del, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideSelectAll(fn uintptr) { v.SelectAll = fn }
 
-func (v *CEFFrameT) CallSelectAll(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallSelectAll() uintptr {
 	if v.SelectAll == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SelectAll, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SelectAll, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideViewSource(fn uintptr) { v.ViewSource = fn }
 
-func (v *CEFFrameT) CallViewSource(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallViewSource() uintptr {
 	if v.ViewSource == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ViewSource, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ViewSource, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideGetSource(fn uintptr) { v.GetSource = fn }
 
-func (v *CEFFrameT) CallGetSource(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallGetSource(Visitor unsafe.Pointer) uintptr {
 	if v.GetSource == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSource, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSource, uintptr(unsafe.Pointer(v)), uintptr(Visitor))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideGetText(fn uintptr) { v.GetText = fn }
 
-func (v *CEFFrameT) CallGetText(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallGetText(Visitor unsafe.Pointer) uintptr {
 	if v.GetText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetText, uintptr(unsafe.Pointer(v)), uintptr(Visitor))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideLoadRequest(fn uintptr) { v.LoadRequest = fn }
 
-func (v *CEFFrameT) CallLoadRequest(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallLoadRequest(Request unsafe.Pointer) uintptr {
 	if v.LoadRequest == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.LoadRequest, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.LoadRequest, uintptr(unsafe.Pointer(v)), uintptr(Request))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideLoadURL(fn uintptr) { v.LoadURL = fn }
 
-func (v *CEFFrameT) CallLoadURL(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallLoadURL(URL unsafe.Pointer) uintptr {
 	if v.LoadURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.LoadURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.LoadURL, uintptr(unsafe.Pointer(v)), uintptr(URL))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideExecuteJavaScript(fn uintptr) { v.ExecuteJavaScript = fn }
 
-func (v *CEFFrameT) CallExecuteJavaScript(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallExecuteJavaScript(Code unsafe.Pointer, ScriptURL unsafe.Pointer, StartLine uintptr) uintptr {
 	if v.ExecuteJavaScript == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ExecuteJavaScript, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ExecuteJavaScript, uintptr(unsafe.Pointer(v)), uintptr(Code), uintptr(ScriptURL), StartLine)
 	return r1
 }
 
 func (v *CEFFrameT) OverrideIsMain(fn uintptr) { v.IsMain = fn }
 
-func (v *CEFFrameT) CallIsMain(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallIsMain() uintptr {
 	if v.IsMain == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsMain, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsMain, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideIsFocused(fn uintptr) { v.IsFocused = fn }
 
-func (v *CEFFrameT) CallIsFocused(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallIsFocused() uintptr {
 	if v.IsFocused == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsFocused, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsFocused, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideGetName(fn uintptr) { v.GetName = fn }
 
-func (v *CEFFrameT) CallGetName(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallGetName() uintptr {
 	if v.GetName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetName, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideGetIdentifier(fn uintptr) { v.GetIdentifier = fn }
 
-func (v *CEFFrameT) CallGetIdentifier(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallGetIdentifier() uintptr {
 	if v.GetIdentifier == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetIdentifier, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetIdentifier, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideGetParent(fn uintptr) { v.GetParent = fn }
 
-func (v *CEFFrameT) CallGetParent(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallGetParent() uintptr {
 	if v.GetParent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetParent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetParent, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideGetURL(fn uintptr) { v.GetURL = fn }
 
-func (v *CEFFrameT) CallGetURL(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallGetURL() uintptr {
 	if v.GetURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetURL, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideGetBrowser(fn uintptr) { v.GetBrowser = fn }
 
-func (v *CEFFrameT) CallGetBrowser(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallGetBrowser() uintptr {
 	if v.GetBrowser == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBrowser, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBrowser, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideGetV8Context(fn uintptr) { v.GetV8Context = fn }
 
-func (v *CEFFrameT) CallGetV8Context(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallGetV8Context() uintptr {
 	if v.GetV8Context == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetV8Context, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetV8Context, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideVisitDom(fn uintptr) { v.VisitDom = fn }
 
-func (v *CEFFrameT) CallVisitDom(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallVisitDom(Visitor unsafe.Pointer) uintptr {
 	if v.VisitDom == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.VisitDom, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.VisitDom, uintptr(unsafe.Pointer(v)), uintptr(Visitor))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideCreateUrlrequest(fn uintptr) { v.CreateUrlrequest = fn }
 
-func (v *CEFFrameT) CallCreateUrlrequest(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallCreateUrlrequest(Request unsafe.Pointer, Client unsafe.Pointer) uintptr {
 	if v.CreateUrlrequest == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CreateUrlrequest, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CreateUrlrequest, uintptr(unsafe.Pointer(v)), uintptr(Request), uintptr(Client))
 	return r1
 }
 
 func (v *CEFFrameT) OverrideSendProcessMessage(fn uintptr) { v.SendProcessMessage = fn }
 
-func (v *CEFFrameT) CallSendProcessMessage(args ...uintptr) uintptr {
+func (v *CEFFrameT) CallSendProcessMessage(TargetProcess uintptr, Message unsafe.Pointer) uintptr {
 	if v.SendProcessMessage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendProcessMessage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendProcessMessage, uintptr(unsafe.Pointer(v)), TargetProcess, uintptr(Message))
 	return r1
 }
 

@@ -29,7 +29,7 @@ func (obj *preferenceRegistrarImpl) AddPreference(name string, defaultValue Valu
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallAddPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(defaultValue)))
+	ret := rawPtr.CallAddPreference(unsafe.Pointer(&nameStr), extractRawPointer(defaultValue))
 	return int32(ret)
 }
 
@@ -108,7 +108,7 @@ func (obj *preferenceObserverImpl) OnPreferenceChanged(name string) {
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	rawPtr.CallOnPreferenceChanged(uintptr(unsafe.Pointer(&nameStr)))
+	rawPtr.CallOnPreferenceChanged(unsafe.Pointer(&nameStr))
 }
 
 func (obj *preferenceObserverImpl) RawPointer() unsafe.Pointer {
@@ -166,7 +166,7 @@ func (obj *preferenceManagerImpl) HasPreference(name string) bool {
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallHasPreference(uintptr(unsafe.Pointer(&nameStr)))
+	ret := rawPtr.CallHasPreference(unsafe.Pointer(&nameStr))
 	return ret != 0
 }
 
@@ -177,7 +177,7 @@ func (obj *preferenceManagerImpl) GetPreference(name string) Value {
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallGetPreference(uintptr(unsafe.Pointer(&nameStr)))
+	ret := rawPtr.CallGetPreference(unsafe.Pointer(&nameStr))
 	return wrapValue(unsafe.Pointer(ret))
 }
 
@@ -197,7 +197,7 @@ func (obj *preferenceManagerImpl) CanSetPreference(name string) bool {
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallCanSetPreference(uintptr(unsafe.Pointer(&nameStr)))
+	ret := rawPtr.CallCanSetPreference(unsafe.Pointer(&nameStr))
 	return ret != 0
 }
 
@@ -208,7 +208,7 @@ func (obj *preferenceManagerImpl) SetPreference(name string, value Value, error 
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallSetPreference(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractRawPointer(value)), error)
+	ret := rawPtr.CallSetPreference(unsafe.Pointer(&nameStr), extractRawPointer(value), unsafe.Pointer(error))
 	return int32(ret)
 }
 
@@ -219,7 +219,7 @@ func (obj *preferenceManagerImpl) AddPreferenceObserver(name string, observer Pr
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallAddPreferenceObserver(uintptr(unsafe.Pointer(&nameStr)), uintptr(extractOrWrapRawPointer(observer, func() any { return NewPreferenceObserver(observer) })))
+	ret := rawPtr.CallAddPreferenceObserver(unsafe.Pointer(&nameStr), extractOrWrapRawPointer(observer, func() any { return NewPreferenceObserver(observer) }))
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 

@@ -449,7 +449,7 @@ func (obj *windowDelegateImpl) OnWindowCreated(window Window) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowCreated(uintptr(extractRawPointer(window)))
+	rawPtr.CallOnWindowCreated(extractRawPointer(window))
 }
 
 func (obj *windowDelegateImpl) OnWindowClosing(window Window) {
@@ -457,7 +457,7 @@ func (obj *windowDelegateImpl) OnWindowClosing(window Window) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowClosing(uintptr(extractRawPointer(window)))
+	rawPtr.CallOnWindowClosing(extractRawPointer(window))
 }
 
 func (obj *windowDelegateImpl) OnWindowDestroyed(window Window) {
@@ -465,7 +465,7 @@ func (obj *windowDelegateImpl) OnWindowDestroyed(window Window) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowDestroyed(uintptr(extractRawPointer(window)))
+	rawPtr.CallOnWindowDestroyed(extractRawPointer(window))
 }
 
 func (obj *windowDelegateImpl) OnWindowActivationChanged(window Window, active int32) {
@@ -473,7 +473,7 @@ func (obj *windowDelegateImpl) OnWindowActivationChanged(window Window, active i
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowActivationChanged(uintptr(extractRawPointer(window)), uintptr(active))
+	rawPtr.CallOnWindowActivationChanged(extractRawPointer(window), uintptr(active))
 }
 
 func (obj *windowDelegateImpl) OnWindowBoundsChanged(window Window, newBounds *Rect) {
@@ -481,7 +481,7 @@ func (obj *windowDelegateImpl) OnWindowBoundsChanged(window Window, newBounds *R
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowBoundsChanged(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(newBounds)))
+	rawPtr.CallOnWindowBoundsChanged(extractRawPointer(window), unsafe.Pointer(newBounds))
 }
 
 func (obj *windowDelegateImpl) OnWindowFullscreenTransition(window Window, isCompleted int32) {
@@ -489,7 +489,7 @@ func (obj *windowDelegateImpl) OnWindowFullscreenTransition(window Window, isCom
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowFullscreenTransition(uintptr(extractRawPointer(window)), uintptr(isCompleted))
+	rawPtr.CallOnWindowFullscreenTransition(extractRawPointer(window), uintptr(isCompleted))
 }
 
 func (obj *windowDelegateImpl) GetParentWindow(window Window, isMenu *int32, canActivateMenu *int32) Window {
@@ -497,7 +497,7 @@ func (obj *windowDelegateImpl) GetParentWindow(window Window, isMenu *int32, can
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetParentWindow(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(isMenu)), uintptr(unsafe.Pointer(canActivateMenu)))
+	ret := rawPtr.CallGetParentWindow(extractRawPointer(window), unsafe.Pointer(isMenu), unsafe.Pointer(canActivateMenu))
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
@@ -506,7 +506,7 @@ func (obj *windowDelegateImpl) IsWindowModalDialog(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsWindowModalDialog(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallIsWindowModalDialog(extractRawPointer(window))
 	return ret != 0
 }
 
@@ -515,7 +515,7 @@ func (obj *windowDelegateImpl) GetInitialBounds(window Window) uintptr {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetInitialBounds(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallGetInitialBounds(extractRawPointer(window))
 	return uintptr(ret)
 }
 
@@ -524,7 +524,7 @@ func (obj *windowDelegateImpl) GetInitialShowState(window Window) ShowState {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetInitialShowState(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallGetInitialShowState(extractRawPointer(window))
 	return ShowState(ret)
 }
 
@@ -533,7 +533,7 @@ func (obj *windowDelegateImpl) IsFrameless(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsFrameless(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallIsFrameless(extractRawPointer(window))
 	return ret != 0
 }
 
@@ -542,7 +542,7 @@ func (obj *windowDelegateImpl) WithStandardWindowButtons(window Window) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallWithStandardWindowButtons(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallWithStandardWindowButtons(extractRawPointer(window))
 	return int32(ret)
 }
 
@@ -551,7 +551,7 @@ func (obj *windowDelegateImpl) GetTitlebarHeight(window Window, titlebarHeight *
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetTitlebarHeight(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(titlebarHeight)))
+	ret := rawPtr.CallGetTitlebarHeight(extractRawPointer(window), unsafe.Pointer(titlebarHeight))
 	return int32(ret)
 }
 
@@ -560,7 +560,7 @@ func (obj *windowDelegateImpl) AcceptsFirstMouse(window Window) State {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAcceptsFirstMouse(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallAcceptsFirstMouse(extractRawPointer(window))
 	return State(ret)
 }
 
@@ -569,7 +569,7 @@ func (obj *windowDelegateImpl) CanResize(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanResize(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallCanResize(extractRawPointer(window))
 	return ret != 0
 }
 
@@ -578,7 +578,7 @@ func (obj *windowDelegateImpl) CanMaximize(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanMaximize(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallCanMaximize(extractRawPointer(window))
 	return ret != 0
 }
 
@@ -587,7 +587,7 @@ func (obj *windowDelegateImpl) CanMinimize(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanMinimize(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallCanMinimize(extractRawPointer(window))
 	return ret != 0
 }
 
@@ -596,7 +596,7 @@ func (obj *windowDelegateImpl) CanClose(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanClose(uintptr(extractRawPointer(window)))
+	ret := rawPtr.CallCanClose(extractRawPointer(window))
 	return ret != 0
 }
 
@@ -605,7 +605,7 @@ func (obj *windowDelegateImpl) OnAccelerator(window Window, commandID int32) int
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnAccelerator(uintptr(extractRawPointer(window)), uintptr(commandID))
+	ret := rawPtr.CallOnAccelerator(extractRawPointer(window), uintptr(commandID))
 	return int32(ret)
 }
 
@@ -614,7 +614,7 @@ func (obj *windowDelegateImpl) OnKeyEvent(window Window, event *KeyEvent) int32 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(event)))
+	ret := rawPtr.CallOnKeyEvent(extractRawPointer(window), unsafe.Pointer(event))
 	return int32(ret)
 }
 
@@ -623,7 +623,7 @@ func (obj *windowDelegateImpl) OnThemeColorsChanged(window Window, chromeTheme i
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnThemeColorsChanged(uintptr(extractRawPointer(window)), uintptr(chromeTheme))
+	rawPtr.CallOnThemeColorsChanged(extractRawPointer(window), uintptr(chromeTheme))
 }
 
 func (obj *windowDelegateImpl) GetWindowRuntimeStyle() RuntimeStyle {
@@ -640,7 +640,7 @@ func (obj *windowDelegateImpl) GetLinuxWindowProperties(window Window, propertie
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetLinuxWindowProperties(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(properties)))
+	ret := rawPtr.CallGetLinuxWindowProperties(extractRawPointer(window), unsafe.Pointer(properties))
 	return int32(ret)
 }
 

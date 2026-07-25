@@ -22,61 +22,61 @@ type CEFLifeSpanHandlerT struct {
 
 func (v *CEFLifeSpanHandlerT) OverrideOnBeforePopup(fn uintptr) { v.OnBeforePopup = fn }
 
-func (v *CEFLifeSpanHandlerT) CallOnBeforePopup(args ...uintptr) uintptr {
+func (v *CEFLifeSpanHandlerT) CallOnBeforePopup(Browser unsafe.Pointer, Frame unsafe.Pointer, PopupID uintptr, TargetURL unsafe.Pointer, TargetFrameName unsafe.Pointer, TargetDisposition uintptr, UserGesture uintptr, Popupfeatures unsafe.Pointer, Windowinfo unsafe.Pointer, Client unsafe.Pointer, Settings unsafe.Pointer, ExtraInfo unsafe.Pointer, NoJavascriptAccess unsafe.Pointer) uintptr {
 	if v.OnBeforePopup == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforePopup, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforePopup, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), PopupID, uintptr(TargetURL), uintptr(TargetFrameName), TargetDisposition, UserGesture, uintptr(Popupfeatures), uintptr(Windowinfo), uintptr(Client), uintptr(Settings), uintptr(ExtraInfo), uintptr(NoJavascriptAccess))
 	return r1
 }
 
 func (v *CEFLifeSpanHandlerT) OverrideOnBeforePopupAborted(fn uintptr) { v.OnBeforePopupAborted = fn }
 
-func (v *CEFLifeSpanHandlerT) CallOnBeforePopupAborted(args ...uintptr) uintptr {
+func (v *CEFLifeSpanHandlerT) CallOnBeforePopupAborted(Browser unsafe.Pointer, PopupID uintptr) uintptr {
 	if v.OnBeforePopupAborted == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforePopupAborted, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforePopupAborted, uintptr(unsafe.Pointer(v)), uintptr(Browser), PopupID)
 	return r1
 }
 
 func (v *CEFLifeSpanHandlerT) OverrideOnBeforeDevToolsPopup(fn uintptr) { v.OnBeforeDevToolsPopup = fn }
 
-func (v *CEFLifeSpanHandlerT) CallOnBeforeDevToolsPopup(args ...uintptr) uintptr {
+func (v *CEFLifeSpanHandlerT) CallOnBeforeDevToolsPopup(Browser unsafe.Pointer, Windowinfo unsafe.Pointer, Client unsafe.Pointer, Settings unsafe.Pointer, ExtraInfo unsafe.Pointer, UseDefaultWindow unsafe.Pointer) uintptr {
 	if v.OnBeforeDevToolsPopup == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforeDevToolsPopup, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforeDevToolsPopup, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Windowinfo), uintptr(Client), uintptr(Settings), uintptr(ExtraInfo), uintptr(UseDefaultWindow))
 	return r1
 }
 
 func (v *CEFLifeSpanHandlerT) OverrideOnAfterCreated(fn uintptr) { v.OnAfterCreated = fn }
 
-func (v *CEFLifeSpanHandlerT) CallOnAfterCreated(args ...uintptr) uintptr {
+func (v *CEFLifeSpanHandlerT) CallOnAfterCreated(Browser unsafe.Pointer) uintptr {
 	if v.OnAfterCreated == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAfterCreated, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAfterCreated, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 
 func (v *CEFLifeSpanHandlerT) OverrideDoClose(fn uintptr) { v.DoClose = fn }
 
-func (v *CEFLifeSpanHandlerT) CallDoClose(args ...uintptr) uintptr {
+func (v *CEFLifeSpanHandlerT) CallDoClose(Browser unsafe.Pointer) uintptr {
 	if v.DoClose == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.DoClose, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.DoClose, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 
 func (v *CEFLifeSpanHandlerT) OverrideOnBeforeClose(fn uintptr) { v.OnBeforeClose = fn }
 
-func (v *CEFLifeSpanHandlerT) CallOnBeforeClose(args ...uintptr) uintptr {
+func (v *CEFLifeSpanHandlerT) CallOnBeforeClose(Browser unsafe.Pointer) uintptr {
 	if v.OnBeforeClose == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforeClose, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforeClose, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 

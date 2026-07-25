@@ -18,21 +18,21 @@ type CEFPrintDialogCallbackT struct {
 
 func (v *CEFPrintDialogCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFPrintDialogCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFPrintDialogCallbackT) CallCont(Settings unsafe.Pointer) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), uintptr(Settings))
 	return r1
 }
 
 func (v *CEFPrintDialogCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
-func (v *CEFPrintDialogCallbackT) CallCancel(args ...uintptr) uintptr {
+func (v *CEFPrintDialogCallbackT) CallCancel() uintptr {
 	if v.Cancel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cancel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -44,11 +44,11 @@ type CEFPrintJobCallbackT struct {
 
 func (v *CEFPrintJobCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFPrintJobCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFPrintJobCallbackT) CallCont() uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -65,61 +65,61 @@ type CEFPrintHandlerT struct {
 
 func (v *CEFPrintHandlerT) OverrideOnPrintStart(fn uintptr) { v.OnPrintStart = fn }
 
-func (v *CEFPrintHandlerT) CallOnPrintStart(args ...uintptr) uintptr {
+func (v *CEFPrintHandlerT) CallOnPrintStart(Browser unsafe.Pointer) uintptr {
 	if v.OnPrintStart == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPrintStart, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPrintStart, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 
 func (v *CEFPrintHandlerT) OverrideOnPrintSettings(fn uintptr) { v.OnPrintSettings = fn }
 
-func (v *CEFPrintHandlerT) CallOnPrintSettings(args ...uintptr) uintptr {
+func (v *CEFPrintHandlerT) CallOnPrintSettings(Browser unsafe.Pointer, Settings unsafe.Pointer, GetDefaults uintptr) uintptr {
 	if v.OnPrintSettings == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPrintSettings, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPrintSettings, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Settings), GetDefaults)
 	return r1
 }
 
 func (v *CEFPrintHandlerT) OverrideOnPrintDialog(fn uintptr) { v.OnPrintDialog = fn }
 
-func (v *CEFPrintHandlerT) CallOnPrintDialog(args ...uintptr) uintptr {
+func (v *CEFPrintHandlerT) CallOnPrintDialog(Browser unsafe.Pointer, HasSelection uintptr, Callback unsafe.Pointer) uintptr {
 	if v.OnPrintDialog == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPrintDialog, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPrintDialog, uintptr(unsafe.Pointer(v)), uintptr(Browser), HasSelection, uintptr(Callback))
 	return r1
 }
 
 func (v *CEFPrintHandlerT) OverrideOnPrintJob(fn uintptr) { v.OnPrintJob = fn }
 
-func (v *CEFPrintHandlerT) CallOnPrintJob(args ...uintptr) uintptr {
+func (v *CEFPrintHandlerT) CallOnPrintJob(Browser unsafe.Pointer, DocumentName unsafe.Pointer, PdfFilePath unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.OnPrintJob == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPrintJob, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPrintJob, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(DocumentName), uintptr(PdfFilePath), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFPrintHandlerT) OverrideOnPrintReset(fn uintptr) { v.OnPrintReset = fn }
 
-func (v *CEFPrintHandlerT) CallOnPrintReset(args ...uintptr) uintptr {
+func (v *CEFPrintHandlerT) CallOnPrintReset(Browser unsafe.Pointer) uintptr {
 	if v.OnPrintReset == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPrintReset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPrintReset, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 
 func (v *CEFPrintHandlerT) OverrideGetPdfPaperSize(fn uintptr) { v.GetPdfPaperSize = fn }
 
-func (v *CEFPrintHandlerT) CallGetPdfPaperSize(args ...uintptr) uintptr {
+func (v *CEFPrintHandlerT) CallGetPdfPaperSize(Browser unsafe.Pointer, DeviceUnitsPerInch uintptr) uintptr {
 	if v.GetPdfPaperSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPdfPaperSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPdfPaperSize, uintptr(unsafe.Pointer(v)), uintptr(Browser), DeviceUnitsPerInch)
 	return r1
 }
 

@@ -85,7 +85,7 @@ func (obj *serverImpl) SendHttp200Response(connectionID int32, contentType strin
 	rawPtr := obj.rawPtr
 	contentTypeStr := cefString(contentType)
 	defer freeCefString(&contentTypeStr)
-	rawPtr.CallSendHttp200Response(uintptr(connectionID), uintptr(unsafe.Pointer(&contentTypeStr)), uintptr(data), uintptr(dataSize))
+	rawPtr.CallSendHttp200Response(uintptr(connectionID), unsafe.Pointer(&contentTypeStr), data, uintptr(dataSize))
 }
 
 func (obj *serverImpl) SendHttp404Response(connectionID int32) {
@@ -103,7 +103,7 @@ func (obj *serverImpl) SendHttp500Response(connectionID int32, errorMessage stri
 	rawPtr := obj.rawPtr
 	errorMessageStr := cefString(errorMessage)
 	defer freeCefString(&errorMessageStr)
-	rawPtr.CallSendHttp500Response(uintptr(connectionID), uintptr(unsafe.Pointer(&errorMessageStr)))
+	rawPtr.CallSendHttp500Response(uintptr(connectionID), unsafe.Pointer(&errorMessageStr))
 }
 
 func (obj *serverImpl) SendHttpResponse(connectionID int32, responseCode int32, contentType string, contentLength int64, extraHeaders StringMultimap) {
@@ -124,7 +124,7 @@ func (obj *serverImpl) SendRawData(connectionID int32, data unsafe.Pointer, data
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSendRawData(uintptr(connectionID), uintptr(data), uintptr(dataSize))
+	rawPtr.CallSendRawData(uintptr(connectionID), data, uintptr(dataSize))
 }
 
 func (obj *serverImpl) CloseConnection(connectionID int32) {
@@ -140,7 +140,7 @@ func (obj *serverImpl) SendWebSocketMessage(connectionID int32, data unsafe.Poin
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSendWebSocketMessage(uintptr(connectionID), uintptr(data), uintptr(dataSize))
+	rawPtr.CallSendWebSocketMessage(uintptr(connectionID), data, uintptr(dataSize))
 }
 
 func (obj *serverImpl) RawPointer() unsafe.Pointer {
@@ -362,7 +362,7 @@ func (obj *serverHandlerImpl) OnServerCreated(server Server) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnServerCreated(uintptr(extractRawPointer(server)))
+	rawPtr.CallOnServerCreated(extractRawPointer(server))
 }
 
 func (obj *serverHandlerImpl) OnServerDestroyed(server Server) {
@@ -370,7 +370,7 @@ func (obj *serverHandlerImpl) OnServerDestroyed(server Server) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnServerDestroyed(uintptr(extractRawPointer(server)))
+	rawPtr.CallOnServerDestroyed(extractRawPointer(server))
 }
 
 func (obj *serverHandlerImpl) OnClientConnected(server Server, connectionID int32) {
@@ -378,7 +378,7 @@ func (obj *serverHandlerImpl) OnClientConnected(server Server, connectionID int3
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnClientConnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
+	rawPtr.CallOnClientConnected(extractRawPointer(server), uintptr(connectionID))
 }
 
 func (obj *serverHandlerImpl) OnClientDisconnected(server Server, connectionID int32) {
@@ -386,7 +386,7 @@ func (obj *serverHandlerImpl) OnClientDisconnected(server Server, connectionID i
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnClientDisconnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
+	rawPtr.CallOnClientDisconnected(extractRawPointer(server), uintptr(connectionID))
 }
 
 func (obj *serverHandlerImpl) OnHttpRequest(server Server, connectionID int32, clientAddress string, request Request) {
@@ -396,7 +396,7 @@ func (obj *serverHandlerImpl) OnHttpRequest(server Server, connectionID int32, c
 	rawPtr := obj.rawPtr
 	clientAddressStr := cefString(clientAddress)
 	defer freeCefString(&clientAddressStr)
-	rawPtr.CallOnHttpRequest(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(unsafe.Pointer(&clientAddressStr)), uintptr(extractRawPointer(request)))
+	rawPtr.CallOnHttpRequest(extractRawPointer(server), uintptr(connectionID), unsafe.Pointer(&clientAddressStr), extractRawPointer(request))
 }
 
 func (obj *serverHandlerImpl) OnWebSocketRequest(server Server, connectionID int32, clientAddress string, request Request, callback Callback) {
@@ -406,7 +406,7 @@ func (obj *serverHandlerImpl) OnWebSocketRequest(server Server, connectionID int
 	rawPtr := obj.rawPtr
 	clientAddressStr := cefString(clientAddress)
 	defer freeCefString(&clientAddressStr)
-	rawPtr.CallOnWebSocketRequest(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(unsafe.Pointer(&clientAddressStr)), uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
+	rawPtr.CallOnWebSocketRequest(extractRawPointer(server), uintptr(connectionID), unsafe.Pointer(&clientAddressStr), extractRawPointer(request), extractRawPointer(callback))
 }
 
 func (obj *serverHandlerImpl) OnWebSocketConnected(server Server, connectionID int32) {
@@ -414,7 +414,7 @@ func (obj *serverHandlerImpl) OnWebSocketConnected(server Server, connectionID i
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWebSocketConnected(uintptr(extractRawPointer(server)), uintptr(connectionID))
+	rawPtr.CallOnWebSocketConnected(extractRawPointer(server), uintptr(connectionID))
 }
 
 func (obj *serverHandlerImpl) OnWebSocketMessage(server Server, connectionID int32, data unsafe.Pointer, dataSize int) {
@@ -422,7 +422,7 @@ func (obj *serverHandlerImpl) OnWebSocketMessage(server Server, connectionID int
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWebSocketMessage(uintptr(extractRawPointer(server)), uintptr(connectionID), uintptr(data), uintptr(dataSize))
+	rawPtr.CallOnWebSocketMessage(extractRawPointer(server), uintptr(connectionID), data, uintptr(dataSize))
 }
 
 func (obj *serverHandlerImpl) RawPointer() unsafe.Pointer {

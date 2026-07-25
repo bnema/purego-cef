@@ -127,7 +127,7 @@ func (obj *taskRunnerImpl) IsSame(that TaskRunner) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(uintptr(extractRawPointer(that)))
+	ret := rawPtr.CallIsSame(extractRawPointer(that))
 	return ret != 0
 }
 
@@ -154,7 +154,7 @@ func (obj *taskRunnerImpl) PostTask(task Task) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallPostTask(uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })))
+	ret := rawPtr.CallPostTask(extractOrWrapRawPointer(task, func() any { return NewTask(task) }))
 	return int32(ret)
 }
 

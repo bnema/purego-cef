@@ -271,7 +271,7 @@ func (obj *urlrequestClientImpl) OnRequestComplete(request Urlrequest) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRequestComplete(uintptr(extractRawPointer(request)))
+	rawPtr.CallOnRequestComplete(extractRawPointer(request))
 }
 
 func (obj *urlrequestClientImpl) OnUploadProgress(request Urlrequest, current int64, total int64) {
@@ -301,7 +301,7 @@ func (obj *urlrequestClientImpl) OnDownloadData(request Urlrequest, data unsafe.
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDownloadData(uintptr(extractRawPointer(request)), uintptr(data), uintptr(dataLength))
+	rawPtr.CallOnDownloadData(extractRawPointer(request), data, uintptr(dataLength))
 }
 
 func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, port int32, realm string, scheme string, callback AuthCallback) int32 {
@@ -315,7 +315,7 @@ func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, 
 	defer freeCefString(&realmStr)
 	schemeStr := cefString(scheme)
 	defer freeCefString(&schemeStr)
-	ret := rawPtr.CallGetAuthCredentials(uintptr(isproxy), uintptr(unsafe.Pointer(&hostStr)), uintptr(port), uintptr(unsafe.Pointer(&realmStr)), uintptr(unsafe.Pointer(&schemeStr)), uintptr(extractRawPointer(callback)))
+	ret := rawPtr.CallGetAuthCredentials(uintptr(isproxy), unsafe.Pointer(&hostStr), uintptr(port), unsafe.Pointer(&realmStr), unsafe.Pointer(&schemeStr), extractRawPointer(callback))
 	return int32(ret)
 }
 

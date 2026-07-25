@@ -141,7 +141,7 @@ func (obj *frameHandlerImpl) OnFrameCreated(browser Browser, frame Frame) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFrameCreated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	rawPtr.CallOnFrameCreated(extractRawPointer(browser), extractRawPointer(frame))
 }
 
 func (obj *frameHandlerImpl) OnFrameDestroyed(browser Browser, frame Frame) {
@@ -149,7 +149,7 @@ func (obj *frameHandlerImpl) OnFrameDestroyed(browser Browser, frame Frame) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFrameDestroyed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	rawPtr.CallOnFrameDestroyed(extractRawPointer(browser), extractRawPointer(frame))
 }
 
 func (obj *frameHandlerImpl) OnFrameAttached(browser Browser, frame Frame, reattached int32) {
@@ -157,7 +157,7 @@ func (obj *frameHandlerImpl) OnFrameAttached(browser Browser, frame Frame, reatt
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFrameAttached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(reattached))
+	rawPtr.CallOnFrameAttached(extractRawPointer(browser), extractRawPointer(frame), uintptr(reattached))
 }
 
 func (obj *frameHandlerImpl) OnFrameDetached(browser Browser, frame Frame) {
@@ -165,7 +165,7 @@ func (obj *frameHandlerImpl) OnFrameDetached(browser Browser, frame Frame) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFrameDetached(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	rawPtr.CallOnFrameDetached(extractRawPointer(browser), extractRawPointer(frame))
 }
 
 func (obj *frameHandlerImpl) OnMainFrameChanged(browser Browser, oldFrame Frame, newFrame Frame) {
@@ -173,7 +173,7 @@ func (obj *frameHandlerImpl) OnMainFrameChanged(browser Browser, oldFrame Frame,
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnMainFrameChanged(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(oldFrame)), uintptr(extractRawPointer(newFrame)))
+	rawPtr.CallOnMainFrameChanged(extractRawPointer(browser), extractRawPointer(oldFrame), extractRawPointer(newFrame))
 }
 
 func (obj *frameHandlerImpl) RawPointer() unsafe.Pointer {

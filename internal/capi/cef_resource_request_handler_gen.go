@@ -26,11 +26,11 @@ func (v *CEFResourceRequestHandlerT) OverrideGetCookieAccessFilter(fn uintptr) {
 	v.GetCookieAccessFilter = fn
 }
 
-func (v *CEFResourceRequestHandlerT) CallGetCookieAccessFilter(args ...uintptr) uintptr {
+func (v *CEFResourceRequestHandlerT) CallGetCookieAccessFilter(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer) uintptr {
 	if v.GetCookieAccessFilter == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCookieAccessFilter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCookieAccessFilter, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request))
 	return r1
 }
 
@@ -38,11 +38,11 @@ func (v *CEFResourceRequestHandlerT) OverrideOnBeforeResourceLoad(fn uintptr) {
 	v.OnBeforeResourceLoad = fn
 }
 
-func (v *CEFResourceRequestHandlerT) CallOnBeforeResourceLoad(args ...uintptr) uintptr {
+func (v *CEFResourceRequestHandlerT) CallOnBeforeResourceLoad(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.OnBeforeResourceLoad == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnBeforeResourceLoad, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnBeforeResourceLoad, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), uintptr(Callback))
 	return r1
 }
 
@@ -50,11 +50,11 @@ func (v *CEFResourceRequestHandlerT) OverrideGetResourceHandler(fn uintptr) {
 	v.GetResourceHandler = fn
 }
 
-func (v *CEFResourceRequestHandlerT) CallGetResourceHandler(args ...uintptr) uintptr {
+func (v *CEFResourceRequestHandlerT) CallGetResourceHandler(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer) uintptr {
 	if v.GetResourceHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetResourceHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetResourceHandler, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request))
 	return r1
 }
 
@@ -62,11 +62,11 @@ func (v *CEFResourceRequestHandlerT) OverrideOnResourceRedirect(fn uintptr) {
 	v.OnResourceRedirect = fn
 }
 
-func (v *CEFResourceRequestHandlerT) CallOnResourceRedirect(args ...uintptr) uintptr {
+func (v *CEFResourceRequestHandlerT) CallOnResourceRedirect(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, Response unsafe.Pointer, NewURL unsafe.Pointer) uintptr {
 	if v.OnResourceRedirect == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnResourceRedirect, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnResourceRedirect, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), uintptr(Response), uintptr(NewURL))
 	return r1
 }
 
@@ -74,11 +74,11 @@ func (v *CEFResourceRequestHandlerT) OverrideOnResourceResponse(fn uintptr) {
 	v.OnResourceResponse = fn
 }
 
-func (v *CEFResourceRequestHandlerT) CallOnResourceResponse(args ...uintptr) uintptr {
+func (v *CEFResourceRequestHandlerT) CallOnResourceResponse(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, Response unsafe.Pointer) uintptr {
 	if v.OnResourceResponse == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnResourceResponse, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnResourceResponse, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), uintptr(Response))
 	return r1
 }
 
@@ -86,11 +86,11 @@ func (v *CEFResourceRequestHandlerT) OverrideGetResourceResponseFilter(fn uintpt
 	v.GetResourceResponseFilter = fn
 }
 
-func (v *CEFResourceRequestHandlerT) CallGetResourceResponseFilter(args ...uintptr) uintptr {
+func (v *CEFResourceRequestHandlerT) CallGetResourceResponseFilter(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, Response unsafe.Pointer) uintptr {
 	if v.GetResourceResponseFilter == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetResourceResponseFilter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetResourceResponseFilter, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), uintptr(Response))
 	return r1
 }
 
@@ -98,11 +98,11 @@ func (v *CEFResourceRequestHandlerT) OverrideOnResourceLoadComplete(fn uintptr) 
 	v.OnResourceLoadComplete = fn
 }
 
-func (v *CEFResourceRequestHandlerT) CallOnResourceLoadComplete(args ...uintptr) uintptr {
+func (v *CEFResourceRequestHandlerT) CallOnResourceLoadComplete(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, Response unsafe.Pointer, Status uintptr, ReceivedContentLength uintptr) uintptr {
 	if v.OnResourceLoadComplete == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnResourceLoadComplete, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnResourceLoadComplete, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), uintptr(Response), Status, ReceivedContentLength)
 	return r1
 }
 
@@ -110,11 +110,11 @@ func (v *CEFResourceRequestHandlerT) OverrideOnProtocolExecution(fn uintptr) {
 	v.OnProtocolExecution = fn
 }
 
-func (v *CEFResourceRequestHandlerT) CallOnProtocolExecution(args ...uintptr) uintptr {
+func (v *CEFResourceRequestHandlerT) CallOnProtocolExecution(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, AllowOsExecution unsafe.Pointer) uintptr {
 	if v.OnProtocolExecution == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnProtocolExecution, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnProtocolExecution, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), uintptr(AllowOsExecution))
 	return r1
 }
 
@@ -127,21 +127,21 @@ type CEFCookieAccessFilterT struct {
 
 func (v *CEFCookieAccessFilterT) OverrideCanSendCookie(fn uintptr) { v.CanSendCookie = fn }
 
-func (v *CEFCookieAccessFilterT) CallCanSendCookie(args ...uintptr) uintptr {
+func (v *CEFCookieAccessFilterT) CallCanSendCookie(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, Cookie unsafe.Pointer) uintptr {
 	if v.CanSendCookie == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CanSendCookie, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CanSendCookie, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), uintptr(Cookie))
 	return r1
 }
 
 func (v *CEFCookieAccessFilterT) OverrideCanSaveCookie(fn uintptr) { v.CanSaveCookie = fn }
 
-func (v *CEFCookieAccessFilterT) CallCanSaveCookie(args ...uintptr) uintptr {
+func (v *CEFCookieAccessFilterT) CallCanSaveCookie(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, Response unsafe.Pointer, Cookie unsafe.Pointer) uintptr {
 	if v.CanSaveCookie == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CanSaveCookie, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CanSaveCookie, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), uintptr(Response), uintptr(Cookie))
 	return r1
 }
 

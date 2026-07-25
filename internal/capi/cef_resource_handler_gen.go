@@ -17,11 +17,11 @@ type CEFResourceSkipCallbackT struct {
 
 func (v *CEFResourceSkipCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFResourceSkipCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFResourceSkipCallbackT) CallCont(BytesSkipped uintptr) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), BytesSkipped)
 	return r1
 }
 
@@ -33,11 +33,11 @@ type CEFResourceReadCallbackT struct {
 
 func (v *CEFResourceReadCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFResourceReadCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFResourceReadCallbackT) CallCont(BytesRead uintptr) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), BytesRead)
 	return r1
 }
 
@@ -55,71 +55,71 @@ type CEFResourceHandlerT struct {
 
 func (v *CEFResourceHandlerT) OverrideOpen(fn uintptr) { v.Open = fn }
 
-func (v *CEFResourceHandlerT) CallOpen(args ...uintptr) uintptr {
+func (v *CEFResourceHandlerT) CallOpen(Request unsafe.Pointer, HandleRequest unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.Open == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Open, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Open, uintptr(unsafe.Pointer(v)), uintptr(Request), uintptr(HandleRequest), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFResourceHandlerT) OverrideProcessRequest(fn uintptr) { v.ProcessRequest = fn }
 
-func (v *CEFResourceHandlerT) CallProcessRequest(args ...uintptr) uintptr {
+func (v *CEFResourceHandlerT) CallProcessRequest(Request unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.ProcessRequest == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ProcessRequest, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ProcessRequest, uintptr(unsafe.Pointer(v)), uintptr(Request), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFResourceHandlerT) OverrideGetResponseHeaders(fn uintptr) { v.GetResponseHeaders = fn }
 
-func (v *CEFResourceHandlerT) CallGetResponseHeaders(args ...uintptr) uintptr {
+func (v *CEFResourceHandlerT) CallGetResponseHeaders(Response unsafe.Pointer, ResponseLength unsafe.Pointer, Redirecturl unsafe.Pointer) uintptr {
 	if v.GetResponseHeaders == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetResponseHeaders, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetResponseHeaders, uintptr(unsafe.Pointer(v)), uintptr(Response), uintptr(ResponseLength), uintptr(Redirecturl))
 	return r1
 }
 
 func (v *CEFResourceHandlerT) OverrideSkip(fn uintptr) { v.Skip = fn }
 
-func (v *CEFResourceHandlerT) CallSkip(args ...uintptr) uintptr {
+func (v *CEFResourceHandlerT) CallSkip(BytesToSkip uintptr, BytesSkipped unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.Skip == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Skip, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Skip, uintptr(unsafe.Pointer(v)), BytesToSkip, uintptr(BytesSkipped), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFResourceHandlerT) OverrideRead(fn uintptr) { v.Read = fn }
 
-func (v *CEFResourceHandlerT) CallRead(args ...uintptr) uintptr {
+func (v *CEFResourceHandlerT) CallRead(DataOut unsafe.Pointer, BytesToRead uintptr, BytesRead unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.Read == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Read, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Read, uintptr(unsafe.Pointer(v)), uintptr(DataOut), BytesToRead, uintptr(BytesRead), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFResourceHandlerT) OverrideReadResponse(fn uintptr) { v.ReadResponse = fn }
 
-func (v *CEFResourceHandlerT) CallReadResponse(args ...uintptr) uintptr {
+func (v *CEFResourceHandlerT) CallReadResponse(DataOut unsafe.Pointer, BytesToRead uintptr, BytesRead unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.ReadResponse == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ReadResponse, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ReadResponse, uintptr(unsafe.Pointer(v)), uintptr(DataOut), BytesToRead, uintptr(BytesRead), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFResourceHandlerT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
-func (v *CEFResourceHandlerT) CallCancel(args ...uintptr) uintptr {
+func (v *CEFResourceHandlerT) CallCancel() uintptr {
 	if v.Cancel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cancel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

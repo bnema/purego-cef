@@ -129,7 +129,7 @@ func (obj *loadHandlerImpl) OnLoadingStateChange(browser Browser, isloading int3
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnLoadingStateChange(uintptr(extractRawPointer(browser)), uintptr(isloading), uintptr(cangoback), uintptr(cangoforward))
+	rawPtr.CallOnLoadingStateChange(extractRawPointer(browser), uintptr(isloading), uintptr(cangoback), uintptr(cangoforward))
 }
 
 func (obj *loadHandlerImpl) OnLoadStart(browser Browser, frame Frame, transitionType TransitionType) {
@@ -137,7 +137,7 @@ func (obj *loadHandlerImpl) OnLoadStart(browser Browser, frame Frame, transition
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnLoadStart(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(transitionType))
+	rawPtr.CallOnLoadStart(extractRawPointer(browser), extractRawPointer(frame), uintptr(transitionType))
 }
 
 func (obj *loadHandlerImpl) OnLoadEnd(browser Browser, frame Frame, httpstatuscode int32) {
@@ -145,7 +145,7 @@ func (obj *loadHandlerImpl) OnLoadEnd(browser Browser, frame Frame, httpstatusco
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnLoadEnd(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(httpstatuscode))
+	rawPtr.CallOnLoadEnd(extractRawPointer(browser), extractRawPointer(frame), uintptr(httpstatuscode))
 }
 
 func (obj *loadHandlerImpl) OnLoadError(browser Browser, frame Frame, errorcode Errorcode, errortext string, failedurl string) {
@@ -157,7 +157,7 @@ func (obj *loadHandlerImpl) OnLoadError(browser Browser, frame Frame, errorcode 
 	defer freeCefString(&errortextStr)
 	failedurlStr := cefString(failedurl)
 	defer freeCefString(&failedurlStr)
-	rawPtr.CallOnLoadError(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(errorcode), uintptr(unsafe.Pointer(&errortextStr)), uintptr(unsafe.Pointer(&failedurlStr)))
+	rawPtr.CallOnLoadError(extractRawPointer(browser), extractRawPointer(frame), uintptr(errorcode), unsafe.Pointer(&errortextStr), unsafe.Pointer(&failedurlStr))
 }
 
 func (obj *loadHandlerImpl) RawPointer() unsafe.Pointer {

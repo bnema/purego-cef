@@ -143,7 +143,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsMessage(browser Browser, messa
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnDevToolsMessage(uintptr(extractRawPointer(browser)), uintptr(message), uintptr(messageSize))
+	ret := rawPtr.CallOnDevToolsMessage(extractRawPointer(browser), message, uintptr(messageSize))
 	return int32(ret)
 }
 
@@ -152,7 +152,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsMethodResult(browser Browser, 
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDevToolsMethodResult(uintptr(extractRawPointer(browser)), uintptr(messageID), uintptr(success), uintptr(result), uintptr(resultSize))
+	rawPtr.CallOnDevToolsMethodResult(extractRawPointer(browser), uintptr(messageID), uintptr(success), result, uintptr(resultSize))
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsEvent(browser Browser, method string, params unsafe.Pointer, paramsSize int) {
@@ -162,7 +162,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsEvent(browser Browser, method 
 	rawPtr := obj.rawPtr
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
-	rawPtr.CallOnDevToolsEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&methodStr)), uintptr(params), uintptr(paramsSize))
+	rawPtr.CallOnDevToolsEvent(extractRawPointer(browser), unsafe.Pointer(&methodStr), params, uintptr(paramsSize))
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentAttached(browser Browser) {
@@ -170,7 +170,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsAgentAttached(browser Browser)
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDevToolsAgentAttached(uintptr(extractRawPointer(browser)))
+	rawPtr.CallOnDevToolsAgentAttached(extractRawPointer(browser))
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentDetached(browser Browser) {
@@ -178,7 +178,7 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsAgentDetached(browser Browser)
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDevToolsAgentDetached(uintptr(extractRawPointer(browser)))
+	rawPtr.CallOnDevToolsAgentDetached(extractRawPointer(browser))
 }
 
 func (obj *devToolsMessageObserverImpl) RawPointer() unsafe.Pointer {

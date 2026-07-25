@@ -43,271 +43,271 @@ type CEFDragDataT struct {
 
 func (v *CEFDragDataT) OverrideClone(fn uintptr) { v.Clone = fn }
 
-func (v *CEFDragDataT) CallClone(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallClone() uintptr {
 	if v.Clone == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Clone, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Clone, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
-func (v *CEFDragDataT) CallIsReadOnly(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallIsReadOnly() uintptr {
 	if v.IsReadOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsReadOnly, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideIsLink(fn uintptr) { v.IsLink = fn }
 
-func (v *CEFDragDataT) CallIsLink(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallIsLink() uintptr {
 	if v.IsLink == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsLink, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsLink, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideIsFragment(fn uintptr) { v.IsFragment = fn }
 
-func (v *CEFDragDataT) CallIsFragment(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallIsFragment() uintptr {
 	if v.IsFragment == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsFragment, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsFragment, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideIsFile(fn uintptr) { v.IsFile = fn }
 
-func (v *CEFDragDataT) CallIsFile(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallIsFile() uintptr {
 	if v.IsFile == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsFile, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetLinkURL(fn uintptr) { v.GetLinkURL = fn }
 
-func (v *CEFDragDataT) CallGetLinkURL(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetLinkURL() uintptr {
 	if v.GetLinkURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetLinkURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetLinkURL, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetLinkTitle(fn uintptr) { v.GetLinkTitle = fn }
 
-func (v *CEFDragDataT) CallGetLinkTitle(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetLinkTitle() uintptr {
 	if v.GetLinkTitle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetLinkTitle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetLinkTitle, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetLinkMetadata(fn uintptr) { v.GetLinkMetadata = fn }
 
-func (v *CEFDragDataT) CallGetLinkMetadata(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetLinkMetadata() uintptr {
 	if v.GetLinkMetadata == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetLinkMetadata, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetLinkMetadata, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetFragmentText(fn uintptr) { v.GetFragmentText = fn }
 
-func (v *CEFDragDataT) CallGetFragmentText(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetFragmentText() uintptr {
 	if v.GetFragmentText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFragmentText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFragmentText, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetFragmentHtml(fn uintptr) { v.GetFragmentHtml = fn }
 
-func (v *CEFDragDataT) CallGetFragmentHtml(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetFragmentHtml() uintptr {
 	if v.GetFragmentHtml == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFragmentHtml, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFragmentHtml, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetFragmentBaseURL(fn uintptr) { v.GetFragmentBaseURL = fn }
 
-func (v *CEFDragDataT) CallGetFragmentBaseURL(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetFragmentBaseURL() uintptr {
 	if v.GetFragmentBaseURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFragmentBaseURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFragmentBaseURL, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetFileName(fn uintptr) { v.GetFileName = fn }
 
-func (v *CEFDragDataT) CallGetFileName(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetFileName() uintptr {
 	if v.GetFileName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFileName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFileName, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetFileContents(fn uintptr) { v.GetFileContents = fn }
 
-func (v *CEFDragDataT) CallGetFileContents(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetFileContents(Writer unsafe.Pointer) uintptr {
 	if v.GetFileContents == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFileContents, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFileContents, uintptr(unsafe.Pointer(v)), uintptr(Writer))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetFileNames(fn uintptr) { v.GetFileNames = fn }
 
-func (v *CEFDragDataT) CallGetFileNames(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetFileNames(Names uintptr) uintptr {
 	if v.GetFileNames == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFileNames, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFileNames, uintptr(unsafe.Pointer(v)), Names)
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetFilePaths(fn uintptr) { v.GetFilePaths = fn }
 
-func (v *CEFDragDataT) CallGetFilePaths(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetFilePaths(Paths uintptr) uintptr {
 	if v.GetFilePaths == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFilePaths, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFilePaths, uintptr(unsafe.Pointer(v)), Paths)
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideSetLinkURL(fn uintptr) { v.SetLinkURL = fn }
 
-func (v *CEFDragDataT) CallSetLinkURL(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallSetLinkURL(URL unsafe.Pointer) uintptr {
 	if v.SetLinkURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetLinkURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetLinkURL, uintptr(unsafe.Pointer(v)), uintptr(URL))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideSetLinkTitle(fn uintptr) { v.SetLinkTitle = fn }
 
-func (v *CEFDragDataT) CallSetLinkTitle(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallSetLinkTitle(Title unsafe.Pointer) uintptr {
 	if v.SetLinkTitle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetLinkTitle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetLinkTitle, uintptr(unsafe.Pointer(v)), uintptr(Title))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideSetLinkMetadata(fn uintptr) { v.SetLinkMetadata = fn }
 
-func (v *CEFDragDataT) CallSetLinkMetadata(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallSetLinkMetadata(Data unsafe.Pointer) uintptr {
 	if v.SetLinkMetadata == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetLinkMetadata, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetLinkMetadata, uintptr(unsafe.Pointer(v)), uintptr(Data))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideSetFragmentText(fn uintptr) { v.SetFragmentText = fn }
 
-func (v *CEFDragDataT) CallSetFragmentText(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallSetFragmentText(Text unsafe.Pointer) uintptr {
 	if v.SetFragmentText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetFragmentText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetFragmentText, uintptr(unsafe.Pointer(v)), uintptr(Text))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideSetFragmentHtml(fn uintptr) { v.SetFragmentHtml = fn }
 
-func (v *CEFDragDataT) CallSetFragmentHtml(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallSetFragmentHtml(Html unsafe.Pointer) uintptr {
 	if v.SetFragmentHtml == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetFragmentHtml, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetFragmentHtml, uintptr(unsafe.Pointer(v)), uintptr(Html))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideSetFragmentBaseURL(fn uintptr) { v.SetFragmentBaseURL = fn }
 
-func (v *CEFDragDataT) CallSetFragmentBaseURL(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallSetFragmentBaseURL(BaseURL unsafe.Pointer) uintptr {
 	if v.SetFragmentBaseURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetFragmentBaseURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetFragmentBaseURL, uintptr(unsafe.Pointer(v)), uintptr(BaseURL))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideResetFileContents(fn uintptr) { v.ResetFileContents = fn }
 
-func (v *CEFDragDataT) CallResetFileContents(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallResetFileContents() uintptr {
 	if v.ResetFileContents == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ResetFileContents, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ResetFileContents, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideAddFile(fn uintptr) { v.AddFile = fn }
 
-func (v *CEFDragDataT) CallAddFile(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallAddFile(Path unsafe.Pointer, DisplayName unsafe.Pointer) uintptr {
 	if v.AddFile == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddFile, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddFile, uintptr(unsafe.Pointer(v)), uintptr(Path), uintptr(DisplayName))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideClearFilenames(fn uintptr) { v.ClearFilenames = fn }
 
-func (v *CEFDragDataT) CallClearFilenames(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallClearFilenames() uintptr {
 	if v.ClearFilenames == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ClearFilenames, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ClearFilenames, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetImage(fn uintptr) { v.GetImage = fn }
 
-func (v *CEFDragDataT) CallGetImage(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetImage() uintptr {
 	if v.GetImage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetImage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetImage, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideGetImageHotspot(fn uintptr) { v.GetImageHotspot = fn }
 
-func (v *CEFDragDataT) CallGetImageHotspot(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallGetImageHotspot() uintptr {
 	if v.GetImageHotspot == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetImageHotspot, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetImageHotspot, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDragDataT) OverrideHasImage(fn uintptr) { v.HasImage = fn }
 
-func (v *CEFDragDataT) CallHasImage(args ...uintptr) uintptr {
+func (v *CEFDragDataT) CallHasImage() uintptr {
 	if v.HasImage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasImage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasImage, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
