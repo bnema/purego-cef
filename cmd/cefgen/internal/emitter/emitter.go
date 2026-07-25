@@ -47,11 +47,17 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			return "take" + typeName
 		}
 	}
-	interfaceRawPointerExpr := func(p ParamData) string {
+	interfaceRawPointerBaseExpr := func(p ParamData) string {
 		if p.IsHandler {
 			return "extractOrWrapRawPointer(" + p.Name + ", func() any { return " + constructorName(p.PublicType) + "(" + p.Name + ") })"
 		}
 		return "extractRawPointer(" + p.Name + ")"
+	}
+	interfaceRawPointerExpr := func(p ParamData) string {
+		if p.IsRefCountedTransfer {
+			return p.Name + "Ptr"
+		}
+		return interfaceRawPointerBaseExpr(p)
 	}
 	marshalNonFloatAsUintptr := func(p ParamData) string {
 		switch p.MarshalKind {
@@ -158,6 +164,23 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				}
 			}
 			return sig
+		},
+		"refCountedTransferPointerExpr": interfaceRawPointerBaseExpr,
+		"hasRefCountedParamTransfers": func(params []ParamData) bool {
+			for _, p := range params {
+				if p.IsRefCountedTransfer {
+					return true
+				}
+			}
+			return false
+		},
+		"hasRefCountedTransfers": func(m MethodData) bool {
+			for _, p := range m.Params {
+				if p.IsRefCountedTransfer {
+					return true
+				}
+			}
+			return false
 		},
 		"typedObjectCallArgs": func(m MethodData) string {
 			args := []string{"rawPtr"}

@@ -91,7 +91,13 @@ func (obj *v8ContextImpl) IsSame(that V8Context) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -238,6 +244,9 @@ func (obj *v8HandlerImpl) Execute(name string, object V8Value, arguments []V8Val
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.Execute == 0 {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
 	var argumentsRaw []uintptr
@@ -249,7 +258,14 @@ func (obj *v8HandlerImpl) Execute(name string, object V8Value, arguments []V8Val
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	ret := rawPtr.CallExecute(unsafe.Pointer(&nameStr), extractRawPointer(object), uintptr(len(arguments)), argumentsPtr, retval, unsafe.Pointer(exception))
+	objectPtr := extractRawPointer(object)
+	transferRef(objectPtr)
+	for _, ptr := range argumentsRaw {
+		transferRef(unsafe.Pointer(ptr))
+	}
+	ret := rawPtr.CallExecute(unsafe.Pointer(&nameStr), objectPtr, uintptr(len(arguments)), argumentsPtr, retval, unsafe.Pointer(exception))
+	runtime.KeepAlive(object)
+	runtime.KeepAlive(arguments)
 	return int32(ret)
 }
 
@@ -370,9 +386,15 @@ func (obj *v8AccessorImpl) Get(name string, object V8Value, retval unsafe.Pointe
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.Get == 0 {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallGet(unsafe.Pointer(&nameStr), extractRawPointer(object), retval, unsafe.Pointer(exception))
+	objectPtr := extractRawPointer(object)
+	transferRef(objectPtr)
+	ret := rawPtr.CallGet(unsafe.Pointer(&nameStr), objectPtr, retval, unsafe.Pointer(exception))
+	runtime.KeepAlive(object)
 	return int32(ret)
 }
 
@@ -381,9 +403,18 @@ func (obj *v8AccessorImpl) Set(name string, object V8Value, value V8Value, excep
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.Set == 0 {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallSet(unsafe.Pointer(&nameStr), extractRawPointer(object), extractRawPointer(value), unsafe.Pointer(exception))
+	objectPtr := extractRawPointer(object)
+	transferRef(objectPtr)
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSet(unsafe.Pointer(&nameStr), objectPtr, valuePtr, unsafe.Pointer(exception))
+	runtime.KeepAlive(object)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -542,9 +573,15 @@ func (obj *v8InterceptorImpl) GetByname(name string, object V8Value, retval unsa
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.GetByname == 0 {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallGetByname(unsafe.Pointer(&nameStr), extractRawPointer(object), retval, unsafe.Pointer(exception))
+	objectPtr := extractRawPointer(object)
+	transferRef(objectPtr)
+	ret := rawPtr.CallGetByname(unsafe.Pointer(&nameStr), objectPtr, retval, unsafe.Pointer(exception))
+	runtime.KeepAlive(object)
 	return int32(ret)
 }
 
@@ -553,7 +590,13 @@ func (obj *v8InterceptorImpl) GetByindex(index int32, object V8Value, retval uns
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetByindex(uintptr(index), extractRawPointer(object), retval, unsafe.Pointer(exception))
+	if rawPtr.GetByindex == 0 {
+		return 0
+	}
+	objectPtr := extractRawPointer(object)
+	transferRef(objectPtr)
+	ret := rawPtr.CallGetByindex(uintptr(index), objectPtr, retval, unsafe.Pointer(exception))
+	runtime.KeepAlive(object)
 	return int32(ret)
 }
 
@@ -562,9 +605,18 @@ func (obj *v8InterceptorImpl) SetByname(name string, object V8Value, value V8Val
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.SetByname == 0 {
+		return 0
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallSetByname(unsafe.Pointer(&nameStr), extractRawPointer(object), extractRawPointer(value), unsafe.Pointer(exception))
+	objectPtr := extractRawPointer(object)
+	transferRef(objectPtr)
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetByname(unsafe.Pointer(&nameStr), objectPtr, valuePtr, unsafe.Pointer(exception))
+	runtime.KeepAlive(object)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -573,7 +625,16 @@ func (obj *v8InterceptorImpl) SetByindex(index int32, object V8Value, value V8Va
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetByindex(uintptr(index), extractRawPointer(object), extractRawPointer(value), unsafe.Pointer(exception))
+	if rawPtr.SetByindex == 0 {
+		return 0
+	}
+	objectPtr := extractRawPointer(object)
+	transferRef(objectPtr)
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetByindex(uintptr(index), objectPtr, valuePtr, unsafe.Pointer(exception))
+	runtime.KeepAlive(object)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -1062,7 +1123,13 @@ func (obj *v8ValueImpl) IsSame(that V8Value) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -1242,9 +1309,15 @@ func (obj *v8ValueImpl) SetValueBykey(key string, value V8Value, attribute V8Pro
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.SetValueBykey == 0 {
+		return 0
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallSetValueBykey(unsafe.Pointer(&keyStr), extractRawPointer(value), uintptr(attribute))
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetValueBykey(unsafe.Pointer(&keyStr), valuePtr, uintptr(attribute))
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -1253,7 +1326,13 @@ func (obj *v8ValueImpl) SetValueByindex(index int32, value V8Value) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetValueByindex(uintptr(index), extractRawPointer(value))
+	if rawPtr.SetValueByindex == 0 {
+		return 0
+	}
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetValueByindex(uintptr(index), valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -1381,6 +1460,9 @@ func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8V
 		return nil
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.ExecuteFunction == 0 {
+		return nil
+	}
 	var argumentsRaw []uintptr
 	var argumentsPtr unsafe.Pointer
 	if len(arguments) > 0 {
@@ -1390,7 +1472,14 @@ func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8V
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	ret := rawPtr.CallExecuteFunction(extractRawPointer(object), uintptr(len(arguments)), argumentsPtr)
+	objectPtr := extractRawPointer(object)
+	transferRef(objectPtr)
+	for _, ptr := range argumentsRaw {
+		transferRef(unsafe.Pointer(ptr))
+	}
+	ret := rawPtr.CallExecuteFunction(objectPtr, uintptr(len(arguments)), argumentsPtr)
+	runtime.KeepAlive(object)
+	runtime.KeepAlive(arguments)
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1399,6 +1488,9 @@ func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8V
 		return nil
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.ExecuteFunctionWithContext == 0 {
+		return nil
+	}
 	var argumentsRaw []uintptr
 	var argumentsPtr unsafe.Pointer
 	if len(arguments) > 0 {
@@ -1408,7 +1500,17 @@ func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8V
 		}
 		argumentsPtr = unsafe.Pointer(&argumentsRaw[0])
 	}
-	ret := rawPtr.CallExecuteFunctionWithContext(extractRawPointer(context), extractRawPointer(object), uintptr(len(arguments)), argumentsPtr)
+	contextPtr := extractRawPointer(context)
+	transferRef(contextPtr)
+	objectPtr := extractRawPointer(object)
+	transferRef(objectPtr)
+	for _, ptr := range argumentsRaw {
+		transferRef(unsafe.Pointer(ptr))
+	}
+	ret := rawPtr.CallExecuteFunctionWithContext(contextPtr, objectPtr, uintptr(len(arguments)), argumentsPtr)
+	runtime.KeepAlive(context)
+	runtime.KeepAlive(object)
+	runtime.KeepAlive(arguments)
 	return wrapV8Value(unsafe.Pointer(ret))
 }
 
@@ -1417,7 +1519,13 @@ func (obj *v8ValueImpl) ResolvePromise(arg V8Value) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallResolvePromise(extractRawPointer(arg))
+	if rawPtr.ResolvePromise == 0 {
+		return 0
+	}
+	argPtr := extractRawPointer(arg)
+	transferRef(argPtr)
+	ret := rawPtr.CallResolvePromise(argPtr)
+	runtime.KeepAlive(arg)
 	return int32(ret)
 }
 
@@ -1760,7 +1868,16 @@ func V8ValueCreateString(value string) V8Value {
 
 // V8ValueCreateObject wraps the CEF CEFV8ValueCreateObject function.
 func V8ValueCreateObject(accessor V8Accessor, interceptor V8Interceptor) V8Value {
-	ret := capi.CEFV8ValueCreateObject(extractOrWrapRawPointer(accessor, func() any { return NewV8Accessor(accessor) }), extractOrWrapRawPointer(interceptor, func() any { return NewV8Interceptor(interceptor) }))
+	if capi.CEFV8ValueCreateObject == nil {
+		return nil
+	}
+	accessorPtr := extractOrWrapRawPointer(accessor, func() any { return NewV8Accessor(accessor) })
+	transferRef(accessorPtr)
+	interceptorPtr := extractOrWrapRawPointer(interceptor, func() any { return NewV8Interceptor(interceptor) })
+	transferRef(interceptorPtr)
+	ret := capi.CEFV8ValueCreateObject(accessorPtr, interceptorPtr)
+	runtime.KeepAlive(accessor)
+	runtime.KeepAlive(interceptor)
 	return takeV8Value(ret)
 }
 
@@ -1772,10 +1889,16 @@ func V8ValueCreateArray(length int32) V8Value {
 
 // V8ValueCreateArrayBuffer Create a new cef_v8_value_t object of type ArrayBuffer which wraps the provided |buffer| of size |length| bytes. The ArrayBuffer is externalized, meaning that it does not own |buffer|. The caller is responsible for freeing |buffer| when requested via a call to cef_v8_array_buffer_release_callback_t::ReleaseBuffer. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference. NOTE: Always returns nullptr when V8 sandbox is enabled.
 func V8ValueCreateArrayBuffer(buffer unsafe.Pointer, length int, releaseCallback V8ArrayBufferReleaseCallback) V8Value {
+	if capi.CEFV8ValueCreateArrayBuffer == nil {
+		return nil
+	}
 	if length < 0 {
 		return nil
 	}
-	ret := capi.CEFV8ValueCreateArrayBuffer(buffer, uintptr(length), extractOrWrapRawPointer(releaseCallback, func() any { return NewV8ArrayBufferReleaseCallback(releaseCallback) }))
+	releaseCallbackPtr := extractOrWrapRawPointer(releaseCallback, func() any { return NewV8ArrayBufferReleaseCallback(releaseCallback) })
+	transferRef(releaseCallbackPtr)
+	ret := capi.CEFV8ValueCreateArrayBuffer(buffer, uintptr(length), releaseCallbackPtr)
+	runtime.KeepAlive(releaseCallback)
 	return takeV8Value(ret)
 }
 
@@ -1790,15 +1913,27 @@ func V8ValueCreateArrayBufferWithCopy(buffer unsafe.Pointer, length int) V8Value
 
 // V8ValueCreateArrayBufferFromBackingStore wraps the CEF CEFV8ValueCreateArrayBufferFromBackingStore function.
 func V8ValueCreateArrayBufferFromBackingStore(backingStore V8BackingStore) V8Value {
-	ret := capi.CEFV8ValueCreateArrayBufferFromBackingStore(extractRawPointer(backingStore))
+	if capi.CEFV8ValueCreateArrayBufferFromBackingStore == nil {
+		return nil
+	}
+	backingStorePtr := extractRawPointer(backingStore)
+	transferRef(backingStorePtr)
+	ret := capi.CEFV8ValueCreateArrayBufferFromBackingStore(backingStorePtr)
+	runtime.KeepAlive(backingStore)
 	return takeV8Value(ret)
 }
 
 // V8ValueCreateFunction Create a new cef_v8_value_t object of type function. This function should only be called from within the scope of a cef_render_process_handler_t, cef_v8_handler_t or cef_v8_accessor_t callback, or in combination with calling enter() and exit() on a stored cef_v8_context_t reference.
 func V8ValueCreateFunction(name string, handler V8Handler) V8Value {
+	if capi.CEFV8ValueCreateFunction == nil {
+		return nil
+	}
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := capi.CEFV8ValueCreateFunction(unsafe.Pointer(&nameStr), extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) }))
+	handlerPtr := extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) })
+	transferRef(handlerPtr)
+	ret := capi.CEFV8ValueCreateFunction(unsafe.Pointer(&nameStr), handlerPtr)
+	runtime.KeepAlive(handler)
 	return takeV8Value(ret)
 }
 
@@ -1816,10 +1951,16 @@ func V8StackTraceGetCurrent(frameLimit int32) V8StackTrace {
 
 // RegisterExtension Register a new V8 extension with the specified JavaScript extension code and handler. Functions implemented by the handler are prototyped using the keyword 'native'. The calling of a native function is restricted to the scope in which the prototype of the native function is defined. This function may only be called on the render process main thread. Example JavaScript extension code: <pre>   // create the 'example' global object if it doesn't already exist.   if (!example)     example = {};   // create the 'example.test' global object if it doesn't already exist.   if (!example.test)     example.test = {};   (function() {     // Define the function 'example.test.myfunction'.     example.test.myfunction = function() {       // Call CefV8Handler::Execute() with the function name 'MyFunction'       // and no arguments.       native function MyFunction();       return MyFunction();     };     // Define the getter function for parameter 'example.test.myparam'.     example.test.__defineGetter__('myparam', function() {       // Call CefV8Handler::Execute() with the function name 'GetMyParam'       // and no arguments.       native function GetMyParam();       return GetMyParam();     });     // Define the setter function for parameter 'example.test.myparam'.     example.test.__defineSetter__('myparam', function(b) {       // Call CefV8Handler::Execute() with the function name 'SetMyParam'       // and a single argument.       native function SetMyParam();       if(b) SetMyParam(b);     });     // Extension definitions can also contain normal JavaScript variables     // and functions.     var myint = 0;     example.test.increment = function() {       myint += 1;       return myint;     };   })(); </pre> Example usage in the page: <pre>   // Call the function.   example.test.myfunction();   // Set the parameter.   example.test.myparam = value;   // Get the parameter.   value = example.test.myparam;   // Call another function.   example.test.increment(); </pre>
 func RegisterExtension(extensionName string, javascriptCode string, handler V8Handler) int32 {
+	if capi.CEFRegisterExtension == nil {
+		return 0
+	}
 	extensionNameStr := cefString(extensionName)
 	defer freeCefString(&extensionNameStr)
 	javascriptCodeStr := cefString(javascriptCode)
 	defer freeCefString(&javascriptCodeStr)
-	ret := capi.CEFRegisterExtension(unsafe.Pointer(&extensionNameStr), unsafe.Pointer(&javascriptCodeStr), extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) }))
+	handlerPtr := extractOrWrapRawPointer(handler, func() any { return NewV8Handler(handler) })
+	transferRef(handlerPtr)
+	ret := capi.CEFRegisterExtension(unsafe.Pointer(&extensionNameStr), unsafe.Pointer(&javascriptCodeStr), handlerPtr)
+	runtime.KeepAlive(handler)
 	return int32(ret)
 }

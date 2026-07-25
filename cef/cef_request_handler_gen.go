@@ -28,7 +28,13 @@ func (obj *selectClientCertificateCallbackImpl) Select(cert X509Certificate) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSelect(extractRawPointer(cert))
+	if rawPtr.Select == 0 {
+		return
+	}
+	certPtr := extractRawPointer(cert)
+	transferRef(certPtr)
+	rawPtr.CallSelect(certPtr)
+	runtime.KeepAlive(cert)
 }
 
 func (obj *selectClientCertificateCallbackImpl) RawPointer() unsafe.Pointer {
@@ -335,7 +341,19 @@ func (obj *requestHandlerImpl) OnBeforeBrowse(browser Browser, frame Frame, requ
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnBeforeBrowse(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), uintptr(userGesture), uintptr(isRedirect))
+	if rawPtr.OnBeforeBrowse == 0 {
+		return false
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	ret := rawPtr.CallOnBeforeBrowse(browserPtr, framePtr, requestPtr, uintptr(userGesture), uintptr(isRedirect))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(request)
 	return ret != 0
 }
 
@@ -344,9 +362,18 @@ func (obj *requestHandlerImpl) OnOpenUrlfromTab(browser Browser, frame Frame, ta
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnOpenUrlfromTab == 0 {
+		return 0
+	}
 	targetURLStr := cefString(targetURL)
 	defer freeCefString(&targetURLStr)
-	ret := rawPtr.CallOnOpenUrlfromTab(extractRawPointer(browser), extractRawPointer(frame), unsafe.Pointer(&targetURLStr), uintptr(targetDisposition), uintptr(userGesture))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	ret := rawPtr.CallOnOpenUrlfromTab(browserPtr, framePtr, unsafe.Pointer(&targetURLStr), uintptr(targetDisposition), uintptr(userGesture))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
 	return int32(ret)
 }
 
@@ -355,9 +382,21 @@ func (obj *requestHandlerImpl) GetResourceRequestHandler(browser Browser, frame 
 		return nil
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.GetResourceRequestHandler == 0 {
+		return nil
+	}
 	requestInitiatorStr := cefString(requestInitiator)
 	defer freeCefString(&requestInitiatorStr)
-	ret := rawPtr.CallGetResourceRequestHandler(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(request), uintptr(isNavigation), uintptr(isDownload), unsafe.Pointer(&requestInitiatorStr), unsafe.Pointer(disableDefaultHandling))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	ret := rawPtr.CallGetResourceRequestHandler(browserPtr, framePtr, requestPtr, uintptr(isNavigation), uintptr(isDownload), unsafe.Pointer(&requestInitiatorStr), unsafe.Pointer(disableDefaultHandling))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(request)
 	return wrapResourceRequestHandler(unsafe.Pointer(ret))
 }
 
@@ -366,6 +405,9 @@ func (obj *requestHandlerImpl) GetAuthCredentials(browser Browser, originURL str
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.GetAuthCredentials == 0 {
+		return 0
+	}
 	originURLStr := cefString(originURL)
 	defer freeCefString(&originURLStr)
 	hostStr := cefString(host)
@@ -374,7 +416,13 @@ func (obj *requestHandlerImpl) GetAuthCredentials(browser Browser, originURL str
 	defer freeCefString(&realmStr)
 	schemeStr := cefString(scheme)
 	defer freeCefString(&schemeStr)
-	ret := rawPtr.CallGetAuthCredentials(extractRawPointer(browser), unsafe.Pointer(&originURLStr), uintptr(isproxy), unsafe.Pointer(&hostStr), uintptr(port), unsafe.Pointer(&realmStr), unsafe.Pointer(&schemeStr), extractRawPointer(callback))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallGetAuthCredentials(browserPtr, unsafe.Pointer(&originURLStr), uintptr(isproxy), unsafe.Pointer(&hostStr), uintptr(port), unsafe.Pointer(&realmStr), unsafe.Pointer(&schemeStr), callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -383,9 +431,21 @@ func (obj *requestHandlerImpl) OnCertificateError(browser Browser, certError Err
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnCertificateError == 0 {
+		return 0
+	}
 	requestURLStr := cefString(requestURL)
 	defer freeCefString(&requestURLStr)
-	ret := rawPtr.CallOnCertificateError(extractRawPointer(browser), uintptr(certError), unsafe.Pointer(&requestURLStr), extractRawPointer(sslInfo), extractRawPointer(callback))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	sslInfoPtr := extractRawPointer(sslInfo)
+	transferRef(sslInfoPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallOnCertificateError(browserPtr, uintptr(certError), unsafe.Pointer(&requestURLStr), sslInfoPtr, callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(sslInfo)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -394,6 +454,9 @@ func (obj *requestHandlerImpl) OnSelectClientCertificate(browser Browser, isprox
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnSelectClientCertificate == 0 {
+		return 0
+	}
 	hostStr := cefString(host)
 	defer freeCefString(&hostStr)
 	var certificatesRaw []uintptr
@@ -405,7 +468,17 @@ func (obj *requestHandlerImpl) OnSelectClientCertificate(browser Browser, isprox
 		}
 		certificatesPtr = unsafe.Pointer(&certificatesRaw[0])
 	}
-	ret := rawPtr.CallOnSelectClientCertificate(extractRawPointer(browser), uintptr(isproxy), unsafe.Pointer(&hostStr), uintptr(port), uintptr(len(certificates)), certificatesPtr, extractRawPointer(callback))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	for _, ptr := range certificatesRaw {
+		transferRef(unsafe.Pointer(ptr))
+	}
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallOnSelectClientCertificate(browserPtr, uintptr(isproxy), unsafe.Pointer(&hostStr), uintptr(port), uintptr(len(certificates)), certificatesPtr, callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(certificates)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -414,7 +487,13 @@ func (obj *requestHandlerImpl) OnRenderViewReady(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRenderViewReady(extractRawPointer(browser))
+	if rawPtr.OnRenderViewReady == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnRenderViewReady(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *requestHandlerImpl) OnRenderProcessUnresponsive(browser Browser, callback UnresponsiveProcessCallback) int32 {
@@ -422,7 +501,16 @@ func (obj *requestHandlerImpl) OnRenderProcessUnresponsive(browser Browser, call
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnRenderProcessUnresponsive(extractRawPointer(browser), extractRawPointer(callback))
+	if rawPtr.OnRenderProcessUnresponsive == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallOnRenderProcessUnresponsive(browserPtr, callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -431,7 +519,13 @@ func (obj *requestHandlerImpl) OnRenderProcessResponsive(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRenderProcessResponsive(extractRawPointer(browser))
+	if rawPtr.OnRenderProcessResponsive == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnRenderProcessResponsive(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *requestHandlerImpl) OnRenderProcessTerminated(browser Browser, status TerminationStatus, errorCode int32, errorString string) {
@@ -439,9 +533,15 @@ func (obj *requestHandlerImpl) OnRenderProcessTerminated(browser Browser, status
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnRenderProcessTerminated == 0 {
+		return
+	}
 	errorStringStr := cefString(errorString)
 	defer freeCefString(&errorStringStr)
-	rawPtr.CallOnRenderProcessTerminated(extractRawPointer(browser), uintptr(status), uintptr(errorCode), unsafe.Pointer(&errorStringStr))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnRenderProcessTerminated(browserPtr, uintptr(status), uintptr(errorCode), unsafe.Pointer(&errorStringStr))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *requestHandlerImpl) OnDocumentAvailableInMainFrame(browser Browser) {
@@ -449,7 +549,13 @@ func (obj *requestHandlerImpl) OnDocumentAvailableInMainFrame(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDocumentAvailableInMainFrame(extractRawPointer(browser))
+	if rawPtr.OnDocumentAvailableInMainFrame == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnDocumentAvailableInMainFrame(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *requestHandlerImpl) RawPointer() unsafe.Pointer {

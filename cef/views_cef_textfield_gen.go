@@ -287,6 +287,12 @@ func takeTextfield(ptr unsafe.Pointer) Textfield {
 
 // TextfieldCreate Create a new Textfield.
 func TextfieldCreate(delegate TextfieldDelegate) Textfield {
-	ret := capi.CEFTextfieldCreate(extractOrWrapRawPointer(delegate, func() any { return NewTextfieldDelegate(delegate) }))
+	if capi.CEFTextfieldCreate == nil {
+		return nil
+	}
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewTextfieldDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFTextfieldCreate(delegatePtr)
+	runtime.KeepAlive(delegate)
 	return takeTextfield(ret)
 }

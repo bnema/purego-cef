@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -115,6 +116,12 @@ func ParseJsonandReturnError(jsonString string, options JsonParserOptions, error
 
 // WriteJson Generates a JSON string from the specified root |node| which should be a dictionary or list value. Returns an NULL string on failure. This function requires exclusive access to |node| including any underlying data.
 func WriteJson(node Value, options JsonWriterOptions) string {
-	ret := capi.CEFWriteJson(extractRawPointer(node), capi.CEFJsonWriterOptionsT(options))
+	if capi.CEFWriteJson == nil {
+		return ""
+	}
+	nodePtr := extractRawPointer(node)
+	transferRef(nodePtr)
+	ret := capi.CEFWriteJson(nodePtr, capi.CEFJsonWriterOptionsT(options))
+	runtime.KeepAlive(node)
 	return goStringUserfree(unsafe.Pointer(ret))
 }

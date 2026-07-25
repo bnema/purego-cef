@@ -234,9 +234,21 @@ func (obj *permissionHandlerImpl) OnRequestMediaAccessPermission(browser Browser
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnRequestMediaAccessPermission == 0 {
+		return 0
+	}
 	requestingOriginStr := cefString(requestingOrigin)
 	defer freeCefString(&requestingOriginStr)
-	ret := rawPtr.CallOnRequestMediaAccessPermission(extractRawPointer(browser), extractRawPointer(frame), unsafe.Pointer(&requestingOriginStr), uintptr(requestedPermissions), extractRawPointer(callback))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallOnRequestMediaAccessPermission(browserPtr, framePtr, unsafe.Pointer(&requestingOriginStr), uintptr(requestedPermissions), callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -245,12 +257,21 @@ func (obj *permissionHandlerImpl) OnShowPermissionPrompt(browser Browser, prompt
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnShowPermissionPrompt == 0 {
+		return 0
+	}
 	requestingOriginStr := cefString(requestingOrigin)
 	defer freeCefString(&requestingOriginStr)
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
 	obj.onShowPermissionPromptOnce.Do(func() {
 		registerTypedCallback(&obj.onShowPermissionPromptFunc, rawPtr.OnShowPermissionPrompt)
 	})
-	ret := obj.onShowPermissionPromptFunc(rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(extractRawPointer(callback)))
+	ret := obj.onShowPermissionPromptFunc(rawPtr, uintptr(browserPtr), promptID, uintptr(unsafe.Pointer(&requestingOriginStr)), uintptr(requestedPermissions), uintptr(callbackPtr))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -259,10 +280,16 @@ func (obj *permissionHandlerImpl) OnDismissPermissionPrompt(browser Browser, pro
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnDismissPermissionPrompt == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
 	obj.onDismissPermissionPromptOnce.Do(func() {
 		registerTypedCallback(&obj.onDismissPermissionPromptFunc, rawPtr.OnDismissPermissionPrompt)
 	})
-	obj.onDismissPermissionPromptFunc(rawPtr, uintptr(extractRawPointer(browser)), promptID, uintptr(result))
+	obj.onDismissPermissionPromptFunc(rawPtr, uintptr(browserPtr), promptID, uintptr(result))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *permissionHandlerImpl) RawPointer() unsafe.Pointer {

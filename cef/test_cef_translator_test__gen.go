@@ -346,7 +346,13 @@ func (obj *translatorTestImpl) SetRefPtrLibrary(val TranslatorTestRefPtrLibrary)
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetRefPtrLibrary(extractRawPointer(val))
+	if rawPtr.SetRefPtrLibrary == 0 {
+		return 0
+	}
+	valPtr := extractRawPointer(val)
+	transferRef(valPtr)
+	ret := rawPtr.CallSetRefPtrLibrary(valPtr)
+	runtime.KeepAlive(val)
 	return int32(ret)
 }
 
@@ -355,7 +361,13 @@ func (obj *translatorTestImpl) SetRefPtrLibraryAndReturn(val TranslatorTestRefPt
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetRefPtrLibraryAndReturn(extractRawPointer(val))
+	if rawPtr.SetRefPtrLibraryAndReturn == 0 {
+		return nil
+	}
+	valPtr := extractRawPointer(val)
+	transferRef(valPtr)
+	ret := rawPtr.CallSetRefPtrLibraryAndReturn(valPtr)
+	runtime.KeepAlive(val)
 	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
@@ -364,7 +376,13 @@ func (obj *translatorTestImpl) SetChildRefPtrLibrary(val TranslatorTestRefPtrLib
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildRefPtrLibrary(extractRawPointer(val))
+	if rawPtr.SetChildRefPtrLibrary == 0 {
+		return 0
+	}
+	valPtr := extractRawPointer(val)
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildRefPtrLibrary(valPtr)
+	runtime.KeepAlive(val)
 	return int32(ret)
 }
 
@@ -373,7 +391,13 @@ func (obj *translatorTestImpl) SetChildRefPtrLibraryAndReturnParent(val Translat
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildRefPtrLibraryAndReturnParent(extractRawPointer(val))
+	if rawPtr.SetChildRefPtrLibraryAndReturnParent == 0 {
+		return nil
+	}
+	valPtr := extractRawPointer(val)
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildRefPtrLibraryAndReturnParent(valPtr)
+	runtime.KeepAlive(val)
 	return wrapTranslatorTestRefPtrLibrary(unsafe.Pointer(ret))
 }
 
@@ -431,7 +455,13 @@ func (obj *translatorTestImpl) SetRefPtrClient(val TranslatorTestRefPtrClient) i
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetRefPtrClient(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClient(val) }))
+	if rawPtr.SetRefPtrClient == 0 {
+		return 0
+	}
+	valPtr := extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClient(val) })
+	transferRef(valPtr)
+	ret := rawPtr.CallSetRefPtrClient(valPtr)
+	runtime.KeepAlive(val)
 	return int32(ret)
 }
 
@@ -440,7 +470,13 @@ func (obj *translatorTestImpl) SetRefPtrClientAndReturn(val TranslatorTestRefPtr
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetRefPtrClientAndReturn(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClient(val) }))
+	if rawPtr.SetRefPtrClientAndReturn == 0 {
+		return nil
+	}
+	valPtr := extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClient(val) })
+	transferRef(valPtr)
+	ret := rawPtr.CallSetRefPtrClientAndReturn(valPtr)
+	runtime.KeepAlive(val)
 	return wrapTranslatorTestRefPtrClient(unsafe.Pointer(ret))
 }
 
@@ -449,7 +485,13 @@ func (obj *translatorTestImpl) SetChildRefPtrClient(val TranslatorTestRefPtrClie
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildRefPtrClient(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClientChild(val) }))
+	if rawPtr.SetChildRefPtrClient == 0 {
+		return 0
+	}
+	valPtr := extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClientChild(val) })
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildRefPtrClient(valPtr)
+	runtime.KeepAlive(val)
 	return int32(ret)
 }
 
@@ -458,7 +500,13 @@ func (obj *translatorTestImpl) SetChildRefPtrClientAndReturnParent(val Translato
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildRefPtrClientAndReturnParent(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClientChild(val) }))
+	if rawPtr.SetChildRefPtrClientAndReturnParent == 0 {
+		return nil
+	}
+	valPtr := extractOrWrapRawPointer(val, func() any { return NewTranslatorTestRefPtrClientChild(val) })
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildRefPtrClientAndReturnParent(valPtr)
+	runtime.KeepAlive(val)
 	return wrapTranslatorTestRefPtrClient(unsafe.Pointer(ret))
 }
 
@@ -476,6 +524,9 @@ func (obj *translatorTestImpl) GetRefPtrClientListByRef(valcount *int, val []Tra
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.GetRefPtrClientListByRef == 0 {
+		return 0
+	}
 	var valRaw []uintptr
 	var valPtr unsafe.Pointer
 	valCountPtr := valcount
@@ -489,7 +540,13 @@ func (obj *translatorTestImpl) GetRefPtrClientListByRef(valcount *int, val []Tra
 		valRaw = make([]uintptr, len(val))
 		valPtr = unsafe.Pointer(&valRaw[0])
 	}
-	ret := rawPtr.CallGetRefPtrClientListByRef(unsafe.Pointer(valCountPtr), valPtr, extractOrWrapRawPointer(val1, func() any { return NewTranslatorTestRefPtrClient(val1) }), extractOrWrapRawPointer(val2, func() any { return NewTranslatorTestRefPtrClient(val2) }))
+	val1Ptr := extractOrWrapRawPointer(val1, func() any { return NewTranslatorTestRefPtrClient(val1) })
+	transferRef(val1Ptr)
+	val2Ptr := extractOrWrapRawPointer(val2, func() any { return NewTranslatorTestRefPtrClient(val2) })
+	transferRef(val2Ptr)
+	ret := rawPtr.CallGetRefPtrClientListByRef(unsafe.Pointer(valCountPtr), valPtr, val1Ptr, val2Ptr)
+	runtime.KeepAlive(val1)
+	runtime.KeepAlive(val2)
 	if len(val) > 0 {
 		n := len(val)
 		if *valCountPtr < n {
@@ -543,7 +600,13 @@ func (obj *translatorTestImpl) SetChildOwnPtrLibrary(val TranslatorTestScopedLib
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildOwnPtrLibrary(extractRawPointer(val))
+	if rawPtr.SetChildOwnPtrLibrary == 0 {
+		return 0
+	}
+	valPtr := extractRawPointer(val)
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildOwnPtrLibrary(valPtr)
+	runtime.KeepAlive(val)
 	return int32(ret)
 }
 
@@ -552,7 +615,13 @@ func (obj *translatorTestImpl) SetChildOwnPtrLibraryAndReturnParent(val Translat
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(extractRawPointer(val))
+	if rawPtr.SetChildOwnPtrLibraryAndReturnParent == 0 {
+		return nil
+	}
+	valPtr := extractRawPointer(val)
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildOwnPtrLibraryAndReturnParent(valPtr)
+	runtime.KeepAlive(val)
 	return wrapTranslatorTestScopedLibrary(unsafe.Pointer(ret))
 }
 
@@ -579,7 +648,13 @@ func (obj *translatorTestImpl) SetChildOwnPtrClient(val TranslatorTestScopedClie
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildOwnPtrClient(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClientChild(val) }))
+	if rawPtr.SetChildOwnPtrClient == 0 {
+		return 0
+	}
+	valPtr := extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClientChild(val) })
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildOwnPtrClient(valPtr)
+	runtime.KeepAlive(val)
 	return int32(ret)
 }
 
@@ -588,7 +663,13 @@ func (obj *translatorTestImpl) SetChildOwnPtrClientAndReturnParent(val Translato
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildOwnPtrClientAndReturnParent(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClientChild(val) }))
+	if rawPtr.SetChildOwnPtrClientAndReturnParent == 0 {
+		return nil
+	}
+	valPtr := extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClientChild(val) })
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildOwnPtrClientAndReturnParent(valPtr)
+	runtime.KeepAlive(val)
 	return wrapTranslatorTestScopedClient(unsafe.Pointer(ret))
 }
 
@@ -606,7 +687,13 @@ func (obj *translatorTestImpl) SetChildRawPtrLibrary(val TranslatorTestScopedLib
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildRawPtrLibrary(extractRawPointer(val))
+	if rawPtr.SetChildRawPtrLibrary == 0 {
+		return 0
+	}
+	valPtr := extractRawPointer(val)
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildRawPtrLibrary(valPtr)
+	runtime.KeepAlive(val)
 	return int32(ret)
 }
 
@@ -633,7 +720,13 @@ func (obj *translatorTestImpl) SetChildRawPtrClient(val TranslatorTestScopedClie
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetChildRawPtrClient(extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClientChild(val) }))
+	if rawPtr.SetChildRawPtrClient == 0 {
+		return 0
+	}
+	valPtr := extractOrWrapRawPointer(val, func() any { return NewTranslatorTestScopedClientChild(val) })
+	transferRef(valPtr)
+	ret := rawPtr.CallSetChildRawPtrClient(valPtr)
+	runtime.KeepAlive(val)
 	return int32(ret)
 }
 

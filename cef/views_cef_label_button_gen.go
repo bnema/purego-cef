@@ -56,7 +56,13 @@ func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetImage(uintptr(buttonState), extractRawPointer(image))
+	if rawPtr.SetImage == 0 {
+		return
+	}
+	imagePtr := extractRawPointer(image)
+	transferRef(imagePtr)
+	rawPtr.CallSetImage(uintptr(buttonState), imagePtr)
+	runtime.KeepAlive(image)
 }
 
 func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
@@ -169,8 +175,14 @@ func takeLabelButton(ptr unsafe.Pointer) LabelButton {
 
 // LabelButtonCreate Create a new LabelButton. A |delegate| must be provided to handle the button click. |text| will be shown on the LabelButton and used as the default accessible name.
 func LabelButtonCreate(delegate ButtonDelegate, text string) LabelButton {
+	if capi.CEFLabelButtonCreate == nil {
+		return nil
+	}
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	ret := capi.CEFLabelButtonCreate(extractOrWrapRawPointer(delegate, func() any { return NewButtonDelegate(delegate) }), unsafe.Pointer(&textStr))
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewButtonDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFLabelButtonCreate(delegatePtr, unsafe.Pointer(&textStr))
+	runtime.KeepAlive(delegate)
 	return takeLabelButton(ret)
 }

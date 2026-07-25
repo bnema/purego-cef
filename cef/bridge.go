@@ -610,6 +610,15 @@ func cefCallbackOwnerAs[T any](self uintptr) (T, bool) {
 	return zero, false
 }
 
+// transferRef adds the reference consumed by CEF when a ref-counted interface
+// is passed through a C API entry point. A nil pointer is a safe no-op.
+func transferRef(base unsafe.Pointer) {
+	if base == nil {
+		return
+	}
+	(*capi.CEFBaseRefCountedT)(base).CallAddRef()
+}
+
 // addRef increments the refcount for the object at base.
 func addRef(base unsafe.Pointer) {
 	if base == nil {

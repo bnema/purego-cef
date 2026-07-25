@@ -114,7 +114,13 @@ func (obj *requestImpl) SetPostData(postdata PostData) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetPostData(extractRawPointer(postdata))
+	if rawPtr.SetPostData == 0 {
+		return
+	}
+	postdataPtr := extractRawPointer(postdata)
+	transferRef(postdataPtr)
+	rawPtr.CallSetPostData(postdataPtr)
+	runtime.KeepAlive(postdata)
 }
 
 func (obj *requestImpl) GetHeaderMap(headermap StringMultimap) {
@@ -161,11 +167,17 @@ func (obj *requestImpl) Set(uRL string, method string, postdata PostData, header
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.Set == 0 {
+		return
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
-	rawPtr.CallSet(unsafe.Pointer(&uRLStr), unsafe.Pointer(&methodStr), extractRawPointer(postdata), uintptr(headermap))
+	postdataPtr := extractRawPointer(postdata)
+	transferRef(postdataPtr)
+	rawPtr.CallSet(unsafe.Pointer(&uRLStr), unsafe.Pointer(&methodStr), postdataPtr, uintptr(headermap))
+	runtime.KeepAlive(postdata)
 }
 
 func (obj *requestImpl) GetFlags() int32 {
@@ -356,7 +368,13 @@ func (obj *postDataImpl) RemoveElement(element PostDataElement) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallRemoveElement(extractRawPointer(element))
+	if rawPtr.RemoveElement == 0 {
+		return 0
+	}
+	elementPtr := extractRawPointer(element)
+	transferRef(elementPtr)
+	ret := rawPtr.CallRemoveElement(elementPtr)
+	runtime.KeepAlive(element)
 	return int32(ret)
 }
 
@@ -365,7 +383,13 @@ func (obj *postDataImpl) AddElement(element PostDataElement) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAddElement(extractRawPointer(element))
+	if rawPtr.AddElement == 0 {
+		return 0
+	}
+	elementPtr := extractRawPointer(element)
+	transferRef(elementPtr)
+	ret := rawPtr.CallAddElement(elementPtr)
+	runtime.KeepAlive(element)
 	return int32(ret)
 }
 

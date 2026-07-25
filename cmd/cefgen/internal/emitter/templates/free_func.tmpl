@@ -1,6 +1,11 @@
 {{define "free_func.tmpl"}}
 {{- if .Doc}}// {{.Name}} {{.Doc}}{{else}}// {{.Name}} wraps the CEF {{.RawGoName}} function.{{end}}
 func {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.PublicType}}{{end}}){{if not .Return.IsVoid}} {{.Return.PublicType}}{{end}} {
+	{{- if hasRefCountedParamTransfers .Params}}
+	if capi.{{.RawGoName}} == nil {
+		return{{if not .Return.IsVoid}} {{zeroReturn .Return}}{{end}}
+	}
+	{{- end}}
 	{{- range .Params}}{{if .NeedsSizeGuard}}
 	if {{.Name}} < 0 {
 		return{{if not $.Return.IsVoid}} {{zeroReturn $.Return}}{{end}}
@@ -9,13 +14,27 @@ func {{.Name}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.Name}} {{$p.Pub
 	{{- range .Params}}{{with marshalPreamble .}}
 	{{.}}
 	{{- end}}{{end}}
+	{{- range .Params}}{{if and .IsRefCountedTransfer (eq .MarshalKind "interface")}}
+	{{.Name}}Ptr := {{refCountedTransferPointerExpr .}}
+	transferRef({{.Name}}Ptr)
+	{{- else if and .IsRefCountedTransfer (eq .MarshalKind "objectSlice")}}
+	for _, ptr := range {{.Name}}Raw {
+		transferRef(unsafe.Pointer(ptr))
+	}
+	{{- end}}{{end}}
 	{{- if .Return.IsVoid}}
 	capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}})
+	{{- range .Params}}{{if .IsRefCountedTransfer}}
+	runtime.KeepAlive({{.Name}})
+	{{- end}}{{end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
 	{{- else}}
 	ret := capi.{{.RawGoName}}({{range $i, $p := .Params}}{{if $i}}, {{end}}{{marshalParamForRawFunc $p}}{{end}})
+	{{- range .Params}}{{if .IsRefCountedTransfer}}
+	runtime.KeepAlive({{.Name}})
+	{{- end}}{{end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}

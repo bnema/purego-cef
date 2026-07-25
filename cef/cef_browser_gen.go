@@ -122,7 +122,13 @@ func (obj *browserImpl) IsSame(that Browser) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -417,7 +423,13 @@ func (obj *navigationEntryVisitorImpl) Visit(entry NavigationEntry, current int3
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallVisit(extractRawPointer(entry), uintptr(current), uintptr(index), uintptr(total))
+	if rawPtr.Visit == 0 {
+		return 0
+	}
+	entryPtr := extractRawPointer(entry)
+	transferRef(entryPtr)
+	ret := rawPtr.CallVisit(entryPtr, uintptr(current), uintptr(index), uintptr(total))
+	runtime.KeepAlive(entry)
 	return int32(ret)
 }
 
@@ -619,9 +631,15 @@ func (obj *downloadImageCallbackImpl) OnDownloadImageFinished(imageURL string, h
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnDownloadImageFinished == 0 {
+		return
+	}
 	imageURLStr := cefString(imageURL)
 	defer freeCefString(&imageURLStr)
-	rawPtr.CallOnDownloadImageFinished(unsafe.Pointer(&imageURLStr), uintptr(httpStatusCode), extractRawPointer(image))
+	imagePtr := extractRawPointer(image)
+	transferRef(imagePtr)
+	rawPtr.CallOnDownloadImageFinished(unsafe.Pointer(&imageURLStr), uintptr(httpStatusCode), imagePtr)
+	runtime.KeepAlive(image)
 }
 
 func (obj *downloadImageCallbackImpl) RawPointer() unsafe.Pointer {
@@ -832,11 +850,17 @@ func (obj *browserHostImpl) RunFileDialog(mode FileDialogMode, title string, def
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.RunFileDialog == 0 {
+		return
+	}
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
 	defaultFilePathStr := cefString(defaultFilePath)
 	defer freeCefString(&defaultFilePathStr)
-	rawPtr.CallRunFileDialog(uintptr(mode), unsafe.Pointer(&titleStr), unsafe.Pointer(&defaultFilePathStr), uintptr(acceptFilters), extractOrWrapRawPointer(callback, func() any { return NewRunFileDialogCallback(callback) }))
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewRunFileDialogCallback(callback) })
+	transferRef(callbackPtr)
+	rawPtr.CallRunFileDialog(uintptr(mode), unsafe.Pointer(&titleStr), unsafe.Pointer(&defaultFilePathStr), uintptr(acceptFilters), callbackPtr)
+	runtime.KeepAlive(callback)
 }
 
 func (obj *browserHostImpl) StartDownload(uRL string) {
@@ -854,9 +878,15 @@ func (obj *browserHostImpl) DownloadImage(imageURL string, isFavicon int32, maxI
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.DownloadImage == 0 {
+		return
+	}
 	imageURLStr := cefString(imageURL)
 	defer freeCefString(&imageURLStr)
-	rawPtr.CallDownloadImage(unsafe.Pointer(&imageURLStr), uintptr(isFavicon), uintptr(maxImageSize), uintptr(bypassCache), extractOrWrapRawPointer(callback, func() any { return NewDownloadImageCallback(callback) }))
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewDownloadImageCallback(callback) })
+	transferRef(callbackPtr)
+	rawPtr.CallDownloadImage(unsafe.Pointer(&imageURLStr), uintptr(isFavicon), uintptr(maxImageSize), uintptr(bypassCache), callbackPtr)
+	runtime.KeepAlive(callback)
 }
 
 func (obj *browserHostImpl) Print() {
@@ -872,9 +902,15 @@ func (obj *browserHostImpl) PrintToPdf(path string, settings *PdfPrintSettings, 
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.PrintToPdf == 0 {
+		return
+	}
 	pathStr := cefString(path)
 	defer freeCefString(&pathStr)
-	rawPtr.CallPrintToPdf(unsafe.Pointer(&pathStr), unsafe.Pointer(settings), extractOrWrapRawPointer(callback, func() any { return NewPdfPrintCallback(callback) }))
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewPdfPrintCallback(callback) })
+	transferRef(callbackPtr)
+	rawPtr.CallPrintToPdf(unsafe.Pointer(&pathStr), unsafe.Pointer(settings), callbackPtr)
+	runtime.KeepAlive(callback)
 }
 
 func (obj *browserHostImpl) Find(searchtext string, forward int32, matchcase int32, findnext int32) {
@@ -900,7 +936,13 @@ func (obj *browserHostImpl) ShowDevTools(windowinfo *WindowInfo, client RawClien
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallShowDevTools(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return NewRawClient(client) }), unsafe.Pointer(settings), unsafe.Pointer(inspectElementAt))
+	if rawPtr.ShowDevTools == 0 {
+		return
+	}
+	clientPtr := extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })
+	transferRef(clientPtr)
+	rawPtr.CallShowDevTools(unsafe.Pointer(windowinfo), clientPtr, unsafe.Pointer(settings), unsafe.Pointer(inspectElementAt))
+	runtime.KeepAlive(client)
 }
 
 func (obj *browserHostImpl) CloseDevTools() {
@@ -934,9 +976,15 @@ func (obj *browserHostImpl) ExecuteDevToolsMethod(messageID int32, method string
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.ExecuteDevToolsMethod == 0 {
+		return 0
+	}
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
-	ret := rawPtr.CallExecuteDevToolsMethod(uintptr(messageID), unsafe.Pointer(&methodStr), extractRawPointer(params))
+	paramsPtr := extractRawPointer(params)
+	transferRef(paramsPtr)
+	ret := rawPtr.CallExecuteDevToolsMethod(uintptr(messageID), unsafe.Pointer(&methodStr), paramsPtr)
+	runtime.KeepAlive(params)
 	return int32(ret)
 }
 
@@ -945,7 +993,13 @@ func (obj *browserHostImpl) AddDevToolsMessageObserver(observer DevToolsMessageO
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAddDevToolsMessageObserver(extractOrWrapRawPointer(observer, func() any { return NewDevToolsMessageObserver(observer) }))
+	if rawPtr.AddDevToolsMessageObserver == 0 {
+		return nil
+	}
+	observerPtr := extractOrWrapRawPointer(observer, func() any { return NewDevToolsMessageObserver(observer) })
+	transferRef(observerPtr)
+	ret := rawPtr.CallAddDevToolsMessageObserver(observerPtr)
+	runtime.KeepAlive(observer)
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
@@ -954,7 +1008,13 @@ func (obj *browserHostImpl) GetNavigationEntries(visitor NavigationEntryVisitor,
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetNavigationEntries(extractOrWrapRawPointer(visitor, func() any { return NewNavigationEntryVisitor(visitor) }), uintptr(currentOnly))
+	if rawPtr.GetNavigationEntries == 0 {
+		return
+	}
+	visitorPtr := extractOrWrapRawPointer(visitor, func() any { return NewNavigationEntryVisitor(visitor) })
+	transferRef(visitorPtr)
+	rawPtr.CallGetNavigationEntries(visitorPtr, uintptr(currentOnly))
+	runtime.KeepAlive(visitor)
 }
 
 func (obj *browserHostImpl) ReplaceMisspelling(word string) {
@@ -1144,7 +1204,13 @@ func (obj *browserHostImpl) DragTargetDragEnter(dragData DragData, event *MouseE
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallDragTargetDragEnter(extractRawPointer(dragData), unsafe.Pointer(event), uintptr(allowedOps))
+	if rawPtr.DragTargetDragEnter == 0 {
+		return
+	}
+	dragDataPtr := extractRawPointer(dragData)
+	transferRef(dragDataPtr)
+	rawPtr.CallDragTargetDragEnter(dragDataPtr, unsafe.Pointer(event), uintptr(allowedOps))
+	runtime.KeepAlive(dragData)
 }
 
 func (obj *browserHostImpl) DragTargetDragOver(event *MouseEvent, allowedOps DragOperationsMask) {
@@ -1319,17 +1385,41 @@ func wrapBrowserHost(ptr unsafe.Pointer) BrowserHost {
 
 // BrowserHostCreateBrowser Create a new browser using the window parameters specified by |windowInfo|. All values will be copied internally and the actual window (if any) will be created on the UI thread. If |request_context| is NULL the global request context will be used. This function can be called on any browser process thread and will not block. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
 func BrowserHostCreateBrowser(windowinfo *WindowInfo, client RawClient, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) int32 {
+	if capi.CEFBrowserHostCreateBrowser == nil {
+		return 0
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	ret := capi.CEFBrowserHostCreateBrowser(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return NewRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
+	clientPtr := extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })
+	transferRef(clientPtr)
+	extraInfoPtr := extractRawPointer(extraInfo)
+	transferRef(extraInfoPtr)
+	requestContextPtr := extractRawPointer(requestContext)
+	transferRef(requestContextPtr)
+	ret := capi.CEFBrowserHostCreateBrowser(unsafe.Pointer(windowinfo), clientPtr, unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extraInfoPtr, requestContextPtr)
+	runtime.KeepAlive(client)
+	runtime.KeepAlive(extraInfo)
+	runtime.KeepAlive(requestContext)
 	return int32(ret)
 }
 
 // BrowserHostCreateBrowserSync Create a new browser using the window parameters specified by |windowInfo|. If |request_context| is NULL the global request context will be used. This function can only be called on the browser process UI thread. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
 func BrowserHostCreateBrowserSync(windowinfo *WindowInfo, client RawClient, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext) Browser {
+	if capi.CEFBrowserHostCreateBrowserSync == nil {
+		return nil
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	ret := capi.CEFBrowserHostCreateBrowserSync(unsafe.Pointer(windowinfo), extractOrWrapRawPointer(client, func() any { return NewRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext))
+	clientPtr := extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })
+	transferRef(clientPtr)
+	extraInfoPtr := extractRawPointer(extraInfo)
+	transferRef(extraInfoPtr)
+	requestContextPtr := extractRawPointer(requestContext)
+	transferRef(requestContextPtr)
+	ret := capi.CEFBrowserHostCreateBrowserSync(unsafe.Pointer(windowinfo), clientPtr, unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extraInfoPtr, requestContextPtr)
+	runtime.KeepAlive(client)
+	runtime.KeepAlive(extraInfo)
+	runtime.KeepAlive(requestContext)
 	return takeBrowser(ret)
 }
 

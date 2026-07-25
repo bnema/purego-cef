@@ -28,7 +28,13 @@ func (obj *mediaRouterImpl) AddObserver(observer MediaObserver) Registration {
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAddObserver(extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) }))
+	if rawPtr.AddObserver == 0 {
+		return nil
+	}
+	observerPtr := extractOrWrapRawPointer(observer, func() any { return NewMediaObserver(observer) })
+	transferRef(observerPtr)
+	ret := rawPtr.CallAddObserver(observerPtr)
+	runtime.KeepAlive(observer)
 	return wrapRegistration(unsafe.Pointer(ret))
 }
 
@@ -56,7 +62,19 @@ func (obj *mediaRouterImpl) CreateRoute(source MediaSource, sink MediaSink, call
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallCreateRoute(extractRawPointer(source), extractRawPointer(sink), extractOrWrapRawPointer(callback, func() any { return NewMediaRouteCreateCallback(callback) }))
+	if rawPtr.CreateRoute == 0 {
+		return
+	}
+	sourcePtr := extractRawPointer(source)
+	transferRef(sourcePtr)
+	sinkPtr := extractRawPointer(sink)
+	transferRef(sinkPtr)
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewMediaRouteCreateCallback(callback) })
+	transferRef(callbackPtr)
+	rawPtr.CallCreateRoute(sourcePtr, sinkPtr, callbackPtr)
+	runtime.KeepAlive(source)
+	runtime.KeepAlive(sink)
+	runtime.KeepAlive(callback)
 }
 
 func (obj *mediaRouterImpl) NotifyCurrentRoutes() {
@@ -243,7 +261,13 @@ func (obj *mediaObserverImpl) OnRouteStateChanged(route MediaRoute, state MediaR
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRouteStateChanged(extractRawPointer(route), uintptr(state))
+	if rawPtr.OnRouteStateChanged == 0 {
+		return
+	}
+	routePtr := extractRawPointer(route)
+	transferRef(routePtr)
+	rawPtr.CallOnRouteStateChanged(routePtr, uintptr(state))
+	runtime.KeepAlive(route)
 }
 
 func (obj *mediaObserverImpl) OnRouteMessageReceived(route MediaRoute, message unsafe.Pointer, messageSize int) {
@@ -251,7 +275,13 @@ func (obj *mediaObserverImpl) OnRouteMessageReceived(route MediaRoute, message u
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRouteMessageReceived(extractRawPointer(route), message, uintptr(messageSize))
+	if rawPtr.OnRouteMessageReceived == 0 {
+		return
+	}
+	routePtr := extractRawPointer(route)
+	transferRef(routePtr)
+	rawPtr.CallOnRouteMessageReceived(routePtr, message, uintptr(messageSize))
+	runtime.KeepAlive(route)
 }
 
 func (obj *mediaObserverImpl) RawPointer() unsafe.Pointer {
@@ -441,9 +471,15 @@ func (obj *mediaRouteCreateCallbackImpl) OnMediaRouteCreateFinished(result Media
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnMediaRouteCreateFinished == 0 {
+		return
+	}
 	errorStr := cefString(error)
 	defer freeCefString(&errorStr)
-	rawPtr.CallOnMediaRouteCreateFinished(uintptr(result), unsafe.Pointer(&errorStr), extractRawPointer(route))
+	routePtr := extractRawPointer(route)
+	transferRef(routePtr)
+	rawPtr.CallOnMediaRouteCreateFinished(uintptr(result), unsafe.Pointer(&errorStr), routePtr)
+	runtime.KeepAlive(route)
 }
 
 func (obj *mediaRouteCreateCallbackImpl) RawPointer() unsafe.Pointer {
@@ -526,7 +562,13 @@ func (obj *mediaSinkImpl) GetDeviceInfo(callback MediaSinkDeviceInfoCallback) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetDeviceInfo(extractOrWrapRawPointer(callback, func() any { return NewMediaSinkDeviceInfoCallback(callback) }))
+	if rawPtr.GetDeviceInfo == 0 {
+		return
+	}
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewMediaSinkDeviceInfoCallback(callback) })
+	transferRef(callbackPtr)
+	rawPtr.CallGetDeviceInfo(callbackPtr)
+	runtime.KeepAlive(callback)
 }
 
 func (obj *mediaSinkImpl) IsCastSink() bool {
@@ -552,7 +594,13 @@ func (obj *mediaSinkImpl) IsCompatibleWith(source MediaSource) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsCompatibleWith(extractRawPointer(source))
+	if rawPtr.IsCompatibleWith == 0 {
+		return false
+	}
+	sourcePtr := extractRawPointer(source)
+	transferRef(sourcePtr)
+	ret := rawPtr.CallIsCompatibleWith(sourcePtr)
+	runtime.KeepAlive(source)
 	return ret != 0
 }
 
@@ -766,6 +814,12 @@ func wrapMediaSource(ptr unsafe.Pointer) MediaSource {
 
 // MediaRouterGetGlobal Returns the MediaRouter object associated with the global request context. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the manager's storage has been initialized. Equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >get_media_router().
 func MediaRouterGetGlobal(callback CompletionCallback) MediaRouter {
-	ret := capi.CEFMediaRouterGetGlobal(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) }))
+	if capi.CEFMediaRouterGetGlobal == nil {
+		return nil
+	}
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })
+	transferRef(callbackPtr)
+	ret := capi.CEFMediaRouterGetGlobal(callbackPtr)
+	runtime.KeepAlive(callback)
 	return takeMediaRouter(ret)
 }

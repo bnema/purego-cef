@@ -262,9 +262,15 @@ func (obj *componentUpdaterImpl) Update(componentID string, priority ComponentUp
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.Update == 0 {
+		return
+	}
 	componentIDStr := cefString(componentID)
 	defer freeCefString(&componentIDStr)
-	rawPtr.CallUpdate(unsafe.Pointer(&componentIDStr), uintptr(priority), extractOrWrapRawPointer(callback, func() any { return NewComponentUpdateCallback(callback) }))
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewComponentUpdateCallback(callback) })
+	transferRef(callbackPtr)
+	rawPtr.CallUpdate(unsafe.Pointer(&componentIDStr), uintptr(priority), callbackPtr)
+	runtime.KeepAlive(callback)
 }
 
 func (obj *componentUpdaterImpl) RawPointer() unsafe.Pointer {

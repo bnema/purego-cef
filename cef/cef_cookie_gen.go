@@ -28,7 +28,13 @@ func (obj *cookieManagerImpl) VisitAllCookies(visitor CookieVisitor) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallVisitAllCookies(extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) }))
+	if rawPtr.VisitAllCookies == 0 {
+		return 0
+	}
+	visitorPtr := extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })
+	transferRef(visitorPtr)
+	ret := rawPtr.CallVisitAllCookies(visitorPtr)
+	runtime.KeepAlive(visitor)
 	return int32(ret)
 }
 
@@ -37,9 +43,15 @@ func (obj *cookieManagerImpl) VisitURLCookies(uRL string, includehttponly int32,
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.VisitURLCookies == 0 {
+		return 0
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	ret := rawPtr.CallVisitURLCookies(unsafe.Pointer(&uRLStr), uintptr(includehttponly), extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) }))
+	visitorPtr := extractOrWrapRawPointer(visitor, func() any { return NewCookieVisitor(visitor) })
+	transferRef(visitorPtr)
+	ret := rawPtr.CallVisitURLCookies(unsafe.Pointer(&uRLStr), uintptr(includehttponly), visitorPtr)
+	runtime.KeepAlive(visitor)
 	return int32(ret)
 }
 
@@ -48,9 +60,15 @@ func (obj *cookieManagerImpl) SetCookie(uRL string, cookie *Cookie, callback Set
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.SetCookie == 0 {
+		return 0
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	ret := rawPtr.CallSetCookie(unsafe.Pointer(&uRLStr), unsafe.Pointer(cookie), extractOrWrapRawPointer(callback, func() any { return NewSetCookieCallback(callback) }))
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewSetCookieCallback(callback) })
+	transferRef(callbackPtr)
+	ret := rawPtr.CallSetCookie(unsafe.Pointer(&uRLStr), unsafe.Pointer(cookie), callbackPtr)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -59,11 +77,17 @@ func (obj *cookieManagerImpl) DeleteCookies(uRL string, cookieName string, callb
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.DeleteCookies == 0 {
+		return 0
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	cookieNameStr := cefString(cookieName)
 	defer freeCefString(&cookieNameStr)
-	ret := rawPtr.CallDeleteCookies(unsafe.Pointer(&uRLStr), unsafe.Pointer(&cookieNameStr), extractOrWrapRawPointer(callback, func() any { return NewDeleteCookiesCallback(callback) }))
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewDeleteCookiesCallback(callback) })
+	transferRef(callbackPtr)
+	ret := rawPtr.CallDeleteCookies(unsafe.Pointer(&uRLStr), unsafe.Pointer(&cookieNameStr), callbackPtr)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -72,7 +96,13 @@ func (obj *cookieManagerImpl) FlushStore(callback CompletionCallback) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallFlushStore(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) }))
+	if rawPtr.FlushStore == 0 {
+		return 0
+	}
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })
+	transferRef(callbackPtr)
+	ret := rawPtr.CallFlushStore(callbackPtr)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -425,6 +455,12 @@ func wrapDeleteCookiesCallback(ptr unsafe.Pointer) DeleteCookiesCallback {
 
 // CookieManagerGetGlobalManager Returns the global cookie manager. By default data will be stored at cef_settings_t.cache_path if specified or in memory otherwise. If |callback| is non-NULL it will be executed asnychronously on the UI thread after the manager's storage has been initialized. Using this function is equivalent to calling cef_request_context_t::cef_request_context_get_global_context()- >GetDefaultCookieManager().
 func CookieManagerGetGlobalManager(callback CompletionCallback) CookieManager {
-	ret := capi.CEFCookieManagerGetGlobalManager(extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) }))
+	if capi.CEFCookieManagerGetGlobalManager == nil {
+		return nil
+	}
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })
+	transferRef(callbackPtr)
+	ret := capi.CEFCookieManagerGetGlobalManager(callbackPtr)
+	runtime.KeepAlive(callback)
 	return takeCookieManager(ret)
 }

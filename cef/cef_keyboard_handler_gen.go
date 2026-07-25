@@ -91,7 +91,13 @@ func (obj *keyboardHandlerImpl) OnPreKeyEvent(browser Browser, event *KeyEvent, 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnPreKeyEvent(extractRawPointer(browser), unsafe.Pointer(event), osEvent, unsafe.Pointer(isKeyboardShortcut))
+	if rawPtr.OnPreKeyEvent == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := rawPtr.CallOnPreKeyEvent(browserPtr, unsafe.Pointer(event), osEvent, unsafe.Pointer(isKeyboardShortcut))
+	runtime.KeepAlive(browser)
 	return int32(ret)
 }
 
@@ -100,7 +106,13 @@ func (obj *keyboardHandlerImpl) OnKeyEvent(browser Browser, event *KeyEvent, osE
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnKeyEvent(extractRawPointer(browser), unsafe.Pointer(event), osEvent)
+	if rawPtr.OnKeyEvent == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := rawPtr.CallOnKeyEvent(browserPtr, unsafe.Pointer(event), osEvent)
+	runtime.KeepAlive(browser)
 	return int32(ret)
 }
 

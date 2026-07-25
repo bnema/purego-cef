@@ -109,7 +109,13 @@ func (obj *viewImpl) IsSame(that View) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -465,7 +471,13 @@ func (obj *viewImpl) ConvertPointToView(view View, point *Point) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallConvertPointToView(extractRawPointer(view), unsafe.Pointer(point))
+	if rawPtr.ConvertPointToView == 0 {
+		return 0
+	}
+	viewPtr := extractRawPointer(view)
+	transferRef(viewPtr)
+	ret := rawPtr.CallConvertPointToView(viewPtr, unsafe.Pointer(point))
+	runtime.KeepAlive(view)
 	return int32(ret)
 }
 
@@ -474,7 +486,13 @@ func (obj *viewImpl) ConvertPointFromView(view View, point *Point) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallConvertPointFromView(extractRawPointer(view), unsafe.Pointer(point))
+	if rawPtr.ConvertPointFromView == 0 {
+		return 0
+	}
+	viewPtr := extractRawPointer(view)
+	transferRef(viewPtr)
+	ret := rawPtr.CallConvertPointFromView(viewPtr, unsafe.Pointer(point))
+	runtime.KeepAlive(view)
 	return int32(ret)
 }
 

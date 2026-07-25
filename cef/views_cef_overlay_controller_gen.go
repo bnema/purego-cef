@@ -37,7 +37,13 @@ func (obj *overlayControllerImpl) IsSame(that OverlayController) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 

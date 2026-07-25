@@ -156,9 +156,15 @@ func (obj *appImpl) OnBeforeCommandLineProcessing(processType string, commandLin
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnBeforeCommandLineProcessing == 0 {
+		return
+	}
 	processTypeStr := cefString(processType)
 	defer freeCefString(&processTypeStr)
-	rawPtr.CallOnBeforeCommandLineProcessing(unsafe.Pointer(&processTypeStr), extractRawPointer(commandLine))
+	commandLinePtr := extractRawPointer(commandLine)
+	transferRef(commandLinePtr)
+	rawPtr.CallOnBeforeCommandLineProcessing(unsafe.Pointer(&processTypeStr), commandLinePtr)
+	runtime.KeepAlive(commandLine)
 }
 
 func (obj *appImpl) OnRegisterCustomSchemes(registrar SchemeRegistrar) {

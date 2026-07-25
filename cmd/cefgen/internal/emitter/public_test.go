@@ -10,6 +10,131 @@ import (
 	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
 )
 
+func TestRefCountedObjectSliceClassificationHandlesConstPointee(t *testing.T) {
+	registry := NewTypeRegistry([]*model.Header{{Structs: []model.Struct{
+		{CName: "_cef_v8_value_t", Kind: "object", Fields: []model.Field{{CName: "base", CType: "cef_base_ref_counted_t"}}},
+		{CName: "_cef_scoped_value_t", Kind: "object", Fields: []model.Field{{CName: "base", CType: "cef_base_scoped_t"}}},
+		{CName: "_cef_rect_t", Kind: "data"},
+	}}})
+
+	for _, tc := range []struct {
+		name  string
+		ctype string
+		want  bool
+	}{
+		{name: "ref-counted", ctype: "struct _cef_v8_value_t *const *", want: true},
+		{name: "scoped", ctype: "struct _cef_scoped_value_t *const *", want: false},
+		{name: "struct", ctype: "struct _cef_rect_t *const *", want: false},
+		{name: "raw", ctype: "void *const *", want: false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := isRefCountedObjectSliceType(tc.ctype, registry); got != tc.want {
+				t.Fatalf("isRefCountedObjectSliceType(%q) = %v, want %v", tc.ctype, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestOutboundRefCountedInputsTransferOwnershipAndStayAlive(t *testing.T) {
+	params := []ParamData{
+		{Name: "browser", PublicType: "Browser", MarshalKind: "interface", IsRefCountedTransfer: true},
+		{Name: "dragData", PublicType: "DragData", MarshalKind: "interface", IsRefCountedTransfer: true},
+		{Name: "scoped", PublicType: "ScopedThing", MarshalKind: "interface"},
+		{Name: "raw", PublicType: "unsafe.Pointer", MarshalKind: "pointer"},
+		{Name: "event", PublicType: "*MouseEvent", MarshalKind: "dataStruct"},
+	}
+
+	for _, kind := range []string{"object", "handler"} {
+		t.Run(kind, func(t *testing.T) {
+			method := MethodData{
+				Name: "StartDragging", RawFieldName: "StartDragging", Params: params, RawParams: params,
+				Return: ReturnData{IsVoid: true}, IsGetter: kind == "handler",
+			}
+			data := &PublicFileData{PackageName: "cef", Interfaces: []InterfaceData{{
+				Name: "Consumer", Kind: kind, RawGoName: "CEFConsumerT", IsScoped: true,
+				Methods: []MethodData{method},
+			}}}
+
+			code, err := EmitPublic(data)
+			if err != nil {
+				t.Fatalf("EmitPublic failed: %v", err)
+			}
+			for _, want := range []string{
+				"if rawPtr.StartDragging == 0 {",
+				"browserPtr := extractRawPointer(browser)",
+				"transferRef(browserPtr)",
+				"dragDataPtr := extractRawPointer(dragData)",
+				"transferRef(dragDataPtr)",
+				"rawPtr.CallStartDragging(browserPtr, dragDataPtr, extractRawPointer(scoped), raw, unsafe.Pointer(event))",
+				"runtime.KeepAlive(browser)",
+				"runtime.KeepAlive(dragData)",
+			} {
+				if !strings.Contains(code, want) {
+					t.Errorf("%s output missing %q\n\nGot:\n%s", kind, want, code)
+				}
+			}
+			for _, unwanted := range []string{
+				"transferRef(extractRawPointer(scoped))",
+				"transferRef(raw)",
+				"transferRef(unsafe.Pointer(event))",
+				"runtime.KeepAlive(scoped)",
+			} {
+				if strings.Contains(code, unwanted) {
+					t.Errorf("%s output unexpectedly contains %q\n\nGot:\n%s", kind, unwanted, code)
+				}
+			}
+		})
+	}
+}
+
+func TestOutboundRefCountedInputNilAndMissingDispatchAreSafe(t *testing.T) {
+	params := []ParamData{{
+		Name: "dragData", PublicType: "DragData", MarshalKind: "interface", IsRefCountedTransfer: true,
+	}}
+	data := &PublicFileData{PackageName: "cef", Interfaces: []InterfaceData{{
+		Name: "BrowserHost", Kind: "object", RawGoName: "CEFBrowserHostT", IsScoped: true,
+		Methods: []MethodData{{
+			Name: "DragTargetDragEnter", RawFieldName: "DragTargetDragEnter", Params: params, RawParams: params,
+			Return: ReturnData{IsVoid: true},
+		}},
+	}}}
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+	guard := strings.Index(code, "if rawPtr.DragTargetDragEnter == 0 {")
+	extract := strings.Index(code, "dragDataPtr := extractRawPointer(dragData)")
+	transfer := strings.Index(code, "transferRef(dragDataPtr)")
+	dispatch := strings.Index(code, "rawPtr.CallDragTargetDragEnter(dragDataPtr)")
+	keepAlive := strings.Index(code, "runtime.KeepAlive(dragData)")
+	if guard < 0 || extract < 0 || transfer < 0 || dispatch < 0 || keepAlive < 0 || !(guard < extract && extract < transfer && transfer < dispatch && dispatch < keepAlive) {
+		t.Fatalf("ownership operations must be dispatch-gated and ordered guard/extract/transfer/call/KeepAlive; indexes=%v\n\nGot:\n%s", []int{guard, extract, transfer, dispatch, keepAlive}, code)
+	}
+}
+
+func TestOutboundFreeFunctionRefCountedInputsTransferOnDispatch(t *testing.T) {
+	data := &PublicFileData{PackageName: "cef", FreeFunctions: []FreeFuncData{{
+		Name: "BrowserViewGetForBrowser", RawGoName: "CEFBrowserViewGetForBrowser",
+		Params: []ParamData{{Name: "browser", PublicType: "Browser", MarshalKind: "interface", IsRefCountedTransfer: true}},
+		Return: ReturnData{PublicType: "BrowserView", IsInterface: true},
+	}}}
+	code, err := EmitPublic(data)
+	if err != nil {
+		t.Fatalf("EmitPublic failed: %v", err)
+	}
+	for _, want := range []string{
+		"if capi.CEFBrowserViewGetForBrowser == nil {",
+		"browserPtr := extractRawPointer(browser)",
+		"transferRef(browserPtr)",
+		"ret := capi.CEFBrowserViewGetForBrowser(browserPtr)",
+		"runtime.KeepAlive(browser)",
+	} {
+		if !strings.Contains(code, want) {
+			t.Errorf("free-function output missing %q\n\nGot:\n%s", want, code)
+		}
+	}
+}
+
 func TestMarshalCallArgsPreserveRawPointerTypesForBothConsumers(t *testing.T) {
 	params := []ParamData{
 		{Name: "iface", PublicType: "Browser", MarshalKind: "interface"},
@@ -938,9 +1063,15 @@ func TestEmitPublicObjectMethodAutoWrapsHandlerParams(t *testing.T) {
 		t.Fatalf("EmitPublic failed: %v", err)
 	}
 
-	want := "CallPostTask(extractOrWrapRawPointer(task, func() any { return NewTask(task) }))"
-	if !strings.Contains(code, want) {
-		t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+	for _, want := range []string{
+		"taskPtr := extractOrWrapRawPointer(task, func() any { return NewTask(task) })",
+		"transferRef(taskPtr)",
+		"CallPostTask(taskPtr)",
+		"runtime.KeepAlive(task)",
+	} {
+		if !strings.Contains(code, want) {
+			t.Fatalf("expected generated code to contain %q\n\nGot:\n%s", want, code)
+		}
 	}
 	if strings.Contains(code, "CallPostTask(uintptr(extractRawPointer(task)))") {
 		t.Fatalf("expected generated code to auto-wrap task handler params, got:\n%s", code)
@@ -1313,10 +1444,12 @@ func TestEmitV8ValueExecuteFunctionArgumentsObjectSlice(t *testing.T) {
 		"func (obj *v8ValueImpl) ExecuteFunction(object V8Value, arguments []V8Value) V8Value {",
 		"argumentsRaw = make([]uintptr, len(arguments))",
 		"argumentsRaw[i] = uintptr(extractRawPointer(elem))",
+		"for _, ptr := range argumentsRaw {\n\t\ttransferRef(unsafe.Pointer(ptr))\n\t}",
 		"argumentsPtr = unsafe.Pointer(&argumentsRaw[0])",
-		"CallExecuteFunction(extractRawPointer(object), uintptr(len(arguments)), argumentsPtr)",
+		"CallExecuteFunction(objectPtr, uintptr(len(arguments)), argumentsPtr)",
+		"runtime.KeepAlive(arguments)",
 		"func (obj *v8ValueImpl) ExecuteFunctionWithContext(context V8Context, object V8Value, arguments []V8Value) V8Value {",
-		"CallExecuteFunctionWithContext(extractRawPointer(context), extractRawPointer(object), uintptr(len(arguments)), argumentsPtr)",
+		"CallExecuteFunctionWithContext(contextPtr, objectPtr, uintptr(len(arguments)), argumentsPtr)",
 	}
 	for _, want := range checks {
 		if !strings.Contains(code, want) {

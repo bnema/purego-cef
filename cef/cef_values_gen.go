@@ -59,7 +59,13 @@ func (obj *valueImpl) IsSame(that Value) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -68,7 +74,13 @@ func (obj *valueImpl) IsEqual(that Value) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsEqual(extractRawPointer(that))
+	if rawPtr.IsEqual == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsEqual(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -211,7 +223,13 @@ func (obj *valueImpl) SetBinary(value BinaryValue) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetBinary(extractRawPointer(value))
+	if rawPtr.SetBinary == 0 {
+		return 0
+	}
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetBinary(valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -220,7 +238,13 @@ func (obj *valueImpl) SetDictionary(value DictionaryValue) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetDictionary(extractRawPointer(value))
+	if rawPtr.SetDictionary == 0 {
+		return 0
+	}
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetDictionary(valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -229,7 +253,13 @@ func (obj *valueImpl) SetList(value ListValue) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetList(extractRawPointer(value))
+	if rawPtr.SetList == 0 {
+		return 0
+	}
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetList(valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -316,7 +346,13 @@ func (obj *binaryValueImpl) IsSame(that BinaryValue) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -325,7 +361,13 @@ func (obj *binaryValueImpl) IsEqual(that BinaryValue) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsEqual(extractRawPointer(that))
+	if rawPtr.IsEqual == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsEqual(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -461,7 +503,13 @@ func (obj *dictionaryValueImpl) IsSame(that DictionaryValue) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -470,7 +518,13 @@ func (obj *dictionaryValueImpl) IsEqual(that DictionaryValue) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsEqual(extractRawPointer(that))
+	if rawPtr.IsEqual == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsEqual(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -639,9 +693,15 @@ func (obj *dictionaryValueImpl) SetValue(key string, value Value) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.SetValue == 0 {
+		return 0
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallSetValue(unsafe.Pointer(&keyStr), extractRawPointer(value))
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetValue(unsafe.Pointer(&keyStr), valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -710,9 +770,15 @@ func (obj *dictionaryValueImpl) SetBinary(key string, value BinaryValue) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.SetBinary == 0 {
+		return 0
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallSetBinary(unsafe.Pointer(&keyStr), extractRawPointer(value))
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetBinary(unsafe.Pointer(&keyStr), valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -721,9 +787,15 @@ func (obj *dictionaryValueImpl) SetDictionary(key string, value DictionaryValue)
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.SetDictionary == 0 {
+		return 0
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallSetDictionary(unsafe.Pointer(&keyStr), extractRawPointer(value))
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetDictionary(unsafe.Pointer(&keyStr), valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -732,9 +804,15 @@ func (obj *dictionaryValueImpl) SetList(key string, value ListValue) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.SetList == 0 {
+		return 0
+	}
 	keyStr := cefString(key)
 	defer freeCefString(&keyStr)
-	ret := rawPtr.CallSetList(unsafe.Pointer(&keyStr), extractRawPointer(value))
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetList(unsafe.Pointer(&keyStr), valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -834,7 +912,13 @@ func (obj *listValueImpl) IsSame(that ListValue) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -843,7 +927,13 @@ func (obj *listValueImpl) IsEqual(that ListValue) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsEqual(extractRawPointer(that))
+	if rawPtr.IsEqual == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsEqual(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -981,7 +1071,13 @@ func (obj *listValueImpl) SetValue(index int, value Value) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetValue(uintptr(index), extractRawPointer(value))
+	if rawPtr.SetValue == 0 {
+		return 0
+	}
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetValue(uintptr(index), valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -1040,7 +1136,13 @@ func (obj *listValueImpl) SetBinary(index int, value BinaryValue) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetBinary(uintptr(index), extractRawPointer(value))
+	if rawPtr.SetBinary == 0 {
+		return 0
+	}
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetBinary(uintptr(index), valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -1049,7 +1151,13 @@ func (obj *listValueImpl) SetDictionary(index int, value DictionaryValue) int32 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetDictionary(uintptr(index), extractRawPointer(value))
+	if rawPtr.SetDictionary == 0 {
+		return 0
+	}
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetDictionary(uintptr(index), valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 
@@ -1058,7 +1166,13 @@ func (obj *listValueImpl) SetList(index int, value ListValue) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallSetList(uintptr(index), extractRawPointer(value))
+	if rawPtr.SetList == 0 {
+		return 0
+	}
+	valuePtr := extractRawPointer(value)
+	transferRef(valuePtr)
+	ret := rawPtr.CallSetList(uintptr(index), valuePtr)
+	runtime.KeepAlive(value)
 	return int32(ret)
 }
 

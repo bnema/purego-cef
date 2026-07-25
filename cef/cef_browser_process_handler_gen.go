@@ -199,7 +199,13 @@ func (obj *browserProcessHandlerImpl) OnBeforeChildProcessLaunch(commandLine Com
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBeforeChildProcessLaunch(extractRawPointer(commandLine))
+	if rawPtr.OnBeforeChildProcessLaunch == 0 {
+		return
+	}
+	commandLinePtr := extractRawPointer(commandLine)
+	transferRef(commandLinePtr)
+	rawPtr.CallOnBeforeChildProcessLaunch(commandLinePtr)
+	runtime.KeepAlive(commandLine)
 }
 
 func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine CommandLine, currentDirectory string) int32 {
@@ -207,9 +213,15 @@ func (obj *browserProcessHandlerImpl) OnAlreadyRunningAppRelaunch(commandLine Co
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnAlreadyRunningAppRelaunch == 0 {
+		return 0
+	}
 	currentDirectoryStr := cefString(currentDirectory)
 	defer freeCefString(&currentDirectoryStr)
-	ret := rawPtr.CallOnAlreadyRunningAppRelaunch(extractRawPointer(commandLine), unsafe.Pointer(&currentDirectoryStr))
+	commandLinePtr := extractRawPointer(commandLine)
+	transferRef(commandLinePtr)
+	ret := rawPtr.CallOnAlreadyRunningAppRelaunch(commandLinePtr, unsafe.Pointer(&currentDirectoryStr))
+	runtime.KeepAlive(commandLine)
 	return int32(ret)
 }
 

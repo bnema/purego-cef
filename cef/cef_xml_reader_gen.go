@@ -347,8 +347,14 @@ func takeXmlReader(ptr unsafe.Pointer) XmlReader {
 
 // XmlReaderCreate Create a new cef_xml_reader_t object. The returned object's functions can only be called from the thread that created the object.
 func XmlReaderCreate(stream StreamReader, encodingtype XmlEncodingType, uri string) XmlReader {
+	if capi.CEFXmlReaderCreate == nil {
+		return nil
+	}
 	uriStr := cefString(uri)
 	defer freeCefString(&uriStr)
-	ret := capi.CEFXmlReaderCreate(extractRawPointer(stream), capi.CEFXmlEncodingTypeT(encodingtype), unsafe.Pointer(&uriStr))
+	streamPtr := extractRawPointer(stream)
+	transferRef(streamPtr)
+	ret := capi.CEFXmlReaderCreate(streamPtr, capi.CEFXmlEncodingTypeT(encodingtype), unsafe.Pointer(&uriStr))
+	runtime.KeepAlive(stream)
 	return takeXmlReader(ret)
 }

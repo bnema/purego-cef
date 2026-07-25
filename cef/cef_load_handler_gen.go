@@ -129,7 +129,13 @@ func (obj *loadHandlerImpl) OnLoadingStateChange(browser Browser, isloading int3
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnLoadingStateChange(extractRawPointer(browser), uintptr(isloading), uintptr(cangoback), uintptr(cangoforward))
+	if rawPtr.OnLoadingStateChange == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnLoadingStateChange(browserPtr, uintptr(isloading), uintptr(cangoback), uintptr(cangoforward))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *loadHandlerImpl) OnLoadStart(browser Browser, frame Frame, transitionType TransitionType) {
@@ -137,7 +143,16 @@ func (obj *loadHandlerImpl) OnLoadStart(browser Browser, frame Frame, transition
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnLoadStart(extractRawPointer(browser), extractRawPointer(frame), uintptr(transitionType))
+	if rawPtr.OnLoadStart == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	rawPtr.CallOnLoadStart(browserPtr, framePtr, uintptr(transitionType))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
 }
 
 func (obj *loadHandlerImpl) OnLoadEnd(browser Browser, frame Frame, httpstatuscode int32) {
@@ -145,7 +160,16 @@ func (obj *loadHandlerImpl) OnLoadEnd(browser Browser, frame Frame, httpstatusco
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnLoadEnd(extractRawPointer(browser), extractRawPointer(frame), uintptr(httpstatuscode))
+	if rawPtr.OnLoadEnd == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	rawPtr.CallOnLoadEnd(browserPtr, framePtr, uintptr(httpstatuscode))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
 }
 
 func (obj *loadHandlerImpl) OnLoadError(browser Browser, frame Frame, errorcode Errorcode, errortext string, failedurl string) {
@@ -153,11 +177,20 @@ func (obj *loadHandlerImpl) OnLoadError(browser Browser, frame Frame, errorcode 
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnLoadError == 0 {
+		return
+	}
 	errortextStr := cefString(errortext)
 	defer freeCefString(&errortextStr)
 	failedurlStr := cefString(failedurl)
 	defer freeCefString(&failedurlStr)
-	rawPtr.CallOnLoadError(extractRawPointer(browser), extractRawPointer(frame), uintptr(errorcode), unsafe.Pointer(&errortextStr), unsafe.Pointer(&failedurlStr))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	rawPtr.CallOnLoadError(browserPtr, framePtr, uintptr(errorcode), unsafe.Pointer(&errortextStr), unsafe.Pointer(&failedurlStr))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
 }
 
 func (obj *loadHandlerImpl) RawPointer() unsafe.Pointer {

@@ -72,7 +72,13 @@ func (obj *panelImpl) AddChildView(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallAddChildView(extractRawPointer(view))
+	if rawPtr.AddChildView == 0 {
+		return
+	}
+	viewPtr := extractRawPointer(view)
+	transferRef(viewPtr)
+	rawPtr.CallAddChildView(viewPtr)
+	runtime.KeepAlive(view)
 }
 
 func (obj *panelImpl) AddChildViewAt(view View, index int32) {
@@ -80,7 +86,13 @@ func (obj *panelImpl) AddChildViewAt(view View, index int32) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallAddChildViewAt(extractRawPointer(view), uintptr(index))
+	if rawPtr.AddChildViewAt == 0 {
+		return
+	}
+	viewPtr := extractRawPointer(view)
+	transferRef(viewPtr)
+	rawPtr.CallAddChildViewAt(viewPtr, uintptr(index))
+	runtime.KeepAlive(view)
 }
 
 func (obj *panelImpl) ReorderChildView(view View, index int32) {
@@ -88,7 +100,13 @@ func (obj *panelImpl) ReorderChildView(view View, index int32) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallReorderChildView(extractRawPointer(view), uintptr(index))
+	if rawPtr.ReorderChildView == 0 {
+		return
+	}
+	viewPtr := extractRawPointer(view)
+	transferRef(viewPtr)
+	rawPtr.CallReorderChildView(viewPtr, uintptr(index))
+	runtime.KeepAlive(view)
 }
 
 func (obj *panelImpl) RemoveChildView(view View) {
@@ -96,7 +114,13 @@ func (obj *panelImpl) RemoveChildView(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallRemoveChildView(extractRawPointer(view))
+	if rawPtr.RemoveChildView == 0 {
+		return
+	}
+	viewPtr := extractRawPointer(view)
+	transferRef(viewPtr)
+	rawPtr.CallRemoveChildView(viewPtr)
+	runtime.KeepAlive(view)
 }
 
 func (obj *panelImpl) RemoveAllChildViews() {
@@ -176,6 +200,12 @@ func takePanel(ptr unsafe.Pointer) Panel {
 
 // PanelCreate Create a new Panel.
 func PanelCreate(delegate PanelDelegate) Panel {
-	ret := capi.CEFPanelCreate(extractOrWrapRawPointer(delegate, func() any { return NewPanelDelegate(delegate) }))
+	if capi.CEFPanelCreate == nil {
+		return nil
+	}
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewPanelDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFPanelCreate(delegatePtr)
+	runtime.KeepAlive(delegate)
 	return takePanel(ret)
 }

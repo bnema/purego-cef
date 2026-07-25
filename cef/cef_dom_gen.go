@@ -70,7 +70,13 @@ func (obj *domvisitorImpl) Visit(document Domdocument) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallVisit(extractRawPointer(document))
+	if rawPtr.Visit == 0 {
+		return
+	}
+	documentPtr := extractRawPointer(document)
+	transferRef(documentPtr)
+	rawPtr.CallVisit(documentPtr)
+	runtime.KeepAlive(document)
 }
 
 func (obj *domvisitorImpl) RawPointer() unsafe.Pointer {
@@ -357,7 +363,13 @@ func (obj *domnodeImpl) IsSame(that Domnode) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 

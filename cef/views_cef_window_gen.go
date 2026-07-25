@@ -36,7 +36,13 @@ func (obj *windowImpl) ShowAsBrowserModalDialog(browserView BrowserView) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallShowAsBrowserModalDialog(extractRawPointer(browserView))
+	if rawPtr.ShowAsBrowserModalDialog == 0 {
+		return
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	rawPtr.CallShowAsBrowserModalDialog(browserViewPtr)
+	runtime.KeepAlive(browserView)
 }
 
 func (obj *windowImpl) Hide() {
@@ -214,7 +220,13 @@ func (obj *windowImpl) SetWindowIcon(image Image) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetWindowIcon(extractRawPointer(image))
+	if rawPtr.SetWindowIcon == 0 {
+		return
+	}
+	imagePtr := extractRawPointer(image)
+	transferRef(imagePtr)
+	rawPtr.CallSetWindowIcon(imagePtr)
+	runtime.KeepAlive(image)
 }
 
 func (obj *windowImpl) GetWindowIcon() Image {
@@ -231,7 +243,13 @@ func (obj *windowImpl) SetWindowAppIcon(image Image) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetWindowAppIcon(extractRawPointer(image))
+	if rawPtr.SetWindowAppIcon == 0 {
+		return
+	}
+	imagePtr := extractRawPointer(image)
+	transferRef(imagePtr)
+	rawPtr.CallSetWindowAppIcon(imagePtr)
+	runtime.KeepAlive(image)
 }
 
 func (obj *windowImpl) GetWindowAppIcon() Image {
@@ -248,7 +266,13 @@ func (obj *windowImpl) AddOverlayView(view View, dockingMode DockingMode, canAct
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAddOverlayView(extractRawPointer(view), uintptr(dockingMode), uintptr(canActivate))
+	if rawPtr.AddOverlayView == 0 {
+		return nil
+	}
+	viewPtr := extractRawPointer(view)
+	transferRef(viewPtr)
+	ret := rawPtr.CallAddOverlayView(viewPtr, uintptr(dockingMode), uintptr(canActivate))
+	runtime.KeepAlive(view)
 	return wrapOverlayController(unsafe.Pointer(ret))
 }
 
@@ -257,7 +281,13 @@ func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anchorP
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallShowMenu(extractRawPointer(menuModel), unsafe.Pointer(screenPoint), uintptr(anchorPosition))
+	if rawPtr.ShowMenu == 0 {
+		return
+	}
+	menuModelPtr := extractRawPointer(menuModel)
+	transferRef(menuModelPtr)
+	rawPtr.CallShowMenu(menuModelPtr, unsafe.Pointer(screenPoint), uintptr(anchorPosition))
+	runtime.KeepAlive(menuModel)
 }
 
 func (obj *windowImpl) CancelMenu() {
@@ -431,6 +461,12 @@ func takeWindow(ptr unsafe.Pointer) Window {
 
 // WindowCreateTopLevel Create a new Window.
 func WindowCreateTopLevel(delegate WindowDelegate) Window {
-	ret := capi.CEFWindowCreateTopLevel(extractOrWrapRawPointer(delegate, func() any { return NewWindowDelegate(delegate) }))
+	if capi.CEFWindowCreateTopLevel == nil {
+		return nil
+	}
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewWindowDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFWindowCreateTopLevel(delegatePtr)
+	runtime.KeepAlive(delegate)
 	return takeWindow(ret)
 }

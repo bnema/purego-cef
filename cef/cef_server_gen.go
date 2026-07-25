@@ -362,7 +362,13 @@ func (obj *serverHandlerImpl) OnServerCreated(server Server) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnServerCreated(extractRawPointer(server))
+	if rawPtr.OnServerCreated == 0 {
+		return
+	}
+	serverPtr := extractRawPointer(server)
+	transferRef(serverPtr)
+	rawPtr.CallOnServerCreated(serverPtr)
+	runtime.KeepAlive(server)
 }
 
 func (obj *serverHandlerImpl) OnServerDestroyed(server Server) {
@@ -370,7 +376,13 @@ func (obj *serverHandlerImpl) OnServerDestroyed(server Server) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnServerDestroyed(extractRawPointer(server))
+	if rawPtr.OnServerDestroyed == 0 {
+		return
+	}
+	serverPtr := extractRawPointer(server)
+	transferRef(serverPtr)
+	rawPtr.CallOnServerDestroyed(serverPtr)
+	runtime.KeepAlive(server)
 }
 
 func (obj *serverHandlerImpl) OnClientConnected(server Server, connectionID int32) {
@@ -378,7 +390,13 @@ func (obj *serverHandlerImpl) OnClientConnected(server Server, connectionID int3
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnClientConnected(extractRawPointer(server), uintptr(connectionID))
+	if rawPtr.OnClientConnected == 0 {
+		return
+	}
+	serverPtr := extractRawPointer(server)
+	transferRef(serverPtr)
+	rawPtr.CallOnClientConnected(serverPtr, uintptr(connectionID))
+	runtime.KeepAlive(server)
 }
 
 func (obj *serverHandlerImpl) OnClientDisconnected(server Server, connectionID int32) {
@@ -386,7 +404,13 @@ func (obj *serverHandlerImpl) OnClientDisconnected(server Server, connectionID i
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnClientDisconnected(extractRawPointer(server), uintptr(connectionID))
+	if rawPtr.OnClientDisconnected == 0 {
+		return
+	}
+	serverPtr := extractRawPointer(server)
+	transferRef(serverPtr)
+	rawPtr.CallOnClientDisconnected(serverPtr, uintptr(connectionID))
+	runtime.KeepAlive(server)
 }
 
 func (obj *serverHandlerImpl) OnHttpRequest(server Server, connectionID int32, clientAddress string, request Request) {
@@ -394,9 +418,18 @@ func (obj *serverHandlerImpl) OnHttpRequest(server Server, connectionID int32, c
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnHttpRequest == 0 {
+		return
+	}
 	clientAddressStr := cefString(clientAddress)
 	defer freeCefString(&clientAddressStr)
-	rawPtr.CallOnHttpRequest(extractRawPointer(server), uintptr(connectionID), unsafe.Pointer(&clientAddressStr), extractRawPointer(request))
+	serverPtr := extractRawPointer(server)
+	transferRef(serverPtr)
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	rawPtr.CallOnHttpRequest(serverPtr, uintptr(connectionID), unsafe.Pointer(&clientAddressStr), requestPtr)
+	runtime.KeepAlive(server)
+	runtime.KeepAlive(request)
 }
 
 func (obj *serverHandlerImpl) OnWebSocketRequest(server Server, connectionID int32, clientAddress string, request Request, callback Callback) {
@@ -404,9 +437,21 @@ func (obj *serverHandlerImpl) OnWebSocketRequest(server Server, connectionID int
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnWebSocketRequest == 0 {
+		return
+	}
 	clientAddressStr := cefString(clientAddress)
 	defer freeCefString(&clientAddressStr)
-	rawPtr.CallOnWebSocketRequest(extractRawPointer(server), uintptr(connectionID), unsafe.Pointer(&clientAddressStr), extractRawPointer(request), extractRawPointer(callback))
+	serverPtr := extractRawPointer(server)
+	transferRef(serverPtr)
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	rawPtr.CallOnWebSocketRequest(serverPtr, uintptr(connectionID), unsafe.Pointer(&clientAddressStr), requestPtr, callbackPtr)
+	runtime.KeepAlive(server)
+	runtime.KeepAlive(request)
+	runtime.KeepAlive(callback)
 }
 
 func (obj *serverHandlerImpl) OnWebSocketConnected(server Server, connectionID int32) {
@@ -414,7 +459,13 @@ func (obj *serverHandlerImpl) OnWebSocketConnected(server Server, connectionID i
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWebSocketConnected(extractRawPointer(server), uintptr(connectionID))
+	if rawPtr.OnWebSocketConnected == 0 {
+		return
+	}
+	serverPtr := extractRawPointer(server)
+	transferRef(serverPtr)
+	rawPtr.CallOnWebSocketConnected(serverPtr, uintptr(connectionID))
+	runtime.KeepAlive(server)
 }
 
 func (obj *serverHandlerImpl) OnWebSocketMessage(server Server, connectionID int32, data unsafe.Pointer, dataSize int) {
@@ -422,7 +473,13 @@ func (obj *serverHandlerImpl) OnWebSocketMessage(server Server, connectionID int
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWebSocketMessage(extractRawPointer(server), uintptr(connectionID), data, uintptr(dataSize))
+	if rawPtr.OnWebSocketMessage == 0 {
+		return
+	}
+	serverPtr := extractRawPointer(server)
+	transferRef(serverPtr)
+	rawPtr.CallOnWebSocketMessage(serverPtr, uintptr(connectionID), data, uintptr(dataSize))
+	runtime.KeepAlive(server)
 }
 
 func (obj *serverHandlerImpl) RawPointer() unsafe.Pointer {
@@ -464,7 +521,13 @@ func wrapServerHandler(ptr unsafe.Pointer) ServerHandler {
 
 // ServerCreate Create a new server that binds to |address| and |port|. |address| must be a valid IPv4 or IPv6 address (e.g. 127.0.0.1 or ::1) and |port| must be a port number outside of the reserved range (e.g. between 1025 and 65535 on most platforms). |backlog| is the maximum number of pending connections. A new thread will be created for each CreateServer call (the "dedicated server thread"). It is therefore recommended to use a different cef_server_handler_t instance for each CreateServer call to avoid thread safety issues in the cef_server_handler_t implementation. The cef_server_handler_t::OnServerCreated function will be called on the dedicated server thread to report success or failure. See cef_server_handler_t::OnServerCreated documentation for a description of server lifespan.
 func ServerCreate(address string, port uint16, backlog int32, handler ServerHandler) {
+	if capi.CEFServerCreate == nil {
+		return
+	}
 	addressStr := cefString(address)
 	defer freeCefString(&addressStr)
-	capi.CEFServerCreate(unsafe.Pointer(&addressStr), port, backlog, extractOrWrapRawPointer(handler, func() any { return NewServerHandler(handler) }))
+	handlerPtr := extractOrWrapRawPointer(handler, func() any { return NewServerHandler(handler) })
+	transferRef(handlerPtr)
+	capi.CEFServerCreate(unsafe.Pointer(&addressStr), port, backlog, handlerPtr)
+	runtime.KeepAlive(handler)
 }

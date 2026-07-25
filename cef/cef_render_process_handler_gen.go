@@ -226,7 +226,16 @@ func (obj *renderProcessHandlerImpl) OnBrowserCreated(browser Browser, extraInfo
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBrowserCreated(extractRawPointer(browser), extractRawPointer(extraInfo))
+	if rawPtr.OnBrowserCreated == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	extraInfoPtr := extractRawPointer(extraInfo)
+	transferRef(extraInfoPtr)
+	rawPtr.CallOnBrowserCreated(browserPtr, extraInfoPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(extraInfo)
 }
 
 func (obj *renderProcessHandlerImpl) OnBrowserDestroyed(browser Browser) {
@@ -234,7 +243,13 @@ func (obj *renderProcessHandlerImpl) OnBrowserDestroyed(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBrowserDestroyed(extractRawPointer(browser))
+	if rawPtr.OnBrowserDestroyed == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnBrowserDestroyed(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderProcessHandlerImpl) GetLoadHandler() LoadHandler {
@@ -251,7 +266,19 @@ func (obj *renderProcessHandlerImpl) OnContextCreated(browser Browser, frame Fra
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnContextCreated(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(context))
+	if rawPtr.OnContextCreated == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	contextPtr := extractRawPointer(context)
+	transferRef(contextPtr)
+	rawPtr.CallOnContextCreated(browserPtr, framePtr, contextPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(context)
 }
 
 func (obj *renderProcessHandlerImpl) OnContextReleased(browser Browser, frame Frame, context V8Context) {
@@ -259,7 +286,19 @@ func (obj *renderProcessHandlerImpl) OnContextReleased(browser Browser, frame Fr
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnContextReleased(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(context))
+	if rawPtr.OnContextReleased == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	contextPtr := extractRawPointer(context)
+	transferRef(contextPtr)
+	rawPtr.CallOnContextReleased(browserPtr, framePtr, contextPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(context)
 }
 
 func (obj *renderProcessHandlerImpl) OnUncaughtException(browser Browser, frame Frame, context V8Context, exception V8Exception, stacktrace V8StackTrace) {
@@ -267,7 +306,25 @@ func (obj *renderProcessHandlerImpl) OnUncaughtException(browser Browser, frame 
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnUncaughtException(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(context), extractRawPointer(exception), extractRawPointer(stacktrace))
+	if rawPtr.OnUncaughtException == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	contextPtr := extractRawPointer(context)
+	transferRef(contextPtr)
+	exceptionPtr := extractRawPointer(exception)
+	transferRef(exceptionPtr)
+	stacktracePtr := extractRawPointer(stacktrace)
+	transferRef(stacktracePtr)
+	rawPtr.CallOnUncaughtException(browserPtr, framePtr, contextPtr, exceptionPtr, stacktracePtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(context)
+	runtime.KeepAlive(exception)
+	runtime.KeepAlive(stacktrace)
 }
 
 func (obj *renderProcessHandlerImpl) OnFocusedNodeChanged(browser Browser, frame Frame, node Domnode) {
@@ -275,7 +332,19 @@ func (obj *renderProcessHandlerImpl) OnFocusedNodeChanged(browser Browser, frame
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFocusedNodeChanged(extractRawPointer(browser), extractRawPointer(frame), extractRawPointer(node))
+	if rawPtr.OnFocusedNodeChanged == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	nodePtr := extractRawPointer(node)
+	transferRef(nodePtr)
+	rawPtr.CallOnFocusedNodeChanged(browserPtr, framePtr, nodePtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(node)
 }
 
 func (obj *renderProcessHandlerImpl) OnProcessMessageReceived(browser Browser, frame Frame, sourceProcess ProcessID, message ProcessMessage) int32 {
@@ -283,7 +352,19 @@ func (obj *renderProcessHandlerImpl) OnProcessMessageReceived(browser Browser, f
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnProcessMessageReceived(extractRawPointer(browser), extractRawPointer(frame), uintptr(sourceProcess), extractRawPointer(message))
+	if rawPtr.OnProcessMessageReceived == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	messagePtr := extractRawPointer(message)
+	transferRef(messagePtr)
+	ret := rawPtr.CallOnProcessMessageReceived(browserPtr, framePtr, uintptr(sourceProcess), messagePtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(message)
 	return int32(ret)
 }
 

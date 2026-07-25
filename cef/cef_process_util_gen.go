@@ -3,11 +3,19 @@
 package cef
 
 import (
+	"runtime"
+
 	"github.com/bnema/purego-cef/internal/capi"
 )
 
 // LaunchProcess Launches the process specified via |command_line|. Returns true (1) upon success. Must be called on the browser process TID_PROCESS_LAUNCHER thread. Unix-specific notes: - All file descriptors open in the parent process will be closed in the   child process except for stdin, stdout, and stderr. - If the first argument on the command line does not contain a slash, PATH   will be searched. (See man execvp.)
 func LaunchProcess(commandLine CommandLine) int32 {
-	ret := capi.CEFLaunchProcess(extractRawPointer(commandLine))
+	if capi.CEFLaunchProcess == nil {
+		return 0
+	}
+	commandLinePtr := extractRawPointer(commandLine)
+	transferRef(commandLinePtr)
+	ret := capi.CEFLaunchProcess(commandLinePtr)
+	runtime.KeepAlive(commandLine)
 	return int32(ret)
 }

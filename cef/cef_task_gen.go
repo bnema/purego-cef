@@ -127,7 +127,13 @@ func (obj *taskRunnerImpl) IsSame(that TaskRunner) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsSame(extractRawPointer(that))
+	if rawPtr.IsSame == 0 {
+		return false
+	}
+	thatPtr := extractRawPointer(that)
+	transferRef(thatPtr)
+	ret := rawPtr.CallIsSame(thatPtr)
+	runtime.KeepAlive(that)
 	return ret != 0
 }
 
@@ -154,7 +160,13 @@ func (obj *taskRunnerImpl) PostTask(task Task) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallPostTask(extractOrWrapRawPointer(task, func() any { return NewTask(task) }))
+	if rawPtr.PostTask == 0 {
+		return 0
+	}
+	taskPtr := extractOrWrapRawPointer(task, func() any { return NewTask(task) })
+	transferRef(taskPtr)
+	ret := rawPtr.CallPostTask(taskPtr)
+	runtime.KeepAlive(task)
 	return int32(ret)
 }
 
@@ -163,10 +175,16 @@ func (obj *taskRunnerImpl) PostDelayedTask(task Task, delayMs int64) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.PostDelayedTask == 0 {
+		return 0
+	}
+	taskPtr := extractOrWrapRawPointer(task, func() any { return NewTask(task) })
+	transferRef(taskPtr)
 	obj.postDelayedTaskOnce.Do(func() {
 		registerTypedCallback(&obj.postDelayedTaskFunc, rawPtr.PostDelayedTask)
 	})
-	ret := obj.postDelayedTaskFunc(rawPtr, uintptr(extractOrWrapRawPointer(task, func() any { return NewTask(task) })), delayMs)
+	ret := obj.postDelayedTaskFunc(rawPtr, uintptr(taskPtr), delayMs)
+	runtime.KeepAlive(task)
 	return int32(ret)
 }
 
@@ -239,12 +257,24 @@ func CurrentlyOn(threadid ThreadID) int32 {
 
 // PostTask Post a task for execution on the specified thread. Equivalent to using cef_task_runner_t::GetForThread(threadId)->PostTask(task).
 func PostTask(threadid ThreadID, task Task) int32 {
-	ret := capi.CEFPostTask(capi.CEFThreadIDT(threadid), extractOrWrapRawPointer(task, func() any { return NewTask(task) }))
+	if capi.CEFPostTask == nil {
+		return 0
+	}
+	taskPtr := extractOrWrapRawPointer(task, func() any { return NewTask(task) })
+	transferRef(taskPtr)
+	ret := capi.CEFPostTask(capi.CEFThreadIDT(threadid), taskPtr)
+	runtime.KeepAlive(task)
 	return int32(ret)
 }
 
 // PostDelayedTask Post a task for delayed execution on the specified thread. Equivalent to using cef_task_runner_t::GetForThread(threadId)->PostDelayedTask(task, delay_ms).
 func PostDelayedTask(threadid ThreadID, task Task, delayMs int64) int32 {
-	ret := capi.CEFPostDelayedTask(capi.CEFThreadIDT(threadid), extractOrWrapRawPointer(task, func() any { return NewTask(task) }), delayMs)
+	if capi.CEFPostDelayedTask == nil {
+		return 0
+	}
+	taskPtr := extractOrWrapRawPointer(task, func() any { return NewTask(task) })
+	transferRef(taskPtr)
+	ret := capi.CEFPostDelayedTask(capi.CEFThreadIDT(threadid), taskPtr, delayMs)
+	runtime.KeepAlive(task)
 	return int32(ret)
 }

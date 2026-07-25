@@ -136,7 +136,13 @@ func (obj *dragDataImpl) GetFileContents(writer StreamWriter) int {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetFileContents(extractRawPointer(writer))
+	if rawPtr.GetFileContents == 0 {
+		return 0
+	}
+	writerPtr := extractRawPointer(writer)
+	transferRef(writerPtr)
+	ret := rawPtr.CallGetFileContents(writerPtr)
+	runtime.KeepAlive(writer)
 	return int(ret)
 }
 

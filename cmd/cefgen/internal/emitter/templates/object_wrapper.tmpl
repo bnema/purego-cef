@@ -25,6 +25,11 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 		{{- end}}
 	}
 	rawPtr := obj.rawPtr
+	{{- if hasRefCountedTransfers .}}
+	if rawPtr.{{.RawFieldName}} == 0 {
+		return{{if not .Return.IsVoid}} {{zeroReturn .Return}}{{end}}
+	}
+	{{- end}}
 	{{- range .Params}}
 	{{- $pre := marshalPreamble .}}
 	{{- if $pre}}
@@ -33,6 +38,14 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	{{- end}}
 	{{- with methodPreamble $.Name .}}
 {{.}}{{- end}}
+	{{- range .Params}}{{if and .IsRefCountedTransfer (eq .MarshalKind "interface")}}
+	{{.Name}}Ptr := {{refCountedTransferPointerExpr .}}
+	transferRef({{.Name}}Ptr)
+	{{- else if and .IsRefCountedTransfer (eq .MarshalKind "objectSlice")}}
+	for _, ptr := range {{.Name}}Raw {
+		transferRef(unsafe.Pointer(ptr))
+	}
+	{{- end}}{{end}}
 	{{- $hasPost := hasMarshalPostamble .Params}}
 	{{- if needsTypedObjectCall .}}
 	obj.{{lower .Name}}Once.Do(func() {
@@ -40,11 +53,17 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	})
 	{{- if .Return.IsVoid}}
 	obj.{{lower .Name}}Func({{typedObjectCallArgs .}})
+	{{- range .Params}}{{if .IsRefCountedTransfer}}
+	runtime.KeepAlive({{.Name}})
+	{{- end}}{{end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
 	{{- else}}
 	ret := obj.{{lower .Name}}Func({{typedObjectCallArgs .}})
+	{{- range .Params}}{{if .IsRefCountedTransfer}}
+	runtime.KeepAlive({{.Name}})
+	{{- end}}{{end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
@@ -72,11 +91,17 @@ func (obj *{{lower $.Name}}Impl) {{.Name}}({{range $i, $p := .Params}}{{if $i}},
 	{{- end}}
 	{{- else if .Return.IsVoid}}
 	rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
+	{{- range .Params}}{{if .IsRefCountedTransfer}}
+	runtime.KeepAlive({{.Name}})
+	{{- end}}{{end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}
 	{{- else}}
 	ret := rawPtr.Call{{.RawFieldName}}({{marshalCallArgs .Params}})
+	{{- range .Params}}{{if .IsRefCountedTransfer}}
+	runtime.KeepAlive({{.Name}})
+	{{- end}}{{end}}
 	{{- range .Params}}{{with marshalPostamble .}}
 	{{.}}
 	{{- end}}{{end}}

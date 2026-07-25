@@ -649,7 +649,19 @@ func (obj *rawClientImpl) OnProcessMessageReceived(browser Browser, frame Frame,
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnProcessMessageReceived(extractRawPointer(browser), extractRawPointer(frame), uintptr(sourceProcess), extractRawPointer(message))
+	if rawPtr.OnProcessMessageReceived == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	messagePtr := extractRawPointer(message)
+	transferRef(messagePtr)
+	ret := rawPtr.CallOnProcessMessageReceived(browserPtr, framePtr, uintptr(sourceProcess), messagePtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(message)
 	return int32(ret)
 }
 

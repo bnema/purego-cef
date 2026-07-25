@@ -602,6 +602,12 @@ func takeMenuModel(ptr unsafe.Pointer) MenuModel {
 
 // MenuModelCreate Create a new MenuModel with the specified |delegate|.
 func MenuModelCreate(delegate MenuModelDelegate) MenuModel {
-	ret := capi.CEFMenuModelCreate(extractOrWrapRawPointer(delegate, func() any { return NewMenuModelDelegate(delegate) }))
+	if capi.CEFMenuModelCreate == nil {
+		return nil
+	}
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewMenuModelDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFMenuModelCreate(delegatePtr)
+	runtime.KeepAlive(delegate)
 	return takeMenuModel(ret)
 }
