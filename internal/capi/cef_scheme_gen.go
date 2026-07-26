@@ -17,11 +17,11 @@ type CEFSchemeRegistrarT struct {
 
 func (v *CEFSchemeRegistrarT) OverrideAddCustomScheme(fn uintptr) { v.AddCustomScheme = fn }
 
-func (v *CEFSchemeRegistrarT) CallAddCustomScheme(args ...uintptr) uintptr {
+func (v *CEFSchemeRegistrarT) CallAddCustomScheme(SchemeName unsafe.Pointer, Options uintptr) uintptr {
 	if v.AddCustomScheme == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddCustomScheme, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddCustomScheme, uintptr(unsafe.Pointer(v)), uintptr(SchemeName), Options)
 	return r1
 }
 
@@ -33,11 +33,11 @@ type CEFSchemeHandlerFactoryT struct {
 
 func (v *CEFSchemeHandlerFactoryT) OverrideCreate(fn uintptr) { v.Create = fn }
 
-func (v *CEFSchemeHandlerFactoryT) CallCreate(args ...uintptr) uintptr {
+func (v *CEFSchemeHandlerFactoryT) CallCreate(Browser unsafe.Pointer, Frame unsafe.Pointer, SchemeName unsafe.Pointer, Request unsafe.Pointer) uintptr {
 	if v.Create == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Create, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Create, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(SchemeName), uintptr(Request))
 	return r1
 }
 

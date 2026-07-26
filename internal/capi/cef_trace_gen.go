@@ -19,11 +19,11 @@ func (v *CEFEndTracingCallbackT) OverrideOnEndTracingComplete(fn uintptr) {
 	v.OnEndTracingComplete = fn
 }
 
-func (v *CEFEndTracingCallbackT) CallOnEndTracingComplete(args ...uintptr) uintptr {
+func (v *CEFEndTracingCallbackT) CallOnEndTracingComplete(TracingFile unsafe.Pointer) uintptr {
 	if v.OnEndTracingComplete == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnEndTracingComplete, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnEndTracingComplete, uintptr(unsafe.Pointer(v)), uintptr(TracingFile))
 	return r1
 }
 

@@ -222,12 +222,16 @@ func buildMethod(structCName string, structKind string, f model.Field, registry 
 		if i == 0 {
 			continue // skip self
 		}
+		publicType := registry.ResolvePublicType(p.CType)
+		marshalKind := classifyParamType(p.CType, registry)
 		pd := ParamData{
-			Name:        paramName(p),
-			PublicType:  registry.ResolvePublicType(p.CType),
-			CType:       p.CType,
-			MarshalKind: classifyParamType(p.CType, registry),
-			IsHandler:   registry.IsHandlerType(p.CType),
+			Name:                 paramName(p),
+			PublicType:           publicType,
+			CType:                p.CType,
+			MarshalKind:          marshalKind,
+			RawGoType:            p.GoType,
+			IsHandler:            registry.IsHandlerType(p.CType),
+			IsRefCountedTransfer: marshalKind == "interface" && publicType != "unsafe.Pointer" && !registry.IsScopedType(p.CType),
 		}
 		m.Params = append(m.Params, pd)
 	}
@@ -360,13 +364,16 @@ func buildFreeFunc(fn *model.Function, registry *TypeRegistry) FreeFuncData {
 	}
 
 	for _, p := range fn.Params {
+		publicType := registry.ResolvePublicType(p.CType)
+		marshalKind := classifyParamType(p.CType, registry)
 		ff.Params = append(ff.Params, ParamData{
-			Name:        paramName(p),
-			PublicType:  registry.ResolvePublicType(p.CType),
-			CType:       p.CType,
-			MarshalKind: classifyParamType(p.CType, registry),
-			RawGoType:   p.GoType,
-			IsHandler:   registry.IsHandlerType(p.CType),
+			Name:                 paramName(p),
+			PublicType:           publicType,
+			CType:                p.CType,
+			MarshalKind:          marshalKind,
+			RawGoType:            p.GoType,
+			IsHandler:            registry.IsHandlerType(p.CType),
+			IsRefCountedTransfer: marshalKind == "interface" && publicType != "unsafe.Pointer" && !registry.IsScopedType(p.CType),
 		})
 	}
 	ff.Params = mergeCountPointerParams(ff.Params, registry, true)
@@ -529,6 +536,14 @@ func cleanEnumValueName(cName, prefix string) string {
 	return result
 }
 
+func isRefCountedObjectSliceType(ctype string, registry *TypeRegistry) bool {
+	// Counted object arrays use spellings such as "T *const *". Remove the
+	// pointee qualifier so registry lookup can resolve the underlying interface.
+	unqualified := strings.ReplaceAll(ctype, "const", "")
+	base := strings.TrimSpace(strings.ReplaceAll(unqualified, "*", "")) + "*"
+	return registry.IsInterfaceType(base) && !registry.IsScopedType(base)
+}
+
 // mergeCountPointerParams detects adjacent count+pointer param pairs and either
 // merges input vectors into a single []ElemType param or upgrades output buffer
 // pointers to typed []ElemType params while retaining the explicit count pointer.
@@ -555,11 +570,12 @@ func mergeCountPointerParams(params []ParamData, registry *TypeRegistry, allowOu
 					elemType, marshalKind, ok := inferCountedSliceParam(ptrP, registry)
 					if ok {
 						sliceParam := ParamData{
-							Name:          ptrP.Name,
-							PublicType:    "[]" + elemType,
-							CType:         ptrP.CType,
-							MarshalKind:   marshalKind,
-							SliceElemType: elemType,
+							Name:                 ptrP.Name,
+							PublicType:           "[]" + elemType,
+							CType:                ptrP.CType,
+							MarshalKind:          marshalKind,
+							SliceElemType:        elemType,
+							IsRefCountedTransfer: marshalKind == "objectSlice" && isRefCountedObjectSliceType(ptrP.CType, registry),
 						}
 						merged = append(merged, sliceParam)
 						skip = true

@@ -29,31 +29,31 @@ type CEFDisplayHandlerT struct {
 
 func (v *CEFDisplayHandlerT) OverrideOnAddressChange(fn uintptr) { v.OnAddressChange = fn }
 
-func (v *CEFDisplayHandlerT) CallOnAddressChange(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnAddressChange(Browser unsafe.Pointer, Frame unsafe.Pointer, URL unsafe.Pointer) uintptr {
 	if v.OnAddressChange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAddressChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAddressChange, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(URL))
 	return r1
 }
 
 func (v *CEFDisplayHandlerT) OverrideOnTitleChange(fn uintptr) { v.OnTitleChange = fn }
 
-func (v *CEFDisplayHandlerT) CallOnTitleChange(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnTitleChange(Browser unsafe.Pointer, Title unsafe.Pointer) uintptr {
 	if v.OnTitleChange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnTitleChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnTitleChange, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Title))
 	return r1
 }
 
 func (v *CEFDisplayHandlerT) OverrideOnFaviconUrlchange(fn uintptr) { v.OnFaviconUrlchange = fn }
 
-func (v *CEFDisplayHandlerT) CallOnFaviconUrlchange(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnFaviconUrlchange(Browser unsafe.Pointer, IconUrls uintptr) uintptr {
 	if v.OnFaviconUrlchange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnFaviconUrlchange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnFaviconUrlchange, uintptr(unsafe.Pointer(v)), uintptr(Browser), IconUrls)
 	return r1
 }
 
@@ -61,51 +61,51 @@ func (v *CEFDisplayHandlerT) OverrideOnFullscreenModeChange(fn uintptr) {
 	v.OnFullscreenModeChange = fn
 }
 
-func (v *CEFDisplayHandlerT) CallOnFullscreenModeChange(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnFullscreenModeChange(Browser unsafe.Pointer, Fullscreen uintptr) uintptr {
 	if v.OnFullscreenModeChange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnFullscreenModeChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnFullscreenModeChange, uintptr(unsafe.Pointer(v)), uintptr(Browser), Fullscreen)
 	return r1
 }
 
 func (v *CEFDisplayHandlerT) OverrideOnTooltip(fn uintptr) { v.OnTooltip = fn }
 
-func (v *CEFDisplayHandlerT) CallOnTooltip(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnTooltip(Browser unsafe.Pointer, Text unsafe.Pointer) uintptr {
 	if v.OnTooltip == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnTooltip, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnTooltip, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Text))
 	return r1
 }
 
 func (v *CEFDisplayHandlerT) OverrideOnStatusMessage(fn uintptr) { v.OnStatusMessage = fn }
 
-func (v *CEFDisplayHandlerT) CallOnStatusMessage(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnStatusMessage(Browser unsafe.Pointer, Value unsafe.Pointer) uintptr {
 	if v.OnStatusMessage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnStatusMessage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnStatusMessage, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Value))
 	return r1
 }
 
 func (v *CEFDisplayHandlerT) OverrideOnConsoleMessage(fn uintptr) { v.OnConsoleMessage = fn }
 
-func (v *CEFDisplayHandlerT) CallOnConsoleMessage(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnConsoleMessage(Browser unsafe.Pointer, Level uintptr, Message unsafe.Pointer, Source unsafe.Pointer, Line uintptr) uintptr {
 	if v.OnConsoleMessage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnConsoleMessage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnConsoleMessage, uintptr(unsafe.Pointer(v)), uintptr(Browser), Level, uintptr(Message), uintptr(Source), Line)
 	return r1
 }
 
 func (v *CEFDisplayHandlerT) OverrideOnAutoResize(fn uintptr) { v.OnAutoResize = fn }
 
-func (v *CEFDisplayHandlerT) CallOnAutoResize(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnAutoResize(Browser unsafe.Pointer, NewSize unsafe.Pointer) uintptr {
 	if v.OnAutoResize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAutoResize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAutoResize, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(NewSize))
 	return r1
 }
 
@@ -113,31 +113,31 @@ func (v *CEFDisplayHandlerT) OverrideOnLoadingProgressChange(fn uintptr) {
 	v.OnLoadingProgressChange = fn
 }
 
-func (v *CEFDisplayHandlerT) CallOnLoadingProgressChange(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnLoadingProgressChange(Browser unsafe.Pointer, Progress uintptr) uintptr {
 	if v.OnLoadingProgressChange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnLoadingProgressChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnLoadingProgressChange, uintptr(unsafe.Pointer(v)), uintptr(Browser), Progress)
 	return r1
 }
 
 func (v *CEFDisplayHandlerT) OverrideOnCursorChange(fn uintptr) { v.OnCursorChange = fn }
 
-func (v *CEFDisplayHandlerT) CallOnCursorChange(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnCursorChange(Browser unsafe.Pointer, Cursor uintptr, Type uintptr, CustomCursorInfo unsafe.Pointer) uintptr {
 	if v.OnCursorChange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnCursorChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnCursorChange, uintptr(unsafe.Pointer(v)), uintptr(Browser), Cursor, Type, uintptr(CustomCursorInfo))
 	return r1
 }
 
 func (v *CEFDisplayHandlerT) OverrideOnMediaAccessChange(fn uintptr) { v.OnMediaAccessChange = fn }
 
-func (v *CEFDisplayHandlerT) CallOnMediaAccessChange(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnMediaAccessChange(Browser unsafe.Pointer, HasVideoAccess uintptr, HasAudioAccess uintptr) uintptr {
 	if v.OnMediaAccessChange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnMediaAccessChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnMediaAccessChange, uintptr(unsafe.Pointer(v)), uintptr(Browser), HasVideoAccess, HasAudioAccess)
 	return r1
 }
 
@@ -145,11 +145,11 @@ func (v *CEFDisplayHandlerT) OverrideOnContentsBoundsChange(fn uintptr) {
 	v.OnContentsBoundsChange = fn
 }
 
-func (v *CEFDisplayHandlerT) CallOnContentsBoundsChange(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallOnContentsBoundsChange(Browser unsafe.Pointer, NewBounds unsafe.Pointer) uintptr {
 	if v.OnContentsBoundsChange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnContentsBoundsChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnContentsBoundsChange, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(NewBounds))
 	return r1
 }
 
@@ -157,11 +157,11 @@ func (v *CEFDisplayHandlerT) OverrideGetRootWindowScreenRect(fn uintptr) {
 	v.GetRootWindowScreenRect = fn
 }
 
-func (v *CEFDisplayHandlerT) CallGetRootWindowScreenRect(args ...uintptr) uintptr {
+func (v *CEFDisplayHandlerT) CallGetRootWindowScreenRect(Browser unsafe.Pointer, Rect unsafe.Pointer) uintptr {
 	if v.GetRootWindowScreenRect == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRootWindowScreenRect, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRootWindowScreenRect, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Rect))
 	return r1
 }
 

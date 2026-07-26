@@ -47,241 +47,241 @@ type CEFTextfieldT struct {
 
 func (v *CEFTextfieldT) OverrideSetPasswordInput(fn uintptr) { v.SetPasswordInput = fn }
 
-func (v *CEFTextfieldT) CallSetPasswordInput(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallSetPasswordInput(PasswordInput uintptr) uintptr {
 	if v.SetPasswordInput == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetPasswordInput, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetPasswordInput, uintptr(unsafe.Pointer(v)), PasswordInput)
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideIsPasswordInput(fn uintptr) { v.IsPasswordInput = fn }
 
-func (v *CEFTextfieldT) CallIsPasswordInput(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallIsPasswordInput() uintptr {
 	if v.IsPasswordInput == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsPasswordInput, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsPasswordInput, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideSetReadOnly(fn uintptr) { v.SetReadOnly = fn }
 
-func (v *CEFTextfieldT) CallSetReadOnly(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallSetReadOnly(ReadOnly uintptr) uintptr {
 	if v.SetReadOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetReadOnly, uintptr(unsafe.Pointer(v)), ReadOnly)
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
-func (v *CEFTextfieldT) CallIsReadOnly(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallIsReadOnly() uintptr {
 	if v.IsReadOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsReadOnly, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideGetText(fn uintptr) { v.GetText = fn }
 
-func (v *CEFTextfieldT) CallGetText(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallGetText() uintptr {
 	if v.GetText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetText, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideSetText(fn uintptr) { v.SetText = fn }
 
-func (v *CEFTextfieldT) CallSetText(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallSetText(Text unsafe.Pointer) uintptr {
 	if v.SetText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetText, uintptr(unsafe.Pointer(v)), uintptr(Text))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideAppendText(fn uintptr) { v.AppendText = fn }
 
-func (v *CEFTextfieldT) CallAppendText(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallAppendText(Text unsafe.Pointer) uintptr {
 	if v.AppendText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AppendText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AppendText, uintptr(unsafe.Pointer(v)), uintptr(Text))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideInsertOrReplaceText(fn uintptr) { v.InsertOrReplaceText = fn }
 
-func (v *CEFTextfieldT) CallInsertOrReplaceText(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallInsertOrReplaceText(Text unsafe.Pointer) uintptr {
 	if v.InsertOrReplaceText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.InsertOrReplaceText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.InsertOrReplaceText, uintptr(unsafe.Pointer(v)), uintptr(Text))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideHasSelection(fn uintptr) { v.HasSelection = fn }
 
-func (v *CEFTextfieldT) CallHasSelection(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallHasSelection() uintptr {
 	if v.HasSelection == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasSelection, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasSelection, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideGetSelectedText(fn uintptr) { v.GetSelectedText = fn }
 
-func (v *CEFTextfieldT) CallGetSelectedText(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallGetSelectedText() uintptr {
 	if v.GetSelectedText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSelectedText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSelectedText, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideSelectAll(fn uintptr) { v.SelectAll = fn }
 
-func (v *CEFTextfieldT) CallSelectAll(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallSelectAll(Reversed uintptr) uintptr {
 	if v.SelectAll == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SelectAll, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SelectAll, uintptr(unsafe.Pointer(v)), Reversed)
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideClearSelection(fn uintptr) { v.ClearSelection = fn }
 
-func (v *CEFTextfieldT) CallClearSelection(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallClearSelection() uintptr {
 	if v.ClearSelection == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ClearSelection, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ClearSelection, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideGetSelectedRange(fn uintptr) { v.GetSelectedRange = fn }
 
-func (v *CEFTextfieldT) CallGetSelectedRange(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallGetSelectedRange() uintptr {
 	if v.GetSelectedRange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSelectedRange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSelectedRange, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideSelectRange(fn uintptr) { v.SelectRange = fn }
 
-func (v *CEFTextfieldT) CallSelectRange(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallSelectRange(Range unsafe.Pointer) uintptr {
 	if v.SelectRange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SelectRange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SelectRange, uintptr(unsafe.Pointer(v)), uintptr(Range))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideGetCursorPosition(fn uintptr) { v.GetCursorPosition = fn }
 
-func (v *CEFTextfieldT) CallGetCursorPosition(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallGetCursorPosition() uintptr {
 	if v.GetCursorPosition == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCursorPosition, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCursorPosition, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideSetFontList(fn uintptr) { v.SetFontList = fn }
 
-func (v *CEFTextfieldT) CallSetFontList(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallSetFontList(FontList unsafe.Pointer) uintptr {
 	if v.SetFontList == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetFontList, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetFontList, uintptr(unsafe.Pointer(v)), uintptr(FontList))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideApplyTextColor(fn uintptr) { v.ApplyTextColor = fn }
 
-func (v *CEFTextfieldT) CallApplyTextColor(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallApplyTextColor(Color uintptr, Range unsafe.Pointer) uintptr {
 	if v.ApplyTextColor == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ApplyTextColor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ApplyTextColor, uintptr(unsafe.Pointer(v)), Color, uintptr(Range))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideApplyTextStyle(fn uintptr) { v.ApplyTextStyle = fn }
 
-func (v *CEFTextfieldT) CallApplyTextStyle(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallApplyTextStyle(Style uintptr, Add uintptr, Range unsafe.Pointer) uintptr {
 	if v.ApplyTextStyle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ApplyTextStyle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ApplyTextStyle, uintptr(unsafe.Pointer(v)), Style, Add, uintptr(Range))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideIsCommandEnabled(fn uintptr) { v.IsCommandEnabled = fn }
 
-func (v *CEFTextfieldT) CallIsCommandEnabled(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallIsCommandEnabled(CommandID uintptr) uintptr {
 	if v.IsCommandEnabled == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsCommandEnabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsCommandEnabled, uintptr(unsafe.Pointer(v)), CommandID)
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideExecuteCommand(fn uintptr) { v.ExecuteCommand = fn }
 
-func (v *CEFTextfieldT) CallExecuteCommand(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallExecuteCommand(CommandID uintptr) uintptr {
 	if v.ExecuteCommand == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ExecuteCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ExecuteCommand, uintptr(unsafe.Pointer(v)), CommandID)
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideClearEditHistory(fn uintptr) { v.ClearEditHistory = fn }
 
-func (v *CEFTextfieldT) CallClearEditHistory(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallClearEditHistory() uintptr {
 	if v.ClearEditHistory == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ClearEditHistory, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ClearEditHistory, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideSetPlaceholderText(fn uintptr) { v.SetPlaceholderText = fn }
 
-func (v *CEFTextfieldT) CallSetPlaceholderText(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallSetPlaceholderText(Text unsafe.Pointer) uintptr {
 	if v.SetPlaceholderText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetPlaceholderText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetPlaceholderText, uintptr(unsafe.Pointer(v)), uintptr(Text))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideGetPlaceholderText(fn uintptr) { v.GetPlaceholderText = fn }
 
-func (v *CEFTextfieldT) CallGetPlaceholderText(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallGetPlaceholderText() uintptr {
 	if v.GetPlaceholderText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPlaceholderText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPlaceholderText, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTextfieldT) OverrideSetAccessibleName(fn uintptr) { v.SetAccessibleName = fn }
 
-func (v *CEFTextfieldT) CallSetAccessibleName(args ...uintptr) uintptr {
+func (v *CEFTextfieldT) CallSetAccessibleName(Name unsafe.Pointer) uintptr {
 	if v.SetAccessibleName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetAccessibleName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetAccessibleName, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 

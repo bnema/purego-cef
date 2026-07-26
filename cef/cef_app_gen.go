@@ -156,9 +156,15 @@ func (obj *appImpl) OnBeforeCommandLineProcessing(processType string, commandLin
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnBeforeCommandLineProcessing == 0 {
+		return
+	}
 	processTypeStr := cefString(processType)
 	defer freeCefString(&processTypeStr)
-	rawPtr.CallOnBeforeCommandLineProcessing(uintptr(unsafe.Pointer(&processTypeStr)), uintptr(extractRawPointer(commandLine)))
+	commandLinePtr := extractRawPointer(commandLine)
+	transferRef(commandLinePtr)
+	rawPtr.CallOnBeforeCommandLineProcessing(unsafe.Pointer(&processTypeStr), commandLinePtr)
+	runtime.KeepAlive(commandLine)
 }
 
 func (obj *appImpl) OnRegisterCustomSchemes(registrar SchemeRegistrar) {
@@ -166,7 +172,7 @@ func (obj *appImpl) OnRegisterCustomSchemes(registrar SchemeRegistrar) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRegisterCustomSchemes(uintptr(extractRawPointer(registrar)))
+	rawPtr.CallOnRegisterCustomSchemes(extractRawPointer(registrar))
 }
 
 func (obj *appImpl) GetResourceBundleHandler() ResourceBundleHandler {

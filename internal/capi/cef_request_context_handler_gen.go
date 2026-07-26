@@ -20,11 +20,11 @@ func (v *CEFRequestContextHandlerT) OverrideOnRequestContextInitialized(fn uintp
 	v.OnRequestContextInitialized = fn
 }
 
-func (v *CEFRequestContextHandlerT) CallOnRequestContextInitialized(args ...uintptr) uintptr {
+func (v *CEFRequestContextHandlerT) CallOnRequestContextInitialized(RequestContext unsafe.Pointer) uintptr {
 	if v.OnRequestContextInitialized == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRequestContextInitialized, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRequestContextInitialized, uintptr(unsafe.Pointer(v)), uintptr(RequestContext))
 	return r1
 }
 
@@ -32,11 +32,11 @@ func (v *CEFRequestContextHandlerT) OverrideGetResourceRequestHandler(fn uintptr
 	v.GetResourceRequestHandler = fn
 }
 
-func (v *CEFRequestContextHandlerT) CallGetResourceRequestHandler(args ...uintptr) uintptr {
+func (v *CEFRequestContextHandlerT) CallGetResourceRequestHandler(Browser unsafe.Pointer, Frame unsafe.Pointer, Request unsafe.Pointer, IsNavigation uintptr, IsDownload uintptr, RequestInitiator unsafe.Pointer, DisableDefaultHandling unsafe.Pointer) uintptr {
 	if v.GetResourceRequestHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetResourceRequestHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetResourceRequestHandler, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(Request), IsNavigation, IsDownload, uintptr(RequestInitiator), uintptr(DisableDefaultHandling))
 	return r1
 }
 

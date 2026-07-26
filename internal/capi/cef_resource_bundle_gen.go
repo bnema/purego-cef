@@ -19,21 +19,21 @@ type CEFResourceBundleT struct {
 
 func (v *CEFResourceBundleT) OverrideGetLocalizedString(fn uintptr) { v.GetLocalizedString = fn }
 
-func (v *CEFResourceBundleT) CallGetLocalizedString(args ...uintptr) uintptr {
+func (v *CEFResourceBundleT) CallGetLocalizedString(StringID uintptr) uintptr {
 	if v.GetLocalizedString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetLocalizedString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetLocalizedString, uintptr(unsafe.Pointer(v)), StringID)
 	return r1
 }
 
 func (v *CEFResourceBundleT) OverrideGetDataResource(fn uintptr) { v.GetDataResource = fn }
 
-func (v *CEFResourceBundleT) CallGetDataResource(args ...uintptr) uintptr {
+func (v *CEFResourceBundleT) CallGetDataResource(ResourceID uintptr) uintptr {
 	if v.GetDataResource == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDataResource, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDataResource, uintptr(unsafe.Pointer(v)), ResourceID)
 	return r1
 }
 
@@ -41,11 +41,11 @@ func (v *CEFResourceBundleT) OverrideGetDataResourceForScale(fn uintptr) {
 	v.GetDataResourceForScale = fn
 }
 
-func (v *CEFResourceBundleT) CallGetDataResourceForScale(args ...uintptr) uintptr {
+func (v *CEFResourceBundleT) CallGetDataResourceForScale(ResourceID uintptr, ScaleFactor uintptr) uintptr {
 	if v.GetDataResourceForScale == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDataResourceForScale, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDataResourceForScale, uintptr(unsafe.Pointer(v)), ResourceID, ScaleFactor)
 	return r1
 }
 

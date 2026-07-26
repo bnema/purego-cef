@@ -39,7 +39,7 @@ func (obj *labelButtonImpl) SetText(text string) {
 	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallSetText(unsafe.Pointer(&textStr))
 }
 
 func (obj *labelButtonImpl) GetText() string {
@@ -56,7 +56,13 @@ func (obj *labelButtonImpl) SetImage(buttonState ButtonState, image Image) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetImage(uintptr(buttonState), uintptr(extractRawPointer(image)))
+	if rawPtr.SetImage == 0 {
+		return
+	}
+	imagePtr := extractRawPointer(image)
+	transferRef(imagePtr)
+	rawPtr.CallSetImage(uintptr(buttonState), imagePtr)
+	runtime.KeepAlive(image)
 }
 
 func (obj *labelButtonImpl) GetImage(buttonState ButtonState) Image {
@@ -91,7 +97,7 @@ func (obj *labelButtonImpl) SetFontList(fontList string) {
 	rawPtr := obj.rawPtr
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
-	rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
+	rawPtr.CallSetFontList(unsafe.Pointer(&fontListStr))
 }
 
 func (obj *labelButtonImpl) SetHorizontalAlignment(alignment HorizontalAlignment) {
@@ -107,7 +113,7 @@ func (obj *labelButtonImpl) SetMinimumSize(size *Size) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetMinimumSize(uintptr(unsafe.Pointer(size)))
+	rawPtr.CallSetMinimumSize(unsafe.Pointer(size))
 }
 
 func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
@@ -115,7 +121,7 @@ func (obj *labelButtonImpl) SetMaximumSize(size *Size) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetMaximumSize(uintptr(unsafe.Pointer(size)))
+	rawPtr.CallSetMaximumSize(unsafe.Pointer(size))
 }
 
 func (obj *labelButtonImpl) RawPointer() unsafe.Pointer {
@@ -169,8 +175,14 @@ func takeLabelButton(ptr unsafe.Pointer) LabelButton {
 
 // LabelButtonCreate Create a new LabelButton. A |delegate| must be provided to handle the button click. |text| will be shown on the LabelButton and used as the default accessible name.
 func LabelButtonCreate(delegate ButtonDelegate, text string) LabelButton {
+	if capi.CEFLabelButtonCreate == nil {
+		return nil
+	}
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	ret := capi.CEFLabelButtonCreate(extractOrWrapRawPointer(delegate, func() any { return NewButtonDelegate(delegate) }), unsafe.Pointer(&textStr))
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewButtonDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFLabelButtonCreate(delegatePtr, unsafe.Pointer(&textStr))
+	runtime.KeepAlive(delegate)
 	return takeLabelButton(ret)
 }

@@ -227,7 +227,16 @@ func (obj *browserViewDelegateImpl) OnBrowserCreated(browserView BrowserView, br
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBrowserCreated(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(browser)))
+	if rawPtr.OnBrowserCreated == 0 {
+		return
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnBrowserCreated(browserViewPtr, browserPtr)
+	runtime.KeepAlive(browserView)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *browserViewDelegateImpl) OnBrowserDestroyed(browserView BrowserView, browser Browser) {
@@ -235,7 +244,16 @@ func (obj *browserViewDelegateImpl) OnBrowserDestroyed(browserView BrowserView, 
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBrowserDestroyed(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(browser)))
+	if rawPtr.OnBrowserDestroyed == 0 {
+		return
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnBrowserDestroyed(browserViewPtr, browserPtr)
+	runtime.KeepAlive(browserView)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *browserViewDelegateImpl) GetDelegateForPopupBrowserView(browserView BrowserView, settings *BrowserSettings, client RawClient, isDevtools int32) BrowserViewDelegate {
@@ -243,7 +261,16 @@ func (obj *browserViewDelegateImpl) GetDelegateForPopupBrowserView(browserView B
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetDelegateForPopupBrowserView(uintptr(extractRawPointer(browserView)), uintptr(unsafe.Pointer(settings)), uintptr(extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })), uintptr(isDevtools))
+	if rawPtr.GetDelegateForPopupBrowserView == 0 {
+		return nil
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	clientPtr := extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })
+	transferRef(clientPtr)
+	ret := rawPtr.CallGetDelegateForPopupBrowserView(browserViewPtr, unsafe.Pointer(settings), clientPtr, uintptr(isDevtools))
+	runtime.KeepAlive(browserView)
+	runtime.KeepAlive(client)
 	return wrapBrowserViewDelegate(unsafe.Pointer(ret))
 }
 
@@ -252,7 +279,16 @@ func (obj *browserViewDelegateImpl) OnPopupBrowserViewCreated(browserView Browse
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnPopupBrowserViewCreated(uintptr(extractRawPointer(browserView)), uintptr(extractRawPointer(popupBrowserView)), uintptr(isDevtools))
+	if rawPtr.OnPopupBrowserViewCreated == 0 {
+		return 0
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	popupBrowserViewPtr := extractRawPointer(popupBrowserView)
+	transferRef(popupBrowserViewPtr)
+	ret := rawPtr.CallOnPopupBrowserViewCreated(browserViewPtr, popupBrowserViewPtr, uintptr(isDevtools))
+	runtime.KeepAlive(browserView)
+	runtime.KeepAlive(popupBrowserView)
 	return int32(ret)
 }
 
@@ -261,7 +297,13 @@ func (obj *browserViewDelegateImpl) GetChromeToolbarType(browserView BrowserView
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetChromeToolbarType(uintptr(extractRawPointer(browserView)))
+	if rawPtr.GetChromeToolbarType == 0 {
+		return 0
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	ret := rawPtr.CallGetChromeToolbarType(browserViewPtr)
+	runtime.KeepAlive(browserView)
 	return ChromeToolbarType(ret)
 }
 
@@ -270,7 +312,13 @@ func (obj *browserViewDelegateImpl) UseFramelessWindowForPictureInPicture(browse
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallUseFramelessWindowForPictureInPicture(uintptr(extractRawPointer(browserView)))
+	if rawPtr.UseFramelessWindowForPictureInPicture == 0 {
+		return 0
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	ret := rawPtr.CallUseFramelessWindowForPictureInPicture(browserViewPtr)
+	runtime.KeepAlive(browserView)
 	return int32(ret)
 }
 
@@ -279,7 +327,13 @@ func (obj *browserViewDelegateImpl) OnGestureCommand(browserView BrowserView, ge
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnGestureCommand(uintptr(extractRawPointer(browserView)), uintptr(gestureCommand))
+	if rawPtr.OnGestureCommand == 0 {
+		return 0
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	ret := rawPtr.CallOnGestureCommand(browserViewPtr, uintptr(gestureCommand))
+	runtime.KeepAlive(browserView)
 	return int32(ret)
 }
 
@@ -297,7 +351,13 @@ func (obj *browserViewDelegateImpl) AllowMoveForPictureInPicture(browserView Bro
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAllowMoveForPictureInPicture(uintptr(extractRawPointer(browserView)))
+	if rawPtr.AllowMoveForPictureInPicture == 0 {
+		return 0
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	ret := rawPtr.CallAllowMoveForPictureInPicture(browserViewPtr)
+	runtime.KeepAlive(browserView)
 	return int32(ret)
 }
 
@@ -306,7 +366,13 @@ func (obj *browserViewDelegateImpl) AllowPictureInPictureWithoutUserActivation(b
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAllowPictureInPictureWithoutUserActivation(uintptr(extractRawPointer(browserView)))
+	if rawPtr.AllowPictureInPictureWithoutUserActivation == 0 {
+		return 0
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	ret := rawPtr.CallAllowPictureInPictureWithoutUserActivation(browserViewPtr)
+	runtime.KeepAlive(browserView)
 	return int32(ret)
 }
 

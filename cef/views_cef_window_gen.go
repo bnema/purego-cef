@@ -36,7 +36,13 @@ func (obj *windowImpl) ShowAsBrowserModalDialog(browserView BrowserView) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallShowAsBrowserModalDialog(uintptr(extractRawPointer(browserView)))
+	if rawPtr.ShowAsBrowserModalDialog == 0 {
+		return
+	}
+	browserViewPtr := extractRawPointer(browserView)
+	transferRef(browserViewPtr)
+	rawPtr.CallShowAsBrowserModalDialog(browserViewPtr)
+	runtime.KeepAlive(browserView)
 }
 
 func (obj *windowImpl) Hide() {
@@ -52,7 +58,7 @@ func (obj *windowImpl) CenterWindow(size *Size) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallCenterWindow(uintptr(unsafe.Pointer(size)))
+	rawPtr.CallCenterWindow(unsafe.Pointer(size))
 }
 
 func (obj *windowImpl) Close() {
@@ -197,7 +203,7 @@ func (obj *windowImpl) SetTitle(title string) {
 	rawPtr := obj.rawPtr
 	titleStr := cefString(title)
 	defer freeCefString(&titleStr)
-	rawPtr.CallSetTitle(uintptr(unsafe.Pointer(&titleStr)))
+	rawPtr.CallSetTitle(unsafe.Pointer(&titleStr))
 }
 
 func (obj *windowImpl) GetTitle() string {
@@ -214,7 +220,13 @@ func (obj *windowImpl) SetWindowIcon(image Image) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetWindowIcon(uintptr(extractRawPointer(image)))
+	if rawPtr.SetWindowIcon == 0 {
+		return
+	}
+	imagePtr := extractRawPointer(image)
+	transferRef(imagePtr)
+	rawPtr.CallSetWindowIcon(imagePtr)
+	runtime.KeepAlive(image)
 }
 
 func (obj *windowImpl) GetWindowIcon() Image {
@@ -231,7 +243,13 @@ func (obj *windowImpl) SetWindowAppIcon(image Image) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetWindowAppIcon(uintptr(extractRawPointer(image)))
+	if rawPtr.SetWindowAppIcon == 0 {
+		return
+	}
+	imagePtr := extractRawPointer(image)
+	transferRef(imagePtr)
+	rawPtr.CallSetWindowAppIcon(imagePtr)
+	runtime.KeepAlive(image)
 }
 
 func (obj *windowImpl) GetWindowAppIcon() Image {
@@ -248,7 +266,13 @@ func (obj *windowImpl) AddOverlayView(view View, dockingMode DockingMode, canAct
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAddOverlayView(uintptr(extractRawPointer(view)), uintptr(dockingMode), uintptr(canActivate))
+	if rawPtr.AddOverlayView == 0 {
+		return nil
+	}
+	viewPtr := extractRawPointer(view)
+	transferRef(viewPtr)
+	ret := rawPtr.CallAddOverlayView(viewPtr, uintptr(dockingMode), uintptr(canActivate))
+	runtime.KeepAlive(view)
 	return wrapOverlayController(unsafe.Pointer(ret))
 }
 
@@ -257,7 +281,13 @@ func (obj *windowImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anchorP
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
+	if rawPtr.ShowMenu == 0 {
+		return
+	}
+	menuModelPtr := extractRawPointer(menuModel)
+	transferRef(menuModelPtr)
+	rawPtr.CallShowMenu(menuModelPtr, unsafe.Pointer(screenPoint), uintptr(anchorPosition))
+	runtime.KeepAlive(menuModel)
 }
 
 func (obj *windowImpl) CancelMenu() {
@@ -295,7 +325,7 @@ func (obj *windowImpl) SetDraggableRegions(regions []DraggableRegion) {
 	if len(regions) > 0 {
 		regionsPtr = unsafe.Pointer(&regions[0])
 	}
-	rawPtr.CallSetDraggableRegions(uintptr(len(regions)), uintptr(regionsPtr))
+	rawPtr.CallSetDraggableRegions(uintptr(len(regions)), regionsPtr)
 }
 
 func (obj *windowImpl) GetWindowHandle() uintptr {
@@ -431,6 +461,12 @@ func takeWindow(ptr unsafe.Pointer) Window {
 
 // WindowCreateTopLevel Create a new Window.
 func WindowCreateTopLevel(delegate WindowDelegate) Window {
-	ret := capi.CEFWindowCreateTopLevel(extractOrWrapRawPointer(delegate, func() any { return NewWindowDelegate(delegate) }))
+	if capi.CEFWindowCreateTopLevel == nil {
+		return nil
+	}
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewWindowDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFWindowCreateTopLevel(delegatePtr)
+	runtime.KeepAlive(delegate)
 	return takeWindow(ret)
 }

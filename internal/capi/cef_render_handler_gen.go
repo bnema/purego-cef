@@ -35,101 +35,101 @@ func (v *CEFRenderHandlerT) OverrideGetAccessibilityHandler(fn uintptr) {
 	v.GetAccessibilityHandler = fn
 }
 
-func (v *CEFRenderHandlerT) CallGetAccessibilityHandler(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallGetAccessibilityHandler() uintptr {
 	if v.GetAccessibilityHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAccessibilityHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAccessibilityHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideGetRootScreenRect(fn uintptr) { v.GetRootScreenRect = fn }
 
-func (v *CEFRenderHandlerT) CallGetRootScreenRect(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallGetRootScreenRect(Browser unsafe.Pointer, Rect unsafe.Pointer) uintptr {
 	if v.GetRootScreenRect == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRootScreenRect, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRootScreenRect, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Rect))
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideGetViewRect(fn uintptr) { v.GetViewRect = fn }
 
-func (v *CEFRenderHandlerT) CallGetViewRect(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallGetViewRect(Browser unsafe.Pointer, Rect unsafe.Pointer) uintptr {
 	if v.GetViewRect == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetViewRect, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetViewRect, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Rect))
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideGetScreenPoint(fn uintptr) { v.GetScreenPoint = fn }
 
-func (v *CEFRenderHandlerT) CallGetScreenPoint(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallGetScreenPoint(Browser unsafe.Pointer, Viewx uintptr, Viewy uintptr, Screenx unsafe.Pointer, Screeny unsafe.Pointer) uintptr {
 	if v.GetScreenPoint == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetScreenPoint, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetScreenPoint, uintptr(unsafe.Pointer(v)), uintptr(Browser), Viewx, Viewy, uintptr(Screenx), uintptr(Screeny))
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideGetScreenInfo(fn uintptr) { v.GetScreenInfo = fn }
 
-func (v *CEFRenderHandlerT) CallGetScreenInfo(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallGetScreenInfo(Browser unsafe.Pointer, ScreenInfo unsafe.Pointer) uintptr {
 	if v.GetScreenInfo == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetScreenInfo, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetScreenInfo, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(ScreenInfo))
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideOnPopupShow(fn uintptr) { v.OnPopupShow = fn }
 
-func (v *CEFRenderHandlerT) CallOnPopupShow(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallOnPopupShow(Browser unsafe.Pointer, Show uintptr) uintptr {
 	if v.OnPopupShow == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPopupShow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPopupShow, uintptr(unsafe.Pointer(v)), uintptr(Browser), Show)
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideOnPopupSize(fn uintptr) { v.OnPopupSize = fn }
 
-func (v *CEFRenderHandlerT) CallOnPopupSize(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallOnPopupSize(Browser unsafe.Pointer, Rect unsafe.Pointer) uintptr {
 	if v.OnPopupSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPopupSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPopupSize, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Rect))
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideOnPaint(fn uintptr) { v.OnPaint = fn }
 
-func (v *CEFRenderHandlerT) CallOnPaint(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallOnPaint(Browser unsafe.Pointer, Type uintptr, Dirtyrectscount uintptr, Dirtyrects unsafe.Pointer, Buffer unsafe.Pointer, Width uintptr, Height uintptr) uintptr {
 	if v.OnPaint == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPaint, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPaint, uintptr(unsafe.Pointer(v)), uintptr(Browser), Type, Dirtyrectscount, uintptr(Dirtyrects), uintptr(Buffer), Width, Height)
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideOnAcceleratedPaint(fn uintptr) { v.OnAcceleratedPaint = fn }
 
-func (v *CEFRenderHandlerT) CallOnAcceleratedPaint(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallOnAcceleratedPaint(Browser unsafe.Pointer, Type uintptr, Dirtyrectscount uintptr, Dirtyrects unsafe.Pointer, Info unsafe.Pointer) uintptr {
 	if v.OnAcceleratedPaint == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAcceleratedPaint, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAcceleratedPaint, uintptr(unsafe.Pointer(v)), uintptr(Browser), Type, Dirtyrectscount, uintptr(Dirtyrects), uintptr(Info))
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideGetTouchHandleSize(fn uintptr) { v.GetTouchHandleSize = fn }
 
-func (v *CEFRenderHandlerT) CallGetTouchHandleSize(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallGetTouchHandleSize(Browser unsafe.Pointer, Orientation uintptr, Size unsafe.Pointer) uintptr {
 	if v.GetTouchHandleSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetTouchHandleSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetTouchHandleSize, uintptr(unsafe.Pointer(v)), uintptr(Browser), Orientation, uintptr(Size))
 	return r1
 }
 
@@ -137,41 +137,41 @@ func (v *CEFRenderHandlerT) OverrideOnTouchHandleStateChanged(fn uintptr) {
 	v.OnTouchHandleStateChanged = fn
 }
 
-func (v *CEFRenderHandlerT) CallOnTouchHandleStateChanged(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallOnTouchHandleStateChanged(Browser unsafe.Pointer, State unsafe.Pointer) uintptr {
 	if v.OnTouchHandleStateChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnTouchHandleStateChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnTouchHandleStateChanged, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(State))
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideStartDragging(fn uintptr) { v.StartDragging = fn }
 
-func (v *CEFRenderHandlerT) CallStartDragging(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallStartDragging(Browser unsafe.Pointer, DragData unsafe.Pointer, AllowedOps uintptr, X uintptr, Y uintptr) uintptr {
 	if v.StartDragging == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.StartDragging, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.StartDragging, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(DragData), AllowedOps, X, Y)
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideUpdateDragCursor(fn uintptr) { v.UpdateDragCursor = fn }
 
-func (v *CEFRenderHandlerT) CallUpdateDragCursor(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallUpdateDragCursor(Browser unsafe.Pointer, Operation uintptr) uintptr {
 	if v.UpdateDragCursor == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.UpdateDragCursor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.UpdateDragCursor, uintptr(unsafe.Pointer(v)), uintptr(Browser), Operation)
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideOnScrollOffsetChanged(fn uintptr) { v.OnScrollOffsetChanged = fn }
 
-func (v *CEFRenderHandlerT) CallOnScrollOffsetChanged(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallOnScrollOffsetChanged(Browser unsafe.Pointer, X uintptr, Y uintptr) uintptr {
 	if v.OnScrollOffsetChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnScrollOffsetChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnScrollOffsetChanged, uintptr(unsafe.Pointer(v)), uintptr(Browser), X, Y)
 	return r1
 }
 
@@ -179,21 +179,21 @@ func (v *CEFRenderHandlerT) OverrideOnImeCompositionRangeChanged(fn uintptr) {
 	v.OnImeCompositionRangeChanged = fn
 }
 
-func (v *CEFRenderHandlerT) CallOnImeCompositionRangeChanged(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallOnImeCompositionRangeChanged(Browser unsafe.Pointer, SelectedRange unsafe.Pointer, CharacterBoundscount uintptr, CharacterBounds unsafe.Pointer) uintptr {
 	if v.OnImeCompositionRangeChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnImeCompositionRangeChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnImeCompositionRangeChanged, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(SelectedRange), CharacterBoundscount, uintptr(CharacterBounds))
 	return r1
 }
 
 func (v *CEFRenderHandlerT) OverrideOnTextSelectionChanged(fn uintptr) { v.OnTextSelectionChanged = fn }
 
-func (v *CEFRenderHandlerT) CallOnTextSelectionChanged(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallOnTextSelectionChanged(Browser unsafe.Pointer, SelectedText unsafe.Pointer, SelectedRange unsafe.Pointer) uintptr {
 	if v.OnTextSelectionChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnTextSelectionChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnTextSelectionChanged, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(SelectedText), uintptr(SelectedRange))
 	return r1
 }
 
@@ -201,11 +201,11 @@ func (v *CEFRenderHandlerT) OverrideOnVirtualKeyboardRequested(fn uintptr) {
 	v.OnVirtualKeyboardRequested = fn
 }
 
-func (v *CEFRenderHandlerT) CallOnVirtualKeyboardRequested(args ...uintptr) uintptr {
+func (v *CEFRenderHandlerT) CallOnVirtualKeyboardRequested(Browser unsafe.Pointer, InputMode uintptr) uintptr {
 	if v.OnVirtualKeyboardRequested == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnVirtualKeyboardRequested, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnVirtualKeyboardRequested, uintptr(unsafe.Pointer(v)), uintptr(Browser), InputMode)
 	return r1
 }
 

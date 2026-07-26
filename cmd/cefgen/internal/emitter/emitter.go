@@ -47,11 +47,17 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			return "take" + typeName
 		}
 	}
-	interfaceRawPointerExpr := func(p ParamData) string {
+	interfaceRawPointerBaseExpr := func(p ParamData) string {
 		if p.IsHandler {
 			return "extractOrWrapRawPointer(" + p.Name + ", func() any { return " + constructorName(p.PublicType) + "(" + p.Name + ") })"
 		}
 		return "extractRawPointer(" + p.Name + ")"
+	}
+	interfaceRawPointerExpr := func(p ParamData) string {
+		if p.IsRefCountedTransfer {
+			return p.Name + "Ptr"
+		}
+		return interfaceRawPointerBaseExpr(p)
 	}
 	marshalNonFloatAsUintptr := func(p ParamData) string {
 		switch p.MarshalKind {
@@ -158,6 +164,23 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				}
 			}
 			return sig
+		},
+		"refCountedTransferPointerExpr": interfaceRawPointerBaseExpr,
+		"hasRefCountedParamTransfers": func(params []ParamData) bool {
+			for _, p := range params {
+				if p.IsRefCountedTransfer {
+					return true
+				}
+			}
+			return false
+		},
+		"hasRefCountedTransfers": func(m MethodData) bool {
+			for _, p := range m.Params {
+				if p.IsRefCountedTransfer {
+					return true
+				}
+			}
+			return false
 		},
 		"typedObjectCallArgs": func(m MethodData) string {
 			args := []string{"rawPtr"}
@@ -268,24 +291,27 @@ func EmitPublic(data *PublicFileData) (string, error) {
 				switch p.MarshalKind {
 				case "interface":
 					if p.PublicType == "unsafe.Pointer" {
-						return "uintptr(" + p.Name + ")"
+						return p.Name
 					}
-					return "uintptr(" + interfaceRawPointerExpr(p) + ")"
+					return interfaceRawPointerExpr(p)
 				case "string", "userfreeString":
-					return "uintptr(unsafe.Pointer(&" + p.Name + "Str))"
+					return "unsafe.Pointer(&" + p.Name + "Str)"
 				case "enum":
 					return "uintptr(" + p.Name + ")"
 				case "pointer":
-					return "uintptr(" + p.Name + ")"
+					return p.Name
 				case "dataStruct":
-					return "uintptr(unsafe.Pointer(" + p.Name + "))"
+					return "unsafe.Pointer(" + p.Name + ")"
 				case "pixelBuffer":
-					return "uintptr(" + p.Name + "Ptr)"
+					return p.Name + "Ptr"
 				case "outCount":
-					return "uintptr(unsafe.Pointer(" + p.CountPartnerName + "CountPtr))"
+					return "unsafe.Pointer(" + p.CountPartnerName + "CountPtr)"
 				case "outSlice", "outObjectSlice":
-					return "uintptr(" + p.Name + "Ptr)"
+					return p.Name + "Ptr"
 				case "numeric":
+					if p.RawGoType == "unsafe.Pointer" {
+						return "unsafe.Pointer(" + p.Name + ")"
+					}
 					switch p.PublicType {
 					case "float64":
 						return "uintptr(math.Float64bits(" + p.Name + "))"
@@ -305,7 +331,7 @@ func EmitPublic(data *PublicFileData) (string, error) {
 			for _, p := range params {
 				if p.MarshalKind == "slice" || p.MarshalKind == "objectSlice" {
 					args = append(args, "uintptr(len("+p.Name+"))")
-					args = append(args, "uintptr("+p.Name+"Ptr)")
+					args = append(args, p.Name+"Ptr")
 				} else {
 					args = append(args, marshalOne(p))
 				}
@@ -468,7 +494,26 @@ func EmitPublic(data *PublicFileData) (string, error) {
 // EmitRaw takes a parsed Header and returns formatted Go source for the raw layer.
 // The raw layer lives in package "raw" and mirrors C struct layouts.
 func EmitRaw(header *model.Header) (string, error) {
-	tmpl, err := template.New("raw").ParseFS(templateFS, "templates/raw_*.tmpl")
+	rawParamIsPointer := func(p model.Param) bool {
+		return p.Pointer > 0 || strings.Contains(p.CType, "*") ||
+			p.GoType == "unsafe.Pointer" || strings.HasPrefix(p.GoType, "*")
+	}
+	funcMap := template.FuncMap{
+		"rawMethodParams": model.RawMethodParams,
+		"rawParamType": func(p model.Param) string {
+			if rawParamIsPointer(p) {
+				return "unsafe.Pointer"
+			}
+			return "uintptr"
+		},
+		"rawCallArg": func(p model.Param) string {
+			if rawParamIsPointer(p) {
+				return "uintptr(" + p.GoName + ")"
+			}
+			return p.GoName
+		},
+	}
+	tmpl, err := template.New("raw").Funcs(funcMap).ParseFS(templateFS, "templates/raw_*.tmpl")
 	if err != nil {
 		return "", err
 	}

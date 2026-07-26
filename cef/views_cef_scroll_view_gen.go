@@ -28,7 +28,13 @@ func (obj *scrollViewImpl) SetContentView(view View) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetContentView(uintptr(extractRawPointer(view)))
+	if rawPtr.SetContentView == 0 {
+		return
+	}
+	viewPtr := extractRawPointer(view)
+	transferRef(viewPtr)
+	rawPtr.CallSetContentView(viewPtr)
+	runtime.KeepAlive(view)
 }
 
 func (obj *scrollViewImpl) GetContentView() View {
@@ -136,6 +142,12 @@ func takeScrollView(ptr unsafe.Pointer) ScrollView {
 
 // ScrollViewCreate Create a new ScrollView.
 func ScrollViewCreate(delegate ViewDelegate) ScrollView {
-	ret := capi.CEFScrollViewCreate(extractOrWrapRawPointer(delegate, func() any { return NewViewDelegate(delegate) }))
+	if capi.CEFScrollViewCreate == nil {
+		return nil
+	}
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewViewDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFScrollViewCreate(delegatePtr)
+	runtime.KeepAlive(delegate)
 	return takeScrollView(ret)
 }

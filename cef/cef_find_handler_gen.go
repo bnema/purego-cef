@@ -75,7 +75,13 @@ func (obj *findHandlerImpl) OnFindResult(browser Browser, identifier int32, coun
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnFindResult(uintptr(extractRawPointer(browser)), uintptr(identifier), uintptr(count), uintptr(unsafe.Pointer(selectionrect)), uintptr(activematchordinal), uintptr(finalupdate))
+	if rawPtr.OnFindResult == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnFindResult(browserPtr, uintptr(identifier), uintptr(count), unsafe.Pointer(selectionrect), uintptr(activematchordinal), uintptr(finalupdate))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *findHandlerImpl) RawPointer() unsafe.Pointer {

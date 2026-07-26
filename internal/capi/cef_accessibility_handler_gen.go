@@ -20,11 +20,11 @@ func (v *CEFAccessibilityHandlerT) OverrideOnAccessibilityTreeChange(fn uintptr)
 	v.OnAccessibilityTreeChange = fn
 }
 
-func (v *CEFAccessibilityHandlerT) CallOnAccessibilityTreeChange(args ...uintptr) uintptr {
+func (v *CEFAccessibilityHandlerT) CallOnAccessibilityTreeChange(Value unsafe.Pointer) uintptr {
 	if v.OnAccessibilityTreeChange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAccessibilityTreeChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAccessibilityTreeChange, uintptr(unsafe.Pointer(v)), uintptr(Value))
 	return r1
 }
 
@@ -32,11 +32,11 @@ func (v *CEFAccessibilityHandlerT) OverrideOnAccessibilityLocationChange(fn uint
 	v.OnAccessibilityLocationChange = fn
 }
 
-func (v *CEFAccessibilityHandlerT) CallOnAccessibilityLocationChange(args ...uintptr) uintptr {
+func (v *CEFAccessibilityHandlerT) CallOnAccessibilityLocationChange(Value unsafe.Pointer) uintptr {
 	if v.OnAccessibilityLocationChange == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAccessibilityLocationChange, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAccessibilityLocationChange, uintptr(unsafe.Pointer(v)), uintptr(Value))
 	return r1
 }
 

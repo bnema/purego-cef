@@ -38,41 +38,41 @@ type CEFPrintSettingsT struct {
 
 func (v *CEFPrintSettingsT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFPrintSettingsT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
-func (v *CEFPrintSettingsT) CallIsReadOnly(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallIsReadOnly() uintptr {
 	if v.IsReadOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsReadOnly, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideSetOrientation(fn uintptr) { v.SetOrientation = fn }
 
-func (v *CEFPrintSettingsT) CallSetOrientation(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetOrientation(Landscape uintptr) uintptr {
 	if v.SetOrientation == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetOrientation, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetOrientation, uintptr(unsafe.Pointer(v)), Landscape)
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideIsLandscape(fn uintptr) { v.IsLandscape = fn }
 
-func (v *CEFPrintSettingsT) CallIsLandscape(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallIsLandscape() uintptr {
 	if v.IsLandscape == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsLandscape, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsLandscape, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -80,181 +80,181 @@ func (v *CEFPrintSettingsT) OverrideSetPrinterPrintableArea(fn uintptr) {
 	v.SetPrinterPrintableArea = fn
 }
 
-func (v *CEFPrintSettingsT) CallSetPrinterPrintableArea(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetPrinterPrintableArea(PhysicalSizeDeviceUnits unsafe.Pointer, PrintableAreaDeviceUnits unsafe.Pointer, LandscapeNeedsFlip uintptr) uintptr {
 	if v.SetPrinterPrintableArea == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetPrinterPrintableArea, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetPrinterPrintableArea, uintptr(unsafe.Pointer(v)), uintptr(PhysicalSizeDeviceUnits), uintptr(PrintableAreaDeviceUnits), LandscapeNeedsFlip)
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideSetDeviceName(fn uintptr) { v.SetDeviceName = fn }
 
-func (v *CEFPrintSettingsT) CallSetDeviceName(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetDeviceName(Name unsafe.Pointer) uintptr {
 	if v.SetDeviceName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDeviceName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDeviceName, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideGetDeviceName(fn uintptr) { v.GetDeviceName = fn }
 
-func (v *CEFPrintSettingsT) CallGetDeviceName(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallGetDeviceName() uintptr {
 	if v.GetDeviceName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDeviceName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDeviceName, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideSetDpi(fn uintptr) { v.SetDpi = fn }
 
-func (v *CEFPrintSettingsT) CallSetDpi(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetDpi(Dpi uintptr) uintptr {
 	if v.SetDpi == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDpi, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDpi, uintptr(unsafe.Pointer(v)), Dpi)
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideGetDpi(fn uintptr) { v.GetDpi = fn }
 
-func (v *CEFPrintSettingsT) CallGetDpi(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallGetDpi() uintptr {
 	if v.GetDpi == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDpi, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDpi, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideSetPageRanges(fn uintptr) { v.SetPageRanges = fn }
 
-func (v *CEFPrintSettingsT) CallSetPageRanges(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetPageRanges(Rangescount uintptr, Ranges unsafe.Pointer) uintptr {
 	if v.SetPageRanges == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetPageRanges, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetPageRanges, uintptr(unsafe.Pointer(v)), Rangescount, uintptr(Ranges))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideGetPageRangesCount(fn uintptr) { v.GetPageRangesCount = fn }
 
-func (v *CEFPrintSettingsT) CallGetPageRangesCount(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallGetPageRangesCount() uintptr {
 	if v.GetPageRangesCount == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPageRangesCount, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPageRangesCount, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideGetPageRanges(fn uintptr) { v.GetPageRanges = fn }
 
-func (v *CEFPrintSettingsT) CallGetPageRanges(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallGetPageRanges(Rangescount unsafe.Pointer, Ranges unsafe.Pointer) uintptr {
 	if v.GetPageRanges == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPageRanges, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPageRanges, uintptr(unsafe.Pointer(v)), uintptr(Rangescount), uintptr(Ranges))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideSetSelectionOnly(fn uintptr) { v.SetSelectionOnly = fn }
 
-func (v *CEFPrintSettingsT) CallSetSelectionOnly(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetSelectionOnly(SelectionOnly uintptr) uintptr {
 	if v.SetSelectionOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetSelectionOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetSelectionOnly, uintptr(unsafe.Pointer(v)), SelectionOnly)
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideIsSelectionOnly(fn uintptr) { v.IsSelectionOnly = fn }
 
-func (v *CEFPrintSettingsT) CallIsSelectionOnly(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallIsSelectionOnly() uintptr {
 	if v.IsSelectionOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSelectionOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSelectionOnly, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideSetCollate(fn uintptr) { v.SetCollate = fn }
 
-func (v *CEFPrintSettingsT) CallSetCollate(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetCollate(Collate uintptr) uintptr {
 	if v.SetCollate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetCollate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetCollate, uintptr(unsafe.Pointer(v)), Collate)
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideWillCollate(fn uintptr) { v.WillCollate = fn }
 
-func (v *CEFPrintSettingsT) CallWillCollate(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallWillCollate() uintptr {
 	if v.WillCollate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.WillCollate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.WillCollate, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideSetColorModel(fn uintptr) { v.SetColorModel = fn }
 
-func (v *CEFPrintSettingsT) CallSetColorModel(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetColorModel(Model uintptr) uintptr {
 	if v.SetColorModel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetColorModel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetColorModel, uintptr(unsafe.Pointer(v)), Model)
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideGetColorModel(fn uintptr) { v.GetColorModel = fn }
 
-func (v *CEFPrintSettingsT) CallGetColorModel(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallGetColorModel() uintptr {
 	if v.GetColorModel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetColorModel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetColorModel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideSetCopies(fn uintptr) { v.SetCopies = fn }
 
-func (v *CEFPrintSettingsT) CallSetCopies(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetCopies(Copies uintptr) uintptr {
 	if v.SetCopies == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetCopies, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetCopies, uintptr(unsafe.Pointer(v)), Copies)
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideGetCopies(fn uintptr) { v.GetCopies = fn }
 
-func (v *CEFPrintSettingsT) CallGetCopies(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallGetCopies() uintptr {
 	if v.GetCopies == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCopies, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCopies, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideSetDuplexMode(fn uintptr) { v.SetDuplexMode = fn }
 
-func (v *CEFPrintSettingsT) CallSetDuplexMode(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallSetDuplexMode(Mode uintptr) uintptr {
 	if v.SetDuplexMode == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetDuplexMode, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetDuplexMode, uintptr(unsafe.Pointer(v)), Mode)
 	return r1
 }
 
 func (v *CEFPrintSettingsT) OverrideGetDuplexMode(fn uintptr) { v.GetDuplexMode = fn }
 
-func (v *CEFPrintSettingsT) CallGetDuplexMode(args ...uintptr) uintptr {
+func (v *CEFPrintSettingsT) CallGetDuplexMode() uintptr {
 	if v.GetDuplexMode == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDuplexMode, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDuplexMode, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

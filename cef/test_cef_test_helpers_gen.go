@@ -3,6 +3,7 @@
 package cef
 
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/bnema/purego-cef/internal/capi"
@@ -10,9 +11,15 @@ import (
 
 // ExecuteJavaScriptWithUserGestureForTests Execute JavaScript with a user gesture to trigger functionality like onbeforeunload handlers that will otherwise be blocked.
 func ExecuteJavaScriptWithUserGestureForTests(frame Frame, javascript string) {
+	if capi.CEFExecuteJavaScriptWithUserGestureForTests == nil {
+		return
+	}
 	javascriptStr := cefString(javascript)
 	defer freeCefString(&javascriptStr)
-	capi.CEFExecuteJavaScriptWithUserGestureForTests(extractRawPointer(frame), unsafe.Pointer(&javascriptStr))
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	capi.CEFExecuteJavaScriptWithUserGestureForTests(framePtr, unsafe.Pointer(&javascriptStr))
+	runtime.KeepAlive(frame)
 }
 
 // SetDataDirectoryForTests Set the DIR_SRC_TEST_DATA_ROOT directory used to load test data. Must be configured when running from a CEF binary distribution. Defaults to the "chromium/src" directory when running from a local CEF/Chromium build. |dir| must be an absolute path.

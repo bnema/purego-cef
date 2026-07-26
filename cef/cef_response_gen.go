@@ -82,7 +82,7 @@ func (obj *responseImpl) SetStatusText(statustext string) {
 	rawPtr := obj.rawPtr
 	statustextStr := cefString(statustext)
 	defer freeCefString(&statustextStr)
-	rawPtr.CallSetStatusText(uintptr(unsafe.Pointer(&statustextStr)))
+	rawPtr.CallSetStatusText(unsafe.Pointer(&statustextStr))
 }
 
 func (obj *responseImpl) GetMimeType() string {
@@ -101,7 +101,7 @@ func (obj *responseImpl) SetMimeType(mimetype string) {
 	rawPtr := obj.rawPtr
 	mimetypeStr := cefString(mimetype)
 	defer freeCefString(&mimetypeStr)
-	rawPtr.CallSetMimeType(uintptr(unsafe.Pointer(&mimetypeStr)))
+	rawPtr.CallSetMimeType(unsafe.Pointer(&mimetypeStr))
 }
 
 func (obj *responseImpl) GetCharset() string {
@@ -120,7 +120,7 @@ func (obj *responseImpl) SetCharset(charset string) {
 	rawPtr := obj.rawPtr
 	charsetStr := cefString(charset)
 	defer freeCefString(&charsetStr)
-	rawPtr.CallSetCharset(uintptr(unsafe.Pointer(&charsetStr)))
+	rawPtr.CallSetCharset(unsafe.Pointer(&charsetStr))
 }
 
 func (obj *responseImpl) GetHeaderByName(name string) string {
@@ -130,7 +130,7 @@ func (obj *responseImpl) GetHeaderByName(name string) string {
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	ret := rawPtr.CallGetHeaderByName(uintptr(unsafe.Pointer(&nameStr)))
+	ret := rawPtr.CallGetHeaderByName(unsafe.Pointer(&nameStr))
 	return goStringUserfree(unsafe.Pointer(ret))
 }
 
@@ -143,7 +143,7 @@ func (obj *responseImpl) SetHeaderByName(name string, value string, overwrite in
 	defer freeCefString(&nameStr)
 	valueStr := cefString(value)
 	defer freeCefString(&valueStr)
-	rawPtr.CallSetHeaderByName(uintptr(unsafe.Pointer(&nameStr)), uintptr(unsafe.Pointer(&valueStr)), uintptr(overwrite))
+	rawPtr.CallSetHeaderByName(unsafe.Pointer(&nameStr), unsafe.Pointer(&valueStr), uintptr(overwrite))
 }
 
 func (obj *responseImpl) GetHeaderMap(headermap StringMultimap) {
@@ -178,7 +178,7 @@ func (obj *responseImpl) SetURL(uRL string) {
 	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	rawPtr.CallSetURL(uintptr(unsafe.Pointer(&uRLStr)))
+	rawPtr.CallSetURL(unsafe.Pointer(&uRLStr))
 }
 
 func (obj *responseImpl) RawPointer() unsafe.Pointer {

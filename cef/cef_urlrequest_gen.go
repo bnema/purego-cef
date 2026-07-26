@@ -271,7 +271,13 @@ func (obj *urlrequestClientImpl) OnRequestComplete(request Urlrequest) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnRequestComplete(uintptr(extractRawPointer(request)))
+	if rawPtr.OnRequestComplete == 0 {
+		return
+	}
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	rawPtr.CallOnRequestComplete(requestPtr)
+	runtime.KeepAlive(request)
 }
 
 func (obj *urlrequestClientImpl) OnUploadProgress(request Urlrequest, current int64, total int64) {
@@ -279,10 +285,16 @@ func (obj *urlrequestClientImpl) OnUploadProgress(request Urlrequest, current in
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnUploadProgress == 0 {
+		return
+	}
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
 	obj.onUploadProgressOnce.Do(func() {
 		registerTypedCallback(&obj.onUploadProgressFunc, rawPtr.OnUploadProgress)
 	})
-	obj.onUploadProgressFunc(rawPtr, uintptr(extractRawPointer(request)), current, total)
+	obj.onUploadProgressFunc(rawPtr, uintptr(requestPtr), current, total)
+	runtime.KeepAlive(request)
 }
 
 func (obj *urlrequestClientImpl) OnDownloadProgress(request Urlrequest, current int64, total int64) {
@@ -290,10 +302,16 @@ func (obj *urlrequestClientImpl) OnDownloadProgress(request Urlrequest, current 
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnDownloadProgress == 0 {
+		return
+	}
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
 	obj.onDownloadProgressOnce.Do(func() {
 		registerTypedCallback(&obj.onDownloadProgressFunc, rawPtr.OnDownloadProgress)
 	})
-	obj.onDownloadProgressFunc(rawPtr, uintptr(extractRawPointer(request)), current, total)
+	obj.onDownloadProgressFunc(rawPtr, uintptr(requestPtr), current, total)
+	runtime.KeepAlive(request)
 }
 
 func (obj *urlrequestClientImpl) OnDownloadData(request Urlrequest, data unsafe.Pointer, dataLength int) {
@@ -301,7 +319,13 @@ func (obj *urlrequestClientImpl) OnDownloadData(request Urlrequest, data unsafe.
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDownloadData(uintptr(extractRawPointer(request)), uintptr(data), uintptr(dataLength))
+	if rawPtr.OnDownloadData == 0 {
+		return
+	}
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	rawPtr.CallOnDownloadData(requestPtr, data, uintptr(dataLength))
+	runtime.KeepAlive(request)
 }
 
 func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, port int32, realm string, scheme string, callback AuthCallback) int32 {
@@ -309,13 +333,19 @@ func (obj *urlrequestClientImpl) GetAuthCredentials(isproxy int32, host string, 
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.GetAuthCredentials == 0 {
+		return 0
+	}
 	hostStr := cefString(host)
 	defer freeCefString(&hostStr)
 	realmStr := cefString(realm)
 	defer freeCefString(&realmStr)
 	schemeStr := cefString(scheme)
 	defer freeCefString(&schemeStr)
-	ret := rawPtr.CallGetAuthCredentials(uintptr(isproxy), uintptr(unsafe.Pointer(&hostStr)), uintptr(port), uintptr(unsafe.Pointer(&realmStr)), uintptr(unsafe.Pointer(&schemeStr)), uintptr(extractRawPointer(callback)))
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallGetAuthCredentials(uintptr(isproxy), unsafe.Pointer(&hostStr), uintptr(port), unsafe.Pointer(&realmStr), unsafe.Pointer(&schemeStr), callbackPtr)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -358,6 +388,18 @@ func wrapUrlrequestClient(ptr unsafe.Pointer) UrlrequestClient {
 
 // UrlrequestCreate Create a new URL request that is not associated with a specific browser or frame. Use cef_frame_t::CreateURLRequest instead if you want the request to have this association, in which case it may be handled differently (see documentation on that function). A request created with this function may only originate from the browser process, and will behave as follows:   - It may be intercepted by the client via CefResourceRequestHandler or     CefSchemeHandlerFactory.   - POST data may only contain only a single element of type PDE_TYPE_FILE     or PDE_TYPE_BYTES.   - If |request_context| is empty the global request context will be used. The |request| object will be marked as read-only after calling this function.
 func UrlrequestCreate(request Request, client UrlrequestClient, requestContext RequestContext) Urlrequest {
-	ret := capi.CEFUrlrequestCreate(extractRawPointer(request), extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) }), extractRawPointer(requestContext))
+	if capi.CEFUrlrequestCreate == nil {
+		return nil
+	}
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	clientPtr := extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })
+	transferRef(clientPtr)
+	requestContextPtr := extractRawPointer(requestContext)
+	transferRef(requestContextPtr)
+	ret := capi.CEFUrlrequestCreate(requestPtr, clientPtr, requestContextPtr)
+	runtime.KeepAlive(request)
+	runtime.KeepAlive(client)
+	runtime.KeepAlive(requestContext)
 	return takeUrlrequest(ret)
 }

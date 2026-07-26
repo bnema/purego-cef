@@ -174,11 +174,20 @@ func (obj *rawLifeSpanHandlerImpl) OnBeforePopup(browser Browser, frame Frame, p
 		return false
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnBeforePopup == 0 {
+		return false
+	}
 	targetURLStr := cefString(targetURL)
 	defer freeCefString(&targetURLStr)
 	targetFrameNameStr := cefString(targetFrameName)
 	defer freeCefString(&targetFrameNameStr)
-	ret := rawPtr.CallOnBeforePopup(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(popupID), uintptr(unsafe.Pointer(&targetURLStr)), uintptr(unsafe.Pointer(&targetFrameNameStr)), uintptr(targetDisposition), uintptr(userGesture), uintptr(unsafe.Pointer(popupfeatures)), uintptr(unsafe.Pointer(windowinfo)), uintptr(client), uintptr(unsafe.Pointer(settings)), uintptr(extraInfo), uintptr(unsafe.Pointer(noJavascriptAccess)))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	ret := rawPtr.CallOnBeforePopup(browserPtr, framePtr, uintptr(popupID), unsafe.Pointer(&targetURLStr), unsafe.Pointer(&targetFrameNameStr), uintptr(targetDisposition), uintptr(userGesture), unsafe.Pointer(popupfeatures), unsafe.Pointer(windowinfo), client, unsafe.Pointer(settings), extraInfo, unsafe.Pointer(noJavascriptAccess))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
 	return ret != 0
 }
 
@@ -187,7 +196,13 @@ func (obj *rawLifeSpanHandlerImpl) OnBeforePopupAborted(browser Browser, popupID
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBeforePopupAborted(uintptr(extractRawPointer(browser)), uintptr(popupID))
+	if rawPtr.OnBeforePopupAborted == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnBeforePopupAborted(browserPtr, uintptr(popupID))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *rawLifeSpanHandlerImpl) OnBeforeDevToolsPopup(browser Browser, windowinfo *WindowInfo, client unsafe.Pointer, settings *BrowserSettings, extraInfo unsafe.Pointer, useDefaultWindow *int32) {
@@ -195,7 +210,13 @@ func (obj *rawLifeSpanHandlerImpl) OnBeforeDevToolsPopup(browser Browser, window
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBeforeDevToolsPopup(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(windowinfo)), uintptr(client), uintptr(unsafe.Pointer(settings)), uintptr(extraInfo), uintptr(unsafe.Pointer(useDefaultWindow)))
+	if rawPtr.OnBeforeDevToolsPopup == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnBeforeDevToolsPopup(browserPtr, unsafe.Pointer(windowinfo), client, unsafe.Pointer(settings), extraInfo, unsafe.Pointer(useDefaultWindow))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *rawLifeSpanHandlerImpl) OnAfterCreated(browser Browser) {
@@ -203,7 +224,13 @@ func (obj *rawLifeSpanHandlerImpl) OnAfterCreated(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnAfterCreated(uintptr(extractRawPointer(browser)))
+	if rawPtr.OnAfterCreated == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnAfterCreated(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *rawLifeSpanHandlerImpl) DoClose(browser Browser) bool {
@@ -211,7 +238,13 @@ func (obj *rawLifeSpanHandlerImpl) DoClose(browser Browser) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallDoClose(uintptr(extractRawPointer(browser)))
+	if rawPtr.DoClose == 0 {
+		return false
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := rawPtr.CallDoClose(browserPtr)
+	runtime.KeepAlive(browser)
 	return ret != 0
 }
 
@@ -220,7 +253,13 @@ func (obj *rawLifeSpanHandlerImpl) OnBeforeClose(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBeforeClose(uintptr(extractRawPointer(browser)))
+	if rawPtr.OnBeforeClose == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnBeforeClose(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *rawLifeSpanHandlerImpl) RawPointer() unsafe.Pointer {

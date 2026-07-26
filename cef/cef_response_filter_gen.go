@@ -99,7 +99,7 @@ func (obj *responseFilterImpl) Filter(dataIn unsafe.Pointer, dataInSize int, dat
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallFilter(uintptr(dataIn), uintptr(dataInSize), uintptr(unsafe.Pointer(dataInRead)), uintptr(dataOut), uintptr(dataOutSize), uintptr(unsafe.Pointer(dataOutWritten)))
+	ret := rawPtr.CallFilter(dataIn, uintptr(dataInSize), unsafe.Pointer(dataInRead), dataOut, uintptr(dataOutSize), unsafe.Pointer(dataOutWritten))
 	return ResponseFilterStatus(ret)
 }
 

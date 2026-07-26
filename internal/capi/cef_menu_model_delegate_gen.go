@@ -23,31 +23,31 @@ type CEFMenuModelDelegateT struct {
 
 func (v *CEFMenuModelDelegateT) OverrideExecuteCommand(fn uintptr) { v.ExecuteCommand = fn }
 
-func (v *CEFMenuModelDelegateT) CallExecuteCommand(args ...uintptr) uintptr {
+func (v *CEFMenuModelDelegateT) CallExecuteCommand(MenuModel unsafe.Pointer, CommandID uintptr, EventFlags uintptr) uintptr {
 	if v.ExecuteCommand == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ExecuteCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ExecuteCommand, uintptr(unsafe.Pointer(v)), uintptr(MenuModel), CommandID, EventFlags)
 	return r1
 }
 
 func (v *CEFMenuModelDelegateT) OverrideMouseOutsideMenu(fn uintptr) { v.MouseOutsideMenu = fn }
 
-func (v *CEFMenuModelDelegateT) CallMouseOutsideMenu(args ...uintptr) uintptr {
+func (v *CEFMenuModelDelegateT) CallMouseOutsideMenu(MenuModel unsafe.Pointer, ScreenPoint unsafe.Pointer) uintptr {
 	if v.MouseOutsideMenu == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.MouseOutsideMenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.MouseOutsideMenu, uintptr(unsafe.Pointer(v)), uintptr(MenuModel), uintptr(ScreenPoint))
 	return r1
 }
 
 func (v *CEFMenuModelDelegateT) OverrideUnhandledOpenSubmenu(fn uintptr) { v.UnhandledOpenSubmenu = fn }
 
-func (v *CEFMenuModelDelegateT) CallUnhandledOpenSubmenu(args ...uintptr) uintptr {
+func (v *CEFMenuModelDelegateT) CallUnhandledOpenSubmenu(MenuModel unsafe.Pointer, IsRtl uintptr) uintptr {
 	if v.UnhandledOpenSubmenu == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.UnhandledOpenSubmenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.UnhandledOpenSubmenu, uintptr(unsafe.Pointer(v)), uintptr(MenuModel), IsRtl)
 	return r1
 }
 
@@ -55,41 +55,41 @@ func (v *CEFMenuModelDelegateT) OverrideUnhandledCloseSubmenu(fn uintptr) {
 	v.UnhandledCloseSubmenu = fn
 }
 
-func (v *CEFMenuModelDelegateT) CallUnhandledCloseSubmenu(args ...uintptr) uintptr {
+func (v *CEFMenuModelDelegateT) CallUnhandledCloseSubmenu(MenuModel unsafe.Pointer, IsRtl uintptr) uintptr {
 	if v.UnhandledCloseSubmenu == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.UnhandledCloseSubmenu, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.UnhandledCloseSubmenu, uintptr(unsafe.Pointer(v)), uintptr(MenuModel), IsRtl)
 	return r1
 }
 
 func (v *CEFMenuModelDelegateT) OverrideMenuWillShow(fn uintptr) { v.MenuWillShow = fn }
 
-func (v *CEFMenuModelDelegateT) CallMenuWillShow(args ...uintptr) uintptr {
+func (v *CEFMenuModelDelegateT) CallMenuWillShow(MenuModel unsafe.Pointer) uintptr {
 	if v.MenuWillShow == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.MenuWillShow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.MenuWillShow, uintptr(unsafe.Pointer(v)), uintptr(MenuModel))
 	return r1
 }
 
 func (v *CEFMenuModelDelegateT) OverrideMenuClosed(fn uintptr) { v.MenuClosed = fn }
 
-func (v *CEFMenuModelDelegateT) CallMenuClosed(args ...uintptr) uintptr {
+func (v *CEFMenuModelDelegateT) CallMenuClosed(MenuModel unsafe.Pointer) uintptr {
 	if v.MenuClosed == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.MenuClosed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.MenuClosed, uintptr(unsafe.Pointer(v)), uintptr(MenuModel))
 	return r1
 }
 
 func (v *CEFMenuModelDelegateT) OverrideFormatLabel(fn uintptr) { v.FormatLabel = fn }
 
-func (v *CEFMenuModelDelegateT) CallFormatLabel(args ...uintptr) uintptr {
+func (v *CEFMenuModelDelegateT) CallFormatLabel(MenuModel unsafe.Pointer, Label unsafe.Pointer) uintptr {
 	if v.FormatLabel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.FormatLabel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.FormatLabel, uintptr(unsafe.Pointer(v)), uintptr(MenuModel), uintptr(Label))
 	return r1
 }
 

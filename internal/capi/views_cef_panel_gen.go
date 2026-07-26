@@ -28,121 +28,121 @@ type CEFPanelT struct {
 
 func (v *CEFPanelT) OverrideAsWindow(fn uintptr) { v.AsWindow = fn }
 
-func (v *CEFPanelT) CallAsWindow(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallAsWindow() uintptr {
 	if v.AsWindow == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AsWindow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AsWindow, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPanelT) OverrideSetToFillLayout(fn uintptr) { v.SetToFillLayout = fn }
 
-func (v *CEFPanelT) CallSetToFillLayout(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallSetToFillLayout() uintptr {
 	if v.SetToFillLayout == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetToFillLayout, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetToFillLayout, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPanelT) OverrideSetToBoxLayout(fn uintptr) { v.SetToBoxLayout = fn }
 
-func (v *CEFPanelT) CallSetToBoxLayout(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallSetToBoxLayout(Settings unsafe.Pointer) uintptr {
 	if v.SetToBoxLayout == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetToBoxLayout, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetToBoxLayout, uintptr(unsafe.Pointer(v)), uintptr(Settings))
 	return r1
 }
 
 func (v *CEFPanelT) OverrideGetLayout(fn uintptr) { v.GetLayout = fn }
 
-func (v *CEFPanelT) CallGetLayout(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallGetLayout() uintptr {
 	if v.GetLayout == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetLayout, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetLayout, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPanelT) OverrideLayout(fn uintptr) { v.Layout = fn }
 
-func (v *CEFPanelT) CallLayout(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallLayout() uintptr {
 	if v.Layout == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Layout, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Layout, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPanelT) OverrideAddChildView(fn uintptr) { v.AddChildView = fn }
 
-func (v *CEFPanelT) CallAddChildView(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallAddChildView(View unsafe.Pointer) uintptr {
 	if v.AddChildView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddChildView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddChildView, uintptr(unsafe.Pointer(v)), uintptr(View))
 	return r1
 }
 
 func (v *CEFPanelT) OverrideAddChildViewAt(fn uintptr) { v.AddChildViewAt = fn }
 
-func (v *CEFPanelT) CallAddChildViewAt(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallAddChildViewAt(View unsafe.Pointer, Index uintptr) uintptr {
 	if v.AddChildViewAt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddChildViewAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddChildViewAt, uintptr(unsafe.Pointer(v)), uintptr(View), Index)
 	return r1
 }
 
 func (v *CEFPanelT) OverrideReorderChildView(fn uintptr) { v.ReorderChildView = fn }
 
-func (v *CEFPanelT) CallReorderChildView(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallReorderChildView(View unsafe.Pointer, Index uintptr) uintptr {
 	if v.ReorderChildView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ReorderChildView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ReorderChildView, uintptr(unsafe.Pointer(v)), uintptr(View), Index)
 	return r1
 }
 
 func (v *CEFPanelT) OverrideRemoveChildView(fn uintptr) { v.RemoveChildView = fn }
 
-func (v *CEFPanelT) CallRemoveChildView(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallRemoveChildView(View unsafe.Pointer) uintptr {
 	if v.RemoveChildView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RemoveChildView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RemoveChildView, uintptr(unsafe.Pointer(v)), uintptr(View))
 	return r1
 }
 
 func (v *CEFPanelT) OverrideRemoveAllChildViews(fn uintptr) { v.RemoveAllChildViews = fn }
 
-func (v *CEFPanelT) CallRemoveAllChildViews(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallRemoveAllChildViews() uintptr {
 	if v.RemoveAllChildViews == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RemoveAllChildViews, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RemoveAllChildViews, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPanelT) OverrideGetChildViewCount(fn uintptr) { v.GetChildViewCount = fn }
 
-func (v *CEFPanelT) CallGetChildViewCount(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallGetChildViewCount() uintptr {
 	if v.GetChildViewCount == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetChildViewCount, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetChildViewCount, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFPanelT) OverrideGetChildViewAt(fn uintptr) { v.GetChildViewAt = fn }
 
-func (v *CEFPanelT) CallGetChildViewAt(args ...uintptr) uintptr {
+func (v *CEFPanelT) CallGetChildViewAt(Index uintptr) uintptr {
 	if v.GetChildViewAt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetChildViewAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetChildViewAt, uintptr(unsafe.Pointer(v)), Index)
 	return r1
 }
 

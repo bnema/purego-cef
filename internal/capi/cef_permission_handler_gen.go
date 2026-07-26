@@ -18,21 +18,21 @@ type CEFMediaAccessCallbackT struct {
 
 func (v *CEFMediaAccessCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFMediaAccessCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFMediaAccessCallbackT) CallCont(AllowedPermissions uintptr) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), AllowedPermissions)
 	return r1
 }
 
 func (v *CEFMediaAccessCallbackT) OverrideCancel(fn uintptr) { v.Cancel = fn }
 
-func (v *CEFMediaAccessCallbackT) CallCancel(args ...uintptr) uintptr {
+func (v *CEFMediaAccessCallbackT) CallCancel() uintptr {
 	if v.Cancel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cancel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cancel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -44,11 +44,11 @@ type CEFPermissionPromptCallbackT struct {
 
 func (v *CEFPermissionPromptCallbackT) OverrideCont(fn uintptr) { v.Cont = fn }
 
-func (v *CEFPermissionPromptCallbackT) CallCont(args ...uintptr) uintptr {
+func (v *CEFPermissionPromptCallbackT) CallCont(Result uintptr) uintptr {
 	if v.Cont == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Cont, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Cont, uintptr(unsafe.Pointer(v)), Result)
 	return r1
 }
 
@@ -64,11 +64,11 @@ func (v *CEFPermissionHandlerT) OverrideOnRequestMediaAccessPermission(fn uintpt
 	v.OnRequestMediaAccessPermission = fn
 }
 
-func (v *CEFPermissionHandlerT) CallOnRequestMediaAccessPermission(args ...uintptr) uintptr {
+func (v *CEFPermissionHandlerT) CallOnRequestMediaAccessPermission(Browser unsafe.Pointer, Frame unsafe.Pointer, RequestingOrigin unsafe.Pointer, RequestedPermissions uintptr, Callback unsafe.Pointer) uintptr {
 	if v.OnRequestMediaAccessPermission == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnRequestMediaAccessPermission, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnRequestMediaAccessPermission, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), uintptr(RequestingOrigin), RequestedPermissions, uintptr(Callback))
 	return r1
 }
 
@@ -76,11 +76,11 @@ func (v *CEFPermissionHandlerT) OverrideOnShowPermissionPrompt(fn uintptr) {
 	v.OnShowPermissionPrompt = fn
 }
 
-func (v *CEFPermissionHandlerT) CallOnShowPermissionPrompt(args ...uintptr) uintptr {
+func (v *CEFPermissionHandlerT) CallOnShowPermissionPrompt(Browser unsafe.Pointer, PromptID uintptr, RequestingOrigin unsafe.Pointer, RequestedPermissions uintptr, Callback unsafe.Pointer) uintptr {
 	if v.OnShowPermissionPrompt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnShowPermissionPrompt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnShowPermissionPrompt, uintptr(unsafe.Pointer(v)), uintptr(Browser), PromptID, uintptr(RequestingOrigin), RequestedPermissions, uintptr(Callback))
 	return r1
 }
 
@@ -88,11 +88,11 @@ func (v *CEFPermissionHandlerT) OverrideOnDismissPermissionPrompt(fn uintptr) {
 	v.OnDismissPermissionPrompt = fn
 }
 
-func (v *CEFPermissionHandlerT) CallOnDismissPermissionPrompt(args ...uintptr) uintptr {
+func (v *CEFPermissionHandlerT) CallOnDismissPermissionPrompt(Browser unsafe.Pointer, PromptID uintptr, Result uintptr) uintptr {
 	if v.OnDismissPermissionPrompt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDismissPermissionPrompt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDismissPermissionPrompt, uintptr(unsafe.Pointer(v)), uintptr(Browser), PromptID, Result)
 	return r1
 }
 

@@ -52,7 +52,7 @@ func (obj *zipReaderImpl) MoveToFile(filename string, casesensitive int32) int32
 	rawPtr := obj.rawPtr
 	filenameStr := cefString(filename)
 	defer freeCefString(&filenameStr)
-	ret := rawPtr.CallMoveToFile(uintptr(unsafe.Pointer(&filenameStr)), uintptr(casesensitive))
+	ret := rawPtr.CallMoveToFile(unsafe.Pointer(&filenameStr), uintptr(casesensitive))
 	return int32(ret)
 }
 
@@ -102,7 +102,7 @@ func (obj *zipReaderImpl) OpenFile(password string) int32 {
 	rawPtr := obj.rawPtr
 	passwordStr := cefString(password)
 	defer freeCefString(&passwordStr)
-	ret := rawPtr.CallOpenFile(uintptr(unsafe.Pointer(&passwordStr)))
+	ret := rawPtr.CallOpenFile(unsafe.Pointer(&passwordStr))
 	return int32(ret)
 }
 
@@ -120,7 +120,7 @@ func (obj *zipReaderImpl) ReadFile(buffer unsafe.Pointer, buffersize int) int32 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallReadFile(uintptr(buffer), uintptr(buffersize))
+	ret := rawPtr.CallReadFile(buffer, uintptr(buffersize))
 	return int32(ret)
 }
 
@@ -196,6 +196,12 @@ func takeZipReader(ptr unsafe.Pointer) ZipReader {
 
 // ZipReaderCreate Create a new cef_zip_reader_t object. The returned object's functions can only be called from the thread that created the object.
 func ZipReaderCreate(stream StreamReader) ZipReader {
-	ret := capi.CEFZipReaderCreate(extractRawPointer(stream))
+	if capi.CEFZipReaderCreate == nil {
+		return nil
+	}
+	streamPtr := extractRawPointer(stream)
+	transferRef(streamPtr)
+	ret := capi.CEFZipReaderCreate(streamPtr)
+	runtime.KeepAlive(stream)
 	return takeZipReader(ret)
 }

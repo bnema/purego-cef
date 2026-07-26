@@ -18,21 +18,21 @@ type CEFBoxLayoutT struct {
 
 func (v *CEFBoxLayoutT) OverrideSetFlexForView(fn uintptr) { v.SetFlexForView = fn }
 
-func (v *CEFBoxLayoutT) CallSetFlexForView(args ...uintptr) uintptr {
+func (v *CEFBoxLayoutT) CallSetFlexForView(View unsafe.Pointer, Flex uintptr) uintptr {
 	if v.SetFlexForView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetFlexForView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetFlexForView, uintptr(unsafe.Pointer(v)), uintptr(View), Flex)
 	return r1
 }
 
 func (v *CEFBoxLayoutT) OverrideClearFlexForView(fn uintptr) { v.ClearFlexForView = fn }
 
-func (v *CEFBoxLayoutT) CallClearFlexForView(args ...uintptr) uintptr {
+func (v *CEFBoxLayoutT) CallClearFlexForView(View unsafe.Pointer) uintptr {
 	if v.ClearFlexForView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ClearFlexForView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ClearFlexForView, uintptr(unsafe.Pointer(v)), uintptr(View))
 	return r1
 }
 

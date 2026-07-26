@@ -35,191 +35,191 @@ type CEFClientT struct {
 
 func (v *CEFClientT) OverrideGetAudioHandler(fn uintptr) { v.GetAudioHandler = fn }
 
-func (v *CEFClientT) CallGetAudioHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetAudioHandler() uintptr {
 	if v.GetAudioHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAudioHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAudioHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetCommandHandler(fn uintptr) { v.GetCommandHandler = fn }
 
-func (v *CEFClientT) CallGetCommandHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetCommandHandler() uintptr {
 	if v.GetCommandHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCommandHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCommandHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetContextMenuHandler(fn uintptr) { v.GetContextMenuHandler = fn }
 
-func (v *CEFClientT) CallGetContextMenuHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetContextMenuHandler() uintptr {
 	if v.GetContextMenuHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetContextMenuHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetContextMenuHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetDialogHandler(fn uintptr) { v.GetDialogHandler = fn }
 
-func (v *CEFClientT) CallGetDialogHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetDialogHandler() uintptr {
 	if v.GetDialogHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDialogHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDialogHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetDisplayHandler(fn uintptr) { v.GetDisplayHandler = fn }
 
-func (v *CEFClientT) CallGetDisplayHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetDisplayHandler() uintptr {
 	if v.GetDisplayHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDisplayHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDisplayHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetDownloadHandler(fn uintptr) { v.GetDownloadHandler = fn }
 
-func (v *CEFClientT) CallGetDownloadHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetDownloadHandler() uintptr {
 	if v.GetDownloadHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDownloadHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDownloadHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetDragHandler(fn uintptr) { v.GetDragHandler = fn }
 
-func (v *CEFClientT) CallGetDragHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetDragHandler() uintptr {
 	if v.GetDragHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDragHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDragHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetFindHandler(fn uintptr) { v.GetFindHandler = fn }
 
-func (v *CEFClientT) CallGetFindHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetFindHandler() uintptr {
 	if v.GetFindHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFindHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFindHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetFocusHandler(fn uintptr) { v.GetFocusHandler = fn }
 
-func (v *CEFClientT) CallGetFocusHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetFocusHandler() uintptr {
 	if v.GetFocusHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFocusHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFocusHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetFrameHandler(fn uintptr) { v.GetFrameHandler = fn }
 
-func (v *CEFClientT) CallGetFrameHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetFrameHandler() uintptr {
 	if v.GetFrameHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFrameHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFrameHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetPermissionHandler(fn uintptr) { v.GetPermissionHandler = fn }
 
-func (v *CEFClientT) CallGetPermissionHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetPermissionHandler() uintptr {
 	if v.GetPermissionHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPermissionHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPermissionHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetJsdialogHandler(fn uintptr) { v.GetJsdialogHandler = fn }
 
-func (v *CEFClientT) CallGetJsdialogHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetJsdialogHandler() uintptr {
 	if v.GetJsdialogHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetJsdialogHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetJsdialogHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetKeyboardHandler(fn uintptr) { v.GetKeyboardHandler = fn }
 
-func (v *CEFClientT) CallGetKeyboardHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetKeyboardHandler() uintptr {
 	if v.GetKeyboardHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetKeyboardHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetKeyboardHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetLifeSpanHandler(fn uintptr) { v.GetLifeSpanHandler = fn }
 
-func (v *CEFClientT) CallGetLifeSpanHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetLifeSpanHandler() uintptr {
 	if v.GetLifeSpanHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetLifeSpanHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetLifeSpanHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetLoadHandler(fn uintptr) { v.GetLoadHandler = fn }
 
-func (v *CEFClientT) CallGetLoadHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetLoadHandler() uintptr {
 	if v.GetLoadHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetLoadHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetLoadHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetPrintHandler(fn uintptr) { v.GetPrintHandler = fn }
 
-func (v *CEFClientT) CallGetPrintHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetPrintHandler() uintptr {
 	if v.GetPrintHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPrintHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPrintHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetRenderHandler(fn uintptr) { v.GetRenderHandler = fn }
 
-func (v *CEFClientT) CallGetRenderHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetRenderHandler() uintptr {
 	if v.GetRenderHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRenderHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRenderHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideGetRequestHandler(fn uintptr) { v.GetRequestHandler = fn }
 
-func (v *CEFClientT) CallGetRequestHandler(args ...uintptr) uintptr {
+func (v *CEFClientT) CallGetRequestHandler() uintptr {
 	if v.GetRequestHandler == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRequestHandler, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRequestHandler, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFClientT) OverrideOnProcessMessageReceived(fn uintptr) { v.OnProcessMessageReceived = fn }
 
-func (v *CEFClientT) CallOnProcessMessageReceived(args ...uintptr) uintptr {
+func (v *CEFClientT) CallOnProcessMessageReceived(Browser unsafe.Pointer, Frame unsafe.Pointer, SourceProcess uintptr, Message unsafe.Pointer) uintptr {
 	if v.OnProcessMessageReceived == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnProcessMessageReceived, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnProcessMessageReceived, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), SourceProcess, uintptr(Message))
 	return r1
 }
 

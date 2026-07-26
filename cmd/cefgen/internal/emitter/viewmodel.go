@@ -106,6 +106,20 @@ func (d *PublicFileData) NeedsRuntime() bool {
 		if !iface.IsScoped {
 			return true
 		}
+		for _, method := range iface.Methods {
+			for _, param := range method.Params {
+				if param.IsRefCountedTransfer {
+					return true
+				}
+			}
+		}
+	}
+	for _, function := range d.FreeFunctions {
+		for _, param := range function.Params {
+			if param.IsRefCountedTransfer {
+				return true
+			}
+		}
 	}
 	return false
 }
@@ -113,11 +127,8 @@ func (d *PublicFileData) NeedsRuntime() bool {
 // NeedsSync returns true if generated wrappers need sync.Once for release guards
 // or cached typed callback bindings.
 func (d *PublicFileData) NeedsSync() bool {
-	if d.NeedsRuntime() {
-		return true
-	}
 	for _, iface := range d.Interfaces {
-		if slices.ContainsFunc(iface.Methods, methodNeedsTypedObjectCall) {
+		if !iface.IsScoped || slices.ContainsFunc(iface.Methods, methodNeedsTypedObjectCall) {
 			return true
 		}
 	}
@@ -199,12 +210,13 @@ type MethodData struct {
 
 // ParamData represents a method parameter.
 type ParamData struct {
-	Name        string // "browser"
-	PublicType  string // "Browser"
-	CType       string // original C type for marshal decisions
-	MarshalKind string // "interface", "string", "enum", "numeric", "pointer", "userfreeString", "slice", "outSlice", "outObjectSlice", "outCount"
-	RawGoType   string // raw Go type for free func params (e.g., "raw.CEFJsonParserOptionsT")
-	IsHandler   bool   // true when this param is a handler interface input that can be auto-wrapped
+	Name                 string // "browser"
+	PublicType           string // "Browser"
+	CType                string // original C type for marshal decisions
+	MarshalKind          string // "interface", "string", "enum", "numeric", "pointer", "userfreeString", "slice", "outSlice", "outObjectSlice", "outCount"
+	RawGoType            string // raw Go type for free func params (e.g., "raw.CEFJsonParserOptionsT")
+	IsHandler            bool   // true when this param is a handler interface input that can be auto-wrapped
+	IsRefCountedTransfer bool   // true when CEF consumes one transferred reference for this interface input
 
 	// For MarshalKind "slice"/"objectSlice": describes how to decode from raw
 	// callback args when a count+pointer pair is merged into a single public slice.

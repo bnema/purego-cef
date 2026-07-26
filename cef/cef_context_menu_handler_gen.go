@@ -313,7 +313,22 @@ func (obj *contextMenuHandlerImpl) OnBeforeContextMenu(browser Browser, frame Fr
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnBeforeContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)))
+	if rawPtr.OnBeforeContextMenu == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	paramsPtr := extractRawPointer(params)
+	transferRef(paramsPtr)
+	modelPtr := extractRawPointer(model)
+	transferRef(modelPtr)
+	rawPtr.CallOnBeforeContextMenu(browserPtr, framePtr, paramsPtr, modelPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(params)
+	runtime.KeepAlive(model)
 }
 
 func (obj *contextMenuHandlerImpl) RunContextMenu(browser Browser, frame Frame, params ContextMenuParams, model MenuModel, callback RunContextMenuCallback) int32 {
@@ -321,7 +336,25 @@ func (obj *contextMenuHandlerImpl) RunContextMenu(browser Browser, frame Frame, 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallRunContextMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(extractRawPointer(model)), uintptr(extractRawPointer(callback)))
+	if rawPtr.RunContextMenu == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	paramsPtr := extractRawPointer(params)
+	transferRef(paramsPtr)
+	modelPtr := extractRawPointer(model)
+	transferRef(modelPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallRunContextMenu(browserPtr, framePtr, paramsPtr, modelPtr, callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(params)
+	runtime.KeepAlive(model)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -330,7 +363,19 @@ func (obj *contextMenuHandlerImpl) OnContextMenuCommand(browser Browser, frame F
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnContextMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(extractRawPointer(params)), uintptr(commandID), uintptr(eventFlags))
+	if rawPtr.OnContextMenuCommand == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	paramsPtr := extractRawPointer(params)
+	transferRef(paramsPtr)
+	ret := rawPtr.CallOnContextMenuCommand(browserPtr, framePtr, paramsPtr, uintptr(commandID), uintptr(eventFlags))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(params)
 	return int32(ret)
 }
 
@@ -339,7 +384,16 @@ func (obj *contextMenuHandlerImpl) OnContextMenuDismissed(browser Browser, frame
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnContextMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	if rawPtr.OnContextMenuDismissed == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	rawPtr.CallOnContextMenuDismissed(browserPtr, framePtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
 }
 
 func (obj *contextMenuHandlerImpl) RunQuickMenu(browser Browser, frame Frame, location *Point, size *Size, editStateFlags QuickMenuEditStateFlags, callback RunQuickMenuCallback) int32 {
@@ -347,7 +401,19 @@ func (obj *contextMenuHandlerImpl) RunQuickMenu(browser Browser, frame Frame, lo
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallRunQuickMenu(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(unsafe.Pointer(location)), uintptr(unsafe.Pointer(size)), uintptr(editStateFlags), uintptr(extractRawPointer(callback)))
+	if rawPtr.RunQuickMenu == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallRunQuickMenu(browserPtr, framePtr, unsafe.Pointer(location), unsafe.Pointer(size), uintptr(editStateFlags), callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -356,7 +422,16 @@ func (obj *contextMenuHandlerImpl) OnQuickMenuCommand(browser Browser, frame Fra
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnQuickMenuCommand(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)), uintptr(commandID), uintptr(eventFlags))
+	if rawPtr.OnQuickMenuCommand == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	ret := rawPtr.CallOnQuickMenuCommand(browserPtr, framePtr, uintptr(commandID), uintptr(eventFlags))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
 	return int32(ret)
 }
 
@@ -365,7 +440,16 @@ func (obj *contextMenuHandlerImpl) OnQuickMenuDismissed(browser Browser, frame F
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnQuickMenuDismissed(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(frame)))
+	if rawPtr.OnQuickMenuDismissed == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	framePtr := extractRawPointer(frame)
+	transferRef(framePtr)
+	rawPtr.CallOnQuickMenuDismissed(browserPtr, framePtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(frame)
 }
 
 func (obj *contextMenuHandlerImpl) RawPointer() unsafe.Pointer {

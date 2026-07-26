@@ -54,7 +54,7 @@ func (obj *taskManagerImpl) GetTaskIdsList(taskIdscount *int, taskIds []int64) i
 	if len(taskIds) > 0 {
 		taskIdsPtr = unsafe.Pointer(&taskIds[0])
 	}
-	ret := rawPtr.CallGetTaskIdsList(uintptr(unsafe.Pointer(taskIdsCountPtr)), uintptr(taskIdsPtr))
+	ret := rawPtr.CallGetTaskIdsList(unsafe.Pointer(taskIdsCountPtr), taskIdsPtr)
 	return int32(ret)
 }
 

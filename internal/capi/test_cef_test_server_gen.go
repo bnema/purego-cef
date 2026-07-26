@@ -18,21 +18,21 @@ type CEFTestServerT struct {
 
 func (v *CEFTestServerT) OverrideStop(fn uintptr) { v.Stop = fn }
 
-func (v *CEFTestServerT) CallStop(args ...uintptr) uintptr {
+func (v *CEFTestServerT) CallStop() uintptr {
 	if v.Stop == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Stop, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Stop, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFTestServerT) OverrideGetOrigin(fn uintptr) { v.GetOrigin = fn }
 
-func (v *CEFTestServerT) CallGetOrigin(args ...uintptr) uintptr {
+func (v *CEFTestServerT) CallGetOrigin() uintptr {
 	if v.GetOrigin == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOrigin, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOrigin, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -44,11 +44,11 @@ type CEFTestServerHandlerT struct {
 
 func (v *CEFTestServerHandlerT) OverrideOnTestServerRequest(fn uintptr) { v.OnTestServerRequest = fn }
 
-func (v *CEFTestServerHandlerT) CallOnTestServerRequest(args ...uintptr) uintptr {
+func (v *CEFTestServerHandlerT) CallOnTestServerRequest(Server unsafe.Pointer, Request unsafe.Pointer, Connection unsafe.Pointer) uintptr {
 	if v.OnTestServerRequest == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnTestServerRequest, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnTestServerRequest, uintptr(unsafe.Pointer(v)), uintptr(Server), uintptr(Request), uintptr(Connection))
 	return r1
 }
 
@@ -65,11 +65,11 @@ func (v *CEFTestServerConnectionT) OverrideSendHttp200Response(fn uintptr) {
 	v.SendHttp200Response = fn
 }
 
-func (v *CEFTestServerConnectionT) CallSendHttp200Response(args ...uintptr) uintptr {
+func (v *CEFTestServerConnectionT) CallSendHttp200Response(ContentType unsafe.Pointer, Data unsafe.Pointer, DataSize uintptr) uintptr {
 	if v.SendHttp200Response == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendHttp200Response, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendHttp200Response, uintptr(unsafe.Pointer(v)), uintptr(ContentType), uintptr(Data), DataSize)
 	return r1
 }
 
@@ -77,11 +77,11 @@ func (v *CEFTestServerConnectionT) OverrideSendHttp404Response(fn uintptr) {
 	v.SendHttp404Response = fn
 }
 
-func (v *CEFTestServerConnectionT) CallSendHttp404Response(args ...uintptr) uintptr {
+func (v *CEFTestServerConnectionT) CallSendHttp404Response() uintptr {
 	if v.SendHttp404Response == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendHttp404Response, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendHttp404Response, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -89,21 +89,21 @@ func (v *CEFTestServerConnectionT) OverrideSendHttp500Response(fn uintptr) {
 	v.SendHttp500Response = fn
 }
 
-func (v *CEFTestServerConnectionT) CallSendHttp500Response(args ...uintptr) uintptr {
+func (v *CEFTestServerConnectionT) CallSendHttp500Response(ErrorMessage unsafe.Pointer) uintptr {
 	if v.SendHttp500Response == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendHttp500Response, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendHttp500Response, uintptr(unsafe.Pointer(v)), uintptr(ErrorMessage))
 	return r1
 }
 
 func (v *CEFTestServerConnectionT) OverrideSendHttpResponse(fn uintptr) { v.SendHttpResponse = fn }
 
-func (v *CEFTestServerConnectionT) CallSendHttpResponse(args ...uintptr) uintptr {
+func (v *CEFTestServerConnectionT) CallSendHttpResponse(ResponseCode uintptr, ContentType unsafe.Pointer, Data unsafe.Pointer, DataSize uintptr, ExtraHeaders uintptr) uintptr {
 	if v.SendHttpResponse == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendHttpResponse, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendHttpResponse, uintptr(unsafe.Pointer(v)), ResponseCode, uintptr(ContentType), uintptr(Data), DataSize, ExtraHeaders)
 	return r1
 }
 

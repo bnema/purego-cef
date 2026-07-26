@@ -109,7 +109,13 @@ func (obj *frameImpl) GetSource(visitor StringVisitor) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetSource(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
+	if rawPtr.GetSource == 0 {
+		return
+	}
+	visitorPtr := extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })
+	transferRef(visitorPtr)
+	rawPtr.CallGetSource(visitorPtr)
+	runtime.KeepAlive(visitor)
 }
 
 func (obj *frameImpl) GetText(visitor StringVisitor) {
@@ -117,7 +123,13 @@ func (obj *frameImpl) GetText(visitor StringVisitor) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetText(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })))
+	if rawPtr.GetText == 0 {
+		return
+	}
+	visitorPtr := extractOrWrapRawPointer(visitor, func() any { return NewStringVisitor(visitor) })
+	transferRef(visitorPtr)
+	rawPtr.CallGetText(visitorPtr)
+	runtime.KeepAlive(visitor)
 }
 
 func (obj *frameImpl) LoadRequest(request Request) {
@@ -125,7 +137,13 @@ func (obj *frameImpl) LoadRequest(request Request) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallLoadRequest(uintptr(extractRawPointer(request)))
+	if rawPtr.LoadRequest == 0 {
+		return
+	}
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	rawPtr.CallLoadRequest(requestPtr)
+	runtime.KeepAlive(request)
 }
 
 func (obj *frameImpl) LoadURL(uRL string) {
@@ -135,7 +153,7 @@ func (obj *frameImpl) LoadURL(uRL string) {
 	rawPtr := obj.rawPtr
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	rawPtr.CallLoadURL(uintptr(unsafe.Pointer(&uRLStr)))
+	rawPtr.CallLoadURL(unsafe.Pointer(&uRLStr))
 }
 
 func (obj *frameImpl) ExecuteJavaScript(code string, scriptURL string, startLine int32) {
@@ -147,7 +165,7 @@ func (obj *frameImpl) ExecuteJavaScript(code string, scriptURL string, startLine
 	defer freeCefString(&codeStr)
 	scriptURLStr := cefString(scriptURL)
 	defer freeCefString(&scriptURLStr)
-	rawPtr.CallExecuteJavaScript(uintptr(unsafe.Pointer(&codeStr)), uintptr(unsafe.Pointer(&scriptURLStr)), uintptr(startLine))
+	rawPtr.CallExecuteJavaScript(unsafe.Pointer(&codeStr), unsafe.Pointer(&scriptURLStr), uintptr(startLine))
 }
 
 func (obj *frameImpl) IsMain() bool {
@@ -227,7 +245,13 @@ func (obj *frameImpl) VisitDom(visitor Domvisitor) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallVisitDom(uintptr(extractOrWrapRawPointer(visitor, func() any { return NewDomvisitor(visitor) })))
+	if rawPtr.VisitDom == 0 {
+		return
+	}
+	visitorPtr := extractOrWrapRawPointer(visitor, func() any { return NewDomvisitor(visitor) })
+	transferRef(visitorPtr)
+	rawPtr.CallVisitDom(visitorPtr)
+	runtime.KeepAlive(visitor)
 }
 
 func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient) Urlrequest {
@@ -235,7 +259,16 @@ func (obj *frameImpl) CreateUrlrequest(request Request, client UrlrequestClient)
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCreateUrlrequest(uintptr(extractRawPointer(request)), uintptr(extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })))
+	if rawPtr.CreateUrlrequest == 0 {
+		return nil
+	}
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	clientPtr := extractOrWrapRawPointer(client, func() any { return NewUrlrequestClient(client) })
+	transferRef(clientPtr)
+	ret := rawPtr.CallCreateUrlrequest(requestPtr, clientPtr)
+	runtime.KeepAlive(request)
+	runtime.KeepAlive(client)
 	return wrapUrlrequest(unsafe.Pointer(ret))
 }
 
@@ -244,7 +277,13 @@ func (obj *frameImpl) SendProcessMessage(targetProcess ProcessID, message Proces
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSendProcessMessage(uintptr(targetProcess), uintptr(extractRawPointer(message)))
+	if rawPtr.SendProcessMessage == 0 {
+		return
+	}
+	messagePtr := extractRawPointer(message)
+	transferRef(messagePtr)
+	rawPtr.CallSendProcessMessage(uintptr(targetProcess), messagePtr)
+	runtime.KeepAlive(message)
 }
 
 func (obj *frameImpl) RawPointer() unsafe.Pointer {

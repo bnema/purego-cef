@@ -19,31 +19,31 @@ type CEFSharedMemoryRegionT struct {
 
 func (v *CEFSharedMemoryRegionT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFSharedMemoryRegionT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFSharedMemoryRegionT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFSharedMemoryRegionT) OverrideSize(fn uintptr) { v.Size = fn }
 
-func (v *CEFSharedMemoryRegionT) CallSize(args ...uintptr) uintptr {
+func (v *CEFSharedMemoryRegionT) CallSize() uintptr {
 	if v.Size == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Size, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Size, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFSharedMemoryRegionT) OverrideMemory(fn uintptr) { v.Memory = fn }
 
-func (v *CEFSharedMemoryRegionT) CallMemory(args ...uintptr) uintptr {
+func (v *CEFSharedMemoryRegionT) CallMemory() uintptr {
 	if v.Memory == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Memory, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Memory, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

@@ -37,211 +37,211 @@ type CEFBrowserT struct {
 
 func (v *CEFBrowserT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFBrowserT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGetHost(fn uintptr) { v.GetHost = fn }
 
-func (v *CEFBrowserT) CallGetHost(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGetHost() uintptr {
 	if v.GetHost == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetHost, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetHost, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideCanGoBack(fn uintptr) { v.CanGoBack = fn }
 
-func (v *CEFBrowserT) CallCanGoBack(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallCanGoBack() uintptr {
 	if v.CanGoBack == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CanGoBack, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CanGoBack, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGoBack(fn uintptr) { v.GoBack = fn }
 
-func (v *CEFBrowserT) CallGoBack(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGoBack() uintptr {
 	if v.GoBack == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GoBack, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GoBack, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideCanGoForward(fn uintptr) { v.CanGoForward = fn }
 
-func (v *CEFBrowserT) CallCanGoForward(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallCanGoForward() uintptr {
 	if v.CanGoForward == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CanGoForward, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CanGoForward, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGoForward(fn uintptr) { v.GoForward = fn }
 
-func (v *CEFBrowserT) CallGoForward(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGoForward() uintptr {
 	if v.GoForward == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GoForward, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GoForward, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideIsLoading(fn uintptr) { v.IsLoading = fn }
 
-func (v *CEFBrowserT) CallIsLoading(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallIsLoading() uintptr {
 	if v.IsLoading == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsLoading, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsLoading, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideReload(fn uintptr) { v.Reload = fn }
 
-func (v *CEFBrowserT) CallReload(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallReload() uintptr {
 	if v.Reload == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Reload, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Reload, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideReloadIgnoreCache(fn uintptr) { v.ReloadIgnoreCache = fn }
 
-func (v *CEFBrowserT) CallReloadIgnoreCache(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallReloadIgnoreCache() uintptr {
 	if v.ReloadIgnoreCache == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ReloadIgnoreCache, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ReloadIgnoreCache, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideStopLoad(fn uintptr) { v.StopLoad = fn }
 
-func (v *CEFBrowserT) CallStopLoad(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallStopLoad() uintptr {
 	if v.StopLoad == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.StopLoad, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.StopLoad, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGetIdentifier(fn uintptr) { v.GetIdentifier = fn }
 
-func (v *CEFBrowserT) CallGetIdentifier(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGetIdentifier() uintptr {
 	if v.GetIdentifier == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetIdentifier, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetIdentifier, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
-func (v *CEFBrowserT) CallIsSame(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallIsSame(That unsafe.Pointer) uintptr {
 	if v.IsSame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSame, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideIsPopup(fn uintptr) { v.IsPopup = fn }
 
-func (v *CEFBrowserT) CallIsPopup(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallIsPopup() uintptr {
 	if v.IsPopup == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsPopup, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsPopup, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideHasDocument(fn uintptr) { v.HasDocument = fn }
 
-func (v *CEFBrowserT) CallHasDocument(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallHasDocument() uintptr {
 	if v.HasDocument == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasDocument, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasDocument, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGetMainFrame(fn uintptr) { v.GetMainFrame = fn }
 
-func (v *CEFBrowserT) CallGetMainFrame(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGetMainFrame() uintptr {
 	if v.GetMainFrame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetMainFrame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetMainFrame, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGetFocusedFrame(fn uintptr) { v.GetFocusedFrame = fn }
 
-func (v *CEFBrowserT) CallGetFocusedFrame(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGetFocusedFrame() uintptr {
 	if v.GetFocusedFrame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFocusedFrame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFocusedFrame, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGetFrameByIdentifier(fn uintptr) { v.GetFrameByIdentifier = fn }
 
-func (v *CEFBrowserT) CallGetFrameByIdentifier(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGetFrameByIdentifier(Identifier unsafe.Pointer) uintptr {
 	if v.GetFrameByIdentifier == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFrameByIdentifier, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFrameByIdentifier, uintptr(unsafe.Pointer(v)), uintptr(Identifier))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGetFrameByName(fn uintptr) { v.GetFrameByName = fn }
 
-func (v *CEFBrowserT) CallGetFrameByName(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGetFrameByName(Name unsafe.Pointer) uintptr {
 	if v.GetFrameByName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFrameByName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFrameByName, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGetFrameCount(fn uintptr) { v.GetFrameCount = fn }
 
-func (v *CEFBrowserT) CallGetFrameCount(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGetFrameCount() uintptr {
 	if v.GetFrameCount == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFrameCount, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFrameCount, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGetFrameIdentifiers(fn uintptr) { v.GetFrameIdentifiers = fn }
 
-func (v *CEFBrowserT) CallGetFrameIdentifiers(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGetFrameIdentifiers(Identifiers uintptr) uintptr {
 	if v.GetFrameIdentifiers == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFrameIdentifiers, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFrameIdentifiers, uintptr(unsafe.Pointer(v)), Identifiers)
 	return r1
 }
 
 func (v *CEFBrowserT) OverrideGetFrameNames(fn uintptr) { v.GetFrameNames = fn }
 
-func (v *CEFBrowserT) CallGetFrameNames(args ...uintptr) uintptr {
+func (v *CEFBrowserT) CallGetFrameNames(Names uintptr) uintptr {
 	if v.GetFrameNames == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetFrameNames, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetFrameNames, uintptr(unsafe.Pointer(v)), Names)
 	return r1
 }
 
@@ -255,11 +255,11 @@ func (v *CEFRunFileDialogCallbackT) OverrideOnFileDialogDismissed(fn uintptr) {
 	v.OnFileDialogDismissed = fn
 }
 
-func (v *CEFRunFileDialogCallbackT) CallOnFileDialogDismissed(args ...uintptr) uintptr {
+func (v *CEFRunFileDialogCallbackT) CallOnFileDialogDismissed(FilePaths uintptr) uintptr {
 	if v.OnFileDialogDismissed == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnFileDialogDismissed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnFileDialogDismissed, uintptr(unsafe.Pointer(v)), FilePaths)
 	return r1
 }
 
@@ -271,11 +271,11 @@ type CEFNavigationEntryVisitorT struct {
 
 func (v *CEFNavigationEntryVisitorT) OverrideVisit(fn uintptr) { v.Visit = fn }
 
-func (v *CEFNavigationEntryVisitorT) CallVisit(args ...uintptr) uintptr {
+func (v *CEFNavigationEntryVisitorT) CallVisit(Entry unsafe.Pointer, Current uintptr, Index uintptr, Total uintptr) uintptr {
 	if v.Visit == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Visit, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Visit, uintptr(unsafe.Pointer(v)), uintptr(Entry), Current, Index, Total)
 	return r1
 }
 
@@ -287,11 +287,11 @@ type CEFPdfPrintCallbackT struct {
 
 func (v *CEFPdfPrintCallbackT) OverrideOnPdfPrintFinished(fn uintptr) { v.OnPdfPrintFinished = fn }
 
-func (v *CEFPdfPrintCallbackT) CallOnPdfPrintFinished(args ...uintptr) uintptr {
+func (v *CEFPdfPrintCallbackT) CallOnPdfPrintFinished(Path unsafe.Pointer, Ok uintptr) uintptr {
 	if v.OnPdfPrintFinished == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPdfPrintFinished, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPdfPrintFinished, uintptr(unsafe.Pointer(v)), uintptr(Path), Ok)
 	return r1
 }
 
@@ -305,11 +305,11 @@ func (v *CEFDownloadImageCallbackT) OverrideOnDownloadImageFinished(fn uintptr) 
 	v.OnDownloadImageFinished = fn
 }
 
-func (v *CEFDownloadImageCallbackT) CallOnDownloadImageFinished(args ...uintptr) uintptr {
+func (v *CEFDownloadImageCallbackT) CallOnDownloadImageFinished(ImageURL unsafe.Pointer, HttpStatusCode uintptr, Image unsafe.Pointer) uintptr {
 	if v.OnDownloadImageFinished == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDownloadImageFinished, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDownloadImageFinished, uintptr(unsafe.Pointer(v)), uintptr(ImageURL), HttpStatusCode, uintptr(Image))
 	return r1
 }
 
@@ -388,281 +388,281 @@ type CEFBrowserHostT struct {
 
 func (v *CEFBrowserHostT) OverrideGetBrowser(fn uintptr) { v.GetBrowser = fn }
 
-func (v *CEFBrowserHostT) CallGetBrowser(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetBrowser() uintptr {
 	if v.GetBrowser == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBrowser, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBrowser, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideCloseBrowser(fn uintptr) { v.CloseBrowser = fn }
 
-func (v *CEFBrowserHostT) CallCloseBrowser(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallCloseBrowser(ForceClose uintptr) uintptr {
 	if v.CloseBrowser == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CloseBrowser, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CloseBrowser, uintptr(unsafe.Pointer(v)), ForceClose)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideTryCloseBrowser(fn uintptr) { v.TryCloseBrowser = fn }
 
-func (v *CEFBrowserHostT) CallTryCloseBrowser(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallTryCloseBrowser() uintptr {
 	if v.TryCloseBrowser == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.TryCloseBrowser, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.TryCloseBrowser, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideIsReadyToBeClosed(fn uintptr) { v.IsReadyToBeClosed = fn }
 
-func (v *CEFBrowserHostT) CallIsReadyToBeClosed(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallIsReadyToBeClosed() uintptr {
 	if v.IsReadyToBeClosed == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsReadyToBeClosed, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsReadyToBeClosed, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSetFocus(fn uintptr) { v.SetFocus = fn }
 
-func (v *CEFBrowserHostT) CallSetFocus(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSetFocus(Focus uintptr) uintptr {
 	if v.SetFocus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetFocus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetFocus, uintptr(unsafe.Pointer(v)), Focus)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetWindowHandle(fn uintptr) { v.GetWindowHandle = fn }
 
-func (v *CEFBrowserHostT) CallGetWindowHandle(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetWindowHandle() uintptr {
 	if v.GetWindowHandle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWindowHandle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWindowHandle, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetOpenerWindowHandle(fn uintptr) { v.GetOpenerWindowHandle = fn }
 
-func (v *CEFBrowserHostT) CallGetOpenerWindowHandle(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetOpenerWindowHandle() uintptr {
 	if v.GetOpenerWindowHandle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOpenerWindowHandle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOpenerWindowHandle, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetOpenerIdentifier(fn uintptr) { v.GetOpenerIdentifier = fn }
 
-func (v *CEFBrowserHostT) CallGetOpenerIdentifier(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetOpenerIdentifier() uintptr {
 	if v.GetOpenerIdentifier == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetOpenerIdentifier, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetOpenerIdentifier, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideHasView(fn uintptr) { v.HasView = fn }
 
-func (v *CEFBrowserHostT) CallHasView(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallHasView() uintptr {
 	if v.HasView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasView, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetClient(fn uintptr) { v.GetClient = fn }
 
-func (v *CEFBrowserHostT) CallGetClient(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetClient() uintptr {
 	if v.GetClient == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetClient, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetClient, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetRequestContext(fn uintptr) { v.GetRequestContext = fn }
 
-func (v *CEFBrowserHostT) CallGetRequestContext(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetRequestContext() uintptr {
 	if v.GetRequestContext == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRequestContext, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRequestContext, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideCanZoom(fn uintptr) { v.CanZoom = fn }
 
-func (v *CEFBrowserHostT) CallCanZoom(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallCanZoom(Command uintptr) uintptr {
 	if v.CanZoom == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CanZoom, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CanZoom, uintptr(unsafe.Pointer(v)), Command)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideZoom(fn uintptr) { v.Zoom = fn }
 
-func (v *CEFBrowserHostT) CallZoom(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallZoom(Command uintptr) uintptr {
 	if v.Zoom == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Zoom, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Zoom, uintptr(unsafe.Pointer(v)), Command)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetDefaultZoomLevel(fn uintptr) { v.GetDefaultZoomLevel = fn }
 
-func (v *CEFBrowserHostT) CallGetDefaultZoomLevel(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetDefaultZoomLevel() uintptr {
 	if v.GetDefaultZoomLevel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDefaultZoomLevel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDefaultZoomLevel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetZoomLevel(fn uintptr) { v.GetZoomLevel = fn }
 
-func (v *CEFBrowserHostT) CallGetZoomLevel(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetZoomLevel() uintptr {
 	if v.GetZoomLevel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetZoomLevel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetZoomLevel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSetZoomLevel(fn uintptr) { v.SetZoomLevel = fn }
 
-func (v *CEFBrowserHostT) CallSetZoomLevel(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSetZoomLevel(Zoomlevel uintptr) uintptr {
 	if v.SetZoomLevel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetZoomLevel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetZoomLevel, uintptr(unsafe.Pointer(v)), Zoomlevel)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideRunFileDialog(fn uintptr) { v.RunFileDialog = fn }
 
-func (v *CEFBrowserHostT) CallRunFileDialog(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallRunFileDialog(Mode uintptr, Title unsafe.Pointer, DefaultFilePath unsafe.Pointer, AcceptFilters uintptr, Callback unsafe.Pointer) uintptr {
 	if v.RunFileDialog == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RunFileDialog, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RunFileDialog, uintptr(unsafe.Pointer(v)), Mode, uintptr(Title), uintptr(DefaultFilePath), AcceptFilters, uintptr(Callback))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideStartDownload(fn uintptr) { v.StartDownload = fn }
 
-func (v *CEFBrowserHostT) CallStartDownload(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallStartDownload(URL unsafe.Pointer) uintptr {
 	if v.StartDownload == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.StartDownload, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.StartDownload, uintptr(unsafe.Pointer(v)), uintptr(URL))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideDownloadImage(fn uintptr) { v.DownloadImage = fn }
 
-func (v *CEFBrowserHostT) CallDownloadImage(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallDownloadImage(ImageURL unsafe.Pointer, IsFavicon uintptr, MaxImageSize uintptr, BypassCache uintptr, Callback unsafe.Pointer) uintptr {
 	if v.DownloadImage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.DownloadImage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.DownloadImage, uintptr(unsafe.Pointer(v)), uintptr(ImageURL), IsFavicon, MaxImageSize, BypassCache, uintptr(Callback))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverridePrint(fn uintptr) { v.Print = fn }
 
-func (v *CEFBrowserHostT) CallPrint(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallPrint() uintptr {
 	if v.Print == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Print, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Print, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverridePrintToPdf(fn uintptr) { v.PrintToPdf = fn }
 
-func (v *CEFBrowserHostT) CallPrintToPdf(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallPrintToPdf(Path unsafe.Pointer, Settings unsafe.Pointer, Callback unsafe.Pointer) uintptr {
 	if v.PrintToPdf == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.PrintToPdf, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.PrintToPdf, uintptr(unsafe.Pointer(v)), uintptr(Path), uintptr(Settings), uintptr(Callback))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideFind(fn uintptr) { v.Find = fn }
 
-func (v *CEFBrowserHostT) CallFind(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallFind(Searchtext unsafe.Pointer, Forward uintptr, Matchcase uintptr, Findnext uintptr) uintptr {
 	if v.Find == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Find, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Find, uintptr(unsafe.Pointer(v)), uintptr(Searchtext), Forward, Matchcase, Findnext)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideStopFinding(fn uintptr) { v.StopFinding = fn }
 
-func (v *CEFBrowserHostT) CallStopFinding(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallStopFinding(Clearselection uintptr) uintptr {
 	if v.StopFinding == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.StopFinding, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.StopFinding, uintptr(unsafe.Pointer(v)), Clearselection)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideShowDevTools(fn uintptr) { v.ShowDevTools = fn }
 
-func (v *CEFBrowserHostT) CallShowDevTools(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallShowDevTools(Windowinfo unsafe.Pointer, Client unsafe.Pointer, Settings unsafe.Pointer, InspectElementAt unsafe.Pointer) uintptr {
 	if v.ShowDevTools == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ShowDevTools, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ShowDevTools, uintptr(unsafe.Pointer(v)), uintptr(Windowinfo), uintptr(Client), uintptr(Settings), uintptr(InspectElementAt))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideCloseDevTools(fn uintptr) { v.CloseDevTools = fn }
 
-func (v *CEFBrowserHostT) CallCloseDevTools(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallCloseDevTools() uintptr {
 	if v.CloseDevTools == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CloseDevTools, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CloseDevTools, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideHasDevTools(fn uintptr) { v.HasDevTools = fn }
 
-func (v *CEFBrowserHostT) CallHasDevTools(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallHasDevTools() uintptr {
 	if v.HasDevTools == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasDevTools, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasDevTools, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSendDevToolsMessage(fn uintptr) { v.SendDevToolsMessage = fn }
 
-func (v *CEFBrowserHostT) CallSendDevToolsMessage(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSendDevToolsMessage(Message unsafe.Pointer, MessageSize uintptr) uintptr {
 	if v.SendDevToolsMessage == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendDevToolsMessage, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendDevToolsMessage, uintptr(unsafe.Pointer(v)), uintptr(Message), MessageSize)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideExecuteDevToolsMethod(fn uintptr) { v.ExecuteDevToolsMethod = fn }
 
-func (v *CEFBrowserHostT) CallExecuteDevToolsMethod(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallExecuteDevToolsMethod(MessageID uintptr, Method unsafe.Pointer, Params unsafe.Pointer) uintptr {
 	if v.ExecuteDevToolsMethod == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ExecuteDevToolsMethod, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ExecuteDevToolsMethod, uintptr(unsafe.Pointer(v)), MessageID, uintptr(Method), uintptr(Params))
 	return r1
 }
 
@@ -670,41 +670,41 @@ func (v *CEFBrowserHostT) OverrideAddDevToolsMessageObserver(fn uintptr) {
 	v.AddDevToolsMessageObserver = fn
 }
 
-func (v *CEFBrowserHostT) CallAddDevToolsMessageObserver(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallAddDevToolsMessageObserver(Observer unsafe.Pointer) uintptr {
 	if v.AddDevToolsMessageObserver == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddDevToolsMessageObserver, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddDevToolsMessageObserver, uintptr(unsafe.Pointer(v)), uintptr(Observer))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetNavigationEntries(fn uintptr) { v.GetNavigationEntries = fn }
 
-func (v *CEFBrowserHostT) CallGetNavigationEntries(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetNavigationEntries(Visitor unsafe.Pointer, CurrentOnly uintptr) uintptr {
 	if v.GetNavigationEntries == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetNavigationEntries, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetNavigationEntries, uintptr(unsafe.Pointer(v)), uintptr(Visitor), CurrentOnly)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideReplaceMisspelling(fn uintptr) { v.ReplaceMisspelling = fn }
 
-func (v *CEFBrowserHostT) CallReplaceMisspelling(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallReplaceMisspelling(Word unsafe.Pointer) uintptr {
 	if v.ReplaceMisspelling == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ReplaceMisspelling, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ReplaceMisspelling, uintptr(unsafe.Pointer(v)), uintptr(Word))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideAddWordToDictionary(fn uintptr) { v.AddWordToDictionary = fn }
 
-func (v *CEFBrowserHostT) CallAddWordToDictionary(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallAddWordToDictionary(Word unsafe.Pointer) uintptr {
 	if v.AddWordToDictionary == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddWordToDictionary, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddWordToDictionary, uintptr(unsafe.Pointer(v)), uintptr(Word))
 	return r1
 }
 
@@ -712,121 +712,121 @@ func (v *CEFBrowserHostT) OverrideIsWindowRenderingDisabled(fn uintptr) {
 	v.IsWindowRenderingDisabled = fn
 }
 
-func (v *CEFBrowserHostT) CallIsWindowRenderingDisabled(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallIsWindowRenderingDisabled() uintptr {
 	if v.IsWindowRenderingDisabled == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsWindowRenderingDisabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsWindowRenderingDisabled, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideWasResized(fn uintptr) { v.WasResized = fn }
 
-func (v *CEFBrowserHostT) CallWasResized(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallWasResized() uintptr {
 	if v.WasResized == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.WasResized, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.WasResized, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideWasHidden(fn uintptr) { v.WasHidden = fn }
 
-func (v *CEFBrowserHostT) CallWasHidden(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallWasHidden(Hidden uintptr) uintptr {
 	if v.WasHidden == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.WasHidden, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.WasHidden, uintptr(unsafe.Pointer(v)), Hidden)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideNotifyScreenInfoChanged(fn uintptr) { v.NotifyScreenInfoChanged = fn }
 
-func (v *CEFBrowserHostT) CallNotifyScreenInfoChanged(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallNotifyScreenInfoChanged() uintptr {
 	if v.NotifyScreenInfoChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.NotifyScreenInfoChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.NotifyScreenInfoChanged, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideInvalidate(fn uintptr) { v.Invalidate = fn }
 
-func (v *CEFBrowserHostT) CallInvalidate(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallInvalidate(Type uintptr) uintptr {
 	if v.Invalidate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Invalidate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Invalidate, uintptr(unsafe.Pointer(v)), Type)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSendExternalBeginFrame(fn uintptr) { v.SendExternalBeginFrame = fn }
 
-func (v *CEFBrowserHostT) CallSendExternalBeginFrame(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSendExternalBeginFrame() uintptr {
 	if v.SendExternalBeginFrame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendExternalBeginFrame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendExternalBeginFrame, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSendKeyEvent(fn uintptr) { v.SendKeyEvent = fn }
 
-func (v *CEFBrowserHostT) CallSendKeyEvent(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSendKeyEvent(Event unsafe.Pointer) uintptr {
 	if v.SendKeyEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendKeyEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendKeyEvent, uintptr(unsafe.Pointer(v)), uintptr(Event))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSendMouseClickEvent(fn uintptr) { v.SendMouseClickEvent = fn }
 
-func (v *CEFBrowserHostT) CallSendMouseClickEvent(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSendMouseClickEvent(Event unsafe.Pointer, Type uintptr, Mouseup uintptr, Clickcount uintptr) uintptr {
 	if v.SendMouseClickEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendMouseClickEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendMouseClickEvent, uintptr(unsafe.Pointer(v)), uintptr(Event), Type, Mouseup, Clickcount)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSendMouseMoveEvent(fn uintptr) { v.SendMouseMoveEvent = fn }
 
-func (v *CEFBrowserHostT) CallSendMouseMoveEvent(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSendMouseMoveEvent(Event unsafe.Pointer, Mouseleave uintptr) uintptr {
 	if v.SendMouseMoveEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendMouseMoveEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendMouseMoveEvent, uintptr(unsafe.Pointer(v)), uintptr(Event), Mouseleave)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSendMouseWheelEvent(fn uintptr) { v.SendMouseWheelEvent = fn }
 
-func (v *CEFBrowserHostT) CallSendMouseWheelEvent(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSendMouseWheelEvent(Event unsafe.Pointer, Deltax uintptr, Deltay uintptr) uintptr {
 	if v.SendMouseWheelEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendMouseWheelEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendMouseWheelEvent, uintptr(unsafe.Pointer(v)), uintptr(Event), Deltax, Deltay)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSendTouchEvent(fn uintptr) { v.SendTouchEvent = fn }
 
-func (v *CEFBrowserHostT) CallSendTouchEvent(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSendTouchEvent(Event unsafe.Pointer) uintptr {
 	if v.SendTouchEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendTouchEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendTouchEvent, uintptr(unsafe.Pointer(v)), uintptr(Event))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSendCaptureLostEvent(fn uintptr) { v.SendCaptureLostEvent = fn }
 
-func (v *CEFBrowserHostT) CallSendCaptureLostEvent(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSendCaptureLostEvent() uintptr {
 	if v.SendCaptureLostEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SendCaptureLostEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SendCaptureLostEvent, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -834,121 +834,121 @@ func (v *CEFBrowserHostT) OverrideNotifyMoveOrResizeStarted(fn uintptr) {
 	v.NotifyMoveOrResizeStarted = fn
 }
 
-func (v *CEFBrowserHostT) CallNotifyMoveOrResizeStarted(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallNotifyMoveOrResizeStarted() uintptr {
 	if v.NotifyMoveOrResizeStarted == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.NotifyMoveOrResizeStarted, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.NotifyMoveOrResizeStarted, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetWindowlessFrameRate(fn uintptr) { v.GetWindowlessFrameRate = fn }
 
-func (v *CEFBrowserHostT) CallGetWindowlessFrameRate(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetWindowlessFrameRate() uintptr {
 	if v.GetWindowlessFrameRate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWindowlessFrameRate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWindowlessFrameRate, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSetWindowlessFrameRate(fn uintptr) { v.SetWindowlessFrameRate = fn }
 
-func (v *CEFBrowserHostT) CallSetWindowlessFrameRate(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSetWindowlessFrameRate(FrameRate uintptr) uintptr {
 	if v.SetWindowlessFrameRate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetWindowlessFrameRate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetWindowlessFrameRate, uintptr(unsafe.Pointer(v)), FrameRate)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideImeSetComposition(fn uintptr) { v.ImeSetComposition = fn }
 
-func (v *CEFBrowserHostT) CallImeSetComposition(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallImeSetComposition(Text unsafe.Pointer, Underlinescount uintptr, Underlines unsafe.Pointer, ReplacementRange unsafe.Pointer, SelectionRange unsafe.Pointer) uintptr {
 	if v.ImeSetComposition == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ImeSetComposition, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ImeSetComposition, uintptr(unsafe.Pointer(v)), uintptr(Text), Underlinescount, uintptr(Underlines), uintptr(ReplacementRange), uintptr(SelectionRange))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideImeCommitText(fn uintptr) { v.ImeCommitText = fn }
 
-func (v *CEFBrowserHostT) CallImeCommitText(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallImeCommitText(Text unsafe.Pointer, ReplacementRange unsafe.Pointer, RelativeCursorPos uintptr) uintptr {
 	if v.ImeCommitText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ImeCommitText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ImeCommitText, uintptr(unsafe.Pointer(v)), uintptr(Text), uintptr(ReplacementRange), RelativeCursorPos)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideImeFinishComposingText(fn uintptr) { v.ImeFinishComposingText = fn }
 
-func (v *CEFBrowserHostT) CallImeFinishComposingText(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallImeFinishComposingText(KeepSelection uintptr) uintptr {
 	if v.ImeFinishComposingText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ImeFinishComposingText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ImeFinishComposingText, uintptr(unsafe.Pointer(v)), KeepSelection)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideImeCancelComposition(fn uintptr) { v.ImeCancelComposition = fn }
 
-func (v *CEFBrowserHostT) CallImeCancelComposition(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallImeCancelComposition() uintptr {
 	if v.ImeCancelComposition == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ImeCancelComposition, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ImeCancelComposition, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideDragTargetDragEnter(fn uintptr) { v.DragTargetDragEnter = fn }
 
-func (v *CEFBrowserHostT) CallDragTargetDragEnter(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallDragTargetDragEnter(DragData unsafe.Pointer, Event unsafe.Pointer, AllowedOps uintptr) uintptr {
 	if v.DragTargetDragEnter == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.DragTargetDragEnter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.DragTargetDragEnter, uintptr(unsafe.Pointer(v)), uintptr(DragData), uintptr(Event), AllowedOps)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideDragTargetDragOver(fn uintptr) { v.DragTargetDragOver = fn }
 
-func (v *CEFBrowserHostT) CallDragTargetDragOver(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallDragTargetDragOver(Event unsafe.Pointer, AllowedOps uintptr) uintptr {
 	if v.DragTargetDragOver == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.DragTargetDragOver, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.DragTargetDragOver, uintptr(unsafe.Pointer(v)), uintptr(Event), AllowedOps)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideDragTargetDragLeave(fn uintptr) { v.DragTargetDragLeave = fn }
 
-func (v *CEFBrowserHostT) CallDragTargetDragLeave(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallDragTargetDragLeave() uintptr {
 	if v.DragTargetDragLeave == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.DragTargetDragLeave, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.DragTargetDragLeave, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideDragTargetDrop(fn uintptr) { v.DragTargetDrop = fn }
 
-func (v *CEFBrowserHostT) CallDragTargetDrop(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallDragTargetDrop(Event unsafe.Pointer) uintptr {
 	if v.DragTargetDrop == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.DragTargetDrop, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.DragTargetDrop, uintptr(unsafe.Pointer(v)), uintptr(Event))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideDragSourceEndedAt(fn uintptr) { v.DragSourceEndedAt = fn }
 
-func (v *CEFBrowserHostT) CallDragSourceEndedAt(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallDragSourceEndedAt(X uintptr, Y uintptr, Op uintptr) uintptr {
 	if v.DragSourceEndedAt == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.DragSourceEndedAt, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.DragSourceEndedAt, uintptr(unsafe.Pointer(v)), X, Y, Op)
 	return r1
 }
 
@@ -956,11 +956,11 @@ func (v *CEFBrowserHostT) OverrideDragSourceSystemDragEnded(fn uintptr) {
 	v.DragSourceSystemDragEnded = fn
 }
 
-func (v *CEFBrowserHostT) CallDragSourceSystemDragEnded(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallDragSourceSystemDragEnded() uintptr {
 	if v.DragSourceSystemDragEnded == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.DragSourceSystemDragEnded, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.DragSourceSystemDragEnded, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -968,91 +968,91 @@ func (v *CEFBrowserHostT) OverrideGetVisibleNavigationEntry(fn uintptr) {
 	v.GetVisibleNavigationEntry = fn
 }
 
-func (v *CEFBrowserHostT) CallGetVisibleNavigationEntry(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetVisibleNavigationEntry() uintptr {
 	if v.GetVisibleNavigationEntry == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetVisibleNavigationEntry, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetVisibleNavigationEntry, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSetAccessibilityState(fn uintptr) { v.SetAccessibilityState = fn }
 
-func (v *CEFBrowserHostT) CallSetAccessibilityState(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSetAccessibilityState(AccessibilityState uintptr) uintptr {
 	if v.SetAccessibilityState == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetAccessibilityState, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetAccessibilityState, uintptr(unsafe.Pointer(v)), AccessibilityState)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSetAutoResizeEnabled(fn uintptr) { v.SetAutoResizeEnabled = fn }
 
-func (v *CEFBrowserHostT) CallSetAutoResizeEnabled(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSetAutoResizeEnabled(Enabled uintptr, MinSize unsafe.Pointer, MaxSize unsafe.Pointer) uintptr {
 	if v.SetAutoResizeEnabled == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetAutoResizeEnabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetAutoResizeEnabled, uintptr(unsafe.Pointer(v)), Enabled, uintptr(MinSize), uintptr(MaxSize))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideSetAudioMuted(fn uintptr) { v.SetAudioMuted = fn }
 
-func (v *CEFBrowserHostT) CallSetAudioMuted(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallSetAudioMuted(Mute uintptr) uintptr {
 	if v.SetAudioMuted == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetAudioMuted, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetAudioMuted, uintptr(unsafe.Pointer(v)), Mute)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideIsAudioMuted(fn uintptr) { v.IsAudioMuted = fn }
 
-func (v *CEFBrowserHostT) CallIsAudioMuted(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallIsAudioMuted() uintptr {
 	if v.IsAudioMuted == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsAudioMuted, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsAudioMuted, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideIsFullscreen(fn uintptr) { v.IsFullscreen = fn }
 
-func (v *CEFBrowserHostT) CallIsFullscreen(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallIsFullscreen() uintptr {
 	if v.IsFullscreen == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsFullscreen, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsFullscreen, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideExitFullscreen(fn uintptr) { v.ExitFullscreen = fn }
 
-func (v *CEFBrowserHostT) CallExitFullscreen(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallExitFullscreen(WillCauseResize uintptr) uintptr {
 	if v.ExitFullscreen == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ExitFullscreen, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ExitFullscreen, uintptr(unsafe.Pointer(v)), WillCauseResize)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideCanExecuteChromeCommand(fn uintptr) { v.CanExecuteChromeCommand = fn }
 
-func (v *CEFBrowserHostT) CallCanExecuteChromeCommand(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallCanExecuteChromeCommand(CommandID uintptr) uintptr {
 	if v.CanExecuteChromeCommand == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CanExecuteChromeCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CanExecuteChromeCommand, uintptr(unsafe.Pointer(v)), CommandID)
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideExecuteChromeCommand(fn uintptr) { v.ExecuteChromeCommand = fn }
 
-func (v *CEFBrowserHostT) CallExecuteChromeCommand(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallExecuteChromeCommand(CommandID uintptr, Disposition uintptr) uintptr {
 	if v.ExecuteChromeCommand == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ExecuteChromeCommand, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ExecuteChromeCommand, uintptr(unsafe.Pointer(v)), CommandID, Disposition)
 	return r1
 }
 
@@ -1060,21 +1060,21 @@ func (v *CEFBrowserHostT) OverrideIsRenderProcessUnresponsive(fn uintptr) {
 	v.IsRenderProcessUnresponsive = fn
 }
 
-func (v *CEFBrowserHostT) CallIsRenderProcessUnresponsive(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallIsRenderProcessUnresponsive() uintptr {
 	if v.IsRenderProcessUnresponsive == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsRenderProcessUnresponsive, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsRenderProcessUnresponsive, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFBrowserHostT) OverrideGetRuntimeStyle(fn uintptr) { v.GetRuntimeStyle = fn }
 
-func (v *CEFBrowserHostT) CallGetRuntimeStyle(args ...uintptr) uintptr {
+func (v *CEFBrowserHostT) CallGetRuntimeStyle() uintptr {
 	if v.GetRuntimeStyle == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRuntimeStyle, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRuntimeStyle, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

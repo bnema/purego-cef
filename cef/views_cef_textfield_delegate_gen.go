@@ -87,7 +87,13 @@ func (obj *textfieldDelegateImpl) OnKeyEvent(textfield Textfield, event *KeyEven
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(textfield)), uintptr(unsafe.Pointer(event)))
+	if rawPtr.OnKeyEvent == 0 {
+		return 0
+	}
+	textfieldPtr := extractRawPointer(textfield)
+	transferRef(textfieldPtr)
+	ret := rawPtr.CallOnKeyEvent(textfieldPtr, unsafe.Pointer(event))
+	runtime.KeepAlive(textfield)
 	return int32(ret)
 }
 
@@ -96,7 +102,13 @@ func (obj *textfieldDelegateImpl) OnAfterUserAction(textfield Textfield) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnAfterUserAction(uintptr(extractRawPointer(textfield)))
+	if rawPtr.OnAfterUserAction == 0 {
+		return
+	}
+	textfieldPtr := extractRawPointer(textfield)
+	transferRef(textfieldPtr)
+	rawPtr.CallOnAfterUserAction(textfieldPtr)
+	runtime.KeepAlive(textfield)
 }
 
 func (obj *textfieldDelegateImpl) RawPointer() unsafe.Pointer {

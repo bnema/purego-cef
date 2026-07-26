@@ -72,7 +72,7 @@ func (obj *endTracingCallbackImpl) OnEndTracingComplete(tracingFile string) {
 	rawPtr := obj.rawPtr
 	tracingFileStr := cefString(tracingFile)
 	defer freeCefString(&tracingFileStr)
-	rawPtr.CallOnEndTracingComplete(uintptr(unsafe.Pointer(&tracingFileStr)))
+	rawPtr.CallOnEndTracingComplete(unsafe.Pointer(&tracingFileStr))
 }
 
 func (obj *endTracingCallbackImpl) RawPointer() unsafe.Pointer {
@@ -114,17 +114,29 @@ func wrapEndTracingCallback(ptr unsafe.Pointer) EndTracingCallback {
 
 // BeginTracing Start tracing events on all processes. Tracing is initialized asynchronously and |callback| will be executed on the UI thread after initialization is complete. If CefBeginTracing was called previously, or if a CefEndTracingAsync call is pending, CefBeginTracing will fail and return false (0). |categories| is a comma-delimited list of category wildcards. A category can have an optional '-' prefix to make it an excluded category. Having both included and excluded categories in the same list is not supported. Examples: - "test_MyTest*" - "test_MyTest*,test_OtherStuff" - "-excluded_category1,-excluded_category2" This function must be called on the browser process UI thread.
 func BeginTracing(categories string, callback CompletionCallback) int32 {
+	if capi.CEFBeginTracing == nil {
+		return 0
+	}
 	categoriesStr := cefString(categories)
 	defer freeCefString(&categoriesStr)
-	ret := capi.CEFBeginTracing(unsafe.Pointer(&categoriesStr), extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) }))
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewCompletionCallback(callback) })
+	transferRef(callbackPtr)
+	ret := capi.CEFBeginTracing(unsafe.Pointer(&categoriesStr), callbackPtr)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
 // EndTracing Stop tracing events on all processes. This function will fail and return false (0) if a previous call to CefEndTracingAsync is already pending or if CefBeginTracing was not called. |tracing_file| is the path at which tracing data will be written and |callback| is the callback that will be executed once all processes have sent their trace data. If |tracing_file| is NULL a new temporary file path will be used. If |callback| is NULL no trace data will be written. This function must be called on the browser process UI thread.
 func EndTracing(tracingFile string, callback EndTracingCallback) int32 {
+	if capi.CEFEndTracing == nil {
+		return 0
+	}
 	tracingFileStr := cefString(tracingFile)
 	defer freeCefString(&tracingFileStr)
-	ret := capi.CEFEndTracing(unsafe.Pointer(&tracingFileStr), extractOrWrapRawPointer(callback, func() any { return NewEndTracingCallback(callback) }))
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewEndTracingCallback(callback) })
+	transferRef(callbackPtr)
+	ret := capi.CEFEndTracing(unsafe.Pointer(&tracingFileStr), callbackPtr)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 

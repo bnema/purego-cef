@@ -73,7 +73,7 @@ func (obj *componentUpdateCallbackImpl) OnComplete(componentID string, error Com
 	rawPtr := obj.rawPtr
 	componentIDStr := cefString(componentID)
 	defer freeCefString(&componentIDStr)
-	rawPtr.CallOnComplete(uintptr(unsafe.Pointer(&componentIDStr)), uintptr(error))
+	rawPtr.CallOnComplete(unsafe.Pointer(&componentIDStr), uintptr(error))
 }
 
 func (obj *componentUpdateCallbackImpl) RawPointer() unsafe.Pointer {
@@ -234,7 +234,7 @@ func (obj *componentUpdaterImpl) GetComponents(componentscount *int, components 
 		componentsRaw = make([]uintptr, len(components))
 		componentsPtr = unsafe.Pointer(&componentsRaw[0])
 	}
-	rawPtr.CallGetComponents(uintptr(unsafe.Pointer(componentsCountPtr)), uintptr(componentsPtr))
+	rawPtr.CallGetComponents(unsafe.Pointer(componentsCountPtr), componentsPtr)
 	if len(components) > 0 {
 		n := len(components)
 		if *componentsCountPtr < n {
@@ -253,7 +253,7 @@ func (obj *componentUpdaterImpl) GetComponentByID(componentID string) Component 
 	rawPtr := obj.rawPtr
 	componentIDStr := cefString(componentID)
 	defer freeCefString(&componentIDStr)
-	ret := rawPtr.CallGetComponentByID(uintptr(unsafe.Pointer(&componentIDStr)))
+	ret := rawPtr.CallGetComponentByID(unsafe.Pointer(&componentIDStr))
 	return wrapComponent(unsafe.Pointer(ret))
 }
 
@@ -262,9 +262,15 @@ func (obj *componentUpdaterImpl) Update(componentID string, priority ComponentUp
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.Update == 0 {
+		return
+	}
 	componentIDStr := cefString(componentID)
 	defer freeCefString(&componentIDStr)
-	rawPtr.CallUpdate(uintptr(unsafe.Pointer(&componentIDStr)), uintptr(priority), uintptr(extractOrWrapRawPointer(callback, func() any { return NewComponentUpdateCallback(callback) })))
+	callbackPtr := extractOrWrapRawPointer(callback, func() any { return NewComponentUpdateCallback(callback) })
+	transferRef(callbackPtr)
+	rawPtr.CallUpdate(unsafe.Pointer(&componentIDStr), uintptr(priority), callbackPtr)
+	runtime.KeepAlive(callback)
 }
 
 func (obj *componentUpdaterImpl) RawPointer() unsafe.Pointer {

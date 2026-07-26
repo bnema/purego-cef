@@ -121,6 +121,10 @@ func run(cfg config) error {
 		}
 	}
 
+	if err := model.AuditRawMethodArity(allHeaders); err != nil {
+		return err
+	}
+
 	// Build type registry from all parsed headers.
 	registry := emitter.NewTypeRegistry(allHeaders)
 

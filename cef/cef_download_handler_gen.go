@@ -30,7 +30,7 @@ func (obj *beforeDownloadCallbackImpl) Cont(downloadPath string, showDialog int3
 	rawPtr := obj.rawPtr
 	downloadPathStr := cefString(downloadPath)
 	defer freeCefString(&downloadPathStr)
-	rawPtr.CallCont(uintptr(unsafe.Pointer(&downloadPathStr)), uintptr(showDialog))
+	rawPtr.CallCont(unsafe.Pointer(&downloadPathStr), uintptr(showDialog))
 }
 
 func (obj *beforeDownloadCallbackImpl) RawPointer() unsafe.Pointer {
@@ -243,11 +243,17 @@ func (obj *downloadHandlerImpl) CanDownload(browser Browser, uRL string, request
 		return false
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.CanDownload == 0 {
+		return false
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
 	requestMethodStr := cefString(requestMethod)
 	defer freeCefString(&requestMethodStr)
-	ret := rawPtr.CallCanDownload(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&uRLStr)), uintptr(unsafe.Pointer(&requestMethodStr)))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := rawPtr.CallCanDownload(browserPtr, unsafe.Pointer(&uRLStr), unsafe.Pointer(&requestMethodStr))
+	runtime.KeepAlive(browser)
 	return ret != 0
 }
 
@@ -256,9 +262,21 @@ func (obj *downloadHandlerImpl) OnBeforeDownload(browser Browser, downloadItem D
 		return false
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnBeforeDownload == 0 {
+		return false
+	}
 	suggestedNameStr := cefString(suggestedName)
 	defer freeCefString(&suggestedNameStr)
-	ret := rawPtr.CallOnBeforeDownload(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(unsafe.Pointer(&suggestedNameStr)), uintptr(extractRawPointer(callback)))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	downloadItemPtr := extractRawPointer(downloadItem)
+	transferRef(downloadItemPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallOnBeforeDownload(browserPtr, downloadItemPtr, unsafe.Pointer(&suggestedNameStr), callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(downloadItem)
+	runtime.KeepAlive(callback)
 	return ret != 0
 }
 
@@ -267,7 +285,19 @@ func (obj *downloadHandlerImpl) OnDownloadUpdated(browser Browser, downloadItem 
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDownloadUpdated(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(downloadItem)), uintptr(extractRawPointer(callback)))
+	if rawPtr.OnDownloadUpdated == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	downloadItemPtr := extractRawPointer(downloadItem)
+	transferRef(downloadItemPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	rawPtr.CallOnDownloadUpdated(browserPtr, downloadItemPtr, callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(downloadItem)
+	runtime.KeepAlive(callback)
 }
 
 func (obj *downloadHandlerImpl) RawPointer() unsafe.Pointer {

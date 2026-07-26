@@ -21,51 +21,51 @@ type CEFAudioHandlerT struct {
 
 func (v *CEFAudioHandlerT) OverrideGetAudioParameters(fn uintptr) { v.GetAudioParameters = fn }
 
-func (v *CEFAudioHandlerT) CallGetAudioParameters(args ...uintptr) uintptr {
+func (v *CEFAudioHandlerT) CallGetAudioParameters(Browser unsafe.Pointer, Params unsafe.Pointer) uintptr {
 	if v.GetAudioParameters == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAudioParameters, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAudioParameters, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Params))
 	return r1
 }
 
 func (v *CEFAudioHandlerT) OverrideOnAudioStreamStarted(fn uintptr) { v.OnAudioStreamStarted = fn }
 
-func (v *CEFAudioHandlerT) CallOnAudioStreamStarted(args ...uintptr) uintptr {
+func (v *CEFAudioHandlerT) CallOnAudioStreamStarted(Browser unsafe.Pointer, Params unsafe.Pointer, Channels uintptr) uintptr {
 	if v.OnAudioStreamStarted == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAudioStreamStarted, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAudioStreamStarted, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Params), Channels)
 	return r1
 }
 
 func (v *CEFAudioHandlerT) OverrideOnAudioStreamPacket(fn uintptr) { v.OnAudioStreamPacket = fn }
 
-func (v *CEFAudioHandlerT) CallOnAudioStreamPacket(args ...uintptr) uintptr {
+func (v *CEFAudioHandlerT) CallOnAudioStreamPacket(Browser unsafe.Pointer, Data unsafe.Pointer, Frames uintptr, Pts uintptr) uintptr {
 	if v.OnAudioStreamPacket == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAudioStreamPacket, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAudioStreamPacket, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Data), Frames, Pts)
 	return r1
 }
 
 func (v *CEFAudioHandlerT) OverrideOnAudioStreamStopped(fn uintptr) { v.OnAudioStreamStopped = fn }
 
-func (v *CEFAudioHandlerT) CallOnAudioStreamStopped(args ...uintptr) uintptr {
+func (v *CEFAudioHandlerT) CallOnAudioStreamStopped(Browser unsafe.Pointer) uintptr {
 	if v.OnAudioStreamStopped == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAudioStreamStopped, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAudioStreamStopped, uintptr(unsafe.Pointer(v)), uintptr(Browser))
 	return r1
 }
 
 func (v *CEFAudioHandlerT) OverrideOnAudioStreamError(fn uintptr) { v.OnAudioStreamError = fn }
 
-func (v *CEFAudioHandlerT) CallOnAudioStreamError(args ...uintptr) uintptr {
+func (v *CEFAudioHandlerT) CallOnAudioStreamError(Browser unsafe.Pointer, Message unsafe.Pointer) uintptr {
 	if v.OnAudioStreamError == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnAudioStreamError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnAudioStreamError, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Message))
 	return r1
 }
 

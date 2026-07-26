@@ -30,7 +30,7 @@ func (obj *jsdialogCallbackImpl) Cont(success int32, userInput string) {
 	rawPtr := obj.rawPtr
 	userInputStr := cefString(userInput)
 	defer freeCefString(&userInputStr)
-	rawPtr.CallCont(uintptr(success), uintptr(unsafe.Pointer(&userInputStr)))
+	rawPtr.CallCont(uintptr(success), unsafe.Pointer(&userInputStr))
 }
 
 func (obj *jsdialogCallbackImpl) RawPointer() unsafe.Pointer {
@@ -187,13 +187,22 @@ func (obj *jsdialogHandlerImpl) OnJsdialog(browser Browser, originURL string, di
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnJsdialog == 0 {
+		return 0
+	}
 	originURLStr := cefString(originURL)
 	defer freeCefString(&originURLStr)
 	messageTextStr := cefString(messageText)
 	defer freeCefString(&messageTextStr)
 	defaultPromptTextStr := cefString(defaultPromptText)
 	defer freeCefString(&defaultPromptTextStr)
-	ret := rawPtr.CallOnJsdialog(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&originURLStr)), uintptr(dialogType), uintptr(unsafe.Pointer(&messageTextStr)), uintptr(unsafe.Pointer(&defaultPromptTextStr)), uintptr(extractRawPointer(callback)), uintptr(unsafe.Pointer(suppressMessage)))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallOnJsdialog(browserPtr, unsafe.Pointer(&originURLStr), uintptr(dialogType), unsafe.Pointer(&messageTextStr), unsafe.Pointer(&defaultPromptTextStr), callbackPtr, unsafe.Pointer(suppressMessage))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -202,9 +211,18 @@ func (obj *jsdialogHandlerImpl) OnBeforeUnloadDialog(browser Browser, messageTex
 		return false
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnBeforeUnloadDialog == 0 {
+		return false
+	}
 	messageTextStr := cefString(messageText)
 	defer freeCefString(&messageTextStr)
-	ret := rawPtr.CallOnBeforeUnloadDialog(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&messageTextStr)), uintptr(isReload), uintptr(extractRawPointer(callback)))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallOnBeforeUnloadDialog(browserPtr, unsafe.Pointer(&messageTextStr), uintptr(isReload), callbackPtr)
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(callback)
 	return ret != 0
 }
 
@@ -213,7 +231,13 @@ func (obj *jsdialogHandlerImpl) OnResetDialogState(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnResetDialogState(uintptr(extractRawPointer(browser)))
+	if rawPtr.OnResetDialogState == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnResetDialogState(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *jsdialogHandlerImpl) OnDialogClosed(browser Browser) {
@@ -221,7 +245,13 @@ func (obj *jsdialogHandlerImpl) OnDialogClosed(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDialogClosed(uintptr(extractRawPointer(browser)))
+	if rawPtr.OnDialogClosed == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnDialogClosed(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *jsdialogHandlerImpl) RawPointer() unsafe.Pointer {

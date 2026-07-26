@@ -376,7 +376,13 @@ func (obj *renderHandlerImpl) GetRootScreenRect(browser Browser, rect *Rect) int
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetRootScreenRect(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
+	if rawPtr.GetRootScreenRect == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := rawPtr.CallGetRootScreenRect(browserPtr, unsafe.Pointer(rect))
+	runtime.KeepAlive(browser)
 	return int32(ret)
 }
 
@@ -385,7 +391,13 @@ func (obj *renderHandlerImpl) GetViewRect(browser Browser, rect *Rect) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetViewRect(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
+	if rawPtr.GetViewRect == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallGetViewRect(browserPtr, unsafe.Pointer(rect))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) GetScreenPoint(browser Browser, viewx int32, viewy int32, screenx *int32, screeny *int32) int32 {
@@ -393,7 +405,13 @@ func (obj *renderHandlerImpl) GetScreenPoint(browser Browser, viewx int32, viewy
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetScreenPoint(uintptr(extractRawPointer(browser)), uintptr(viewx), uintptr(viewy), uintptr(unsafe.Pointer(screenx)), uintptr(unsafe.Pointer(screeny)))
+	if rawPtr.GetScreenPoint == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := rawPtr.CallGetScreenPoint(browserPtr, uintptr(viewx), uintptr(viewy), unsafe.Pointer(screenx), unsafe.Pointer(screeny))
+	runtime.KeepAlive(browser)
 	return int32(ret)
 }
 
@@ -402,7 +420,13 @@ func (obj *renderHandlerImpl) GetScreenInfo(browser Browser, screenInfo *ScreenI
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetScreenInfo(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(screenInfo)))
+	if rawPtr.GetScreenInfo == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := rawPtr.CallGetScreenInfo(browserPtr, unsafe.Pointer(screenInfo))
+	runtime.KeepAlive(browser)
 	return int32(ret)
 }
 
@@ -411,7 +435,13 @@ func (obj *renderHandlerImpl) OnPopupShow(browser Browser, show int32) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnPopupShow(uintptr(extractRawPointer(browser)), uintptr(show))
+	if rawPtr.OnPopupShow == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnPopupShow(browserPtr, uintptr(show))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) OnPopupSize(browser Browser, rect *Rect) {
@@ -419,7 +449,13 @@ func (obj *renderHandlerImpl) OnPopupSize(browser Browser, rect *Rect) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnPopupSize(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(rect)))
+	if rawPtr.OnPopupSize == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnPopupSize(browserPtr, unsafe.Pointer(rect))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) OnPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, buffer []byte, width int32, height int32) {
@@ -427,6 +463,9 @@ func (obj *renderHandlerImpl) OnPaint(browser Browser, type_ PaintElementType, d
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnPaint == 0 {
+		return
+	}
 	var dirtyrectsPtr unsafe.Pointer
 	if len(dirtyrects) > 0 {
 		dirtyrectsPtr = unsafe.Pointer(&dirtyrects[0])
@@ -435,7 +474,10 @@ func (obj *renderHandlerImpl) OnPaint(browser Browser, type_ PaintElementType, d
 	if len(buffer) > 0 {
 		bufferPtr = unsafe.Pointer(&buffer[0])
 	}
-	rawPtr.CallOnPaint(uintptr(extractRawPointer(browser)), uintptr(type_), uintptr(len(dirtyrects)), uintptr(dirtyrectsPtr), uintptr(bufferPtr), uintptr(width), uintptr(height))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnPaint(browserPtr, uintptr(type_), uintptr(len(dirtyrects)), dirtyrectsPtr, bufferPtr, uintptr(width), uintptr(height))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) OnAcceleratedPaint(browser Browser, type_ PaintElementType, dirtyrects []Rect, info *AcceleratedPaintInfo) {
@@ -443,11 +485,17 @@ func (obj *renderHandlerImpl) OnAcceleratedPaint(browser Browser, type_ PaintEle
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnAcceleratedPaint == 0 {
+		return
+	}
 	var dirtyrectsPtr unsafe.Pointer
 	if len(dirtyrects) > 0 {
 		dirtyrectsPtr = unsafe.Pointer(&dirtyrects[0])
 	}
-	rawPtr.CallOnAcceleratedPaint(uintptr(extractRawPointer(browser)), uintptr(type_), uintptr(len(dirtyrects)), uintptr(dirtyrectsPtr), uintptr(unsafe.Pointer(info)))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnAcceleratedPaint(browserPtr, uintptr(type_), uintptr(len(dirtyrects)), dirtyrectsPtr, unsafe.Pointer(info))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) GetTouchHandleSize(browser Browser, orientation HorizontalAlignment, size *Size) {
@@ -455,7 +503,13 @@ func (obj *renderHandlerImpl) GetTouchHandleSize(browser Browser, orientation Ho
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetTouchHandleSize(uintptr(extractRawPointer(browser)), uintptr(orientation), uintptr(unsafe.Pointer(size)))
+	if rawPtr.GetTouchHandleSize == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallGetTouchHandleSize(browserPtr, uintptr(orientation), unsafe.Pointer(size))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) OnTouchHandleStateChanged(browser Browser, state *TouchHandleState) {
@@ -463,7 +517,13 @@ func (obj *renderHandlerImpl) OnTouchHandleStateChanged(browser Browser, state *
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnTouchHandleStateChanged(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(state)))
+	if rawPtr.OnTouchHandleStateChanged == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnTouchHandleStateChanged(browserPtr, unsafe.Pointer(state))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) StartDragging(browser Browser, dragData DragData, allowedOps DragOperationsMask, x int32, y int32) int32 {
@@ -471,7 +531,16 @@ func (obj *renderHandlerImpl) StartDragging(browser Browser, dragData DragData, 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallStartDragging(uintptr(extractRawPointer(browser)), uintptr(extractRawPointer(dragData)), uintptr(allowedOps), uintptr(x), uintptr(y))
+	if rawPtr.StartDragging == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	dragDataPtr := extractRawPointer(dragData)
+	transferRef(dragDataPtr)
+	ret := rawPtr.CallStartDragging(browserPtr, dragDataPtr, uintptr(allowedOps), uintptr(x), uintptr(y))
+	runtime.KeepAlive(browser)
+	runtime.KeepAlive(dragData)
 	return int32(ret)
 }
 
@@ -480,7 +549,13 @@ func (obj *renderHandlerImpl) UpdateDragCursor(browser Browser, operation DragOp
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallUpdateDragCursor(uintptr(extractRawPointer(browser)), uintptr(operation))
+	if rawPtr.UpdateDragCursor == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallUpdateDragCursor(browserPtr, uintptr(operation))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) OnScrollOffsetChanged(browser Browser, x float64, y float64) {
@@ -488,10 +563,16 @@ func (obj *renderHandlerImpl) OnScrollOffsetChanged(browser Browser, x float64, 
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnScrollOffsetChanged == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
 	obj.onScrollOffsetChangedOnce.Do(func() {
 		registerTypedCallback(&obj.onScrollOffsetChangedFunc, rawPtr.OnScrollOffsetChanged)
 	})
-	obj.onScrollOffsetChangedFunc(rawPtr, uintptr(extractRawPointer(browser)), x, y)
+	obj.onScrollOffsetChangedFunc(rawPtr, uintptr(browserPtr), x, y)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) OnImeCompositionRangeChanged(browser Browser, selectedRange *Range, characterBounds []Rect) {
@@ -499,11 +580,17 @@ func (obj *renderHandlerImpl) OnImeCompositionRangeChanged(browser Browser, sele
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnImeCompositionRangeChanged == 0 {
+		return
+	}
 	var characterBoundsPtr unsafe.Pointer
 	if len(characterBounds) > 0 {
 		characterBoundsPtr = unsafe.Pointer(&characterBounds[0])
 	}
-	rawPtr.CallOnImeCompositionRangeChanged(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(selectedRange)), uintptr(len(characterBounds)), uintptr(characterBoundsPtr))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnImeCompositionRangeChanged(browserPtr, unsafe.Pointer(selectedRange), uintptr(len(characterBounds)), characterBoundsPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) OnTextSelectionChanged(browser Browser, selectedText string, selectedRange *Range) {
@@ -511,9 +598,15 @@ func (obj *renderHandlerImpl) OnTextSelectionChanged(browser Browser, selectedTe
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnTextSelectionChanged == 0 {
+		return
+	}
 	selectedTextStr := cefString(selectedText)
 	defer freeCefString(&selectedTextStr)
-	rawPtr.CallOnTextSelectionChanged(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&selectedTextStr)), uintptr(unsafe.Pointer(selectedRange)))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnTextSelectionChanged(browserPtr, unsafe.Pointer(&selectedTextStr), unsafe.Pointer(selectedRange))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) OnVirtualKeyboardRequested(browser Browser, inputMode TextInputMode) {
@@ -521,7 +614,13 @@ func (obj *renderHandlerImpl) OnVirtualKeyboardRequested(browser Browser, inputM
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnVirtualKeyboardRequested(uintptr(extractRawPointer(browser)), uintptr(inputMode))
+	if rawPtr.OnVirtualKeyboardRequested == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnVirtualKeyboardRequested(browserPtr, uintptr(inputMode))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *renderHandlerImpl) RawPointer() unsafe.Pointer {

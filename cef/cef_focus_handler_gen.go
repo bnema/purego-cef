@@ -104,7 +104,13 @@ func (obj *focusHandlerImpl) OnTakeFocus(browser Browser, next int32) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnTakeFocus(uintptr(extractRawPointer(browser)), uintptr(next))
+	if rawPtr.OnTakeFocus == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnTakeFocus(browserPtr, uintptr(next))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *focusHandlerImpl) OnSetFocus(browser Browser, source FocusSource) int32 {
@@ -112,7 +118,13 @@ func (obj *focusHandlerImpl) OnSetFocus(browser Browser, source FocusSource) int
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnSetFocus(uintptr(extractRawPointer(browser)), uintptr(source))
+	if rawPtr.OnSetFocus == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := rawPtr.CallOnSetFocus(browserPtr, uintptr(source))
+	runtime.KeepAlive(browser)
 	return int32(ret)
 }
 
@@ -121,7 +133,13 @@ func (obj *focusHandlerImpl) OnGotFocus(browser Browser) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnGotFocus(uintptr(extractRawPointer(browser)))
+	if rawPtr.OnGotFocus == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnGotFocus(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *focusHandlerImpl) RawPointer() unsafe.Pointer {

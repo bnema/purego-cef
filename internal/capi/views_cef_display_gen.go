@@ -23,71 +23,71 @@ type CEFDisplayT struct {
 
 func (v *CEFDisplayT) OverrideGetID(fn uintptr) { v.GetID = fn }
 
-func (v *CEFDisplayT) CallGetID(args ...uintptr) uintptr {
+func (v *CEFDisplayT) CallGetID() uintptr {
 	if v.GetID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetID, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDisplayT) OverrideGetDeviceScaleFactor(fn uintptr) { v.GetDeviceScaleFactor = fn }
 
-func (v *CEFDisplayT) CallGetDeviceScaleFactor(args ...uintptr) uintptr {
+func (v *CEFDisplayT) CallGetDeviceScaleFactor() uintptr {
 	if v.GetDeviceScaleFactor == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDeviceScaleFactor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDeviceScaleFactor, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDisplayT) OverrideConvertPointToPixels(fn uintptr) { v.ConvertPointToPixels = fn }
 
-func (v *CEFDisplayT) CallConvertPointToPixels(args ...uintptr) uintptr {
+func (v *CEFDisplayT) CallConvertPointToPixels(Point unsafe.Pointer) uintptr {
 	if v.ConvertPointToPixels == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ConvertPointToPixels, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ConvertPointToPixels, uintptr(unsafe.Pointer(v)), uintptr(Point))
 	return r1
 }
 
 func (v *CEFDisplayT) OverrideConvertPointFromPixels(fn uintptr) { v.ConvertPointFromPixels = fn }
 
-func (v *CEFDisplayT) CallConvertPointFromPixels(args ...uintptr) uintptr {
+func (v *CEFDisplayT) CallConvertPointFromPixels(Point unsafe.Pointer) uintptr {
 	if v.ConvertPointFromPixels == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ConvertPointFromPixels, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ConvertPointFromPixels, uintptr(unsafe.Pointer(v)), uintptr(Point))
 	return r1
 }
 
 func (v *CEFDisplayT) OverrideGetBounds(fn uintptr) { v.GetBounds = fn }
 
-func (v *CEFDisplayT) CallGetBounds(args ...uintptr) uintptr {
+func (v *CEFDisplayT) CallGetBounds() uintptr {
 	if v.GetBounds == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBounds, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBounds, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDisplayT) OverrideGetWorkArea(fn uintptr) { v.GetWorkArea = fn }
 
-func (v *CEFDisplayT) CallGetWorkArea(args ...uintptr) uintptr {
+func (v *CEFDisplayT) CallGetWorkArea() uintptr {
 	if v.GetWorkArea == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWorkArea, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWorkArea, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFDisplayT) OverrideGetRotation(fn uintptr) { v.GetRotation = fn }
 
-func (v *CEFDisplayT) CallGetRotation(args ...uintptr) uintptr {
+func (v *CEFDisplayT) CallGetRotation() uintptr {
 	if v.GetRotation == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetRotation, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetRotation, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

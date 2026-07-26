@@ -35,191 +35,191 @@ type CEFOverlayControllerT struct {
 
 func (v *CEFOverlayControllerT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFOverlayControllerT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
-func (v *CEFOverlayControllerT) CallIsSame(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallIsSame(That unsafe.Pointer) uintptr {
 	if v.IsSame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSame, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideGetContentsView(fn uintptr) { v.GetContentsView = fn }
 
-func (v *CEFOverlayControllerT) CallGetContentsView(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallGetContentsView() uintptr {
 	if v.GetContentsView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetContentsView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetContentsView, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideGetWindow(fn uintptr) { v.GetWindow = fn }
 
-func (v *CEFOverlayControllerT) CallGetWindow(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallGetWindow() uintptr {
 	if v.GetWindow == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWindow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWindow, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideGetDockingMode(fn uintptr) { v.GetDockingMode = fn }
 
-func (v *CEFOverlayControllerT) CallGetDockingMode(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallGetDockingMode() uintptr {
 	if v.GetDockingMode == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDockingMode, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDockingMode, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideDestroy(fn uintptr) { v.Destroy = fn }
 
-func (v *CEFOverlayControllerT) CallDestroy(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallDestroy() uintptr {
 	if v.Destroy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Destroy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Destroy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideSetBounds(fn uintptr) { v.SetBounds = fn }
 
-func (v *CEFOverlayControllerT) CallSetBounds(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallSetBounds(Bounds unsafe.Pointer) uintptr {
 	if v.SetBounds == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetBounds, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetBounds, uintptr(unsafe.Pointer(v)), uintptr(Bounds))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideGetBounds(fn uintptr) { v.GetBounds = fn }
 
-func (v *CEFOverlayControllerT) CallGetBounds(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallGetBounds() uintptr {
 	if v.GetBounds == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBounds, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBounds, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideGetBoundsInScreen(fn uintptr) { v.GetBoundsInScreen = fn }
 
-func (v *CEFOverlayControllerT) CallGetBoundsInScreen(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallGetBoundsInScreen() uintptr {
 	if v.GetBoundsInScreen == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBoundsInScreen, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBoundsInScreen, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideSetSize(fn uintptr) { v.SetSize = fn }
 
-func (v *CEFOverlayControllerT) CallSetSize(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallSetSize(Size unsafe.Pointer) uintptr {
 	if v.SetSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetSize, uintptr(unsafe.Pointer(v)), uintptr(Size))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideGetSize(fn uintptr) { v.GetSize = fn }
 
-func (v *CEFOverlayControllerT) CallGetSize(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallGetSize() uintptr {
 	if v.GetSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideSetPosition(fn uintptr) { v.SetPosition = fn }
 
-func (v *CEFOverlayControllerT) CallSetPosition(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallSetPosition(Position unsafe.Pointer) uintptr {
 	if v.SetPosition == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetPosition, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetPosition, uintptr(unsafe.Pointer(v)), uintptr(Position))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideGetPosition(fn uintptr) { v.GetPosition = fn }
 
-func (v *CEFOverlayControllerT) CallGetPosition(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallGetPosition() uintptr {
 	if v.GetPosition == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPosition, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPosition, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideSetInsets(fn uintptr) { v.SetInsets = fn }
 
-func (v *CEFOverlayControllerT) CallSetInsets(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallSetInsets(Insets unsafe.Pointer) uintptr {
 	if v.SetInsets == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetInsets, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetInsets, uintptr(unsafe.Pointer(v)), uintptr(Insets))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideGetInsets(fn uintptr) { v.GetInsets = fn }
 
-func (v *CEFOverlayControllerT) CallGetInsets(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallGetInsets() uintptr {
 	if v.GetInsets == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetInsets, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetInsets, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideSizeToPreferredSize(fn uintptr) { v.SizeToPreferredSize = fn }
 
-func (v *CEFOverlayControllerT) CallSizeToPreferredSize(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallSizeToPreferredSize() uintptr {
 	if v.SizeToPreferredSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SizeToPreferredSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SizeToPreferredSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideSetVisible(fn uintptr) { v.SetVisible = fn }
 
-func (v *CEFOverlayControllerT) CallSetVisible(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallSetVisible(Visible uintptr) uintptr {
 	if v.SetVisible == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetVisible, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetVisible, uintptr(unsafe.Pointer(v)), Visible)
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideIsVisible(fn uintptr) { v.IsVisible = fn }
 
-func (v *CEFOverlayControllerT) CallIsVisible(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallIsVisible() uintptr {
 	if v.IsVisible == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsVisible, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsVisible, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFOverlayControllerT) OverrideIsDrawn(fn uintptr) { v.IsDrawn = fn }
 
-func (v *CEFOverlayControllerT) CallIsDrawn(args ...uintptr) uintptr {
+func (v *CEFOverlayControllerT) CallIsDrawn() uintptr {
 	if v.IsDrawn == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsDrawn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsDrawn, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 

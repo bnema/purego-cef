@@ -17,11 +17,11 @@ type CEFComponentUpdateCallbackT struct {
 
 func (v *CEFComponentUpdateCallbackT) OverrideOnComplete(fn uintptr) { v.OnComplete = fn }
 
-func (v *CEFComponentUpdateCallbackT) CallOnComplete(args ...uintptr) uintptr {
+func (v *CEFComponentUpdateCallbackT) CallOnComplete(ComponentID unsafe.Pointer, Error uintptr) uintptr {
 	if v.OnComplete == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnComplete, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnComplete, uintptr(unsafe.Pointer(v)), uintptr(ComponentID), Error)
 	return r1
 }
 
@@ -36,41 +36,41 @@ type CEFComponentT struct {
 
 func (v *CEFComponentT) OverrideGetID(fn uintptr) { v.GetID = fn }
 
-func (v *CEFComponentT) CallGetID(args ...uintptr) uintptr {
+func (v *CEFComponentT) CallGetID() uintptr {
 	if v.GetID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetID, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFComponentT) OverrideGetName(fn uintptr) { v.GetName = fn }
 
-func (v *CEFComponentT) CallGetName(args ...uintptr) uintptr {
+func (v *CEFComponentT) CallGetName() uintptr {
 	if v.GetName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetName, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFComponentT) OverrideGetVersion(fn uintptr) { v.GetVersion = fn }
 
-func (v *CEFComponentT) CallGetVersion(args ...uintptr) uintptr {
+func (v *CEFComponentT) CallGetVersion() uintptr {
 	if v.GetVersion == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetVersion, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetVersion, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFComponentT) OverrideGetState(fn uintptr) { v.GetState = fn }
 
-func (v *CEFComponentT) CallGetState(args ...uintptr) uintptr {
+func (v *CEFComponentT) CallGetState() uintptr {
 	if v.GetState == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetState, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetState, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
@@ -85,41 +85,41 @@ type CEFComponentUpdaterT struct {
 
 func (v *CEFComponentUpdaterT) OverrideGetComponentCount(fn uintptr) { v.GetComponentCount = fn }
 
-func (v *CEFComponentUpdaterT) CallGetComponentCount(args ...uintptr) uintptr {
+func (v *CEFComponentUpdaterT) CallGetComponentCount() uintptr {
 	if v.GetComponentCount == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetComponentCount, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetComponentCount, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFComponentUpdaterT) OverrideGetComponents(fn uintptr) { v.GetComponents = fn }
 
-func (v *CEFComponentUpdaterT) CallGetComponents(args ...uintptr) uintptr {
+func (v *CEFComponentUpdaterT) CallGetComponents(Componentscount unsafe.Pointer, Components unsafe.Pointer) uintptr {
 	if v.GetComponents == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetComponents, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetComponents, uintptr(unsafe.Pointer(v)), uintptr(Componentscount), uintptr(Components))
 	return r1
 }
 
 func (v *CEFComponentUpdaterT) OverrideGetComponentByID(fn uintptr) { v.GetComponentByID = fn }
 
-func (v *CEFComponentUpdaterT) CallGetComponentByID(args ...uintptr) uintptr {
+func (v *CEFComponentUpdaterT) CallGetComponentByID(ComponentID unsafe.Pointer) uintptr {
 	if v.GetComponentByID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetComponentByID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetComponentByID, uintptr(unsafe.Pointer(v)), uintptr(ComponentID))
 	return r1
 }
 
 func (v *CEFComponentUpdaterT) OverrideUpdate(fn uintptr) { v.Update = fn }
 
-func (v *CEFComponentUpdaterT) CallUpdate(args ...uintptr) uintptr {
+func (v *CEFComponentUpdaterT) CallUpdate(ComponentID unsafe.Pointer, Priority uintptr, Callback unsafe.Pointer) uintptr {
 	if v.Update == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Update, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Update, uintptr(unsafe.Pointer(v)), uintptr(ComponentID), Priority, uintptr(Callback))
 	return r1
 }
 

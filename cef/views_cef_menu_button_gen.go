@@ -28,7 +28,13 @@ func (obj *menuButtonImpl) ShowMenu(menuModel MenuModel, screenPoint *Point, anc
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallShowMenu(uintptr(extractRawPointer(menuModel)), uintptr(unsafe.Pointer(screenPoint)), uintptr(anchorPosition))
+	if rawPtr.ShowMenu == 0 {
+		return
+	}
+	menuModelPtr := extractRawPointer(menuModel)
+	transferRef(menuModelPtr)
+	rawPtr.CallShowMenu(menuModelPtr, unsafe.Pointer(screenPoint), uintptr(anchorPosition))
+	runtime.KeepAlive(menuModel)
 }
 
 func (obj *menuButtonImpl) TriggerMenu() {
@@ -90,8 +96,14 @@ func takeMenuButton(ptr unsafe.Pointer) MenuButton {
 
 // MenuButtonCreate Create a new MenuButton. A |delegate| must be provided to call show_menu() when the button is clicked. |text| will be shown on the MenuButton and used as the default accessible name. If |with_frame| is true (1) the button will have a visible frame at all times, center alignment, additional padding and a default minimum size of 70x33 DIP. If |with_frame| is false (0) the button will only have a visible frame on hover/press, left alignment, less padding and no default minimum size.
 func MenuButtonCreate(delegate MenuButtonDelegate, text string) MenuButton {
+	if capi.CEFMenuButtonCreate == nil {
+		return nil
+	}
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	ret := capi.CEFMenuButtonCreate(extractOrWrapRawPointer(delegate, func() any { return NewMenuButtonDelegate(delegate) }), unsafe.Pointer(&textStr))
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewMenuButtonDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFMenuButtonCreate(delegatePtr, unsafe.Pointer(&textStr))
+	runtime.KeepAlive(delegate)
 	return takeMenuButton(ret)
 }

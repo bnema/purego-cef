@@ -63,7 +63,7 @@ func (obj *printSettingsImpl) SetPrinterPrintableArea(physicalSizeDeviceUnits *S
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSetPrinterPrintableArea(uintptr(unsafe.Pointer(physicalSizeDeviceUnits)), uintptr(unsafe.Pointer(printableAreaDeviceUnits)), uintptr(landscapeNeedsFlip))
+	rawPtr.CallSetPrinterPrintableArea(unsafe.Pointer(physicalSizeDeviceUnits), unsafe.Pointer(printableAreaDeviceUnits), uintptr(landscapeNeedsFlip))
 }
 
 func (obj *printSettingsImpl) SetDeviceName(name string) {
@@ -73,7 +73,7 @@ func (obj *printSettingsImpl) SetDeviceName(name string) {
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	rawPtr.CallSetDeviceName(uintptr(unsafe.Pointer(&nameStr)))
+	rawPtr.CallSetDeviceName(unsafe.Pointer(&nameStr))
 }
 
 func (obj *printSettingsImpl) GetDeviceName() string {
@@ -111,7 +111,7 @@ func (obj *printSettingsImpl) SetPageRanges(ranges []Range) {
 	if len(ranges) > 0 {
 		rangesPtr = unsafe.Pointer(&ranges[0])
 	}
-	rawPtr.CallSetPageRanges(uintptr(len(ranges)), uintptr(rangesPtr))
+	rawPtr.CallSetPageRanges(uintptr(len(ranges)), rangesPtr)
 }
 
 func (obj *printSettingsImpl) GetPageRangesCount() int {
@@ -139,7 +139,7 @@ func (obj *printSettingsImpl) GetPageRanges(rangescount *int, ranges []Range) {
 	if len(ranges) > 0 {
 		rangesPtr = unsafe.Pointer(&ranges[0])
 	}
-	rawPtr.CallGetPageRanges(uintptr(unsafe.Pointer(rangesCountPtr)), uintptr(rangesPtr))
+	rawPtr.CallGetPageRanges(unsafe.Pointer(rangesCountPtr), rangesPtr)
 }
 
 func (obj *printSettingsImpl) SetSelectionOnly(selectionOnly int32) {

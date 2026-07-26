@@ -68,521 +68,521 @@ type CEFViewT struct {
 
 func (v *CEFViewT) OverrideAsBrowserView(fn uintptr) { v.AsBrowserView = fn }
 
-func (v *CEFViewT) CallAsBrowserView(args ...uintptr) uintptr {
+func (v *CEFViewT) CallAsBrowserView() uintptr {
 	if v.AsBrowserView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AsBrowserView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AsBrowserView, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideAsButton(fn uintptr) { v.AsButton = fn }
 
-func (v *CEFViewT) CallAsButton(args ...uintptr) uintptr {
+func (v *CEFViewT) CallAsButton() uintptr {
 	if v.AsButton == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AsButton, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AsButton, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideAsPanel(fn uintptr) { v.AsPanel = fn }
 
-func (v *CEFViewT) CallAsPanel(args ...uintptr) uintptr {
+func (v *CEFViewT) CallAsPanel() uintptr {
 	if v.AsPanel == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AsPanel, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AsPanel, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideAsScrollView(fn uintptr) { v.AsScrollView = fn }
 
-func (v *CEFViewT) CallAsScrollView(args ...uintptr) uintptr {
+func (v *CEFViewT) CallAsScrollView() uintptr {
 	if v.AsScrollView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AsScrollView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AsScrollView, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideAsTextfield(fn uintptr) { v.AsTextfield = fn }
 
-func (v *CEFViewT) CallAsTextfield(args ...uintptr) uintptr {
+func (v *CEFViewT) CallAsTextfield() uintptr {
 	if v.AsTextfield == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AsTextfield, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AsTextfield, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetTypeString(fn uintptr) { v.GetTypeString = fn }
 
-func (v *CEFViewT) CallGetTypeString(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetTypeString() uintptr {
 	if v.GetTypeString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetTypeString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetTypeString, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideToString(fn uintptr) { v.ToString = fn }
 
-func (v *CEFViewT) CallToString(args ...uintptr) uintptr {
+func (v *CEFViewT) CallToString(IncludeChildren uintptr) uintptr {
 	if v.ToString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ToString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ToString, uintptr(unsafe.Pointer(v)), IncludeChildren)
 	return r1
 }
 
 func (v *CEFViewT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFViewT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFViewT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideIsAttached(fn uintptr) { v.IsAttached = fn }
 
-func (v *CEFViewT) CallIsAttached(args ...uintptr) uintptr {
+func (v *CEFViewT) CallIsAttached() uintptr {
 	if v.IsAttached == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsAttached, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsAttached, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideIsSame(fn uintptr) { v.IsSame = fn }
 
-func (v *CEFViewT) CallIsSame(args ...uintptr) uintptr {
+func (v *CEFViewT) CallIsSame(That unsafe.Pointer) uintptr {
 	if v.IsSame == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSame, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSame, uintptr(unsafe.Pointer(v)), uintptr(That))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetDelegate(fn uintptr) { v.GetDelegate = fn }
 
-func (v *CEFViewT) CallGetDelegate(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetDelegate() uintptr {
 	if v.GetDelegate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetDelegate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetDelegate, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetWindow(fn uintptr) { v.GetWindow = fn }
 
-func (v *CEFViewT) CallGetWindow(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetWindow() uintptr {
 	if v.GetWindow == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetWindow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetWindow, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetID(fn uintptr) { v.GetID = fn }
 
-func (v *CEFViewT) CallGetID(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetID() uintptr {
 	if v.GetID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetID, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetID(fn uintptr) { v.SetID = fn }
 
-func (v *CEFViewT) CallSetID(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetID(ID uintptr) uintptr {
 	if v.SetID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetID, uintptr(unsafe.Pointer(v)), ID)
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetGroupID(fn uintptr) { v.GetGroupID = fn }
 
-func (v *CEFViewT) CallGetGroupID(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetGroupID() uintptr {
 	if v.GetGroupID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetGroupID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetGroupID, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetGroupID(fn uintptr) { v.SetGroupID = fn }
 
-func (v *CEFViewT) CallSetGroupID(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetGroupID(GroupID uintptr) uintptr {
 	if v.SetGroupID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetGroupID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetGroupID, uintptr(unsafe.Pointer(v)), GroupID)
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetParentView(fn uintptr) { v.GetParentView = fn }
 
-func (v *CEFViewT) CallGetParentView(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetParentView() uintptr {
 	if v.GetParentView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetParentView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetParentView, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetViewForID(fn uintptr) { v.GetViewForID = fn }
 
-func (v *CEFViewT) CallGetViewForID(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetViewForID(ID uintptr) uintptr {
 	if v.GetViewForID == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetViewForID, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetViewForID, uintptr(unsafe.Pointer(v)), ID)
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetBounds(fn uintptr) { v.SetBounds = fn }
 
-func (v *CEFViewT) CallSetBounds(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetBounds(Bounds unsafe.Pointer) uintptr {
 	if v.SetBounds == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetBounds, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetBounds, uintptr(unsafe.Pointer(v)), uintptr(Bounds))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetBounds(fn uintptr) { v.GetBounds = fn }
 
-func (v *CEFViewT) CallGetBounds(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetBounds() uintptr {
 	if v.GetBounds == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBounds, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBounds, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetBoundsInScreen(fn uintptr) { v.GetBoundsInScreen = fn }
 
-func (v *CEFViewT) CallGetBoundsInScreen(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetBoundsInScreen() uintptr {
 	if v.GetBoundsInScreen == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBoundsInScreen, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBoundsInScreen, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetSize(fn uintptr) { v.SetSize = fn }
 
-func (v *CEFViewT) CallSetSize(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetSize(Size unsafe.Pointer) uintptr {
 	if v.SetSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetSize, uintptr(unsafe.Pointer(v)), uintptr(Size))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetSize(fn uintptr) { v.GetSize = fn }
 
-func (v *CEFViewT) CallGetSize(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetSize() uintptr {
 	if v.GetSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetPosition(fn uintptr) { v.SetPosition = fn }
 
-func (v *CEFViewT) CallSetPosition(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetPosition(Position unsafe.Pointer) uintptr {
 	if v.SetPosition == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetPosition, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetPosition, uintptr(unsafe.Pointer(v)), uintptr(Position))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetPosition(fn uintptr) { v.GetPosition = fn }
 
-func (v *CEFViewT) CallGetPosition(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetPosition() uintptr {
 	if v.GetPosition == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPosition, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPosition, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetInsets(fn uintptr) { v.SetInsets = fn }
 
-func (v *CEFViewT) CallSetInsets(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetInsets(Insets unsafe.Pointer) uintptr {
 	if v.SetInsets == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetInsets, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetInsets, uintptr(unsafe.Pointer(v)), uintptr(Insets))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetInsets(fn uintptr) { v.GetInsets = fn }
 
-func (v *CEFViewT) CallGetInsets(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetInsets() uintptr {
 	if v.GetInsets == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetInsets, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetInsets, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetPreferredSize(fn uintptr) { v.GetPreferredSize = fn }
 
-func (v *CEFViewT) CallGetPreferredSize(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetPreferredSize() uintptr {
 	if v.GetPreferredSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPreferredSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPreferredSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSizeToPreferredSize(fn uintptr) { v.SizeToPreferredSize = fn }
 
-func (v *CEFViewT) CallSizeToPreferredSize(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSizeToPreferredSize() uintptr {
 	if v.SizeToPreferredSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SizeToPreferredSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SizeToPreferredSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetMinimumSize(fn uintptr) { v.GetMinimumSize = fn }
 
-func (v *CEFViewT) CallGetMinimumSize(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetMinimumSize() uintptr {
 	if v.GetMinimumSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetMinimumSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetMinimumSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetMaximumSize(fn uintptr) { v.GetMaximumSize = fn }
 
-func (v *CEFViewT) CallGetMaximumSize(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetMaximumSize() uintptr {
 	if v.GetMaximumSize == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetMaximumSize, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetMaximumSize, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetHeightForWidth(fn uintptr) { v.GetHeightForWidth = fn }
 
-func (v *CEFViewT) CallGetHeightForWidth(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetHeightForWidth(Width uintptr) uintptr {
 	if v.GetHeightForWidth == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetHeightForWidth, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetHeightForWidth, uintptr(unsafe.Pointer(v)), Width)
 	return r1
 }
 
 func (v *CEFViewT) OverrideInvalidateLayout(fn uintptr) { v.InvalidateLayout = fn }
 
-func (v *CEFViewT) CallInvalidateLayout(args ...uintptr) uintptr {
+func (v *CEFViewT) CallInvalidateLayout() uintptr {
 	if v.InvalidateLayout == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.InvalidateLayout, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.InvalidateLayout, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetVisible(fn uintptr) { v.SetVisible = fn }
 
-func (v *CEFViewT) CallSetVisible(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetVisible(Visible uintptr) uintptr {
 	if v.SetVisible == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetVisible, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetVisible, uintptr(unsafe.Pointer(v)), Visible)
 	return r1
 }
 
 func (v *CEFViewT) OverrideIsVisible(fn uintptr) { v.IsVisible = fn }
 
-func (v *CEFViewT) CallIsVisible(args ...uintptr) uintptr {
+func (v *CEFViewT) CallIsVisible() uintptr {
 	if v.IsVisible == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsVisible, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsVisible, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideIsDrawn(fn uintptr) { v.IsDrawn = fn }
 
-func (v *CEFViewT) CallIsDrawn(args ...uintptr) uintptr {
+func (v *CEFViewT) CallIsDrawn() uintptr {
 	if v.IsDrawn == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsDrawn, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsDrawn, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetEnabled(fn uintptr) { v.SetEnabled = fn }
 
-func (v *CEFViewT) CallSetEnabled(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetEnabled(Enabled uintptr) uintptr {
 	if v.SetEnabled == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetEnabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetEnabled, uintptr(unsafe.Pointer(v)), Enabled)
 	return r1
 }
 
 func (v *CEFViewT) OverrideIsEnabled(fn uintptr) { v.IsEnabled = fn }
 
-func (v *CEFViewT) CallIsEnabled(args ...uintptr) uintptr {
+func (v *CEFViewT) CallIsEnabled() uintptr {
 	if v.IsEnabled == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsEnabled, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsEnabled, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetFocusable(fn uintptr) { v.SetFocusable = fn }
 
-func (v *CEFViewT) CallSetFocusable(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetFocusable(Focusable uintptr) uintptr {
 	if v.SetFocusable == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetFocusable, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetFocusable, uintptr(unsafe.Pointer(v)), Focusable)
 	return r1
 }
 
 func (v *CEFViewT) OverrideIsFocusable(fn uintptr) { v.IsFocusable = fn }
 
-func (v *CEFViewT) CallIsFocusable(args ...uintptr) uintptr {
+func (v *CEFViewT) CallIsFocusable() uintptr {
 	if v.IsFocusable == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsFocusable, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsFocusable, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideIsAccessibilityFocusable(fn uintptr) { v.IsAccessibilityFocusable = fn }
 
-func (v *CEFViewT) CallIsAccessibilityFocusable(args ...uintptr) uintptr {
+func (v *CEFViewT) CallIsAccessibilityFocusable() uintptr {
 	if v.IsAccessibilityFocusable == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsAccessibilityFocusable, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsAccessibilityFocusable, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideHasFocus(fn uintptr) { v.HasFocus = fn }
 
-func (v *CEFViewT) CallHasFocus(args ...uintptr) uintptr {
+func (v *CEFViewT) CallHasFocus() uintptr {
 	if v.HasFocus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasFocus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasFocus, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideRequestFocus(fn uintptr) { v.RequestFocus = fn }
 
-func (v *CEFViewT) CallRequestFocus(args ...uintptr) uintptr {
+func (v *CEFViewT) CallRequestFocus() uintptr {
 	if v.RequestFocus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RequestFocus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RequestFocus, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideSetBackgroundColor(fn uintptr) { v.SetBackgroundColor = fn }
 
-func (v *CEFViewT) CallSetBackgroundColor(args ...uintptr) uintptr {
+func (v *CEFViewT) CallSetBackgroundColor(Color uintptr) uintptr {
 	if v.SetBackgroundColor == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetBackgroundColor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetBackgroundColor, uintptr(unsafe.Pointer(v)), Color)
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetBackgroundColor(fn uintptr) { v.GetBackgroundColor = fn }
 
-func (v *CEFViewT) CallGetBackgroundColor(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetBackgroundColor() uintptr {
 	if v.GetBackgroundColor == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetBackgroundColor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetBackgroundColor, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFViewT) OverrideGetThemeColor(fn uintptr) { v.GetThemeColor = fn }
 
-func (v *CEFViewT) CallGetThemeColor(args ...uintptr) uintptr {
+func (v *CEFViewT) CallGetThemeColor(ColorID uintptr) uintptr {
 	if v.GetThemeColor == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetThemeColor, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetThemeColor, uintptr(unsafe.Pointer(v)), ColorID)
 	return r1
 }
 
 func (v *CEFViewT) OverrideConvertPointToScreen(fn uintptr) { v.ConvertPointToScreen = fn }
 
-func (v *CEFViewT) CallConvertPointToScreen(args ...uintptr) uintptr {
+func (v *CEFViewT) CallConvertPointToScreen(Point unsafe.Pointer) uintptr {
 	if v.ConvertPointToScreen == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ConvertPointToScreen, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ConvertPointToScreen, uintptr(unsafe.Pointer(v)), uintptr(Point))
 	return r1
 }
 
 func (v *CEFViewT) OverrideConvertPointFromScreen(fn uintptr) { v.ConvertPointFromScreen = fn }
 
-func (v *CEFViewT) CallConvertPointFromScreen(args ...uintptr) uintptr {
+func (v *CEFViewT) CallConvertPointFromScreen(Point unsafe.Pointer) uintptr {
 	if v.ConvertPointFromScreen == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ConvertPointFromScreen, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ConvertPointFromScreen, uintptr(unsafe.Pointer(v)), uintptr(Point))
 	return r1
 }
 
 func (v *CEFViewT) OverrideConvertPointToWindow(fn uintptr) { v.ConvertPointToWindow = fn }
 
-func (v *CEFViewT) CallConvertPointToWindow(args ...uintptr) uintptr {
+func (v *CEFViewT) CallConvertPointToWindow(Point unsafe.Pointer) uintptr {
 	if v.ConvertPointToWindow == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ConvertPointToWindow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ConvertPointToWindow, uintptr(unsafe.Pointer(v)), uintptr(Point))
 	return r1
 }
 
 func (v *CEFViewT) OverrideConvertPointFromWindow(fn uintptr) { v.ConvertPointFromWindow = fn }
 
-func (v *CEFViewT) CallConvertPointFromWindow(args ...uintptr) uintptr {
+func (v *CEFViewT) CallConvertPointFromWindow(Point unsafe.Pointer) uintptr {
 	if v.ConvertPointFromWindow == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ConvertPointFromWindow, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ConvertPointFromWindow, uintptr(unsafe.Pointer(v)), uintptr(Point))
 	return r1
 }
 
 func (v *CEFViewT) OverrideConvertPointToView(fn uintptr) { v.ConvertPointToView = fn }
 
-func (v *CEFViewT) CallConvertPointToView(args ...uintptr) uintptr {
+func (v *CEFViewT) CallConvertPointToView(View unsafe.Pointer, Point unsafe.Pointer) uintptr {
 	if v.ConvertPointToView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ConvertPointToView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ConvertPointToView, uintptr(unsafe.Pointer(v)), uintptr(View), uintptr(Point))
 	return r1
 }
 
 func (v *CEFViewT) OverrideConvertPointFromView(fn uintptr) { v.ConvertPointFromView = fn }
 
-func (v *CEFViewT) CallConvertPointFromView(args ...uintptr) uintptr {
+func (v *CEFViewT) CallConvertPointFromView(View unsafe.Pointer, Point unsafe.Pointer) uintptr {
 	if v.ConvertPointFromView == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.ConvertPointFromView, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.ConvertPointFromView, uintptr(unsafe.Pointer(v)), uintptr(View), uintptr(Point))
 	return r1
 }
 

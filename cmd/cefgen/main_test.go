@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/bnema/purego-cef/internal/cefapi"
 )
 
 func TestRegisterName(t *testing.T) {
@@ -156,6 +159,41 @@ func mustWriteFileContent(t *testing.T, path, content string) {
 	t.Helper()
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatalf("write %s: %v", path, err)
+	}
+}
+
+func TestRunAuditsRawMethodArityAcrossParsedCorpus(t *testing.T) {
+	root := t.TempDir()
+	headersDir := filepath.Join(root, "include")
+	if err := os.MkdirAll(filepath.Join(headersDir, "capi"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	contract := fmt.Sprintf("#define CEF_API_VERSION_%[1]d %[1]d\n#if defined(OS_LINUX)\n#define CEF_API_HASH_%[1]d %q\n#endif\n", cefapi.Version, cefapi.LinuxHash)
+	mustWriteFileContent(t, filepath.Join(headersDir, "cef_api_versions.h"), contract)
+
+	params := []string{"struct _cef_overflow_t* self"}
+	for i := range 15 {
+		params = append(params, fmt.Sprintf("int arg%d", i))
+	}
+	header := "typedef struct _cef_overflow_t {\n" +
+		"  int(CEF_CALLBACK *too_many)(" + strings.Join(params, ", ") + ");\n" +
+		"} cef_overflow_t;\n"
+	mustWriteFileContent(t, filepath.Join(headersDir, "capi", "cef_overflow_capi.h"), header)
+
+	err := run(config{
+		headersDir: headersDir,
+		capiDir:    filepath.Join(root, "capi"),
+		portInDir:  filepath.Join(root, "ports-in"),
+		portOutDir: filepath.Join(root, "ports-out"),
+		publicDir:  filepath.Join(root, "public"),
+	})
+	if err == nil {
+		t.Fatal("run() accepted a corpus containing a method with 15 arguments after self")
+	}
+	for _, want := range []string{"too_many", "TooMany"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("run() error %q does not identify %q", err, want)
+		}
 	}
 }
 

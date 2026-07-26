@@ -18,21 +18,21 @@ type CEFResponseFilterT struct {
 
 func (v *CEFResponseFilterT) OverrideInitFilter(fn uintptr) { v.InitFilter = fn }
 
-func (v *CEFResponseFilterT) CallInitFilter(args ...uintptr) uintptr {
+func (v *CEFResponseFilterT) CallInitFilter() uintptr {
 	if v.InitFilter == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.InitFilter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.InitFilter, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFResponseFilterT) OverrideFilter(fn uintptr) { v.Filter = fn }
 
-func (v *CEFResponseFilterT) CallFilter(args ...uintptr) uintptr {
+func (v *CEFResponseFilterT) CallFilter(DataIn unsafe.Pointer, DataInSize uintptr, DataInRead unsafe.Pointer, DataOut unsafe.Pointer, DataOutSize uintptr, DataOutWritten unsafe.Pointer) uintptr {
 	if v.Filter == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Filter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Filter, uintptr(unsafe.Pointer(v)), uintptr(DataIn), DataInSize, uintptr(DataInRead), uintptr(DataOut), DataOutSize, uintptr(DataOutWritten))
 	return r1
 }
 

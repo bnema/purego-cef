@@ -17,11 +17,11 @@ type CEFPreferenceRegistrarT struct {
 
 func (v *CEFPreferenceRegistrarT) OverrideAddPreference(fn uintptr) { v.AddPreference = fn }
 
-func (v *CEFPreferenceRegistrarT) CallAddPreference(args ...uintptr) uintptr {
+func (v *CEFPreferenceRegistrarT) CallAddPreference(Name unsafe.Pointer, DefaultValue unsafe.Pointer) uintptr {
 	if v.AddPreference == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddPreference, uintptr(unsafe.Pointer(v)), uintptr(Name), uintptr(DefaultValue))
 	return r1
 }
 
@@ -33,11 +33,11 @@ type CEFPreferenceObserverT struct {
 
 func (v *CEFPreferenceObserverT) OverrideOnPreferenceChanged(fn uintptr) { v.OnPreferenceChanged = fn }
 
-func (v *CEFPreferenceObserverT) CallOnPreferenceChanged(args ...uintptr) uintptr {
+func (v *CEFPreferenceObserverT) CallOnPreferenceChanged(Name unsafe.Pointer) uintptr {
 	if v.OnPreferenceChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPreferenceChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPreferenceChanged, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
@@ -54,51 +54,51 @@ type CEFPreferenceManagerT struct {
 
 func (v *CEFPreferenceManagerT) OverrideHasPreference(fn uintptr) { v.HasPreference = fn }
 
-func (v *CEFPreferenceManagerT) CallHasPreference(args ...uintptr) uintptr {
+func (v *CEFPreferenceManagerT) CallHasPreference(Name unsafe.Pointer) uintptr {
 	if v.HasPreference == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasPreference, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
 func (v *CEFPreferenceManagerT) OverrideGetPreference(fn uintptr) { v.GetPreference = fn }
 
-func (v *CEFPreferenceManagerT) CallGetPreference(args ...uintptr) uintptr {
+func (v *CEFPreferenceManagerT) CallGetPreference(Name unsafe.Pointer) uintptr {
 	if v.GetPreference == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetPreference, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
 func (v *CEFPreferenceManagerT) OverrideGetAllPreferences(fn uintptr) { v.GetAllPreferences = fn }
 
-func (v *CEFPreferenceManagerT) CallGetAllPreferences(args ...uintptr) uintptr {
+func (v *CEFPreferenceManagerT) CallGetAllPreferences(IncludeDefaults uintptr) uintptr {
 	if v.GetAllPreferences == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetAllPreferences, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetAllPreferences, uintptr(unsafe.Pointer(v)), IncludeDefaults)
 	return r1
 }
 
 func (v *CEFPreferenceManagerT) OverrideCanSetPreference(fn uintptr) { v.CanSetPreference = fn }
 
-func (v *CEFPreferenceManagerT) CallCanSetPreference(args ...uintptr) uintptr {
+func (v *CEFPreferenceManagerT) CallCanSetPreference(Name unsafe.Pointer) uintptr {
 	if v.CanSetPreference == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.CanSetPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.CanSetPreference, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
 func (v *CEFPreferenceManagerT) OverrideSetPreference(fn uintptr) { v.SetPreference = fn }
 
-func (v *CEFPreferenceManagerT) CallSetPreference(args ...uintptr) uintptr {
+func (v *CEFPreferenceManagerT) CallSetPreference(Name unsafe.Pointer, Value unsafe.Pointer, Error unsafe.Pointer) uintptr {
 	if v.SetPreference == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetPreference, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetPreference, uintptr(unsafe.Pointer(v)), uintptr(Name), uintptr(Value), uintptr(Error))
 	return r1
 }
 
@@ -106,11 +106,11 @@ func (v *CEFPreferenceManagerT) OverrideAddPreferenceObserver(fn uintptr) {
 	v.AddPreferenceObserver = fn
 }
 
-func (v *CEFPreferenceManagerT) CallAddPreferenceObserver(args ...uintptr) uintptr {
+func (v *CEFPreferenceManagerT) CallAddPreferenceObserver(Name unsafe.Pointer, Observer unsafe.Pointer) uintptr {
 	if v.AddPreferenceObserver == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AddPreferenceObserver, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AddPreferenceObserver, uintptr(unsafe.Pointer(v)), uintptr(Name), uintptr(Observer))
 	return r1
 }
 

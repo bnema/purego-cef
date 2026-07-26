@@ -33,171 +33,171 @@ type CEFResponseT struct {
 
 func (v *CEFResponseT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
-func (v *CEFResponseT) CallIsReadOnly(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallIsReadOnly() uintptr {
 	if v.IsReadOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsReadOnly, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideGetError(fn uintptr) { v.GetError = fn }
 
-func (v *CEFResponseT) CallGetError(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallGetError() uintptr {
 	if v.GetError == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetError, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideSetError(fn uintptr) { v.SetError = fn }
 
-func (v *CEFResponseT) CallSetError(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallSetError(Error uintptr) uintptr {
 	if v.SetError == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetError, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetError, uintptr(unsafe.Pointer(v)), Error)
 	return r1
 }
 
 func (v *CEFResponseT) OverrideGetStatus(fn uintptr) { v.GetStatus = fn }
 
-func (v *CEFResponseT) CallGetStatus(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallGetStatus() uintptr {
 	if v.GetStatus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetStatus, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideSetStatus(fn uintptr) { v.SetStatus = fn }
 
-func (v *CEFResponseT) CallSetStatus(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallSetStatus(Status uintptr) uintptr {
 	if v.SetStatus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetStatus, uintptr(unsafe.Pointer(v)), Status)
 	return r1
 }
 
 func (v *CEFResponseT) OverrideGetStatusText(fn uintptr) { v.GetStatusText = fn }
 
-func (v *CEFResponseT) CallGetStatusText(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallGetStatusText() uintptr {
 	if v.GetStatusText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetStatusText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetStatusText, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideSetStatusText(fn uintptr) { v.SetStatusText = fn }
 
-func (v *CEFResponseT) CallSetStatusText(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallSetStatusText(Statustext unsafe.Pointer) uintptr {
 	if v.SetStatusText == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetStatusText, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetStatusText, uintptr(unsafe.Pointer(v)), uintptr(Statustext))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideGetMimeType(fn uintptr) { v.GetMimeType = fn }
 
-func (v *CEFResponseT) CallGetMimeType(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallGetMimeType() uintptr {
 	if v.GetMimeType == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetMimeType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetMimeType, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideSetMimeType(fn uintptr) { v.SetMimeType = fn }
 
-func (v *CEFResponseT) CallSetMimeType(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallSetMimeType(Mimetype unsafe.Pointer) uintptr {
 	if v.SetMimeType == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetMimeType, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetMimeType, uintptr(unsafe.Pointer(v)), uintptr(Mimetype))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideGetCharset(fn uintptr) { v.GetCharset = fn }
 
-func (v *CEFResponseT) CallGetCharset(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallGetCharset() uintptr {
 	if v.GetCharset == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCharset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCharset, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideSetCharset(fn uintptr) { v.SetCharset = fn }
 
-func (v *CEFResponseT) CallSetCharset(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallSetCharset(Charset unsafe.Pointer) uintptr {
 	if v.SetCharset == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetCharset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetCharset, uintptr(unsafe.Pointer(v)), uintptr(Charset))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideGetHeaderByName(fn uintptr) { v.GetHeaderByName = fn }
 
-func (v *CEFResponseT) CallGetHeaderByName(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallGetHeaderByName(Name unsafe.Pointer) uintptr {
 	if v.GetHeaderByName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetHeaderByName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetHeaderByName, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideSetHeaderByName(fn uintptr) { v.SetHeaderByName = fn }
 
-func (v *CEFResponseT) CallSetHeaderByName(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallSetHeaderByName(Name unsafe.Pointer, Value unsafe.Pointer, Overwrite uintptr) uintptr {
 	if v.SetHeaderByName == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetHeaderByName, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetHeaderByName, uintptr(unsafe.Pointer(v)), uintptr(Name), uintptr(Value), Overwrite)
 	return r1
 }
 
 func (v *CEFResponseT) OverrideGetHeaderMap(fn uintptr) { v.GetHeaderMap = fn }
 
-func (v *CEFResponseT) CallGetHeaderMap(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallGetHeaderMap(Headermap uintptr) uintptr {
 	if v.GetHeaderMap == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetHeaderMap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetHeaderMap, uintptr(unsafe.Pointer(v)), Headermap)
 	return r1
 }
 
 func (v *CEFResponseT) OverrideSetHeaderMap(fn uintptr) { v.SetHeaderMap = fn }
 
-func (v *CEFResponseT) CallSetHeaderMap(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallSetHeaderMap(Headermap uintptr) uintptr {
 	if v.SetHeaderMap == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetHeaderMap, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetHeaderMap, uintptr(unsafe.Pointer(v)), Headermap)
 	return r1
 }
 
 func (v *CEFResponseT) OverrideGetURL(fn uintptr) { v.GetURL = fn }
 
-func (v *CEFResponseT) CallGetURL(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallGetURL() uintptr {
 	if v.GetURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetURL, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFResponseT) OverrideSetURL(fn uintptr) { v.SetURL = fn }
 
-func (v *CEFResponseT) CallSetURL(args ...uintptr) uintptr {
+func (v *CEFResponseT) CallSetURL(URL unsafe.Pointer) uintptr {
 	if v.SetURL == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetURL, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetURL, uintptr(unsafe.Pointer(v)), uintptr(URL))
 	return r1
 }
 

@@ -295,7 +295,16 @@ func (obj *resourceHandlerImpl) Open(request Request, handleRequest *int32, call
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOpen(uintptr(extractRawPointer(request)), uintptr(unsafe.Pointer(handleRequest)), uintptr(extractRawPointer(callback)))
+	if rawPtr.Open == 0 {
+		return 0
+	}
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallOpen(requestPtr, unsafe.Pointer(handleRequest), callbackPtr)
+	runtime.KeepAlive(request)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -304,7 +313,16 @@ func (obj *resourceHandlerImpl) ProcessRequest(request Request, callback Callbac
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallProcessRequest(uintptr(extractRawPointer(request)), uintptr(extractRawPointer(callback)))
+	if rawPtr.ProcessRequest == 0 {
+		return 0
+	}
+	requestPtr := extractRawPointer(request)
+	transferRef(requestPtr)
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallProcessRequest(requestPtr, callbackPtr)
+	runtime.KeepAlive(request)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -313,7 +331,13 @@ func (obj *resourceHandlerImpl) GetResponseHeaders(response Response, responseLe
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallGetResponseHeaders(uintptr(extractRawPointer(response)), uintptr(unsafe.Pointer(responseLength)), redirecturl)
+	if rawPtr.GetResponseHeaders == 0 {
+		return
+	}
+	responsePtr := extractRawPointer(response)
+	transferRef(responsePtr)
+	rawPtr.CallGetResponseHeaders(responsePtr, unsafe.Pointer(responseLength), unsafe.Pointer(redirecturl))
+	runtime.KeepAlive(response)
 }
 
 func (obj *resourceHandlerImpl) Skip(bytesToSkip int64, bytesSkipped *int64, callback ResourceSkipCallback) int32 {
@@ -321,10 +345,16 @@ func (obj *resourceHandlerImpl) Skip(bytesToSkip int64, bytesSkipped *int64, cal
 		return 0
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.Skip == 0 {
+		return 0
+	}
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
 	obj.skipOnce.Do(func() {
 		registerTypedCallback(&obj.skipFunc, rawPtr.Skip)
 	})
-	ret := obj.skipFunc(rawPtr, bytesToSkip, uintptr(unsafe.Pointer(bytesSkipped)), uintptr(extractRawPointer(callback)))
+	ret := obj.skipFunc(rawPtr, bytesToSkip, uintptr(unsafe.Pointer(bytesSkipped)), uintptr(callbackPtr))
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -333,7 +363,13 @@ func (obj *resourceHandlerImpl) Read(dataOut unsafe.Pointer, bytesToRead int32, 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallRead(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
+	if rawPtr.Read == 0 {
+		return 0
+	}
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallRead(dataOut, uintptr(bytesToRead), unsafe.Pointer(bytesRead), callbackPtr)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 
@@ -342,7 +378,13 @@ func (obj *resourceHandlerImpl) ReadResponse(dataOut unsafe.Pointer, bytesToRead
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallReadResponse(uintptr(dataOut), uintptr(bytesToRead), uintptr(unsafe.Pointer(bytesRead)), uintptr(extractRawPointer(callback)))
+	if rawPtr.ReadResponse == 0 {
+		return 0
+	}
+	callbackPtr := extractRawPointer(callback)
+	transferRef(callbackPtr)
+	ret := rawPtr.CallReadResponse(dataOut, uintptr(bytesToRead), unsafe.Pointer(bytesRead), callbackPtr)
+	runtime.KeepAlive(callback)
 	return int32(ret)
 }
 

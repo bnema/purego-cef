@@ -449,7 +449,13 @@ func (obj *windowDelegateImpl) OnWindowCreated(window Window) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowCreated(uintptr(extractRawPointer(window)))
+	if rawPtr.OnWindowCreated == 0 {
+		return
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	rawPtr.CallOnWindowCreated(windowPtr)
+	runtime.KeepAlive(window)
 }
 
 func (obj *windowDelegateImpl) OnWindowClosing(window Window) {
@@ -457,7 +463,13 @@ func (obj *windowDelegateImpl) OnWindowClosing(window Window) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowClosing(uintptr(extractRawPointer(window)))
+	if rawPtr.OnWindowClosing == 0 {
+		return
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	rawPtr.CallOnWindowClosing(windowPtr)
+	runtime.KeepAlive(window)
 }
 
 func (obj *windowDelegateImpl) OnWindowDestroyed(window Window) {
@@ -465,7 +477,13 @@ func (obj *windowDelegateImpl) OnWindowDestroyed(window Window) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowDestroyed(uintptr(extractRawPointer(window)))
+	if rawPtr.OnWindowDestroyed == 0 {
+		return
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	rawPtr.CallOnWindowDestroyed(windowPtr)
+	runtime.KeepAlive(window)
 }
 
 func (obj *windowDelegateImpl) OnWindowActivationChanged(window Window, active int32) {
@@ -473,7 +491,13 @@ func (obj *windowDelegateImpl) OnWindowActivationChanged(window Window, active i
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowActivationChanged(uintptr(extractRawPointer(window)), uintptr(active))
+	if rawPtr.OnWindowActivationChanged == 0 {
+		return
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	rawPtr.CallOnWindowActivationChanged(windowPtr, uintptr(active))
+	runtime.KeepAlive(window)
 }
 
 func (obj *windowDelegateImpl) OnWindowBoundsChanged(window Window, newBounds *Rect) {
@@ -481,7 +505,13 @@ func (obj *windowDelegateImpl) OnWindowBoundsChanged(window Window, newBounds *R
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowBoundsChanged(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(newBounds)))
+	if rawPtr.OnWindowBoundsChanged == 0 {
+		return
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	rawPtr.CallOnWindowBoundsChanged(windowPtr, unsafe.Pointer(newBounds))
+	runtime.KeepAlive(window)
 }
 
 func (obj *windowDelegateImpl) OnWindowFullscreenTransition(window Window, isCompleted int32) {
@@ -489,7 +519,13 @@ func (obj *windowDelegateImpl) OnWindowFullscreenTransition(window Window, isCom
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnWindowFullscreenTransition(uintptr(extractRawPointer(window)), uintptr(isCompleted))
+	if rawPtr.OnWindowFullscreenTransition == 0 {
+		return
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	rawPtr.CallOnWindowFullscreenTransition(windowPtr, uintptr(isCompleted))
+	runtime.KeepAlive(window)
 }
 
 func (obj *windowDelegateImpl) GetParentWindow(window Window, isMenu *int32, canActivateMenu *int32) Window {
@@ -497,7 +533,13 @@ func (obj *windowDelegateImpl) GetParentWindow(window Window, isMenu *int32, can
 		return nil
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetParentWindow(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(isMenu)), uintptr(unsafe.Pointer(canActivateMenu)))
+	if rawPtr.GetParentWindow == 0 {
+		return nil
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallGetParentWindow(windowPtr, unsafe.Pointer(isMenu), unsafe.Pointer(canActivateMenu))
+	runtime.KeepAlive(window)
 	return wrapWindow(unsafe.Pointer(ret))
 }
 
@@ -506,7 +548,13 @@ func (obj *windowDelegateImpl) IsWindowModalDialog(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsWindowModalDialog(uintptr(extractRawPointer(window)))
+	if rawPtr.IsWindowModalDialog == 0 {
+		return false
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallIsWindowModalDialog(windowPtr)
+	runtime.KeepAlive(window)
 	return ret != 0
 }
 
@@ -515,7 +563,13 @@ func (obj *windowDelegateImpl) GetInitialBounds(window Window) uintptr {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetInitialBounds(uintptr(extractRawPointer(window)))
+	if rawPtr.GetInitialBounds == 0 {
+		return 0
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallGetInitialBounds(windowPtr)
+	runtime.KeepAlive(window)
 	return uintptr(ret)
 }
 
@@ -524,7 +578,13 @@ func (obj *windowDelegateImpl) GetInitialShowState(window Window) ShowState {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetInitialShowState(uintptr(extractRawPointer(window)))
+	if rawPtr.GetInitialShowState == 0 {
+		return 0
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallGetInitialShowState(windowPtr)
+	runtime.KeepAlive(window)
 	return ShowState(ret)
 }
 
@@ -533,7 +593,13 @@ func (obj *windowDelegateImpl) IsFrameless(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallIsFrameless(uintptr(extractRawPointer(window)))
+	if rawPtr.IsFrameless == 0 {
+		return false
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallIsFrameless(windowPtr)
+	runtime.KeepAlive(window)
 	return ret != 0
 }
 
@@ -542,7 +608,13 @@ func (obj *windowDelegateImpl) WithStandardWindowButtons(window Window) int32 {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallWithStandardWindowButtons(uintptr(extractRawPointer(window)))
+	if rawPtr.WithStandardWindowButtons == 0 {
+		return 0
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallWithStandardWindowButtons(windowPtr)
+	runtime.KeepAlive(window)
 	return int32(ret)
 }
 
@@ -551,7 +623,13 @@ func (obj *windowDelegateImpl) GetTitlebarHeight(window Window, titlebarHeight *
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetTitlebarHeight(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(titlebarHeight)))
+	if rawPtr.GetTitlebarHeight == 0 {
+		return 0
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallGetTitlebarHeight(windowPtr, unsafe.Pointer(titlebarHeight))
+	runtime.KeepAlive(window)
 	return int32(ret)
 }
 
@@ -560,7 +638,13 @@ func (obj *windowDelegateImpl) AcceptsFirstMouse(window Window) State {
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallAcceptsFirstMouse(uintptr(extractRawPointer(window)))
+	if rawPtr.AcceptsFirstMouse == 0 {
+		return 0
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallAcceptsFirstMouse(windowPtr)
+	runtime.KeepAlive(window)
 	return State(ret)
 }
 
@@ -569,7 +653,13 @@ func (obj *windowDelegateImpl) CanResize(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanResize(uintptr(extractRawPointer(window)))
+	if rawPtr.CanResize == 0 {
+		return false
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallCanResize(windowPtr)
+	runtime.KeepAlive(window)
 	return ret != 0
 }
 
@@ -578,7 +668,13 @@ func (obj *windowDelegateImpl) CanMaximize(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanMaximize(uintptr(extractRawPointer(window)))
+	if rawPtr.CanMaximize == 0 {
+		return false
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallCanMaximize(windowPtr)
+	runtime.KeepAlive(window)
 	return ret != 0
 }
 
@@ -587,7 +683,13 @@ func (obj *windowDelegateImpl) CanMinimize(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanMinimize(uintptr(extractRawPointer(window)))
+	if rawPtr.CanMinimize == 0 {
+		return false
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallCanMinimize(windowPtr)
+	runtime.KeepAlive(window)
 	return ret != 0
 }
 
@@ -596,7 +698,13 @@ func (obj *windowDelegateImpl) CanClose(window Window) bool {
 		return false
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallCanClose(uintptr(extractRawPointer(window)))
+	if rawPtr.CanClose == 0 {
+		return false
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallCanClose(windowPtr)
+	runtime.KeepAlive(window)
 	return ret != 0
 }
 
@@ -605,7 +713,13 @@ func (obj *windowDelegateImpl) OnAccelerator(window Window, commandID int32) int
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnAccelerator(uintptr(extractRawPointer(window)), uintptr(commandID))
+	if rawPtr.OnAccelerator == 0 {
+		return 0
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallOnAccelerator(windowPtr, uintptr(commandID))
+	runtime.KeepAlive(window)
 	return int32(ret)
 }
 
@@ -614,7 +728,13 @@ func (obj *windowDelegateImpl) OnKeyEvent(window Window, event *KeyEvent) int32 
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnKeyEvent(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(event)))
+	if rawPtr.OnKeyEvent == 0 {
+		return 0
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallOnKeyEvent(windowPtr, unsafe.Pointer(event))
+	runtime.KeepAlive(window)
 	return int32(ret)
 }
 
@@ -623,7 +743,13 @@ func (obj *windowDelegateImpl) OnThemeColorsChanged(window Window, chromeTheme i
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnThemeColorsChanged(uintptr(extractRawPointer(window)), uintptr(chromeTheme))
+	if rawPtr.OnThemeColorsChanged == 0 {
+		return
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	rawPtr.CallOnThemeColorsChanged(windowPtr, uintptr(chromeTheme))
+	runtime.KeepAlive(window)
 }
 
 func (obj *windowDelegateImpl) GetWindowRuntimeStyle() RuntimeStyle {
@@ -640,7 +766,13 @@ func (obj *windowDelegateImpl) GetLinuxWindowProperties(window Window, propertie
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallGetLinuxWindowProperties(uintptr(extractRawPointer(window)), uintptr(unsafe.Pointer(properties)))
+	if rawPtr.GetLinuxWindowProperties == 0 {
+		return 0
+	}
+	windowPtr := extractRawPointer(window)
+	transferRef(windowPtr)
+	ret := rawPtr.CallGetLinuxWindowProperties(windowPtr, unsafe.Pointer(properties))
+	runtime.KeepAlive(window)
 	return int32(ret)
 }
 

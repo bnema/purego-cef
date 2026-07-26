@@ -37,211 +37,211 @@ type CEFCommandLineT struct {
 
 func (v *CEFCommandLineT) OverrideIsValid(fn uintptr) { v.IsValid = fn }
 
-func (v *CEFCommandLineT) CallIsValid(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallIsValid() uintptr {
 	if v.IsValid == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsValid, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsValid, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideIsReadOnly(fn uintptr) { v.IsReadOnly = fn }
 
-func (v *CEFCommandLineT) CallIsReadOnly(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallIsReadOnly() uintptr {
 	if v.IsReadOnly == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsReadOnly, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsReadOnly, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideCopy(fn uintptr) { v.Copy = fn }
 
-func (v *CEFCommandLineT) CallCopy(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallCopy() uintptr {
 	if v.Copy == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Copy, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Copy, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideInitFromArgv(fn uintptr) { v.InitFromArgv = fn }
 
-func (v *CEFCommandLineT) CallInitFromArgv(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallInitFromArgv(Argc uintptr, Argv unsafe.Pointer) uintptr {
 	if v.InitFromArgv == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.InitFromArgv, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.InitFromArgv, uintptr(unsafe.Pointer(v)), Argc, uintptr(Argv))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideInitFromString(fn uintptr) { v.InitFromString = fn }
 
-func (v *CEFCommandLineT) CallInitFromString(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallInitFromString(CommandLine unsafe.Pointer) uintptr {
 	if v.InitFromString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.InitFromString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.InitFromString, uintptr(unsafe.Pointer(v)), uintptr(CommandLine))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideReset(fn uintptr) { v.Reset = fn }
 
-func (v *CEFCommandLineT) CallReset(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallReset() uintptr {
 	if v.Reset == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.Reset, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.Reset, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideGetArgv(fn uintptr) { v.GetArgv = fn }
 
-func (v *CEFCommandLineT) CallGetArgv(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallGetArgv(Argv uintptr) uintptr {
 	if v.GetArgv == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetArgv, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetArgv, uintptr(unsafe.Pointer(v)), Argv)
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideGetCommandLineString(fn uintptr) { v.GetCommandLineString = fn }
 
-func (v *CEFCommandLineT) CallGetCommandLineString(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallGetCommandLineString() uintptr {
 	if v.GetCommandLineString == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCommandLineString, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCommandLineString, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideGetProgram(fn uintptr) { v.GetProgram = fn }
 
-func (v *CEFCommandLineT) CallGetProgram(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallGetProgram() uintptr {
 	if v.GetProgram == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetProgram, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetProgram, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideSetProgram(fn uintptr) { v.SetProgram = fn }
 
-func (v *CEFCommandLineT) CallSetProgram(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallSetProgram(Program unsafe.Pointer) uintptr {
 	if v.SetProgram == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.SetProgram, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.SetProgram, uintptr(unsafe.Pointer(v)), uintptr(Program))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideHasSwitches(fn uintptr) { v.HasSwitches = fn }
 
-func (v *CEFCommandLineT) CallHasSwitches(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallHasSwitches() uintptr {
 	if v.HasSwitches == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasSwitches, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasSwitches, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideHasSwitch(fn uintptr) { v.HasSwitch = fn }
 
-func (v *CEFCommandLineT) CallHasSwitch(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallHasSwitch(Name unsafe.Pointer) uintptr {
 	if v.HasSwitch == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasSwitch, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasSwitch, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideGetSwitchValue(fn uintptr) { v.GetSwitchValue = fn }
 
-func (v *CEFCommandLineT) CallGetSwitchValue(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallGetSwitchValue(Name unsafe.Pointer) uintptr {
 	if v.GetSwitchValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSwitchValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSwitchValue, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideGetSwitches(fn uintptr) { v.GetSwitches = fn }
 
-func (v *CEFCommandLineT) CallGetSwitches(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallGetSwitches(Switches uintptr) uintptr {
 	if v.GetSwitches == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSwitches, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSwitches, uintptr(unsafe.Pointer(v)), Switches)
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideAppendSwitch(fn uintptr) { v.AppendSwitch = fn }
 
-func (v *CEFCommandLineT) CallAppendSwitch(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallAppendSwitch(Name unsafe.Pointer) uintptr {
 	if v.AppendSwitch == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AppendSwitch, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AppendSwitch, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideAppendSwitchWithValue(fn uintptr) { v.AppendSwitchWithValue = fn }
 
-func (v *CEFCommandLineT) CallAppendSwitchWithValue(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallAppendSwitchWithValue(Name unsafe.Pointer, Value unsafe.Pointer) uintptr {
 	if v.AppendSwitchWithValue == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AppendSwitchWithValue, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AppendSwitchWithValue, uintptr(unsafe.Pointer(v)), uintptr(Name), uintptr(Value))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideHasArguments(fn uintptr) { v.HasArguments = fn }
 
-func (v *CEFCommandLineT) CallHasArguments(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallHasArguments() uintptr {
 	if v.HasArguments == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.HasArguments, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.HasArguments, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideGetArguments(fn uintptr) { v.GetArguments = fn }
 
-func (v *CEFCommandLineT) CallGetArguments(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallGetArguments(Arguments uintptr) uintptr {
 	if v.GetArguments == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetArguments, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetArguments, uintptr(unsafe.Pointer(v)), Arguments)
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideAppendArgument(fn uintptr) { v.AppendArgument = fn }
 
-func (v *CEFCommandLineT) CallAppendArgument(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallAppendArgument(Argument unsafe.Pointer) uintptr {
 	if v.AppendArgument == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.AppendArgument, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.AppendArgument, uintptr(unsafe.Pointer(v)), uintptr(Argument))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverridePrependWrapper(fn uintptr) { v.PrependWrapper = fn }
 
-func (v *CEFCommandLineT) CallPrependWrapper(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallPrependWrapper(Wrapper unsafe.Pointer) uintptr {
 	if v.PrependWrapper == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.PrependWrapper, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.PrependWrapper, uintptr(unsafe.Pointer(v)), uintptr(Wrapper))
 	return r1
 }
 
 func (v *CEFCommandLineT) OverrideRemoveSwitch(fn uintptr) { v.RemoveSwitch = fn }
 
-func (v *CEFCommandLineT) CallRemoveSwitch(args ...uintptr) uintptr {
+func (v *CEFCommandLineT) CallRemoveSwitch(Name unsafe.Pointer) uintptr {
 	if v.RemoveSwitch == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.RemoveSwitch, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.RemoveSwitch, uintptr(unsafe.Pointer(v)), uintptr(Name))
 	return r1
 }
 

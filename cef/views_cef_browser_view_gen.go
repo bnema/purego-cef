@@ -109,14 +109,35 @@ func takeBrowserView(ptr unsafe.Pointer) BrowserView {
 
 // BrowserViewCreate Create a new BrowserView. The underlying cef_browser_t will not be created until this view is added to the views hierarchy. The optional |extra_info| parameter provides an opportunity to specify extra information specific to the created browser that will be passed to cef_render_process_handler_t::on_browser_created() in the render process.
 func BrowserViewCreate(client RawClient, uRL string, settings *BrowserSettings, extraInfo DictionaryValue, requestContext RequestContext, delegate BrowserViewDelegate) BrowserView {
+	if capi.CEFBrowserViewCreate == nil {
+		return nil
+	}
 	uRLStr := cefString(uRL)
 	defer freeCefString(&uRLStr)
-	ret := capi.CEFBrowserViewCreate(extractOrWrapRawPointer(client, func() any { return NewRawClient(client) }), unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extractRawPointer(extraInfo), extractRawPointer(requestContext), extractOrWrapRawPointer(delegate, func() any { return NewBrowserViewDelegate(delegate) }))
+	clientPtr := extractOrWrapRawPointer(client, func() any { return NewRawClient(client) })
+	transferRef(clientPtr)
+	extraInfoPtr := extractRawPointer(extraInfo)
+	transferRef(extraInfoPtr)
+	requestContextPtr := extractRawPointer(requestContext)
+	transferRef(requestContextPtr)
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewBrowserViewDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFBrowserViewCreate(clientPtr, unsafe.Pointer(&uRLStr), unsafe.Pointer(settings), extraInfoPtr, requestContextPtr, delegatePtr)
+	runtime.KeepAlive(client)
+	runtime.KeepAlive(extraInfo)
+	runtime.KeepAlive(requestContext)
+	runtime.KeepAlive(delegate)
 	return takeBrowserView(ret)
 }
 
 // BrowserViewGetForBrowser Returns the BrowserView associated with |browser|.
 func BrowserViewGetForBrowser(browser Browser) BrowserView {
-	ret := capi.CEFBrowserViewGetForBrowser(extractRawPointer(browser))
+	if capi.CEFBrowserViewGetForBrowser == nil {
+		return nil
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := capi.CEFBrowserViewGetForBrowser(browserPtr)
+	runtime.KeepAlive(browser)
 	return takeBrowserView(ret)
 }

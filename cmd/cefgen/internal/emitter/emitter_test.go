@@ -1,6 +1,7 @@
 package emitter
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -59,7 +60,7 @@ func TestEmitRaw(t *testing.T) {
 		"structs.HostLayout",
 		"CallGetBrowserProcessHandler",
 		"OverrideGetBrowserProcessHandler",
-		"purego.SyscallN",
+		"purego.SyscallSelf",
 		"func RegisterApp(handle uintptr)",
 		`tryRegisterLibFunc(&CEFExecuteProcess, handle, "cef_execute_process")`,
 		"var CEFExecuteProcess func(Args unsafe.Pointer) int32",
@@ -68,6 +69,69 @@ func TestEmitRaw(t *testing.T) {
 	for _, want := range checks {
 		if !strings.Contains(got, want) {
 			t.Errorf("EmitRaw() output missing %q\n\nGot:\n%s", want, got)
+		}
+	}
+}
+
+func TestEmitRawMethodWrappersUseFixedTypedParameters(t *testing.T) {
+	maximumParams := []model.Param{{CName: "self", GoName: "self", GoType: "unsafe.Pointer"}}
+	maximumCallArgs := make([]string, 0, 14)
+	for i := range 14 {
+		name := fmt.Sprintf("arg%d", i)
+		maximumParams = append(maximumParams, model.Param{CName: name, GoName: name, GoType: "int32"})
+		maximumCallArgs = append(maximumCallArgs, name)
+	}
+
+	header := &model.Header{
+		Package:      "raw",
+		RegisterName: "RegisterTest",
+		Structs: []model.Struct{{
+			GoName: "CEFExampleT",
+			Fields: []model.Field{
+				{GoName: "Zero", GoType: "uintptr", IsFunction: true, Params: []model.Param{{CName: "self", GoName: "self", GoType: "unsafe.Pointer"}}},
+				{GoName: "Unsafe", GoType: "uintptr", IsFunction: true, Params: []model.Param{
+					{CName: "self", GoName: "self", GoType: "unsafe.Pointer"},
+					{CName: "value", GoName: "value", GoType: "unsafe.Pointer"},
+				}},
+				{GoName: "Typed", GoType: "uintptr", IsFunction: true, Params: []model.Param{
+					{CName: "self", GoName: "self", GoType: "*CEFExampleT"},
+					{CName: "value", GoName: "value", GoType: "*CEFExampleT"},
+				}},
+				{GoName: "Scalar", GoType: "uintptr", IsFunction: true, Params: []model.Param{
+					{CName: "self", GoName: "self", GoType: "unsafe.Pointer"},
+					{CName: "value", GoName: "value", GoType: "int32"},
+				}},
+				{GoName: "Maximum", GoType: "uintptr", IsFunction: true, Params: maximumParams},
+			},
+		}},
+	}
+
+	got, err := EmitRaw(header)
+	if err != nil {
+		t.Fatalf("EmitRaw() error: %v", err)
+	}
+
+	checks := []string{
+		"func (v *CEFExampleT) CallZero() uintptr",
+		"purego.SyscallSelf(v.Zero, uintptr(unsafe.Pointer(v)))",
+		"func (v *CEFExampleT) CallUnsafe(value unsafe.Pointer) uintptr",
+		"purego.SyscallSelf(v.Unsafe, uintptr(unsafe.Pointer(v)), uintptr(value))",
+		"func (v *CEFExampleT) CallTyped(value unsafe.Pointer) uintptr",
+		"purego.SyscallSelf(v.Typed, uintptr(unsafe.Pointer(v)), uintptr(value))",
+		"func (v *CEFExampleT) CallScalar(value uintptr) uintptr",
+		"purego.SyscallSelf(v.Scalar, uintptr(unsafe.Pointer(v)), value)",
+		"func (v *CEFExampleT) CallMaximum(" + strings.Join(maximumCallArgs, " uintptr, ") + " uintptr) uintptr",
+		"purego.SyscallSelf(v.Maximum, uintptr(unsafe.Pointer(v)), " + strings.Join(maximumCallArgs, ", ") + ")",
+	}
+	for _, want := range checks {
+		if !strings.Contains(got, want) {
+			t.Errorf("EmitRaw() output missing %q\n\nGot:\n%s", want, got)
+		}
+	}
+
+	for _, unwanted := range []string{"append(", "args ...uintptr", "purego.SyscallN"} {
+		if strings.Contains(got, unwanted) {
+			t.Errorf("EmitRaw() output unexpectedly contains %q\n\nGot:\n%s", unwanted, got)
 		}
 	}
 }

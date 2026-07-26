@@ -143,7 +143,13 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsMessage(browser Browser, messa
 		return 0
 	}
 	rawPtr := obj.rawPtr
-	ret := rawPtr.CallOnDevToolsMessage(uintptr(extractRawPointer(browser)), uintptr(message), uintptr(messageSize))
+	if rawPtr.OnDevToolsMessage == 0 {
+		return 0
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	ret := rawPtr.CallOnDevToolsMessage(browserPtr, message, uintptr(messageSize))
+	runtime.KeepAlive(browser)
 	return int32(ret)
 }
 
@@ -152,7 +158,13 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsMethodResult(browser Browser, 
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDevToolsMethodResult(uintptr(extractRawPointer(browser)), uintptr(messageID), uintptr(success), uintptr(result), uintptr(resultSize))
+	if rawPtr.OnDevToolsMethodResult == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnDevToolsMethodResult(browserPtr, uintptr(messageID), uintptr(success), result, uintptr(resultSize))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsEvent(browser Browser, method string, params unsafe.Pointer, paramsSize int) {
@@ -160,9 +172,15 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsEvent(browser Browser, method 
 		return
 	}
 	rawPtr := obj.rawPtr
+	if rawPtr.OnDevToolsEvent == 0 {
+		return
+	}
 	methodStr := cefString(method)
 	defer freeCefString(&methodStr)
-	rawPtr.CallOnDevToolsEvent(uintptr(extractRawPointer(browser)), uintptr(unsafe.Pointer(&methodStr)), uintptr(params), uintptr(paramsSize))
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnDevToolsEvent(browserPtr, unsafe.Pointer(&methodStr), params, uintptr(paramsSize))
+	runtime.KeepAlive(browser)
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentAttached(browser Browser) {
@@ -170,7 +188,13 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsAgentAttached(browser Browser)
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDevToolsAgentAttached(uintptr(extractRawPointer(browser)))
+	if rawPtr.OnDevToolsAgentAttached == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnDevToolsAgentAttached(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *devToolsMessageObserverImpl) OnDevToolsAgentDetached(browser Browser) {
@@ -178,7 +202,13 @@ func (obj *devToolsMessageObserverImpl) OnDevToolsAgentDetached(browser Browser)
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallOnDevToolsAgentDetached(uintptr(extractRawPointer(browser)))
+	if rawPtr.OnDevToolsAgentDetached == 0 {
+		return
+	}
+	browserPtr := extractRawPointer(browser)
+	transferRef(browserPtr)
+	rawPtr.CallOnDevToolsAgentDetached(browserPtr)
+	runtime.KeepAlive(browser)
 }
 
 func (obj *devToolsMessageObserverImpl) RawPointer() unsafe.Pointer {

@@ -18,21 +18,21 @@ type CEFKeyboardHandlerT struct {
 
 func (v *CEFKeyboardHandlerT) OverrideOnPreKeyEvent(fn uintptr) { v.OnPreKeyEvent = fn }
 
-func (v *CEFKeyboardHandlerT) CallOnPreKeyEvent(args ...uintptr) uintptr {
+func (v *CEFKeyboardHandlerT) CallOnPreKeyEvent(Browser unsafe.Pointer, Event unsafe.Pointer, OsEvent uintptr, IsKeyboardShortcut unsafe.Pointer) uintptr {
 	if v.OnPreKeyEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnPreKeyEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnPreKeyEvent, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Event), OsEvent, uintptr(IsKeyboardShortcut))
 	return r1
 }
 
 func (v *CEFKeyboardHandlerT) OverrideOnKeyEvent(fn uintptr) { v.OnKeyEvent = fn }
 
-func (v *CEFKeyboardHandlerT) CallOnKeyEvent(args ...uintptr) uintptr {
+func (v *CEFKeyboardHandlerT) CallOnKeyEvent(Browser unsafe.Pointer, Event unsafe.Pointer, OsEvent uintptr) uintptr {
 	if v.OnKeyEvent == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnKeyEvent, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnKeyEvent, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Event), OsEvent)
 	return r1
 }
 

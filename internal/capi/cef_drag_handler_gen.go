@@ -18,11 +18,11 @@ type CEFDragHandlerT struct {
 
 func (v *CEFDragHandlerT) OverrideOnDragEnter(fn uintptr) { v.OnDragEnter = fn }
 
-func (v *CEFDragHandlerT) CallOnDragEnter(args ...uintptr) uintptr {
+func (v *CEFDragHandlerT) CallOnDragEnter(Browser unsafe.Pointer, Dragdata unsafe.Pointer, Mask uintptr) uintptr {
 	if v.OnDragEnter == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDragEnter, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDragEnter, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Dragdata), Mask)
 	return r1
 }
 
@@ -30,11 +30,11 @@ func (v *CEFDragHandlerT) OverrideOnDraggableRegionsChanged(fn uintptr) {
 	v.OnDraggableRegionsChanged = fn
 }
 
-func (v *CEFDragHandlerT) CallOnDraggableRegionsChanged(args ...uintptr) uintptr {
+func (v *CEFDragHandlerT) CallOnDraggableRegionsChanged(Browser unsafe.Pointer, Frame unsafe.Pointer, Regionscount uintptr, Regions unsafe.Pointer) uintptr {
 	if v.OnDraggableRegionsChanged == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.OnDraggableRegionsChanged, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.OnDraggableRegionsChanged, uintptr(unsafe.Pointer(v)), uintptr(Browser), uintptr(Frame), Regionscount, uintptr(Regions))
 	return r1
 }
 

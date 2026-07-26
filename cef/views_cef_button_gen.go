@@ -64,7 +64,7 @@ func (obj *buttonImpl) SetTooltipText(tooltipText string) {
 	rawPtr := obj.rawPtr
 	tooltipTextStr := cefString(tooltipText)
 	defer freeCefString(&tooltipTextStr)
-	rawPtr.CallSetTooltipText(uintptr(unsafe.Pointer(&tooltipTextStr)))
+	rawPtr.CallSetTooltipText(unsafe.Pointer(&tooltipTextStr))
 }
 
 func (obj *buttonImpl) SetAccessibleName(name string) {
@@ -74,7 +74,7 @@ func (obj *buttonImpl) SetAccessibleName(name string) {
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
+	rawPtr.CallSetAccessibleName(unsafe.Pointer(&nameStr))
 }
 
 func (obj *buttonImpl) RawPointer() unsafe.Pointer {

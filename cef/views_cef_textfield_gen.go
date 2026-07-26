@@ -73,7 +73,7 @@ func (obj *textfieldImpl) SetText(text string) {
 	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	rawPtr.CallSetText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallSetText(unsafe.Pointer(&textStr))
 }
 
 func (obj *textfieldImpl) AppendText(text string) {
@@ -83,7 +83,7 @@ func (obj *textfieldImpl) AppendText(text string) {
 	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	rawPtr.CallAppendText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallAppendText(unsafe.Pointer(&textStr))
 }
 
 func (obj *textfieldImpl) InsertOrReplaceText(text string) {
@@ -93,7 +93,7 @@ func (obj *textfieldImpl) InsertOrReplaceText(text string) {
 	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	rawPtr.CallInsertOrReplaceText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallInsertOrReplaceText(unsafe.Pointer(&textStr))
 }
 
 func (obj *textfieldImpl) HasSelection() bool {
@@ -144,7 +144,7 @@ func (obj *textfieldImpl) SelectRange(range_ *Range) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallSelectRange(uintptr(unsafe.Pointer(range_)))
+	rawPtr.CallSelectRange(unsafe.Pointer(range_))
 }
 
 func (obj *textfieldImpl) GetCursorPosition() int {
@@ -163,7 +163,7 @@ func (obj *textfieldImpl) SetFontList(fontList string) {
 	rawPtr := obj.rawPtr
 	fontListStr := cefString(fontList)
 	defer freeCefString(&fontListStr)
-	rawPtr.CallSetFontList(uintptr(unsafe.Pointer(&fontListStr)))
+	rawPtr.CallSetFontList(unsafe.Pointer(&fontListStr))
 }
 
 func (obj *textfieldImpl) ApplyTextColor(color uintptr, range_ *Range) {
@@ -171,7 +171,7 @@ func (obj *textfieldImpl) ApplyTextColor(color uintptr, range_ *Range) {
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallApplyTextColor(color, uintptr(unsafe.Pointer(range_)))
+	rawPtr.CallApplyTextColor(color, unsafe.Pointer(range_))
 }
 
 func (obj *textfieldImpl) ApplyTextStyle(style TextStyle, add int32, range_ *Range) {
@@ -179,7 +179,7 @@ func (obj *textfieldImpl) ApplyTextStyle(style TextStyle, add int32, range_ *Ran
 		return
 	}
 	rawPtr := obj.rawPtr
-	rawPtr.CallApplyTextStyle(uintptr(style), uintptr(add), uintptr(unsafe.Pointer(range_)))
+	rawPtr.CallApplyTextStyle(uintptr(style), uintptr(add), unsafe.Pointer(range_))
 }
 
 func (obj *textfieldImpl) IsCommandEnabled(commandID TextFieldCommands) bool {
@@ -214,7 +214,7 @@ func (obj *textfieldImpl) SetPlaceholderText(text string) {
 	rawPtr := obj.rawPtr
 	textStr := cefString(text)
 	defer freeCefString(&textStr)
-	rawPtr.CallSetPlaceholderText(uintptr(unsafe.Pointer(&textStr)))
+	rawPtr.CallSetPlaceholderText(unsafe.Pointer(&textStr))
 }
 
 func (obj *textfieldImpl) GetPlaceholderText() string {
@@ -233,7 +233,7 @@ func (obj *textfieldImpl) SetAccessibleName(name string) {
 	rawPtr := obj.rawPtr
 	nameStr := cefString(name)
 	defer freeCefString(&nameStr)
-	rawPtr.CallSetAccessibleName(uintptr(unsafe.Pointer(&nameStr)))
+	rawPtr.CallSetAccessibleName(unsafe.Pointer(&nameStr))
 }
 
 func (obj *textfieldImpl) RawPointer() unsafe.Pointer {
@@ -287,6 +287,12 @@ func takeTextfield(ptr unsafe.Pointer) Textfield {
 
 // TextfieldCreate Create a new Textfield.
 func TextfieldCreate(delegate TextfieldDelegate) Textfield {
-	ret := capi.CEFTextfieldCreate(extractOrWrapRawPointer(delegate, func() any { return NewTextfieldDelegate(delegate) }))
+	if capi.CEFTextfieldCreate == nil {
+		return nil
+	}
+	delegatePtr := extractOrWrapRawPointer(delegate, func() any { return NewTextfieldDelegate(delegate) })
+	transferRef(delegatePtr)
+	ret := capi.CEFTextfieldCreate(delegatePtr)
+	runtime.KeepAlive(delegate)
 	return takeTextfield(ret)
 }

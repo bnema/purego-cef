@@ -21,51 +21,51 @@ type CEFSslstatusT struct {
 
 func (v *CEFSslstatusT) OverrideIsSecureConnection(fn uintptr) { v.IsSecureConnection = fn }
 
-func (v *CEFSslstatusT) CallIsSecureConnection(args ...uintptr) uintptr {
+func (v *CEFSslstatusT) CallIsSecureConnection() uintptr {
 	if v.IsSecureConnection == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.IsSecureConnection, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.IsSecureConnection, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFSslstatusT) OverrideGetCertStatus(fn uintptr) { v.GetCertStatus = fn }
 
-func (v *CEFSslstatusT) CallGetCertStatus(args ...uintptr) uintptr {
+func (v *CEFSslstatusT) CallGetCertStatus() uintptr {
 	if v.GetCertStatus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetCertStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetCertStatus, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFSslstatusT) OverrideGetSslversion(fn uintptr) { v.GetSslversion = fn }
 
-func (v *CEFSslstatusT) CallGetSslversion(args ...uintptr) uintptr {
+func (v *CEFSslstatusT) CallGetSslversion() uintptr {
 	if v.GetSslversion == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetSslversion, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetSslversion, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFSslstatusT) OverrideGetContentStatus(fn uintptr) { v.GetContentStatus = fn }
 
-func (v *CEFSslstatusT) CallGetContentStatus(args ...uintptr) uintptr {
+func (v *CEFSslstatusT) CallGetContentStatus() uintptr {
 	if v.GetContentStatus == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetContentStatus, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetContentStatus, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
 func (v *CEFSslstatusT) OverrideGetX509Certificate(fn uintptr) { v.GetX509Certificate = fn }
 
-func (v *CEFSslstatusT) CallGetX509Certificate(args ...uintptr) uintptr {
+func (v *CEFSslstatusT) CallGetX509Certificate() uintptr {
 	if v.GetX509Certificate == 0 {
 		return 0
 	}
-	r1, _, _ := purego.SyscallN(v.GetX509Certificate, append([]uintptr{uintptr(unsafe.Pointer(v))}, args...)...)
+	r1, _, _ := purego.SyscallSelf(v.GetX509Certificate, uintptr(unsafe.Pointer(v)))
 	return r1
 }
 
