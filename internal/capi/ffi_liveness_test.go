@@ -25,7 +25,7 @@ type ffiCallbackObservation struct {
 	mouseleave uintptr
 }
 
-func TestCallSendMouseMoveEventPreservesArgumentsDuringFFICall(t *testing.T) {
+func TestCallSendMouseMoveEventLivenessABI(t *testing.T) {
 	testCases := []struct {
 		name       string
 		mouseleave uintptr
