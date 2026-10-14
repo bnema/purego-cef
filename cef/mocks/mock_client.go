@@ -15,10 +15,19 @@ func NewMockClient(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockClient {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockClient{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -118,8 +127,8 @@ func (_c *MockClient_GetCommandHandler_Call) Run(run func()) *MockClient_GetComm
 	return _c
 }
 
-func (_c *MockClient_GetCommandHandler_Call) Return(v cef.CommandHandler) *MockClient_GetCommandHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetCommandHandler_Call) Return(commandHandler cef.CommandHandler) *MockClient_GetCommandHandler_Call {
+	_c.Call.Return(commandHandler)
 	return _c
 }
 
@@ -164,8 +173,8 @@ func (_c *MockClient_GetContextMenuHandler_Call) Run(run func()) *MockClient_Get
 	return _c
 }
 
-func (_c *MockClient_GetContextMenuHandler_Call) Return(v cef.ContextMenuHandler) *MockClient_GetContextMenuHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetContextMenuHandler_Call) Return(contextMenuHandler cef.ContextMenuHandler) *MockClient_GetContextMenuHandler_Call {
+	_c.Call.Return(contextMenuHandler)
 	return _c
 }
 
@@ -210,8 +219,8 @@ func (_c *MockClient_GetDialogHandler_Call) Run(run func()) *MockClient_GetDialo
 	return _c
 }
 
-func (_c *MockClient_GetDialogHandler_Call) Return(v cef.DialogHandler) *MockClient_GetDialogHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetDialogHandler_Call) Return(dialogHandler cef.DialogHandler) *MockClient_GetDialogHandler_Call {
+	_c.Call.Return(dialogHandler)
 	return _c
 }
 
@@ -256,8 +265,8 @@ func (_c *MockClient_GetDisplayHandler_Call) Run(run func()) *MockClient_GetDisp
 	return _c
 }
 
-func (_c *MockClient_GetDisplayHandler_Call) Return(v cef.DisplayHandler) *MockClient_GetDisplayHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetDisplayHandler_Call) Return(displayHandler cef.DisplayHandler) *MockClient_GetDisplayHandler_Call {
+	_c.Call.Return(displayHandler)
 	return _c
 }
 
@@ -302,8 +311,8 @@ func (_c *MockClient_GetDownloadHandler_Call) Run(run func()) *MockClient_GetDow
 	return _c
 }
 
-func (_c *MockClient_GetDownloadHandler_Call) Return(v cef.DownloadHandler) *MockClient_GetDownloadHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetDownloadHandler_Call) Return(downloadHandler cef.DownloadHandler) *MockClient_GetDownloadHandler_Call {
+	_c.Call.Return(downloadHandler)
 	return _c
 }
 
@@ -348,8 +357,8 @@ func (_c *MockClient_GetDragHandler_Call) Run(run func()) *MockClient_GetDragHan
 	return _c
 }
 
-func (_c *MockClient_GetDragHandler_Call) Return(v cef.DragHandler) *MockClient_GetDragHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetDragHandler_Call) Return(dragHandler cef.DragHandler) *MockClient_GetDragHandler_Call {
+	_c.Call.Return(dragHandler)
 	return _c
 }
 
@@ -394,8 +403,8 @@ func (_c *MockClient_GetFindHandler_Call) Run(run func()) *MockClient_GetFindHan
 	return _c
 }
 
-func (_c *MockClient_GetFindHandler_Call) Return(v cef.FindHandler) *MockClient_GetFindHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetFindHandler_Call) Return(findHandler cef.FindHandler) *MockClient_GetFindHandler_Call {
+	_c.Call.Return(findHandler)
 	return _c
 }
 
@@ -440,8 +449,8 @@ func (_c *MockClient_GetFocusHandler_Call) Run(run func()) *MockClient_GetFocusH
 	return _c
 }
 
-func (_c *MockClient_GetFocusHandler_Call) Return(v cef.FocusHandler) *MockClient_GetFocusHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetFocusHandler_Call) Return(focusHandler cef.FocusHandler) *MockClient_GetFocusHandler_Call {
+	_c.Call.Return(focusHandler)
 	return _c
 }
 
@@ -486,8 +495,8 @@ func (_c *MockClient_GetFrameHandler_Call) Run(run func()) *MockClient_GetFrameH
 	return _c
 }
 
-func (_c *MockClient_GetFrameHandler_Call) Return(v cef.FrameHandler) *MockClient_GetFrameHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetFrameHandler_Call) Return(frameHandler cef.FrameHandler) *MockClient_GetFrameHandler_Call {
+	_c.Call.Return(frameHandler)
 	return _c
 }
 
@@ -532,8 +541,8 @@ func (_c *MockClient_GetJsdialogHandler_Call) Run(run func()) *MockClient_GetJsd
 	return _c
 }
 
-func (_c *MockClient_GetJsdialogHandler_Call) Return(v cef.JsdialogHandler) *MockClient_GetJsdialogHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetJsdialogHandler_Call) Return(jsdialogHandler cef.JsdialogHandler) *MockClient_GetJsdialogHandler_Call {
+	_c.Call.Return(jsdialogHandler)
 	return _c
 }
 
@@ -578,8 +587,8 @@ func (_c *MockClient_GetKeyboardHandler_Call) Run(run func()) *MockClient_GetKey
 	return _c
 }
 
-func (_c *MockClient_GetKeyboardHandler_Call) Return(v cef.KeyboardHandler) *MockClient_GetKeyboardHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetKeyboardHandler_Call) Return(keyboardHandler cef.KeyboardHandler) *MockClient_GetKeyboardHandler_Call {
+	_c.Call.Return(keyboardHandler)
 	return _c
 }
 
@@ -670,8 +679,8 @@ func (_c *MockClient_GetLoadHandler_Call) Run(run func()) *MockClient_GetLoadHan
 	return _c
 }
 
-func (_c *MockClient_GetLoadHandler_Call) Return(v cef.LoadHandler) *MockClient_GetLoadHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetLoadHandler_Call) Return(loadHandler cef.LoadHandler) *MockClient_GetLoadHandler_Call {
+	_c.Call.Return(loadHandler)
 	return _c
 }
 
@@ -716,8 +725,8 @@ func (_c *MockClient_GetPermissionHandler_Call) Run(run func()) *MockClient_GetP
 	return _c
 }
 
-func (_c *MockClient_GetPermissionHandler_Call) Return(v cef.PermissionHandler) *MockClient_GetPermissionHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetPermissionHandler_Call) Return(permissionHandler cef.PermissionHandler) *MockClient_GetPermissionHandler_Call {
+	_c.Call.Return(permissionHandler)
 	return _c
 }
 
@@ -762,8 +771,8 @@ func (_c *MockClient_GetPrintHandler_Call) Run(run func()) *MockClient_GetPrintH
 	return _c
 }
 
-func (_c *MockClient_GetPrintHandler_Call) Return(v cef.PrintHandler) *MockClient_GetPrintHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetPrintHandler_Call) Return(printHandler cef.PrintHandler) *MockClient_GetPrintHandler_Call {
+	_c.Call.Return(printHandler)
 	return _c
 }
 
@@ -808,8 +817,8 @@ func (_c *MockClient_GetRenderHandler_Call) Run(run func()) *MockClient_GetRende
 	return _c
 }
 
-func (_c *MockClient_GetRenderHandler_Call) Return(v cef.RenderHandler) *MockClient_GetRenderHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetRenderHandler_Call) Return(renderHandler cef.RenderHandler) *MockClient_GetRenderHandler_Call {
+	_c.Call.Return(renderHandler)
 	return _c
 }
 
@@ -854,8 +863,8 @@ func (_c *MockClient_GetRequestHandler_Call) Run(run func()) *MockClient_GetRequ
 	return _c
 }
 
-func (_c *MockClient_GetRequestHandler_Call) Return(v cef.RequestHandler) *MockClient_GetRequestHandler_Call {
-	_c.Call.Return(v)
+func (_c *MockClient_GetRequestHandler_Call) Return(requestHandler cef.RequestHandler) *MockClient_GetRequestHandler_Call {
+	_c.Call.Return(requestHandler)
 	return _c
 }
 

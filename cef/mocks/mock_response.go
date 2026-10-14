@@ -15,10 +15,19 @@ func NewMockResponse(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockResponse {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockResponse{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -114,8 +123,8 @@ func (_c *MockResponse_GetError_Call) Run(run func()) *MockResponse_GetError_Cal
 	return _c
 }
 
-func (_c *MockResponse_GetError_Call) Return(v in.Errorcode) *MockResponse_GetError_Call {
-	_c.Call.Return(v)
+func (_c *MockResponse_GetError_Call) Return(errorcode in.Errorcode) *MockResponse_GetError_Call {
+	_c.Call.Return(errorcode)
 	return _c
 }
 

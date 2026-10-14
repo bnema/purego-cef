@@ -15,10 +15,19 @@ func NewMockRequestContext(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockRequestContext {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockRequestContext{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -415,8 +424,8 @@ func (_c *MockRequestContext_GetChromeColorSchemeMode_Call) Run(run func()) *Moc
 	return _c
 }
 
-func (_c *MockRequestContext_GetChromeColorSchemeMode_Call) Return(v in.ColorVariant) *MockRequestContext_GetChromeColorSchemeMode_Call {
-	_c.Call.Return(v)
+func (_c *MockRequestContext_GetChromeColorSchemeMode_Call) Return(colorVariant in.ColorVariant) *MockRequestContext_GetChromeColorSchemeMode_Call {
+	_c.Call.Return(colorVariant)
 	return _c
 }
 
@@ -459,8 +468,8 @@ func (_c *MockRequestContext_GetChromeColorSchemeVariant_Call) Run(run func()) *
 	return _c
 }
 
-func (_c *MockRequestContext_GetChromeColorSchemeVariant_Call) Return(v in.ColorVariant) *MockRequestContext_GetChromeColorSchemeVariant_Call {
-	_c.Call.Return(v)
+func (_c *MockRequestContext_GetChromeColorSchemeVariant_Call) Return(colorVariant in.ColorVariant) *MockRequestContext_GetChromeColorSchemeVariant_Call {
+	_c.Call.Return(colorVariant)
 	return _c
 }
 
@@ -522,8 +531,8 @@ func (_c *MockRequestContext_GetContentSetting_Call) Run(run func(requestingURL 
 	return _c
 }
 
-func (_c *MockRequestContext_GetContentSetting_Call) Return(v in.ContentSettingValues) *MockRequestContext_GetContentSetting_Call {
-	_c.Call.Return(v)
+func (_c *MockRequestContext_GetContentSetting_Call) Return(contentSettingValues in.ContentSettingValues) *MockRequestContext_GetContentSetting_Call {
+	_c.Call.Return(contentSettingValues)
 	return _c
 }
 
