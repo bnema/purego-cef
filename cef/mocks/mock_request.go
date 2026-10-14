@@ -15,10 +15,19 @@ func NewMockRequest(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockRequest {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockRequest{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -383,8 +392,8 @@ func (_c *MockRequest_GetReferrerPolicy_Call) Run(run func()) *MockRequest_GetRe
 	return _c
 }
 
-func (_c *MockRequest_GetReferrerPolicy_Call) Return(v in.ReferrerPolicy) *MockRequest_GetReferrerPolicy_Call {
-	_c.Call.Return(v)
+func (_c *MockRequest_GetReferrerPolicy_Call) Return(referrerPolicy in.ReferrerPolicy) *MockRequest_GetReferrerPolicy_Call {
+	_c.Call.Return(referrerPolicy)
 	return _c
 }
 
@@ -471,8 +480,8 @@ func (_c *MockRequest_GetResourceType_Call) Run(run func()) *MockRequest_GetReso
 	return _c
 }
 
-func (_c *MockRequest_GetResourceType_Call) Return(v in.ResourceType) *MockRequest_GetResourceType_Call {
-	_c.Call.Return(v)
+func (_c *MockRequest_GetResourceType_Call) Return(resourceType in.ResourceType) *MockRequest_GetResourceType_Call {
+	_c.Call.Return(resourceType)
 	return _c
 }
 
@@ -515,8 +524,8 @@ func (_c *MockRequest_GetTransitionType_Call) Run(run func()) *MockRequest_GetTr
 	return _c
 }
 
-func (_c *MockRequest_GetTransitionType_Call) Return(v in.TransitionType) *MockRequest_GetTransitionType_Call {
-	_c.Call.Return(v)
+func (_c *MockRequest_GetTransitionType_Call) Return(transitionType in.TransitionType) *MockRequest_GetTransitionType_Call {
+	_c.Call.Return(transitionType)
 	return _c
 }
 
