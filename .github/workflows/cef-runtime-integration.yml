@@ -8,8 +8,8 @@ jobs:
     name: Accelerated shared-texture OSR
     runs-on: [self-hosted, linux, cef, gpu]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       - name: Prepare runtime logs
@@ -110,7 +110,7 @@ jobs:
               -timeout=105s ./integration 2>&1 | tee artifacts/cef-runtime/go-test.log
       - name: Upload CEF runtime logs and provenance
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cef-runtime-integration-logs
           path: artifacts/cef-runtime
