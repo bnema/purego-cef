@@ -51,6 +51,7 @@ type Settings struct {
 	LogFile                    string
 	CachePath                  string
 	RootCachePath              string
+	DisableSignalHandlers      bool
 }
 
 // DefaultSettings returns Settings suitable for off-screen rendering.
@@ -118,6 +119,9 @@ func (e *Engine) settingsToRaw(s Settings) (capi.CEFSettingsT, func()) {
 	}
 	if s.MultiThreadedMessageLoop {
 		c.MultiThreadedMessageLoop = 1
+	}
+	if s.DisableSignalHandlers {
+		c.DisableSignalHandlers = 1
 	}
 	if s.ExternalMessagePump && !s.MultiThreadedMessageLoop {
 		c.ExternalMessagePump = 1

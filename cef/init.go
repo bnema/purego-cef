@@ -47,6 +47,10 @@ type Settings struct {
 	LogFile                    string
 	CachePath                  string
 	RootCachePath              string
+	// DisableSignalHandlers stops Chromium from resetting signal handlers
+	// (SIGSEGV, SIGBUS, SIGABRT, ... to SIG_DFL, SIGPIPE to SIG_IGN) during
+	// initialization. Go hosts need it to keep the runtime's crash handlers.
+	DisableSignalHandlers bool
 }
 
 func (s Settings) coreSettings() core.Settings {
@@ -61,6 +65,7 @@ func (s Settings) coreSettings() core.Settings {
 		LogFile:                    s.LogFile,
 		CachePath:                  s.CachePath,
 		RootCachePath:              s.RootCachePath,
+		DisableSignalHandlers:      s.DisableSignalHandlers,
 	}
 }
 

@@ -87,6 +87,7 @@ func TestSettingsCoreSettingsCopiesFields(t *testing.T) {
 		LogFile:                    "/tmp/cef.log",
 		CachePath:                  "/tmp/cache",
 		RootCachePath:              "/tmp/root-cache",
+		DisableSignalHandlers:      true,
 	}
 
 	got := s.coreSettings()
@@ -101,6 +102,7 @@ func TestSettingsCoreSettingsCopiesFields(t *testing.T) {
 		LogFile:                    "/tmp/cef.log",
 		CachePath:                  "/tmp/cache",
 		RootCachePath:              "/tmp/root-cache",
+		DisableSignalHandlers:      true,
 	}
 	if got != want {
 		t.Fatalf("Settings.coreSettings() = %#v, want %#v", got, want)

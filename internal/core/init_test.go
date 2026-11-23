@@ -115,3 +115,24 @@ func TestSettingsToRaw_AllStringFields(t *testing.T) {
 		}
 	}
 }
+
+func TestSettingsToRaw_DisableSignalHandlers(t *testing.T) {
+	e := newTestEngine(t)
+
+	for _, tc := range []struct {
+		name string
+		in   bool
+		want int32
+	}{
+		{name: "enabled", in: true, want: 1},
+		{name: "default", in: false, want: 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			raw, cleanup := e.settingsToRaw(Settings{DisableSignalHandlers: tc.in})
+			defer cleanup()
+			if raw.DisableSignalHandlers != tc.want {
+				t.Errorf("DisableSignalHandlers = %d, want %d", raw.DisableSignalHandlers, tc.want)
+			}
+		})
+	}
+}
