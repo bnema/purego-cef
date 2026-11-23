@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // ResolveCallback Callback structure for cef_request_context_t::ResolveHost.

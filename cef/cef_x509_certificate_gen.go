@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // X509CertPrincipal Structure representing the issuer or subject field of an X.509 certificate.

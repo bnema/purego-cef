@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/bnema/purego-cef/internal/capi"
-	"github.com/bnema/purego-cef/internal/core"
-	portoutmocks "github.com/bnema/purego-cef/internal/ports/out/mocks"
+	"bnema.dev/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/core"
+	portoutmocks "bnema.dev/purego-cef/internal/ports/out/mocks"
 )
 
 func newBridgeTestEngine(t *testing.T) *core.Engine {

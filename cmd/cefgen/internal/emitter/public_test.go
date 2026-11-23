@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/model"
 )
 
 func TestRefCountedObjectSliceClassificationHandlesConstPointee(t *testing.T) {
@@ -246,7 +246,7 @@ func TestGeneratedRawAndPublicPointerConsumersCompileTogether(t *testing.T) {
 	}
 
 	root := t.TempDir()
-	writeGeneratedTestFile(t, root, "go.mod", "module github.com/bnema/purego-cef\n\ngo 1.26\n\nrequire github.com/bnema/purego v0.11.0-bnema.4\n")
+	writeGeneratedTestFile(t, root, "go.mod", "module bnema.dev/purego-cef\n\ngo 1.26\n\nrequire bnema.dev/purego v0.13.0-bnema.4\n")
 	writeGeneratedTestFile(t, root, "internal/capi/tiny_gen.go", rawCode)
 	writeGeneratedTestFile(t, root, "internal/ports/in/tiny_gen.go", portCode)
 	writeGeneratedTestFile(t, root, "cef/tiny_gen.go", publicCode)

@@ -5,8 +5,8 @@ package capi
 import (
 	"unsafe"
 
-	"github.com/bnema/purego"
-	portout "github.com/bnema/purego-cef/internal/ports/out"
+	"bnema.dev/purego"
+	portout "bnema.dev/purego-cef/internal/ports/out"
 )
 
 // Bridge implements portout.CAPI using purego bindings.

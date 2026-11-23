@@ -17,10 +17,10 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
-	"github.com/bnema/purego-cef/internal/core"
-	"github.com/bnema/purego-cef/internal/loader"
-	portout "github.com/bnema/purego-cef/internal/ports/out"
+	"bnema.dev/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/core"
+	"bnema.dev/purego-cef/internal/loader"
+	portout "bnema.dev/purego-cef/internal/ports/out"
 )
 
 var (

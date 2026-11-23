@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // Button A View representing a button. Depending on the specific type, the button could be implemented by a native control or custom rendered. Methods must be called on the browser process UI thread unless otherwise indicated.

@@ -7,7 +7,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/bnema/purego"
+	"bnema.dev/purego"
 )
 
 const (

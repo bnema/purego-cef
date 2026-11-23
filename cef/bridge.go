@@ -11,9 +11,9 @@ import (
 	"sync/atomic"
 	"unsafe"
 
-	"github.com/bnema/purego"
-	"github.com/bnema/purego-cef/internal/capi"
-	"github.com/bnema/purego-cef/internal/core"
+	"bnema.dev/purego"
+	"bnema.dev/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/core"
 )
 
 // RawClientWriteSlot provides write-only access to the popup client out-param

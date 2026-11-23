@@ -6,7 +6,7 @@ import (
 	"unicode/utf16"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // CEFStringT is the raw CEF UTF-16 string layout shared with the generated

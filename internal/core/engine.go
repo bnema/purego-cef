@@ -4,7 +4,7 @@ package core
 import (
 	"sync/atomic"
 
-	portout "github.com/bnema/purego-cef/internal/ports/out"
+	portout "bnema.dev/purego-cef/internal/ports/out"
 )
 
 // Engine is the core domain. It holds no global state — all state

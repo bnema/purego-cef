@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 	"unsafe"
 
-	portout "github.com/bnema/purego-cef/internal/ports/out"
+	portout "bnema.dev/purego-cef/internal/ports/out"
 )
 
 // refState tracks the atomic reference count for a single Go-owned CEF object.

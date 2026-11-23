@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bnema/purego-cef/internal/cefapi"
+	"bnema.dev/purego-cef/internal/cefapi"
 )
 
 func TestRegisterName(t *testing.T) {

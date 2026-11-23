@@ -5,7 +5,7 @@ package cef
 import (
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // AcceleratedPaintInfoCommon Structure containing shared texture common metadata. For documentation on each field, please refer to src/media/base/video_frame_metadata.h for actual details.

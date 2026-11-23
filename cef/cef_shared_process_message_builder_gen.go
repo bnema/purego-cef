@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // SharedProcessMessageBuilder Structure that builds a cef_process_message_t containing a shared memory region. This structure is not thread-safe but may be used exclusively on a different thread from the one which constructed it.

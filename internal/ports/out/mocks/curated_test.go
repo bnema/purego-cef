@@ -7,8 +7,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/bnema/purego-cef/internal/ports/out"
-	outmocks "github.com/bnema/purego-cef/internal/ports/out/mocks"
+	"bnema.dev/purego-cef/internal/ports/out"
+	outmocks "bnema.dev/purego-cef/internal/ports/out/mocks"
 )
 
 var _ out.CAPI = (*outmocks.MockCAPI)(nil)

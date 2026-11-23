@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // TaskManager Structure that facilitates managing the browser-related tasks. The functions of this structure may only be called on the UI thread.

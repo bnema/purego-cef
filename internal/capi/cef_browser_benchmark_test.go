@@ -4,7 +4,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/bnema/purego"
+	"bnema.dev/purego"
 )
 
 func BenchmarkCallSendMouseMoveEvent(b *testing.B) {

@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // Task Implement this structure for asynchronous task execution. If the task is posted successfully and if the associated message loop is still running then the execute() function will be called on the target thread. If the task fails to post then the task object may be destroyed on the source thread instead of the target thread. For this reason be cautious when performing work in the task object destructor.

@@ -6,7 +6,7 @@ import (
 	"structs"
 	"unsafe"
 
-	"github.com/bnema/purego"
+	"bnema.dev/purego"
 )
 
 type CEFAudioHandlerT struct {

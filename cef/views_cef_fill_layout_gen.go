@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // FillLayout A simple Layout that causes the associated Panel's one child to be sized to match the bounds of its parent. Methods must be called on the browser process UI thread unless otherwise indicated.

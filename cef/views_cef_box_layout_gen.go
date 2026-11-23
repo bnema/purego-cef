@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // BoxLayout A Layout manager that arranges child views vertically or horizontally in a side-by-side fashion with spacing around and between the child views. The child views are always sized according to their preferred size. If the host's bounds provide insufficient space, child views will be clamped. Excess space will not be distributed. Methods must be called on the browser process UI thread unless otherwise indicated.

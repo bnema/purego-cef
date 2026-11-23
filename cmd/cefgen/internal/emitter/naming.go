@@ -1,6 +1,6 @@
 package emitter
 
-import "github.com/bnema/purego-cef/cmd/cefgen/internal/model"
+import "bnema.dev/purego-cef/cmd/cefgen/internal/model"
 
 // typeRenames maps generated public type names to non-colliding exported names.
 // Use this when the natural public name would conflict with a handwritten API

@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // ResolveURL Combines specified |base_url| and |relative_url| into |resolved_url|. Returns false (0) if one of the URLs is NULL or invalid.

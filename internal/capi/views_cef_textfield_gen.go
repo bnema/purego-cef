@@ -6,7 +6,7 @@ import (
 	"structs"
 	"unsafe"
 
-	"github.com/bnema/purego"
+	"bnema.dev/purego"
 )
 
 type CEFTextfieldT struct {

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/model"
 )
 
 // rawConstructorTypes lists handler types whose generated constructor should

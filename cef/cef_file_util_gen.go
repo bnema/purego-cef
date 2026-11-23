@@ -5,7 +5,7 @@ package cef
 import (
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // CreateDirectory Creates a directory and all parent directories if they don't already exist. Returns true (1) on successful creation or if the directory already exists. The directory is only readable by the current user. Calling this function on the browser process UI or IO threads is not allowed.

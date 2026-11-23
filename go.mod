@@ -1,8 +1,6 @@
-module github.com/bnema/purego-cef
+module bnema.dev/purego-cef
 
 go 1.26.0
-
-require github.com/bnema/purego v0.13.0-bnema.2
 
 require (
 	github.com/brunoga/deep v1.3.1 // indirect
@@ -43,6 +41,7 @@ require (
 )
 
 require (
+	bnema.dev/purego v0.13.0-bnema.4
 	github.com/stretchr/objx v0.8.0 // indirect
 	github.com/stretchr/testify v1.12.1
 	gopkg.in/yaml.v3 v3.0.1 // indirect

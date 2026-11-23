@@ -3,7 +3,7 @@ package emitter
 import (
 	"strings"
 
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/model"
 )
 
 // TypeRegistry maps C type names to their parsed metadata and provides

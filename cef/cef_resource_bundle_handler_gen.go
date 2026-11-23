@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // ResourceBundleHandler Structure used to implement a custom resource bundle structure. See CefSettings for additional options related to resource bundle loading. The functions of this structure may be called on multiple threads.

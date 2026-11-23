@@ -1,6 +1,6 @@
 package cef
 
-import "github.com/bnema/purego-cef/internal/capi"
+import "bnema.dev/purego-cef/internal/capi"
 
 // WindowHandle mirrors cef_window_handle_t for callers that need to populate
 // window-related fields in CEF structs without reaching into internal/capi.

@@ -3,7 +3,7 @@ package emitter
 import (
 	"testing"
 
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/model"
 )
 
 func testRegistry() *TypeRegistry {

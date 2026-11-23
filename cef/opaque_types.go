@@ -1,6 +1,6 @@
 package cef
 
-import portin "github.com/bnema/purego-cef/internal/ports/in"
+import portin "bnema.dev/purego-cef/internal/ports/in"
 
 // StringList is an opaque CEF string-list handle (cef_string_list_t).
 type StringList = portin.StringList

@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/parser"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/model"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/parser"
 )
 
 func TestEmitRaw(t *testing.T) {

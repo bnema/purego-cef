@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bnema/purego-cef/cef"
+	"bnema.dev/purego-cef/cef"
 )
 
 const (

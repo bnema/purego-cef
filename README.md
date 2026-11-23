@@ -68,7 +68,7 @@ package main
 import (
 	"runtime"
 
-	"github.com/bnema/purego-cef/cef"
+	"bnema.dev/purego-cef/cef"
 )
 
 func main() {

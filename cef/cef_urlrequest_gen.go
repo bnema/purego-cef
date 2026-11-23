@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // Urlrequest Structure used to make a URL request. URL requests are not associated with a browser instance so no cef_client_t callbacks will be executed. URL requests can be created on any valid CEF thread in either the browser or render process. Once created the functions of the URL request object must be accessed on the same thread that created it.

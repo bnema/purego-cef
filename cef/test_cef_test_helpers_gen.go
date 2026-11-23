@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // ExecuteJavaScriptWithUserGestureForTests Execute JavaScript with a user gesture to trigger functionality like onbeforeunload handlers that will otherwise be blocked.

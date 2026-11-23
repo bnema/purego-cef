@@ -9,10 +9,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/emitter"
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/parser"
-	"github.com/bnema/purego-cef/internal/cefapi"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/emitter"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/model"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/parser"
+	"bnema.dev/purego-cef/internal/cefapi"
 )
 
 type config struct {

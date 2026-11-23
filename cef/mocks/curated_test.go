@@ -7,8 +7,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/bnema/purego-cef/cef"
-	cefmocks "github.com/bnema/purego-cef/cef/mocks"
+	"bnema.dev/purego-cef/cef"
+	cefmocks "bnema.dev/purego-cef/cef/mocks"
 )
 
 var (

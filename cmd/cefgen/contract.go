@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/bnema/purego-cef/internal/cefapi"
+	"bnema.dev/purego-cef/internal/cefapi"
 )
 
 var (

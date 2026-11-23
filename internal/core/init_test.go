@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/bnema/purego-cef/internal/ports/out/mocks"
+	"bnema.dev/purego-cef/internal/ports/out/mocks"
 )
 
 // readCEFString extracts a Go string from a CEFStringT for test assertions.

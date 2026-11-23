@@ -2,7 +2,7 @@ all: false
 template: testify
 include-auto-generated: true
 packages:
-  github.com/bnema/purego-cef/cef:
+  bnema.dev/purego-cef/cef:
     config:
       dir: "cef/mocks"
       filename: "mock_{{.InterfaceName | snakecase}}.go"
@@ -10,7 +10,7 @@ packages:
     interfaces:
       Client: {}
       LifeSpanHandler: {}
-  github.com/bnema/purego-cef/internal/ports/in:
+  bnema.dev/purego-cef/internal/ports/in:
     config:
       dir: "cef/mocks"
       filename: "mock_{{.InterfaceName | snakecase}}.go"
@@ -35,7 +35,7 @@ packages:
       RequestContext: {}
       RequestHandler: {}
       Response: {}
-  github.com/bnema/purego-cef/internal/ports/out:
+  bnema.dev/purego-cef/internal/ports/out:
     config:
       dir: "internal/ports/out/mocks"
       filename: "mock_{{.InterfaceName | snakecase}}.go"

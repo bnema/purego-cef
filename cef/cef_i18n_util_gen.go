@@ -3,7 +3,7 @@
 package cef
 
 import (
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // IsRtl Returns true (1) if the application text direction is right-to-left.

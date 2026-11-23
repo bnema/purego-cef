@@ -5,7 +5,7 @@ package cef
 import (
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // GetPath Retrieve the path associated with the specified |key|. Returns true (1) on success. Can be called on any thread in the browser process.

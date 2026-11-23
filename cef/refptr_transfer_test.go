@@ -9,8 +9,8 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/bnema/purego"
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 func TestOutboundRefPtrTransferStaysAliveThroughBlockingDispatch(t *testing.T) {

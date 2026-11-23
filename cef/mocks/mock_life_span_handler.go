@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"github.com/bnema/purego-cef/cef"
+	"bnema.dev/purego-cef/cef"
 	mock "github.com/stretchr/testify/mock"
 )
 

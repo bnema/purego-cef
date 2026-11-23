@@ -3,7 +3,7 @@
 package cef
 
 import (
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // Point Structure representing a point.

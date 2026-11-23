@@ -9,8 +9,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
-	"github.com/bnema/purego-cef/internal/cefapi"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/model"
+	"bnema.dev/purego-cef/internal/cefapi"
 )
 
 var (

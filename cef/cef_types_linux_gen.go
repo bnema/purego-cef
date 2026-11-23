@@ -5,7 +5,7 @@ package cef
 import (
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // RawMainArgs Structure representing CefExecuteProcess arguments.

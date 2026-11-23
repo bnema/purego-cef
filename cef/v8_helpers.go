@@ -1,7 +1,7 @@
 package cef
 
 import (
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // V8ValueCreateDate creates a new V8Value of type Date. |date| is the number of

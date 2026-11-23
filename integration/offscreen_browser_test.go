@@ -10,7 +10,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/cef"
+	"bnema.dev/purego-cef/cef"
 )
 
 // TestMain lets CEF helper processes run before testing.M parses their

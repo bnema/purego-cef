@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // TestServer Structure representing an embedded test server that supports HTTP/HTTPS requests. This is a basic server providing only an essential subset of the HTTP/1.1 protocol. Especially, it assumes that the request syntax is correct. It *does not* support a Chunked Transfer Encoding. Server capacity is limited and is intended to handle only a small number of simultaneous connections (e.g. for communicating between applications on localhost). The functions of this structure are safe to call from any thread in the brower process unless otherwise indicated.

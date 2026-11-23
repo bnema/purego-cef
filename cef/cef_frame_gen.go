@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // Frame Structure used to represent a frame in the browser window. When used in the browser process the functions of this structure may be called on any thread unless otherwise indicated in the comments. When used in the render process the functions of this structure may only be called on the main thread.

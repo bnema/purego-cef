@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"unsafe"
 
-	"github.com/bnema/purego"
-	"github.com/bnema/purego-cef/internal/cefapi"
+	"bnema.dev/purego"
+	"bnema.dev/purego-cef/internal/cefapi"
 )
 
 const defaultCEFVersion = cefapi.MinimumMajor

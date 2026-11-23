@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/bnema/purego-cef/internal/ports/out/mocks"
+	"bnema.dev/purego-cef/internal/ports/out/mocks"
 )
 
 type testRefCounted struct {

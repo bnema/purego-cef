@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // ScrollView A ScrollView will show horizontal and/or vertical scrollbars when necessary based on the size of the attached content view. Methods must be called on the browser process UI thread unless otherwise indicated.

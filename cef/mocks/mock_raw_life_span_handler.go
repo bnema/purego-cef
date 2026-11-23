@@ -7,7 +7,7 @@ package mocks
 import (
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/ports/in"
+	"bnema.dev/purego-cef/internal/ports/in"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -3,7 +3,7 @@
 package in
 
 import (
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // Point is a type alias for the raw data struct.

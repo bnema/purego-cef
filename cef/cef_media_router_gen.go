@@ -7,9 +7,9 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 
-	portin "github.com/bnema/purego-cef/internal/ports/in"
+	portin "bnema.dev/purego-cef/internal/ports/in"
 )
 
 // MediaRouter Supports discovery of and communication with media devices on the local network via the Cast and DIAL protocols. The functions of this structure may be called on any browser process thread unless otherwise indicated.

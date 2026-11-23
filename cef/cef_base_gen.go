@@ -3,7 +3,7 @@
 package cef
 
 import (
-	"github.com/bnema/purego-cef/internal/capi"
+	"bnema.dev/purego-cef/internal/capi"
 )
 
 // BaseRefCounted All ref-counted framework structures must include this structure first.

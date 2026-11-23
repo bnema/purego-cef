@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/bnema/purego-cef/cmd/cefgen/internal/model"
+	"bnema.dev/purego-cef/cmd/cefgen/internal/model"
 )
 
 //go:embed templates/*.tmpl
